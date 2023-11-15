@@ -1,2 +1,14 @@
 {
+  "dashboard": {
+    "name": "Dashboard"
+  },
+  "my_repositories": {
+    "name": "My repositories"
+  },
+  "bookmarks": {
+    "name": "Bookmarks"
+  },
+  "auth": {
+    "sign_in": "Sign in"
+  }
 }

@@ -1,2 +1,14 @@
 {
+  "dashboard": {
+    "name": "Tablero"
+  },
+  "my_repositories": {
+    "name": "Mis repositorios"
+  },
+  "bookmarks": {
+    "name": "Marcadores"
+  },
+  "auth": {
+    "sign_in": "Ingresar"
+  }
 }

@@ -5,21 +5,20 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { HashRouter } from 'react-router-dom';
 import { ThemeProvider, StyledEngineProvider, createTheme, alpha } from '@mui/material/styles';
-import { grey } from "@mui/material/colors";
 import StylesProvider from '@mui/styles/StylesProvider';
 import App from './components/app/App';
 import LayoutContext from './components/app/LayoutContext';
 import './index.scss';
-import { BLUE, WHITE, BLACK } from './common/constants';
+import { PRIMARY, WHITE, BLACK, BG_GRAY, TEXT_GRAY } from './common/constants';
 import './i18n/config';
 
 const theme = createTheme();
 const v5Theme = createTheme(theme, {
   palette: {
     primary: {
-      main: BLUE,
-      dark: BLUE,
-      light: BLUE,
+      main: PRIMARY,
+      dark: PRIMARY,
+      light: PRIMARY,
       contrastText: WHITE,
     },
     secondary: {
@@ -29,8 +28,8 @@ const v5Theme = createTheme(theme, {
       contrastText: WHITE,
     },
     "default": {
-      main: grey[600],
-      dark: grey[600]
+      main: BG_GRAY,
+      dark: BG_GRAY
     }
   },
   components: {
@@ -42,16 +41,23 @@ const v5Theme = createTheme(theme, {
         TransitionProps: { timeout: 300 }
       }
     },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          background: '#FFF',
+        },
+      },
+    },
     MuiButton: {
       variants: [
         {
-          props: { variant: "contained", color: "grey" },
+          props: { variant: "contained", color: BG_GRAY },
           style: {
-            color: theme.palette.getContrastText(theme.palette.grey[300])
+            color: theme.palette.getContrastText(BG_GRAY)
           }
         },
         {
-          props: { variant: "outlined", color: "grey" },
+          props: { variant: "outlined", color: BG_GRAY },
           style: {
             color: theme.palette.text.primary,
             borderColor:
@@ -74,7 +80,7 @@ const v5Theme = createTheme(theme, {
           }
         },
         {
-          props: { color: "grey", variant: "text" },
+          props: { color: TEXT_GRAY, variant: "text" },
           style: {
             color: theme.palette.text.primary,
             "&:hover": {

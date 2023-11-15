@@ -7,10 +7,11 @@ import {
 import NotFound from '../common/NotFound';
 import ErrorBoundary from '../common/ErrorBoundary';
 import Footer from './Footer';
-import RootView from './RootView';
 import DocumentTitle from "./DocumentTitle"
 import './App.scss';
 import { hotjar } from 'react-hotjar';
+import Header from './Header';
+import Dashboard from '../dashboard/Dashboard';
 
 
 const App = props => {
@@ -41,15 +42,17 @@ const App = props => {
   return (
     <div>
       <DocumentTitle/>
+      <Header>
         <ErrorBoundary>
           <main className='content'>
             <Switch>
-              <Route exact path="/" component={RootView} />
+              <Route exact path="/" component={Dashboard} />
               <Route component={NotFound} />
             </Switch>
           </main>
         </ErrorBoundary>
-        <Footer {...props} />
+    <Footer {...props} />
+    </Header>
     </div>
 );
 }

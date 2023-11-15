@@ -2,9 +2,10 @@ import React from 'react';
 import { useTranslation } from "react-i18next";
 import { ListItemButton, Button } from '@mui/material'
 import LanguageIcon from '@mui/icons-material/Language';
+import DownIcon from '@mui/icons-material/ArrowDropDown';
 import PopperGrow from '../common/PopperGrow';
 
-const Languages = () => {
+const Languages = props => {
   const { i18n } = useTranslation();
   const [locale, setLocale] = React.useState(i18n.language || 'en')
   const [open, setOpen] = React.useState(false)
@@ -25,7 +26,7 @@ const Languages = () => {
 
   return (
     <React.Fragment>
-      <Button startIcon={<LanguageIcon fontSize='inherit'/>} onClick={toggleMenu} ref={anchorRef}>
+      <Button startIcon={<LanguageIcon fontSize='inherit'/>} endIcon={<DownIcon fontSize='inherit' />} onClick={toggleMenu} ref={anchorRef} color='secondary' {...props}>
         {locale.toUpperCase()}
       </Button>
       <PopperGrow open={open} anchorRef={anchorRef} handleClose={handleClose} minWidth="100px">

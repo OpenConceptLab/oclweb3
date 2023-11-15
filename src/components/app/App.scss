@@ -1,0 +1,13 @@
+div.rounded-input {
+    border-radius: 100px;
+    > div {
+        border-radius: 100px;
+    }
+}
+.flex-vertical-center {
+    display: flex;
+    align-items: center;
+}
+.padding-0 {
+    padding: 0 !important;
+}
