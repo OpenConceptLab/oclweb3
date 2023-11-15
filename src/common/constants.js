@@ -1,5 +1,13 @@
 export const WHITE = '#FFF';
 export const BLACK = '#000';
+
+// v3
+export const PRIMARY = '#4836ff'
+export const TEXT_GRAY = '#47464f'
+export const BG_GRAY = '#f6f2f7'
+
+
+// v2
 export const BLUE = 'rgb(51, 115, 170)';
 export const DARKGRAY = 'rgb(119, 119, 119)';
 export const HEADER_GRAY = '#f6f8fa';

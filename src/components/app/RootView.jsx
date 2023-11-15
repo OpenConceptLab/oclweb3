@@ -4,7 +4,6 @@ class RootView extends React.Component {
   render() {
     return (
       <React.Fragment>
-        Welcome to OCLv3 Term Browser!
       </React.Fragment>
     )
   }
