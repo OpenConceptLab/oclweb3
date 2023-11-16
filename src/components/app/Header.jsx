@@ -27,17 +27,25 @@ import './Header.scss';
 
 const drawerWidth = 258
 
-const openedMixin = () => ({
+const openedMixin = theme => ({
   width: drawerWidth,
   overflowX: 'hidden',
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
 });
 
-const closedMixin = (theme) => ({
+const closedMixin = theme => ({
   overflowX: 'hidden',
   width: `calc(${theme.spacing(7)} + 1px)`,
   [theme.breakpoints.up('sm')]: {
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
 });
 
 const DrawerHeader = styled('div')(({ theme }) => ({
@@ -106,9 +114,11 @@ const Header = props => {
               </IconButton>
               <OCLLogo />
             </div>
-            <div className='col-xs-8 padding-0' style={{textAlign: 'center'}}>
-              <SearchInput size='small' style={{width: '420px'}} />
+            <div className='col-xs-3' />
+            <div className='col-xs-4 padding-0' style={{textAlign: 'center'}}>
+              <SearchInput size='small' style={{width: '100%'}} />
             </div>
+            <div className='col-xs-1' />
             <div className='col-xs-3 padding-0' style={{textAlign: 'right'}}>
               <Languages />
               <Chip label={t('auth.sign_in')} color='primary' style={{height: '40px', borderRadius: '100px', marginLeft: '8px'}} onClick={() => {}} />
