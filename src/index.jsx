@@ -9,7 +9,7 @@ import StylesProvider from '@mui/styles/StylesProvider';
 import App from './components/app/App';
 import LayoutContext from './components/app/LayoutContext';
 import './index.scss';
-import { PRIMARY, WHITE, BLACK, BG_GRAY, TEXT_GRAY } from './common/constants';
+import { PRIMARY, SECONDARY, WHITE, BLACK, BG_GRAY, TEXT_GRAY } from './common/constants';
 import './i18n/config';
 
 const theme = createTheme();
@@ -22,10 +22,10 @@ const v5Theme = createTheme(theme, {
       contrastText: WHITE,
     },
     secondary: {
-      main: BLACK,
-      dark: BLACK,
-      light: BLACK,
-      contrastText: WHITE,
+      main: SECONDARY,
+      dark: SECONDARY,
+      light: SECONDARY,
+      contrastText: SECONDARY,
     },
     "default": {
       main: BG_GRAY,
