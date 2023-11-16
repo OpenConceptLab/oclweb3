@@ -26,7 +26,7 @@ const Languages = props => {
 
   return (
     <React.Fragment>
-      <Button startIcon={<LanguageIcon fontSize='inherit'/>} endIcon={<DownIcon fontSize='inherit' />} onClick={toggleMenu} ref={anchorRef} color='secondary' {...props}>
+      <Button startIcon={<LanguageIcon fontSize='inherit'/>} endIcon={<DownIcon fontSize='inherit' />} onClick={toggleMenu} ref={anchorRef} color='inherit' {...props}>
         {locale.toUpperCase()}
       </Button>
       <PopperGrow open={open} anchorRef={anchorRef} handleClose={handleClose} minWidth="100px">
