@@ -2,7 +2,6 @@ html {
     font-size: 16px;
     position: relative;
     min-height: 100%;
-    font-family: Roboto;
 }
 
 html, body {
@@ -11,5 +10,7 @@ html, body {
 }
 
 body {
+    font-family: 'Roboto', sans-serif !important;
     background-color: #f6f2f7 !important;
+    color: #47464f;
 }

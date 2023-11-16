@@ -3,6 +3,8 @@ export const BLACK = '#000';
 
 // v3
 export const PRIMARY = '#4836ff'
+export const SECONDARY = '#5e5c71'
+export const TERTIARY = '#7a5368'
 export const TEXT_GRAY = '#47464f'
 export const BG_GRAY = '#f6f2f7'
 
