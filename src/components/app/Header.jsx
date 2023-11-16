@@ -175,7 +175,7 @@ const Header = props => {
             </ListItemButton>
           </ListItem>
         </List>
-        <Divider />
+        <Divider style={{margin: '0 8px'}} />
         <List>
           <ListItem disablePadding sx={{ display: 'block' }}>
             <ListItemButton
