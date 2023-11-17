@@ -7,6 +7,7 @@ export const SECONDARY = '#5e5c71'
 export const TERTIARY = '#7a5368'
 export const TEXT_GRAY = '#47464f'
 export const BG_GRAY = '#f6f2f7'
+export const PRIMARY_LIGHT = '#c3c0ff'
 
 
 // v2

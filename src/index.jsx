@@ -9,7 +9,7 @@ import StylesProvider from '@mui/styles/StylesProvider';
 import App from './components/app/App';
 import LayoutContext from './components/app/LayoutContext';
 import './index.scss';
-import { PRIMARY, SECONDARY, WHITE, BLACK, BG_GRAY, TEXT_GRAY } from './common/constants';
+import { PRIMARY, PRIMARY_LIGHT, SECONDARY, WHITE, BLACK, BG_GRAY, TEXT_GRAY } from './common/constants';
 import './i18n/config';
 
 const theme = createTheme();
@@ -18,14 +18,14 @@ const v5Theme = createTheme(theme, {
     primary: {
       main: PRIMARY,
       dark: PRIMARY,
-      light: PRIMARY,
+      light: PRIMARY_LIGHT,
       contrastText: WHITE,
     },
     secondary: {
       main: SECONDARY,
       dark: SECONDARY,
       light: SECONDARY,
-      contrastText: SECONDARY,
+      contrastText: WHITE,
     },
     "default": {
       main: BG_GRAY,
@@ -44,7 +44,7 @@ const v5Theme = createTheme(theme, {
     MuiTextField: {
       styleOverrides: {
         root: {
-          background: '#FFF',
+          background: WHITE,
         },
       },
     },
