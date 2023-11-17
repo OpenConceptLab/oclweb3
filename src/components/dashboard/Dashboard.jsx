@@ -37,9 +37,7 @@ const Dashboard = () => {
   return (
     <div className='col-xs-12 padding-0'>
       <div className='col-xs-12 padding-0 flex-vertical-center' style={{fontSize: '22px'}}>
-        <React.Fragment>
-          {t('dashboard.welcome_line')} <LinkTo label={t('auth.sign_in')} /> or <LinkTo label={t('auth.register')} />
-          </React.Fragment>
+        {t('dashboard.welcome_line')} <LinkTo label={t('auth.sign_in')} /> {t('common.or')} <LinkTo label={t('auth.register')} />
       </div>
       <div className='col-xs-12 padding-0 flex-vertical-center' style={{margin: '10px 0', width: '100%', height: '222px', borderRadius: '10px'}}>
         <Carousel

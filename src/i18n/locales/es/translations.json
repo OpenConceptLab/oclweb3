@@ -1,6 +1,11 @@
 {
+  "common": {
+    "or": "o"
+  },
   "dashboard": {
-    "name": "Tablero"
+    "name": "Tablero",
+    "welcome_line": "Bienvenido a OCL.",
+    "take_a_tour": "Hacer un recorrido"
   },
   "my_repositories": {
     "name": "Mis repositorios"
@@ -9,6 +14,7 @@
     "name": "Marcadores"
   },
   "auth": {
-    "sign_in": "Ingresar"
+    "sign_in": "Iniciar sesión",
+    "register": "Registrarse"
   }
 }
