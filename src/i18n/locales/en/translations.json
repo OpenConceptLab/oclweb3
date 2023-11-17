@@ -1,4 +1,7 @@
 {
+  "common": {
+    "or": "or"
+  },
   "dashboard": {
     "name": "Dashboard",
     "welcome_line": "Welcome to OCL.",
