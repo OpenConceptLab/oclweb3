@@ -199,7 +199,7 @@ const Header = props => {
           </ListItem>
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1 }}>
+      <Box component="main" sx={{ flexGrow: 1, paddingTop: 1.25, paddingBottom: 1.25, paddingLeft: 2.5, paddingRight: 2.5 }}>
         <DrawerHeader />
         {
           props.children

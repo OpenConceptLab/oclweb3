@@ -1,7 +1,8 @@
 {
   "dashboard": {
     "name": "Dashboard",
-    "welcome_line": "Welcome to OCL."
+    "welcome_line": "Welcome to OCL.",
+    "take_a_tour": "Take a tour"
   },
   "my_repositories": {
     "name": "My repositories"
