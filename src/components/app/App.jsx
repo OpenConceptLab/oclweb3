@@ -57,9 +57,9 @@ const App = props => {
           </main>
         </ErrorBoundary>
         <Footer {...props} />
-    </Header>
+      </Header>
     </div>
-);
+  );
 }
 
 export default withRouter(App);
