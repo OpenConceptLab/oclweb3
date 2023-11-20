@@ -5,10 +5,10 @@ import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -18,16 +18,12 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
 import BookmarkIcon from '@mui/icons-material/BookmarkBorder';
-import PersonIcon from '@mui/icons-material/Face2';
 import Chip from '@mui/material/Chip';
 import { BG_GRAY, TEXT_GRAY } from '../../common/constants';
-import { getLoginURL, isLoggedIn } from '../../common/utils';
 import OCLLogo from '../common/OCLLogo';
 import SearchInput from '../search/SearchInput';
-import Languages from './Languages';
 import './Header.scss';
-
-const LOGIN_URL = getLoginURL()
+import HeaderControls from './HeaderControls';
 
 const drawerWidth = 258
 
@@ -93,11 +89,8 @@ const Header = props => {
   /*eslint no-unused-vars: 0*/
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-
   const handleDrawerOpen = () => setOpen(!open);
-
   const handleDrawerClose = () => setOpen(false);
-  const authenticated = isLoggedIn()
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -124,17 +117,7 @@ const Header = props => {
               <SearchInput size='small' style={{width: '100%'}} />
             </div>
             <div className='col-xs-1' />
-            <div className='col-xs-3 padding-0' style={{textAlign: 'right'}}>
-              <Languages />
-
-              {
-                authenticated ?
-                  <IconButton color='primary'>
-                    <PersonIcon fontSize='inherit'/>
-                  </IconButton>:
-                <Chip label={t('auth.sign_in')} color='primary' style={{height: '40px', borderRadius: '100px', marginLeft: '8px'}} href={getLoginURL()} component='a' />
-              }
-            </div>
+            <HeaderControls />
           </div>
         </Toolbar>
       </AppBar>
