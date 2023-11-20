@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import Fade from '@mui/material/Fade';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
@@ -9,7 +9,7 @@ import StylesProvider from '@mui/styles/StylesProvider';
 import App from './components/app/App';
 import LayoutContext from './components/app/LayoutContext';
 import './index.scss';
-import { PRIMARY, PRIMARY_LIGHT, SECONDARY, WHITE, BLACK, BG_GRAY, TEXT_GRAY } from './common/constants';
+import { PRIMARY, PRIMARY_LIGHT, SECONDARY, WHITE, BG_GRAY, TEXT_GRAY } from './common/constants';
 import './i18n/config';
 
 const theme = createTheme();
@@ -30,6 +30,18 @@ const v5Theme = createTheme(theme, {
     "default": {
       main: BG_GRAY,
       dark: BG_GRAY
+    },
+    success: {
+      main: PRIMARY,
+      dark: PRIMARY,
+      light: PRIMARY_LIGHT,
+      contrastText: WHITE,
+    },
+    info: {
+      main: SECONDARY,
+      dark: SECONDARY,
+      light: SECONDARY,
+      contrastText: WHITE,
     }
   },
   components: {
@@ -96,7 +108,10 @@ const v5Theme = createTheme(theme, {
   }
 })
 
-ReactDOM.render(
+
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(
   <HashRouter>
     <StylesProvider injectFirst>
       <StyledEngineProvider injectFirst>
@@ -107,6 +122,5 @@ ReactDOM.render(
         </ThemeProvider>
       </StyledEngineProvider>
     </StylesProvider>
-  </HashRouter>,
-  document.getElementById('root')
+  </HashRouter>
 );

@@ -18,12 +18,16 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
 import BookmarkIcon from '@mui/icons-material/BookmarkBorder';
+import PersonIcon from '@mui/icons-material/Face2';
 import Chip from '@mui/material/Chip';
 import { BG_GRAY, TEXT_GRAY } from '../../common/constants';
+import { getLoginURL, isLoggedIn } from '../../common/utils';
 import OCLLogo from '../common/OCLLogo';
 import SearchInput from '../search/SearchInput';
 import Languages from './Languages';
 import './Header.scss';
+
+const LOGIN_URL = getLoginURL()
 
 const drawerWidth = 258
 
@@ -93,6 +97,7 @@ const Header = props => {
   const handleDrawerOpen = () => setOpen(!open);
 
   const handleDrawerClose = () => setOpen(false);
+  const authenticated = isLoggedIn()
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -121,7 +126,14 @@ const Header = props => {
             <div className='col-xs-1' />
             <div className='col-xs-3 padding-0' style={{textAlign: 'right'}}>
               <Languages />
-              <Chip label={t('auth.sign_in')} color='primary' style={{height: '40px', borderRadius: '100px', marginLeft: '8px'}} onClick={() => {}} />
+
+              {
+                authenticated ?
+                  <IconButton color='primary'>
+                    <PersonIcon fontSize='inherit'/>
+                  </IconButton>:
+                <Chip label={t('auth.sign_in')} color='primary' style={{height: '40px', borderRadius: '100px', marginLeft: '8px'}} href={getLoginURL()} component='a' />
+              }
             </div>
           </div>
         </Toolbar>
