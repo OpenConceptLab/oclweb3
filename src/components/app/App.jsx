@@ -12,9 +12,12 @@ import './App.scss';
 import { hotjar } from 'react-hotjar';
 import Header from './Header';
 import Dashboard from '../dashboard/Dashboard';
-
+import OIDLoginCallback from '../users/OIDLoginCallback';
+import { OperationsContext } from './LayoutContext';
+import Alert from '../common/Alert';
 
 const App = props => {
+  const { alert, setAlert } = React.useContext(OperationsContext);
   const setupHotJar = () => {
     /*eslint no-undef: 0*/
     const HID = window.HOTJAR_ID || process.env.HOTJAR_ID
@@ -46,12 +49,14 @@ const App = props => {
         <ErrorBoundary>
           <main className='content'>
             <Switch>
+              <Route exact path="/oidc/login" component={OIDLoginCallback} />
               <Route exact path="/" component={Dashboard} />
               <Route component={NotFound} />
             </Switch>
+            <Alert message={alert?.message} onClose={() => setAlert(false)} severity={alert?.severity} duration={alert?.duration} />
           </main>
         </ErrorBoundary>
-    <Footer {...props} />
+        <Footer {...props} />
     </Header>
     </div>
 );

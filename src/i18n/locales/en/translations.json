@@ -5,7 +5,8 @@
   "dashboard": {
     "name": "Dashboard",
     "welcome_line": "Welcome to OCL.",
-    "take_a_tour": "Take a tour"
+    "take_a_tour": "Take a tour",
+    "hello": "Hello"
   },
   "my_repositories": {
     "name": "My repositories"
@@ -15,6 +16,9 @@
   },
   "auth": {
     "sign_in": "Sign in",
-    "register": "Register"
+    "register": "Register",
+    "signing_in": "Signing in...",
+    "sign_in_success": "Successfully signed in.",
+    "sign_in_error": "Unable to signin at the time."
   }
 }

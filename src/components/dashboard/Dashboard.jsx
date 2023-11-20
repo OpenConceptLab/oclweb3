@@ -1,9 +1,10 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { PRIMARY, WHITE, PRIMARY_LIGHT } from '../../common/constants'
 import Carousel from 'react-material-ui-carousel'
-import { Paper, Chip } from '@mui/material'
+import { Chip } from '@mui/material'
+import { PRIMARY, WHITE, PRIMARY_LIGHT } from '../../common/constants'
+import { getCurrentUser, isLoggedIn } from '../../common/utils';
 
 const LinkTo = ({ label }) => <Link to='/' style={{color: PRIMARY, fontSize: '22px', margin: '0 5px'}} className='no-anchor-styles'>{label}</Link>
 
@@ -34,12 +35,23 @@ const Dashboard = () => {
       description: "open concept lab"
     },
   ]
+  const authenticated = isLoggedIn()
+  const user = getCurrentUser()
+  const username = user?.name || user?.username
   return (
     <div className='col-xs-12 padding-0'>
       <div className='col-xs-12 padding-0 flex-vertical-center' style={{fontSize: '22px'}}>
-        {t('dashboard.welcome_line')} <LinkTo label={t('auth.sign_in')} /> {t('common.or')} <LinkTo label={t('auth.register')} />
+        {
+          authenticated ?
+            <span>
+              {t('dashboard.hello')} {username}!
+            </span>:
+          <span>
+            {t('dashboard.welcome_line')} <LinkTo label={t('auth.sign_in')} /> {t('common.or')} <LinkTo label={t('auth.register')} />
+          </span>
+        }
       </div>
-      <div className='col-xs-12 padding-0 flex-vertical-center' style={{margin: '10px 0', width: '100%', height: '222px', borderRadius: '10px'}}>
+      <div className='col-xs-12 padding-0 flex-vertical-center' style={{margin: '22px 0', width: '100%', height: '222px', borderRadius: '10px'}}>
         <Carousel
           height='222'
           indicatorContainerProps={{style: {marginTop: '-5px'}}}
