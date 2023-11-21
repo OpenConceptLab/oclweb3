@@ -8,7 +8,6 @@
          manifest.json provides metadata used when your web app is added to the
          homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
     -->
-    <link rel="shortcut icon" href="./favicon.svg">
     <!--
          Notice the use of %PUBLIC_URL% in the tags above.
          It will be replaced with the URL of the `public` folder during the build.
@@ -41,6 +40,20 @@
      }
      if((window.location.search || '').includes('origin=openmrs')) {
        window.location = '/#/search/?origin=openmrs&type=organizations'
+     }
+
+     const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
+
+     if (prefersDarkMode.matches) {
+       const darkFavicon = document.createElement('link');
+       darkFavicon.rel = 'icon';
+       darkFavicon.href = './dark-favicon.svg';
+       document.head.appendChild(darkFavicon);
+     } else {
+       const lightFavicon = document.createElement('link');
+       lightFavicon.rel = 'icon';
+       lightFavicon.href = './light-favicon.svg';
+       document.head.appendChild(lightFavicon);
      }
     </script>
     <title></title>
