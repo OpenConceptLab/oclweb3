@@ -5,6 +5,7 @@ import Carousel from 'react-material-ui-carousel'
 import { Chip } from '@mui/material'
 import { PRIMARY, WHITE, PRIMARY_LIGHT } from '../../common/constants'
 import { getCurrentUser, isLoggedIn } from '../../common/utils';
+import AddButton from '../common/AddButton';
 
 const LinkTo = ({ label }) => <Link to='/' style={{color: PRIMARY, fontSize: '22px', margin: '0 5px'}} className='no-anchor-styles'>{label}</Link>
 
@@ -43,8 +44,11 @@ const Dashboard = () => {
       <div className='col-xs-12 padding-0 flex-vertical-center' style={{fontSize: '22px'}}>
         {
           authenticated ?
-            <span>
-              {t('dashboard.hello')} {username}!
+            <span style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
+              <span>{t('dashboard.hello')} {username}!</span>
+              <span>
+                <AddButton label={t('dashboard.create_repository')} color='primary' onClick={() => {}} />
+              </span>
             </span>:
           <span>
             {t('dashboard.welcome_line')} <LinkTo label={t('auth.sign_in')} /> {t('common.or')} <LinkTo label={t('auth.register')} />

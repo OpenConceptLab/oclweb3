@@ -6,7 +6,8 @@
     "name": "Dashboard",
     "welcome_line": "Welcome to OCL.",
     "take_a_tour": "Take a tour",
-    "hello": "Hello"
+    "hello": "Hello",
+    "create_repository": "Create Repository"
   },
   "my_repositories": {
     "name": "My repositories"
