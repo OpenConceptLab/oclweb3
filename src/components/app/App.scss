@@ -17,6 +17,7 @@ div.rounded-input {
 .no-anchor-styles:hover, .no-anchor-styles:focus {
     color: inherit;
     text-decoration: none;
+    outline: none;
 }
 .default-button-styles, .default-button-styles:hover, .default-button-styles:focus {
     text-decoration: none;

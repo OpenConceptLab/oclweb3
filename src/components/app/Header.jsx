@@ -130,6 +130,8 @@ const Header = props => {
         <List>
           <ListItem disablePadding sx={{ display: 'block' }}>
             <ListItemButton
+              href="/#/"
+              className='no-anchor-styles'
               selected={open}
               sx={{
                 minHeight: 56,
