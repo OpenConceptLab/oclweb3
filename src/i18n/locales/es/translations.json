@@ -3,9 +3,11 @@
     "or": "o"
   },
   "dashboard": {
-    "name": "Tablero",
+    "name": "Tablero de control",
     "welcome_line": "Bienvenido a OCL.",
-    "take_a_tour": "Hacer un recorrido"
+    "take_a_tour": "Realizar un recorrido",
+    "hello": "Hola",
+    "create_repository": "Crear repositorio"
   },
   "my_repositories": {
     "name": "Mis repositorios"
@@ -15,6 +17,9 @@
   },
   "auth": {
     "sign_in": "Iniciar sesión",
-    "register": "Registrarse"
+    "register": "Registrarse",
+    "signing_in": "Iniciando sesión...",
+    "sign_in_success": "Se inició sesión correctamente.",
+    "sign_in_error": "No se pudo iniciar sesión en este momento."
   }
 }
