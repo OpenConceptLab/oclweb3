@@ -55,7 +55,7 @@ const Dashboard = () => {
         <Carousel
           height='222'
           indicatorContainerProps={{style: {marginTop: '-5px'}}}
-          indicatorIconButtonProps={{style: {margin: '2px'}}}
+          indicatorIconButtonProps={{style: {margin: '2px', zIndex: 1}}}
           activeIndicatorIconButtonProps={{
             style: {
               backgroundColor: WHITE,
