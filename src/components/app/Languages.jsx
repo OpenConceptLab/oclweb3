@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { ListItemButton, Button } from '@mui/material'
 import LanguageIcon from '@mui/icons-material/Language';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
+import { LANGUAGES } from '../../common/constants';
 import PopperGrow from '../common/PopperGrow';
 
 const Languages = props => {
@@ -32,7 +33,7 @@ const Languages = props => {
       <PopperGrow open={open} anchorRef={anchorRef} handleClose={handleClose} minWidth="100px">
         <div>
           {
-            [{locale: 'en', name: 'English'}, {locale: 'es', name: "Español"}].map(lang => (
+            LANGUAGES.map(lang => (
               <ListItemButton selected={lang.locale === locale} key={lang.locale} onClick={() => handleClick(lang.locale)}>
                 {lang.name} - {lang.locale.toUpperCase()}
               </ListItemButton>

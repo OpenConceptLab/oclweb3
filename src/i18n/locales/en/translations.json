@@ -1,6 +1,7 @@
 {
   "common": {
-    "or": "or"
+    "or": "or",
+    "language": "Language"
   },
   "dashboard": {
     "name": "Dashboard",
@@ -9,17 +10,21 @@
     "hello": "Hello",
     "create_repository": "Create Repository"
   },
-  "my_repositories": {
-    "name": "My repositories"
-  },
   "bookmarks": {
     "name": "Bookmarks"
   },
   "auth": {
     "sign_in": "Sign in",
+    "sign_out": "Sign out",
     "register": "Register",
     "signing_in": "Signing in...",
     "sign_in_success": "Successfully signed in.",
     "sign_in_error": "Unable to signin at the time."
+  },
+  "user": {
+    "my_profile": "My Profile",
+    "my_repositories": "My repositories",
+    "my_organizations": "My organizations",
+    "my_bookmarks": "My bookmarks"
   }
 }

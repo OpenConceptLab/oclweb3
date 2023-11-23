@@ -9,6 +9,11 @@ export const TEXT_GRAY = '#47464f'
 export const BG_GRAY = '#f6f2f7'
 export const PRIMARY_LIGHT = '#c3c0ff'
 
+export const LANGUAGES = [
+  {locale: 'en', name: 'English'},
+  {locale: 'es', name: "Español"}
+]
+
 
 // v2
 export const BLUE = 'rgb(51, 115, 170)';

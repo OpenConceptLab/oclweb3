@@ -1,25 +1,30 @@
 {
   "common": {
-    "or": "o"
+    "or": "o",
+    "language": "Idioma"
   },
   "dashboard": {
-    "name": "Tablero de control",
+    "name": "Panel de control",
     "welcome_line": "Bienvenido a OCL.",
-    "take_a_tour": "Realizar un recorrido",
+    "take_a_tour": "Toma un tour",
     "hello": "Hola",
     "create_repository": "Crear repositorio"
   },
-  "my_repositories": {
-    "name": "Mis repositorios"
-  },
   "bookmarks": {
-    "name": "Marcadores"
+    "name": "Favoritos"
   },
   "auth": {
     "sign_in": "Iniciar sesión",
+    "sign_out": "Cerrar sesión",
     "register": "Registrarse",
     "signing_in": "Iniciando sesión...",
-    "sign_in_success": "Se inició sesión correctamente.",
+    "sign_in_success": "Iniciado sesión correctamente.",
     "sign_in_error": "No se pudo iniciar sesión en este momento."
+  },
+  "user": {
+    "my_profile": "Mi perfil",
+    "my_repositories": "Mis repositorios",
+    "my_organizations": "Mis organizaciones",
+    "my_bookmarks": "Mis favoritos"
   }
 }
