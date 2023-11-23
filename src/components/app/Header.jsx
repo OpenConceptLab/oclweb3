@@ -168,7 +168,7 @@ const Header = props => {
               >
                 <FolderOpenIcon />
               </ListItemIcon>
-              <ListItemText primary={t('my_repositories.name')} sx={{ opacity: open ? 1 : 0, fontWeight: 500 }} />
+              <ListItemText primary={t('user.my_repositories')} sx={{ opacity: open ? 1 : 0, fontWeight: 500 }} />
             </ListItemButton>
           </ListItem>
         </List>

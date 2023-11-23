@@ -681,6 +681,37 @@ export const getSiteTitle = () => get(getAppliedServerConfig(), 'info.site.title
 
 export const getRandomColor = () => `#${Math.floor(Math.random()*16777215).toString(16)}`;
 
+export const logoutUser = (redirectToLogin, forced) => {
+  const clearTokens = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('id_token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('visits');
+  }
+  const callback = () => {
+    clearTokens()
+
+    if(redirectToLogin)
+      window.location.hash = '#/accounts/login';
+    else {
+      window.location.hash = '#/';
+      window.location.reload();
+    }
+  }
+  let redirectURL;
+  if(forced) {
+    redirectURL = window.location.origin + '/#/accounts/login?next=' + (window.location.origin + '/'+ window.location.hash)
+  }
+  const logoutURL = getSSOLogoutURL(redirectURL)
+  if(logoutURL) {
+    clearTokens()
+    window.location = logoutURL
+  }
+  else
+    callback()
+}
+
+
 export const paramsToParentURI = (params, versioned=false) => {
   let uri = '';
   if(params.org)
