@@ -41,5 +41,5 @@ jobs:
       with:
         context: .
         push: true
-        tags: openconceptlab/oclweb3:nightly, openconceptlab/oclweb3:3.0-alpha-${GITHUB_SHA_SHORT}
+        tags: openconceptlab/oclweb3:nightly, openconceptlab/oclweb3:3.0-alpha-${{GITHUB_SHA_SHORT}}
 
