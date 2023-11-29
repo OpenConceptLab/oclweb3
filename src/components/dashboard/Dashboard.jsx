@@ -39,7 +39,6 @@ const Dashboard = () => {
   const authenticated = isLoggedIn()
   const user = getCurrentUser()
   const username = user?.name || user?.username
-  console.log('dummy to fail build')
   return (
     <div className='col-xs-12 padding-0'>
       <div className='col-xs-12 padding-0 flex-vertical-center' style={{fontSize: '22px'}}>
