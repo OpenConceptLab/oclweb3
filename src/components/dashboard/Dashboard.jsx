@@ -7,7 +7,7 @@ import { PRIMARY, WHITE, PRIMARY_LIGHT } from '../../common/constants'
 import { getCurrentUser, isLoggedIn } from '../../common/utils';
 import AddButton from '../common/AddButton';
 
-const LinkTo = ({ label }) => <Link to='/' style={{color: PRIMARY, fontSize: '22px', margin: '0 5px'}} className='no-anchor-styles'>{label}</Link>
+const LinkTo = ({ label }) => <Link to='/' style={{color: PRIMARY, fontSize: '22px'}} className='no-anchor-styles'>{label}</Link>
 
 const Item = props => {
   const { t } = useTranslation()
