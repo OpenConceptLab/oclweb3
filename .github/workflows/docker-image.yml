@@ -17,7 +17,7 @@ jobs:
       with:
         node-version: 14
     - run: npm ci
-    - run: eslint src/ --ext=.js*
+    - run: ./node_modules/eslint/bin/eslint.js --ext .jsx,.js src/
 
   build:
     needs: [eslint]
