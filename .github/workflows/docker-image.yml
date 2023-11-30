@@ -87,7 +87,8 @@ jobs:
         # be deployed to ECS.
         docker pull openconceptlab/oclweb3:$IMAGE_TAG
         docker tag openconceptlab/oclweb3:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker tag openconceptlab/oclweb3:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:qa
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:qa
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
     - name: Download task definition
       run: |
