@@ -1,13 +1,12 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
 import Carousel from 'react-material-ui-carousel'
 import { Chip } from '@mui/material'
 import { PRIMARY, WHITE, PRIMARY_LIGHT } from '../../common/constants'
-import { getCurrentUser, isLoggedIn } from '../../common/utils';
+import { getCurrentUser, isLoggedIn, getLoginURL, getRegisterURL } from '../../common/utils';
 import AddButton from '../common/AddButton';
 
-const LinkTo = ({ label }) => <Link to='/' style={{color: PRIMARY, fontSize: '22px'}} className='no-anchor-styles'>{label}</Link>
+const LinkTo = ({ label, href }) => <a href={href} style={{color: PRIMARY, fontSize: '22px'}} className='no-anchor-styles'>{label}</a>
 
 const Item = props => {
   const { t } = useTranslation()
@@ -51,7 +50,7 @@ const Dashboard = () => {
               </span>
             </span>:
           <span>
-            {t('dashboard.welcome_line')} <LinkTo label={t('auth.sign_in')} /> {t('common.or')} <LinkTo label={t('auth.register')} />
+            {t('dashboard.welcome_line')} <LinkTo label={t('auth.sign_in')} href={getLoginURL()} /> {t('common.or')} <LinkTo label={t('auth.register')} href={getRegisterURL()} />
           </span>
         }
       </div>
