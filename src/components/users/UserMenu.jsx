@@ -14,7 +14,7 @@ import OrgIcon from '@mui/icons-material/AccountBalance';
 import BookmarkIcon from '@mui/icons-material/BookmarkBorder';
 import LanguageIcon from '@mui/icons-material/Language';
 import find from 'lodash/find';
-import { getCurrentUser, logoutUser } from '../../common/utils'
+import { getCurrentUser, logoutUser, isLoggedIn, getLoginURL } from '../../common/utils'
 import { LANGUAGES } from '../../common/constants';
 import Button from '../common/Button';
 import Drawer from '../common/Drawer';
@@ -25,6 +25,7 @@ const UserMenu = ({ isOpen, onClose }) => {
   const { t, i18n } = useTranslation()
   const [languageOpen, setLanguageOpen] = React.useState(false)
   const selectedLanguage = find(LANGUAGES, {locale: i18n.language})
+  const authenticated = isLoggedIn()
   const user = getCurrentUser()
   const onLanguageSelect = locale => {
     i18n.changeLanguage(locale)
@@ -34,58 +35,75 @@ const UserMenu = ({ isOpen, onClose }) => {
     <Drawer isOpen={isOpen} onClose={onClose}>
       <div className='col-xs-12' style={{padding: '15px'}}>
         <div className='col-xs-12 padding-0'>
-          <div className='col-xs-2 padding-0'>
-            <UserProfileButton />
-          </div>
-          <div className='col-xs-9 padding-0'>
-            <div className='col-xs-12 padding-0'>
-              <b>{user?.username}</b>
-            </div>
-            <div className='col-xs-12 padding-0'>
-              {user?.name}
-            </div>
-          </div>
-          <div className='col-xs-1 padding-0'>
+          {
+            authenticated &&
+              <div className='col-xs-2 padding-0'>
+                <UserProfileButton />
+              </div>
+          }
+          {
+            authenticated &&
+              <div className='col-xs-9 padding-0'>
+                <div className='col-xs-12 padding-0'>
+                  <b>{user?.username}</b>
+                </div>
+                <div className='col-xs-12 padding-0'>
+                  {user?.name}
+                </div>
+              </div>
+          }
+          <div className='col-xs-1 padding-0' style={{float: 'right'}}>
             <CloseIconButton onClick={onClose} />
           </div>
         </div>
         <div className='col-xs-12 padding-0'>
-          <List>
-            <ListItemButton sx={{p: 1}}>
-              <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
-                <ProfileIcon />
-              </ListItemIcon>
-              <ListItemText primary={t('user.my_profile')} />
-            </ListItemButton>
-          </List>
+          {
+            authenticated ?
+              <List>
+                <ListItemButton sx={{p: 1}}>
+                  <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
+                    <ProfileIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={t('user.my_profile')} />
+                </ListItemButton>
+              </List> :
+            <div className='col-xs-12 padding-0' style={{marginBottom: '24px'}}>
+              <Button className='no-anchor-styles' label={t('auth.sign_in')} sx={{ bgcolor: 'primary.light', maxWidth: '100%', minWidth: '92px' }} href={getLoginURL()} component='a' />
+            </div>
+          }
         </div>
         <Divider style={{width: '100%'}} />
-        <div className='col-xs-12 padding-0'>
-          <List>
-            <ListItemButton sx={{p: 1}}>
-              <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
-                <RepoIcon />
-              </ListItemIcon>
-              <ListItemText primary={t('user.my_repositories')} />
-              <span>0</span>
-            </ListItemButton>
-            <ListItemButton sx={{p: 1}}>
-              <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
-                <OrgIcon />
-              </ListItemIcon>
-              <ListItemText primary={t('user.my_organizations')} />
-              <span>0</span>
-            </ListItemButton>
-            <ListItemButton sx={{p: 1}}>
-              <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
-                <BookmarkIcon />
-              </ListItemIcon>
-              <ListItemText primary={t('user.my_bookmarks')} />
-              <span>0</span>
-            </ListItemButton>
-          </List>
-        </div>
-        <Divider style={{width: '100%'}} />
+        {
+          authenticated &&
+            <React.Fragment>
+              <div className='col-xs-12 padding-0'>
+                <List>
+                  <ListItemButton sx={{p: 1}}>
+                    <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
+                      <RepoIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={t('user.my_repositories')} />
+                    <span>0</span>
+                  </ListItemButton>
+                  <ListItemButton sx={{p: 1}}>
+                    <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
+                      <OrgIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={t('user.my_organizations')} />
+                    <span>0</span>
+                  </ListItemButton>
+                  <ListItemButton sx={{p: 1}}>
+                    <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
+                      <BookmarkIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={t('user.my_bookmarks')} />
+                    <span>0</span>
+                  </ListItemButton>
+                </List>
+              </div>
+              <Divider style={{width: '100%'}} />
+            </React.Fragment>
+        }
         <div className='col-xs-12 padding-0'>
           <List>
             <ListItemButton sx={{p: 1}} onClick={() => setLanguageOpen(!languageOpen)}>
@@ -109,9 +127,12 @@ const UserMenu = ({ isOpen, onClose }) => {
           </List>
         </div>
         <Divider style={{width: '100%'}} />
-        <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>
-          <Button label={t('auth.sign_out')} sx={{ bgcolor: 'primary.light', maxWidth: '100%' }} onClick={() => logoutUser()} />
-        </div>
+        {
+          authenticated &&
+            <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>
+              <Button label={t('auth.sign_out')} sx={{ bgcolor: 'primary.light', maxWidth: '100%' }} onClick={() => logoutUser()} />
+            </div>
+        }
       </div>
     </Drawer>
   )
