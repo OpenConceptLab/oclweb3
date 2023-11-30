@@ -39,20 +39,19 @@ const UserMenu = ({ isOpen, onClose }) => {
         <div className='col-xs-12 padding-0'>
           {
             authenticated &&
-              <div className='col-xs-2 padding-0'>
-                <UserProfileButton />
-              </div>
-          }
-          {
-            authenticated &&
-              <div className='col-xs-9 padding-0'>
-                <div className='col-xs-12 padding-0'>
-                  <b>{user?.username}</b>
+              <React.Fragment>
+                <div className='col-xs-2 padding-0'>
+                  <UserProfileButton />
                 </div>
-                <div className='col-xs-12 padding-0'>
-                  {user?.name}
+                <div className='col-xs-9 padding-0'>
+                  <div className='col-xs-12 padding-0'>
+                    <b>{user?.username}</b>
+                  </div>
+                  <div className='col-xs-12 padding-0'>
+                    {user?.name}
+                  </div>
                 </div>
-              </div>
+              </React.Fragment>
           }
           <div className='col-xs-1 padding-0' style={{float: 'right'}}>
             <CloseIconButton onClick={onClose} />
