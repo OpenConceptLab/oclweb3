@@ -13,6 +13,8 @@ import RepoIcon from '@mui/icons-material/FolderOutlined';
 import OrgIcon from '@mui/icons-material/AccountBalance';
 import BookmarkIcon from '@mui/icons-material/BookmarkBorder';
 import LanguageIcon from '@mui/icons-material/Language';
+import HelpIcon from '@mui/icons-material/HelpCenterOutlined';
+import ChatIcon from '@mui/icons-material/ForumOutlined';
 import find from 'lodash/find';
 import { getCurrentUser, logoutUser, isLoggedIn, getLoginURL } from '../../common/utils'
 import { LANGUAGES } from '../../common/constants';
@@ -124,6 +126,23 @@ const UserMenu = ({ isOpen, onClose }) => {
                 }
               </List>
             </Collapse>
+          </List>
+        </div>
+        <Divider style={{width: '100%'}} />
+        <div className='col-xs-12 padding-0'>
+          <List>
+            <ListItemButton sx={{p: 1}} component='a' className='no-anchor-styles' href='https://docs.openconceptlab.org' target='_blank' rel='noopener noreferrer'>
+              <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
+                <HelpIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('common.help_and_documentation')} />
+            </ListItemButton>
+            <ListItemButton sx={{p: 1}} component='a' className='no-anchor-styles' href='https://chat.openconceptlab.org/' target='_blank' rel='noopener noreferrer'>
+              <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
+                <ChatIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('common.chat')} />
+            </ListItemButton>
           </List>
         </div>
         <Divider style={{width: '100%'}} />
