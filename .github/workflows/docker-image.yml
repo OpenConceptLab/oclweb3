@@ -1,10 +1,17 @@
-name: Docker Image CI
+name: Build and deploy
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+
+env:
+  AWS_REGION: "us-east-2"                     # set this to your preferred AWS region, e.g. us-west-1
+  ECR_REPOSITORY: "oclweb3"                   # set this to your Amazon ECR repository name
+  ECS_SERVICE: "qa-web3"                      # set this to your Amazon ECS service name
+  ECS_CLUSTER: "ocl-qa-demo"                  # set this to your Amazon ECS cluster name
+  
+permissions:
+  contents: read
 
 jobs:
   eslint:
@@ -50,3 +57,51 @@ jobs:
         push: true
         tags: openconceptlab/oclweb3:nightly, openconceptlab/oclweb3:3.0-alpha-${{env.GITHUB_SHA_SHORT}}
 
+  deploy:
+    needs: [build]
+    name: Deploy to ECS on QA
+    runs-on: ubuntu-latest
+    environment: qa
+
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Push image to Amazon ECR
+      id: push-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: 3.0-alpha-${{env.GITHUB_SHA_SHORT}}
+      run: |
+        # Build a docker container and
+        # push it to ECR so that it can
+        # be deployed to ECS.
+        docker pull openconceptlab/oclweb3:$IMAGE_TAG
+        docker tag openconceptlab/oclweb3:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+    - name: Download task definition
+      run: |
+        aws ecs describe-task-definition --task-definition $ECS_SERVICE --query taskDefinition > task-definition.json
+    - name: Fill in the new image ID in the Amazon ECS task definition
+      id: task-def
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: "task-definition.json"
+        container-name: ${{ env.ECS_SERVICE }}
+        image: ${{ steps.build-image.outputs.image }}
+
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE }}
+        cluster: ${{ env.ECS_CLUSTER }}
