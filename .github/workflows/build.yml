@@ -1,0 +1,67 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  eslint:
+    name: Eslint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run linting rules
+      uses: actions/setup-node@v3
+      with:
+        node-version: 14
+    - run: npm ci
+    - run: ./node_modules/eslint/bin/eslint.js --ext .jsx,.js src/
+
+  build:
+    needs: [eslint]
+    name: Build and push image
+    runs-on: ubuntu-latest
+
+    #permissions:
+    #  packages: write
+    #  contents: read
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+    - name: Add GITHUB_SHA_SHORT env property with commit short sha
+      run: echo "GITHUB_SHA_SHORT=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+    - name: Log in to Docker Hub
+      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    #- name: Log in to the Container registry
+    #  uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+    #  with:
+    #    registry: ghcr.io
+    #    username: ${{ github.actor }}
+    #    password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and push Docker image
+      uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+      with:
+        context: .
+        push: true
+        tags: openconceptlab/oclweb3:nightly, openconceptlab/oclweb3:3.0.0-alpha-${{env.GITHUB_SHA_SHORT}}
+
+  release:
+    needs: [build]
+    runs-on: ubuntu-latest
+    name: Release
+    environment: rc
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Add GITHUB_SHA_SHORT env property with commit short sha
+        run: echo "GITHUB_SHA_SHORT=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+      - name: Tag and release
+        uses: avakar/tag-and-release@v1
+        with:
+          tag_name: 3.0.0-alpha-${{env.GITHUB_SHA_SHORT}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
