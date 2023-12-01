@@ -30,10 +30,6 @@ const Dashboard = () => {
       name: "We've made a few changes2...",
       description: "open concept lab"
     },
-    {
-      name: "We've made a few changes3...",
-      description: "open concept lab"
-    },
   ]
   const authenticated = isLoggedIn()
   const user = getCurrentUser()
