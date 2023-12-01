@@ -27,8 +27,9 @@
 name: Deploy to Amazon ECS
 
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - '*'
 
 env:
   AWS_REGION: "us-east-2"                     # set this to your preferred AWS region, e.g. us-west-1
@@ -55,7 +56,8 @@ jobs:
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
-    - uses: actions/checkout@v3
+    - name: Checkout repo
+      uses: actions/checkout@v3
     - name: Add GITHUB_SHA_SHORT env property with commit short sha
       run: echo "GITHUB_SHA_SHORT=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
     - name: Push image to Amazon ECR
