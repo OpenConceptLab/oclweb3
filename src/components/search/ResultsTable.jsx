@@ -79,7 +79,8 @@ const EnhancedTableToolbar = props => {
           bgcolor: (theme) =>
             alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
         }),
-        borderBottom: '1px solid rgba(224, 224, 224, 1)'
+        borderBottom: '1px solid rgba(224, 224, 224, 1)',
+        minHeight: '48px !important'
       }}
     >
       {numSelected > 0 ? (
@@ -131,7 +132,7 @@ const ResultsTable = props => {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.id);
+      const newSelected = rows.map((n) => n.url || n.id);
       setSelected(newSelected);
       return;
     }
@@ -177,7 +178,7 @@ const ResultsTable = props => {
 
   const getTitle = () => {
     const { results, resource } = props
-    const total = results?.total
+    const total = results?.tota
     if(isNumber(total))
       return total.toLocaleString() + ' ' + t(`search.${resource}`).toLowerCase()
   }
@@ -197,7 +198,7 @@ const ResultsTable = props => {
   return (
     <Box sx={{ width: '100%' }}>
       <EnhancedTableToolbar numSelected={selected.length} title={getTitle()} />
-      <TableContainer style={{maxHeight: '62vh'}}>
+      <TableContainer style={{maxHeight: '65vh'}}>
           <Table
             stickyHeader
             sx={{ minWidth: 750 }}
@@ -209,23 +210,24 @@ const ResultsTable = props => {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={props?.results?.total || 0}
+              rowCount={props?.results?.results?.length || 0}
               resource={props.resource}
               columns={columns}
             />
             <TableBody>
               {rows.map((row, index) => {
-                const isItemSelected = isSelected(row.id);
+                const id = row.url || row.id
+                const isItemSelected = isSelected(id);
                 const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
                   <TableRow
                     hover
-                    onClick={(event) => handleClick(event, row.id)}
+                    onClick={(event) => handleClick(event, id)}
                     role="checkbox"
                     aria-checked={isItemSelected}
                     tabIndex={-1}
-                    key={row.url || row.id}
+                    key={id}
                     selected={isItemSelected}
                     sx={{ cursor: 'pointer' }}
                   >
