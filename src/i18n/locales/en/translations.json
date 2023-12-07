@@ -3,7 +3,14 @@
     "or": "or",
     "language": "Language",
     "help_and_documentation": "Help and documentation",
-    "chat": "OCL Chat"
+    "chat": "OCL Chat",
+    "clear": "Clear",
+    "updated_on": "Last Updated",
+    "updated_by": "Updated By",
+    "owner": "Owner",
+    "show": "Show",
+    "hide": "Hide",
+    "more": "More"
   },
   "dashboard": {
     "name": "Dashboard",
@@ -28,5 +35,21 @@
     "my_repositories": "My repositories",
     "my_organizations": "My organizations",
     "my_bookmarks": "My bookmarks"
+  },
+  "concept": {
+    "concepts": "Concepts",
+    "id": "ID",
+    "display_name": "Display Name",
+    "concept_class": "Class",
+    "datatype": "Datatype"
+  },
+  "repo": {
+    "repos": "Repositories",
+    "repo": "Repository"
+  },
+  "search": {
+    "filters": "Filters",
+    "concepts": "Concepts",
+    "sort_by": "Sort By"
   }
 }

@@ -8,6 +8,7 @@ export const TERTIARY = '#7a5368'
 export const TEXT_GRAY = '#47464f'
 export const BG_GRAY = '#f6f2f7'
 export const PRIMARY_LIGHT = '#c3c0ff'
+export const LIGHT_GRAY = '#e5e1e6'
 
 export const LANGUAGES = [
   {locale: 'en', name: 'English'},

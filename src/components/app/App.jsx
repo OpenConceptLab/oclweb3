@@ -12,6 +12,7 @@ import './App.scss';
 import { hotjar } from 'react-hotjar';
 import Header from './Header';
 import Dashboard from '../dashboard/Dashboard';
+import Search from '../search/Search';
 import OIDLoginCallback from '../users/OIDLoginCallback';
 import { OperationsContext } from './LayoutContext';
 import Alert from '../common/Alert';
@@ -50,6 +51,7 @@ const App = props => {
           <main className='content'>
             <Switch>
               <Route exact path="/oidc/login" component={OIDLoginCallback} />
+              <Route exact path="/search" component={Search} />
               <Route exact path="/" component={Dashboard} />
               <Route component={NotFound} />
             </Switch>
