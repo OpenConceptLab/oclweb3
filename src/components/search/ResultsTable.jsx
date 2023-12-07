@@ -178,7 +178,7 @@ const ResultsTable = props => {
 
   const getTitle = () => {
     const { results, resource } = props
-    const total = results?.tota
+    const total = results?.total
     if(isNumber(total))
       return total.toLocaleString() + ' ' + t(`search.${resource}`).toLowerCase()
   }
