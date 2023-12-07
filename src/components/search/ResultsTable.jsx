@@ -16,18 +16,17 @@ import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
-import isNumber from 'lodash/isNumber';
+import { filter, isNumber } from 'lodash'
 import Skeleton from '@mui/material/Skeleton';
 import SearchControls from './SearchControls';
 import { ALL_COLUMNS } from './ResultConstants';
 
 const EnhancedTableHead = props => {
   const { t } = useTranslation()
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, resource } = props;
+  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, columns } = props;
   const createSortHandler = property => event => {
     onRequestSort(event, property);
   };
-  const columns = ALL_COLUMNS[resource] || []
   return (
     <TableHead>
       <TableRow>
@@ -183,7 +182,10 @@ const ResultsTable = props => {
       return total.toLocaleString() + ' ' + t(`search.${resource}`).toLowerCase()
   }
 
-  const columns = ALL_COLUMNS[props.resource] || []
+  const columns = filter(
+    ALL_COLUMNS[props.resource] || [],
+    column => props.nested ? column.nested !== false : column.global !== false
+  )
 
   const getValue = (row, column) => {
     let val = row[column.value]
@@ -199,6 +201,7 @@ const ResultsTable = props => {
           <Table
             stickyHeader
             sx={{ minWidth: 750 }}
+            size='small'
           >
             <EnhancedTableHead
               numSelected={selected.length}
@@ -208,6 +211,7 @@ const ResultsTable = props => {
               onRequestSort={handleRequestSort}
               rowCount={props?.results?.total || 0}
               resource={props.resource}
+              columns={columns}
             />
             <TableBody>
               {rows.map((row, index) => {
@@ -221,7 +225,7 @@ const ResultsTable = props => {
                     role="checkbox"
                     aria-checked={isItemSelected}
                     tabIndex={-1}
-                    key={row.id}
+                    key={row.url || row.id}
                     selected={isItemSelected}
                     sx={{ cursor: 'pointer' }}
                   >
@@ -259,7 +263,7 @@ const ResultsTable = props => {
               {emptyRows > 0 && (
                 <TableRow
                   style={{
-                    height: 53 * emptyRows,
+                    height: 33 * emptyRows,
                   }}
                 >
                   <TableCell colSpan={6} />
