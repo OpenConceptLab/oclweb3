@@ -44,8 +44,8 @@ const EnhancedTableHead = props => {
         {columns.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.numeric ? 'right' : 'left'}
-            padding={headCell.disablePadding ? 'none' : 'normal'}
+            align='left'
+            padding='normal'
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel
@@ -247,7 +247,7 @@ const ResultsTable = props => {
                             component="th"
                             id={labelId}
                             scope="row"
-                            padding="none"
+                            padding="normal"
                             className={column.className}
                           >
                             {value}
