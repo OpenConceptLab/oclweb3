@@ -39,6 +39,8 @@ RUN ["bash", "-c", "./set_build_version.sh"]
 RUN npm run build
 RUN cp public/bootstrap.min.css dist/
 RUN cp public/favicon.svg dist/
+RUN cp public/dark-favicon.svg dist/
+RUN cp public/light-favicon.svg dist/
 RUN cp public/fhir.svg dist/
 RUN cp public/openmrs_logo_white.gif dist/
 RUN cp -rf public/fontello dist/
