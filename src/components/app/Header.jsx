@@ -96,7 +96,7 @@ const Header = props => {
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed" open={open} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} style={{backgroundColor: BG_GRAY, color: TEXT_GRAY, boxShadow: 'none'}}>
-        <Toolbar>
+    <Toolbar style={{paddingRight: '16px'}}>
           <div className='col-xs-12 padding-0'>
             <div className='col-xs-1 padding-0 flex-vertical-center'>
               <IconButton
@@ -196,7 +196,7 @@ const Header = props => {
           </ListItem>
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, paddingTop: 0, paddingBottom: 1.25, paddingLeft: 0, paddingRight: 3.125 }}>
+      <Box component="main" sx={{ flexGrow: 1, paddingTop: 0, paddingBottom: 1.25, paddingLeft: 0, paddingRight: 2 }}>
         <DrawerHeader />
         {
           props.children

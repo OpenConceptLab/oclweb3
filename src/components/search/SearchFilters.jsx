@@ -15,7 +15,7 @@ import Divider from '@mui/material/Divider';
 import { FACET_ORDER } from './ResultConstants';
 
 
-const SearchFilters = ({filters, resource, onChange, kwargs}) => {
+const SearchFilters = ({filters, resource, onChange, kwargs, bgColor}) => {
   const { t } = useTranslation()
   const [applied, setApplied] = React.useState({});
   const [count, setCount] = React.useState(0);
@@ -94,7 +94,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs}) => {
     onChange({})
   }
 
-  const isApplied = (field, value) => get(applied[field], value[0])
+  const isApplied = (field, value) => Boolean(get(applied[field], value[0]))
 
   const getClearButtonText = () => {
     let text = t('common.clear')
@@ -142,12 +142,11 @@ const SearchFilters = ({filters, resource, onChange, kwargs}) => {
               <List
                 sx={{
                   width: '100%',
-                  bgcolor: 'background.paper',
                   position: 'relative',
                   '& ul': { padding: 0 },
                 }}
               >
-                <ListSubheader sx={{p: 0, fontWeight: 'bold'}}>{startCase(field)}</ListSubheader>
+                <ListSubheader sx={{p: 0, fontWeight: 'bold', background: bgColor}}>{startCase(field)}</ListSubheader>
                 {
                   getFieldFilters(field, fieldFilters).map(value => {
                     const labelId = `checkbox-list-label-${value[0]}`;

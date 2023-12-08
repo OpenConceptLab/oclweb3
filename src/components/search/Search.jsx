@@ -4,12 +4,13 @@ import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import { forEach, keys, pickBy, isEmpty } from 'lodash';
-import RepoIcon from '../repos/RepoIcon';
-import ConceptIcon from '../concepts/ConceptIcon';
+import { forEach, keys, pickBy, isEmpty, last, find } from 'lodash';
 import { WHITE, LIGHT_GRAY } from '../../common/constants';
 import { highlightTexts } from '../../common/utils';
 import APIService from '../../services/APIService';
+import RepoIcon from '../repos/RepoIcon';
+import ConceptIcon from '../concepts/ConceptIcon';
+import ConceptHome from '../concepts/ConceptHome';
 import ResultsTable from './ResultsTable';
 import SearchFilters from './SearchFilters'
 
@@ -20,6 +21,7 @@ const Search = () => {
   const [resource, setResource] = React.useState('concepts')
   const [result, setResult] = React.useState({})
   const [filters, setFilters] = React.useState({})
+  const [selected, setSelected] = React.useState([])
   const location = useLocation();
   const { t } = useTranslation()
 
@@ -109,33 +111,54 @@ const Search = () => {
   }
 
   const TAB_STYLES = {textTransform: 'none'}
+  const searchBgColor = selected.length ? '#fcf8fd' : WHITE
+  const lastSelected = last(selected)
+
+  const getLastSelectedURL = () => {
+    let URL = lastSelected
+    if(lastSelected && ['concepts', 'mappings'].includes(resource)) {
+      const item = find(result[resource].results, {version_url: lastSelected})
+      if(item?.uuid && (parseInt(item?.versioned_object_id) === parseInt(item?.uuid) || item.is_latest_version)) {
+        URL = item.url
+      }
+    }
+    return URL
+  }
 
   return (
     <div className='col-xs-12 padding-0'>
-      <div className='col-xs-12' style={{backgroundColor: WHITE, borderRadius: '10px'}}>
-
+      <div className={selected.length ? 'col-xs-7' : 'col-xs-12'} style={{backgroundColor: searchBgColor, borderRadius: '10px'}}>
         <div className='col-xs-12 padding-0' style={{borderBottom: `1px solid ${LIGHT_GRAY}`}}>
           <Tabs value={resource} onChange={handleResourceChange} aria-label="search tabs" TabIndicatorProps={{style: {height: '3px'}}}>
             <Tab value='concepts' icon={<ConceptIcon selected={resource == 'concepts'} fontSize='small' />} label={t('concept.concepts')} style={TAB_STYLES} />
             <Tab value='repos' icon={<RepoIcon selected={resource == 'repos'} fontSize='small' />} label={t('repo.repos')} style={TAB_STYLES} />
           </Tabs>
         </div>
-
         <div className='col-xs-12 padding-0'>
           <div className='col-xs-12 padding-0'>
             <div className='col-xs-3' style={{maxWidth: '250px', padding: '0 8px', height: '75vh', overflow: 'auto'}}>
-              <SearchFilters filters={result[resource]?.facets?.fields || {}} onChange={onFiltersChange} />
+              <SearchFilters filters={result[resource]?.facets?.fields || {}} onChange={onFiltersChange} bgColor={searchBgColor} />
             </div>
-
-            <div className='col-xs-9' style={{width: 'calc(100% - 250px)'}}>
+            <div className='col-xs-9' style={selected.length ? {paddingRight: '0px'} : {width: 'calc(100% - 250px)', paddingRight: '0px'}}>
               <div className='col-xs-12 padding-0'>
-                <ResultsTable results={result[resource]} resource={resource} onPageChange={onPageChange} />
+                <ResultsTable
+                  bgColor={searchBgColor}
+                  results={result[resource]}
+                  resource={resource}
+                  onPageChange={onPageChange}
+                  onSelect={newSelected => setSelected(newSelected)}
+                />
               </div>
             </div>
           </div>
         </div>
-
       </div>
+      {
+        lastSelected &&
+          <div className='col-xs-5 padding-0' style={{marginLeft: '16px', width: 'calc(41.66666667% - 16px)', backgroundColor: WHITE, borderRadius: '10px', height: '80vh'}}>
+            <ConceptHome url={getLastSelectedURL()} foo={'bar'} />
+          </div>
+      }
     </div>
   )
 }

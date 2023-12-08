@@ -28,9 +28,9 @@ const EnhancedTableHead = props => {
     onRequestSort(event, property);
   };
   return (
-    <TableHead>
-      <TableRow>
-        <TableCell padding="checkbox">
+    <TableHead sx={{background: props.bgColor}}>
+      <TableRow sx={{background: 'inherit'}}>
+        <TableCell padding="checkbox" sx={{background: 'inherit'}}>
           <Checkbox
             color="primary"
             indeterminate={numSelected > 0 && numSelected < rowCount}
@@ -47,6 +47,7 @@ const EnhancedTableHead = props => {
             align='left'
             padding='normal'
             sortDirection={orderBy === headCell.id ? order : false}
+            sx={{background: 'inherit'}}
           >
             <TableSortLabel
               active={orderBy === headCell.id}
@@ -132,11 +133,13 @@ const ResultsTable = props => {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.url || n.id);
+      const newSelected = rows.map((n) => n.version_url || n.url || n.id);
       setSelected(newSelected);
+      props.onSelect(newSelected)
       return;
     }
     setSelected([]);
+    props.onSelect([])
   };
 
   const handleClick = (event, id) => {
@@ -156,6 +159,7 @@ const ResultsTable = props => {
       );
     }
     setSelected(newSelected);
+    props.onSelect(newSelected)
   };
 
   const handleChangePage = (event, newPage) => {
@@ -173,9 +177,6 @@ const ResultsTable = props => {
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
-
   const getTitle = () => {
     const { results, resource } = props
     const total = results?.total
@@ -196,7 +197,7 @@ const ResultsTable = props => {
   }
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%', background: 'inherit' }}>
       <EnhancedTableToolbar numSelected={selected.length} title={getTitle()} />
       <TableContainer style={{maxHeight: '65vh'}}>
           <Table
@@ -205,6 +206,7 @@ const ResultsTable = props => {
             size='small'
           >
             <EnhancedTableHead
+              bgColor={props.bgColor}
               numSelected={selected.length}
               order={order}
               orderBy={orderBy}
@@ -216,7 +218,7 @@ const ResultsTable = props => {
             />
             <TableBody>
               {rows.map((row, index) => {
-                const id = row.url || row.id
+                const id = row.version_url || row.url || row.id
                 const isItemSelected = isSelected(id);
                 const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -262,15 +264,6 @@ const ResultsTable = props => {
                   </TableRow>
                 );
               })}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: 33 * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
             </TableBody>
           </Table>
         </TableContainer>
@@ -279,7 +272,7 @@ const ResultsTable = props => {
           component="div"
           count={props?.results?.total || 25}
           rowsPerPage={rowsPerPage}
-          page={(props?.results?.page || 1) - 1}
+          page={(page || 1) - 1}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
