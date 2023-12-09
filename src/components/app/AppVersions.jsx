@@ -1,7 +1,7 @@
 /*eslint no-process-env: 0*/
 
 import React from 'react';
-import { Tooltip } from '@mui/material';
+import { Tooltip, Divider } from '@mui/material';
 import APIService from '../../services/APIService';
 import { isFHIRServer, toFullAPIURL } from '../../common/utils';
 import packageJson from '../../../package.json';
@@ -13,7 +13,7 @@ const SWAGGER_URL = toFullAPIURL('/swagger/')
 const AppVersionChip = ({version, label, tooltip}) => {
   return (
     <Tooltip title={tooltip || label} arrow>
-      <span className='app-version-container' style={{marginLeft: '4px'}}>
+      <span className='app-version-container'>
         <span className='app-label'>
           {label}
         </span>
@@ -39,12 +39,16 @@ class AppVersions extends React.Component {
   render() {
     return (
       <React.Fragment>
-        <AppVersionChip tooltip='Web Version' label='Web' version={VERSION} />
+        <AppVersionChip tooltip='Web Version' label='TB-' version={VERSION} />
         {
           this.state.version &&
+            <React.Fragment>
+          <Divider orientation='vertical' className='footer-divider-vertical' />
+
           <a href={SWAGGER_URL} target='_blank' rel="noopener noreferrer">
-            <AppVersionChip tooltip='API Version' label='API' version={this.state.version} />
+            <AppVersionChip tooltip='API Version' label='API-' version={this.state.version} />
           </a>
+          </React.Fragment>
         }
       </React.Fragment>
     )
