@@ -2,7 +2,7 @@ main.content {
     margin-bottom: 25px;
     display: inline-block;
     width: 100%;
-    height: auto;
+    height: 90vh;
 }
 div.rounded-input {
     border-radius: 100px;
@@ -33,5 +33,5 @@ div.rounded-input {
     font-weight: bold;
 }
 div.split {
-    transition: width 195ms ease;
+    transition: width 200ms ease;
 }
