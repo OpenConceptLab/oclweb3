@@ -153,7 +153,7 @@ const Search = () => {
           </div>
         </div>
       </div>
-      <div className={'col-xs-5 padding-0' + (lastSelected ? ' split-appear' : '')} style={{marginLeft: '16px', width: lastSelected ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: '90vh', opacity: lastSelected ? 1 : 0}}>
+      <div className={'col-xs-5 padding-0' + (lastSelected ? ' split-appear' : '')} style={{marginLeft: '16px', width: lastSelected ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: lastSelected ? '90vh' : 0, opacity: lastSelected ? 1 : 0}}>
         {
           lastSelected &&
             <ConceptHome url={getLastSelectedURL()} />
