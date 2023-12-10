@@ -33,5 +33,9 @@ div.rounded-input {
     font-weight: bold;
 }
 div.split {
-    transition: width 200ms ease;
+    transition: width 195ms ease;
+}
+
+div.split-appear {
+    transition: width 0.2s ease, opacity 0.3s ease 0.1s;
 }

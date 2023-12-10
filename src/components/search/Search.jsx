@@ -126,7 +126,7 @@ const Search = () => {
   }
 
   return (
-    <div className='col-xs-12 padding-0 split-parent'>
+    <div className='col-xs-12 padding-0'>
       <div className={selected.length ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: '10px', height: '90vh'}}>
         <div className='col-xs-12 padding-0' style={{borderBottom: `1px solid ${LIGHT_GRAY}`}}>
           <Tabs value={resource} onChange={handleResourceChange} aria-label="search tabs" TabIndicatorProps={{style: {height: '3px'}}}>
@@ -153,12 +153,12 @@ const Search = () => {
           </div>
         </div>
       </div>
-      {
-        lastSelected &&
-          <div className='col-xs-5 padding-0' style={{marginLeft: '16px', width: 'calc(41.66666667% - 16px)', backgroundColor: WHITE, borderRadius: '10px', height: '90vh'}}>
+      <div className={'col-xs-5 padding-0' + (lastSelected ? ' split-appear' : '')} style={{marginLeft: '16px', width: lastSelected ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: '90vh', opacity: lastSelected ? 1 : 0}}>
+        {
+          lastSelected &&
             <ConceptHome url={getLastSelectedURL()} />
-          </div>
-      }
+        }
+      </div>
     </div>
   )
 }

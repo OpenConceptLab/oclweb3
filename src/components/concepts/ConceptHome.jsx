@@ -9,11 +9,12 @@ const ConceptHome = props => {
       setConcept(response.data)
     })
   }, [props.url])
-  return (
+
+  return concept?.display_name ? (
     <div className='col-xs-12' style={{padding: '16px'}}>
       {`Concept: ${concept?.display_name}`}
     </div>
-  )
+  ) : null
 }
 
 export default ConceptHome;
