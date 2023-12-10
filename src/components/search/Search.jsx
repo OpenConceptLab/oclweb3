@@ -126,8 +126,8 @@ const Search = () => {
   }
 
   return (
-    <div className='col-xs-12 padding-0'>
-      <div className={selected.length ? 'col-xs-7' : 'col-xs-12'} style={{backgroundColor: searchBgColor, borderRadius: '10px'}}>
+    <div className='col-xs-12 padding-0 split-parent'>
+      <div className={selected.length ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: '10px'}}>
         <div className='col-xs-12 padding-0' style={{borderBottom: `1px solid ${LIGHT_GRAY}`}}>
           <Tabs value={resource} onChange={handleResourceChange} aria-label="search tabs" TabIndicatorProps={{style: {height: '3px'}}}>
             <Tab value='concepts' icon={<ConceptIcon selected={resource == 'concepts'} fontSize='small' />} label={t('concept.concepts')} style={TAB_STYLES} />
