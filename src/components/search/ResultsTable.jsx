@@ -199,7 +199,7 @@ const ResultsTable = props => {
   return (
     <Box sx={{ width: '100%', background: 'inherit' }}>
       <EnhancedTableToolbar numSelected={selected.length} title={getTitle()} />
-      <TableContainer style={{maxHeight: '77vh'}}>
+      <TableContainer style={{maxHeight: '64vh'}}>
           <Table
             stickyHeader
             sx={{ minWidth: 750 }}

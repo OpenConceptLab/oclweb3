@@ -127,7 +127,7 @@ const Search = () => {
 
   return (
     <div className='col-xs-12 padding-0'>
-      <div className={selected.length ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: '10px', height: '90vh'}}>
+      <div className={selected.length ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: '10px', height: '86vh'}}>
         <div className='col-xs-12 padding-0' style={{borderBottom: `1px solid ${LIGHT_GRAY}`}}>
           <Tabs value={resource} onChange={handleResourceChange} aria-label="search tabs" TabIndicatorProps={{style: {height: '3px'}}}>
             <Tab value='concepts' icon={<ConceptIcon selected={resource == 'concepts'} fontSize='small' />} label={t('concept.concepts')} style={TAB_STYLES} />
@@ -136,7 +136,7 @@ const Search = () => {
         </div>
         <div className='col-xs-12 padding-0'>
           <div className='col-xs-12 padding-0'>
-            <div className='col-xs-3' style={{maxWidth: '250px', padding: '0 8px', height: '84vh', overflow: 'auto'}}>
+            <div className='col-xs-3' style={{maxWidth: '250px', padding: '0 8px', height: '75vh', overflow: 'auto'}}>
               <SearchFilters filters={result[resource]?.facets?.fields || {}} onChange={onFiltersChange} bgColor={searchBgColor} />
             </div>
             <div className='col-xs-9' style={selected.length ? {paddingRight: '0px'} : {width: 'calc(100% - 250px)', paddingRight: '0px'}}>
@@ -153,7 +153,7 @@ const Search = () => {
           </div>
         </div>
       </div>
-      <div className={'col-xs-5 padding-0' + (lastSelected ? ' split-appear' : '')} style={{marginLeft: '16px', width: lastSelected ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: lastSelected ? '90vh' : 0, opacity: lastSelected ? 1 : 0}}>
+      <div className={'col-xs-5 padding-0' + (lastSelected ? ' split-appear' : '')} style={{marginLeft: '16px', width: lastSelected ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: lastSelected ? '86vh' : 0, opacity: lastSelected ? 1 : 0}}>
         {
           lastSelected &&
             <ConceptHome url={getLastSelectedURL()} />
