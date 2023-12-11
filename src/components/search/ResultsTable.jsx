@@ -193,6 +193,8 @@ const ResultsTable = props => {
     let val = row[column.value]
     if(column.formatter)
       return column.formatter(val)
+    if(column.renderer)
+      return column.renderer(row)
     return val
   }
 

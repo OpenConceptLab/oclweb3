@@ -110,6 +110,7 @@ class APIService {
     token = token || (token !== false ? currentUserToken() : token);
     const obj = defaults(headers, this.headers);
     if (token) obj['Authorization'] = `Token ${token}`;
+    obj['INCLUDESEARCHLATEST'] = true
     return obj;
   }
 

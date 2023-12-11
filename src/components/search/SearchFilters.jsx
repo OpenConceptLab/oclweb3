@@ -22,7 +22,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor}) => {
   const [expanded, setExpanded] = React.useState([])
 
   const filterOrder = FACET_ORDER[resource]
-  let blacklisted = ['is_active', 'is_latest_version'];
+  let blacklisted = ['is_active', 'is_latest_version', 'is_in_latest_source_version'];
   const isSourceChild = ['concepts', 'mappings'].includes(resource)
   const hasValidKwargs = !isEmpty(kwargs) && isObject(kwargs);
   if(hasValidKwargs) {
