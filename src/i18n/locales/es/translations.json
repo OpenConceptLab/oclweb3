@@ -1,30 +1,55 @@
 {
   "common": {
     "or": "o",
-    "language": "Idioma"
+    "language": "Idioma",
+    "help_and_documentation": "Ayuda y documentación",
+    "chat": "Chat de OCL",
+    "clear": "Limpiar",
+    "updated_on": "Última actualización",
+    "updated_by": "Actualizado por",
+    "owner": "Propietario",
+    "show": "Mostrar",
+    "hide": "Ocultar",
+    "more": "Más"
   },
   "dashboard": {
-    "name": "Panel de control",
+    "name": "Tablero",
     "welcome_line": "Bienvenido a OCL.",
-    "take_a_tour": "Toma un tour",
+    "take_a_tour": "Hacer un recorrido",
     "hello": "Hola",
-    "create_repository": "Crear repositorio"
+    "create_repository": "Crear Repositorio"
   },
   "bookmarks": {
-    "name": "Favoritos"
+    "name": "Marcadores"
   },
   "auth": {
     "sign_in": "Iniciar sesión",
     "sign_out": "Cerrar sesión",
     "register": "Registrarse",
     "signing_in": "Iniciando sesión...",
-    "sign_in_success": "Iniciado sesión correctamente.",
+    "sign_in_success": "Inicio de sesión exitoso.",
     "sign_in_error": "No se pudo iniciar sesión en este momento."
   },
   "user": {
     "my_profile": "Mi perfil",
     "my_repositories": "Mis repositorios",
     "my_organizations": "Mis organizaciones",
-    "my_bookmarks": "Mis favoritos"
+    "my_bookmarks": "Mis marcadores"
+  },
+  "concept": {
+    "concepts": "Conceptos",
+    "id": "ID",
+    "display_name": "Nombre para mostrar",
+    "concept_class": "Clase de concepto",
+    "datatype": "Tipo de dato"
+  },
+  "repo": {
+    "repos": "Repositorios",
+    "repo": "Repositorio"
+  },
+  "search": {
+    "filters": "Filtros",
+    "concepts": "Conceptos",
+    "sort_by": "Ordenar por"
   }
 }
