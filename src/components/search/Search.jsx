@@ -146,6 +146,7 @@ const Search = () => {
                   resource={resource}
                   onPageChange={onPageChange}
                   onSelect={newSelected => setSelected(newSelected)}
+                  selectedToShow={showItem}
                   onShowItemSelect={item => setShowItem(item || false)}
                 />
               </div>
@@ -156,7 +157,7 @@ const Search = () => {
       <div className={'col-xs-5 padding-0' + (showItem ? ' split-appear' : '')} style={{marginLeft: '16px', width: showItem ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: showItem ? '86vh' : 0, opacity: showItem ? 1 : 0}}>
         {
           showItem &&
-            <ConceptHome url={getLastSelectedURL()} />
+            <ConceptHome url={getLastSelectedURL()} onClose={() => setShowItem(false)} />
         }
       </div>
     </div>

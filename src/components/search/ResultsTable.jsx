@@ -120,7 +120,6 @@ const ResultsTable = props => {
   const [order, setOrder] = React.useState('desc');
   const [orderBy, setOrderBy] = React.useState('id');
   const [selected, setSelected] = React.useState([]);
-  const [showItem, setShowItem] = React.useState(false);
   const [page, setPage] = React.useState((props?.results?.page|| 1) - 1);
   const [rowsPerPage, setRowsPerPage] = React.useState(props?.results?.pageSize || 25);
   const { t } = useTranslation()
@@ -171,7 +170,6 @@ const ResultsTable = props => {
     event.stopPropagation()
 
     const row = rows.find(row => id == (row.version_url || row.url || row.id)) || false
-    setShowItem(row)
     props.onShowItemSelect(row)
   };
 
@@ -188,6 +186,7 @@ const ResultsTable = props => {
   };
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
+  const showItem = props.selectedToShow
   const isItemShown = id => (showItem.version_url || showItem.url || showItem.id) === id
 
   // Avoid a layout jump when reaching the last page with empty rows.
