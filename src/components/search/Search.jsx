@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import { forEach, keys, pickBy, isEmpty, last, find } from 'lodash';
+import { forEach, keys, pickBy, isEmpty, find } from 'lodash';
 import { WHITE, LIGHT_GRAY } from '../../common/constants';
 import { highlightTexts } from '../../common/utils';
 import APIService from '../../services/APIService';
@@ -22,6 +22,7 @@ const Search = () => {
   const [result, setResult] = React.useState({})
   const [filters, setFilters] = React.useState({})
   const [selected, setSelected] = React.useState([])
+  const [showItem, setShowItem] = React.useState(false)
   const location = useLocation();
   const { t } = useTranslation()
 
@@ -112,12 +113,10 @@ const Search = () => {
 
   const TAB_STYLES = {textTransform: 'none'}
   const searchBgColor = selected.length ? '#fcf8fd' : WHITE
-  const lastSelected = last(selected)
-
   const getLastSelectedURL = () => {
-    let URL = lastSelected
-    if(lastSelected && ['concepts', 'mappings'].includes(resource)) {
-      const item = find(result[resource].results, {version_url: lastSelected})
+    let URL = showItem?.version_url || showItem?.url
+    if(showItem && ['concepts', 'mappings'].includes(resource)) {
+      const item = find(result[resource].results, {version_url: showItem})
       if(item?.uuid && (parseInt(item?.versioned_object_id) === parseInt(item?.uuid) || item.is_latest_version)) {
         URL = item.url
       }
@@ -127,7 +126,7 @@ const Search = () => {
 
   return (
     <div className='col-xs-12 padding-0'>
-      <div className={selected.length ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: '10px', height: '86vh'}}>
+      <div className={showItem?.id ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: '10px', height: '86vh'}}>
         <div className='col-xs-12 padding-0' style={{borderBottom: `1px solid ${LIGHT_GRAY}`}}>
           <Tabs value={resource} onChange={handleResourceChange} aria-label="search tabs" TabIndicatorProps={{style: {height: '3px'}}}>
             <Tab value='concepts' icon={<ConceptIcon selected={resource == 'concepts'} fontSize='small' />} label={t('concept.concepts')} style={TAB_STYLES} />
@@ -139,7 +138,7 @@ const Search = () => {
             <div className='col-xs-3' style={{maxWidth: '250px', padding: '0 8px', height: '75vh', overflow: 'auto'}}>
               <SearchFilters filters={result[resource]?.facets?.fields || {}} onChange={onFiltersChange} bgColor={searchBgColor} />
             </div>
-            <div className='col-xs-9' style={selected.length ? {paddingRight: '0px'} : {width: 'calc(100% - 250px)', paddingRight: '0px'}}>
+            <div className='col-xs-9' style={showItem?.id ? {paddingRight: '0px'} : {width: 'calc(100% - 250px)', paddingRight: '0px'}}>
               <div className='col-xs-12 padding-0'>
                 <ResultsTable
                   bgColor={searchBgColor}
@@ -147,15 +146,16 @@ const Search = () => {
                   resource={resource}
                   onPageChange={onPageChange}
                   onSelect={newSelected => setSelected(newSelected)}
+                  onShowItemSelect={item => setShowItem(item || false)}
                 />
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className={'col-xs-5 padding-0' + (lastSelected ? ' split-appear' : '')} style={{marginLeft: '16px', width: lastSelected ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: lastSelected ? '86vh' : 0, opacity: lastSelected ? 1 : 0}}>
+      <div className={'col-xs-5 padding-0' + (showItem ? ' split-appear' : '')} style={{marginLeft: '16px', width: showItem ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: showItem ? '86vh' : 0, opacity: showItem ? 1 : 0}}>
         {
-          lastSelected &&
+          showItem &&
             <ConceptHome url={getLastSelectedURL()} />
         }
       </div>

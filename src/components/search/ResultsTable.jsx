@@ -120,6 +120,7 @@ const ResultsTable = props => {
   const [order, setOrder] = React.useState('desc');
   const [orderBy, setOrderBy] = React.useState('id');
   const [selected, setSelected] = React.useState([]);
+  const [showItem, setShowItem] = React.useState(false);
   const [page, setPage] = React.useState((props?.results?.page|| 1) - 1);
   const [rowsPerPage, setRowsPerPage] = React.useState(props?.results?.pageSize || 25);
   const { t } = useTranslation()
@@ -143,6 +144,9 @@ const ResultsTable = props => {
   };
 
   const handleClick = (event, id) => {
+    event.preventDefault()
+    event.stopPropagation()
+
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
 
@@ -162,6 +166,15 @@ const ResultsTable = props => {
     props.onSelect(newSelected)
   };
 
+  const handleRowClick = (event, id) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const row = rows.find(row => id == (row.version_url || row.url || row.id)) || false
+    setShowItem(row)
+    props.onShowItemSelect(row)
+  };
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
     props.onPageChange(newPage, rowsPerPage)
@@ -175,6 +188,7 @@ const ResultsTable = props => {
   };
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
+  const isItemShown = id => (showItem.version_url || showItem.url || showItem.id) === id
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const getTitle = () => {
@@ -222,20 +236,21 @@ const ResultsTable = props => {
               {rows.map((row, index) => {
                 const id = row.version_url || row.url || row.id
                 const isItemSelected = isSelected(id);
+                const isItemSelectedToShow = isItemShown(id)
                 const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
                   <TableRow
                     hover
-                    onClick={(event) => handleClick(event, id)}
                     role="checkbox"
-                    aria-checked={isItemSelected}
+                    aria-checked={isItemSelectedToShow}
                     tabIndex={-1}
                     key={id}
-                    selected={isItemSelected}
+                    onClick={event => handleRowClick(event, id)}
+                    selected={isItemSelectedToShow}
                     sx={{ cursor: 'pointer' }}
                   >
-                    <TableCell padding="checkbox">
+                    <TableCell padding="checkbox" onClick={event => handleClick(event, id)}>
                       <Checkbox
                         color="primary"
                         checked={isItemSelected}
