@@ -69,8 +69,7 @@ const EnhancedTableHead = props => {
 }
 
 const EnhancedTableToolbar = props => {
-  const { numSelected, title } = props;
-
+  const { numSelected, title, onFiltersToggle } = props;
   return (
     <Toolbar
       sx={{
@@ -109,7 +108,7 @@ const EnhancedTableToolbar = props => {
       )}
 
       <SearchControls />
-      <IconButton style={{marginLeft: '5px'}}>
+      <IconButton style={{marginLeft: '5px'}} onClick={onFiltersToggle}>
         <FilterListIcon />
       </IconButton>
     </Toolbar>
@@ -213,7 +212,11 @@ const ResultsTable = props => {
 
   return (
     <Box sx={{ width: '100%', background: 'inherit' }}>
-      <EnhancedTableToolbar numSelected={selected.length} title={getTitle()} />
+      <EnhancedTableToolbar
+        numSelected={selected.length}
+        title={getTitle()}
+        onFiltersToggle={props.onFiltersToggle}
+      />
       <TableContainer style={{maxHeight: '64vh'}}>
           <Table
             stickyHeader
