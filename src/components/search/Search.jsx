@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import { forEach, keys, pickBy, isEmpty, find } from 'lodash';
+import { forEach, keys, pickBy, isEmpty, find, uniq, has, orderBy, uniqBy } from 'lodash';
 import { WHITE, LIGHT_GRAY } from '../../common/constants';
 import { highlightTexts } from '../../common/utils';
 import APIService from '../../services/APIService';
@@ -23,6 +23,7 @@ const Search = () => {
   const [filters, setFilters] = React.useState({})
   const [selected, setSelected] = React.useState([])
   const [showItem, setShowItem] = React.useState(false)
+  const didMount = React.useRef(false);
   const location = useLocation();
   const { t } = useTranslation()
 
@@ -35,17 +36,26 @@ const Search = () => {
   }, [result])
 
   React.useEffect(() => {
-    if(!location.search && !input)
+    if(!location.search && !input){
       fetchResults(getQueryParams(input, page, pageSize, filters))
+    }
   }, [])
+
+  React.useEffect(() => {
+    if(didMount.current)
+      fetchResults(getQueryParams(input, page, pageSize, filters), true)
+    else
+      didMount.current = true
+  }, [filters])
 
   const setQueryParamsInState = () => {
     const queryParams = new URLSearchParams(window.location.hash.split('?')[1])
     const value = queryParams.get('q') || ''
+    const isDiffFromPrevInput = value !== input
     const _page = queryParams.get('page') || 0
     const _pageSize = queryParams.get('pageSize') || 25
     let _fetch = false
-    if(value !== input) {
+    if(isDiffFromPrevInput) {
       setInput(value)
       _fetch = true
     }
@@ -59,7 +69,7 @@ const Search = () => {
     }
 
     if(_fetch)
-      fetchResults(getQueryParams(value, _page, _pageSize, filters), !value || isEmpty(filters))
+      fetchResults(getQueryParams(value, _page, _pageSize, filters), isDiffFromPrevInput)
   }
 
   const getFacetQueryParam = filters => {
@@ -87,9 +97,7 @@ const Search = () => {
 
   const fetchResults = (params, facets=true) => {
     APIService.new().overrideURL(`/${resource}/`).get(null, null, params).then(response => {
-      const resourceResult = {total: parseInt(response?.headers?.num_found), pageSize: parseInt(response?.headers?.num_returned), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || []}
-      if(!facets)
-        resourceResult.facets = result[resource].facets
+      const resourceResult = {total: parseInt(response?.headers?.num_found), pageSize: parseInt(response?.headers?.num_returned), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || [], facets: result[resource]?.facets || {}}
       setResult({[resource]: resourceResult})
       if(facets)
         fetchFacets(params, resourceResult)
@@ -98,8 +106,53 @@ const Search = () => {
 
   const fetchFacets = (params, otherResults) => {
     APIService.new().overrideURL(`/${resource}/`).get(null, null, {...params, facetsOnly: true}).then(response => {
-      setResult({[resource]: {...get(result, resource, {}), ...(otherResults || {}), facets: response?.data?.facets}})
+      setResult({[resource]: {...get(result, resource, {}), ...(otherResults || {}), facets: prepareFacets(response?.data?.facets?.fields || {})}})
     })
+  }
+
+  const prepareFacets = newFacets => {
+    // 1. If no facets are applied then just replace with new facets
+    // 2. If facet(s) are applied then do not change anything in the applied field list
+    // 3. If facet(s) are applied then new facets will be added and enabled but old facets that are not present in new facets will be disabled with count 0
+    // 4. If facet(s) are applied then anything that is existing in both new and old will only have count updated
+    let existingFacets = result[resource]?.facets
+    if(isEmpty(existingFacets))
+      return newFacets
+
+    let appliedFacets = {...filters}
+    const doNotRemoveFacets = keys(appliedFacets)
+    let mergedFacets = {}
+    forEach(uniq([...keys(newFacets), ...keys(existingFacets)]), field => {
+      mergedFacets[field] = mergedFacets[field] || []
+      if(doNotRemoveFacets.includes(field)) {
+        const facets = uniq([...(existingFacets[field].map(facet => facet[0]) || []), ...(newFacets[field].map(facet => facet[0]) || [])])
+        forEach(facets, facet => {
+          const newFacet = find(get(newFacets, field), f => f[0] === facet)
+          const existingFacet = find(get(existingFacets, field), f => f[0] === facet)
+          if(newFacet)
+            mergedFacets[field].push(newFacet)
+          else if (existingFacet)
+            mergedFacets[field].push(existingFacet)
+        })
+      } else if (!has(existingFacets, field)) {
+        mergedFacets[field] = newFacets[field]
+      } else {
+        forEach(existingFacets[field], facet => {
+          const val = facet[0]
+          let newFacet = find(newFacets[field], newFacet => newFacet[0] === val)
+          if(newFacet) {
+            mergedFacets[field].push(newFacet)
+          } else {
+            mergedFacets[field].push([facet[0], 0, false, true])
+          }
+        })
+        mergedFacets[field] = uniqBy([...(mergedFacets[field] || []), ...(newFacets[field] || [])], facet => facet[0])
+      }
+
+      mergedFacets[field] = orderBy(mergedFacets[field], facet => facet[1], 'desc')
+    })
+
+    return mergedFacets
   }
 
   const onPageChange = (_page, _pageSize) => fetchResults(getQueryParams(input, _page, _pageSize, filters), isEmpty(filters))
@@ -108,7 +161,6 @@ const Search = () => {
 
   const onFiltersChange = newFilters => {
     setFilters(newFilters)
-    fetchResults(getQueryParams(input, page, pageSize, newFilters), false)
   }
 
   const TAB_STYLES = {textTransform: 'none'}
@@ -136,7 +188,12 @@ const Search = () => {
         <div className='col-xs-12 padding-0'>
           <div className='col-xs-12 padding-0'>
             <div className='col-xs-3' style={{maxWidth: '250px', padding: '0 8px', height: '75vh', overflow: 'auto'}}>
-              <SearchFilters filters={result[resource]?.facets?.fields || {}} onChange={onFiltersChange} bgColor={searchBgColor} />
+              <SearchFilters
+                filters={result[resource]?.facets || {}}
+                onChange={onFiltersChange}
+                bgColor={searchBgColor}
+                appliedFilters={filters}
+              />
             </div>
             <div className='col-xs-9' style={showItem?.id ? {paddingRight: '0px'} : {width: 'calc(100% - 250px)', paddingRight: '0px'}}>
               <div className='col-xs-12 padding-0'>

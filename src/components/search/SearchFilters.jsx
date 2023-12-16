@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {omit, omitBy, isEmpty, isObject, has, map, startCase, includes, get, without, forEach} from 'lodash';
+import {omit, omitBy, isEmpty, isObject, has, map, startCase, includes, get, without, forEach, flatten, values} from 'lodash';
 import Button from '@mui/material/Button';
 import ClearIcon from '@mui/icons-material/Clear';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
@@ -15,7 +15,7 @@ import Divider from '@mui/material/Divider';
 import { FACET_ORDER } from './ResultConstants';
 
 
-const SearchFilters = ({filters, resource, onChange, kwargs, bgColor}) => {
+const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters}) => {
   const { t } = useTranslation()
   const [applied, setApplied] = React.useState({});
   const [count, setCount] = React.useState(0);
@@ -104,8 +104,8 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor}) => {
   }
 
   React.useEffect(() => {
-    setCount(0)
-    setApplied({})
+    setCount(flatten(values(appliedFilters)).length)
+    setApplied(appliedFilters)
   }, [filters])
 
   const getFieldFilters = (field, fieldFilters) => {
@@ -153,7 +153,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor}) => {
                     const key = `${field}-${value[0]}`
 
                     return (
-                      <ListItemButton key={key} onClick={handleToggle(field, value)} sx={{p: '0 5px'}}>
+                      <ListItemButton key={key} onClick={handleToggle(field, value)} sx={{p: '0 5px'}} disabled={value[3] === true}>
                         <ListItemIcon sx={{minWidth: '40px'}}>
                           <Checkbox
                             edge="start"
