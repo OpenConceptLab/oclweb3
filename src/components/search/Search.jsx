@@ -182,12 +182,11 @@ const Search = () => {
     let toSubtract = 0;
     if(openFilters)
       toSubtract = filtersWidth
-
-    return `calc(100% - ${toSubtract}px)`
+    return toSubtract ? `calc(100% - ${toSubtract}px)` : '100%'
   }
 
   return (
-    <div className='col-xs-12 padding-0'>
+    <div className='col-xs-12 padding-0' style={{overflow: 'auto'}}>
       <div className={showItem?.id ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: '10px', height: '86vh'}}>
         <div className='col-xs-12 padding-0' style={{borderBottom: `1px solid ${LIGHT_GRAY}`}}>
           <Tabs value={resource} onChange={handleResourceChange} aria-label="search tabs" TabIndicatorProps={{style: {height: '3px'}}}>
@@ -197,18 +196,15 @@ const Search = () => {
         </div>
         <div className='col-xs-12 padding-0'>
           <div className='col-xs-12 padding-0'>
-            <div className='col-xs-3 split-appear' style={{opacity: openFilters ? 1 : 0, maxWidth: openFilters ? `${filtersWidth}px` : 0, padding: openFilters ? '0 8px' : 0, height: '75vh', overflow: 'auto'}}>
-              {
-                openFilters &&
-                  <SearchFilters
-                    filters={result[resource]?.facets || {}}
-                    onChange={onFiltersChange}
-                    bgColor={searchBgColor}
-                    appliedFilters={filters}
-                  />
-              }
+            <div className='col-xs-3 split' style={{width: openFilters ? `${filtersWidth}px` : 0, padding: openFilters ? '0 8px' : 0, height: '75vh', overflow: 'auto'}}>
+              <SearchFilters
+                filters={result[resource]?.facets || {}}
+                onChange={onFiltersChange}
+                bgColor={searchBgColor}
+                appliedFilters={filters}
+              />
             </div>
-            <div className='col-xs-9' style={{width: getResultsTableWidth(), paddingRight: 0, paddingLeft: openFilters ? '15px' : 0}}>
+            <div className='col-xs-9 split' style={{width: getResultsTableWidth(), paddingRight: 0, paddingLeft: openFilters ? '15px' : 0, float: 'right'}}>
               <div className='col-xs-12 padding-0'>
                 <ResultsTable
                   bgColor={searchBgColor}
