@@ -192,8 +192,10 @@ const ResultsTable = props => {
   const getTitle = () => {
     const { results, resource } = props
     const total = results?.total
-    if(isNumber(total))
-      return total.toLocaleString() + ' ' + t(`search.${resource}`).toLowerCase()
+    if(isNumber(total)) {
+      const isMore = total && total === 10000;
+      return total.toLocaleString() + (isMore ? '+' : '') + ' ' + t(`search.${resource}`).toLowerCase()
+    }
   }
 
   const columns = filter(
