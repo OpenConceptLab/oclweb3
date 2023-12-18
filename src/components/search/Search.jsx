@@ -182,12 +182,16 @@ const Search = () => {
     return URL
   }
 
+  const noResults = !loading && input && !(result[resource]?.results || []).length
+  const showFilters = openFilters && !noResults
+
   const getResultsTableWidth = () => {
     let toSubtract = 0;
-    if(openFilters)
+    if(showFilters)
       toSubtract = filtersWidth
     return toSubtract ? `calc(100% - ${toSubtract}px)` : '100%'
   }
+
 
   return (
     <div className='col-xs-12 padding-0' style={{overflow: 'auto'}}>
@@ -201,7 +205,7 @@ const Search = () => {
         </div>
         <div className='col-xs-12 padding-0'>
           <div className='col-xs-12 padding-0'>
-            <div className='col-xs-3 split' style={{width: openFilters ? `${filtersWidth}px` : 0, padding: openFilters ? '0 8px' : 0, height: '75vh', overflow: 'auto'}}>
+            <div className='col-xs-3 split' style={{width: showFilters ? `${filtersWidth}px` : 0, padding: showFilters ? '0 8px' : 0, height: '75vh', overflow: 'auto'}}>
               <SearchFilters
                 filters={result[resource]?.facets || {}}
                 onChange={onFiltersChange}
@@ -209,9 +213,11 @@ const Search = () => {
                 appliedFilters={filters}
               />
             </div>
-            <div className='col-xs-9 split' style={{width: getResultsTableWidth(), paddingRight: 0, paddingLeft: openFilters ? '15px' : 0, float: 'right'}}>
+            <div className='col-xs-9 split' style={{width: getResultsTableWidth(), paddingRight: 0, paddingLeft: showFilters ? '15px' : 0, float: 'right'}}>
               <div className='col-xs-12 padding-0'>
                 <ResultsTable
+                  noResults={noResults}
+                  searchedText={input}
                   bgColor={searchBgColor}
                   results={result[resource]}
                   resource={resource}

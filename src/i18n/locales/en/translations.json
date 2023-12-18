@@ -56,6 +56,7 @@
     "filters": "Filters",
     "concepts": "Concepts",
     "sort_by": "Sort By",
-    "loading": "Refining your search results..."
+    "loading": "Refining your search results...",
+    "no_results": "We could not find any matches for "
   }
 }

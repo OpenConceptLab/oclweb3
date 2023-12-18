@@ -20,6 +20,7 @@ import { filter, isNumber } from 'lodash'
 import Skeleton from '@mui/material/Skeleton';
 import SearchControls from './SearchControls';
 import { ALL_COLUMNS } from './ResultConstants';
+import NoResults from './NoResults';
 
 const EnhancedTableHead = props => {
   const { t } = useTranslation()
@@ -69,7 +70,7 @@ const EnhancedTableHead = props => {
 }
 
 const EnhancedTableToolbar = props => {
-  const { numSelected, title, onFiltersToggle } = props;
+  const { numSelected, title, onFiltersToggle, disabled } = props;
   return (
     <Toolbar
       sx={{
@@ -77,9 +78,9 @@ const EnhancedTableToolbar = props => {
         pr: { xs: 1, sm: 1 },
         ...(numSelected > 0 && {
           bgcolor: (theme) =>
-            alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
+          alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
         }),
-        borderBottom: '1px solid rgba(224, 224, 224, 1)',
+        borderBottom: disabled ? 'none': '1px solid rgba(224, 224, 224, 1)',
         minHeight: '48px !important'
       }}
     >
@@ -107,8 +108,8 @@ const EnhancedTableToolbar = props => {
         </div>
       )}
 
-      <SearchControls />
-      <IconButton style={{marginLeft: '5px'}} onClick={onFiltersToggle}>
+      <SearchControls disabled={disabled}/>
+      <IconButton style={{marginLeft: '5px'}} onClick={onFiltersToggle} disabled={disabled}>
         <FilterListIcon />
       </IconButton>
     </Toolbar>
@@ -218,85 +219,92 @@ const ResultsTable = props => {
         numSelected={selected.length}
         title={getTitle()}
         onFiltersToggle={props.onFiltersToggle}
+        disabled={props.noResults}
       />
-      <TableContainer style={{maxHeight: '64vh'}}>
-          <Table
-            stickyHeader
-            sx={{ minWidth: 750 }}
-            size='small'
-          >
-            <EnhancedTableHead
-              bgColor={props.bgColor}
-              numSelected={selected.length}
-              order={order}
-              orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
-              rowCount={props?.results?.results?.length || 0}
-              resource={props.resource}
-              columns={columns}
-            />
-            <TableBody>
-              {rows.map((row, index) => {
-                const id = row.version_url || row.url || row.id
-                const isItemSelected = isSelected(id);
-                const isItemSelectedToShow = isItemShown(id)
-                const labelId = `enhanced-table-checkbox-${index}`;
+      {
+        props.noResults ?
+          <NoResults searchedText={props.searchedText} height='64vh' /> :
+        <React.Fragment>
+          <TableContainer style={{maxHeight: '64vh'}}>
+            <Table
+              stickyHeader
+              sx={{ minWidth: 750 }}
+              size='small'
+            >
+              <EnhancedTableHead
+                bgColor={props.bgColor}
+                numSelected={selected.length}
+                order={order}
+                orderBy={orderBy}
+                onSelectAllClick={handleSelectAllClick}
+                onRequestSort={handleRequestSort}
+                rowCount={props?.results?.results?.length || 0}
+                resource={props.resource}
+                columns={columns}
+              />
+              <TableBody>
+                {rows.map((row, index) => {
+                  const id = row.version_url || row.url || row.id
+                  const isItemSelected = isSelected(id);
+                  const isItemSelectedToShow = isItemShown(id)
+                  const labelId = `enhanced-table-checkbox-${index}`;
 
-                return (
-                  <TableRow
-                    hover
-                    role="checkbox"
-                    aria-checked={isItemSelectedToShow}
-                    tabIndex={-1}
-                    key={id}
-                    onClick={event => handleRowClick(event, id)}
-                    selected={isItemSelectedToShow}
-                    sx={{ cursor: 'pointer' }}
-                  >
-                    <TableCell padding="checkbox" onClick={event => handleClick(event, id)}>
-                      <Checkbox
-                        color="primary"
-                        checked={isItemSelected}
-                        inputProps={{
-                          'aria-labelledby': labelId,
-                        }}
-                      />
-                    </TableCell>
-                    {
-                      columns.map((column, idx) => {
-                        const value = getValue(row, column)
-                        return idx === 0  ?
-                          <TableCell
-                            key={idx}
-                            component="th"
-                            id={labelId}
-                            scope="row"
-                            padding="normal"
-                            className={column.className}
-                          >
+                  return (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      aria-checked={isItemSelectedToShow}
+                      tabIndex={-1}
+                      key={id}
+                      onClick={event => handleRowClick(event, id)}
+                      selected={isItemSelectedToShow}
+                      sx={{ cursor: 'pointer' }}
+                    >
+                      <TableCell padding="checkbox" onClick={event => handleClick(event, id)}>
+                        <Checkbox
+                          color="primary"
+                          checked={isItemSelected}
+                          inputProps={{
+                            'aria-labelledby': labelId,
+                          }}
+                        />
+                      </TableCell>
+                      {
+                        columns.map((column, idx) => {
+                          const value = getValue(row, column)
+                          return idx === 0  ?
+                            <TableCell
+                              key={idx}
+                              component="th"
+                              id={labelId}
+                              scope="row"
+                              padding="normal"
+                              className={column.className}
+                            >
+                              {value}
+                            </TableCell>:
+                          <TableCell key={idx} align="left" className={column.className}>
                             {value}
-                          </TableCell>:
-                        <TableCell key={idx} align="left" className={column.className}>
-                          {value}
-                        </TableCell>
-                      })
-                    }
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 50, 100]}
-          component="div"
-          count={props?.results?.total || 25}
-          rowsPerPage={rowsPerPage}
-          page={(page || 1) - 1}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+                          </TableCell>
+                        })
+                      }
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 50, 100]}
+            component="div"
+            count={props?.results?.total || 25}
+            rowsPerPage={rowsPerPage}
+            page={(page || 1) - 1}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </React.Fragment>
+      }
     </Box>
   );
 }
