@@ -4,8 +4,8 @@ import { Route, Switch, withRouter } from 'react-router-dom';
 import {
   recordGAPageView
 } from '../../common/utils';
-import NotFound from '../common/NotFound';
-import ErrorBoundary from '../common/ErrorBoundary';
+import Error404 from '../errors/Error404';
+import ErrorBoundary from '../errors/ErrorBoundary';
 import Footer from './Footer';
 import DocumentTitle from "./DocumentTitle"
 import './App.scss';
@@ -53,7 +53,7 @@ const App = props => {
               <Route exact path="/oidc/login" component={OIDLoginCallback} />
               <Route exact path="/search" component={Search} />
               <Route exact path="/" component={Dashboard} />
-              <Route component={NotFound} />
+              <Route component={Error404} />
             </Switch>
             <Alert message={alert?.message} onClose={() => setAlert(false)} severity={alert?.severity} duration={alert?.duration} />
           </main>
