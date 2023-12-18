@@ -10,7 +10,12 @@
     "owner": "Propietario",
     "show": "Mostrar",
     "hide": "Ocultar",
-    "more": "Más"
+    "more": "Más",
+    "refresh": "Actualizar",
+    "or_go_to_your": "o ve a tu "
+  },
+  "errors": {
+    "404": "¡Lo siento, no se pudo encontrar tu página!"
   },
   "dashboard": {
     "name": "Tablero",
@@ -50,6 +55,7 @@
   "search": {
     "filters": "Filtros",
     "concepts": "Conceptos",
-    "sort_by": "Ordenar por"
+    "sort_by": "Ordenar por",
+    "loading": "Refinando tus resultados de búsqueda..."
   }
 }

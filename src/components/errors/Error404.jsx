@@ -1,8 +1,10 @@
 import React from 'react';
 import SvgIcon from '@mui/material/SvgIcon';
+import { useTranslation } from 'react-i18next'
 import { BLACK, PRIMARY } from '../../common/constants';
 
 const Error404 = () => {
+  const { t } = useTranslation()
   return (
     <div style={{display: 'flex', height: 'calc(100vh - 100px)', alignItems: 'center', justifyContent: 'center', textAlign: 'center', flexDirection: 'column'}}>
       <div className='col-xs-12'>
@@ -52,12 +54,12 @@ const Error404 = () => {
       </div>
       <div className='col-xs-12'>
         <p style={{color: '#000', fontSize: '24px', margin: '16px 0'}}>
-          Sorry your page could not be found.
+          {t('errors.404')}
         </p>
       </div>
       <div className='col-xs-12'>
         <p style={{color: BLACK, fontSize: '16px', margin: 0}}>
-          Please <a className='no-anchor-styles' onClick={() => window.location.reload()} style={{cursor: 'pointer', color: PRIMARY}}>refresh</a> or go to your <a href='/' className='no-anchor-styles' style={{color: PRIMARY}}>Dashboard</a>.
+          Please <a className='no-anchor-styles' onClick={() => window.location.reload()} style={{cursor: 'pointer', color: PRIMARY}}>{t('common.refresh')}</a> {t('common.or_go_to_your')} <a href='/' className='no-anchor-styles' style={{color: PRIMARY}}>{t('dashboard.name')}</a>.
         </p>
       </div>
     </div>

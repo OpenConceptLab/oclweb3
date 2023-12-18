@@ -10,7 +10,12 @@
     "owner": "Owner",
     "show": "Show",
     "hide": "Hide",
-    "more": "More"
+    "more": "More",
+    "refresh": "refresh",
+    "or_go_to_your": "or go to your "
+  },
+  "errors": {
+    "404": "Sorry your page could not be found."
   },
   "dashboard": {
     "name": "Dashboard",
