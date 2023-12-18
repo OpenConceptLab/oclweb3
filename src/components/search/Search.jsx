@@ -13,8 +13,10 @@ import ConceptIcon from '../concepts/ConceptIcon';
 import ConceptHome from '../concepts/ConceptHome';
 import ResultsTable from './ResultsTable';
 import SearchFilters from './SearchFilters'
+import LoaderDialog from '../common/LoaderDialog';
 
 const Search = () => {
+  const [loading, setLoading] = React.useState(true)
   const [openFilters, setOpenFilters] = React.useState(true)
   const [input, setInput] = React.useState('');
   const [page, setPage] = React.useState(0);
@@ -98,9 +100,11 @@ const Search = () => {
   }
 
   const fetchResults = (params, facets=true) => {
+    setLoading(true)
     APIService.new().overrideURL(`/${resource}/`).get(null, null, params).then(response => {
       const resourceResult = {total: parseInt(response?.headers?.num_found), pageSize: parseInt(response?.headers?.num_returned), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || [], facets: result[resource]?.facets || {}}
       setResult({[resource]: resourceResult})
+      setLoading(false)
       if(facets)
         fetchFacets(params, resourceResult)
     })
@@ -187,6 +191,7 @@ const Search = () => {
 
   return (
     <div className='col-xs-12 padding-0' style={{overflow: 'auto'}}>
+      <LoaderDialog open={loading} message={t('search.loading')} />
       <div className={showItem?.id ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: '10px', height: '86vh'}}>
         <div className='col-xs-12 padding-0' style={{borderBottom: `1px solid ${LIGHT_GRAY}`}}>
           <Tabs value={resource} onChange={handleResourceChange} aria-label="search tabs" TabIndicatorProps={{style: {height: '3px'}}}>

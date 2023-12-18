@@ -50,6 +50,7 @@
   "search": {
     "filters": "Filters",
     "concepts": "Concepts",
-    "sort_by": "Sort By"
+    "sort_by": "Sort By",
+    "loading": "Refining your search results..."
   }
 }
