@@ -128,7 +128,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
           <b>{t('search.filters')}</b>
         </span>
         <span>
-          <Button variant='text' startIcon={<ClearIcon fontSize='inherit' />} style={{textTransform: 'none'}} onClick={onClear} disabled={!count}>
+          <Button variant='text' startIcon={<ClearIcon style={{color: 'inherit'}} fontSize='inherit' />} style={{textTransform: 'none'}} onClick={onClear} disabled={!count}>
             {getClearButtonText()}
           </Button>
         </span>

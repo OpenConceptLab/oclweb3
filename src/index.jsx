@@ -60,6 +60,20 @@ const v5Theme = createTheme(theme, {
         },
       },
     },
+    MuiListItemIcon: {
+      styleOverrides: {
+        root: {
+          color: TEXT_GRAY
+        }
+      }
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          color: TEXT_GRAY
+        }
+      }
+    },
     MuiButton: {
       variants: [
         {

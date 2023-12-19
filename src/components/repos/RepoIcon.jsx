@@ -4,7 +4,7 @@ import RepoFilledIcon from '@mui/icons-material/Folder';
 
 
 const RepoIcon = ({selected, ...rest}) => {
-  return selected ? <RepoFilledIcon {...rest} /> : <RepoOutlinedIcon {...rest} />
+  return selected ? <RepoFilledIcon color='primary' {...rest} /> : <RepoOutlinedIcon {...rest} />
 }
 
 export default RepoIcon;
