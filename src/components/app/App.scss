@@ -9,6 +9,9 @@ div.rounded-input {
     > div {
         border-radius: 100px;
     }
+    fieldset {
+        border: none;
+    }
 }
 .flex-vertical-center {
     display: flex;
