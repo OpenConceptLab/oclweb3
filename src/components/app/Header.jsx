@@ -114,7 +114,7 @@ const Header = props => {
             </div>
             <div className='col-xs-3' />
             <div className='col-xs-4 padding-0' style={{textAlign: 'center'}}>
-              <SearchInput size='small' style={{width: '100%'}} />
+              <SearchInput size='small' style={{width: '100%'}} placeholder={t('search.input_placeholder')} />
             </div>
             <div className='col-xs-1' />
             <HeaderControls />

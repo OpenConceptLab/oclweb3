@@ -58,6 +58,7 @@
     "concepts": "Concepts",
     "sort_by": "Sort By",
     "loading": "Refining your search results...",
-    "no_results": "We could not find any matches for "
+    "no_results": "We could not find any matches for ",
+    "input_placeholder": "Search OCL..."
   }
 }
