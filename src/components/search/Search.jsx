@@ -84,6 +84,9 @@ const Search = () => {
       }
     )
 
+    if(queryParam?.retired === 'true,false' || queryParam?.retired === 'false,true')
+      queryParam['includeRetired'] = true
+
     return queryParam
   }
 

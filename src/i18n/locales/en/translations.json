@@ -12,7 +12,8 @@
     "hide": "Hide",
     "more": "More",
     "refresh": "refresh",
-    "or_go_to_your": "or go to your "
+    "or_go_to_your": "or go to your ",
+    "retired": "Retired"
   },
   "errors": {
     "404": "Sorry your page could not be found."

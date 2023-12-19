@@ -18,6 +18,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import { filter, isNumber } from 'lodash'
 import Skeleton from '@mui/material/Skeleton';
+import { SECONDARY } from '../../common/constants';
 import SearchControls from './SearchControls';
 import { ALL_COLUMNS } from './ResultConstants';
 import NoResults from './NoResults';
@@ -248,6 +249,7 @@ const ResultsTable = props => {
                   const isItemSelected = isSelected(id);
                   const isItemSelectedToShow = isItemShown(id)
                   const labelId = `enhanced-table-checkbox-${index}`;
+                  const color = row.retired ? SECONDARY : 'none'
 
                   return (
                     <TableRow
@@ -260,7 +262,7 @@ const ResultsTable = props => {
                       selected={isItemSelectedToShow}
                       sx={{ cursor: 'pointer' }}
                     >
-                      <TableCell padding="checkbox" onClick={event => handleClick(event, id)}>
+                      <TableCell padding="checkbox" onClick={event => handleClick(event, id)} style={{color: color}}>
                         <Checkbox
                           color="primary"
                           checked={isItemSelected}
@@ -280,10 +282,11 @@ const ResultsTable = props => {
                               scope="row"
                               padding="normal"
                               className={column.className}
+                              style={{color: color}}
                             >
                               {value}
                             </TableCell>:
-                          <TableCell key={idx} align="left" className={column.className}>
+                          <TableCell key={idx} align="left" className={column.className} style={{color: color}}>
                             {value}
                           </TableCell>
                         })

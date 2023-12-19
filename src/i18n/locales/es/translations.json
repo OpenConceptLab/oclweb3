@@ -12,7 +12,8 @@
     "hide": "Ocultar",
     "more": "Más",
     "refresh": "Actualizar",
-    "or_go_to_your": "o ve a tu "
+    "or_go_to_your": "o ve a tu ",
+    "retired": "Jubilado"
   },
   "errors": {
     "404": "¡Lo siento, no se pudo encontrar tu página!"

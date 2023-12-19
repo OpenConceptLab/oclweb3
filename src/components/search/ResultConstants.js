@@ -3,12 +3,13 @@ import {
   formatDate
 } from '../../common/utils';
 import OwnerIcon from '../common/OwnerIcon';
+import Retired from '../common/Retired';
 
 
 export const ALL_COLUMNS = {
   concepts: [
     {id: 'id', labelKey: 'concept.id', value: 'id', sortOn: 'id_lowercase', className: 'searchable'},
-    {id: 'name', labelKey: 'concept.display_name', value: 'display_name', sortOn: '_name', className: 'searchable', sortBy: 'asc'},
+    {id: 'name', labelKey: 'concept.display_name', value: 'display_name', sortOn: '_name', className: 'searchable', sortBy: 'asc', renderer: item => (<span><React.Fragment>{item.display_name} {item.retired && <Retired style={{marginLeft: '8px'}}/>}</React.Fragment></span>)},
     {id: 'class', labelKey: 'concept.concept_class', value: 'concept_class', sortOn: 'concept_class'},
     {id: 'datatype', labelKey: 'concept.datatype', value: 'datatype', sortOn: 'datatype'},
     {id: 'updatedOn', labelKey: 'common.updated_on', value: 'version_updated_on', formatter: formatDate, sortOn: 'last_update', global: false},
