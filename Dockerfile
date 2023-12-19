@@ -38,6 +38,7 @@ RUN ["bash", "-c", "./set_build_version.sh"]
 
 RUN npm run build
 RUN cp public/bootstrap.min.css dist/
+RUN cp public/favicon.ico dist/
 RUN cp public/favicon.svg dist/
 RUN cp public/dark-favicon.svg dist/
 RUN cp public/light-favicon.svg dist/
