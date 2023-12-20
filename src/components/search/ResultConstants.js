@@ -8,7 +8,7 @@ import Retired from '../common/Retired';
 
 export const ALL_COLUMNS = {
   concepts: [
-    {id: 'id', labelKey: 'concept.id', value: 'id', sortOn: 'id_lowercase', className: 'searchable'},
+    {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id_lowercase', className: 'searchable'},
     {id: 'name', labelKey: 'concept.display_name', value: 'display_name', sortOn: '_name', className: 'searchable', sortBy: 'asc', renderer: item => (<span><React.Fragment>{item.display_name} {item.retired && <Retired style={{marginLeft: '8px'}}/>}</React.Fragment></span>)},
     {id: 'class', labelKey: 'concept.concept_class', value: 'concept_class', sortOn: 'concept_class'},
     {id: 'datatype', labelKey: 'concept.datatype', value: 'datatype', sortOn: 'datatype'},
@@ -18,10 +18,15 @@ export const ALL_COLUMNS = {
     {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', nested: false, renderer: item => (<span style={{display: 'flex'}}><OwnerIcon ownerType={item.owner_type} fontSize='small' style={{marginRight: '4px'}}/>{item.owner}</span>)},
   ],
   repos: [
-    {id: 'id', labelKey: 'repo.id', value: 'id', sortOn: 'id', className: 'searchable'},
-    {id: 'name', labelKey: 'repo.name', value: 'name', sortOn: 'name', className: 'searchable'},
+    {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id', className: 'searchable'},
+    {id: 'name', labelKey: 'common.name', value: 'name', sortOn: 'name', className: 'searchable'},
     {id: 'type', labelKey: 'repo.repo_type', value: 'type'},
     {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', nested: false, renderer: item => (<span style={{display: 'flex'}}><OwnerIcon ownerType={item.owner_type} fontSize='small' style={{marginRight: '4px'}}/>{item.owner}</span>)},
+  ],
+  orgs: [
+    {id: 'id', labelKey: 'common.id', value: 'id', sortOn: '_mnemonic', className: 'searchable'},
+    {id: 'name', labelKey: 'common.name', value: 'name', sortOn: '_name', sortBy: 'asc', className: 'searchable'},
+    {id: 'createdOn', labelKey: 'common.created_on', value: 'created_on', formatter: formatDate, sortOn: 'created_on'},
   ],
 };
 

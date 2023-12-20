@@ -11,12 +11,14 @@ import APIService from '../../services/APIService';
 import RepoIcon from '../repos/RepoIcon';
 import ConceptIcon from '../concepts/ConceptIcon';
 import ConceptHome from '../concepts/ConceptHome';
+import OrgIcon from '@mui/icons-material/AccountBalance';
 import ResultsTable from './ResultsTable';
 import SearchFilters from './SearchFilters'
 import LoaderDialog from '../common/LoaderDialog';
 
 const DEFAULT_LIMIT = 25;
-  const filtersWidth = 250
+const FILTERS_WIDTH = 250
+
 const Search = () => {
   const { t } = useTranslation()
   const history = useHistory();
@@ -36,7 +38,7 @@ const Search = () => {
 
   React.useEffect(() => {
     const queryParams = new URLSearchParams(location.search)
-    if(queryParams.get('q') !== input) {
+    if((queryParams.get('q') !== input) || (!queryParams.get('q') && !input)) {
       setQueryParamsInState()
     }
   }, [location.search])
@@ -67,7 +69,7 @@ const Search = () => {
     let url = '/search/'
     url += `?q=${q || ''}`
     if(_resource !== 'concepts')
-    url += `&type=${_resource}`
+      url += `&type=${_resource}`
     if(pageSize !== DEFAULT_LIMIT)
       url += `&limit=${limit}`
     if(page && page > 1)
@@ -221,12 +223,12 @@ const Search = () => {
   }
 
   const noResults = !loading && input && !(result[resource]?.results || []).length
-  const showFilters = openFilters && !noResults
+  const showFilters = openFilters && !noResults && ['concepts', 'mappings', 'repos', 'sources', 'collections'].includes(resource)
 
   const getResultsTableWidth = () => {
     let toSubtract = 0;
     if(showFilters)
-      toSubtract = filtersWidth
+      toSubtract = FILTERS_WIDTH
     return toSubtract ? `calc(100% - ${toSubtract}px)` : '100%'
   }
 
@@ -238,11 +240,12 @@ const Search = () => {
           <Tabs value={resource} onChange={handleResourceChange} aria-label="search tabs" TabIndicatorProps={{style: {height: '3px'}}}>
             <Tab value='concepts' icon={<ConceptIcon selected={resource == 'concepts'} fontSize='small' />} label={t('concept.concepts')} style={TAB_STYLES} />
             <Tab value='repos' icon={<RepoIcon selected={resource == 'repos'} fontSize='small' />} label={t('repo.repos')} style={TAB_STYLES} />
+            <Tab value='orgs' icon={<OrgIcon color={resource === 'orgs' ? 'primary' : 'secondary'} fontSize='small' />} label={t('org.orgs')} style={TAB_STYLES} />
           </Tabs>
         </div>
         <div className='col-xs-12 padding-0'>
           <div className='col-xs-12 padding-0'>
-            <div className='col-xs-3 split' style={{width: showFilters ? `${filtersWidth}px` : 0, padding: showFilters ? '0 8px' : 0, height: '75vh', overflow: 'auto'}}>
+            <div className='col-xs-3 split' style={{width: showFilters ? `${FILTERS_WIDTH}px` : 0, padding: showFilters ? '0 8px' : 0, height: '75vh', overflow: 'auto'}}>
               <SearchFilters
                 resource={resource}
                 filters={result[resource]?.facets || {}}

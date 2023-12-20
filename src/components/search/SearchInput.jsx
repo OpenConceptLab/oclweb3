@@ -52,13 +52,14 @@ const SearchInput = props => {
       let URL = `/search/?type=${resourceType}`
       if(input) {
         if(pathName === '/search/') {
+          URL = '/search/?'
           queryParams.set('q', _input)
           URL += `&${queryParams.toString()}`
         } else {
           URL +=`&q=${_input}`;
         }
       }
-      history.push(URL);
+      history.push(URL.replace('?&', '?'));
     }
   }
 

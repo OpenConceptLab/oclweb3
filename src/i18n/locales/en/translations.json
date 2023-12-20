@@ -13,7 +13,10 @@
     "more": "More",
     "refresh": "refresh",
     "or_go_to_your": "or go to your ",
-    "retired": "Retired"
+    "retired": "Retired",
+    "id": "ID",
+    "name": "Name",
+    "created_on": "Created On"
   },
   "errors": {
     "404": "Sorry your page could not be found."
@@ -44,7 +47,6 @@
   },
   "concept": {
     "concepts": "Concepts",
-    "id": "ID",
     "display_name": "Display Name",
     "concept_class": "Class",
     "datatype": "Datatype"
@@ -52,14 +54,17 @@
   "repo": {
     "repos": "Repositories",
     "repo": "Repository",
-    "id": "ID",
-    "name": "Name",
     "repo_type": "Repository Type"
+  },
+  "org": {
+    "orgs": "Organizations",
+    "org": "Organization"
   },
   "search": {
     "filters": "Filters",
     "concepts": "Concepts",
     "repos": "Repositories",
+    "orgs": "Organizations",
     "sort_by": "Sort By",
     "loading": "Refining your search results...",
     "no_results": "We could not find any matches for ",
