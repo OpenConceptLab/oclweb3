@@ -51,11 +51,15 @@
   },
   "repo": {
     "repos": "Repositories",
-    "repo": "Repository"
+    "repo": "Repository",
+    "id": "ID",
+    "name": "Name",
+    "repo_type": "Repository Type"
   },
   "search": {
     "filters": "Filters",
     "concepts": "Concepts",
+    "repos": "Repositories",
     "sort_by": "Sort By",
     "loading": "Refining your search results...",
     "no_results": "We could not find any matches for ",

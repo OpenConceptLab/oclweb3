@@ -7,7 +7,7 @@ const SearchControls = ({ disabled }) => {
   const { t } = useTranslation()
   return (
     <div className='col-xs-12 padding-0' style={{float: 'right', textAlign: 'right'}}>
-      <Button disabled={disabled} variant='contained' color='default' size='small' style={{textTransform: 'none'}} endIcon={<DownIcon fontSize='inherit' />}>
+      <Button disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none'}} endIcon={<DownIcon fontSize='inherit' />}>
         {t('search.sort_by')}
       </Button>
     </div>

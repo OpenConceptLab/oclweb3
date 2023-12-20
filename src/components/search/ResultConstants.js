@@ -17,6 +17,12 @@ export const ALL_COLUMNS = {
     {id: 'parent', labelKey: 'repo.repo', value: 'source', sortOn: 'source', nested: false, renderer: item => `${item.source}:${item.latest_source_version}`},
     {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', nested: false, renderer: item => (<span style={{display: 'flex'}}><OwnerIcon ownerType={item.owner_type} fontSize='small' style={{marginRight: '4px'}}/>{item.owner}</span>)},
   ],
+  repos: [
+    {id: 'id', labelKey: 'repo.id', value: 'id', sortOn: 'id', className: 'searchable'},
+    {id: 'name', labelKey: 'repo.name', value: 'name', sortOn: 'name', className: 'searchable'},
+    {id: 'type', labelKey: 'repo.repo_type', value: 'type'},
+    {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', nested: false, renderer: item => (<span style={{display: 'flex'}}><OwnerIcon ownerType={item.owner_type} fontSize='small' style={{marginRight: '4px'}}/>{item.owner}</span>)},
+  ],
 };
 
 
@@ -36,7 +42,8 @@ export const FACET_ORDER = {
     'fromConceptOwner', 'fromConceptOwnerType', 'fromConceptSource', 'fromConcept',
     'toConceptOwner', 'toConceptOwnerType', 'toConceptSource', 'toConcept',
     'retired', 'collection_membership', 'updatedBy'
-  ]
+  ],
+  "repos": ["sourceType", "collectionType", "owner", "ownerType", "customValidationSchema", "locale"]
 }
 
 export const SORT_ATTRS = {

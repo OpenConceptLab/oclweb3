@@ -48,19 +48,14 @@ const SearchInput = props => {
       const queryString = urlParts[1]
       const pathName = urlParts[0].replace('#', '')
       const queryParams = new URLSearchParams(queryString)
-      const resourceType = queryParams.get('type')
-      let URL = '/search/'
-      if(!_input) {
-        if(resourceType)
-          URL += `?type=${resourceType}`
-      } else {
+      const resourceType = queryParams.get('type') || 'concepts'
+      let URL = `/search/?type=${resourceType}`
+      if(input) {
         if(pathName === '/search/') {
           queryParams.set('q', _input)
-          URL += `?${queryParams.toString()}`
+          URL += `&${queryParams.toString()}`
         } else {
-          URL +=`?q=${_input}`;
-          if(resourceType)
-            URL += `&type=${resourceType}`
+          URL +=`&q=${_input}`;
         }
       }
       history.push(URL);

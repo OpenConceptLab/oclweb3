@@ -110,7 +110,7 @@ const EnhancedTableToolbar = props => {
       )}
 
       <SearchControls disabled={disabled}/>
-      <IconButton style={{marginLeft: '5px'}} onClick={onFiltersToggle} disabled={disabled}>
+      <IconButton style={{marginLeft: '5px'}} onClick={onFiltersToggle} disabled={Boolean(disabled)}>
         <FilterListIcon />
       </IconButton>
     </Toolbar>
@@ -169,6 +169,8 @@ const ResultsTable = props => {
   const handleRowClick = (event, id) => {
     event.preventDefault()
     event.stopPropagation()
+    if(props.resource !== 'concepts')
+      return
 
     const row = rows.find(row => id == (row.version_url || row.url || row.id)) || false
     props.onShowItemSelect(row)
