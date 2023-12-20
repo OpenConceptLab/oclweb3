@@ -13,7 +13,7 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
   const id = concept.version_url || concept.url || concept.id
   const isChecked = isSelected(id)
   const isSelectedToShow = isShown(id)
-  const border = (isChecked || isSelectedToShow) ? `1px solid ${PRIMARY}` : '0.3px solid #787680'
+  const border = (isChecked || isSelectedToShow) ? `1px solid ${PRIMARY}` : '0.3px solid rgba(0, 0, 0, 0.12)'
   return (
     <Card variant='outlined' className='col-xs-12' style={{padding: '16px', border: border, borderRadius: '10px', display: 'flex', alignItems: 'center', margin: firstChild ? '0 0 8px 0' : '8px 0', cursor: 'pointer', backgroundColor: isSelectedToShow ? WHITE : bgColor}} onClick={event => onCardClick(event, id)}>
       <div className='col-xs-1 padding-0' style={{maxWidth: '24px'}}>
