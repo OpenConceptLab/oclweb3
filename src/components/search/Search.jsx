@@ -6,14 +6,14 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import OrgIcon from '@mui/icons-material/AccountBalance';
 import UserIcon from '@mui/icons-material/Person';
-import { forEach, keys, pickBy, isEmpty, find, uniq, has, orderBy, uniqBy, omit } from 'lodash';
+import { forEach, keys, pickBy, isEmpty, find, uniq, has, orderBy, uniqBy, omit, max, isEqual } from 'lodash';
 import { WHITE, LIGHT_GRAY } from '../../common/constants';
 import { highlightTexts } from '../../common/utils';
 import APIService from '../../services/APIService';
 import RepoIcon from '../repos/RepoIcon';
 import ConceptIcon from '../concepts/ConceptIcon';
 import ConceptHome from '../concepts/ConceptHome';
-import ResultsTable from './ResultsTable';
+import SearchResults from './SearchResults';
 import SearchFilters from './SearchFilters'
 import LoaderDialog from '../common/LoaderDialog';
 
@@ -25,7 +25,6 @@ const Search = () => {
   const { t } = useTranslation()
   const history = useHistory();
   const location = useLocation();
-
   const [loading, setLoading] = React.useState(true)
   const [openFilters, setOpenFilters] = React.useState(true)
   const [input, setInput] = React.useState('');
@@ -38,65 +37,85 @@ const Search = () => {
   const [showItem, setShowItem] = React.useState(false)
   const didMount = React.useRef(false);
 
-  const isFilterable = FILTERABLE_RESOURCES.includes(resource)
+  const isFilterable = _resource => FILTERABLE_RESOURCES.includes(_resource)
+
+  React.useEffect(() => {
+    setQueryParamsInState(true)
+  }, [])
 
   React.useEffect(() => {
     const queryParams = new URLSearchParams(location.search)
-    if((queryParams.get('q') !== input) || (!queryParams.get('q') && !input)) {
+    const newInput = queryParams.get('q')
+    //if((newInput !== input) && (newInput || input)) {
+    //}
+    if(didMount.current)
       setQueryParamsInState()
-    }
+    else
+      didMount.current = true
   }, [location.search])
 
   React.useEffect(() => {
     highlight()
   }, [result])
 
-  React.useEffect(() => {
-    if(!location.search && !input){
-      fetchResults(getQueryParams(input, page, pageSize, filters))
-    }
-  }, [])
+  // React.useEffect(() => {
+  //   if(didMount.current)
+  //     setQueryParamsInState()
+  //   else
+  //     didMount.current = true
+  // }, [filters, resource, page, pageSize])
 
-  React.useEffect(() => {
-    if(didMount.current)
-      fetchResults(getQueryParams(input, page, pageSize, filters), true)
-    else
-      didMount.current = true
-  }, [filters, resource])
+  const onDisplayChange = () => input && setTimeout(highlight, 100)
 
-  const getCurrentLayoutURL = params => {
+  const getCurrentLayoutURL = (params, _resource) => {
     /*eslint no-unused-vars: 0*/
     const { q, page, limit, includeSearchMeta, ...filters} = params
-    let _resource = resource || 'concepts'
+    _resource = _resource || resource || 'concepts'
     if(_resource === 'organizations')
       _resource = 'orgs'
-    let url = '/search/'
+    let url = '/search/?'
     if(q)
-      url += `?q=${q || ''}`
+      url += `&q=${q || ''}`
     if(_resource !== 'concepts')
       url += `&type=${_resource}`
-    if(pageSize !== DEFAULT_LIMIT)
+    if(limit !== DEFAULT_LIMIT)
       url += `&limit=${limit}`
     if(page && page > 1)
-      url += `&page=${(page || 1) - 1}`
+      url += `&page=${page}`
     if(!isEmpty(filters)){
       url += `&filters=${JSON.stringify(omit(filters, 'includeRetired'))}`
     }
 
-    let queryStr = url.split('?')[1]
+    let queryStr = url.replace('?&', '?').split('?')[1]
     queryStr = queryStr ? '?' + queryStr : ''
 
     return window.location.hash.replace('#', '').split('?')[0] + queryStr;
   }
 
-  const setQueryParamsInState = () => {
+  const setQueryParamsInState = mustFetch => {
     const queryParams = new URLSearchParams(window.location.hash.split('?')[1])
     const value = queryParams.get('q') || ''
     const isDiffFromPrevInput = value !== input
-    const _page = parseInt(queryParams.get('page') || 0)
-    const _pageSize = parseInt(queryParams.get('pageSize') || 25)
+    const _page = parseInt(queryParams.get('page') || 1)
+    const _pageSize = parseInt(queryParams.get('limit') || 25)
     const _resource = queryParams.get('type') || 'concepts'
-    let _fetch = false
+    let _fetch = mustFetch || false
+    let _fetchFacets = mustFetch || isDiffFromPrevInput
+    let _filters = queryParams.get('filters') || false
+    if(_filters) {
+      try {
+        _filters = getAppliedFacetFromQueryParam(JSON.parse(_filters))
+      } catch {
+        _filters = {}
+      }
+      _fetch = true
+      _fetchFacets = true
+    }
+    if(!isEqual(filters, _filters)) {
+      setFilters(_filters)
+      _fetchFacets = true
+      _fetch = true
+    }
     if(isDiffFromPrevInput) {
       setInput(value)
       _fetch = true
@@ -104,6 +123,7 @@ const Search = () => {
     if(_resource !== resource) {
       setResource(_resource)
       _fetch = true
+      _fetchFacets = true
     }
     if(_page !== page) {
       setPage(_page)
@@ -115,7 +135,16 @@ const Search = () => {
     }
 
     if(_fetch)
-      fetchResults(getQueryParams(value, _page, _pageSize, filters), isDiffFromPrevInput)
+      fetchResults(getQueryParams(value, _page, _pageSize, _filters), _fetchFacets, _resource)
+  }
+
+  const getAppliedFacetFromQueryParam = filters => {
+    const applied = {}
+    forEach(filters, (value, field) => {
+      applied[field] = {}
+      forEach(value.split(','), val => applied[field][val] = true)
+    })
+    return applied
   }
 
   const getFacetQueryParam = filters => {
@@ -134,33 +163,35 @@ const Search = () => {
 
 
   const getQueryParams = (_input, _page, _pageSize, _filters) => {
-    return {q: _input, page: (_page || 0) + 1, limit: _pageSize, includeSearchMeta: true, ...getFacetQueryParam(_filters || {})}
+    return {q: _input, page: _page || 1, limit: _pageSize, includeSearchMeta: true, ...getFacetQueryParam(_filters || {})}
   }
 
   const handleResourceChange = (event, newTab) => {
     event.preventDefault()
     event.stopPropagation()
 
-    setResource(newTab)
+    history.push(getCurrentLayoutURL(getQueryParams(input, page, pageSize, filters), newTab))
   }
 
-  const fetchResults = (params, facets=true) => {
-    if(!resource)
+  const fetchResults = (params, facets=true, _resource=undefined) => {
+    let __resource = _resource || resource
+    if(!__resource)
       return
     setLoading(true)
-    APIService.new().overrideURL(`/${resource}/`).get(null, null, params).then(response => {
-      const resourceResult = {total: parseInt(response?.headers?.num_found), pageSize: parseInt(response?.headers?.num_returned), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || [], facets: result[resource]?.facets || {}}
-      setResult({[resource]: resourceResult})
+    APIService.new().overrideURL(`/${__resource}/`).get(null, null, params).then(response => {
+      const resourceResult = {total: parseInt(response?.headers?.num_found), pageSize: max([parseInt(response?.headers?.num_returned), params?.limit]), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || [], facets: result[__resource]?.facets || {}}
+      setResult({[__resource]: resourceResult})
       setLoading(false)
-      history.push(getCurrentLayoutURL(params))
-      if(facets && isFilterable)
-        fetchFacets(params, resourceResult)
+      //history.push(getCurrentLayoutURL(params))
+      if(facets && isFilterable(__resource))
+        fetchFacets(params, resourceResult, __resource)
     })
   }
 
-  const fetchFacets = (params, otherResults) => {
-    APIService.new().overrideURL(`/${resource}/`).get(null, null, {...params, facetsOnly: true}).then(response => {
-      setResult({[resource]: {...get(result, resource, {}), ...(otherResults || {}), facets: prepareFacets(response?.data?.facets?.fields || {})}})
+  const fetchFacets = (params, otherResults, _resource=undefined) => {
+    const __resource = _resource || resource
+    APIService.new().overrideURL(`/${__resource}/`).get(null, null, {...params, facetsOnly: true}).then(response => {
+      setResult({[__resource]: {...get(result, resource, {}), ...(otherResults || {}), facets: prepareFacets(response?.data?.facets?.fields || {})}})
     })
   }
 
@@ -209,16 +240,18 @@ const Search = () => {
     return mergedFacets
   }
 
-  const onPageChange = (_page, _pageSize) => fetchResults(getQueryParams(input, _page, _pageSize, filters), isEmpty(filters))
+  const onPageChange = (_page, _pageSize) => {
+    history.push(getCurrentLayoutURL(getQueryParams(input, _page, _pageSize, filters)))
+  }
 
   const highlight = item => highlightTexts(item?.id ? [item] : result[resource]?.results || [], null, true)
 
   const onFiltersChange = newFilters => {
-    setFilters(newFilters)
+    history.push(getCurrentLayoutURL(getQueryParams(input, page, pageSize, newFilters)))
   }
 
   const TAB_STYLES = {textTransform: 'none'}
-  const searchBgColor = selected.length ? '#fcf8fd' : WHITE
+  const searchBgColor = showItem ? '#fcf8fd' : WHITE
   const getLastSelectedURL = () => {
     let URL = showItem?.version_url || showItem?.url
     if(showItem && ['concepts', 'mappings'].includes(resource)) {
@@ -231,9 +264,9 @@ const Search = () => {
   }
 
   const noResults = !loading && input && !(result[resource]?.results || []).length
-  const showFilters = openFilters && !noResults && isFilterable
+  const showFilters = openFilters && !noResults && isFilterable(resource)
 
-  const getResultsTableWidth = () => {
+  const getSearchResultsWidth = () => {
     let toSubtract = 0;
     if(showFilters)
       toSubtract = FILTERS_WIDTH
@@ -263,10 +296,10 @@ const Search = () => {
                 appliedFilters={filters}
               />
             </div>
-            <div className='col-xs-9 split' style={{width: getResultsTableWidth(), paddingRight: 0, paddingLeft: showFilters ? '15px' : 0, float: 'right'}}>
+            <div className='col-xs-9 split' style={{width: getSearchResultsWidth(), paddingRight: 0, paddingLeft: showFilters ? '15px' : 0, float: 'right'}}>
               <div className='col-xs-12 padding-0'>
-                <ResultsTable
-                  isFilterable={isFilterable}
+                <SearchResults
+                  isFilterable={isFilterable(resource)}
                   noResults={noResults}
                   searchedText={input}
                   bgColor={searchBgColor}
@@ -277,6 +310,7 @@ const Search = () => {
                   selectedToShow={showItem}
                   onShowItemSelect={item => setShowItem(item || false)}
                   onFiltersToggle={() => setOpenFilters(!openFilters)}
+                  onDisplayChange={onDisplayChange}
                 />
               </div>
             </div>

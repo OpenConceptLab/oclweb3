@@ -78,8 +78,11 @@
     "orgs": "Organizations",
     "users": "Users",
     "sort_by": "Sort By",
+    "display": "Display",
     "loading": "Refining your search results...",
     "no_results": "We could not find any matches for ",
-    "input_placeholder": "Search OCL..."
+    "input_placeholder": "Search OCL...",
+    "table": "Table",
+    "card": "Card"
   }
 }

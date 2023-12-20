@@ -12,11 +12,14 @@
     "hide": "Ocultar",
     "more": "Más",
     "refresh": "Actualizar",
-    "or_go_to_your": "o ve a tu ",
-    "retired": "Jubilado"
+    "or_go_to_your": "o ir a tu ",
+    "retired": "Retirado",
+    "id": "ID",
+    "name": "Nombre",
+    "created_on": "Creado el"
   },
   "errors": {
-    "404": "¡Lo siento, no se pudo encontrar tu página!"
+    "404": "Lo sentimos, no se pudo encontrar tu página."
   },
   "dashboard": {
     "name": "Tablero",
@@ -44,21 +47,42 @@
   },
   "concept": {
     "concepts": "Conceptos",
-    "id": "ID",
-    "display_name": "Nombre para mostrar",
-    "concept_class": "Clase de concepto",
+    "display_name": "Nombre a mostrar",
+    "concept_class": "Clase",
     "datatype": "Tipo de dato"
   },
   "repo": {
     "repos": "Repositorios",
-    "repo": "Repositorio"
+    "repo": "Repositorio",
+    "repo_type": "Tipo de repositorio"
+  },
+  "org": {
+    "orgs": "Organizaciones",
+    "org": "Organización"
+  },
+  "user": {
+    "users": "Usuarios",
+    "user": "Usuario",
+    "username": "Nombre de usuario",
+    "joined_on": "Fecha de unión",
+    "email": "Correo electrónico",
+    "company": "Empresa",
+    "location": "Ubicación",
+    "website": "Sitio web",
+    "last_login": "Último inicio de sesión"
   },
   "search": {
     "filters": "Filtros",
     "concepts": "Conceptos",
+    "repos": "Repositorios",
+    "orgs": "Organizaciones",
+    "users": "Usuarios",
     "sort_by": "Ordenar por",
-    "loading": "Refinando tus resultados de búsqueda...",
-    "no_results": "No pudimos encontrar ninguna coincidencia para...",
-    "input_placeholder": "Buscar OCL..."
+    "display": "Mostrar",
+    "loading": "Refinando los resultados de tu búsqueda...",
+    "no_results": "No pudimos encontrar coincidencias para ",
+    "input_placeholder": "Buscar en OCL...",
+    "table": "Tabla",
+    "card": "Tarjeta"
   }
 }
