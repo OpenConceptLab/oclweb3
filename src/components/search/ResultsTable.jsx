@@ -71,7 +71,7 @@ const EnhancedTableHead = props => {
 }
 
 const EnhancedTableToolbar = props => {
-  const { numSelected, title, onFiltersToggle, disabled } = props;
+  const { numSelected, title, onFiltersToggle, disabled, isFilterable } = props;
   return (
     <Toolbar
       sx={{
@@ -110,9 +110,12 @@ const EnhancedTableToolbar = props => {
       )}
 
       <SearchControls disabled={disabled}/>
-      <IconButton style={{marginLeft: '5px'}} onClick={onFiltersToggle} disabled={Boolean(disabled)}>
-        <FilterListIcon />
-      </IconButton>
+      {
+        isFilterable &&
+          <IconButton style={{marginLeft: '5px'}} onClick={onFiltersToggle} disabled={Boolean(disabled)}>
+            <FilterListIcon />
+          </IconButton>
+      }
     </Toolbar>
   );
 }
@@ -223,6 +226,7 @@ const ResultsTable = props => {
         title={getTitle()}
         onFiltersToggle={props.onFiltersToggle}
         disabled={props.noResults}
+        isFilterable={props.isFilterable}
       />
       {
         props.noResults ?

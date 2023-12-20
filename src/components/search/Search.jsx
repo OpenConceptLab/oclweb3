@@ -4,6 +4,8 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import OrgIcon from '@mui/icons-material/AccountBalance';
+import UserIcon from '@mui/icons-material/Person';
 import { forEach, keys, pickBy, isEmpty, find, uniq, has, orderBy, uniqBy, omit } from 'lodash';
 import { WHITE, LIGHT_GRAY } from '../../common/constants';
 import { highlightTexts } from '../../common/utils';
@@ -11,13 +13,13 @@ import APIService from '../../services/APIService';
 import RepoIcon from '../repos/RepoIcon';
 import ConceptIcon from '../concepts/ConceptIcon';
 import ConceptHome from '../concepts/ConceptHome';
-import OrgIcon from '@mui/icons-material/AccountBalance';
 import ResultsTable from './ResultsTable';
 import SearchFilters from './SearchFilters'
 import LoaderDialog from '../common/LoaderDialog';
 
 const DEFAULT_LIMIT = 25;
 const FILTERS_WIDTH = 250
+const FILTERABLE_RESOURCES = ['concepts', 'mappings', 'repos', 'sources', 'collections']
 
 const Search = () => {
   const { t } = useTranslation()
@@ -35,6 +37,8 @@ const Search = () => {
   const [selected, setSelected] = React.useState([])
   const [showItem, setShowItem] = React.useState(false)
   const didMount = React.useRef(false);
+
+  const isFilterable = FILTERABLE_RESOURCES.includes(resource)
 
   React.useEffect(() => {
     const queryParams = new URLSearchParams(location.search)
@@ -145,7 +149,7 @@ const Search = () => {
       setResult({[resource]: resourceResult})
       setLoading(false)
       history.push(getCurrentLayoutURL(params))
-      if(facets)
+      if(facets && isFilterable)
         fetchFacets(params, resourceResult)
     })
   }
@@ -223,7 +227,7 @@ const Search = () => {
   }
 
   const noResults = !loading && input && !(result[resource]?.results || []).length
-  const showFilters = openFilters && !noResults && ['concepts', 'mappings', 'repos', 'sources', 'collections'].includes(resource)
+  const showFilters = openFilters && !noResults && isFilterable
 
   const getResultsTableWidth = () => {
     let toSubtract = 0;
@@ -241,6 +245,7 @@ const Search = () => {
             <Tab value='concepts' icon={<ConceptIcon selected={resource == 'concepts'} fontSize='small' />} label={t('concept.concepts')} style={TAB_STYLES} />
             <Tab value='repos' icon={<RepoIcon selected={resource == 'repos'} fontSize='small' />} label={t('repo.repos')} style={TAB_STYLES} />
             <Tab value='orgs' icon={<OrgIcon color={resource === 'orgs' ? 'primary' : 'secondary'} fontSize='small' />} label={t('org.orgs')} style={TAB_STYLES} />
+            <Tab value='users' icon={<UserIcon color={resource === 'users' ? 'primary' : 'secondary'} fontSize='small' />} label={t('user.users')} style={TAB_STYLES} />
           </Tabs>
         </div>
         <div className='col-xs-12 padding-0'>
@@ -257,6 +262,7 @@ const Search = () => {
             <div className='col-xs-9 split' style={{width: getResultsTableWidth(), paddingRight: 0, paddingLeft: showFilters ? '15px' : 0, float: 'right'}}>
               <div className='col-xs-12 padding-0'>
                 <ResultsTable
+                  isFilterable={isFilterable}
                   noResults={noResults}
                   searchedText={input}
                   bgColor={searchBgColor}

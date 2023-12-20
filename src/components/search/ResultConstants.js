@@ -1,6 +1,8 @@
 import React from 'react';
 import {
-  formatDate
+  formatDate,
+  formatWebsiteLink,
+  formatDateTime
 } from '../../common/utils';
 import OwnerIcon from '../common/OwnerIcon';
 import Retired from '../common/Retired';
@@ -27,6 +29,16 @@ export const ALL_COLUMNS = {
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: '_mnemonic', className: 'searchable'},
     {id: 'name', labelKey: 'common.name', value: 'name', sortOn: '_name', sortBy: 'asc', className: 'searchable'},
     {id: 'createdOn', labelKey: 'common.created_on', value: 'created_on', formatter: formatDate, sortOn: 'created_on'},
+  ],
+  users: [
+    {id: 'username', labelKey: 'user.username', value: 'username', sortOn: '_username', sortBy: 'asc', className: 'searchable'},
+    {id: 'name', labelKey: 'common.name', value: 'name', sortOn: '_name', sortBy: 'asc', className: 'searchable'},
+    {id: 'email', labelKey: 'user.email', value: 'email', sortable: false},
+    {id: 'company', labelKey: 'user.company', value: 'company'},
+    {id: 'location', labelKey: 'user.location', value: 'location'},
+    {id: 'website', labelKey: 'user.website', value: 'website', sortable: false, formatter: formatWebsiteLink},
+    {id: 'date_joined', labelKey: 'user.joined_on', value: 'date_joined', formatter: formatDate, sortOn: 'date_joined'},
+    {id: 'last_login', labelKey: 'user.last_login', value: 'last_login', sortable: false, formatter: formatDateTime},
   ],
 };
 

@@ -60,11 +60,23 @@
     "orgs": "Organizations",
     "org": "Organization"
   },
+  "user": {
+    "users": "Users",
+    "user": "User",
+    "username": "Username",
+    "joined_on": "Joined On",
+    "email": "Email",
+    "company": "Company",
+    "location": "Location",
+    "website": "Website",
+    "last_login": "Last Login"
+  },
   "search": {
     "filters": "Filters",
     "concepts": "Concepts",
     "repos": "Repositories",
     "orgs": "Organizations",
+    "users": "Users",
     "sort_by": "Sort By",
     "loading": "Refining your search results...",
     "no_results": "We could not find any matches for ",
