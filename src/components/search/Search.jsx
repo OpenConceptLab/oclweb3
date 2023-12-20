@@ -66,11 +66,12 @@ const Search = () => {
       _resource = 'orgs'
     let url = '/search/'
     url += `?q=${q || ''}`
-    url += `&page=${(page || 1) - 1}`
+    if(_resource !== 'concepts')
     url += `&type=${_resource}`
     if(pageSize !== DEFAULT_LIMIT)
       url += `&limit=${limit}`
-
+    if(page && page > 1)
+      url += `&page=${(page || 1) - 1}`
     if(!isEmpty(filters)){
       url += `&filters=${JSON.stringify(omit(filters, 'includeRetired'))}`
     }
