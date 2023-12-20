@@ -71,7 +71,8 @@ const Search = () => {
     if(_resource === 'organizations')
       _resource = 'orgs'
     let url = '/search/'
-    url += `?q=${q || ''}`
+    if(q)
+      url += `?q=${q || ''}`
     if(_resource !== 'concepts')
       url += `&type=${_resource}`
     if(pageSize !== DEFAULT_LIMIT)
@@ -82,7 +83,10 @@ const Search = () => {
       url += `&filters=${JSON.stringify(omit(filters, 'includeRetired'))}`
     }
 
-    return window.location.hash.replace('#', '').split('?')[0] + '?' + url.split('?')[1];
+    let queryStr = url.split('?')[1]
+    queryStr = queryStr ? '?' + queryStr : ''
+
+    return window.location.hash.replace('#', '').split('?')[0] + queryStr;
   }
 
   const setQueryParamsInState = () => {
