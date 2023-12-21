@@ -44,26 +44,15 @@ const Search = () => {
   }, [])
 
   React.useEffect(() => {
-    const queryParams = new URLSearchParams(location.search)
-    const newInput = queryParams.get('q')
-    //if((newInput !== input) && (newInput || input)) {
-    //}
     if(didMount.current)
       setQueryParamsInState()
     else
       didMount.current = true
-  }, [location.search])
+  }, [decodeURIComponent(location.search)])
 
   React.useEffect(() => {
     highlight()
   }, [result])
-
-  // React.useEffect(() => {
-  //   if(didMount.current)
-  //     setQueryParamsInState()
-  //   else
-  //     didMount.current = true
-  // }, [filters, resource, page, pageSize])
 
   const onDisplayChange = () => input && setTimeout(highlight, 100)
 

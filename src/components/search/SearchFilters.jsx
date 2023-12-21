@@ -104,7 +104,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   }
 
   React.useEffect(() => {
-    setCount(flatten(values(appliedFilters)).length)
+    setCount(flatten(values(appliedFilters).map(v => values(v))).length)
     setApplied(appliedFilters)
   }, [filters])
 
@@ -144,10 +144,10 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                 sx={{
                   width: '100%',
                   position: 'relative',
-                  '& ul': { padding: 0 },
+                  padding: '2px 0 4px 0',
                 }}
               >
-                <ListSubheader sx={{p: 0, fontWeight: 'bold', background: bgColor}}>{startCase(field)}</ListSubheader>
+            <ListSubheader sx={{p: 0, fontWeight: 'bold', background: bgColor, lineHeight: '30px'}}>{startCase(field)}</ListSubheader>
                 {
                   getFieldFilters(field, fieldFilters).map(value => {
                     const labelId = `checkbox-list-label-${value[0]}`;
