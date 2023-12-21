@@ -171,6 +171,7 @@ const SearchResults = props => {
     orderBy: orderBy,
     setOrder: setOrder,
     setOrderBy: setOrderBy,
+    isSplitView: Boolean(props.selectedToShow?.id)
   }
 
   const isCardDisplay = display === 'card'
