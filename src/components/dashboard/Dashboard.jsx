@@ -2,7 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import Carousel from 'react-material-ui-carousel'
 import { Chip } from '@mui/material'
-import { PRIMARY, WHITE, PRIMARY_LIGHT } from '../../common/constants'
+import { PRIMARY, WHITE, PRIMARY_DARK } from '../../common/constants'
 import { getCurrentUser, isLoggedIn, getLoginURL, getRegisterURL } from '../../common/utils';
 import AddButton from '../common/AddButton';
 
@@ -14,7 +14,7 @@ const Item = props => {
     <div>
       <h2>{props.item.name}</h2>
       <h1>{props.item.description}</h1>
-      <Chip style={{backgroundColor: PRIMARY_LIGHT, color: PRIMARY}} label={t('dashboard.take_a_tour')} color='primary' onClick={() => {}}/>
+      <Chip style={{backgroundColor: PRIMARY_DARK, color: PRIMARY}} label={t('dashboard.take_a_tour')} color='primary' onClick={() => {}}/>
     </div>
   )
 }

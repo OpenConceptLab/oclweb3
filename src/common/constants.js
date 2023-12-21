@@ -5,9 +5,14 @@ export const BLACK = '#000';
 export const PRIMARY = '#4836ff'
 export const SECONDARY = '#5e5c71'
 export const TERTIARY = '#7a5368'
+export const ERROR = '#ba1a1a'
+export const ERROR_DARK = '#ffb4ab'
+
+export const PRIMARY_DARK = '#c3c0ff'
+export const SECONDARY_DARK = '#c7c4dd';
+export const TERTIARY_DARK = '#eab9d1';
 export const TEXT_GRAY = '#47464f'
 export const BG_GRAY = '#f6f2f7'
-export const PRIMARY_LIGHT = '#c3c0ff'
 export const LIGHT_GRAY = '#e5e1e6'
 export const VERY_LIGH_GRAY = '#5e5c71'
 
