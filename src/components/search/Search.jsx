@@ -81,6 +81,20 @@ const Search = () => {
     return window.location.hash.replace('#', '').split('?')[0] + queryStr;
   }
 
+
+  const getFiltersFromQueryParams = () => {
+    const queryParams = new URLSearchParams(window.location.hash.split('?')[1])
+    let _filters = queryParams.get('filters') || false
+    if(_filters) {
+      try {
+        _filters = getAppliedFacetFromQueryParam(JSON.parse(_filters))
+      } catch {
+        _filters = {}
+      }
+    }
+    return _filters
+  }
+
   const setQueryParamsInState = mustFetch => {
     const queryParams = new URLSearchParams(window.location.hash.split('?')[1])
     const value = queryParams.get('q') || ''
@@ -90,13 +104,8 @@ const Search = () => {
     const _resource = queryParams.get('type') || 'concepts'
     let _fetch = mustFetch || false
     let _fetchFacets = mustFetch || isDiffFromPrevInput
-    let _filters = queryParams.get('filters') || false
+    let _filters = getFiltersFromQueryParams()
     if(_filters) {
-      try {
-        _filters = getAppliedFacetFromQueryParam(JSON.parse(_filters))
-      } catch {
-        _filters = {}
-      }
       _fetch = true
       _fetchFacets = true
     }
@@ -193,7 +202,7 @@ const Search = () => {
     if(isEmpty(existingFacets))
       return newFacets
 
-    let appliedFacets = {...filters}
+    let appliedFacets = getFiltersFromQueryParams()
     const doNotRemoveFacets = keys(appliedFacets)
     let mergedFacets = {}
     forEach(uniq([...keys(newFacets), ...keys(existingFacets)]), field => {
