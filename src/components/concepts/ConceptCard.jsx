@@ -29,7 +29,7 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
       <div className='col-xs-11' style={{width: 'calc(100% - 24px)'}}>
         <div className='col-xs-12' style={{display: 'flex', alignItems: 'center'}}>
           <span className='searchable' style={{color: TEXT_GRAY, fontSize: '16px'}}>
-            <Retired style={{marginRight: '8px'}}/> {concept.display_name}
+            {concept.retired && <Retired style={{marginRight: '8px'}}/>} {concept.display_name}
           </span>
           <span className='searchable' style={{display: 'flex', marginLeft: '16px'}}>
             <PropertyChip label={concept.concept_class} />
