@@ -2,11 +2,11 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import Carousel from 'react-material-ui-carousel'
 import { Chip } from '@mui/material'
-import { PRIMARY, WHITE, PRIMARY_DARK } from '../../common/constants'
+import {  WHITE } from '../../common/constants'
 import { getCurrentUser, isLoggedIn, getLoginURL, getRegisterURL } from '../../common/utils';
 import AddButton from '../common/AddButton';
 
-const LinkTo = ({ label, href }) => <a href={href} style={{color: PRIMARY, fontSize: '22px'}} className='no-anchor-styles'>{label}</a>
+const LinkTo = ({ label, href }) => <a href={href} sx={{color: 'primary', fontSize: '22px'}} className='no-anchor-styles'>{label}</a>
 
 const Item = props => {
   const { t } = useTranslation()
@@ -14,7 +14,7 @@ const Item = props => {
     <div>
       <h2>{props.item.name}</h2>
       <h1>{props.item.description}</h1>
-      <Chip style={{backgroundColor: PRIMARY_DARK, color: PRIMARY}} label={t('dashboard.take_a_tour')} color='primary' onClick={() => {}}/>
+      <Chip sx={{backgroundColor: 'primary.dark', color: 'primary.light'}} label={t('dashboard.take_a_tour')} onClick={() => {}}/>
     </div>
   )
 }
@@ -57,14 +57,14 @@ const Dashboard = () => {
           indicatorIconButtonProps={{style: {margin: '2px', zIndex: 1}}}
           activeIndicatorIconButtonProps={{
             style: {
-              backgroundColor: WHITE,
+              backgroundColor: 'primary.contrastText',
               color: WHITE
             }
           }}
           sx={{
             width: '100%',
             height: '222px',
-            backgroundColor: PRIMARY,
+            backgroundColor: 'primary.light',
             color: WHITE,
             padding: '20px',
             borderRadius: '10px'
