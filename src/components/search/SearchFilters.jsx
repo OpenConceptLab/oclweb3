@@ -140,6 +140,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
           return (
             <React.Fragment key={field}>
               <List
+                dense
                 sx={{
                   width: '100%',
                   position: 'relative',
@@ -154,16 +155,18 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
 
                     return (
                       <ListItemButton key={key} onClick={handleToggle(field, value)} sx={{p: '0 5px'}} disabled={value[3] === true}>
-                        <ListItemIcon sx={{minWidth: '40px'}}>
+                        <ListItemIcon sx={{minWidth: '25px'}}>
                           <Checkbox
+                            size="small"
                             edge="start"
                             checked={isApplied(field, value)}
                             tabIndex={-1}
                             disableRipple
                             inputProps={{ 'aria-labelledby': labelId }}
+                            style={{padding: '4px 8px'}}
                           />
                         </ListItemIcon>
-                        <ListItemText id={labelId} primary={formattedName(field, value[0])} primaryTypographyProps={{style: {fontSize: '0.875rem'}}} />
+                        <ListItemText id={labelId} primary={formattedName(field, value[0])} primaryTypographyProps={{style: {fontSize: '0.875rem'}}} style={{margin: 0}} />
                         <span style={{fontSize: '0.7rem'}}>{value[1].toLocaleString()}</span>
                       </ListItemButton>
                     );
@@ -171,7 +174,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
               </List>
               {
                 shouldShowExpand &&
-                  <Button onClick={() => toggleExpanded(field)} style={{textTransform: 'none'}} color='secondary' startIcon={isExpanded ? <UpIcon fontSize='inherit'/> : <DownIcon fontSize='inherit'/>}>
+                  <Button size='small' onClick={() => toggleExpanded(field)} style={{textTransform: 'none'}} color='secondary' startIcon={isExpanded ? <UpIcon fontSize='inherit'/> : <DownIcon fontSize='inherit'/>}>
                     {isExpanded ? t('common.hide') : `${t('common.show')} ${fieldFilters.length - 4} ${t('common.more').toLowerCase()}`}
                   </Button>
               }
