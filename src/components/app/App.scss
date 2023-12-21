@@ -42,3 +42,18 @@ div.split {
 div.split-appear {
     transition: width 0.2s ease, opacity 0.3s ease 0.1s;
 }
+
+.animation-appear{
+    animation: bounce-in 0.2s ease-in;
+}
+.animation-disappear{
+    animation: bounce-out 0.2s ease-in;
+}
+@keyframes bounce-in{
+    0%    {opacity: 0;   transform: scale(0.5);}
+    100%  {opacity: 1;   transform: scale(1);}
+}
+@keyframes bounce-out{
+    0%    {opacity: 1;   transform: scale(1);}
+    100%  {opacity: 0;   transform: scale(0.5);}
+}

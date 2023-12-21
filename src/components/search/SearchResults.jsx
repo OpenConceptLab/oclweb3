@@ -67,6 +67,8 @@ const ResultsToolbar = props => {
 
 const SearchResults = props => {
   const [display, setDisplay] = React.useState(props.display || 'table')
+  const [cardDisplayAnimation, setCardDisplayAnimation] = React.useState('animation-disappear')
+  const [tableDisplayAnimation, setTableDisplayAnimation] = React.useState('animation-appear')
   const [selected, setSelected] = React.useState([]);
   const { t } = useTranslation()
   const [order, setOrder] = React.useState('desc');
@@ -75,7 +77,15 @@ const SearchResults = props => {
   const rowsPerPage = props.results?.pageSize;
 
   const rows = props.results?.results || []
-  const onDisplayChange = newDisplay => {
+  const onDisplayChange = async (newDisplay, ms) => {
+    if(newDisplay === 'table') {
+      setCardDisplayAnimation('animation-disappear')
+      setTableDisplayAnimation('animation-appear')
+    } else {
+      setCardDisplayAnimation('animation-appear')
+      setTableDisplayAnimation('animation-disappear')
+    }
+    await new Promise(r => setTimeout(r, ms))
     setDisplay(newDisplay)
     props.onDisplayChange()
   }
@@ -182,8 +192,8 @@ const SearchResults = props => {
         <React.Fragment>
           {
             isCardDisplay ?
-              <CardResults {...resultsProps} /> :
-            <TableResults {...resultsProps} />
+              <CardResults {...resultsProps} className={cardDisplayAnimation} /> :
+            <TableResults {...resultsProps} className={tableDisplayAnimation} />
           }
           <TablePagination
             rowsPerPageOptions={[10, 25, 50, 100]}

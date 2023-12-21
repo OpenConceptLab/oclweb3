@@ -61,7 +61,7 @@ const EnhancedTableHead = props => {
   );
 }
 
-const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, setOrder, setOrderBy}) => {
+const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, setOrder, setOrderBy, className}) => {
   const rows = results?.results || []
   const getValue = (row, column) => {
     let val = row[column.value]
@@ -84,7 +84,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
   };
 
   return (
-    <TableContainer style={{maxHeight: '64vh'}}>
+    <TableContainer style={{maxHeight: '64vh'}} className={className}>
         <Table
           stickyHeader
           sx={{ minWidth: 750 }}
