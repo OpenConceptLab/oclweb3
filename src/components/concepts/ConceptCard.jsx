@@ -4,6 +4,7 @@ import Checkbox from '@mui/material/Checkbox';
 import RepoIcon from '../repos/RepoIcon';
 import OwnerIcon from '../common/OwnerIcon';
 import { TEXT_GRAY, WHITE, VERY_LIGH_GRAY, PRIMARY } from '../../common/constants';
+import { formatDateTime } from '../../common/utils';
 import DotSeparator from '../common/DotSeparator'
 import ConceptIcon from './ConceptIcon';
 import PropertyChip from '../common/PropertyChip';
@@ -24,7 +25,7 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
           onClick={event => onSelect(event, id)}
         />
       </div>
-      <div className='col-xs-11'>
+      <div className='col-xs-11' style={{width: 'calc(100% - 24px)'}}>
         <div className='col-xs-12' style={{display: 'flex', alignItems: 'center'}}>
           <span className='searchable' style={{color: TEXT_GRAY, fontSize: '16px'}}>
             {concept.display_name}
@@ -33,18 +34,36 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
             <PropertyChip label={concept.concept_class} />
           </span>
         </div>
-        <div className='col-xs-12' style={{marginTop: '8px', display: 'flex', alignItems: 'center'}}>
-          <span style={{display: 'flex', alignItems: 'center', fontSize: '14px', color: VERY_LIGH_GRAY}}>
-            <OwnerIcon fontSize='inherit' style={{marginRight: '8px'}} ownerType={concept.owner_type} /> {concept.owner}
-          </span>
-          <DotSeparator />
-          <span style={{display: 'flex', alignItems: 'center', fontSize: '14px', color: VERY_LIGH_GRAY}}>
-            <RepoIcon fontSize='inherit' style={{marginRight: '8px'}} /> {concept.source}
-          </span>
-          <DotSeparator />
-          <span className='searchable' style={{display: 'flex', alignItems: 'center', fontSize: '14px', color: VERY_LIGH_GRAY}}>
-            <ConceptIcon fontSize='inherit' style={{marginRight: '8px'}} selected color='secondary' /> {concept.id}
-          </span>
+        <div className='col-xs-12' style={{marginTop: '16px', display: 'flex', alignItems: 'center'}}>
+          <div className={(isSelectedToShow ? 'col-xs-12' : 'col-xs-6') + ' padding-0'} style={{display: 'flex', alignItems: 'center'}}>
+            <span style={{display: 'flex', alignItems: 'center', fontSize: '14px', color: VERY_LIGH_GRAY}}>
+              <OwnerIcon fontSize='inherit' style={{marginRight: '8px'}} ownerType={concept.owner_type} /> {concept.owner}
+            </span>
+            <DotSeparator />
+            <span style={{display: 'flex', alignItems: 'center', fontSize: '14px', color: VERY_LIGH_GRAY}}>
+              <RepoIcon fontSize='inherit' style={{marginRight: '8px'}} /> {concept.source}:{concept.latest_source_version}
+            </span>
+            <DotSeparator />
+            <span className='searchable' style={{display: 'flex', alignItems: 'center', fontSize: '14px', color: VERY_LIGH_GRAY}}>
+              <ConceptIcon fontSize='inherit' style={{marginRight: '8px'}} selected color='secondary' /> {concept.id}
+            </span>
+          </div>
+          {
+            !isSelectedToShow &&
+              <div className='col-xs-6 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'right'}}>
+                <span style={{display: 'flex', alignItems: 'center', fontSize: '14px', color: VERY_LIGH_GRAY}}>
+                  Data type: {concept.datatype}
+                </span>
+                <DotSeparator />
+                <span style={{display: 'flex', alignItems: 'center', fontSize: '14px', color: VERY_LIGH_GRAY}}>
+                  Updated By: {concept.version_updated_by}
+                </span>
+                <DotSeparator />
+                <span style={{display: 'flex', alignItems: 'center', fontSize: '14px', color: VERY_LIGH_GRAY}}>
+                  Updated On: {formatDateTime(concept.version_updated_on)}
+                </span>
+              </div>
+          }
         </div>
       </div>
     </Card>
