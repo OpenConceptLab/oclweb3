@@ -16,6 +16,7 @@ import Search from '../search/Search';
 import OIDLoginCallback from '../users/OIDLoginCallback';
 import { OperationsContext } from './LayoutContext';
 import Alert from '../common/Alert';
+import RepoHome from '../repos/RepoHome';
 
 const App = props => {
   const { alert, setAlert } = React.useContext(OperationsContext);
@@ -53,6 +54,7 @@ const App = props => {
               <Route exact path="/oidc/login" component={OIDLoginCallback} />
               <Route exact path="/search" component={Search} />
               <Route exact path="/" component={Dashboard} />
+              <Route path="/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion?" component={RepoHome} />
               <Route component={Error404} />
             </Switch>
             <Alert message={alert?.message} onClose={() => setAlert(false)} severity={alert?.severity} duration={alert?.duration} />

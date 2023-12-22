@@ -6,11 +6,15 @@ export const PRIMARY = '#4836ff'
 export const SECONDARY = '#5e5c71'
 export const TERTIARY = '#7a5368'
 export const ERROR = '#ba1a1a'
-export const ERROR_DARK = '#ffb4ab'
+export const SURFACE = '#fcf8fd'
 
+export const SURFACE_DARK = '#1c1b1f'
+export const SURFACE_LIGHT = '#787680'
+export const PRIMARY_95 = '#f2efff'
 export const PRIMARY_DARK = '#c3c0ff'
 export const SECONDARY_DARK = '#c7c4dd';
 export const TERTIARY_DARK = '#eab9d1';
+export const ERROR_DARK = '#ffb4ab'
 export const TEXT_GRAY = '#47464f'
 export const BG_GRAY = '#f6f2f7'
 export const LIGHT_GRAY = '#e5e1e6'

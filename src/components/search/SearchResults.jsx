@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
+import { useHistory } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -66,11 +67,12 @@ const ResultsToolbar = props => {
 }
 
 const SearchResults = props => {
+  const { t } = useTranslation()
+  const history = useHistory()
   const [display, setDisplay] = React.useState(props.display || 'table')
   const [cardDisplayAnimation, setCardDisplayAnimation] = React.useState('animation-disappear')
   const [tableDisplayAnimation, setTableDisplayAnimation] = React.useState('animation-appear')
   const [selected, setSelected] = React.useState([]);
-  const { t } = useTranslation()
   const [order, setOrder] = React.useState('desc');
   const [orderBy, setOrderBy] = React.useState('id');
   const page = props.results?.page;
@@ -136,11 +138,12 @@ const SearchResults = props => {
   const handleRowClick = (event, id) => {
     event.preventDefault()
     event.stopPropagation()
-    if(props.resource !== 'concepts')
-      return
-
-    const row = rows.find(row => id == (row.version_url || row.url || row.id)) || false
-    props.onShowItemSelect(row)
+    const item = rows.find(row => id == (row.version_url || row.url || row.id)) || false
+    if(props.resource === 'concepts') {
+      props.onShowItemSelect(item)
+    } else if (props.resource === 'repos') {
+      history.push(item.version_url || item.url)
+    }
   };
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
@@ -171,7 +174,8 @@ const SearchResults = props => {
     orderBy: orderBy,
     setOrder: setOrder,
     setOrderBy: setOrderBy,
-    isSplitView: Boolean(props.selectedToShow?.id)
+    isSplitView: Boolean(props.selectedToShow?.id),
+    nested: props.nested
   }
 
   const isCardDisplay = display === 'card'

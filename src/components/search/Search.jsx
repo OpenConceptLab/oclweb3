@@ -21,12 +21,12 @@ const DEFAULT_LIMIT = 25;
 const FILTERS_WIDTH = 250
 const FILTERABLE_RESOURCES = ['concepts', 'mappings', 'repos', 'sources', 'collections']
 
-const Search = () => {
+const Search = props => {
   const { t } = useTranslation()
   const history = useHistory();
   const location = useLocation();
   const [loading, setLoading] = React.useState(true)
-  const [openFilters, setOpenFilters] = React.useState(true)
+  const [openFilters, setOpenFilters] = React.useState(has(props, 'defaultFiltersOpen') ? props.defaultFiltersOpen : true)
   const [input, setInput] = React.useState('');
   const [page, setPage] = React.useState(0);
   const [pageSize, setPageSize] = React.useState(DEFAULT_LIMIT);
@@ -171,12 +171,18 @@ const Search = () => {
     history.push(getCurrentLayoutURL(getQueryParams(input, page, pageSize, filters), newTab))
   }
 
+  const getURL = __resource => {
+    if(props.nested && props.url)
+      return props.url
+    return `/${__resource}/`
+  }
+
   const fetchResults = (params, facets=true, _resource=undefined) => {
     let __resource = _resource || resource
     if(!__resource)
       return
     setLoading(true)
-    APIService.new().overrideURL(`/${__resource}/`).get(null, null, params).then(response => {
+    APIService.new().overrideURL(getURL(__resource)).get(null, null, params).then(response => {
       const resourceResult = {total: parseInt(response?.headers?.num_found), pageSize: max([parseInt(response?.headers?.num_returned), params?.limit]), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || [], facets: result[__resource]?.facets || {}}
       setResult({[__resource]: resourceResult})
       setLoading(false)
@@ -188,7 +194,7 @@ const Search = () => {
 
   const fetchFacets = (params, otherResults, _resource=undefined) => {
     const __resource = _resource || resource
-    APIService.new().overrideURL(`/${__resource}/`).get(null, null, {...params, facetsOnly: true}).then(response => {
+    APIService.new().overrideURL(getURL(__resource)).get(null, null, {...params, facetsOnly: true}).then(response => {
       setResult({[__resource]: {...get(result, resource, {}), ...(otherResults || {}), facets: prepareFacets(response?.data?.facets?.fields || {})}})
     })
   }
@@ -271,18 +277,30 @@ const Search = () => {
     return toSubtract ? `calc(100% - ${toSubtract}px)` : '100%'
   }
 
+  const onShowItemSelect = item => {
+    setShowItem(item || false)
+    props.onShowItem && props.onShowItem(item || false)
+  }
+
+  React.useEffect(() => {
+    setShowItem(props.showItem || false)
+  }, [props.showItem])
+
   return (
     <div className='col-xs-12 padding-0' style={{overflow: 'auto'}}>
       <LoaderDialog open={loading} message={t('search.loading')} />
-      <div className={showItem?.id ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: '10px', height: '86vh'}}>
-        <div className='col-xs-12 padding-0' style={{borderBottom: `1px solid ${LIGHT_GRAY}`}}>
-          <Tabs value={resource} onChange={handleResourceChange} aria-label="search tabs" TabIndicatorProps={{style: {height: '3px'}}}>
-            <Tab value='concepts' icon={<ConceptIcon selected={resource == 'concepts'} fontSize='small' />} label={t('concept.concepts')} style={TAB_STYLES} />
-            <Tab value='repos' icon={<RepoIcon selected={resource == 'repos'} fontSize='small' />} label={t('repo.repos')} style={TAB_STYLES} />
-            <Tab value='orgs' icon={<OrgIcon color={resource === 'orgs' ? 'primary' : 'secondary'} fontSize='small' />} label={t('org.orgs')} style={TAB_STYLES} />
-            <Tab value='users' icon={<UserIcon color={resource === 'users' ? 'primary' : 'secondary'} fontSize='small' />} label={t('user.users')} style={TAB_STYLES} />
-          </Tabs>
-        </div>
+      <div className={!props.nested && showItem?.id ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: props.nested ? 0 : '10px', height: '86vh', ...(props.containerStyle || {})}}>
+        {
+          !props.noTabs &&
+            <div className='col-xs-12 padding-0' style={{borderBottom: `1px solid ${LIGHT_GRAY}`}}>
+              <Tabs value={resource} onChange={handleResourceChange} aria-label="search tabs" TabIndicatorProps={{style: {height: '3px'}}}>
+                <Tab value='concepts' icon={<ConceptIcon selected={resource == 'concepts'} fontSize='small' />} label={t('concept.concepts')} style={TAB_STYLES} />
+                <Tab value='repos' icon={<RepoIcon selected={resource == 'repos'} fontSize='small' />} label={t('repo.repos')} style={TAB_STYLES} />
+                <Tab value='orgs' icon={<OrgIcon color={resource === 'orgs' ? 'primary' : 'secondary'} fontSize='small' />} label={t('org.orgs')} style={TAB_STYLES} />
+                <Tab value='users' icon={<UserIcon color={resource === 'users' ? 'primary' : 'secondary'} fontSize='small' />} label={t('user.users')} style={TAB_STYLES} />
+              </Tabs>
+            </div>
+        }
         <div className='col-xs-12 padding-0'>
           <div className='col-xs-12 padding-0'>
             <div className='col-xs-3 split' style={{width: showFilters ? `${FILTERS_WIDTH}px` : 0, padding: showFilters ? '0 8px' : 0, height: '75vh', overflow: 'auto'}}>
@@ -297,6 +315,7 @@ const Search = () => {
             <div className='col-xs-9 split' style={{width: getSearchResultsWidth(), paddingRight: 0, paddingLeft: showFilters ? '15px' : 0, float: 'right'}}>
               <div className='col-xs-12 padding-0'>
                 <SearchResults
+                  nested={props.nested}
                   isFilterable={isFilterable(resource)}
                   noResults={noResults}
                   searchedText={input}
@@ -306,7 +325,7 @@ const Search = () => {
                   onPageChange={onPageChange}
                   onSelect={newSelected => setSelected(newSelected)}
                   selectedToShow={showItem}
-                  onShowItemSelect={item => setShowItem(item || false)}
+                  onShowItemSelect={onShowItemSelect}
                   onFiltersToggle={() => setOpenFilters(!openFilters)}
                   onDisplayChange={onDisplayChange}
                 />
@@ -315,12 +334,15 @@ const Search = () => {
           </div>
         </div>
       </div>
-      <div className={'col-xs-5 padding-0' + (showItem ? ' split-appear' : '')} style={{marginLeft: '16px', width: showItem ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: showItem ? '86vh' : 0, opacity: showItem ? 1 : 0}}>
-        {
-          showItem &&
-            <ConceptHome url={getLastSelectedURL()} onClose={() => setShowItem(false)} />
-        }
-      </div>
+      {
+        !props.nested &&
+          <div className={'col-xs-5 padding-0' + (showItem ? ' split-appear' : '')} style={{marginLeft: '16px', width: showItem ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: showItem ? '86vh' : 0, opacity: showItem ? 1 : 0}}>
+            {
+              showItem &&
+                <ConceptHome url={getLastSelectedURL()} onClose={() => setShowItem(false)} />
+            }
+          </div>
+      }
     </div>
   )
 }

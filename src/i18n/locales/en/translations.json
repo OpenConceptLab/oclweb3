@@ -16,7 +16,12 @@
     "retired": "Retired",
     "id": "ID",
     "name": "Name",
-    "created_on": "Created On"
+    "created_on": "Created On",
+    "version": "Version",
+    "versions": "Versions",
+    "summary": "Summary",
+    "about": "About",
+    "view_all_attributes": "View all attributes"
   },
   "errors": {
     "404": "Sorry your page could not be found."
@@ -51,10 +56,14 @@
     "concept_class": "Class",
     "datatype": "Datatype"
   },
+  "mapping": {
+    "mappings": "Mappings"
+  },
   "repo": {
     "repos": "Repositories",
     "repo": "Repository",
-    "repo_type": "Repository Type"
+    "repo_type": "Repository Type",
+    "manage": "Manage Repository"
   },
   "org": {
     "orgs": "Organizations",

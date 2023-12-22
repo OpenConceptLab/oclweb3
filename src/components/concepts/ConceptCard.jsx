@@ -32,7 +32,7 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
             {concept.retired && <Retired style={{marginRight: '8px'}}/>} {concept.display_name}
           </span>
           <span className='searchable' style={{display: 'flex', marginLeft: '16px'}}>
-            <PropertyChip label={concept.concept_class} />
+            <PropertyChip label={concept.concept_class} color='surface.dark' />
           </span>
         </div>
         <div className='col-xs-12' style={{marginTop: '16px', display: 'flex', alignItems: 'center'}}>
