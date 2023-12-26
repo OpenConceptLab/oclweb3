@@ -1,12 +1,34 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import Carousel from 'react-material-ui-carousel'
-import { Chip } from '@mui/material'
+import { Chip, Button } from '@mui/material'
 import {  WHITE } from '../../common/constants'
 import { getCurrentUser, isLoggedIn, getLoginURL, getRegisterURL } from '../../common/utils';
 import AddButton from '../common/AddButton';
 
-const LinkTo = ({ label, href }) => <a href={href} sx={{color: 'primary', fontSize: '22px'}} className='no-anchor-styles'>{label}</a>
+const LinkTo = (
+  { label, href }
+) => <Button
+       size='small'
+       component="a"
+       variant="text"
+       href={href}
+       sx={{
+         color: 'primary',
+         fontSize: '22px',
+         textTransform: 'none',
+         paddingLeft: 0,
+         paddingRight: 0,
+         backgroundColor: 'none',
+         '&:hover': {
+           color: 'primary.main',
+           backgroundColor: 'inherit',
+           textTransform: 'none',
+         }
+       }}
+     >
+       {label}
+     </Button>
 
 const Item = props => {
   const { t } = useTranslation()
