@@ -57,45 +57,47 @@ const Dashboard = () => {
   const user = getCurrentUser()
   const username = user?.name || user?.username
   return (
-    <div className='col-xs-12 padding-0'>
-      <div className='col-xs-12 padding-0 flex-vertical-center' style={{fontSize: '22px'}}>
-        {
-          authenticated ?
-            <span style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
-              <span>{t('dashboard.hello')} {username}!</span>
-              <span>
-                <AddButton label={t('dashboard.create_repository')} color='primary' onClick={() => {}} />
-              </span>
-            </span>:
-          <span>
-            {t('dashboard.welcome_line')} <LinkTo label={t('auth.sign_in')} href={getLoginURL()} /> {t('common.or')} <LinkTo label={t('auth.register')} href={getRegisterURL()} />
-          </span>
-        }
-      </div>
-      <div className='col-xs-12 padding-0 flex-vertical-center' style={{margin: '22px 0', width: '100%', height: '222px', borderRadius: '10px'}}>
-        <Carousel
-          height='222'
-          indicatorContainerProps={{style: {marginTop: '-5px'}}}
-          indicatorIconButtonProps={{style: {margin: '2px', zIndex: 1}}}
-          activeIndicatorIconButtonProps={{
-            style: {
-              backgroundColor: 'primary.contrastText',
-              color: WHITE
-            }
-          }}
-          sx={{
-            width: '100%',
-            height: '222px',
-            backgroundColor: 'primary.light',
-            color: WHITE,
-            padding: '20px',
-            borderRadius: '10px'
-          }}
-        >
+    <div className='col-xs-12 padding-0' style={{display: 'flex', justifyContent: 'center', width: '100%'}}>
+      <div className='col-xs-12 padding-0' style={{width: '100%', maxWidth: '1024px'}}>
+        <div className='col-xs-12 padding-0 flex-vertical-center' style={{fontSize: '22px'}}>
           {
-            items.map( (item, i) => <Item key={i} item={item} /> )
+            authenticated ?
+              <span style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
+                <span>{t('dashboard.hello')} {username}!</span>
+                <span>
+                  <AddButton label={t('dashboard.create_repository')} color='primary' onClick={() => {}} />
+                </span>
+              </span>:
+            <span>
+              {t('dashboard.welcome_line')} <LinkTo label={t('auth.sign_in')} href={getLoginURL()} /> {t('common.or')} <LinkTo label={t('auth.register')} href={getRegisterURL()} />
+            </span>
           }
-        </Carousel>
+        </div>
+        <div className='col-xs-12 padding-0 flex-vertical-center' style={{margin: '16px 0', width: '100%', height: '222px', borderRadius: '10px'}}>
+          <Carousel
+            height='222'
+            indicatorContainerProps={{style: {marginTop: '-5px'}}}
+            indicatorIconButtonProps={{style: {margin: '2px', zIndex: 1}}}
+            activeIndicatorIconButtonProps={{
+              style: {
+                backgroundColor: 'primary.contrastText',
+                color: WHITE
+              }
+            }}
+            sx={{
+              width: '100%',
+              height: '222px',
+              backgroundColor: 'primary.light',
+              color: WHITE,
+              padding: '20px',
+              borderRadius: '10px'
+            }}
+          >
+            {
+              items.map( (item, i) => <Item key={i} item={item} /> )
+            }
+          </Carousel>
+        </div>
       </div>
     </div>
   )
