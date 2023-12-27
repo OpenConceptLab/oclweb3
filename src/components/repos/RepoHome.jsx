@@ -35,9 +35,9 @@ const RepoHome = () => {
   }, [location.pathname])
 
   return (
-    <div className='col-xs-12 padding-0' style={{overflow: 'auto', borderRadius: '8px'}}>
+    <div className='col-xs-12 padding-0' style={{borderRadius: '8px'}}>
       <LoaderDialog open={loading} />
-      <Paper component="div" className={showItem?.id ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: bgColor, borderRadius: '10px', height: '86vh', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.n90'}}>
+      <Paper component="div" className={showItem?.id ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: bgColor, borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.n90'}}>
         {
           (repo?.id || loading) &&
             <React.Fragment>
@@ -53,6 +53,7 @@ const RepoHome = () => {
                     noTabs
                     onShowItem={setShowItem}
                     showItem={showItem}
+                    resultContainerStyle={{height: 'calc(100vh - 400px)'}}
                   />
               }
             </React.Fragment>

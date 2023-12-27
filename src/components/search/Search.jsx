@@ -286,9 +286,9 @@ const Search = props => {
   }, [props.showItem])
 
   return (
-    <div className='col-xs-12 padding-0' style={{overflow: 'auto'}}>
+    <div className='col-xs-12 padding-0'>
       <LoaderDialog open={loading} message={t('search.loading')} />
-      <div className={!props.nested && showItem?.id ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: props.nested ? 0 : '10px', height: '86vh', ...(props.containerStyle || {})}}>
+      <div className={!props.nested && showItem?.id ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: props.nested ? 0 : '10px', height: '100%', ...(props.containerStyle || {})}}>
         {
           !props.noTabs &&
             <div className='col-xs-12 padding-0' style={{borderBottom: `1px solid ${LIGHT_GRAY}`}}>
@@ -300,9 +300,9 @@ const Search = props => {
               </Tabs>
             </div>
         }
-        <div className='col-xs-12 padding-0'>
-          <div className='col-xs-12 padding-0'>
-            <div className='col-xs-3 split' style={{width: showFilters ? `${FILTERS_WIDTH}px` : 0, padding: showFilters ? '0 8px' : 0, height: '75vh', overflow: 'auto'}}>
+        <div className='col-xs-12 padding-0' style={{height: '100%'}}>
+          <div className='col-xs-12 padding-0' style={{height: '100%'}}>
+            <div className='col-xs-3 split' style={{width: showFilters ? `${FILTERS_WIDTH}px` : 0, padding: showFilters ? '0 8px' : 0, height: props.filtersHeight || '100%', overflow: 'auto'}}>
               <SearchFilters
                 resource={resource}
                 filters={result[resource]?.facets || {}}
@@ -311,8 +311,8 @@ const Search = props => {
                 appliedFilters={filters}
               />
             </div>
-            <div className='col-xs-9 split' style={{width: getSearchResultsWidth(), paddingRight: 0, paddingLeft: showFilters ? '15px' : 0, float: 'right'}}>
-              <div className='col-xs-12 padding-0'>
+            <div className='col-xs-9 split' style={{width: getSearchResultsWidth(), paddingRight: 0, paddingLeft: showFilters ? '15px' : 0, float: 'right', height: '100%'}}>
+              <div className='col-xs-12 padding-0' style={{height: '100%'}}>
                 <SearchResults
                   nested={props.nested}
                   isFilterable={isFilterable(resource)}
@@ -327,6 +327,7 @@ const Search = props => {
                   onShowItemSelect={onShowItemSelect}
                   onFiltersToggle={() => setOpenFilters(!openFilters)}
                   onDisplayChange={onDisplayChange}
+                  resultContainerStyle={props.resultContainerStyle}
                 />
               </div>
             </div>

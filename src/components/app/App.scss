@@ -1,8 +1,8 @@
 main.content {
-    margin-bottom: 25px;
     display: inline-block;
     width: 100%;
-    height: auto;
+    height: calc(100vh - 95px);
+    overflow: hidden;
 }
 div.rounded-input {
     border-radius: 100px;

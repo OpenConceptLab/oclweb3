@@ -69,7 +69,7 @@ const UserMenu = ({ isOpen, onClose }) => {
                 </ListItemButton>
               </List> :
             <div className='col-xs-12 padding-0' style={{marginBottom: '24px'}}>
-              <Button className='no-anchor-styles' label={t('auth.sign_in')} sx={{ bgcolor: 'primary.light', maxWidth: '100%', minWidth: '92px' }} href={getLoginURL()} component='a' />
+              <Button className='no-anchor-styles' label={t('auth.sign_in')} sx={{ bgcolor: 'primary.dark', maxWidth: '100%', minWidth: '92px' }} href={getLoginURL()} component='a' />
             </div>
           }
         </div>
@@ -148,7 +148,7 @@ const UserMenu = ({ isOpen, onClose }) => {
         {
           authenticated &&
             <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>
-              <Button label={t('auth.sign_out')} sx={{ bgcolor: 'primary.light', maxWidth: '100%' }} onClick={() => logoutUser()} />
+              <Button label={t('auth.sign_out')} sx={{ bgcolor: 'primary.dark', maxWidth: '100%' }} onClick={() => logoutUser()} />
             </div>
         }
       </div>

@@ -39,7 +39,7 @@ const RepoHeader = ({repo}) => {
           {t('repo.manage')}
         </Button>
       </div>
-      <div className='col-xs-12 padding-0' style={{margin: '16px 0'}}>
+      <div className='col-xs-12 padding-0' style={{margin: '4px 0 8px 0'}}>
         <Typography sx={{fontSize: '28px', color: 'surface.dark', fontWeight: 600}}>{repo.name}</Typography>
       </div>
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', fontSize: '16px'}}>

@@ -175,13 +175,14 @@ const SearchResults = props => {
     setOrder: setOrder,
     setOrderBy: setOrderBy,
     isSplitView: Boolean(props.selectedToShow?.id),
-    nested: props.nested
+    nested: props.nested,
+    style: props.resultContainerStyle,
   }
 
   const isCardDisplay = display === 'card'
 
   return (
-    <Box sx={{ width: '100%', background: 'inherit' }}>
+    <Box sx={{ width: '100%', background: 'inherit', height: '100%' }}>
       <ResultsToolbar
         numSelected={selected.length}
         title={getTitle()}
@@ -193,7 +194,7 @@ const SearchResults = props => {
       />
       {
         props.noResults ?
-          <NoResults searchedText={props.searchedText} height='64vh' /> :
+          <NoResults searchedText={props.searchedText} height={props.height} /> :
         <React.Fragment>
           {
             isCardDisplay ?
