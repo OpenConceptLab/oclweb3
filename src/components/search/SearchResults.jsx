@@ -9,7 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
-import { isNumber } from 'lodash'
+import { isNumber, isNaN } from 'lodash'
 import { TEXT_GRAY } from '../../common/constants';
 import SearchControls from './SearchControls';
 import NoResults from './NoResults';
@@ -154,7 +154,7 @@ const SearchResults = props => {
   const getTitle = () => {
     const { results, resource } = props
     const total = results?.total
-    if(isNumber(total)) {
+    if(isNumber(total) && !isNaN(total)) {
       const isMore = total && total === 10000;
       return total.toLocaleString() + (isMore ? '+' : '') + ' ' + t(`search.${resource}`).toLowerCase()
     }

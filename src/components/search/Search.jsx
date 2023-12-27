@@ -186,7 +186,6 @@ const Search = props => {
       const resourceResult = {total: parseInt(response?.headers?.num_found), pageSize: max([parseInt(response?.headers?.num_returned), params?.limit]), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || [], facets: result[__resource]?.facets || {}}
       setResult({[__resource]: resourceResult})
       setLoading(false)
-      //history.push(getCurrentLayoutURL(params))
       if(facets && isFilterable(__resource))
         fetchFacets(params, resourceResult, __resource)
     })

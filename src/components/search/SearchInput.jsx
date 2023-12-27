@@ -48,10 +48,13 @@ const SearchInput = props => {
       const queryString = urlParts[1]
       const queryParams = new URLSearchParams(queryString)
       const resourceType = queryParams.get('type') || 'concepts'
-      let URL = `/search/?type=${resourceType}`
+      let URL = '/search/'
       if(_input) {
         queryParams.set('q', _input)
-        URL += `&${queryParams.toString()}`
+        queryParams.set('type', resourceType)
+        URL += `?${queryParams.toString()}`
+      } else {
+        URL += `?type=${resourceType}`
       }
       history.push(URL.replace('?&', '?'));
     }
