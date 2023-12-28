@@ -53,6 +53,7 @@ const RepoHome = () => {
                     noTabs
                     onShowItem={setShowItem}
                     showItem={showItem}
+                    filtersHeight='calc(100vh - 300px)'
                     resultContainerStyle={{height: 'calc(100vh - 400px)'}}
                   />
               }

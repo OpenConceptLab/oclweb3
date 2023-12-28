@@ -302,7 +302,7 @@ const Search = props => {
         }
         <div className='col-xs-12 padding-0' style={{height: '100%'}}>
           <div className='col-xs-12 padding-0' style={{height: '100%'}}>
-            <div className='col-xs-3 split' style={{width: showFilters ? `${FILTERS_WIDTH}px` : 0, padding: showFilters ? '0 8px' : 0, height: props.filtersHeight || '100%', overflow: 'auto'}}>
+            <div className='col-xs-3 split' style={{width: showFilters ? `${FILTERS_WIDTH}px` : 0, padding: showFilters ? '0 8px' : 0, height: props.filtersHeight || 'calc(100vh - 175px)', overflow: 'auto'}}>
               <SearchFilters
                 resource={resource}
                 filters={result[resource]?.facets || {}}
