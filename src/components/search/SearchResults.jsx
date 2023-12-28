@@ -144,6 +144,7 @@ const SearchResults = props => {
     } else if (props.resource === 'repos') {
       history.push(item.version_url || item.url)
     }
+    setTimeout(() => document.querySelector('.show-item')?.scrollIntoViewIfNeeded(), 100)
   };
 
   const isSelected = (id) => selected.indexOf(id) !== -1;

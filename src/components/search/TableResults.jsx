@@ -118,6 +118,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
                   key={id}
                   onClick={event => handleRowClick(event, id)}
                   selected={isItemSelectedToShow}
+                  className={isItemSelectedToShow ? 'show-item' : ''}
                   sx={{ cursor: 'pointer' }}
                 >
                   <TableCell padding="checkbox" onClick={event => handleClick(event, id)} style={{color: color}}>
