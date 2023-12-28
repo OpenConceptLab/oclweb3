@@ -183,6 +183,7 @@ const Search = props => {
     if(!__resource)
       return
     setLoading(true)
+    setResult({[__resource]: {...result[__resource], results: []}})
     APIService.new().overrideURL(getURL(__resource)).get(null, null, params).then(response => {
       const resourceResult = {total: parseInt(response?.headers?.num_found), pageSize: max([parseInt(response?.headers?.num_returned), params?.limit]), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || [], facets: result[__resource]?.facets || {}}
       setResult({[__resource]: resourceResult})
@@ -195,7 +196,7 @@ const Search = props => {
   const fetchFacets = (params, otherResults, _resource=undefined) => {
     const __resource = _resource || resource
     APIService.new().overrideURL(getURL(__resource)).get(null, null, {...params, facetsOnly: true}).then(response => {
-      setResult({[__resource]: {...(otherResults || {}), facets: prepareFacets(response?.data?.facets?.fields || {}, __resource)}})
+      setResult({[__resource]: {...otherResults, facets: prepareFacets(response?.data?.facets?.fields || {}, __resource)}})
     })
   }
 
