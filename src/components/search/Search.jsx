@@ -195,7 +195,7 @@ const Search = props => {
   const fetchFacets = (params, otherResults, _resource=undefined) => {
     const __resource = _resource || resource
     APIService.new().overrideURL(getURL(__resource)).get(null, null, {...params, facetsOnly: true}).then(response => {
-      setResult({[__resource]: {...get(result, resource, {}), ...(otherResults || {}), facets: prepareFacets(response?.data?.facets?.fields || {}, __resource)}})
+      setResult({[__resource]: {...(otherResults || {}), facets: prepareFacets(response?.data?.facets?.fields || {}, __resource)}})
     })
   }
 
