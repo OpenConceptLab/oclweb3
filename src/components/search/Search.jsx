@@ -167,8 +167,9 @@ const Search = props => {
   const handleResourceChange = (event, newTab) => {
     event.preventDefault()
     event.stopPropagation()
+    setFilters({})
 
-    history.push(getCurrentLayoutURL(getQueryParams(input, page, pageSize, filters), newTab))
+    history.push(getCurrentLayoutURL(getQueryParams(input, page, pageSize, {}), newTab))
   }
 
   const getURL = __resource => {
@@ -194,16 +195,16 @@ const Search = props => {
   const fetchFacets = (params, otherResults, _resource=undefined) => {
     const __resource = _resource || resource
     APIService.new().overrideURL(getURL(__resource)).get(null, null, {...params, facetsOnly: true}).then(response => {
-      setResult({[__resource]: {...get(result, resource, {}), ...(otherResults || {}), facets: prepareFacets(response?.data?.facets?.fields || {})}})
+      setResult({[__resource]: {...get(result, resource, {}), ...(otherResults || {}), facets: prepareFacets(response?.data?.facets?.fields || {}, __resource)}})
     })
   }
 
-  const prepareFacets = newFacets => {
+  const prepareFacets = (newFacets, _resource) => {
     // 1. If no facets are applied then just replace with new facets
     // 2. If facet(s) are applied then do not change anything in the applied field list
     // 3. If facet(s) are applied then new facets will be added and enabled but old facets that are not present in new facets will be disabled with count 0
     // 4. If facet(s) are applied then anything that is existing in both new and old will only have count updated
-    let existingFacets = result[resource]?.facets
+    let existingFacets = result[_resource]?.facets
     if(isEmpty(existingFacets))
       return newFacets
 
