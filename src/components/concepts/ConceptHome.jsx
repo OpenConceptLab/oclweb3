@@ -12,7 +12,7 @@ const ConceptHome = props => {
     })
   }, [props.url])
 
-  return concept?.display_name ? (
+  return concept?.id ? (
     <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
       <span>{`Concept: ${concept?.display_name}`}</span>
       <span>
