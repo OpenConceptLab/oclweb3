@@ -1,5 +1,5 @@
 # oclweb3
-Overhauled OCL Web Authoring Interface v2
+OCL TermBrowser v3 user interface for terminology management using an OCL Terminology Server
 
 ### Run Dev
 1. docker-compose up -d
