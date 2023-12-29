@@ -61,7 +61,7 @@ const EnhancedTableHead = props => {
   );
 }
 
-const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, setOrder, setOrderBy, className, style}) => {
+const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange}) => {
   const rows = results?.results || []
   const getValue = (row, column) => {
     let val = row[column.value]
@@ -79,8 +79,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
+    onOrderByChange(property, isAsc ? 'desc' : 'asc')
   };
 
   return (

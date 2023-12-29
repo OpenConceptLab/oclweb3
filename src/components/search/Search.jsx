@@ -35,8 +35,9 @@ const Search = props => {
   const [filters, setFilters] = React.useState({})
   const [selected, setSelected] = React.useState([])
   const [showItem, setShowItem] = React.useState(false)
+  const [order, setOrder] = React.useState('desc');
+  const [orderBy, setOrderBy] = React.useState('score');
   const didMount = React.useRef(false);
-
   const isFilterable = _resource => FILTERABLE_RESOURCES.includes(_resource)
 
   React.useEffect(() => {
@@ -58,7 +59,7 @@ const Search = props => {
 
   const getCurrentLayoutURL = (params, _resource) => {
     /*eslint no-unused-vars: 0*/
-    const { q, page, limit, includeSearchMeta, ...filters} = params
+    const { q, page, limit, includeSearchMeta, sortAsc, sortDesc, ...filters} = params
     _resource = _resource || resource || 'concepts'
     if(_resource === 'organizations')
       _resource = 'orgs'
@@ -74,6 +75,11 @@ const Search = props => {
     if(!isEmpty(filters)){
       url += `&filters=${JSON.stringify(omit(filters, 'includeRetired'))}`
     }
+    if(sortDesc)
+      url += `&sortDesc=${sortDesc}`
+    else if(sortAsc)
+      url += `&sortAsc=${sortAsc}`
+
 
     let queryStr = url.replace('?&', '?').split('?')[1]
     queryStr = queryStr ? '?' + queryStr : ''
@@ -102,6 +108,16 @@ const Search = props => {
     const _page = parseInt(queryParams.get('page') || 1)
     const _pageSize = parseInt(queryParams.get('limit') || 25)
     const _resource = queryParams.get('type') || 'concepts'
+    let _orderBy, _order;
+    const sortAsc = queryParams.get('sortAsc')
+    const sortDesc = queryParams.get('sortDesc')
+    if(sortAsc) {
+      _orderBy = sortAsc
+      _order = 'asc'
+    } else if (sortDesc) {
+      _orderBy = sortDesc
+      _order = 'desc'
+    }
     let _fetch = mustFetch || false
     let _fetchFacets = mustFetch || isDiffFromPrevInput
     let _filters = getFiltersFromQueryParams()
@@ -131,9 +147,14 @@ const Search = props => {
       setPageSize(_pageSize)
       _fetch = true
     }
+    if(_orderBy !== orderBy || _order !== order) {
+      setOrderBy(_orderBy)
+      setOrder(_order)
+      _fetch = true
+    }
 
     if(_fetch)
-      fetchResults(getQueryParams(value, _page, _pageSize, _filters), _fetchFacets, _resource)
+      fetchResults(getQueryParams(value, _page, _pageSize, _filters, _orderBy, _order), _fetchFacets, _resource)
   }
 
   const getAppliedFacetFromQueryParam = filters => {
@@ -160,8 +181,15 @@ const Search = props => {
   }
 
 
-  const getQueryParams = (_input, _page, _pageSize, _filters) => {
-    return {q: _input, page: _page || 1, limit: _pageSize, includeSearchMeta: true, ...getFacetQueryParam(_filters || {})}
+  const getQueryParams = (_input, _page, _pageSize, _filters, _orderBy, _order) => {
+    let params = {q: _input, page: _page || 1, limit: _pageSize, includeSearchMeta: true, ...getFacetQueryParam(_filters || {})}
+    if(_orderBy) {
+      if(_order === 'desc')
+        params.sortDesc = _orderBy
+      else
+        params.sortAsc = _orderBy
+    }
+    return params
   }
 
   const handleResourceChange = (event, newTab) => {
@@ -246,13 +274,13 @@ const Search = props => {
   }
 
   const onPageChange = (_page, _pageSize) => {
-    history.push(getCurrentLayoutURL(getQueryParams(input, _page, _pageSize, filters)))
+    history.push(getCurrentLayoutURL(getQueryParams(input, _page, _pageSize, filters, orderBy, order)))
   }
 
   const highlight = item => highlightTexts(item?.id ? [item] : result[resource]?.results || [], null, true)
 
   const onFiltersChange = newFilters => {
-    history.push(getCurrentLayoutURL(getQueryParams(input, page, pageSize, newFilters)))
+    history.push(getCurrentLayoutURL(getQueryParams(input, page, pageSize, newFilters, orderBy, order)))
   }
 
   const TAB_STYLES = {textTransform: 'none'}
@@ -282,6 +310,11 @@ const Search = props => {
     setShowItem(item || false)
     props.onShowItem && props.onShowItem(item || false)
   }
+
+  const onOrderByChange = (newOrderByField, newOrder) => {
+    history.push(getCurrentLayoutURL(getQueryParams(input, page, pageSize, filters, newOrderByField, newOrder)))
+  }
+
 
   React.useEffect(() => {
     setShowItem(props.showItem || false)
@@ -316,6 +349,9 @@ const Search = props => {
             <div className='col-xs-9 split' style={{width: getSearchResultsWidth(), paddingRight: 0, paddingLeft: showFilters ? '15px' : 0, float: 'right', height: '100%'}}>
               <div className='col-xs-12 padding-0' style={{height: '100%'}}>
                 <SearchResults
+                  order={order}
+                  orderBy={orderBy}
+                  onOrderByChange={onOrderByChange}
                   nested={props.nested}
                   isFilterable={isFilterable(resource)}
                   noResults={noResults}

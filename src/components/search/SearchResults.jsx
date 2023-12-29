@@ -15,9 +15,10 @@ import SearchControls from './SearchControls';
 import NoResults from './NoResults';
 import TableResults from './TableResults';
 import CardResults from './CardResults';
+import { SORT_ATTRS } from './ResultConstants'
 
 const ResultsToolbar = props => {
-  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display } = props;
+  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields } = props;
   return (
     <Toolbar
       sx={{
@@ -55,7 +56,15 @@ const ResultsToolbar = props => {
         </div>
       )}
 
-      <SearchControls disabled={disabled} onDisplayChange={onDisplayChange} display={display} />
+      <SearchControls
+        disabled={disabled}
+        onDisplayChange={onDisplayChange}
+        display={display}
+        orderBy={orderBy}
+        order={order}
+        onOrderByChange={onOrderByChange}
+        sortableFields={sortableFields}
+      />
       {
         isFilterable &&
           <IconButton style={{marginLeft: '5px'}} onClick={onFiltersToggle} disabled={Boolean(disabled)}>
@@ -73,8 +82,6 @@ const SearchResults = props => {
   const [cardDisplayAnimation, setCardDisplayAnimation] = React.useState('animation-disappear')
   const [tableDisplayAnimation, setTableDisplayAnimation] = React.useState('animation-appear')
   const [selected, setSelected] = React.useState([]);
-  const [order, setOrder] = React.useState('desc');
-  const [orderBy, setOrderBy] = React.useState('id');
   const page = props.results?.page;
   const rowsPerPage = props.results?.pageSize;
 
@@ -161,6 +168,8 @@ const SearchResults = props => {
     }
   }
 
+  const sortableFields = (props.nested ? SORT_ATTRS.nested[props.resource] : SORT_ATTRS.global[props.resource]) || SORT_ATTRS.common[props.resource]
+
   const resultsProps = {
     handleClick: handleClick,
     handleRowClick: handleRowClick,
@@ -171,13 +180,12 @@ const SearchResults = props => {
     isSelected: isSelected,
     isItemShown: isItemShown,
     bgColor: props.bgColor,
-    order: order,
-    orderBy: orderBy,
-    setOrder: setOrder,
-    setOrderBy: setOrderBy,
+    onOrderByChange: props.onOrderByChange,
     isSplitView: Boolean(props.selectedToShow?.id),
     nested: props.nested,
     style: props.resultContainerStyle,
+    order: props.order,
+    orderBy: props.orderBy
   }
 
   const isCardDisplay = display === 'card'
@@ -192,6 +200,10 @@ const SearchResults = props => {
         isFilterable={props.isFilterable}
         onDisplayChange={onDisplayChange}
         display={display}
+        sortableFields={sortableFields}
+        order={props.order}
+        orderBy={props.orderBy}
+        onOrderByChange={props.onOrderByChange}
       />
       {
         props.noResults ?
