@@ -39,12 +39,6 @@
     "sign_in_success": "Inicio de sesión exitoso.",
     "sign_in_error": "No se pudo iniciar sesión en este momento."
   },
-  "user": {
-    "my_profile": "Mi perfil",
-    "my_repositories": "Mis repositorios",
-    "my_organizations": "Mis organizaciones",
-    "my_bookmarks": "Mis marcadores"
-  },
   "concept": {
     "concepts": "Conceptos",
     "display_name": "Nombre a mostrar",
@@ -63,6 +57,10 @@
   "user": {
     "users": "Usuarios",
     "user": "Usuario",
+    "my_profile": "Mi perfil",
+    "my_repositories": "Mis repositorios",
+    "my_organizations": "Mis organizaciones",
+    "my_bookmarks": "Mis marcadores",
     "username": "Nombre de usuario",
     "joined_on": "Fecha de unión",
     "email": "Correo electrónico",

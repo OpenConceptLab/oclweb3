@@ -44,12 +44,6 @@
     "sign_in_success": "Successfully signed in.",
     "sign_in_error": "Unable to signin at the time."
   },
-  "user": {
-    "my_profile": "My Profile",
-    "my_repositories": "My repositories",
-    "my_organizations": "My organizations",
-    "my_bookmarks": "My bookmarks"
-  },
   "concept": {
     "concepts": "Concepts",
     "display_name": "Display Name",
@@ -72,6 +66,10 @@
   "user": {
     "users": "Users",
     "user": "User",
+    "my_profile": "My Profile",
+    "my_repositories": "My repositories",
+    "my_organizations": "My organizations",
+    "my_bookmarks": "My bookmarks",
     "username": "Username",
     "joined_on": "Joined On",
     "email": "Email",
