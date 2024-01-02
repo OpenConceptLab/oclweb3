@@ -1,21 +1,24 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 import Paper from '@mui/material/Paper'
 import APIService from '../../services/APIService';
 import LoaderDialog from '../common/LoaderDialog';
 import RepoHeader from './RepoHeader';
 import RepoTabs from './RepoTabs';
 import Search from '../search/Search';
+import { dropVersion } from '../../common/utils';
 import { WHITE } from '../../common/constants';
 import ConceptHome from '../concepts/ConceptHome';
 import Error404 from '../errors/Error404';
 
 const RepoHome = () => {
   const location = useLocation()
+  const history = useHistory()
 
   const [tab, setTab] = React.useState("concepts")
   const [status, setStatus] = React.useState(false)
   const [repo, setRepo] = React.useState(false)
+  const [versions, setVersions] = React.useState(false)
   const [loading, setLoading] = React.useState(true)
   const [showItem, setShowItem] = React.useState(false)
 
@@ -26,13 +29,26 @@ const RepoHome = () => {
     APIService.new().overrideURL(getURL()).get(null, null, {includeSummary: true}, true).then(response => {
       setStatus(response?.status || response?.response.status)
       setLoading(false)
-      setRepo(response?.data || response?.response?.data || {})
+      const _repo = response?.data || response?.response?.data || {}
+      setRepo(_repo)
+    })
+  }
+
+  const fetchVersions = () => {
+    APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get().then(response => {
+      setVersions(response?.data || [])
     })
   }
 
   React.useEffect(() => {
     fetchRepo()
+    if(versions === false)
+      fetchVersions()
   }, [location.pathname])
+
+  const onVersionChange = version => {
+    history.push(version.version_url)
+  }
 
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '8px'}}>
@@ -41,7 +57,7 @@ const RepoHome = () => {
         {
           (repo?.id || loading) &&
             <React.Fragment>
-              <RepoHeader repo={repo} />
+              <RepoHeader repo={repo} versions={versions} onVersionChange={onVersionChange} />
               <RepoTabs repo={repo} tab={tab} onChange={(event, newTab) => setTab(newTab)} />
               {
                 repo?.id &&

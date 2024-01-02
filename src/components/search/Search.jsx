@@ -45,6 +45,10 @@ const Search = props => {
   }, [])
 
   React.useEffect(() => {
+    setQueryParamsInState(true)
+  }, [props.url])
+
+  React.useEffect(() => {
     if(didMount.current)
       setQueryParamsInState()
     else

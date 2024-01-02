@@ -17,13 +17,13 @@ import OwnerIcon from '../common/OwnerIcon';
 import { PRIMARY } from '../../common/constants';
 import { formatDate } from '../../common/utils';
 
-const RepoHeader = ({repo}) => {
+const RepoHeader = ({repo, versions, onVersionChange}) => {
   const { t } = useTranslation()
   return (
     <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderRadius: '8px 8px 0 0'}}>
       <div className='col-xs-6 padding-0'>
         <HeaderChip label={repo.type} icon={<RepoIcon sx={{color: 'surface.contrastText'}} />} />
-        <RepoVersionChip version={repo.version} sx={{marginLeft: '8px'}} onChange={() => {}} />
+        <RepoVersionChip version={repo} versions={versions} sx={{marginLeft: '8px'}} onChange={onVersionChange} />
       </div>
       <div className='col-xs-6 padding-0' style={{textAlign: 'right'}}>
         <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
