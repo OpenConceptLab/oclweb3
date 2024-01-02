@@ -11,7 +11,7 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { visuallyHidden } from '@mui/utils';
 import { filter } from 'lodash'
-import { SECONDARY } from '../../common/constants';
+import { SECONDARY, WHITE } from '../../common/constants';
 import { ALL_COLUMNS } from './ResultConstants';
 
 const EnhancedTableHead = props => {
@@ -118,7 +118,11 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
                   onClick={event => handleRowClick(event, id)}
                   selected={isItemSelectedToShow}
                   className={isItemSelectedToShow ? 'show-item' : ''}
-                  sx={{ cursor: 'pointer' }}
+                  sx={{
+                    cursor: 'pointer',
+                    '&.Mui-selected': {backgroundColor: WHITE},
+                    '&.Mui-selected:hover': {backgroundColor: WHITE},
+                  }}
                 >
                   <TableCell padding="checkbox" onClick={event => handleClick(event, id)} style={{color: color}}>
                     <Checkbox
