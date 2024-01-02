@@ -9,7 +9,7 @@ import merge from 'lodash/merge'
 import Menu from '@mui/material/Menu';
 import ListItemButton from '@mui/material/ListItemButton';
 import { find, reject, orderBy, isArray } from 'lodash'
-import { formatDateTime } from '../../common/utils'
+import { formatDate } from '../../common/utils'
 
 const RepoVersionChip = ({ version, versions, sx, onChange }) => {
   const { t } = useTranslation()
@@ -52,7 +52,8 @@ const RepoVersionChip = ({ version, versions, sx, onChange }) => {
         }}
         PaperProps={{
           style: {
-            maxHeight: '300px',
+            maxHeight: '350px',
+            minWidth: '250px'
           },
         }}
       >
@@ -64,7 +65,7 @@ const RepoVersionChip = ({ version, versions, sx, onChange }) => {
                 <ListItemIcon sx={{minWidth: '38px'}}>
                   <VersionIcon fontSize="small" />
                 </ListItemIcon>
-                <ListItemText primary={_version.version} secondary={formatDateTime(_version.created_at)} />
+                <ListItemText primary={_version.version} secondary={formatDate(_version.created_at)} />
               </ListItemButton>
             )
           }) : null
