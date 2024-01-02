@@ -4,12 +4,13 @@ import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/CancelOutlined';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 
 const SearchInput = props => {
   const [input, setInput] = React.useState('')
   const history = useHistory();
+  const location = useLocation()
 
   const handleInputChange = event => {
     const value = event.target.value
@@ -44,11 +45,9 @@ const SearchInput = props => {
   const moveToSearchPage = value => {
     if(!props.nested) {
       let _input = value || '';
-      const urlParts = window.location.hash.split('?')
-      const queryString = urlParts[1]
-      const queryParams = new URLSearchParams(queryString)
+      const queryParams = new URLSearchParams(location.search)
       const resourceType = queryParams.get('type') || 'concepts'
-      let URL = '/search/'
+      let URL = location.pathname === '/' ? '/search/' : location.pathname
       if(_input) {
         queryParams.set('q', _input)
         queryParams.set('type', resourceType)
@@ -61,9 +60,7 @@ const SearchInput = props => {
   }
 
   React.useEffect(() => {
-    const urlParts = window.location.hash.split('?')
-    const queryString = urlParts[1]
-    const queryParams = new URLSearchParams(queryString)
+    const queryParams = new URLSearchParams(location.search)
     setInput(queryParams.get('q') || '')
   }, [])
 

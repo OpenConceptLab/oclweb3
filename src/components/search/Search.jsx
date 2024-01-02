@@ -6,7 +6,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import OrgIcon from '@mui/icons-material/AccountBalance';
 import UserIcon from '@mui/icons-material/Person';
-import { forEach, keys, pickBy, isEmpty, find, uniq, has, orderBy, uniqBy, omit, max, isEqual } from 'lodash';
+import { forEach, keys, pickBy, isEmpty, find, uniq, has, orderBy as sortBy, uniqBy, omit, max, isEqual } from 'lodash';
 import { WHITE, LIGHT_GRAY } from '../../common/constants';
 import { highlightTexts } from '../../common/utils';
 import APIService from '../../services/APIService';
@@ -267,7 +267,7 @@ const Search = props => {
         mergedFacets[field] = uniqBy([...(mergedFacets[field] || []), ...(newFacets[field] || [])], facet => facet[0])
       }
 
-      mergedFacets[field] = orderBy(mergedFacets[field], facet => facet[1], 'desc')
+      mergedFacets[field] = sortBy(mergedFacets[field], facet => facet[1], 'desc')
     })
 
     return mergedFacets
