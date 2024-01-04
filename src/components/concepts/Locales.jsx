@@ -27,7 +27,7 @@ const LocaleItem = ({ locale }) => {
         <ListItemAvatar sx={{color: 'surface.contrastText'}}>
           {locale.locale.toUpperCase()}
         </ListItemAvatar>
-        <ListItemText primary={locale.name} secondary={externalID} />
+        <ListItemText primary={locale.name || locale.description} secondary={externalID} />
       </ListItem>
       <Divider component="li" />
     </React.Fragment>
@@ -60,7 +60,7 @@ const Locales = ({ locales, title, repo }) => {
   }
 
   const grouped = groupLocales(locales, repo)
-  const getOrdered = _locales => orderBy(_locales, ['locale_preferred', 'name_type', 'name'], ['desc', 'asc', 'asc'])
+  const getOrdered = _locales => orderBy(_locales, ['locale_preferred', 'name_type', 'description_type', 'name'], ['desc', 'asc', 'asc'])
 
   return (
     <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor}}>
