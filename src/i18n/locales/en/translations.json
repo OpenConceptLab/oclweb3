@@ -22,7 +22,9 @@
     "versions": "Versions",
     "summary": "Summary",
     "about": "About",
-    "view_all_attributes": "View all attributes"
+    "view_all_attributes": "View all attributes",
+    "actions": "Actions",
+    "metadata": "Metadata"
   },
   "errors": {
     "404": "Sorry your page could not be found."
@@ -49,7 +51,10 @@
     "concepts": "Concepts",
     "display_name": "Display Name",
     "concept_class": "Class",
-    "datatype": "Datatype"
+    "datatype": "Datatype",
+    "history": "History and comments",
+    "name_and_synonyms": "Name and synonyms",
+    "descriptions": "Descriptions"
   },
   "mapping": {
     "mappings": "Mappings"
