@@ -41,11 +41,13 @@ const Search = props => {
   const isFilterable = _resource => FILTERABLE_RESOURCES.includes(_resource)
 
   React.useEffect(() => {
-    setQueryParamsInState(true)
+    if(!props.url)
+      setQueryParamsInState(true)
   }, [])
 
   React.useEffect(() => {
-    setQueryParamsInState(true)
+    if(props.url)
+      setQueryParamsInState(true)
   }, [props.url])
 
   React.useEffect(() => {
