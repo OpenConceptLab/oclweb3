@@ -17,21 +17,48 @@ const LocaleItem = ({ locale }) => {
   return (
     <React.Fragment>
       <ListItem
-        sx={{color: 'surface.contrastText'}}
+        sx={{color: 'surface.contrastText', p: 0 }}
         secondaryAction={
           <IconButton edge="end" aria-label="copy" sx={{color: 'surface.contrastText'}}>
             <CopyIcon />
           </IconButton>
         }
       >
-        <ListItemAvatar sx={{color: 'surface.contrastText'}}>
-          {locale.locale.toUpperCase()}
-        </ListItemAvatar>
         <ListItemText primary={locale.name || locale.description} secondary={externalID} />
       </ListItem>
       <Divider component="li" />
     </React.Fragment>
   )
+}
+
+
+const LocaleList = ({lang, locales}) => {
+  return (
+    <React.Fragment key={lang}>
+      <ListItem sx={{color: 'surface.contrastText'}}>
+        <ListItemAvatar sx={{color: 'surface.contrastText'}}>
+          {lang.toUpperCase()}
+        </ListItemAvatar>
+        <List
+          dense
+          sx={{
+            p: 0,
+            width: '100%',
+            '.MuiDivider-root:last-child': {display: 'none'},
+            '.MuiListItemText-secondary': {fontSize: '0.675rem'},
+          }}
+        >
+          {
+            locales.map(
+              locale => <LocaleItem key={locale.uuid} locale={locale} />
+            )
+          }
+        </List>
+      </ListItem>
+      <Divider component="li" />
+    </React.Fragment>
+  )
+
 }
 
 const Locales = ({ locales, title, repo }) => {
@@ -79,17 +106,13 @@ const Locales = ({ locales, title, repo }) => {
         {
           map(
             grouped.defaultLocales,
-            _locales => getOrdered(_locales).map(
-              locale => <LocaleItem key={locale.uuid} locale={locale} />
-            )
+            (_locales, lang) => <LocaleList key={lang} lang={lang} locales={getOrdered(_locales)} />
           )
         }
         {
           map(
             grouped.supportedLocales,
-            _locales => getOrdered(_locales).map(
-              locale => <LocaleItem key={locale.uuid} locale={locale} />
-            )
+            (_locales, lang) => <LocaleList key={lang} lang={lang} locales={getOrdered(_locales)} />
           )
         }
         {
