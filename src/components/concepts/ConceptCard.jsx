@@ -9,6 +9,7 @@ import DotSeparator from '../common/DotSeparator'
 import ConceptIcon from './ConceptIcon';
 import PropertyChip from '../common/PropertyChip';
 import Retired from '../common/Retired';
+import RepoVersionLabel from '../repos/RepoVersionLabel'
 
 
 const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isShown, firstChild, isSplitView }) => {
@@ -42,7 +43,8 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
             </span>
             <DotSeparator />
             <span style={{display: 'flex', alignItems: 'center', fontSize: '14px', color: VERY_LIGH_GRAY}}>
-              <RepoIcon fontSize='inherit' style={{marginRight: '8px'}} /> {concept.source}:{concept.latest_source_version}
+              <RepoIcon fontSize='inherit' style={{marginRight: '8px'}} />
+              <RepoVersionLabel repo={concept.source} version={concept.latest_source_version}/>
             </span>
             <DotSeparator />
             <span className='searchable' style={{display: 'flex', alignItems: 'center', fontSize: '14px', color: VERY_LIGH_GRAY}}>

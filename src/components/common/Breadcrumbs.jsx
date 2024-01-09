@@ -4,8 +4,9 @@ import RepoIcon from '../repos/RepoIcon';
 import ConceptIcon from '../concepts/ConceptIcon';
 import DotSeparator from './DotSeparator'
 import OwnerIcon from './OwnerIcon'
+import RepoVersionLabel from '../repos/RepoVersionLabel'
 
-const Breadcrumbs = ({owner, ownerType, repo, repoVersion, id, version, concept}) => {
+const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, id, version, concept}) => {
   const iconProps = {color: 'secondary', style: {marginRight: '8px', width: '0.8em'}}
   return (
     <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center'}}>
@@ -20,16 +21,7 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, id, version, concept}
         repo &&
           <React.Fragment>
             <DotSeparator />
-            <RepoIcon {...iconProps} />
-            {repo}
-          </React.Fragment>
-      }
-      {
-        repoVersion &&
-          <React.Fragment>
-            <DotSeparator />
-            <VersionIcon {...iconProps} />
-            {repoVersion}
+            <RepoVersionLabel href={repoURL} icon={<RepoIcon sx={{color: 'secondary'}} />} repo={repo} version={repoVersion} versionStyle={{fontSize: '14px'}} />
           </React.Fragment>
       }
       {

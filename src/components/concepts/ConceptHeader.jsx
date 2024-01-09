@@ -11,7 +11,7 @@ import CloseIconButton from '../common/CloseIconButton';
 import Breadcrumbs from '../common/Breadcrumbs'
 import { BLACK } from '../../common/constants'
 
-const ConceptHeader = ({concept, onClose}) => {
+const ConceptHeader = ({concept, onClose, repoURL}) => {
   const { t } = useTranslation()
 
   return (
@@ -26,6 +26,7 @@ const ConceptHeader = ({concept, onClose}) => {
             repoType='Source Version'
             id={concept.id}
             version={concept.version}
+            repoURL={repoURL}
             concept
           />
         </span>

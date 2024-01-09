@@ -6,6 +6,7 @@ import {
 } from '../../common/utils';
 import OwnerIcon from '../common/OwnerIcon';
 import Retired from '../common/Retired';
+import RepoVersionLabel from '../repos/RepoVersionLabel';
 
 
 export const ALL_COLUMNS = {
@@ -16,7 +17,7 @@ export const ALL_COLUMNS = {
     {id: 'datatype', labelKey: 'concept.datatype', value: 'datatype', sortOn: 'datatype'},
     {id: 'updatedOn', labelKey: 'common.updated_on', value: 'version_updated_on', formatter: formatDate, sortOn: 'last_update', global: false},
     {id: 'updatedBy', labelKey: 'common.updated_by', value: 'version_updated_by', global: false},
-    {id: 'parent', labelKey: 'repo.repo', value: 'source', sortOn: 'source', nested: false, renderer: item => `${item.source}:${item.latest_source_version}`},
+    {id: 'parent', labelKey: 'repo.repo', value: 'source', sortOn: 'source', nested: false, renderer: item => <RepoVersionLabel repo={item.source} version={item.latest_source_version} />},
     {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', nested: false, renderer: item => (<span style={{display: 'flex'}}><OwnerIcon ownerType={item.owner_type} fontSize='small' style={{marginRight: '4px'}}/>{item.owner}</span>)},
   ],
   repos: [

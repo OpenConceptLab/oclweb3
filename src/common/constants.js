@@ -13,6 +13,7 @@ export const SURFACE_LIGHT = '#787680'
 export const PRIMARY_95 = '#f2efff'
 export const PRIMARY_DARK = '#c3c0ff'
 export const SECONDARY_DARK = '#c7c4dd';
+export const SECONDARY_50 = '#76758b';
 export const TERTIARY_DARK = '#eab9d1';
 export const ERROR_DARK = '#ffb4ab'
 export const TEXT_GRAY = '#47464f'

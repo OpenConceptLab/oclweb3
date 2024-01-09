@@ -19,18 +19,20 @@ const ConceptHome = props => {
     })
   }, [props.url])
 
-  const fetchRepo = _concept => {
+  const fetchRepo = _concept => APIService.new().overrideURL(getRepoURL(_concept)).get().then(response => setRepo(response.data))
+
+  const getRepoURL = _concept => {
     let url = _concept?.source_url || concept?.source_url
     const repoVersion = _concept?.latest_source_version || concept?.latest_source_version
     if(repoVersion)
       url += repoVersion + '/'
-    APIService.new().overrideURL(url).get().then(response => setRepo(response.data))
-  }
+    return url
+ }
 
   return (concept?.id && repo?.id) ? (
     <div className='col-xs-12' style={{padding: '12px 16px'}}>
       <div className='col-xs-12 padding-0' style={{marginBottom: '12px'}}>
-        <ConceptHeader concept={concept} onClose={props.onClose} />
+        <ConceptHeader concept={concept} onClose={props.onClose} repoURL={getRepoURL()} />
       </div>
       <ConceptTabs tab={tab} onTabChange={(event, newTab) => setTab(newTab)} />
       {

@@ -218,7 +218,10 @@
           "wildcard",
           "repos",
           "idx",
-          "labelledby"
+          "labelledby",
+          "Roboto",
+          "Helvetica",
+          "Arial"
         ],
         "skipIfMatch": [
           "http://[^s]*",
