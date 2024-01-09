@@ -35,7 +35,7 @@ const LocaleItem = ({ locale }) => {
 const LocaleList = ({lang, locales}) => {
   return (
     <React.Fragment key={lang}>
-      <ListItem sx={{color: 'surface.contrastText'}}>
+      <ListItem sx={{color: 'surface.contrastText', paddingRight: 0}}>
         <ListItemAvatar sx={{color: 'surface.contrastText'}}>
           {lang.toUpperCase()}
         </ListItemAvatar>
