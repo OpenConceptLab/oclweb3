@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
@@ -9,17 +10,30 @@ import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 import CopyIcon from '@mui/icons-material/ContentCopy';
 import { groupBy, forEach, has, compact, without, keys, orderBy, map } from 'lodash'
+import { toFullAPIURL, copyURL } from '../../common/utils';
+import { OperationsContext } from '../app/LayoutContext';
 
 const borderColor = 'rgba(0, 0, 0, 0.12)'
 
-const LocaleItem = ({ locale }) => {
+const LocaleItem = ({ locale, url }) => {
+  const { t } = useTranslation()
+  const { setAlert } = React.useContext(OperationsContext);
+
   const externalID = (locale?.external_id && locale.external_id.toLowerCase() !== 'none') ? locale.external_id : undefined
+  const isName = Boolean(locale?.name)
+  const urlAttr = isName ? 'names' : 'descriptions'
+
+  const onCopyClick = () => {
+    copyURL(toFullAPIURL(url + urlAttr + '/' + locale.uuid + '/'))
+    setAlert({message: t('common.copied_to_clipboard'), severity: 'success', duration: 1000})
+  }
+
   return (
     <React.Fragment>
       <ListItem
         sx={{color: 'surface.contrastText', p: 0 }}
         secondaryAction={
-          <IconButton edge="end" aria-label="copy" sx={{color: 'surface.contrastText'}}>
+          <IconButton edge="end" aria-label="copy" sx={{color: 'surface.contrastText'}} onClick={onCopyClick}>
             <CopyIcon />
           </IconButton>
         }
@@ -32,7 +46,7 @@ const LocaleItem = ({ locale }) => {
 }
 
 
-const LocaleList = ({lang, locales}) => {
+const LocaleList = ({url, lang, locales}) => {
   return (
     <React.Fragment key={lang}>
       <ListItem sx={{color: 'surface.contrastText', paddingRight: 0}}>
@@ -50,7 +64,7 @@ const LocaleList = ({lang, locales}) => {
         >
           {
             locales.map(
-              locale => <LocaleItem key={locale.uuid} locale={locale} />
+              locale => <LocaleItem key={locale.uuid} locale={locale} url={url} />
             )
           }
         </List>
@@ -61,7 +75,8 @@ const LocaleList = ({lang, locales}) => {
 
 }
 
-const Locales = ({ locales, title, repo }) => {
+const Locales = ({ concept, locales, title, repo }) => {
+  const url = concept?.version_url || concept?.url
   const groupLocales = (locales, repo) => {
     const groupedByRepo = {defaultLocales: {}, supportedLocales: {}, rest: {}}
     const grouped = groupBy(locales, 'locale')
@@ -106,21 +121,25 @@ const Locales = ({ locales, title, repo }) => {
         {
           map(
             grouped.defaultLocales,
-            (_locales, lang) => <LocaleList key={lang} lang={lang} locales={getOrdered(_locales)} />
+            (_locales, lang) => <LocaleList key={lang} url={url} lang={lang} locales={getOrdered(_locales)} />
           )
         }
         {
           map(
             grouped.supportedLocales,
-            (_locales, lang) => <LocaleList key={lang} lang={lang} locales={getOrdered(_locales)} />
+            (_locales, lang) => <LocaleList key={lang} url={url} lang={lang} locales={getOrdered(_locales)} />
           )
         }
         {
           map(
             grouped.rest,
-            _locales => getOrdered(_locales).map(
-              locale => <LocaleItem key={locale.uuid} locale={locale} />
-            )
+            (_locales, lang) => <LocaleList key={lang} url={url} lang={lang} locales={getOrdered(_locales)} />
+          )
+        }
+        {
+          map(
+            grouped.rest,
+            (_locales, lang) => getOrdered(_locales).map(locale => <LocaleItem key={locale.uuid} url={url} lang={lang} locale={locale} />)
           )
         }
       </List>

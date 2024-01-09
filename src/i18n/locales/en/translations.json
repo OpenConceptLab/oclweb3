@@ -24,7 +24,8 @@
     "about": "About",
     "view_all_attributes": "View all attributes",
     "actions": "Actions",
-    "metadata": "Metadata"
+    "metadata": "Metadata",
+    "copied_to_clipboard": "Copied to clipboard"
   },
   "errors": {
     "404": "Sorry your page could not be found."

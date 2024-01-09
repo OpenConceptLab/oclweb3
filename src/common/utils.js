@@ -125,9 +125,12 @@ export const toFullAPIURL = uri => getAPIURL() + uri;
 
 export const toRelativeURL = url => url.replace(getAPIURL(), '');
 
-export const copyURL = url => {
-  copyToClipboard(url, 'Copied URL to clipboard!');
+export const copyToClipboard = copyText => {
+  if(copyText)
+    navigator.clipboard.writeText(copyText);
 }
+
+export const copyURL = url => copyToClipboard(url, 'Copied URL to clipboard!');
 
 export const toParentURI = uri => uri.split('/').splice(0, 5).join('/') + '/';
 
