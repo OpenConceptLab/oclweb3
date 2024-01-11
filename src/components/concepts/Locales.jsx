@@ -38,7 +38,7 @@ const LocaleItem = ({ locale, url }) => {
           </IconButton>
         }
       >
-          <ListItemText primary={locale.name || locale.description} secondary={externalID} />
+        <ListItemText primary={locale.name || locale.description} secondary={externalID} />
       </ListItem>
       <Divider component="li" />
     </React.Fragment>
@@ -49,8 +49,8 @@ const LocaleItem = ({ locale, url }) => {
 const LocaleList = ({url, lang, locales}) => {
   return (
     <React.Fragment key={lang}>
-      <ListItem sx={{color: 'surface.contrastText', paddingRight: 0}}>
-        <ListItemAvatar sx={{color: 'surface.contrastText'}}>
+      <ListItem sx={{color: 'surface.contrastText', paddingRight: 0, position: 'relative'}}>
+        <ListItemAvatar sx={{color: 'surface.contrastText', position: 'absolute', height: 'calc(100% - 16px)', top: '16px'}}>
           {lang.toUpperCase()}
         </ListItemAvatar>
         <List
@@ -58,6 +58,7 @@ const LocaleList = ({url, lang, locales}) => {
           sx={{
             p: 0,
             width: '100%',
+            marginLeft: '56px',
             '.MuiDivider-root:last-child': {display: 'none'},
             '.MuiListItemText-secondary': {fontSize: '0.675rem'},
           }}
