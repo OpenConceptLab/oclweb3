@@ -31,14 +31,14 @@ const LocaleItem = ({ locale, url }) => {
   return (
     <React.Fragment>
       <ListItem
-        sx={{color: 'surface.contrastText', p: 0 }}
+        sx={{color: 'surface.contrastText', paddingLeft: 0, paddingRight: '24px' }}
         secondaryAction={
           <IconButton edge="end" aria-label="copy" sx={{color: 'surface.contrastText'}} onClick={onCopyClick}>
             <CopyIcon />
           </IconButton>
         }
       >
-        <ListItemText primary={locale.name || locale.description} secondary={externalID} />
+          <ListItemText primary={locale.name || locale.description} secondary={externalID} />
       </ListItem>
       <Divider component="li" />
     </React.Fragment>
@@ -134,12 +134,6 @@ const Locales = ({ concept, locales, title, repo }) => {
           map(
             grouped.rest,
             (_locales, lang) => <LocaleList key={lang} url={url} lang={lang} locales={getOrdered(_locales)} />
-          )
-        }
-        {
-          map(
-            grouped.rest,
-            (_locales, lang) => getOrdered(_locales).map(locale => <LocaleItem key={locale.uuid} url={url} lang={lang} locale={locale} />)
           )
         }
       </List>
