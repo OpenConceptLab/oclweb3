@@ -185,7 +185,8 @@ const SearchResults = props => {
     nested: props.nested,
     style: props.resultContainerStyle,
     order: props.order,
-    orderBy: props.orderBy
+    orderBy: props.orderBy,
+    selectedToShowItem: props.selectedToShow
   }
 
   const isCardDisplay = display === 'card'

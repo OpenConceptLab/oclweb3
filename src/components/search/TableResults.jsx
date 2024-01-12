@@ -61,14 +61,14 @@ const EnhancedTableHead = props => {
   );
 }
 
-const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange}) => {
+const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem}) => {
   const rows = results?.results || []
   const getValue = (row, column) => {
     let val = row[column.value]
     if(column.formatter)
       return column.formatter(val)
     if(column.renderer)
-      return column.renderer(row)
+      return column.renderer(row, Boolean(selectedToShowItem))
     return val
   }
 
