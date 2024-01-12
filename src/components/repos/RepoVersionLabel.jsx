@@ -3,7 +3,7 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 
 const RepoVersionLabel = ({icon, repo, version, versionStyle, href, vertical}) => {
-  const verticalStyle = Boolean(version && vertical) ? {flexDirection: 'column', alignItems: 'baseline'} : {}
+  const verticalStyle = version && vertical ? {flexDirection: 'column', alignItems: 'baseline'} : {}
   return (
     <Button
       sx={{
