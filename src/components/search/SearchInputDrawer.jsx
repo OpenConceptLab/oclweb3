@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import Drawer from '@mui/material/Drawer'
+import Divider from '@mui/material/Divider'
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
@@ -19,7 +20,7 @@ const Icon = ({ icon, style }) => (
 )
 
 const Suggestion = ({ placeholder }) => (
-  <ListItem sx={{padding: '12px'}}>
+  <ListItem sx={{padding: '12px', backgroundColor: '#fffbff'}}>
     <ListItemText primary={placeholder} />
   </ListItem>
 )
@@ -150,6 +151,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
         onClick={onClickOption}
         onKeyDown={event => onItemKeyDown(event, isNested ? 2 :1)}
       />
+      <Divider />
       <Suggestion
         placeholder={
           <span style={{display: 'flex', alignItems: 'center', fontSize: '12px', color: '#5e5c71', marginLeft: '4px'}}>
