@@ -25,7 +25,9 @@
     "view_all_attributes": "View all attributes",
     "actions": "Actions",
     "metadata": "Metadata",
-    "copied_to_clipboard": "Copied to clipboard"
+    "copied_to_clipboard": "Copied to clipboard",
+    "navigate": "Navigate",
+    "select": "Select"
   },
   "errors": {
     "404": "Sorry your page could not be found."
@@ -97,6 +99,9 @@
     "no_results": "We could not find any matches for ",
     "input_placeholder": "Search OCL...",
     "table": "Table",
-    "card": "Card"
+    "card": "Card",
+    "search_all_site": "Search all of OCL for ",
+    "search_this_repository": "Search this repository",
+    "search_all_concepts": "Search all concepts"
   }
 }

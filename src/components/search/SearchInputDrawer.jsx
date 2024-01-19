@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'
 import Drawer from '@mui/material/Drawer'
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItem from '@mui/material/ListItem';
@@ -29,6 +30,7 @@ const Suggestion = ({ placeholder }) => {
 
 
 const Option = ({ placeholder, primary, autoFocus, onClick, nested, onKeyDown }) => {
+  const { t } = useTranslation()
   return (
     <ListItemButton sx={{padding: '12px 16px'}} selected={primary} autoFocus={autoFocus} onClick={event => onClick(event, nested)} onKeyDown={onKeyDown}>
       <ListItemAvatar sx={{minWidth: '32px'}}>
@@ -45,7 +47,7 @@ const Option = ({ placeholder, primary, autoFocus, onClick, nested, onKeyDown })
         }
         <span style={{display: 'flex'}}>
           {
-            nested ? 'Search this repository' : 'Search all concepts'
+            nested ? t('search.search_this_repository') : t('search.search_all_concepts')
           }
         </span>
       </span>
@@ -54,6 +56,7 @@ const Option = ({ placeholder, primary, autoFocus, onClick, nested, onKeyDown })
 }
 
 const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) => {
+  const { t } = useTranslation()
   const inputRef = React.createRef()
   const location = useLocation()
   const [, ownerType, owner, repoType, repo,] = location.pathname.split('/');
@@ -129,7 +132,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
       }
       <Option
         index={2}
-        placeholder={<span>Search all of OCL for <b>"{inputPlaceholder}"</b></span>}
+        placeholder={<span>{t('search.search_all_site')}<b>"{inputPlaceholder}"</b></span>}
         autoFocus={focus === (isNested ? 2 : 1)}
         primary={isNested ? focus === 2 : [0, 1].includes(focus)}
         icon
@@ -141,9 +144,9 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
           <span style={{display: 'flex', alignItems: 'center', fontSize: '12px', color: '#5e5c71', marginLeft: '4px'}}>
             <Icon icon={<UpIcon style={{fontSize: '12px'}} />} style={{marginRight: '8px'}} />
             <Icon icon={<DownIcon style={{fontSize: '12px'}} />} style={{marginRight: '8px'}} />
-            Navigate
+            {t('common.navigate')}
             <Icon icon={<EnterIcon style={{fontSize: '12px'}} />} style={{margin: '0 8px'}} />
-            Select
+            {t('common.select')}
           </span>
         }
       />
