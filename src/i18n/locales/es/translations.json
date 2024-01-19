@@ -57,7 +57,9 @@
     "datatype": "Tipo de dato",
     "history": "Historia y comentarios",
     "name_and_synonyms": "Nombre y sinónimos",
-    "descriptions": "Descripciones"
+    "descriptions": "Descripciones",
+    "copied_name": "Nombre del concepto y URL copiados al portapapeles",
+    "copied_description": "Descripción del concepto y URL copiados al portapapeles"
   },
   "mapping": {
     "mappings": "Mapeos"

@@ -25,7 +25,8 @@ const LocaleItem = ({ locale, url }) => {
 
   const onCopyClick = () => {
     copyURL(toFullAPIURL(url + urlAttr + '/' + locale.uuid + '/'))
-    setAlert({message: t('common.copied_to_clipboard'), severity: 'success', duration: 1000})
+    const message = isName ? t('concept.copied_name') : t('concept.copied_description')
+    setAlert({message: message, severity: 'success', duration: 2000})
   }
 
   return (

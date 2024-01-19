@@ -57,7 +57,9 @@
     "datatype": "Datatype",
     "history": "History and comments",
     "name_and_synonyms": "Name and synonyms",
-    "descriptions": "Descriptions"
+    "descriptions": "Descriptions",
+    "copied_name": "Concept name URL copied to clipboard",
+    "copied_description": "Concept description URL copied to clipboard"
   },
   "mapping": {
     "mappings": "Mappings"
