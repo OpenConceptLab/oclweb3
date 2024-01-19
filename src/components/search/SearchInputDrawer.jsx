@@ -70,8 +70,10 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
       inputRef.current.blur()
       if(focus == 1)
         inputProps.handleKeyPress(event)
-      else
+      else {
+        setFocus(1)
         initiateSearch(event, true)
+      }
     }
     else if(event.key === 'ArrowDown') {
       event.preventDefault()
