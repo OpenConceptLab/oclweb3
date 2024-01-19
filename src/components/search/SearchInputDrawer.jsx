@@ -158,7 +158,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
             <Icon icon={<UpIcon style={{fontSize: '12px'}} />} style={{marginRight: '8px'}} />
             <Icon icon={<DownIcon style={{fontSize: '12px'}} />} style={{marginRight: '8px'}} />
             {t('common.navigate')}
-            <Icon icon={<EnterIcon style={{fontSize: '12px'}} />} style={{margin: '0 8px'}} />
+            <Icon icon={<EnterIcon style={{fontSize: '12px'}} />} style={{margin: '0 8px 0 16px'}} />
             {t('common.select')}
           </span>
         }
