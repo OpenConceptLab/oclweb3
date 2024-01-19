@@ -1,14 +1,12 @@
 import React from 'react';
-import TextField from '@mui/material/TextField';
-import SearchIcon from '@mui/icons-material/Search';
-import ClearIcon from '@mui/icons-material/CancelOutlined';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
 import { useHistory, useLocation } from 'react-router-dom';
+import SearchInputText from './SearchInputText';
+import SearchInputDrawer from './SearchInputDrawer';
 
 
 const SearchInput = props => {
   const [input, setInput] = React.useState('')
+  const [open, setOpen] = React.useState(false)
   const history = useHistory();
   const location = useLocation()
 
@@ -23,18 +21,33 @@ const SearchInput = props => {
   const handleKeyPress = event => {
     event.persist()
 
-    if (event.key === 'Enter')
-      performSearch(event, input)
+    if (event.key === 'Enter') {
+      initiateSearch(event)
+    }
 
     return false
   }
 
-  const performSearch = (event, value) => {
+  const initiateSearch = (event, global) => {
+    performSearch(event, input, global)
+      setOpen(false)
+      setTimeout(blurInput, 1000)
+  }
+
+  const performSearch = (event, value, global) => {
     event.preventDefault()
     event.stopPropagation()
 
-    props.onSearch ? props.onSearch(value) : moveToSearchPage(value)
+    props.onSearch ? props.onSearch(value) : moveToSearchPage(value, global)
   }
+
+  const blurInput = () => {
+    const el = getInputElement()
+    if(el)
+      el.blur()
+  }
+
+  const getInputElement = () => document.getElementById('search-input')
 
   const clearSearch = event => {
     event.persist()
@@ -42,12 +55,12 @@ const SearchInput = props => {
     performSearch(event, '')
   }
 
-  const moveToSearchPage = value => {
-    if(!props.nested) {
+  const moveToSearchPage = (value, global) => {
+    if(!props.nested || global) {
       let _input = value || '';
       const queryParams = new URLSearchParams(location.search)
       const resourceType = queryParams.get('type') || 'concepts'
-      let URL = location.pathname === '/' ? '/search/' : location.pathname
+      let URL = (location.pathname === '/' || global) ? '/search/' : location.pathname
       if(_input) {
         queryParams.set('q', _input)
         queryParams.set('type', resourceType)
@@ -64,34 +77,30 @@ const SearchInput = props => {
     setInput(queryParams.get('q') || '')
   }, [])
 
+
+  const inputProps = {
+    input: input || '',
+    clearSearch: clearSearch,
+    handleInputChange: handleInputChange,
+    handleKeyPress: handleKeyPress,
+    ...props
+  }
+
+
   return (
-    <TextField
-      className='rounded-input'
-      value={input || ''}
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <SearchIcon />
-          </InputAdornment>
-        ),
-        endAdornment: (
-          input &&
-            <InputAdornment position="end">
-              <IconButton size='small' onClick={clearSearch}>
-                <ClearIcon />
-              </IconButton>
-            </InputAdornment>
-        )
-      }}
-      {...props}
-      onChange={handleInputChange}
-      onKeyPress={handleKeyPress}
-      sx={{
-        '& .Mui-focused': {
-          boxShadow: '0 1px 1px 0 rgba(65,69,73,0.3), 0 1px 3px 1px rgba(65,69,73, 0.15)'
-        }
-      }}
-    />
+    <React.Fragment>
+      <SearchInputText
+        id='search-input'
+        onClick={() => setOpen(true)}
+        {...inputProps}
+      />
+      <SearchInputDrawer
+        open={open} onClose={() => setOpen(false)}
+        input={input || ''}
+        initiateSearch={initiateSearch}
+        inputProps={inputProps}
+      />
+    </React.Fragment>
   )
 }
 
