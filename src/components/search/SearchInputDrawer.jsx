@@ -120,7 +120,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
         '& .MuiDrawer-paper': {
           borderRadius: '20px',
           padding: 0,
-          top: '10px',
+          top: '14px',
           width: '600px',
           margin: '0 auto',
 
