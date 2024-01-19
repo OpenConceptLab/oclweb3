@@ -86,6 +86,10 @@ const SearchInput = props => {
     ...props
   }
 
+  const onClose = () => {
+    setOpen(false)
+    setTimeout(blurInput, 50)
+  }
 
   return (
     <React.Fragment>
@@ -95,7 +99,8 @@ const SearchInput = props => {
         {...inputProps}
       />
       <SearchInputDrawer
-        open={open} onClose={() => setOpen(false)}
+        open={open}
+        onClose={onClose}
         input={input || ''}
         initiateSearch={initiateSearch}
         inputProps={inputProps}
