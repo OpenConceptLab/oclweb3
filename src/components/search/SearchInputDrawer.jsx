@@ -62,7 +62,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
   const [, ownerType, owner, repoType, repo,] = location.pathname.split('/');
   const isNested = Boolean(location.pathname !== '/search/' && location.pathname !== '/' && ownerType && owner && repoType && repo)
   const [focus, setFocus] = React.useState(0);
-  const lastIndex = 2
+  const lastIndex = isNested ? 2 : 1
   const inputPlaceholder = input || '...'
   const onClickOption = (event, nested) => {
     event.persist()
