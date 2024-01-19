@@ -19,7 +19,7 @@ const Icon = ({ icon, style }) => (
 )
 
 const Suggestion = ({ placeholder }) => (
-  <ListItem sx={{padding: '12px 16px'}}>
+  <ListItem sx={{padding: '12px'}}>
     <ListItemText primary={placeholder} />
   </ListItem>
 )
@@ -28,7 +28,7 @@ const Suggestion = ({ placeholder }) => (
 const Option = ({ placeholder, selected, onClick, nested, onKeyDown }) => {
   const { t } = useTranslation()
   return (
-    <ListItemButton sx={{padding: '12px 16px'}} selected={selected} onClick={event => onClick(event, nested)} onKeyDown={onKeyDown}>
+    <ListItemButton sx={{padding: '12px'}} selected={selected} onClick={event => onClick(event, nested)} onKeyDown={onKeyDown}>
       <ListItemAvatar sx={{minWidth: '32px'}}>
         <SearchIcon color={selected ? 'primary' : undefined } />
       </ListItemAvatar>

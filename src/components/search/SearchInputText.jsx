@@ -36,7 +36,7 @@ const SearchInputText = React.forwardRef(({ id, input, clearSearch, onClick, han
       sx={
         autoFocus ?
           {
-            padding: '8px 12px',
+            padding: '12px',
             height: '60px',
             '.MuiInputBase-root': {
               padding: 0
