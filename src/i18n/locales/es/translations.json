@@ -27,7 +27,9 @@
     "metadata": "Metadatos",
     "copied_to_clipboard": "Copiado al portapapeles",
     "navigate": "Navegar",
-    "select": "Seleccionar"
+    "select": "Seleccionar",
+    "search": "Buscar",
+    "for": "para"
   },
   "errors": {
     "404": "Lo siento, no se pudo encontrar tu página."

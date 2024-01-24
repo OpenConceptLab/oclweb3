@@ -27,7 +27,9 @@
     "metadata": "Metadata",
     "copied_to_clipboard": "Copied to clipboard",
     "navigate": "Navigate",
-    "select": "Select"
+    "select": "Select",
+    "search": "Search",
+    "for": "for"
   },
   "errors": {
     "404": "Sorry your page could not be found."

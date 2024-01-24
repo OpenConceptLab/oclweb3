@@ -136,7 +136,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
           <Option
             nested
             index={1}
-            placeholder={<span>Search <b>{repo}</b> for <b>"{inputPlaceholder}"</b></span>}
+            placeholder={<span>{t('common.search')} <b>{repo}</b> {t('common.for')} <b>"{inputPlaceholder}"</b></span>}
             icon
             selected={focus == 1}
             onClick={onClickOption}
