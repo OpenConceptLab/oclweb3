@@ -123,7 +123,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
           top: '14px',
           width: '600px',
           margin: '0 auto',
-
+          minHeight: '64px'
         },
       }}
       anchor='top'
@@ -132,26 +132,32 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
     >
       <SearchInputText id='search-input-drawer' autoFocus {...inputProps} handleKeyPress={onKeyPress} ref={inputRef} />
       {
-        isNested &&
-          <Option
-            nested
-            index={1}
-            placeholder={<span>{t('common.search')} <b>{repo}</b> {t('common.for')} <b>"{inputPlaceholder}"</b></span>}
-            icon
-            selected={focus == 1}
-            onClick={onClickOption}
-            onKeyDown={event => onItemKeyDown(event, 1)}
-          />
+        input &&
+          <React.Fragment>
+            {
+              isNested &&
+                <Option
+                  nested
+                  index={1}
+                  placeholder={<span>{t('common.search')} <b>{repo}</b> {t('common.for')} <b>"{inputPlaceholder}"</b></span>}
+                  icon
+                  selected={focus == 1}
+                  onClick={onClickOption}
+                  onKeyDown={event => onItemKeyDown(event, 1)}
+                />
+            }
+            <Option
+              index={2}
+              placeholder={<span>{t('search.search_all_site')}<b>"{inputPlaceholder}"</b></span>}
+              selected={focus ===  (isNested ? 2 : 1)}
+              icon
+              onClick={onClickOption}
+              onKeyDown={event => onItemKeyDown(event, isNested ? 2 :1)}
+            />
+            <Divider />
+          </React.Fragment>
+
       }
-      <Option
-        index={2}
-        placeholder={<span>{t('search.search_all_site')}<b>"{inputPlaceholder}"</b></span>}
-        selected={focus ===  (isNested ? 2 : 1)}
-        icon
-        onClick={onClickOption}
-        onKeyDown={event => onItemKeyDown(event, isNested ? 2 :1)}
-      />
-      <Divider />
       <Suggestion
         placeholder={
           <span style={{display: 'flex', alignItems: 'center', fontSize: '12px', color: '#5e5c71', marginLeft: '4px'}}>
