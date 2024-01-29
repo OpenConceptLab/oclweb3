@@ -139,7 +139,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
                 <Option
                   nested
                   index={1}
-                  placeholder={<span>{t('common.search')} <b>{repo}</b> {t('common.for')} <b>"{inputPlaceholder}"</b></span>}
+                  placeholder={<span>{t('common.search')} <b>{repo}</b> {t('common.for')} <b>{inputPlaceholder}</b></span>}
                   icon
                   selected={focus == 1}
                   onClick={onClickOption}
@@ -148,7 +148,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
             }
             <Option
               index={2}
-              placeholder={<span>{t('search.search_all_site')}<b>"{inputPlaceholder}"</b></span>}
+              placeholder={<span>{t('search.search_all_site')}<b>{inputPlaceholder}</b></span>}
               selected={focus ===  (isNested ? 2 : 1)}
               icon
               onClick={onClickOption}
