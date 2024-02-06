@@ -26,8 +26,8 @@ const RepoHome = () => {
     {key: 'about', label: t('common.about')}
   ]
   const TAB_KEYS = TABS.map(tab => tab.key)
-
   const findTab = () => TAB_KEYS.includes(params?.repoVersion) ? params.repoVersion : 'concepts'
+  const versionFromURL = TAB_KEYS.includes(params?.repoVersion) ? '' : params.repoVersion
 
   const [tab, setTab] = React.useState(findTab)
   const [status, setStatus] = React.useState(false)
@@ -37,7 +37,7 @@ const RepoHome = () => {
   const [showItem, setShowItem] = React.useState(false)
 
   const bgColor = showItem ? 'surface.light' : 'info.contrastText'
-  const getURL = () => (toParentURI(location.pathname) + '/').replace('//', '/')
+  const getURL = () => (toParentURI(location.pathname) + '/').replace('//', '/') + versionFromURL + '/'
   const fetchRepo = () => {
     setLoading(true)
     APIService.new().overrideURL(getURL()).get(null, null, {includeSummary: true}, true).then(response => {
