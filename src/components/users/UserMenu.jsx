@@ -85,21 +85,21 @@ const UserMenu = ({ isOpen, onClose }) => {
                       <RepoIcon />
                     </ListItemIcon>
                     <ListItemText primary={t('user.my_repositories')} />
-                    <span>0</span>
+                    <span>{((user?.collections || 0) + (user?.sources + 0)).toLocaleString()}</span>
                   </ListItemButton>
                   <ListItemButton sx={{p: 1}}>
                     <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
                       <OrgIcon />
                     </ListItemIcon>
                     <ListItemText primary={t('user.my_organizations')} />
-                    <span>0</span>
+                    <span>{user?.orgs?.toLocaleString()}</span>
                   </ListItemButton>
                   <ListItemButton sx={{p: 1}}>
                     <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
                       <BookmarkIcon />
                     </ListItemIcon>
                     <ListItemText primary={t('user.my_bookmarks')} />
-                    <span>0</span>
+                    <span>{user?.bookmarks?.toLocaleString()}</span>
                   </ListItemButton>
                 </List>
               </div>

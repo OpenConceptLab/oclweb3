@@ -1,7 +1,7 @@
 /*eslint no-process-env: 0*/
 import axios from 'axios';
 import {get, omit, isPlainObject, isString, defaults } from 'lodash';
-import { currentUserToken, getAPIURL } from '../common/utils';
+import { currentUserToken, getAPIURL, logoutUser } from '../common/utils';
 
 const APIServiceProvider = {};
 const RESOURCES = [
@@ -77,10 +77,15 @@ class APIService {
     return axios(request)
       .then(response => response || null)
       .catch(error => {
-        if(raw)
-          return error;
+        if(error?.response?.status === 401) {
+          logoutUser(true)
+        } else {
+          if(raw)
+            return error;
 
-        return error.response ? error.response.data : error.message;
+          return error.response ? error.response.data : error.message;
+        }
+
       });
   }
 
