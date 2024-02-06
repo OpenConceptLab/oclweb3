@@ -60,12 +60,14 @@ const SearchInput = props => {
       let _input = value || '';
       const queryParams = new URLSearchParams(location.search)
       const resourceType = queryParams.get('type') || 'concepts'
-      let URL = (location.pathname === '/' || global) ? '/search/' : location.pathname
+      const isGlobal = (location.pathname === '/' || global)
+      let URL = isGlobal ? '/search/' : location.pathname
       if(_input) {
         queryParams.set('q', _input)
-        queryParams.set('type', resourceType)
+        if(isGlobal)
+          queryParams.set('type', resourceType)
         URL += `?${queryParams.toString()}`
-      } else {
+      } else if(isGlobal) {
         URL += `?type=${resourceType}`
       }
       history.push(URL.replace('?&', '?'));
