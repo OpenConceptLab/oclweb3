@@ -1,21 +1,35 @@
 import React from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useHistory, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'
 import Paper from '@mui/material/Paper'
 import APIService from '../../services/APIService';
 import LoaderDialog from '../common/LoaderDialog';
 import RepoHeader from './RepoHeader';
 import RepoTabs from './RepoTabs';
 import Search from '../search/Search';
-import { dropVersion } from '../../common/utils';
+import { dropVersion, toParentURI } from '../../common/utils';
 import { WHITE } from '../../common/constants';
 import ConceptHome from '../concepts/ConceptHome';
 import Error404 from '../errors/Error404';
 
 const RepoHome = () => {
+  const { t } = useTranslation()
   const location = useLocation()
   const history = useHistory()
+  const params = useParams()
 
-  const [tab, setTab] = React.useState("concepts")
+  const TABS = [
+    {key: 'concepts', label: t('concept.concepts')},
+    {key: 'mappings', label: t('mapping.mappings')},
+    {key: 'versions', label: t('common.versions')},
+    {key: 'summary', label: t('common.summary')},
+    {key: 'about', label: t('common.about')}
+  ]
+  const TAB_KEYS = TABS.map(tab => tab.key)
+
+  const findTab = () => TAB_KEYS.includes(params?.repoVersion) ? params.repoVersion : 'concepts'
+
+  const [tab, setTab] = React.useState(findTab)
   const [status, setStatus] = React.useState(false)
   const [repo, setRepo] = React.useState(false)
   const [versions, setVersions] = React.useState(false)
@@ -23,7 +37,7 @@ const RepoHome = () => {
   const [showItem, setShowItem] = React.useState(false)
 
   const bgColor = showItem ? 'surface.light' : 'info.contrastText'
-  const getURL = () => (location.pathname + '/').replace('//', '/')
+  const getURL = () => (toParentURI(location.pathname) + '/').replace('//', '/')
   const fetchRepo = () => {
     setLoading(true)
     APIService.new().overrideURL(getURL()).get(null, null, {includeSummary: true}, true).then(response => {
@@ -50,6 +64,13 @@ const RepoHome = () => {
     history.push(version.version_url)
   }
 
+  const onTabChange = (event, newTab) => {
+    if(newTab) {
+      setTab(newTab)
+      history.push((getURL() + '/' + newTab).replace('//', '/'))
+    }
+  }
+
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '8px'}}>
       <LoaderDialog open={loading} />
@@ -58,12 +79,12 @@ const RepoHome = () => {
           (repo?.id || loading) &&
             <React.Fragment>
               <RepoHeader repo={repo} versions={versions} onVersionChange={onVersionChange} />
-              <RepoTabs repo={repo} tab={tab} onChange={(event, newTab) => setTab(newTab)} />
+              <RepoTabs TABS={TABS} value={tab} onChange={onTabChange} />
               {
-                repo?.id &&
+                repo?.id && ['concepts', 'mappings'].includes(tab) &&
                   <Search
                     resource={tab}
-                    url={getURL() + 'concepts/'}
+                    url={getURL() + tab + '/'}
                     defaultFiltersOpen={false}
                     nested
                     noTabs

@@ -113,7 +113,7 @@ const Search = props => {
     const isDiffFromPrevInput = value !== input
     const _page = parseInt(queryParams.get('page') || 1)
     const _pageSize = parseInt(queryParams.get('limit') || 25)
-    const _resource = queryParams.get('type') || 'concepts'
+    const _resource = queryParams.get('type') || props.resource || 'concepts'
     let _orderBy, _order;
     const sortAsc = queryParams.get('sortAsc')
     const sortDesc = queryParams.get('sortDesc')

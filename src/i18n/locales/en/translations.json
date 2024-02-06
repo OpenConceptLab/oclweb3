@@ -64,7 +64,10 @@
     "copied_description": "Concept description URL copied to clipboard"
   },
   "mapping": {
-    "mappings": "Mappings"
+    "mappings": "Mappings",
+    "fromConcept": "From concept",
+    "toConcept": "To Concept",
+    "type": "Type"
   },
   "repo": {
     "repos": "Repositories",
@@ -94,6 +97,7 @@
   "search": {
     "filters": "Filters",
     "concepts": "Concepts",
+    "mappings": "Mappings",
     "repos": "Repositories",
     "orgs": "Organizations",
     "users": "Users",

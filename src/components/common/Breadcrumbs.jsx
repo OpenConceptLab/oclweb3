@@ -5,15 +5,19 @@ import ConceptIcon from '../concepts/ConceptIcon';
 import DotSeparator from './DotSeparator'
 import OwnerIcon from './OwnerIcon'
 import RepoVersionLabel from '../repos/RepoVersionLabel'
+import Box from '@mui/material/Box';
 
-const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, id, version, concept}) => {
+const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, id, version, concept, noIcons, color, fontSize, size}) => {
   const iconProps = {color: 'secondary', style: {marginRight: '8px', width: '0.8em'}}
   return (
-    <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center'}}>
+    <Box className='col-xs-12 padding-0' sx={{display: 'flex', alignItems: 'center', color: color, fontSize: fontSize}}>
       {
         ownerType && owner &&
           <React.Fragment>
-            <OwnerIcon ownerType={ownerType} {...iconProps} />
+            {
+              !noIcons &&
+                <OwnerIcon ownerType={ownerType} {...iconProps} />
+            }
             {owner}
           </React.Fragment>
       }
@@ -21,14 +25,17 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, id, version,
         repo &&
           <React.Fragment>
             <DotSeparator />
-            <RepoVersionLabel href={repoURL} icon={<RepoIcon sx={{color: 'secondary'}} />} repo={repo} version={repoVersion} versionStyle={{fontSize: '14px'}} />
+            <RepoVersionLabel size={size} href={repoURL} icon={noIcons ? false : <RepoIcon sx={{color: 'secondary'}} />} repo={repo} version={repoVersion} versionStyle={{fontSize: fontSize || '14px'}} />
           </React.Fragment>
       }
       {
         id && concept &&
           <React.Fragment>
             <DotSeparator />
-            <ConceptIcon selected {...iconProps} />
+            {
+              !noIcons &&
+                <ConceptIcon selected {...iconProps} />
+            }
             <span className='searchable'>{id}</span>
           </React.Fragment>
       }
@@ -36,11 +43,14 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, id, version,
         version && !repoVersion &&
           <React.Fragment>
             <DotSeparator />
-            <VersionIcon {...iconProps} />
+            {
+              !noIcons &&
+                <VersionIcon {...iconProps} />
+            }
             {version}
           </React.Fragment>
       }
-    </div>
+    </Box>
   )
 }
 

@@ -43,6 +43,15 @@ div.split-appear {
     transition: width 0.2s ease, opacity 0.3s ease 0.1s;
 }
 
+.tab-anchor {
+    text-transform: none;
+    &:focus, &:hover {
+        outline: none;
+        color: inherit;
+        text-decoration: none
+    }
+}
+
 .animation-appear{
     animation: bounce-in 0.2s ease-in;
 }

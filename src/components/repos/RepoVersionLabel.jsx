@@ -2,7 +2,7 @@ import React from 'react';
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 
-const RepoVersionLabel = ({icon, repo, version, versionStyle, href, vertical}) => {
+const RepoVersionLabel = ({icon, repo, version, versionStyle, href, vertical, size}) => {
   const verticalStyle = version && vertical ? {flexDirection: 'column', alignItems: 'baseline'} : {}
   return (
     <Button
@@ -21,13 +21,15 @@ const RepoVersionLabel = ({icon, repo, version, versionStyle, href, vertical}) =
           outline: 'none'
         },
         padding: href ? '4px' : 0,
+        minWidth: 'auto',
         ...verticalStyle
       }}
       startIcon={icon}
       href={href ? '#' + href : undefined}
       component="button"
+      size={size}
     >
-      <span style={{display: 'flex'}}>{repo}</span>
+      <span style={{display: 'flex', fontSize: versionStyle?.fontSize}}>{repo}</span>
       {
         version &&
           <Typography component='span' sx={{marginLeft: '4px', color: 'secondary.s50', fontFamily: '"Roboto Mono","Helvetica","Arial",sans-serif', display: 'flex', fontSize: '0.85rem', marginTop: '1px', ...(versionStyle || {})}}>
