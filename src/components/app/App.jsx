@@ -44,6 +44,9 @@ const App = props => {
     setupHotJar()
   }, [])
 
+  const repoTabs = ['concepts', 'mappings', 'versions', 'summary', 'about']
+  const repoTabsStr = repoTabs.join('|')
+
   return (
     <div>
       <DocumentTitle/>
@@ -54,7 +57,8 @@ const App = props => {
               <Route exact path="/oidc/login" component={OIDLoginCallback} />
               <Route exact path="/search" component={Search} />
               <Route exact path="/" component={Dashboard} />
-              <Route path="/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion?" component={RepoHome} />
+              <Route path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion/:tab(${repoTabsStr})?`} component={RepoHome} />
+              <Route path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:tab(${repoTabsStr})?`} component={RepoHome} />
               <Route component={Error404} />
             </Switch>
             <Alert message={alert?.message} onClose={() => setAlert(false)} severity={alert?.severity} duration={alert?.duration} />
