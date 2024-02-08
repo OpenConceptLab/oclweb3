@@ -372,6 +372,7 @@ const Search = props => {
                   onFiltersToggle={() => setOpenFilters(!openFilters)}
                   onDisplayChange={onDisplayChange}
                   resultContainerStyle={props.resultContainerStyle}
+                  resultSize={props.resultSize}
                 />
               </div>
             </div>

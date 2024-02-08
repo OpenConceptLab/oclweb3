@@ -51,6 +51,19 @@ div.split-appear {
         text-decoration: none
     }
 }
+.user-img-small {
+    width: 45px;
+    height: 45px;
+    border: 1px solid lightgray;
+    border-radius: 50%;
+}
+.user-img-medium {
+    width: 80px;
+    height: 80px;
+    border: 1px solid lightgray;
+    border-radius: 50%;
+}
+
 
 .animation-appear{
     animation: bounce-in 0.2s ease-in;

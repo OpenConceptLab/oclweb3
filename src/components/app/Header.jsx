@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
@@ -20,6 +21,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
 import BookmarkIcon from '@mui/icons-material/BookmarkBorder';
 import Chip from '@mui/material/Chip';
 import { BG_GRAY, TEXT_GRAY } from '../../common/constants';
+import { getCurrentUser } from '../../common/utils';
 import OCLLogo from '../common/OCLLogo';
 import SearchInput from '../search/SearchInput';
 import './Header.scss';
@@ -86,6 +88,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 const Header = props => {
   const { t } = useTranslation()
+  const location = useLocation()
+  const user = getCurrentUser()
   /*eslint no-unused-vars: 0*/
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -96,7 +100,7 @@ const Header = props => {
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed" open={open} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} style={{backgroundColor: BG_GRAY, color: TEXT_GRAY, boxShadow: 'none'}}>
-    <Toolbar style={{paddingRight: '16px'}}>
+        <Toolbar style={{paddingRight: '16px'}}>
           <div className='col-xs-12 padding-0'>
             <div className='col-xs-1 padding-0 flex-vertical-center'>
               <IconButton
@@ -132,7 +136,7 @@ const Header = props => {
             <ListItemButton
               href="/#/"
               className='no-anchor-styles'
-              selected={open}
+              selected={open && location.pathname === '/'}
               sx={{
                 minHeight: 56,
                 justifyContent: open ? 'initial' : 'center',
@@ -146,31 +150,36 @@ const Header = props => {
                   justifyContent: 'center',
                 }}
               >
-                <DashboardIcon color='primary' />
+                <DashboardIcon color={location.pathname === '/' ? 'primary' : undefined} />
               </ListItemIcon>
               <ListItemText primary={t('dashboard.name')} sx={{ opacity: open ? 1 : 0, fontWeight: 500 }} />
             </ListItemButton>
           </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              sx={{
-                minHeight: 56,
-                justifyContent: open ? 'initial' : 'center',
-                px: 1,
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 1.75 : 'auto',
-                  justifyContent: 'center',
-                }}
-              >
-                <FolderOpenIcon />
-              </ListItemIcon>
-              <ListItemText primary={t('user.my_repositories')} sx={{ opacity: open ? 1 : 0, fontWeight: 500 }} />
-            </ListItemButton>
-          </ListItem>
+          {
+            user?.url &&
+              <ListItem disablePadding sx={{ display: 'block' }}>
+                <ListItemButton
+                  sx={{
+                    minHeight: 56,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 1,
+                  }}
+                  href={`#${user?.url}`}
+                  className='no-anchor-styles'
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 1.75 : 'auto',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <FolderOpenIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={t('user.my_repositories')} sx={{ opacity: open ? 1 : 0, fontWeight: 500 }} />
+                </ListItemButton>
+              </ListItem>
+          }
         </List>
         <Divider style={{margin: '0 8px'}} />
         <List>
@@ -181,6 +190,7 @@ const Header = props => {
                 justifyContent: open ? 'initial' : 'center',
                 px: 1,
               }}
+              className='no-anchor-styles'
             >
               <ListItemIcon
                 sx={{

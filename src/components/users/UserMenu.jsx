@@ -17,6 +17,7 @@ import HelpIcon from '@mui/icons-material/HelpCenterOutlined';
 import ChatIcon from '@mui/icons-material/ForumOutlined';
 import CommunityIcon from '@mui/icons-material/GroupsOutlined';
 import find from 'lodash/find';
+import { useLocation } from 'react-router-dom'
 import { getCurrentUser, logoutUser, isLoggedIn, getLoginURL } from '../../common/utils'
 import { LANGUAGES } from '../../common/constants';
 import Button from '../common/Button';
@@ -26,6 +27,7 @@ import CloseIconButton from '../common/CloseIconButton';
 
 const UserMenu = ({ isOpen, onClose }) => {
   const { t, i18n } = useTranslation()
+  const location = useLocation()
   const [languageOpen, setLanguageOpen] = React.useState(false)
   const selectedLanguage = find(LANGUAGES, {locale: i18n.language})
   const authenticated = isLoggedIn()
@@ -62,7 +64,7 @@ const UserMenu = ({ isOpen, onClose }) => {
           {
             authenticated ?
               <List>
-                <ListItemButton sx={{p: 1}}>
+                <ListItemButton sx={{p: 1}} component='a' className='no-anchor-styles' href={`#${user?.url}`} onClick={onClose} disabled={!user?.url} selected={location.pathname === user?.url}>
                   <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
                     <ProfileIcon />
                   </ListItemIcon>
@@ -80,7 +82,7 @@ const UserMenu = ({ isOpen, onClose }) => {
             <React.Fragment>
               <div className='col-xs-12 padding-0'>
                 <List>
-                  <ListItemButton sx={{p: 1}}>
+                  <ListItemButton sx={{p: 1}} className='no-anchor-styles' href={`#${user?.url}`} onClick={onClose} disabled={!user?.url}>
                     <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
                       <RepoIcon />
                     </ListItemIcon>

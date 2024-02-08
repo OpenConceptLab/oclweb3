@@ -29,7 +29,9 @@ const ResultsToolbar = props => {
           alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
         }),
         borderBottom: (disabled || display === 'card') ? 'none': '1px solid rgba(224, 224, 224, 1)',
-        minHeight: '48px !important'
+        minHeight: '48px !important',
+        borderTopLeftRadius: '8px',
+        borderTopRightRadius: '8px'
       }}
     >
       {numSelected > 0 ? (
@@ -148,7 +150,7 @@ const SearchResults = props => {
     const item = rows.find(row => id == (row.version_url || row.url || row.id)) || false
     if(props.resource === 'concepts') {
       props.onShowItemSelect(item)
-    } else if (props.resource === 'repos') {
+    } else if (['repos', 'users'].includes(props.resource)) {
       history.push(item.version_url || item.url)
     }
     setTimeout(() => document.querySelector('.show-item')?.scrollIntoViewIfNeeded(), 100)
@@ -186,7 +188,8 @@ const SearchResults = props => {
     style: props.resultContainerStyle,
     order: props.order,
     orderBy: props.orderBy,
-    selectedToShowItem: props.selectedToShow
+    selectedToShowItem: props.selectedToShow,
+    size: props.resultSize
   }
 
   const isCardDisplay = display === 'card'
