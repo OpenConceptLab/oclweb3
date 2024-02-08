@@ -2,9 +2,10 @@
 import React from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import {
-  recordGAPageView
+  recordGAPageView, isLoggedIn
 } from '../../common/utils';
 import Error404 from '../errors/Error404';
+import Error401 from '../errors/Error401';
 import ErrorBoundary from '../errors/ErrorBoundary';
 import Footer from './Footer';
 import DocumentTitle from "./DocumentTitle"
@@ -18,6 +19,13 @@ import { OperationsContext } from './LayoutContext';
 import Alert from '../common/Alert';
 import RepoHome from '../repos/RepoHome';
 import UserHome from '../users/UserHome'
+
+const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
+  <Route
+    {...rest}
+    render={props => isLoggedIn() ? <Component {...props} /> : <Error401 />}
+  />
+)
 
 const App = props => {
   const { alert, setAlert } = React.useContext(OperationsContext);
@@ -60,7 +68,7 @@ const App = props => {
               <Route exact path="/" component={Dashboard} />
               <Route path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion/:tab(${repoTabsStr})?`} component={RepoHome} />
               <Route path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:tab(${repoTabsStr})?`} component={RepoHome} />
-              <Route path='/users/:user' component={UserHome} />
+              <AuthenticationRequiredRoute path='/users/:user' component={UserHome} />
               <Route component={Error404} />
             </Switch>
             <Alert message={alert?.message} onClose={() => setAlert(false)} severity={alert?.severity} duration={alert?.duration} />
