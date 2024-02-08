@@ -27,8 +27,6 @@ export const ALL_COLUMNS = {
     {id: 'fromConcept', labelKey: 'mapping.fromConcept', value: 'fromConceptCode', className: 'searchable', sortable: false, renderer: item => <FromConcept mapping={item} />},
     {id: 'mapType', labelKey: 'mapping.type', value: 'map_type', sortable: true},
     {id: 'toConcept', labelKey: 'mapping.toConcept', value: 'toConceptCode', className: 'searchable', sortable: false, renderer: item => <ToConcept mapping={item} />},
-    {id: 'updatedOn', labelKey: 'common.updated_on', value: 'version_updated_on', formatter: formatDate, sortOn: 'last_update', global: false},
-    {id: 'updatedBy', labelKey: 'common.updated_by', value: 'version_updated_by', global: false},
   ],
   repos: [
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id', className: 'searchable'},

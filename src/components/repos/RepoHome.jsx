@@ -26,7 +26,7 @@ const RepoHome = () => {
     {key: 'about', label: t('common.about')}
   ]
   const TAB_KEYS = TABS.map(tab => tab.key)
-  const findTab = () => TAB_KEYS.includes(params?.tab) ? params.tab : 'concepts'
+  const findTab = () => TAB_KEYS.includes(params?.tab || params?.repoVersion) ? params.tab || params.repoVersion : 'concepts'
   const versionFromURL = (TAB_KEYS.includes(params?.repoVersion) ? '' : params.repoVersion) || ''
 
   const [tab, setTab] = React.useState(findTab)
