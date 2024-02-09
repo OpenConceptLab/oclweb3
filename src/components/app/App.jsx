@@ -19,6 +19,7 @@ import { OperationsContext } from './LayoutContext';
 import Alert from '../common/Alert';
 import RepoHome from '../repos/RepoHome';
 import UserHome from '../users/UserHome'
+import UserRepositories from '../users/UserRepositories'
 
 const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
   <Route
@@ -68,6 +69,7 @@ const App = props => {
               <Route exact path="/" component={Dashboard} />
               <Route path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion/:tab(${repoTabsStr})?`} component={RepoHome} />
               <Route path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:tab(${repoTabsStr})?`} component={RepoHome} />
+              <AuthenticationRequiredRoute path='/users/:user/repos' component={UserRepositories} />
               <AuthenticationRequiredRoute path='/users/:user' component={UserHome} />
               <Route component={Error404} />
             </Switch>

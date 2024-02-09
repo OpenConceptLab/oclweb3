@@ -164,8 +164,9 @@ const Header = props => {
                     justifyContent: open ? 'initial' : 'center',
                     px: 1,
                   }}
-                  href={`#${user?.url}`}
+                  href={`#${user?.url}repos`}
                   className='no-anchor-styles'
+                  selected={open && location.pathname === (user.url + 'repos')}
                 >
                   <ListItemIcon
                     sx={{
@@ -174,7 +175,7 @@ const Header = props => {
                       justifyContent: 'center',
                     }}
                   >
-                    <FolderOpenIcon />
+                    <FolderOpenIcon color={location.pathname === (user.url + 'repos') ? 'primary' : undefined} />
                   </ListItemIcon>
                   <ListItemText primary={t('user.my_repositories')} sx={{ opacity: open ? 1 : 0, fontWeight: 500 }} />
                 </ListItemButton>

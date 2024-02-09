@@ -82,7 +82,7 @@ const UserMenu = ({ isOpen, onClose }) => {
             <React.Fragment>
               <div className='col-xs-12 padding-0'>
                 <List>
-                  <ListItemButton sx={{p: 1}} className='no-anchor-styles' href={`#${user?.url}`} onClick={onClose} disabled={!user?.url}>
+                  <ListItemButton sx={{p: 1}} className='no-anchor-styles' href={`#${user?.url}repos`} onClick={onClose} disabled={!user?.url} selected={location.pathname === `${user?.url}repos`}>
                     <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
                       <RepoIcon />
                     </ListItemIcon>
