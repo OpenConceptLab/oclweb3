@@ -24,6 +24,15 @@ const LinkTo = (
            color: 'primary.main',
            backgroundColor: 'inherit',
            textTransform: 'none',
+           textDecoration: 'none',
+           outline: 'none',
+         },
+         '&:focus': {
+           color: 'primary.main',
+           backgroundColor: 'inherit',
+           textTransform: 'none',
+           textDecoration: 'none',
+           outline: 'none',
          }
        }}
      >
