@@ -12,7 +12,7 @@ import APIService from '../../services/APIService'
 import AddButton from '../common/AddButton';
 import Bookmark from '../common/Bookmark';
 
-const UserRepositories = ({ user }) => {
+const UserRepositories = ({ user, profile }) => {
   const params = useParams()
   const { t } = useTranslation()
   const sessionUser = getCurrentUser()
@@ -87,7 +87,7 @@ const UserRepositories = ({ user }) => {
       }
       <Search
         resource='repos'
-        url={currentUser?.url + 'repos/'}
+        url={currentUser?.url + (profile ? '' : 'orgs/') + 'repos/'}
         nested
         noTabs
         filtersHeight={`calc(100vh - ${baseHeightToDeduct}px)`}

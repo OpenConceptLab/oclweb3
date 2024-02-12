@@ -39,7 +39,7 @@ const UserHome = () => {
       <div className='col-xs-10 padding-0' style={{backgroundColor: '#FFF', borderRadius: '10px', height: height, maxWidth: '80%'}}>
         {
           user?.url &&
-            <UserRepositories user={user} />
+            <UserRepositories user={user} profile />
         }
       </div>
     </div>
