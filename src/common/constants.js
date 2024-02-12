@@ -20,6 +20,7 @@ export const TEXT_GRAY = '#47464f'
 export const BG_GRAY = '#f6f2f7'
 export const LIGHT_GRAY = '#e5e1e6'
 export const VERY_LIGH_GRAY = '#5e5c71'
+export const NV_80 = '#c8c5d0'
 
 export const LANGUAGES = [
   {locale: 'en', name: 'English'},

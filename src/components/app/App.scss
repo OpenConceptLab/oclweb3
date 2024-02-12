@@ -63,7 +63,12 @@ div.split-appear {
     border: 1px solid lightgray;
     border-radius: 50%;
 }
-
+.ellipsis-text-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 
 .animation-appear{
     animation: bounce-in 0.2s ease-in;
