@@ -38,7 +38,7 @@ const Bookmark = ({ bookmark, isLast }) => {
     }
   }
   return (
-    <Card className='col-xs-4 padding-0' sx={{backgroundColor: 'surface.main', mr: isLast ? 0 : 1, padding: 0, maxWidth: '360px', maxHeight: '97px', boxShadow: 'none', borderBottom: '1px solid', borderColor: 'surface.nv80', borderRadius: 0}}>
+    <Card className='col-xs-4 padding-0' sx={{backgroundColor: 'surface.main', mr: isLast ? 0 : 1, padding: 0, maxWidth: '360px', height: '97px', boxShadow: 'none', borderBottom: '1px solid', borderColor: 'surface.nv80', borderRadius: 0, display: 'flex', alignItems: 'center'}}>
       <CardHeader
         sx={{padding: '8px 16px', paddingBottom: '8px !important'}}
         avatar={getIcon()}
