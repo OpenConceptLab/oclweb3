@@ -47,7 +47,6 @@ export const ALL_COLUMNS = {
     {id: 'location', labelKey: 'user.location', value: 'location'},
     {id: 'website', labelKey: 'user.website', value: 'website', sortable: false, formatter: formatWebsiteLink},
     {id: 'date_joined', labelKey: 'user.joined_on', value: 'date_joined', formatter: formatDate, sortOn: 'date_joined'},
-    {id: 'last_login', labelKey: 'user.last_login', value: 'last_login', sortable: false, formatter: formatDateTime},
   ],
 };
 
