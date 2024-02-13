@@ -2,7 +2,6 @@ import React from 'react';
 import {
   formatDate,
   formatWebsiteLink,
-  formatDateTime
 } from '../../common/utils';
 import OwnerIcon from '../common/OwnerIcon';
 import Retired from '../common/Retired';
