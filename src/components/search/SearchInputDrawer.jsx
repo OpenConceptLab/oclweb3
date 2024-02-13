@@ -57,7 +57,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
   const inputRef = React.createRef()
   const location = useLocation()
   const [, ownerType, owner, repoType, repo,] = location.pathname.split('/');
-  const isNested = Boolean(location.pathname !== '/search/' && location.pathname !== '/' && ownerType && owner && repoType && repo)
+  const isNested = Boolean(location.pathname !== '/search/' && location.pathname !== '/' && owner && ownerType)
   const [focus, setFocus] = React.useState(1);
   const lastIndex = isNested ? 2 : 1
   const inputPlaceholder = input || '...'
@@ -135,11 +135,23 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
         input &&
           <React.Fragment>
             {
-              isNested &&
+              isNested && repoType && repo &&
                 <Option
                   nested
                   index={1}
                   placeholder={<span>{t('common.search')} <b>{repo}</b> {t('common.for')} <b>{inputPlaceholder}</b></span>}
+                  icon
+                  selected={focus == 1}
+                  onClick={onClickOption}
+                  onKeyDown={event => onItemKeyDown(event, 1)}
+                />
+            }
+            {
+              isNested && !repo &&
+                <Option
+                  nested
+                  index={1}
+                  placeholder={<span>{t('common.search')} <b>{owner}</b> {repoType} {t('common.for')} <b>{inputPlaceholder}</b></span>}
                   icon
                   selected={focus == 1}
                   onClick={onClickOption}

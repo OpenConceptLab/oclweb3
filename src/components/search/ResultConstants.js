@@ -31,7 +31,7 @@ export const ALL_COLUMNS = {
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id', className: 'searchable'},
     {id: 'name', labelKey: 'common.name', value: 'name', sortOn: 'name', className: 'searchable'},
     {id: 'type', labelKey: 'repo.repo_type', value: 'type'},
-    {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', nested: false, renderer: item => (<span style={{display: 'flex'}}><OwnerIcon ownerType={item.owner_type} fontSize='small' style={{marginRight: '4px'}}/>{item.owner}</span>)},
+    {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', renderer: item => (<span style={{display: 'flex'}}><OwnerIcon ownerType={item.owner_type} fontSize='small' style={{marginRight: '4px'}}/>{item.owner}</span>)},
   ],
   orgs: [
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: '_mnemonic', className: 'searchable'},
