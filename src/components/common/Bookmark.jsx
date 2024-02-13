@@ -10,14 +10,14 @@ const Title = ({ bookmark }) => {
   return (
     <div className='padding-0'>
       <div className='padding-0'>
-        <Typography sx={{fontSize: '12px', color: 'surface.contrastText'}}>
+        <Typography className='ellipsis-text-2' sx={{fontSize: '12px', color: 'surface.contrastText'}}>
           {
             bookmark.resource.repo_type || bookmark.resource.collection_type || bookmark.resource.source_type || bookmark.resource.type
           }
         </Typography>
       </div>
       <div className='padding-0'>
-        <Typography component='h2' sx={{fontWeight: 'bold', color: 'surface.dark'}}>
+        <Typography className='ellipsis-text-2' component='h2' sx={{fontWeight: 'bold', color: 'surface.dark'}}>
           {bookmark.resource.name || bookmark.resource.id}
         </Typography>
       </div>
@@ -38,7 +38,7 @@ const Bookmark = ({ bookmark, isLast }) => {
     }
   }
   return (
-    <Card className='col-xs-4 padding-0' sx={{backgroundColor: 'surface.main', mr: isLast ? 0 : 1, padding: 0, maxWidth: '360px', height: '97px', boxShadow: 'none', borderBottom: '1px solid', borderColor: 'surface.nv80', borderRadius: 0, display: 'flex', alignItems: 'center'}}>
+    <Card className='col-xs-3 padding-0' sx={{backgroundColor: 'surface.main', mr: isLast ? 0 : 1, padding: 0, width: '24% !important', height: '97px', boxShadow: 'none', borderBottom: '1px solid', borderColor: 'surface.nv80', borderRadius: 0, display: 'flex', alignItems: 'center'}}>
       <CardHeader
         sx={{padding: '8px 16px', paddingBottom: '8px !important'}}
         avatar={getIcon()}
