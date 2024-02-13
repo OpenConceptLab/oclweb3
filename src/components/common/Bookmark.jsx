@@ -3,6 +3,7 @@ import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import RepoIcon from '../repos/RepoIcon';
+import OrganizationIcon from '@mui/icons-material/AccountBalance';
 
 
 const Title = ({ bookmark }) => {
@@ -31,6 +32,9 @@ const Bookmark = ({ bookmark, isLast }) => {
     }
     if(['Collection', 'Collection Version', 'Source', 'Source Version'].includes(bookmark.resource?.type)) {
       return <RepoIcon sx={{width: '56px', height: '56px', color: 'secondary.main'}} />
+    }
+    if(['Organization', 'Org'].includes(bookmark.resource?.type)) {
+      return <OrganizationIcon sx={{width: '56px', height: '56px', color: 'secondary.main'}} />
     }
   }
   return (
