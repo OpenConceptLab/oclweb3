@@ -17,7 +17,7 @@ const Title = ({ bookmark }) => {
       </div>
       <div className='padding-0'>
         <Typography component='h2' sx={{fontWeight: 'bold', color: 'surface.dark'}}>
-          {bookmark.name || bookmark.id}
+          {bookmark.resource.name || bookmark.resource.id}
         </Typography>
       </div>
     </div>
