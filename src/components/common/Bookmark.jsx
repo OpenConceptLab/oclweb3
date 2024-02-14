@@ -1,4 +1,5 @@
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
@@ -26,6 +27,8 @@ const Title = ({ bookmark }) => {
 }
 
 const Bookmark = ({ bookmark, isLast }) => {
+  const history = useHistory()
+
   const getIcon = () => {
     if(bookmark.resource?.logo_url) {
       return <img src={bookmark.resource.logo_url} className='user-img-small' style={{width: '56px', height: '56px'}} />
@@ -37,10 +40,15 @@ const Bookmark = ({ bookmark, isLast }) => {
       return <OrganizationIcon sx={{width: '56px', height: '56px', color: 'secondary.main'}} />
     }
   }
+  const onClick = () => {
+    if(bookmark.resource?.url)
+      history.push(bookmark.resource.url)
+  }
+
   return (
-    <Card className='col-xs-3 padding-0' sx={{backgroundColor: 'surface.main', mr: isLast ? 0 : 1, padding: 0, width: '24% !important', height: '97px', boxShadow: 'none', borderBottom: '1px solid', borderColor: 'surface.nv80', borderRadius: 0, display: 'flex', alignItems: 'center'}}>
+    <Card className='col-xs-3 padding-0' sx={{backgroundColor: 'surface.main', mr: isLast ? 0 : 1, padding: 0, width: '24% !important', height: '97px', boxShadow: 'none', borderBottom: '1px solid', borderColor: 'surface.nv80', borderRadius: 0, display: 'flex', alignItems: 'center', cursor: 'pointer'}} onClick={onClick}>
       <CardHeader
-        sx={{padding: '8px 16px', paddingBottom: '8px !important'}}
+        sx={{padding: '8px 16px', paddingBottom: '8px !important', cursor: 'pointer'}}
         avatar={getIcon()}
         title={<Title bookmark={bookmark} />}
         subheader={

@@ -158,6 +158,11 @@ export const nonEmptyCount = (object, attributes) => size(intersectionBy(keys(om
 
 export const isCurrentUserMemberOf = orgId => Boolean(orgId && includes(map(getCurrentUserOrgs(), 'id'), orgId));
 
+export const canAccessUser = username => {
+  const currentUser = getCurrentUser()
+  return currentUser?.isStaff || currentUser?.username === username
+}
+
 export const defaultDeletePin = (service, callback) => {
   if(service) {
     service.delete().then(response => {

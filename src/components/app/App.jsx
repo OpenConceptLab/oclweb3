@@ -5,6 +5,7 @@ import {
   recordGAPageView, isLoggedIn
 } from '../../common/utils';
 import Error404 from '../errors/Error404';
+import Error403 from '../errors/Error403';
 import Error401 from '../errors/Error401';
 import ErrorBoundary from '../errors/ErrorBoundary';
 import Footer from './Footer';
@@ -71,6 +72,7 @@ const App = props => {
               <Route path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:tab(${repoTabsStr})?`} component={RepoHome} />
               <AuthenticationRequiredRoute path='/users/:user/repos' component={UserRepositories} />
               <AuthenticationRequiredRoute path='/users/:user' component={UserHome} />
+              <Route exact path='/403' component={Error403} />
               <Route component={Error404} />
             </Switch>
             <Alert message={alert?.message} onClose={() => setAlert(false)} severity={alert?.severity} duration={alert?.duration} />

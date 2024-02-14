@@ -6,11 +6,12 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton';
 import ShareIcon from '@mui/icons-material/Share';
 import DownloadIcon from '@mui/icons-material/Download';
-import { getCurrentUser } from '../../common/utils';
+import { getCurrentUser, canAccessUser } from '../../common/utils';
 import Search from '../search/Search';
 import APIService from '../../services/APIService'
 import AddButton from '../common/AddButton';
 import Bookmark from '../common/Bookmark';
+import Error403 from '../errors/Error403';
 
 const UserRepositories = ({ user, profile }) => {
   const params = useParams()
@@ -18,6 +19,7 @@ const UserRepositories = ({ user, profile }) => {
   const sessionUser = getCurrentUser()
   const [currentUser, setCurrentUser] = React.useState(user || {})
   const [bookmarks, setBookmarks] = React.useState(false)
+  const [accessDenied, setAccessDenied] = React.useState(false)
 
   React.useEffect(() => {
     !user && fetchUser()
@@ -27,17 +29,23 @@ const UserRepositories = ({ user, profile }) => {
     if(params.user === sessionUser?.username) {
       setCurrentUser(sessionUser)
       fetchBookmarks()
+      setAccessDenied(false)
     } else if(params.user) {
-      APIService.users(params.user).get(null, null, {includeSubscribedOrgs: true}).then(response => {
-        if(response.status === 200) {
-          setCurrentUser(response.data)
-          fetchBookmarks()
-        }
-        else if(response.status)
-          window.location.hash = '#/' + response.status
-        else if(response.detail === 'Not found.')
-          window.location.hash = '#/404/'
-      })
+      if(canAccessUser(params.user)) {
+        setAccessDenied(false)
+        APIService.users(params.user).get(null, null, {includeSubscribedOrgs: true}).then(response => {
+          if(response.status === 200) {
+            setCurrentUser(response.data)
+            fetchBookmarks()
+          }
+          else if(response.status)
+            window.location.hash = '#/' + response.status
+          else if(response.detail === 'Not found.')
+            window.location.hash = '#/404/'
+        })
+
+      } else
+        setAccessDenied(true)
     }
   }
 
@@ -56,22 +64,22 @@ const UserRepositories = ({ user, profile }) => {
       {
         !user &&
           <React.Fragment>
-          <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
-            <div className='col-xs-6 padding-0'>
-              <Typography component='h1' sx={{color: '#000', fontSize: '2em', margin: '16px 0', fontWeight: 'bold'}}>
-                {t('user.my_repositories')}
-              </Typography>
+            <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
+              <div className='col-xs-6 padding-0'>
+                <Typography component='h1' sx={{color: '#000', fontSize: '2em', margin: '16px 0', fontWeight: 'bold'}}>
+                  {t('user.my_repositories')}
+                </Typography>
+              </div>
+              <div className='col-xs-6 padding-0' style={{display: 'flex', justifyContent: 'end'}}>
+                <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
+                  <DownloadIcon fontSize='inherit' />
+                </IconButton>
+                <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
+                  <ShareIcon fontSize='inherit' />
+                </IconButton>
+                <AddButton label={t('dashboard.create_repository')} color='primary' onClick={() => {}} />
+              </div>
             </div>
-            <div className='col-xs-6 padding-0' style={{display: 'flex', justifyContent: 'end'}}>
-              <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
-                <DownloadIcon fontSize='inherit' />
-              </IconButton>
-              <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
-                <ShareIcon fontSize='inherit' />
-              </IconButton>
-              <AddButton label={t('dashboard.create_repository')} color='primary' onClick={() => {}} />
-            </div>
-          </div>
             {
               bookmarks && bookmarks?.length &&
                 <div className='col-xs-12 padding-0' style={{marginBottom: '16px'}}>
@@ -83,19 +91,23 @@ const UserRepositories = ({ user, profile }) => {
                   }
                 </div>
             }
-            </React.Fragment>
+          </React.Fragment>
       }
-      <Search
-        resource='repos'
-        url={currentUser?.url + (profile ? '' : 'orgs/') + 'repos/'}
-        nested
-        noTabs
-        filtersHeight={`calc(100vh - ${baseHeightToDeduct}px)`}
-        resultContainerStyle={{height: `calc(100vh - ${baseHeightToDeduct}px - 100px)`, overflow: 'auto'}}
-        containerStyle={{padding: 0}}
-        defaultFiltersOpen={false}
-        resultSize='medium'
-      />
+      {
+        accessDenied ?
+          (user ? null : <Error403 />) :
+          <Search
+            resource='repos'
+            url={currentUser?.url + (profile ? '' : 'orgs/') + 'repos/'}
+            nested
+            noTabs
+            filtersHeight={`calc(100vh - ${baseHeightToDeduct}px)`}
+            resultContainerStyle={{height: `calc(100vh - ${baseHeightToDeduct}px - 100px)`, overflow: 'auto'}}
+            containerStyle={{padding: 0}}
+            defaultFiltersOpen={false}
+            resultSize='medium'
+          />
+      }
     </div>
   )
 }
