@@ -163,6 +163,8 @@ export const canAccessUser = username => {
   return currentUser?.is_staff || currentUser?.username === username
 }
 
+export const canEditUser = username => getCurrentUser()?.username === username
+
 export const defaultDeletePin = (service, callback) => {
   if(service) {
     service.delete().then(response => {

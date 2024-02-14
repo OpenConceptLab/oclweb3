@@ -83,7 +83,7 @@ const UserRepositories = ({ user, profile }) => {
             {
               bookmarks && bookmarks?.length &&
                 <div className='col-xs-12 padding-0' style={{marginBottom: '16px'}}>
-                  <Typography component='h3' sx={{margin: '12px 0'}}>Pinned</Typography>
+                  <Typography component='h3' sx={{margin: '12px 0'}}>{t('bookmarks.pinned')}</Typography>
                   {
                     map(bookmarks, (bookmark, i) => (
                       <Bookmark key={bookmark.id} bookmark={bookmark} isLast={i === (bookmarks.length - 1)} />

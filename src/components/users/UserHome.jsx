@@ -10,11 +10,8 @@ import Error403 from '../errors/Error403';
 const UserHome = () => {
   const [user, setUser] = React.useState({})
   const params = useParams()
-
   const height = 'calc(100vh - 100px)'
-  React.useEffect(() => {
-    fetchUser()
-  }, [params.user])
+  const canAccess = getCurrentUser()?.username && canAccessUser(params.user)
 
   const fetchUser = () => {
     const currentUser = getCurrentUser()
@@ -32,7 +29,10 @@ const UserHome = () => {
     }
   }
 
-  const canAccess = getCurrentUser()?.username && canAccessUser(params.user)
+  React.useEffect(() => {
+    fetchUser()
+  }, [params.user])
+
 
   return (
     <div className='col-xs-12 padding-0'>

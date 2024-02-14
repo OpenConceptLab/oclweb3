@@ -2,7 +2,7 @@
 import React from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import {
-  recordGAPageView, isLoggedIn
+  recordGAPageView, isLoggedIn, getCurrentUser
 } from '../../common/utils';
 import Error404 from '../errors/Error404';
 import Error403 from '../errors/Error403';
@@ -21,11 +21,19 @@ import Alert from '../common/Alert';
 import RepoHome from '../repos/RepoHome';
 import UserHome from '../users/UserHome'
 import UserRepositories from '../users/UserRepositories'
+import UserEdit from '../users/UserEdit';
 
 const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
   <Route
     {...rest}
     render={props => isLoggedIn() ? <Component {...props} /> : <Error401 />}
+  />
+)
+
+const SessionUserRoute = ({component: Component, ...rest}) => (
+  <Route
+    {...rest}
+    render={props => getCurrentUser()?.username === rest?.computedMatch?.params?.user ? <Component {...props} /> : <Error403 />}
   />
 )
 
@@ -71,6 +79,7 @@ const App = props => {
               <Route path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion/:tab(${repoTabsStr})?`} component={RepoHome} />
               <Route path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:tab(${repoTabsStr})?`} component={RepoHome} />
               <AuthenticationRequiredRoute path='/users/:user/repos' component={UserRepositories} />
+              <SessionUserRoute path='/users/:user/edit' component={UserEdit} />
               <AuthenticationRequiredRoute path='/users/:user' component={UserHome} />
               <Route exact path='/403' component={Error403} />
               <Route component={Error404} />

@@ -1,16 +1,18 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
 import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
+import EditIcon from '@mui/icons-material/Edit';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import LocationIcon from '@mui/icons-material/LocationOnOutlined';
 import EmailIcon from '@mui/icons-material/EmailOutlined';
 import LinkIcon from '@mui/icons-material/LinkOutlined';
 import { filter, reject, orderBy } from 'lodash'
-import { formatWebsiteLink, formatDate } from '../../common/utils'
+import { formatWebsiteLink, formatDate, canEditUser } from '../../common/utils'
 import UserIcon from './UserIcon';
 import OrgIcon from '../orgs/OrgIcon';
 
@@ -44,8 +46,14 @@ const UserProfile = ({ user }) => {
       <Typography component='h2' sx={{marginTop: '16px', color: 'surface.dark', fontWeight: 'bold', fontSize: '2em'}}>
         {user?.name}
       </Typography>
-      <Typography component='h3' sx={{color: 'surface.light'}}>
+      <Typography component='h3' sx={{color: 'surface.light', display: 'flex', alignItems: 'center'}}>
         {user?.username}
+        {
+          user?.username && canEditUser(user.username) &&
+            <IconButton className='no-anchor-styles' sx={{marginLeft: '8px'}} size='small' href={`#${user.url}edit`}>
+              <EditIcon fontSize='inherit' />
+            </IconButton>
+        }
       </Typography>
       <List sx={{color: 'secondary.main', marginTop: '8px'}}>
         <UserProperty icon={<LocationIcon sx={iconStyle} />} value={user?.location} />
