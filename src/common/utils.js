@@ -160,7 +160,7 @@ export const isCurrentUserMemberOf = orgId => Boolean(orgId && includes(map(getC
 
 export const canAccessUser = username => {
   const currentUser = getCurrentUser()
-  return currentUser?.isStaff || currentUser?.username === username
+  return currentUser?.is_staff || currentUser?.username === username
 }
 
 export const defaultDeletePin = (service, callback) => {
