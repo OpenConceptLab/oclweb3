@@ -110,13 +110,14 @@ const UserForm = ({ user }) => {
               onChange={event => setLocation(event.target.value || '')}
               sx={{width: '30%', maxWidth: '210px', marginLeft: '16px'}}
             />
+          </div>
+          <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center'}}>
             <CommonTextField
               variant='standard'
               label={t('user.website')}
               value={website}
               onChange={event => setWebsite(event.target.value || '')}
-              sx={{width: '30%', maxWidth: '210px', marginLeft: '16px'}}
-              type='url'
+              sx={{width: '70%', maxWidth: '460px'}}
             />
           </div>
         </div>
