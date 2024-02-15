@@ -33,7 +33,9 @@
     "search": "Search",
     "for": "for",
     "please": "Please",
-    "save": "Save"
+    "save": "Save",
+    "manage": "Manage",
+    "overview": "Overview"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -84,7 +86,10 @@
   },
   "org": {
     "orgs": "Organizations",
-    "org": "Organization"
+    "org": "Organization",
+    "about_the_org": "About the Organization",
+    "members": "Members",
+    "statistics": "Statistics"
   },
   "user": {
     "users": "Users",

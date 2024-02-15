@@ -5,8 +5,8 @@ import IconButton from '@mui/material/IconButton'
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import EditIcon from '@mui/icons-material/Edit';
 import ListItemText from '@mui/material/ListItemText';
+import EditIcon from '@mui/icons-material/Edit';
 import Divider from '@mui/material/Divider';
 import LocationIcon from '@mui/icons-material/LocationOnOutlined';
 import EmailIcon from '@mui/icons-material/EmailOutlined';

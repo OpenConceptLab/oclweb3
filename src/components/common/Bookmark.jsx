@@ -46,13 +46,13 @@ const Bookmark = ({ bookmark, isLast }) => {
   }
 
   return (
-    <Card className='col-xs-3 padding-0' sx={{backgroundColor: 'surface.main', mr: isLast ? 0 : 1, padding: 0, width: '24% !important', height: '97px', boxShadow: 'none', borderBottom: '1px solid', borderColor: 'surface.nv80', borderRadius: 0, display: 'flex', alignItems: 'center', cursor: 'pointer'}} onClick={onClick}>
+    <Card className='col-xs-3 padding-0' sx={{width: isLast ? '25%' : 'calc(25% - 8px) !important', backgroundColor: 'surface.main', mr: isLast ? 0 : 1, padding: 0, height: '97px', boxShadow: 'none', borderBottom: '1px solid', borderColor: 'surface.nv80', borderRadius: 0, display: 'flex', alignItems: 'center', cursor: 'pointer'}} onClick={onClick}>
       <CardHeader
         sx={{padding: '8px 16px', paddingBottom: '8px !important', cursor: 'pointer'}}
         avatar={getIcon()}
         title={<Title bookmark={bookmark} />}
         subheader={
-          <Typography className='ellipsis-text-2' sx={{fontSize: '14px', color: 'surface.contrastText'}}>
+          <Typography className='ellipsis-text-1' sx={{fontSize: '14px', color: 'surface.contrastText'}}>
             {bookmark.resource.description || bookmark.resource.full_name}
           </Typography>
         }

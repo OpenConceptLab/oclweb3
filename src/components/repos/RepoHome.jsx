@@ -5,7 +5,7 @@ import Paper from '@mui/material/Paper'
 import APIService from '../../services/APIService';
 import LoaderDialog from '../common/LoaderDialog';
 import RepoHeader from './RepoHeader';
-import RepoTabs from './RepoTabs';
+import CommonTabs from '../common/CommonTabs';
 import Search from '../search/Search';
 import { dropVersion, toParentURI } from '../../common/utils';
 import { WHITE } from '../../common/constants';
@@ -79,7 +79,7 @@ const RepoHome = () => {
           (repo?.id || loading) &&
             <React.Fragment>
               <RepoHeader repo={repo} versions={versions} onVersionChange={onVersionChange} />
-              <RepoTabs TABS={TABS} value={tab} onChange={onTabChange} />
+              <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
               {
                 repo?.id && ['concepts', 'mappings'].includes(tab) &&
                   <Search

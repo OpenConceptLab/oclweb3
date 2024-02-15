@@ -22,6 +22,7 @@ import RepoHome from '../repos/RepoHome';
 import UserHome from '../users/UserHome'
 import UserRepositories from '../users/UserRepositories'
 import UserEdit from '../users/UserEdit';
+import OrgHome from '../orgs/OrgHome';
 
 const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
   <Route
@@ -64,7 +65,9 @@ const App = props => {
   }, [])
 
   const repoTabs = ['concepts', 'mappings', 'versions', 'summary', 'about']
+  const orgTabs = ['repos']
   const repoTabsStr = repoTabs.join('|')
+  const orgTabsStr = orgTabs.join('|')
 
   return (
     <div>
@@ -81,6 +84,8 @@ const App = props => {
               <AuthenticationRequiredRoute path='/users/:user/repos' component={UserRepositories} />
               <SessionUserRoute path='/users/:user/edit' component={UserEdit} />
               <AuthenticationRequiredRoute path='/users/:user' component={UserHome} />
+              <Route path={`/orgs/:org/:tab(${orgTabsStr})?`} component={OrgHome} />
+
               <Route exact path='/403' component={Error403} />
               <Route component={Error404} />
             </Switch>

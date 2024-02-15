@@ -69,6 +69,12 @@ div.split-appear {
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+.ellipsis-text-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 
 .animation-appear{
     animation: bounce-in 0.2s ease-in;

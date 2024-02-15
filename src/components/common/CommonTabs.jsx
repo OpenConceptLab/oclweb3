@@ -18,6 +18,7 @@ const RepoTabs = ({TABS, ...rest}) => {
             className='tab-anchor'
             value={resource.key}
             label={resource.label}
+          sx={{color: 'surface.contrastText', fontWeight: 'bold'}}
           />
         ))
       }
