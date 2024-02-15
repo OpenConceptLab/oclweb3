@@ -59,6 +59,8 @@ const OrgHome = () => {
   React.useEffect(() => { fetchOrg() }, [params.org])
   React.useEffect(() => { setTab(params.tab || 'overview') }, [params.tab])
 
+  const height = 'calc(100vh - 400px)'
+
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '8px'}}>
       <Paper component="div" className='col-xs-12 split padding-0' sx={{backgroundColor: 'info.contrastText', borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.n90'}}>
@@ -76,12 +78,12 @@ const OrgHome = () => {
                     nested
                     noTabs
                     filtersHeight='calc(100vh - 300px)'
-                    resultContainerStyle={{height: 'calc(100vh - 400px)', overflow: 'auto'}}
+                    resultContainerStyle={{height: height, overflow: 'auto'}}
                   />
               }
               {
                 tab === 'overview' && org?.id &&
-                  <OrgOverview org={org} bookmarks={bookmarks} members={members} />
+                  <OrgOverview org={org} bookmarks={bookmarks} members={members} height={height} />
               }
               </React.Fragment>
         }

@@ -100,11 +100,11 @@ const OrgStatistics = ({ org, marginTop }) => {
 }
 
 
-const OrgOverview = ({ org, bookmarks, members }) => {
+const OrgOverview = ({ org, bookmarks, members, height }) => {
   const { t } = useTranslation()
 
   return (
-    <div className='col-xs-12'>
+    <div className='col-xs-12' style={{height: height || '100%', overflow: 'auto' }}>
       <div className='col-xs-9' style={{paddingLeft: 0, paddingRight: '16px'}}>
         <OrgBookmarks bookmarks={bookmarks} />
         <About text={org?.text} title={t('org.about_the_org')} />
