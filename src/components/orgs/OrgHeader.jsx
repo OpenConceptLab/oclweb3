@@ -37,7 +37,7 @@ const OrgHeader = ({ org }) => {
       {
         org.logo_url &&
           <div className='col-xs-1' style={{width: '112px', paddingRight: '15px', paddingLeft: '0px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-            <img src={org.logo_url} className='user-img-medium' />
+            <img src={org.logo_url} className='user-img-medium' style={{objectFit: 'cover'}} />
           </div>
       }
       <div className='col-xs-12 padding-0' style={style}>
