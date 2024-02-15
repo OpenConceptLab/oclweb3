@@ -45,7 +45,7 @@ const RepoHeader = ({repo, versions, onVersionChange}) => {
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', fontSize: '16px'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
           <OwnerIcon ownerType={repo.ownerType} sx={{marginRight: '8px', color: 'surface.contrastText'}} />
-          <a style={{color: PRIMARY}} className='no-anchor-styles'>{repo.owner}</a>
+          <a style={{color: PRIMARY}} className='no-anchor-styles' href={`#${repo.owner_url}`}>{repo.owner}</a>
         </span>
         {
           isNumber(repo?.summary?.active_concepts) &&
