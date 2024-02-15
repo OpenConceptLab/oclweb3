@@ -31,7 +31,7 @@ const OrgBookmarks = ({ bookmarks }) => {
   return bookmarks && bookmarks?.length ? (
     <div className='col-xs-12 padding-0'>
       <Typography component='h3' sx={{margin: '16px 0', fontWeight: 'bold'}}>{t('bookmarks.pinned')}</Typography>
-      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+      <div style={{display: 'flex', alignItems: 'center'}}>
         {
           map(bookmarks, (bookmark, i) => (
             <Bookmark
