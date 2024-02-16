@@ -18,7 +18,7 @@ import RepoIcon from '../repos/RepoIcon';
 const Member = ({ member }) => {
   return (
     <Tooltip key={member.url} title={member.name}>
-      <IconButton href={`#${member.url}`}>
+      <IconButton href={`#${member.url}`} sx={{marginRight: '4px'}}>
         <UserIcon user={member} sx={{width: '45px', height: '45px'}} />
       </IconButton>
     </Tooltip>
@@ -53,7 +53,7 @@ const OrgMembers = ({ members }) => {
       <div style={{display: 'flex', alignItems: 'flex-start', flexDirection: 'column'}}>
         {
           map(chunk([...orderBy(filter(members, 'logo_url'), 'name'), ...orderBy(reject(members, 'logo_url'), 'name')], 5), (_members, i) => (
-            <div key={i} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
+            <div key={i} style={{display: 'flex', alignItems: 'center', width: '100%'}}>
               {
                 map(_members, member => (<Member key={member.url} member={member} />))
               }
