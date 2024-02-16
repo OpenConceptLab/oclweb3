@@ -373,6 +373,7 @@ const Search = props => {
                   onDisplayChange={onDisplayChange}
                   resultContainerStyle={props.resultContainerStyle}
                   resultSize={props.resultSize}
+                  excludedColumns={props.excludedColumns}
                 />
               </div>
             </div>

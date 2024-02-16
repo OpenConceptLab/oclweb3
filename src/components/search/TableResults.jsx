@@ -10,7 +10,7 @@ import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { visuallyHidden } from '@mui/utils';
-import { filter } from 'lodash'
+import { filter, reject } from 'lodash'
 import { SECONDARY, WHITE } from '../../common/constants';
 import { ALL_COLUMNS } from './ResultConstants';
 
@@ -61,7 +61,7 @@ const EnhancedTableHead = props => {
   );
 }
 
-const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size}) => {
+const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns}) => {
   const rows = results?.results || []
   const getValue = (row, column) => {
     let val = row[column.value]
@@ -72,10 +72,12 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
     return val
   }
 
-  const columns = filter(
+  let columns = filter(
     ALL_COLUMNS[resource] || [],
     column => nested ? column.nested !== false : column.global !== false
-  )
+  );
+
+  columns = excludedColumns?.length ? reject(columns, column => excludedColumns?.includes(column.id)) : columns
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';

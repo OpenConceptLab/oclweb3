@@ -189,7 +189,8 @@ const SearchResults = props => {
     order: props.order,
     orderBy: props.orderBy,
     selectedToShowItem: props.selectedToShow,
-    size: props.resultSize
+    size: props.resultSize,
+    excludedColumns: props.excludedColumns
   }
 
   const isCardDisplay = display === 'card'

@@ -106,6 +106,7 @@ const UserRepositories = ({ user, profile }) => {
             containerStyle={{padding: 0}}
             defaultFiltersOpen={false}
             resultSize='medium'
+            excludedColumns={profile ? ['owner']: []}
           />
       }
     </div>
