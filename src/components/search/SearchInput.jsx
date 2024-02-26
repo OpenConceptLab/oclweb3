@@ -52,7 +52,6 @@ const SearchInput = props => {
   const clearSearch = event => {
     event.persist()
     setInput('')
-    performSearch(event, '')
   }
 
   const moveToSearchPage = (value, global) => {
