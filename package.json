@@ -6,7 +6,7 @@
   "homepage": ".",
   "dependencies": {
     "@airbrake/browser": "^2.1.8",
-    "@emotion/react": "^11.11.3",
+    "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "5.14.1",
     "@mui/lab": "5.0.0-alpha.140",
@@ -37,13 +37,13 @@
     "eslint": "./node_modules/.bin/eslint ./src"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.9",
+    "@babel/core": "^7.24.0",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
     "@babel/polyfill": "^7.12.1",
-    "@babel/preset-env": "^7.23.9",
+    "@babel/preset-env": "^7.24.0",
     "@babel/preset-react": "^7.23.3",
-    "@babel/runtime": "^7.23.9",
+    "@babel/runtime": "^7.24.0",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.3.0",
     "copy-webpack-plugin": "^4.6.0",
