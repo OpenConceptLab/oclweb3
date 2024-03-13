@@ -81,7 +81,7 @@ const UserRepositories = ({ user, profile }) => {
               </div>
             </div>
             {
-              bookmarks && bookmarks?.length &&
+              Boolean(bookmarks && bookmarks?.length) &&
                 <div className='col-xs-12 padding-0' style={{marginBottom: '16px'}}>
                   <Typography component='h3' sx={{margin: '12px 0'}}>{t('bookmarks.pinned')}</Typography>
                   {
