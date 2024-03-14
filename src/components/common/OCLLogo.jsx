@@ -4,7 +4,7 @@ import { PRIMARY } from '../../common/constants';
 
 const OCLLogo = ({ color, width, height, }) => {
   return (
-    <a className='hover-no-bg-color' href='/#/'>
+    <a className='hover-no-bg-color flex-vertical-center' href='/#/'>
       <SvgIcon style={{fill: color || PRIMARY, width: width || '84px', height: height || '28px'}} href='/'>
         <svg version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 306.14 111.63">
           <g>

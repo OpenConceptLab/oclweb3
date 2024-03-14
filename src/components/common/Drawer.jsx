@@ -20,7 +20,7 @@ const Drawer = props => {
       onClose={_onClose}
       sx={{
         zIndex: '1202',
-        '& .MuiDrawer-paper': { minWidth: '360px', borderRadius: '16px', padding: '12px' },
+        '& .MuiDrawer-paper': { minWidth: '360px', borderRadius: '16px', padding: '12px', backgroundColor: props.bgColor || '#FFF' },
       }}
     >
       { props.children }

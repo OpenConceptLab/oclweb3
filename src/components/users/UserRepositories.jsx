@@ -57,7 +57,7 @@ const UserRepositories = ({ user, profile }) => {
     }
   }
 
-  const baseHeightToDeduct = bookmarks ? 275 : 175
+  const baseHeightToDeduct = bookmarks ? 325 : 175
 
   return (
     <div className='col-xs-12 padding-0'>

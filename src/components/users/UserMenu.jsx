@@ -9,9 +9,6 @@ import ListItemText from '@mui/material/ListItemText';
 import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import RepoIcon from '@mui/icons-material/FolderOutlined';
-import OrgIcon from '@mui/icons-material/AccountBalance';
-import BookmarkIcon from '@mui/icons-material/BookmarkBorder';
 import LanguageIcon from '@mui/icons-material/Language';
 import HelpIcon from '@mui/icons-material/HelpCenterOutlined';
 import ChatIcon from '@mui/icons-material/ForumOutlined';
@@ -77,37 +74,6 @@ const UserMenu = ({ isOpen, onClose }) => {
           }
         </div>
         <Divider style={{width: '100%'}} />
-        {
-          authenticated &&
-            <React.Fragment>
-              <div className='col-xs-12 padding-0'>
-                <List>
-                  <ListItemButton sx={{p: 1}} className='no-anchor-styles' href={`#${user?.url}repos`} onClick={onClose} disabled={!user?.url} selected={location.pathname === `${user?.url}repos`}>
-                    <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
-                      <RepoIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={t('user.my_repositories')} />
-                    <span>{((user?.collections || 0) + (user?.sources + 0)).toLocaleString()}</span>
-                  </ListItemButton>
-                  <ListItemButton sx={{p: 1}}>
-                    <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
-                      <OrgIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={t('user.my_organizations')} />
-                    <span>{user?.orgs?.toLocaleString()}</span>
-                  </ListItemButton>
-                  <ListItemButton sx={{p: 1}}>
-                    <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
-                      <BookmarkIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={t('user.my_bookmarks')} />
-                    <span>{user?.bookmarks?.toLocaleString()}</span>
-                  </ListItemButton>
-                </List>
-              </div>
-              <Divider style={{width: '100%'}} />
-            </React.Fragment>
-        }
         <div className='col-xs-12 padding-0'>
           <List>
             <ListItemButton sx={{p: 1}} onClick={() => setLanguageOpen(!languageOpen)}>

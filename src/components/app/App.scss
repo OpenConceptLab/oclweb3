@@ -56,12 +56,14 @@ div.split-appear {
     height: 45px;
     border: 1px solid lightgray;
     border-radius: 50%;
+    object-fit: cover;
 }
 .user-img-medium {
     width: 80px;
     height: 80px;
     border: 1px solid lightgray;
     border-radius: 50%;
+    object-fit: cover;
 }
 .ellipsis-text-2 {
     display: -webkit-box;

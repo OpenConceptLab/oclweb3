@@ -26,20 +26,21 @@ const Title = ({ bookmark }) => {
   )
 }
 
+export const getIcon = (bookmark, style) => {
+  if(bookmark.resource?.logo_url) {
+    return <img src={bookmark.resource.logo_url} className='user-img-small' style={style || {width: '56px', height: '56px'}} />
+  }
+  if(['Collection', 'Collection Version', 'Source', 'Source Version'].includes(bookmark.resource?.type)) {
+    return <RepoIcon sx={ style || {width: '56px', height: '56px', color: 'secondary.main'}} />
+  }
+  if(['Organization', 'Org'].includes(bookmark.resource?.type)) {
+    return <OrganizationIcon sx={style || {width: '56px', height: '56px', color: 'secondary.main'}} />
+  }
+}
+
 const Bookmark = ({ bookmark, isLast }) => {
   const history = useHistory()
 
-  const getIcon = () => {
-    if(bookmark.resource?.logo_url) {
-      return <img src={bookmark.resource.logo_url} className='user-img-small' style={{width: '56px', height: '56px'}} />
-    }
-    if(['Collection', 'Collection Version', 'Source', 'Source Version'].includes(bookmark.resource?.type)) {
-      return <RepoIcon sx={{width: '56px', height: '56px', color: 'secondary.main'}} />
-    }
-    if(['Organization', 'Org'].includes(bookmark.resource?.type)) {
-      return <OrganizationIcon sx={{width: '56px', height: '56px', color: 'secondary.main'}} />
-    }
-  }
   const onClick = () => {
     if(bookmark.resource?.url)
       history.push(bookmark.resource.url)
@@ -49,7 +50,7 @@ const Bookmark = ({ bookmark, isLast }) => {
     <Card className='col-xs-3 padding-0' sx={{width: isLast ? '25%' : 'calc(25% - 8px) !important', backgroundColor: 'surface.main', mr: isLast ? 0 : 1, padding: 0, height: '97px', boxShadow: 'none', borderBottom: '1px solid', borderColor: 'surface.nv80', borderRadius: 0, display: 'flex', alignItems: 'center', cursor: 'pointer'}} onClick={onClick}>
       <CardHeader
         sx={{padding: '8px 16px', paddingBottom: '8px !important', cursor: 'pointer'}}
-        avatar={getIcon()}
+        avatar={getIcon(bookmark)}
         title={<Title bookmark={bookmark} />}
         subheader={
           <Typography className='ellipsis-text-1' sx={{fontSize: '14px', color: 'surface.contrastText'}}>

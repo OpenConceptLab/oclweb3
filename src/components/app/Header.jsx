@@ -26,6 +26,7 @@ import OCLLogo from '../common/OCLLogo';
 import SearchInput from '../search/SearchInput';
 import './Header.scss';
 import HeaderControls from './HeaderControls';
+import LeftMenu from './LeftMenu'
 
 const drawerWidth = 258
 
@@ -101,19 +102,23 @@ const Header = props => {
       <CssBaseline />
       <AppBar position="fixed" open={open} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} style={{backgroundColor: BG_GRAY, color: TEXT_GRAY, boxShadow: 'none'}}>
         <Toolbar style={{paddingRight: '16px'}}>
-          <div className='col-xs-12 padding-0'>
+          <div className='col-xs-12 padding-0 flex-vertical-center'>
             <div className='col-xs-1 padding-0 flex-vertical-center'>
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                onClick={handleDrawerOpen}
-                edge="start"
-                sx={{
-                  marginRight: 4.375,
-                }}
-              >
-                {open ? <MenuOpenIcon /> : <MenuIcon />}
-              </IconButton>
+              {
+                Boolean(user?.url) &&
+                  <IconButton
+                    color="inherit"
+                    aria-label="open drawer"
+                    onClick={handleDrawerOpen}
+                    edge="start"
+                    size='large'
+                    sx={{
+                      mr: 2,
+                    }}
+                  >
+                    <MenuIcon fontSize='inherit' />
+                  </IconButton>
+              }
               <OCLLogo />
             </div>
             <div className='col-xs-3' />
@@ -125,94 +130,13 @@ const Header = props => {
           </div>
         </Toolbar>
       </AppBar>
-      <Drawer variant="permanent" open={open} className='left-menu-drawer-root'>
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            <MenuOpenIcon />
-          </IconButton>
-        </DrawerHeader>
-        <List>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              href="/#/"
-              className='no-anchor-styles'
-              selected={open && location.pathname === '/'}
-              sx={{
-                minHeight: 56,
-                justifyContent: open ? 'initial' : 'center',
-                px: 1,
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 1.75 : 'auto',
-                  justifyContent: 'center',
-                }}
-              >
-                <DashboardIcon color={location.pathname === '/' ? 'primary' : undefined} />
-              </ListItemIcon>
-              <ListItemText primary={t('dashboard.name')} sx={{ opacity: open ? 1 : 0, fontWeight: 500 }} />
-            </ListItemButton>
-          </ListItem>
-          {
-            user?.url &&
-              <ListItem disablePadding sx={{ display: 'block' }}>
-                <ListItemButton
-                  sx={{
-                    minHeight: 56,
-                    justifyContent: open ? 'initial' : 'center',
-                    px: 1,
-                  }}
-                  href={`#${user?.url}repos`}
-                  className='no-anchor-styles'
-                  selected={open && location.pathname === (user.url + 'repos')}
-                >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: open ? 1.75 : 'auto',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <FolderOpenIcon color={location.pathname === (user.url + 'repos') ? 'primary' : undefined} />
-                  </ListItemIcon>
-                  <ListItemText primary={t('user.my_repositories')} sx={{ opacity: open ? 1 : 0, fontWeight: 500 }} />
-                </ListItemButton>
-              </ListItem>
-          }
-        </List>
-        <Divider style={{margin: '0 8px'}} />
-        <List>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              sx={{
-                minHeight: 56,
-                justifyContent: open ? 'initial' : 'center',
-                px: 1,
-              }}
-              className='no-anchor-styles'
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 1.75 : 'auto',
-                  justifyContent: 'center',
-                }}
-              >
-                <BookmarkIcon />
-              </ListItemIcon>
-              <ListItemText primary={t('bookmarks.name')} sx={{ opacity: open ? 1 : 0, fontWeight: 500 }} />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, paddingTop: 0, paddingBottom: 1.25, paddingLeft: 0, paddingRight: 2 }}>
+      <Box component="main" sx={{ flexGrow: 1, paddingTop: 0, paddingBottom: 1.25, paddingLeft: 2, paddingRight: 2 }}>
         <DrawerHeader />
         {
           props.children
         }
       </Box>
+      <LeftMenu isOpen={open} onClose={handleDrawerOpen} />
     </Box>
   );
 }

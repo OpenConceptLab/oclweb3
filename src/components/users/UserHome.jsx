@@ -39,7 +39,7 @@ const UserHome = () => {
       {
         canAccess ?
           <React.Fragment>
-            <div className='col-xs-3' style={{height: height, padding: '24px', maxWidth: '20%'}}>
+            <div className='col-xs-3' style={{height: height, padding: '24px 24px 24px 8px', maxWidth: '20%'}}>
               <UserProfile user={user} />
             </div>
             <div className='col-xs-10 padding-0' style={{backgroundColor: '#FFF', borderRadius: '10px', height: height, maxWidth: '80%'}}>

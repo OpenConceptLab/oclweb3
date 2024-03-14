@@ -19,6 +19,7 @@
     "retired": "Retired",
     "id": "ID",
     "name": "Name",
+    "create": "Create",
     "created_on": "Created On",
     "version": "Version",
     "versions": "Versions",
@@ -35,7 +36,8 @@
     "please": "Please",
     "save": "Save",
     "manage": "Manage",
-    "overview": "Overview"
+    "overview": "Overview",
+    "quick_links": "Quick links"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -44,6 +46,7 @@
   },
   "dashboard": {
     "name": "Dashboard",
+    "my": "My dashboard",
     "welcome_line": "Welcome to OCL.",
     "take_a_tour": "Take a tour",
     "hello": "Hello",
@@ -51,7 +54,8 @@
   },
   "bookmarks": {
     "name": "Bookmarks",
-    "pinned": "Pinned"
+    "pinned": "Pinned",
+    "following": "Following"
   },
   "auth": {
     "sign_in": "Sign in",
@@ -85,6 +89,7 @@
     "manage": "Manage Repository"
   },
   "org": {
+    "my": "My organizations",
     "orgs": "Organizations",
     "org": "Organization",
     "about_the_org": "About the Organization",
