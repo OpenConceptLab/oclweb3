@@ -44,6 +44,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
       <List sx={{p: 0}}>
         <ListItem disablePadding sx={{ display: 'block' }}>
           <ListItemButton
+            onClick={onClose}
             href="/#/"
             className='no-anchor-styles'
             selected={location.pathname === '/'}
@@ -51,6 +52,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
               minHeight: 56,
               justifyContent: 'initial',
               px: 2,
+              borderRadius: '100px'
             }}
           >
             <ListItemIcon
@@ -67,10 +69,12 @@ const LeftMenu = ({ isOpen, onClose }) => {
         </ListItem>
         <ListItem disablePadding sx={{ display: 'block' }}>
           <ListItemButton
+            onClick={onClose}
             sx={{
               minHeight: 56,
               justifyContent: 'initial',
               px: 2,
+              borderRadius: '100px'
             }}
             href={`#${user?.url}repos`}
             className='no-anchor-styles'
@@ -94,7 +98,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
       <List sx={{maxHeight: '300px', overflow: 'auto', p: 0}}>
         <ListItem
           disablePadding
-          sx={{ display: 'block', padding: 2 }}
+          sx={{ display: 'block', padding: 2, borderRadius: '100px' }}
           secondaryAction={
             <Button edge="end" aria-label="delete" variant='text' color='primary' sx={{textTransform: 'none'}}>
               <b>{t('common.create')}</b>
@@ -115,10 +119,12 @@ const LeftMenu = ({ isOpen, onClose }) => {
           orgs.map(org => (
             <ListItem disablePadding sx={{ display: 'block', maxWidth: '336px' }} key={org.url}>
               <ListItemButton
+                onClick={onClose}
                 sx={{
                   minHeight: 56,
                   justifyContent: 'initial',
                   px: 2,
+                  borderRadius: '100px'
                 }}
                 href={`#${org?.url}`}
                 className='no-anchor-styles'
@@ -143,7 +149,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
       <List sx={{maxHeight: '300px', overflow: 'auto', p: 0}}>
         <ListItem
           disablePadding
-          sx={{ display: 'block', padding: 2 }}
+          sx={{ display: 'block', padding: 2, borderRadius: '100px' }}
           secondaryAction={
             <span><b>{bookmarks?.length}</b></span>
           }>
@@ -161,10 +167,12 @@ const LeftMenu = ({ isOpen, onClose }) => {
           bookmarks.map(bookmark => (
             <ListItem disablePadding sx={{ display: 'block', maxWidth: '336px' }} key={bookmark.id}>
               <ListItemButton
+                onClick={onClose}
                 sx={{
                   minHeight: 56,
                   justifyContent: 'initial',
                   px: 2,
+                  borderRadius: '100px'
                 }}
                 href={`#${bookmark?.resource_uri}`}
                 className='no-anchor-styles'

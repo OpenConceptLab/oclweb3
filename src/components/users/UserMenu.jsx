@@ -61,7 +61,7 @@ const UserMenu = ({ isOpen, onClose }) => {
           {
             authenticated ?
               <List>
-                <ListItemButton sx={{p: 1}} component='a' className='no-anchor-styles' href={`#${user?.url}`} onClick={onClose} disabled={!user?.url} selected={location.pathname === user?.url}>
+                <ListItemButton sx={{p: 1, borderRadius: '100px'}} component='a' className='no-anchor-styles' href={`#${user?.url}`} onClick={onClose} disabled={!user?.url} selected={location.pathname === user?.url}>
                   <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
                     <ProfileIcon />
                   </ListItemIcon>
@@ -76,7 +76,7 @@ const UserMenu = ({ isOpen, onClose }) => {
         <Divider style={{width: '100%'}} />
         <div className='col-xs-12 padding-0'>
           <List>
-            <ListItemButton sx={{p: 1}} onClick={() => setLanguageOpen(!languageOpen)}>
+            <ListItemButton sx={{p: 1, borderRadius: '100px'}} onClick={() => setLanguageOpen(!languageOpen)}>
               <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
                 <LanguageIcon />
               </ListItemIcon>
@@ -87,7 +87,7 @@ const UserMenu = ({ isOpen, onClose }) => {
               <List component="div" disablePadding>
                 {
                   LANGUAGES.map(lang => (
-                    <ListItemButton  sx={{ pl: 5.75 }} selected={lang.locale === selectedLanguage.locale} key={lang.locale} onClick={() => onLanguageSelect(lang.locale)}>
+                    <ListItemButton  sx={{ pl: 5.75, borderRadius: '100px' }} selected={lang.locale === selectedLanguage.locale} key={lang.locale} onClick={() => onLanguageSelect(lang.locale)}>
                       <ListItemText primary={lang.locale.toUpperCase()} secondary={lang.name} />
                     </ListItemButton>
                   ))
@@ -99,19 +99,19 @@ const UserMenu = ({ isOpen, onClose }) => {
         <Divider style={{width: '100%'}} />
         <div className='col-xs-12 padding-0'>
           <List>
-            <ListItemButton sx={{p: 1}} component='a' className='no-anchor-styles' href='https://openconceptlab.org' target='_blank' rel='noopener noreferrer'>
+            <ListItemButton sx={{p: 1, borderRadius: '100px'}} component='a' className='no-anchor-styles' href='https://openconceptlab.org' target='_blank' rel='noopener noreferrer'>
               <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
                 <CommunityIcon />
               </ListItemIcon>
               <ListItemText primary={t('common.community_website')} />
             </ListItemButton>
-            <ListItemButton sx={{p: 1}} component='a' className='no-anchor-styles' href='https://docs.openconceptlab.org' target='_blank' rel='noopener noreferrer'>
+            <ListItemButton sx={{p: 1, borderRadius: '100px'}} component='a' className='no-anchor-styles' href='https://docs.openconceptlab.org' target='_blank' rel='noopener noreferrer'>
               <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
                 <HelpIcon />
               </ListItemIcon>
               <ListItemText primary={t('common.help_and_documentation')} />
             </ListItemButton>
-            <ListItemButton sx={{p: 1}} component='a' className='no-anchor-styles' href='https://chat.openconceptlab.org/' target='_blank' rel='noopener noreferrer'>
+            <ListItemButton sx={{p: 1, borderRadius: '100px'}} component='a' className='no-anchor-styles' href='https://chat.openconceptlab.org/' target='_blank' rel='noopener noreferrer'>
               <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
                 <ChatIcon />
               </ListItemIcon>
