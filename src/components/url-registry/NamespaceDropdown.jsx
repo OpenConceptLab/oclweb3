@@ -6,6 +6,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import GlobalIcon from '@mui/icons-material/Language';
+import filter from 'lodash/filter';
 import { getCurrentUser, getCurrentUserOrgs } from '../../common/utils';
 import { WHITE } from '../../common/constants'
 import UserIcon from '../users/UserIcon';
@@ -18,7 +19,7 @@ const OwnerOption = ({ option, selected, ...rest }) => {
       <ListItemIcon>
         {option.icon}
       </ListItemIcon>
-      <ListItemText primary={option.id} />
+      <ListItemText primary={option.id} secondary={option.name} />
     </ListItem>
   )
 }
@@ -43,8 +44,11 @@ const NamespaceDropdown = ({onChange, label, id, owner, backgroundColor}) => {
     prepareOwnerOptions()
   }, [])
 
+  const filterOptions = (options, { inputValue }) => inputValue ? filter(options, option => option.id.toLowerCase().includes(inputValue.toLowerCase()) || option.name.toLowerCase().includes(inputValue.toLowerCase())) : options;
+
   return (
     <Autocomplete
+      filterOptions={filterOptions}
       fullWidth
       disableClearable
       blurOnSelect
