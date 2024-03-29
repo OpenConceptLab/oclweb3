@@ -21,6 +21,7 @@ export const BG_GRAY = '#f6f2f7'
 export const LIGHT_GRAY = '#e5e1e6'
 export const VERY_LIGH_GRAY = '#5e5c71'
 export const NV_80 = '#c8c5d0'
+export const N_92 = '#ebe7ec'
 
 export const LANGUAGES = [
   {locale: 'en', name: 'English'},
@@ -105,3 +106,4 @@ export const DEFAULT_CASCADE_PARAMS = {
 }
 
 export const ALL = '*';
+export const URL_REGISTRY_DOC_LINK = 'https://docs.openconceptlab.org/en/latest/oclapi/apireference/urlregistry.html'

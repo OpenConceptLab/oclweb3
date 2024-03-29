@@ -20,6 +20,9 @@ div.rounded-input {
 .padding-0 {
     padding: 0 !important;
 }
+.link, .link:hover, .link:visited, .link:focus {
+    color: #4836ff;
+}
 .no-anchor-styles {
     color: inherit;
 }
@@ -50,6 +53,14 @@ div.split-appear {
         color: inherit;
         text-decoration: none
     }
+}
+
+.user-img-xsmall {
+    width: 30px;
+    height: 30px;
+    border: 1px solid lightgray;
+    border-radius: 50%;
+    object-fit: cover;
 }
 .user-img-small {
     width: 45px;

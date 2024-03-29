@@ -11,8 +11,7 @@ import Divider from '@mui/material/Divider';
 import LocationIcon from '@mui/icons-material/LocationOnOutlined';
 import EmailIcon from '@mui/icons-material/EmailOutlined';
 import LinkIcon from '@mui/icons-material/LinkOutlined';
-import { filter, reject, orderBy } from 'lodash'
-import { formatWebsiteLink, formatDate, canEditUser } from '../../common/utils'
+import { formatWebsiteLink, formatDate, canEditUser, getCurrentUserOrgs } from '../../common/utils'
 import UserIcon from './UserIcon';
 import OrgIcon from '../orgs/OrgIcon';
 
@@ -40,6 +39,7 @@ const UserProperty = ({icon, value, label}) => {
 const UserProfile = ({ user }) => {
   const { t } = useTranslation()
   const iconStyle = {fontSize: '24px', color: 'secondary.main'}
+  const userOrgs = getCurrentUserOrgs()
   return (
     <React.Fragment>
       <UserIcon user={user} color='primary' sx={{color: 'primary', fontSize: '100px'}} logoClassName='user-img-medium' />
@@ -62,13 +62,13 @@ const UserProfile = ({ user }) => {
       </List>
       <Divider sx={{marginTop: '8px'}} />
       {
-        user?.subscribed_orgs?.length > 0 &&
+        userOrgs.length > 0 &&
           <React.Fragment>
             <Typography component='h2' sx={{marginTop: '16px', fontWeight: 'bold'}}>
               {t('org.orgs')}
               <div className='col-xs-12 padding-0' style={{marginTop: '8px', maxHeight: '300px', overflow: 'auto'}}>
                 {
-                  [...orderBy(filter(user.subscribed_orgs, 'logo_url'), 'name'), ...orderBy(reject(user.subscribed_orgs, 'logo_url'), 'name')].map(org => (
+                  userOrgs.map(org => (
                     <span key={org.url} style={{margin: '4px', display: 'inline-block'}}>
                       <OrgIcon org={org} />
                     </span>

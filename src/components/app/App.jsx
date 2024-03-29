@@ -23,6 +23,7 @@ import UserHome from '../users/UserHome'
 import UserRepositories from '../users/UserRepositories'
 import UserEdit from '../users/UserEdit';
 import OrgHome from '../orgs/OrgHome';
+import URLRegistry from '../url-registry/URLRegistry'
 
 const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
   <Route
@@ -81,6 +82,7 @@ const App = props => {
               <Route exact path="/" component={Dashboard} />
               <Route path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion/:tab(${repoTabsStr})?`} component={RepoHome} />
               <Route path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:tab(${repoTabsStr})?`} component={RepoHome} />
+              <AuthenticationRequiredRoute path='/url-registry' component={URLRegistry} />
               <AuthenticationRequiredRoute path='/users/:user/repos' component={UserRepositories} />
               <SessionUserRoute path='/users/:user/edit' component={UserEdit} />
               <AuthenticationRequiredRoute path='/users/:user' component={UserHome} />

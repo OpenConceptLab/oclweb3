@@ -3,18 +3,18 @@ import PersonIcon from '@mui/icons-material/Face2';
 import StrangerIcon from '@mui/icons-material/Person';
 import { isLoggedIn } from '../../common/utils';
 
-const UserIcon = ({ user, color, logoClassName, sx }) => {
+const UserIcon = ({ user, color, logoClassName, sx, authenticated }) => {
   const iconStyle = {...(sx || {})}
   return (
     <React.Fragment>
       {
-        isLoggedIn() ?
+        (authenticated || isLoggedIn()) ?
           (
             user?.logo_url ?
               <img src={user.logo_url} className={logoClassName || 'user-img-small'} /> :
-            <PersonIcon color={color} fontSize='inherit' sx={iconStyle} />
+            <PersonIcon color={color} sx={iconStyle} />
           ) :
-          <StrangerIcon color={color} sx={iconStyle} fontSize='inherit' />
+          <StrangerIcon color={color} sx={iconStyle} />
       }
     </React.Fragment>
   )

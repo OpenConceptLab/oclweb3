@@ -12,8 +12,7 @@ import Button from '@mui/material/Button';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
 import Divider from '@mui/material/Divider';
-import { filter, reject, orderBy } from 'lodash'
-import { getCurrentUser } from '../../common/utils';
+import { getCurrentUser, getCurrentUserOrgs } from '../../common/utils';
 import Drawer from '../common/Drawer';
 import OrgIcon from '../orgs/OrgIcon';
 import { getIcon } from '../common/Bookmark'
@@ -31,8 +30,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
   const { t } = useTranslation()
   const location = useLocation()
   const user = getCurrentUser()
-  const subscribedOrgs = user?.subscribed_orgs || []
-  const orgs = [...orderBy(filter(subscribedOrgs, 'logo_url'), 'name'), ...orderBy(reject(subscribedOrgs, 'logo_url'), 'name')]
+  const orgs = getCurrentUserOrgs()
   const bookmarks = user?.pins || []
   return (
     <Drawer isOpen={isOpen} onClose={onClose} anchor='left' bgColor='default.main'>

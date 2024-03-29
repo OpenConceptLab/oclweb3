@@ -37,7 +37,9 @@
     "save": "Save",
     "manage": "Manage",
     "overview": "Overview",
-    "quick_links": "Quick links"
+    "quick_links": "Quick links",
+    "resolve": "Resolve",
+    "result": "Result"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -138,5 +140,16 @@
     "search_all_site": "Search all of OCL for ",
     "search_this_repository": "Search this repository",
     "search_all_concepts": "Search all concepts"
+  },
+  "url_registry": {
+    "url_registry": "Canonical URL registry",
+    "registry_owner": "Registry Owner",
+    "global_registry": "Global registry",
+    "test_canonical_url": "Test a Canonical URL",
+    "add_entry": "Add a URL",
+    "test_canonical_url_description": "See how a canonical URL will be resolved in a namespace (e.g. your user workspace or an organization you are a member of). Simulate how OCL evaluates references and mappings in your repositories. To <0>learn more</0> about how to use canonical URLs in OCL.",
+    "canonical_url": "Canonical URL",
+    "resolve_404": "{{url}} did not resolve to anything.",
+    "resolve_success": "{{url}} resolved to the <0/> in <1/>."
   }
 }
