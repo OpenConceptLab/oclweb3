@@ -39,7 +39,8 @@
     "overview": "Overview",
     "quick_links": "Quick links",
     "resolve": "Resolve",
-    "result": "Result"
+    "result": "Result",
+    "settings": "Settings"
   },
   "errors": {
     "404": "Sorry your page could not be found.",

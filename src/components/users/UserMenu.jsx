@@ -13,6 +13,7 @@ import LanguageIcon from '@mui/icons-material/Language';
 import HelpIcon from '@mui/icons-material/HelpCenterOutlined';
 import ChatIcon from '@mui/icons-material/ForumOutlined';
 import CommunityIcon from '@mui/icons-material/GroupsOutlined';
+import SettingsIcon from '@mui/icons-material/SettingsOutlined';
 import find from 'lodash/find';
 import { useLocation } from 'react-router-dom'
 import { getCurrentUser, logoutUser, isLoggedIn, getLoginURL } from '../../common/utils'
@@ -82,6 +83,12 @@ const UserMenu = ({ isOpen, onClose }) => {
               </ListItemIcon>
               <ListItemText primary={selectedLanguage.name} secondary={t('common.language')} />
               {languageOpen ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+            <ListItemButton component='a' className='no-anchor-styles' sx={{p: 1, borderRadius: '100px'}} href={`#${user?.url}settings`} onClick={onClose} disabled={!user?.url} selected={location.pathname === user?.url + 'settings'}>
+              <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('common.settings')} />
             </ListItemButton>
             <Collapse in={languageOpen} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>

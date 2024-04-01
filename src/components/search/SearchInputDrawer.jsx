@@ -57,7 +57,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
   const inputRef = React.createRef()
   const location = useLocation()
   const [, ownerType, owner, repoType, repo,] = location.pathname.split('/');
-  const isURLRegistry = location?.pathname === '/url-registry'
+  const isURLRegistry = location?.pathname?.endsWith('/url-registry') || location?.pathname?.endsWith('/settings')
   const isNested = Boolean(location.pathname !== '/search/' && location.pathname !== '/' && owner && ownerType) || isURLRegistry
   const [focus, setFocus] = React.useState(1);
   const lastIndex = isNested ? 2 : 1
