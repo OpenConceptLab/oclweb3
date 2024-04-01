@@ -1,12 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
 import Typography from '@mui/material/Typography'
-import TextField from '@mui/material/TextField';
 import Button from '../common/Button';
 import { WHITE } from '../../common/constants';
 import CanonicalResolve from './CanonicalResolve';
 import NamespaceDropdown from './NamespaceDropdown'
-
+import Search from '../search/Search';
 
 const URLRegistry = () => {
   const { t } = useTranslation()
@@ -39,11 +38,18 @@ const URLRegistry = () => {
           />
         </div>
         <div className='col-xs-9' style={{paddingLeft: '8px', paddingRight: 0}}>
-          <TextField fullWidth />
         </div>
       </div>
-      <div className='col-xs-12' style={{padding: '16px', backgroundColor: WHITE, borderRadius: '10px'}}>
-        Registry Entries
+      <div className='col-xs-12 padding-0' style={{backgroundColor: WHITE, borderRadius: '10px'}}>
+        <Search
+          resource='url_registry'
+          url={owner + 'url-registry/'}
+          nested
+          noTabs
+          containerStyle={{padding: 0}}
+          defaultFiltersOpen={false}
+          resultSize='medium'
+        />
       </div>
       <CanonicalResolve defaultOwner={owner} open={testDialog} onClose={() => setTestDialog(false)} />
     </div>

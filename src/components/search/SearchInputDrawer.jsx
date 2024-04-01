@@ -57,7 +57,8 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
   const inputRef = React.createRef()
   const location = useLocation()
   const [, ownerType, owner, repoType, repo,] = location.pathname.split('/');
-  const isNested = Boolean(location.pathname !== '/search/' && location.pathname !== '/' && owner && ownerType)
+  const isURLRegistry = location?.pathname === '/url-registry'
+  const isNested = Boolean(location.pathname !== '/search/' && location.pathname !== '/' && owner && ownerType) || isURLRegistry
   const [focus, setFocus] = React.useState(1);
   const lastIndex = isNested ? 2 : 1
   const inputPlaceholder = input || '...'
@@ -135,7 +136,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
         input &&
           <React.Fragment>
             {
-              isNested && repoType && repo &&
+              isNested && repoType && repo && !isURLRegistry &&
                 <Option
                   nested
                   index={1}
@@ -147,11 +148,23 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
                 />
             }
             {
-              isNested && !repo &&
+              isNested && !repo && !isURLRegistry &&
                 <Option
                   nested
                   index={1}
                   placeholder={<span>{t('common.search')} <b>{owner}</b> {repoType} {t('common.for')} <b>{inputPlaceholder}</b></span>}
+                  icon
+                  selected={focus == 1}
+                  onClick={onClickOption}
+                  onKeyDown={event => onItemKeyDown(event, 1)}
+                />
+            }
+            {
+              isURLRegistry &&
+                <Option
+                  nested
+                  index={1}
+                  placeholder={<span>{t('search.search_this_url_registry')}<b>{inputPlaceholder}</b></span>}
                   icon
                   selected={focus == 1}
                   onClick={onClickOption}

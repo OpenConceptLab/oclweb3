@@ -26,11 +26,7 @@ const CanonicalResolve = ({open, onClose, defaultOwner}) => {
     setIsResolving(true)
     APIService.new().overrideURL(owner).appendToUrl('url-registry/$lookup/').post({url: canonicalURL}).then(response => {
       setIsResolving(false)
-      if(response.status_code == 404 || response?.detail) {
-        setResult({status: 404, detail: response?.detail})
-      } else {
-        setResult({status: 200, ...response.data})
-      }
+      setResult({status: response.status, ...(response.data || {})})
     })
   }
 
@@ -83,7 +79,7 @@ const CanonicalResolve = ({open, onClose, defaultOwner}) => {
               </div>
               <div className='col-xs-12 padding-0' style={{marginTop: '4px'}}>
                 {
-                  result?.status === 404 &&
+                  [204, 404].includes(result?.status) &&
                     <Typography component="div" sx={{padding: 0, margin: 0, color: 'secondary.main', fontSize: '14px'}}>
                       <Trans
                         i18nKey='url_registry.resolve_404'

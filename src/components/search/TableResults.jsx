@@ -10,7 +10,7 @@ import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { visuallyHidden } from '@mui/utils';
-import { filter, reject } from 'lodash'
+import { filter, reject, get } from 'lodash'
 import { SECONDARY, WHITE } from '../../common/constants';
 import { ALL_COLUMNS } from './ResultConstants';
 
@@ -64,7 +64,7 @@ const EnhancedTableHead = props => {
 const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns}) => {
   const rows = results?.results || []
   const getValue = (row, column) => {
-    let val = row[column.value]
+    let val = get(row, column.value)
     if(column.formatter)
       return column.formatter(val)
     if(column.renderer)

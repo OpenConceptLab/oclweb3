@@ -47,6 +47,12 @@ export const ALL_COLUMNS = {
     {id: 'website', labelKey: 'user.website', value: 'website', sortable: false, formatter: formatWebsiteLink},
     {id: 'date_joined', labelKey: 'user.joined_on', value: 'date_joined', formatter: formatDate, sortOn: 'date_joined'},
   ],
+  url_registry: [
+    {id: 'url', labelKey: 'url_registry.canonical_url', value: 'url', className: 'searchable'},
+    {id: 'target_owner', labelKey: 'url_registry.target_owner', value: 'repo.owner_url', className: 'searchable'},
+    {id: 'repo_id', labelKey: 'repo.repo_id', value: 'repo.id', className: 'searchable'},
+    {id: 'repo_type', labelKey: 'repo.repo_type', value: 'repo.type', className: 'searchable'},
+  ]
 };
 
 

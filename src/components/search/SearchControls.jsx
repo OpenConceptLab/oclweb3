@@ -16,9 +16,12 @@ const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, on
 
   return (
     <div className='col-xs-12 padding-0' style={{float: 'right', textAlign: 'right'}}>
-      <Button disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none'}} endIcon={<DownIcon fontSize='inherit' />} onClick={onSortClick}>
-        {t('search.sort_by')}
-      </Button>
+      {
+      sortableFields?.length > 0 &&
+          <Button disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none'}} endIcon={<DownIcon fontSize='inherit' />} onClick={onSortClick}>
+            {t('search.sort_by')}
+          </Button>
+      }
       <Button id="display-menu" disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none', marginLeft: '8px'}} endIcon={<DownIcon fontSize='inherit' />} onClick={onDisplayClick}>
         {t('search.display')}
       </Button>
