@@ -148,13 +148,17 @@
   "url_registry": {
     "url_registry": "Canonical URL registry",
     "registry_owner": "Registry Owner",
+    "global": "Global",
     "global_registry": "Global registry",
     "test_canonical_url": "Test a Canonical URL",
-    "add_entry": "Add a URL",
+    "add_entry": "Add Canonical URL",
     "test_canonical_url_description": "See how a canonical URL will be resolved in a namespace (e.g. your user workspace or an organization you are a member of). Simulate how OCL evaluates references and mappings in your repositories. To <0>learn more</0> about how to use canonical URLs in OCL.",
     "canonical_url": "Canonical URL",
-    "resolve_404": "{{url}} did not resolve to anything.",
-    "resolve_success": "{{url}} resolved to the <0/> in <1/>.",
+    "resolve_success_with_entry": "{{url}} resolved to <0/> in <1/> using an entry in the <2/> Registry",
+    "resolve_success_without_entry": "{{url}} resolved to <0/> in <1/> by matching a repository in the <2/>",
+    "resolve_failed_with_entry": "{{url}} matched an entry in the <0/> Registry but did not resolve to a repository",
+    "resolve_failed_without_entry": "{{url}} did not match an entry in the Global Registry or the <0/> Registry and did not resolve to a repository",
+    "resolve_failed_without_entry_global": "{{url}} did not match an entry in the Global Registry",
     "target_owner": "Target Owner"
   }
 }

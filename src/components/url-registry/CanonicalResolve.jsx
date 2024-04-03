@@ -1,15 +1,14 @@
 import React from 'react';
 import { Trans, useTranslation } from 'react-i18next'
 import { DialogContent, Typography, TextField } from '@mui/material'
+import get from 'lodash/get'
 import { URL_REGISTRY_DOC_LINK } from '../../common/constants'
 import APIService from '../../services/APIService';
 import Button from '../common/Button';
 import Dialog from '../common/Dialog'
 import DialogTitle from '../common/DialogTitle'
 import NamespaceDropdown from './NamespaceDropdown'
-import HeaderChip from '../common/HeaderChip';
-import RepoIcon from '../repos/RepoIcon';
-import OwnerIcon from '../common/OwnerIcon';
+import CanonicalResolveResult from './CanonicalResolveResult';
 
 const CanonicalResolve = ({open, onClose, defaultOwner}) => {
   const { t } = useTranslation()
@@ -24,9 +23,9 @@ const CanonicalResolve = ({open, onClose, defaultOwner}) => {
   const onResolve = () => {
     setResult(false)
     setIsResolving(true)
-    APIService.new().overrideURL(owner).appendToUrl('url-registry/$lookup/').post({url: canonicalURL}).then(response => {
+    APIService.new().overrideURL('/$resolveReference/').post({url: canonicalURL, namespace: owner, version: 'HEAD'}).then(response => {
       setIsResolving(false)
-      setResult({status: response.status, ...(response.data || {})})
+      setResult({status: response.status, ...(get(response, 'data[0]') || {})})
     })
   }
 
@@ -71,40 +70,7 @@ const CanonicalResolve = ({open, onClose, defaultOwner}) => {
         </div>
         {
           result?.status &&
-            <div className='col-xs-12' style={{margin: '16px 0', padding: '16px', border: '1px solid #787680', borderRadius: '15px'}}>
-              <div className='col-xs-12 padding-0'>
-                <Typography sx={{padding: 0, margin: 0, fontWeight: 'bold', color: 'surface.contrastText', fontSize: '16px'}}>
-                  {t('common.result')}
-                </Typography>
-              </div>
-              <div className='col-xs-12 padding-0' style={{marginTop: '4px'}}>
-                {
-                  [204, 404].includes(result?.status) &&
-                    <Typography component="div" sx={{padding: 0, margin: 0, color: 'secondary.main', fontSize: '14px'}}>
-                      <Trans
-                        i18nKey='url_registry.resolve_404'
-                        values={{url: `"${canonicalURL}"`}}
-                        shouldUnescape
-                      />
-                    </Typography>
-                }
-                {
-                  result?.id &&
-                    <Typography component="div" sx={{padding: 0, margin: 0, color: 'secondary.main', fontSize: '14px'}}>
-                      <Trans
-                        i18nKey='url_registry.resolve_success'
-                        values={{url: `"${canonicalURL}"`}}
-                        components={[
-                          <HeaderChip key={result.id} className='no-anchor-styles' component="a" label={result.id} icon={<RepoIcon sx={{color: 'surface.contrastText'}} />} size='small' sx={{margin: '0 4px'}} href={'#' + result.url} />,
-                          <HeaderChip key={result.owner} className='no-anchor-styles' component="a" label={result.owner} icon={<OwnerIcon ownerType={result.ownerType} sx={{color: 'surface.contrastText'}} />} size='small' sx={{margin: '0 4px'}} href={'#' + result.owner_url} />,
-                        ]}
-                        shouldUnescape
-                      />
-                    </Typography>
-                }
-              </div>
-
-            </div>
+            <CanonicalResolveResult result={result} />
         }
       </DialogContent>
     </Dialog>
