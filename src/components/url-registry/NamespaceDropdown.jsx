@@ -5,6 +5,7 @@ import TextField from '@mui/material/TextField';
 import ListItem from '@mui/material/ListItem'
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import InputAdornment from '@mui/material/InputAdornment';
 import GlobalIcon from '@mui/icons-material/Language';
 import filter from 'lodash/filter';
 import { getCurrentUser, getCurrentUserOrgs } from '../../common/utils';
@@ -45,6 +46,7 @@ const NamespaceDropdown = ({onChange, label, id, owner, backgroundColor}) => {
   }, [])
 
   const filterOptions = (options, { inputValue }) => inputValue ? filter(options, option => option.id.toLowerCase().includes(inputValue.toLowerCase()) || option.name.toLowerCase().includes(inputValue.toLowerCase())) : options;
+  const selectedOption = ownerOptions.find(value => value?.url === owner) || ''
 
   return (
     <Autocomplete
@@ -54,12 +56,28 @@ const NamespaceDropdown = ({onChange, label, id, owner, backgroundColor}) => {
       blurOnSelect
       id={id}
       options={ownerOptions}
-      value={ownerOptions.find(value => value?.url === owner) || ''}
+      value={selectedOption}
       groupBy={option => option.group}
       getOptionLabel={option => option.id || ''}
       renderOption={(props, option, { selected }) => <OwnerOption key={option.id} option={option} {...props} selected={selected} />}
-      renderInput={params => <TextField {...params} label={label} sx={{backgroundColor: backgroundColor || WHITE}} />}
       onChange={onChange}
+      renderInput={
+        params => (
+          <TextField
+            {...params}
+            label={label}
+            sx={{backgroundColor: backgroundColor || WHITE}}
+            InputProps={ selectedOption?.icon ? {
+              ...params.InputProps,
+              startAdornment: (
+                <InputAdornment position="start">
+                  {selectedOption.icon}
+                </InputAdornment>
+              )
+            } : params.InputProps}
+          />
+        )
+      }
     />
   )
 }

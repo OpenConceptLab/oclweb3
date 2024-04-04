@@ -157,7 +157,7 @@
     "resolve_success_with_entry": "{{url}} resolved to <0/> in <1/> using an entry in the <2/> Registry",
     "resolve_success_without_entry": "{{url}} resolved to <0/> in <1/> by matching a repository in the <2/>",
     "resolve_failed_with_entry": "{{url}} matched an entry in the <0/> Registry but did not resolve to a repository",
-    "resolve_failed_without_entry": "{{url}} did not match an entry in the Global Registry or the <0/> Registry and did not resolve to a repository",
+    "resolve_failed_without_entry": "{{url}} did not match an entry in the <0/> Registry or the Global Registry and did not resolve to a repository",
     "resolve_failed_without_entry_global": "{{url}} did not match an entry in the Global Registry",
     "target_owner": "Target Owner"
   }
