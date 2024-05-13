@@ -4,8 +4,8 @@ import { useHistory } from 'react-router-dom';
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
+import TextField from '@mui/material/TextField'
 import APIService from '../../services/APIService'
-import CommonTextField from '../common/CommonTextField';
 import { OperationsContext } from '../app/LayoutContext';
 import { refreshCurrentUserCache, getCurrentUser } from '../../common/utils'
 
@@ -64,17 +64,19 @@ const UserForm = ({ user }) => {
             {t('user.name_and_description')}
           </Typography>
           <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center'}}>
-            <CommonTextField
+            <TextField
               required
-              variant='standard'
+              size='small'
+              variant='outlined'
               label={t('user.first_name')}
               value={firstName}
               onChange={event => setFirstName(event.target.value || '')}
               sx={{width: '30%', maxWidth: '210px'}}
             />
-            <CommonTextField
+            <TextField
               required
-              variant='standard'
+              size='small'
+              variant='outlined'
               label={t('user.last_name')}
               value={lastName}
               onChange={event => setLastName(event.target.value || '')}
@@ -85,10 +87,11 @@ const UserForm = ({ user }) => {
             </Typography>
           </div>
           <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center'}}>
-            <CommonTextField
+            <TextField
+              size='small'
               required
               disabled
-              variant='standard'
+              variant='outlined'
               label={t('user.email_address')}
               value={email}
               onChange={event => setEmail(event.target.value || '')}
@@ -96,15 +99,17 @@ const UserForm = ({ user }) => {
             />
           </div>
           <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center'}}>
-            <CommonTextField
-              variant='standard'
+            <TextField
+              size='small'
+              variant='outlined'
               label={t('user.company')}
               value={company}
               onChange={event => setCompany(event.target.value || '')}
               sx={{width: '30%', maxWidth: '210px'}}
             />
-            <CommonTextField
-              variant='standard'
+            <TextField
+              size='small'
+              variant='outlined'
               label={t('user.location')}
               value={location}
               onChange={event => setLocation(event.target.value || '')}
@@ -112,8 +117,9 @@ const UserForm = ({ user }) => {
             />
           </div>
           <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center'}}>
-            <CommonTextField
-              variant='standard'
+            <TextField
+              size='small'
+              variant='outlined'
               label={t('user.website')}
               value={website}
               onChange={event => setWebsite(event.target.value || '')}
