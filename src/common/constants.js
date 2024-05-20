@@ -22,6 +22,7 @@ export const LIGHT_GRAY = '#e5e1e6'
 export const VERY_LIGH_GRAY = '#5e5c71'
 export const NV_80 = '#c8c5d0'
 export const N_92 = '#ebe7ec'
+export const S_90 = '#e3e0f9'
 
 export const LANGUAGES = [
   {locale: 'en', name: 'English'},

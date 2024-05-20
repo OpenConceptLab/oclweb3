@@ -16,9 +16,28 @@ import DotSeparator from '../common/DotSeparator';
 import OwnerIcon from '../common/OwnerIcon';
 import { PRIMARY } from '../../common/constants';
 import { formatDate } from '../../common/utils';
+import RepoManagementList from './RepoManagementList';
 
-const RepoHeader = ({repo, versions, onVersionChange}) => {
+const RepoHeader = ({repo, versions, onVersionChange, onCreateConceptClick}) => {
   const { t } = useTranslation()
+  const [menu, setMenu] = React.useState(false)
+  const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
+  const onMenuOpen = event => {
+    setMenuAnchorEl(event.currentTarget)
+    setMenu(true)
+  }
+  const onMenuClose = () => {
+    setMenuAnchorEl(false)
+    setMenu(false)
+  }
+
+  const onManageOptionClick = option => {
+    onMenuClose()
+    if(option === 'addConcept') {
+      onCreateConceptClick()
+    }
+  }
+
   return (
     <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderRadius: '8px 8px 0 0'}}>
       <div className='col-xs-6 padding-0'>
@@ -35,9 +54,10 @@ const RepoHeader = ({repo, versions, onVersionChange}) => {
         <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
           <ShareIcon fontSize='inherit' />
         </IconButton>
-        <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}}>
+        <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='repo-manage'>
           {t('repo.manage')}
         </Button>
+        <RepoManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-manage' onClick={onManageOptionClick} />
       </div>
       <div className='col-xs-12 padding-0' style={{margin: '4px 0 8px 0'}}>
         <Typography sx={{fontSize: '28px', color: 'surface.dark', fontWeight: 600}}>{repo.name}</Typography>

@@ -81,8 +81,10 @@ const App = props => {
               <Route exact path="/oidc/login" component={OIDLoginCallback} />
               <Route exact path="/search" component={Search} />
               <Route exact path="/" component={Dashboard} />
-              <Route path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion/:tab(${repoTabsStr})?`} component={RepoHome} />
-              <Route path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:tab(${repoTabsStr})?`} component={RepoHome} />
+              <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo`} component={RepoHome} />
+              <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion`} component={RepoHome} />
+              <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:tab(${repoTabsStr})/:resource?`} component={RepoHome} />
+              <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion/:tab(${repoTabsStr})/:resource?`} component={RepoHome} />
               <AuthenticationRequiredRoute exact path='/url-registry' component={URLRegistry} />
               <AuthenticationRequiredRoute exact path='/users/:user/repos' component={UserRepositories} />
               <SessionUserRoute exact path='/users/:user/edit' component={UserEdit} />

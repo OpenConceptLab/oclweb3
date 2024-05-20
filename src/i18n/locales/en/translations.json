@@ -40,7 +40,10 @@
     "quick_links": "Quick links",
     "resolve": "Resolve",
     "result": "Result",
-    "settings": "Settings"
+    "settings": "Settings",
+    "add": "Add",
+    "cancel": "Cancel",
+    "custom_attributes": "Custom Attributes"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -68,6 +71,11 @@
     "sign_in_success": "Successfully signed in.",
     "sign_in_error": "Unable to signin at the time."
   },
+  "custom_attributes": {
+    "label": "Custom attributes",
+    "key": "Attribute name",
+    "value": "Attribute value"
+  },
   "concept": {
     "concepts": "Concepts",
     "display_name": "Display Name",
@@ -77,7 +85,28 @@
     "name_and_synonyms": "Name and synonyms",
     "descriptions": "Descriptions",
     "copied_name": "Concept name URL copied to clipboard",
-    "copied_description": "Concept description URL copied to clipboard"
+    "copied_description": "Concept description URL copied to clipboard",
+    "form": {
+      "id": "Concept ID",
+      "external_id": "External ID",
+      "concept_class": "Concept Class",
+      "datatype": "Data type",
+      "locale": "Locale",
+      "name": "Name",
+      "description": "Description",
+      "type": "Type",
+      "locale_preferred": "Preferred",
+      "concept_details": {
+        "header": "Concept details"
+      },
+      "names": {
+        "header": "Name and synonyms"
+      },
+      "descriptions": {
+        "header": "Descriptions"
+      }
+    },
+    "edit_concept": "Edit Concept"
   },
   "mapping": {
     "mappings": "Mappings",
@@ -90,7 +119,8 @@
     "repo": "Repository",
     "repo_type": "Repository Type",
     "manage": "Manage Repository",
-    "repo_id": "Repository ID"
+    "repo_id": "Repository ID",
+    "add_concept": "Add Concept"
   },
   "org": {
     "my": "My organizations",

@@ -10,6 +10,7 @@ import Search from '../search/Search';
 import { dropVersion, toParentURI } from '../../common/utils';
 import { WHITE } from '../../common/constants';
 import ConceptHome from '../concepts/ConceptHome';
+import ConceptForm from '../concepts/ConceptForm';
 import Error404 from '../errors/Error404';
 
 const RepoHome = () => {
@@ -17,6 +18,7 @@ const RepoHome = () => {
   const location = useLocation()
   const history = useHistory()
   const params = useParams()
+  const isConceptURL = params?.resource && params?.tab === 'concepts'
 
   const TABS = [
     {key: 'concepts', label: t('concept.concepts')},
@@ -32,11 +34,12 @@ const RepoHome = () => {
   const [tab, setTab] = React.useState(findTab)
   const [status, setStatus] = React.useState(false)
   const [repo, setRepo] = React.useState(false)
+  const [repoSummary, setRepoSummary] = React.useState(false)
   const [versions, setVersions] = React.useState(false)
   const [loading, setLoading] = React.useState(true)
   const [showItem, setShowItem] = React.useState(false)
+  const [conceptForm, setConceptForm] = React.useState(false)
 
-  const bgColor = showItem ? 'surface.light' : 'info.contrastText'
   const getURL = () => ((toParentURI(location.pathname) + '/').replace('//', '/') + versionFromURL + '/').replace('//', '/')
   const fetchRepo = () => {
     setLoading(true)
@@ -45,9 +48,17 @@ const RepoHome = () => {
       setLoading(false)
       const _repo = response?.data || response?.response?.data || {}
       setRepo(_repo)
+      fetchRepoSummary()
+      if(isConceptURL)
+        setShowItem(true)
     })
   }
 
+  const fetchRepoSummary = () => {
+    APIService.new().overrideURL(getURL()).appendToUrl('summary/').get(null, null, {verbose: true}, true).then(response => {
+      setRepoSummary(response?.data || response?.response?.data)
+    })
+  }
   const fetchVersions = () => {
     APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get().then(response => {
       setVersions(response?.data || [])
@@ -71,14 +82,29 @@ const RepoHome = () => {
     }
   }
 
+  const onShowItem = item => {
+    setConceptForm(false)
+    setShowItem(item)
+  }
+
+  const onCreateConceptClick = () => {
+    setShowItem(false)
+    setConceptForm(true)
+  }
+
+  const getConceptURLFromMainURL = () => isConceptURL ? getURL() + 'concepts/' + params.resource + '/' : false
+  const showConceptURL = showItem ? showItem?.version_url || showItem?.url || getConceptURLFromMainURL() : false
+  const isSplitView = showConceptURL || conceptForm
+  const bgColor = isSplitView ? 'surface.light' : 'info.contrastText'
+
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '8px'}}>
       <LoaderDialog open={loading} />
-      <Paper component="div" className={showItem?.id ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: bgColor, borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.n90'}}>
+      <Paper component="div" className={isSplitView ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: bgColor, borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.n90'}}>
         {
           (repo?.id || loading) &&
             <React.Fragment>
-              <RepoHeader repo={repo} versions={versions} onVersionChange={onVersionChange} />
+              <RepoHeader repo={repo} versions={versions} onVersionChange={onVersionChange} onCreateConceptClick={onCreateConceptClick} onCloseConceptForm={() => setConceptForm(false)} />
               <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
               {
                 repo?.id && ['concepts', 'mappings'].includes(tab) &&
@@ -88,7 +114,7 @@ const RepoHome = () => {
                     defaultFiltersOpen={false}
                     nested
                     noTabs
-                    onShowItem={setShowItem}
+                    onShowItem={onShowItem}
                     showItem={showItem}
                     filtersHeight='calc(100vh - 300px)'
                     resultContainerStyle={{height: 'calc(100vh - 400px)', overflow: 'auto'}}
@@ -101,10 +127,14 @@ const RepoHome = () => {
             <Error404 />
         }
       </Paper>
-      <div className={'col-xs-5 padding-0' + (showItem ? ' split-appear' : '')} style={{marginLeft: '16px', width: showItem ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: showItem ? 'calc(100vh - 100px)' : 0, opacity: showItem ? 1 : 0}}>
+      <div className={'col-xs-5 padding-0' + (isSplitView ? ' split-appear' : '')} style={{marginLeft: '16px', width: isSplitView ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: isSplitView ? 'calc(100vh - 100px)' : 0, opacity: isSplitView ? 1 : 0}}>
         {
-          showItem &&
-            <ConceptHome url={showItem?.version_url || showItem?.url} onClose={() => setShowItem(false)} />
+          showConceptURL && !conceptForm &&
+            <ConceptHome repoSummary={repoSummary} source={repo} repo={repo} url={showConceptURL} onClose={() => setShowItem(false)} />
+        }
+        {
+          conceptForm &&
+            <ConceptForm repoSummary={repoSummary} source={repo} repo={repo} onClose={() => setConceptForm(false)} />
         }
       </div>
     </div>
