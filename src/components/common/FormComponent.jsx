@@ -1,7 +1,7 @@
 import React from 'react';
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
-import { set, forEach } from 'lodash'
+import { set, forEach, get } from 'lodash'
 import {
   required,
 } from '../../common/validators';
@@ -36,7 +36,7 @@ class FormComponent extends React.Component {
 
   setFieldValue = (key, value) => {
     this.setState(
-      state => set(state, `fields.${key}.value`, value)
+      state => set(state, `fields.${key}.value`, value), () => this.setFieldErrors(key)
     );
   }
 
@@ -48,8 +48,8 @@ class FormComponent extends React.Component {
 
   getFieldErrors = key => {
     const errors = [];
-    const value = this.state.fields[key].value;
-    const validators = this.state.fields[key].validators || [];
+    const value = get(this.state.fields, `${key}.value`);
+    const validators = get(this.state.fields, `${key}.validators`) || [];
 
     validators.forEach((validator) => {
       if (validator.isInvalid(value)) {
@@ -61,23 +61,18 @@ class FormComponent extends React.Component {
   }
 
   setFieldErrors = key => {
-    this.setState(state => ({
-      ...state,
-      fields: {
-        ...state.fields,
-        [key]: {
-          ...state.fields[key],
-          errors: this.getFieldErrors(key)
-        }
-      }
-    }));
+    const newState = {...this.state}
+    set(newState.fields, `${key}.errors`, this.getFieldErrors(key))
+    this.setState(newState)
   }
 
   setAllFieldsErrors = () => {
     const newState = { ...this.state };
 
     forEach(newState.fields, (value, key) => {
-      newState.fields[key].errors = this.getFieldErrors(key);
+      if(get(newState.fields, `${key}.errors`)) {
+        set(newState.fields, `${key}.errors`, this.getFieldErrors(key))
+      }
     });
     this.setState(newState);
   }

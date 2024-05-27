@@ -7,7 +7,7 @@ import GroupHeader from './GroupHeader';
 import GroupItems from './GroupItems';
 import { generateRandomString } from '../../common/utils'
 
-const AutocompleteGroupByRepoSummary = ({id, options, label, value, onChange, edit, required, freeSolo}) => {
+const AutocompleteGroupByRepoSummary = ({id, options, label, value, onChange, edit, required, freeSolo, helperText, error}) => {
   const selected = find(options, {id: value}) || (freeSolo ? {id: value, name: value, resultType: 'Suggested'} : '')
   const isLoaded = options?.length && (!edit || !required || value)
   return isLoaded ?
@@ -38,6 +38,8 @@ const AutocompleteGroupByRepoSummary = ({id, options, label, value, onChange, ed
                     variant="outlined"
                     size='small'
                     fullWidth
+                    helperText={helperText}
+                    error={error}
                   />
       }
       onChange={(event, value) => onChange(id, value?.id || '')}

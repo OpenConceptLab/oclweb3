@@ -183,6 +183,12 @@ class ConceptForm extends FormComponent  {
 
   onChange = (id, value) => this.setFieldValue(id, value)
 
+  handleSubmit = event => {
+    event.preventDefault()
+    event.stopPropagation()
+    this.setAllFieldsErrors()
+  }
+
 
   render() {
     const { t, edit, repoSummary, repo, concept, onClose } = this.props
@@ -219,6 +225,8 @@ class ConceptForm extends FormComponent  {
               onChange={event => this.setFieldValue('id', event.target.value || '')}
               value={fields.id.value}
               disabled={edit}
+              error={Boolean(fields.id.errors.length)}
+              helperText={fields.id.errors[0]}
             />
           </div>
           <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
@@ -232,6 +240,8 @@ class ConceptForm extends FormComponent  {
                 value={fields.concept_class.value}
                 edit={edit}
                 required
+                error={Boolean(fields.concept_class.errors.length)}
+                helperText={fields.concept_class.errors[0]}
               />
             </div>
             <div className='col-xs-6' style={{padding: '0 0 0 8px'}}>
@@ -244,6 +254,8 @@ class ConceptForm extends FormComponent  {
                 value={fields.datatype.value}
                 edit={edit}
                 required
+                error={Boolean(fields.datatype.errors.length)}
+                helperText={fields.datatype.errors[0]}
               />
             </div>
           </div>
@@ -342,6 +354,10 @@ class ConceptForm extends FormComponent  {
             <Button label={t('common.add')} sx={{backgroundColor: S_90}} onClick={this.onAddExtras} />
           </div>
         </CardSection>
+
+        <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
+          <Button label={t('common.submit')} sx={{backgroundColor: S_90}} onClick={this.handleSubmit} />
+        </div>
       </div>
     )
   }
