@@ -16,12 +16,14 @@ import ConceptHome from '../concepts/ConceptHome';
 import SearchResults from './SearchResults';
 import SearchFilters from './SearchFilters'
 import LoaderDialog from '../common/LoaderDialog';
+import { OperationsContext } from '../app/LayoutContext';
 
 const DEFAULT_LIMIT = 25;
 const FILTERS_WIDTH = 250
 const FILTERABLE_RESOURCES = ['concepts', 'mappings', 'repos', 'sources', 'collections']
 
 const Search = props => {
+  const { setAlert } = React.useContext(OperationsContext);
   const { t } = useTranslation()
   const history = useHistory();
   const location = useLocation();
@@ -219,6 +221,11 @@ const Search = props => {
     setLoading(true)
     setResult({[__resource]: {...result[__resource], results: []}})
     APIService.new().overrideURL(getURL(__resource)).get(null, null, params).then(response => {
+      if(response?.detail) {
+        setAlert({message: response.detail, severity: 'error', duration: 5000})
+        setLoading(false)
+        return
+      }
       const resourceResult = {total: parseInt(response?.headers?.num_found), pageSize: max([parseInt(response?.headers?.num_returned), params?.limit]), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || [], facets: result[__resource]?.facets || {}}
       setResult({[__resource]: resourceResult})
       setLoading(false)
