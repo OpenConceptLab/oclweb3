@@ -54,13 +54,19 @@ const SearchInput = props => {
     setInput('')
   }
 
+  const applyURLRules = URL => {
+    if(URL.startsWith('/orgs/') && !URL.includes('/sources/') && !URL.includes('/collections/') && !URL.includes('/repos/'))
+      URL += 'repos/'
+    return URL
+  }
+
   const moveToSearchPage = (value, global) => {
     if(!props.nested || global) {
       let _input = value || '';
       const queryParams = new URLSearchParams(location.search)
       const resourceType = queryParams.get('type') || 'concepts'
       const isGlobal = (location.pathname === '/' || global)
-      let URL = isGlobal ? '/search/' : location.pathname
+      let URL = applyURLRules(isGlobal ? '/search/' : location.pathname)
       if(_input) {
         queryParams.set('q', _input)
         if(isGlobal)
