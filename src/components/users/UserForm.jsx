@@ -54,7 +54,7 @@ const UserForm = ({ user }) => {
   }
 
   return (
-    <div className='col-xs-12' style={{padding: '16px', display: 'flex', justifyContent: 'center'}}>
+    <div className='col-xs-12' style={{display: 'flex', justifyContent: 'center'}}>
       <form id='user-form' style={{width: '85%'}}>
         <div className='col-xs-12' style={{padding: '24px', borderRadius: '10px', border: '1px solid rgba(0, 0, 0, 0.12)', backgroundColor: '#FFF'}}>
           <Typography component='h3' sx={{fontSize: '16px', fontWeight: 'bold', lineHeight: 1.5, letterSpacing: '0.15px'}}>
