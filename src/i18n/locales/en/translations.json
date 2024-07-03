@@ -69,7 +69,8 @@
     "register": "Register",
     "signing_in": "Signing in...",
     "sign_in_success": "Successfully signed in.",
-    "sign_in_error": "Unable to signin at the time."
+    "sign_in_error": "Unable to signin at the time.",
+    "update_password": "Update password"
   },
   "custom_attributes": {
     "label": "Custom attributes",
@@ -138,14 +139,16 @@
     "my_organizations": "My organizations",
     "my_bookmarks": "My bookmarks",
     "username": "Username",
+    "password": "Password",
     "joined_on": "Joined On",
     "email": "Email",
-    "company": "Company",
+    "company_name": "Company Name",
     "location": "Location",
     "website": "Website",
     "last_login": "Last Login",
     "edit_my_profile": "Edit my profile",
     "name_and_description": "Name and description",
+    "login_and_security": "Login and security",
     "first_name": "First Name",
     "last_name": "Last Name",
     "company": "Company",
@@ -153,7 +156,9 @@
     "location": "Location",
     "website": "Website",
     "profile_update_success": "Profile updated successfully",
-    "profile_update_failure": "An error occurred while updating profile."
+    "profile_update_failure": "An error occurred while updating profile.",
+    "copy_api_token": "Copy API token",
+    "copy_token_success": "Copied token to your clipboard"
   },
   "search": {
     "filters": "Filters",

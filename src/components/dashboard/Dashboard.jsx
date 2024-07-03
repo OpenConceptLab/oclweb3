@@ -1,43 +1,11 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import Carousel from 'react-material-ui-carousel'
-import { Chip, Button } from '@mui/material'
+import { Chip } from '@mui/material'
 import {  WHITE } from '../../common/constants'
 import { getCurrentUser, isLoggedIn, getLoginURL, getRegisterURL } from '../../common/utils';
 import AddButton from '../common/AddButton';
-
-const LinkTo = (
-  { label, href }
-) => <Button
-       size='small'
-       component="a"
-       variant="text"
-       href={href}
-       sx={{
-         color: 'primary',
-         fontSize: '22px',
-         textTransform: 'none',
-         paddingLeft: 0,
-         paddingRight: 0,
-         backgroundColor: 'none',
-         '&:hover': {
-           color: 'primary.main',
-           backgroundColor: 'inherit',
-           textTransform: 'none',
-           textDecoration: 'none',
-           outline: 'none',
-         },
-         '&:focus': {
-           color: 'primary.main',
-           backgroundColor: 'inherit',
-           textTransform: 'none',
-           textDecoration: 'none',
-           outline: 'none',
-         }
-       }}
-     >
-       {label}
-     </Button>
+import Link from '../common/Link';
 
 const Item = props => {
   const { t } = useTranslation()
@@ -78,7 +46,7 @@ const Dashboard = () => {
                 </span>
               </span>:
             <span>
-              {t('dashboard.welcome_line')} <LinkTo label={t('auth.sign_in')} href={getLoginURL()} /> {t('common.or')} <LinkTo label={t('auth.register')} href={getRegisterURL()} />
+              {t('dashboard.welcome_line')} <Link label={t('auth.sign_in')} href={getLoginURL()} /> {t('common.or')} <Link label={t('auth.register')} href={getRegisterURL()} />
             </span>
           }
         </div>

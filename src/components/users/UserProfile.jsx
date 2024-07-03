@@ -1,19 +1,21 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import EditIcon from '@mui/icons-material/Edit';
 import Divider from '@mui/material/Divider';
 import LocationIcon from '@mui/icons-material/LocationOnOutlined';
 import EmailIcon from '@mui/icons-material/EmailOutlined';
 import LinkIcon from '@mui/icons-material/LinkOutlined';
-import { formatWebsiteLink, formatDate, canEditUser, getCurrentUserOrgs } from '../../common/utils'
+import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
+import CopyIcon from '@mui/icons-material/ContentCopyOutlined';
+import { formatWebsiteLink, formatDate, canEditUser, getCurrentUserOrgs, copyToClipboard } from '../../common/utils'
 import UserIcon from './UserIcon';
 import OrgIcon from '../orgs/OrgIcon';
+import Link from '../common/Link'
+import { OperationsContext } from '../app/LayoutContext';
 
 
 const UserProperty = ({icon, value, label}) => {
@@ -29,17 +31,23 @@ const UserProperty = ({icon, value, label}) => {
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
             overflow: 'hidden'
-        }}}
+          }}}
       />
     </ListItem>
   ) : null
 }
 
 
-const UserProfile = ({ user }) => {
+const UserProfile = ({ user, apiToken }) => {
   const { t } = useTranslation()
+  const { setAlert } = React.useContext(OperationsContext);
   const iconStyle = {fontSize: '24px', color: 'secondary.main'}
   const userOrgs = getCurrentUserOrgs()
+  const onCopyToken = () => {
+    copyToClipboard(apiToken)
+    setAlert({message: t('user.copy_token_success'), severity: 'success', duration: 2000})
+  }
+
   return (
     <React.Fragment>
       <UserIcon user={user} color='primary' sx={{color: 'primary', fontSize: '100px'}} logoClassName='user-img-medium' />
@@ -48,12 +56,6 @@ const UserProfile = ({ user }) => {
       </Typography>
       <Typography component='h3' sx={{color: 'surface.light', display: 'flex', alignItems: 'center'}}>
         {user?.username}
-        {
-          user?.username && canEditUser(user.username) &&
-            <IconButton className='no-anchor-styles' sx={{marginLeft: '8px'}} size='small' href={`#${user.url}edit`}>
-              <EditIcon fontSize='inherit' />
-            </IconButton>
-        }
       </Typography>
       <List sx={{color: 'secondary.main', marginTop: '8px'}}>
         <UserProperty icon={<LocationIcon sx={iconStyle} />} value={user?.location} />
@@ -82,6 +84,27 @@ const UserProfile = ({ user }) => {
       <Typography component='h1' sx={{color: 'surface.light', marginTop: '16px', fontSize: '14px'}}>
         Joined {formatDate(user?.date_joined)}
       </Typography>
+      {
+        user?.username && canEditUser(user.username) &&
+          <div style={{paddingLeft: '12px'}}>
+            <Link
+              label={t('user.edit_my_profile')}
+              href={`#${user.url}edit`}
+              sx={{fontSize: '14px', fontWeight: 'bold', marginTop: '16px'}}
+              startIcon={<PersonOutlineOutlinedIcon fontSize='inherit' />}
+            />
+            <br />
+            {
+              apiToken &&
+                <Link
+                  label={t('user.copy_api_token')}
+                  onClick={onCopyToken}
+                  sx={{fontSize: '14px', fontWeight: 'bold', marginTop: '8px'}}
+                  startIcon={<CopyIcon fontSize='inherit' />}
+                />
+            }
+          </div>
+      }
     </React.Fragment>
   )
 }

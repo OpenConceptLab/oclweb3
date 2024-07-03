@@ -798,6 +798,21 @@ export const getLoginURL = returnTo => {
   return url
 }
 
+export const getResetPasswordURL = returnTo => {
+  let redirectURL = returnTo || window.LOGIN_REDIRECT_URL || process.env.LOGIN_REDIRECT_URL
+  const oidClientID = window.OIDC_RP_CLIENT_ID || process.env.OIDC_RP_CLIENT_ID
+
+  redirectURL = redirectURL.replace(/([^:]\/)\/+/g, "$1");
+
+  if(isSSOEnabled())
+    return `${getAPIURL()}/users/password/reset/?client_id=${oidClientID}&redirect_uri=${redirectURL}`
+  let url = '/#/accounts/login'
+  if(returnTo)
+    url += `?returnTo=${returnTo}`
+
+  return url
+}
+
 export const getRegisterURL = returnTo => {
   let redirectURL = returnTo || window.LOGIN_REDIRECT_URL || process.env.LOGIN_REDIRECT_URL
   const oidClientID = window.OIDC_RP_CLIENT_ID || process.env.OIDC_RP_CLIENT_ID

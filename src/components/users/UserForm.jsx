@@ -3,30 +3,35 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom';
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box'
+import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
 import APIService from '../../services/APIService'
 import { OperationsContext } from '../app/LayoutContext';
-import { refreshCurrentUserCache, getCurrentUser } from '../../common/utils'
+import { LANGUAGES } from '../../common/constants';
+import { refreshCurrentUserCache, getCurrentUser, getResetPasswordURL } from '../../common/utils'
+import Link from '../common/Link'
 
 const UserForm = ({ user }) => {
   const sessionUser = getCurrentUser()
   const history = useHistory()
   const { t } = useTranslation()
   const { setAlert } = React.useContext(OperationsContext);
-  const [firstName, setFirstName] = React.useState(user.first_name)
-  const [lastName, setLastName] = React.useState(user.last_name)
+  const [firstName, setFirstName] = React.useState(user.first_name || '')
+  const [lastName, setLastName] = React.useState(user.last_name || '')
   const [email, setEmail] = React.useState(user.email)
-  const [company, setCompany] = React.useState(user.company)
-  const [location, setLocation] = React.useState(user.location)
-  const [website, setWebsite] = React.useState(user.website)
+  const [company, setCompany] = React.useState(user.company || '')
+  const [location, setLocation] = React.useState(user.location || '')
+  const [website, setWebsite] = React.useState(user.website || '')
+  const [preferredLocale, setPreferredLocale] = React.useState(user.preferred_locale || 'en')
 
   const getPayload = () => ({
     first_name: firstName,
     last_name: lastName,
     company: company,
     location: location,
-    website: website
+    website: website,
+    preferred_locale: preferredLocale || 'en'
   })
 
   const onSubmit = () => {
@@ -50,20 +55,12 @@ const UserForm = ({ user }) => {
 
   return (
     <div className='col-xs-12' style={{padding: '16px'}}>
-      <Box className='col-xs-12 padding-0' sx={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
-        <Typography component='h1' sx={{display: 'inline-block', fontSize: '28px', lineHeight: 1.29, letterSpacing: 'normal', color: 'surface.dark' }}>
-        {t('user.edit_my_profile')}
-      </Typography>
-        <Button onClick={onSubmit} variant='contained' color='primary' sx={{textTransform: 'none'}}>
-          {t('common.save')}
-        </Button>
-        </Box>
       <form id='user-form'>
-        <div className='col-xs-12' style={{marginTop: '24px', padding: '16px', borderRadius: '10px', border: '1px solid rgba(0, 0, 0, 0.12)'}}>
-          <Typography component='h3' sx={{fontSize: '16px', fontWeight: 'bold', lineHeight: 1.5, letterSpacing: '0.15px', color: ''}}>
+        <div className='col-xs-12' style={{padding: '24px', borderRadius: '10px', border: '1px solid rgba(0, 0, 0, 0.12)', backgroundColor: '#FFF'}}>
+          <Typography component='h3' sx={{fontSize: '16px', fontWeight: 'bold', lineHeight: 1.5, letterSpacing: '0.15px'}}>
             {t('user.name_and_description')}
           </Typography>
-          <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center'}}>
+          <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
             <TextField
               required
               size='small'
@@ -71,7 +68,7 @@ const UserForm = ({ user }) => {
               label={t('user.first_name')}
               value={firstName}
               onChange={event => setFirstName(event.target.value || '')}
-              sx={{width: '30%', maxWidth: '210px'}}
+              sx={{width: '35%'}}
             />
             <TextField
               required
@@ -80,13 +77,13 @@ const UserForm = ({ user }) => {
               label={t('user.last_name')}
               value={lastName}
               onChange={event => setLastName(event.target.value || '')}
-              sx={{width: '30%', maxWidth: '210px', marginLeft: '16px'}}
+              sx={{width: '35%', marginLeft: '10px'}}
             />
-            <Typography component="div" sx={{width: '20%', maxWidth: '200px', fontSize: '12px', marginLeft: '16px'}}>
-              Your URL will be: /users/<b>{user.username}</b>/
+            <Typography component="div" sx={{width: '30%', fontSize: '12px', marginLeft: '16px'}}>
+              Your URL will be: {window.location.origin}/#/users/<b>{user.username}</b>/
             </Typography>
           </div>
-          <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center'}}>
+          <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
             <TextField
               size='small'
               required
@@ -95,38 +92,96 @@ const UserForm = ({ user }) => {
               label={t('user.email_address')}
               value={email}
               onChange={event => setEmail(event.target.value || '')}
-              sx={{width: '70%', maxWidth: '460px'}}
+              sx={{width: '70%'}}
             />
           </div>
-          <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center'}}>
+          <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
             <TextField
               size='small'
               variant='outlined'
-              label={t('user.company')}
+              label={t('user.company_name')}
               value={company}
               onChange={event => setCompany(event.target.value || '')}
-              sx={{width: '30%', maxWidth: '210px'}}
+              sx={{width: '35%'}}
             />
-            <TextField
-              size='small'
-              variant='outlined'
-              label={t('user.location')}
-              value={location}
-              onChange={event => setLocation(event.target.value || '')}
-              sx={{width: '30%', maxWidth: '210px', marginLeft: '16px'}}
-            />
-          </div>
-          <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center'}}>
             <TextField
               size='small'
               variant='outlined'
               label={t('user.website')}
               value={website}
               onChange={event => setWebsite(event.target.value || '')}
-              sx={{width: '70%', maxWidth: '460px'}}
+              sx={{width: '35%', marginLeft: '10px'}}
+              InputProps={{startAdornment: <InputAdornment position="start">{'https://'}</InputAdornment>}}
+            />
+          </div>
+          <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
+            <TextField
+              size='small'
+              variant='outlined'
+              label={t('user.location')}
+              value={location}
+              onChange={event => setLocation(event.target.value || '')}
+              sx={{width: '70%'}}
             />
           </div>
         </div>
+        <div className='col-xs-12' style={{marginTop: '16px', padding: '24px', borderRadius: '10px', border: '1px solid rgba(0, 0, 0, 0.12)', backgroundColor: '#FFF'}}>
+          <Typography component='h3' sx={{fontSize: '16px', fontWeight: 'bold', lineHeight: 1.5, letterSpacing: '0.15px'}}>
+            {t('user.login_and_security')}
+          </Typography>
+          <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
+            <TextField
+              required
+              size='small'
+              variant='outlined'
+              label={t('user.username')}
+              value={sessionUser?.username}
+              disabled
+              sx={{width: '35%'}}
+            />
+          </div>
+          <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
+            <TextField
+              required
+              size='small'
+              variant='outlined'
+              label={t('user.password')}
+              value='**********'
+              type='password'
+              disabled
+              sx={{width: '35%'}}
+            />
+            <Link
+              label={t('auth.update_password')}
+              href={getResetPasswordURL()}
+              sx={{marginLeft: '24px', fontWeight: 'bold', fontSize: 'inherit'}}
+            />
+          </div>
+        </div>
+        <div className='col-xs-12' style={{marginTop: '16px', padding: '24px', borderRadius: '10px', border: '1px solid rgba(0, 0, 0, 0.12)', backgroundColor: '#FFF'}}>
+          <Typography component='h3' sx={{fontSize: '16px', fontWeight: 'bold', lineHeight: 1.5, letterSpacing: '0.15px'}}>
+            {t('common.language')}
+          </Typography>
+          <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
+            <TextField
+              select
+              label={t('common.language')}
+              defaultValue={preferredLocale}
+              value={preferredLocale}
+              onChange={event => setPreferredLocale(event.target.value || 'en')}
+              sx={{width: '35%'}}
+            >
+              {LANGUAGES.map(language => (
+                <MenuItem key={language.locale} value={language.locale}>
+                  {language.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </div>
+        <Button onClick={onSubmit} variant='contained' color='primary' sx={{textTransform: 'none'}}>
+          {t('common.save')}
+        </Button>
       </form>
     </div>
   )
