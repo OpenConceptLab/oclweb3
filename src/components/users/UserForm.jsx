@@ -54,8 +54,8 @@ const UserForm = ({ user }) => {
   }
 
   return (
-    <div className='col-xs-12' style={{padding: '16px'}}>
-      <form id='user-form'>
+    <div className='col-xs-12' style={{padding: '16px', display: 'flex', justifyContent: 'center'}}>
+      <form id='user-form' style={{width: '85%'}}>
         <div className='col-xs-12' style={{padding: '24px', borderRadius: '10px', border: '1px solid rgba(0, 0, 0, 0.12)', backgroundColor: '#FFF'}}>
           <Typography component='h3' sx={{fontSize: '16px', fontWeight: 'bold', lineHeight: 1.5, letterSpacing: '0.15px'}}>
             {t('user.name_and_description')}
@@ -80,7 +80,8 @@ const UserForm = ({ user }) => {
               sx={{width: '35%', marginLeft: '10px'}}
             />
             <Typography component="div" sx={{width: '30%', fontSize: '12px', marginLeft: '16px'}}>
-              Your URL will be: {window.location.origin}/#/users/<b>{user.username}</b>/
+              <span style={{opacity: 0.7}}>Your URL will be:</span><br />
+              <span>{window.location.origin}/#/users/<b>{user.username}</b>/</span>
             </Typography>
           </div>
           <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
