@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom';
-import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
@@ -11,6 +10,7 @@ import { OperationsContext } from '../app/LayoutContext';
 import { LANGUAGES } from '../../common/constants';
 import { refreshCurrentUserCache, getCurrentUser, getResetPasswordURL } from '../../common/utils'
 import Link from '../common/Link'
+import Button from '../common/Button'
 
 const UserForm = ({ user }) => {
   const sessionUser = getCurrentUser()
@@ -179,9 +179,7 @@ const UserForm = ({ user }) => {
             </TextField>
           </div>
         </div>
-        <Button onClick={onSubmit} variant='contained' color='primary' sx={{textTransform: 'none'}}>
-          {t('common.save')}
-        </Button>
+        <Button onClick={onSubmit} label={t('common.save')} color='primary' sx={{margin: '16px 0 24px 0'}} />
       </form>
     </div>
   )

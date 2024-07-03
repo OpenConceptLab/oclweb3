@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Typography from '@mui/material/Typography'
 import List from '@mui/material/List';
@@ -16,6 +17,7 @@ import UserIcon from './UserIcon';
 import OrgIcon from '../orgs/OrgIcon';
 import Link from '../common/Link'
 import { OperationsContext } from '../app/LayoutContext';
+import APIService from '../../services/APIService';
 
 
 const UserProperty = ({icon, value, label}) => {
@@ -38,8 +40,10 @@ const UserProperty = ({icon, value, label}) => {
 }
 
 
-const UserProfile = ({ user, apiToken }) => {
+const UserProfile = ({ user }) => {
   const { t } = useTranslation()
+  const params = useParams()
+  const [apiToken, setApiToken] = React.useState(undefined)
   const { setAlert } = React.useContext(OperationsContext);
   const iconStyle = {fontSize: '24px', color: 'secondary.main'}
   const userOrgs = getCurrentUserOrgs()
@@ -47,6 +51,17 @@ const UserProfile = ({ user, apiToken }) => {
     copyToClipboard(apiToken)
     setAlert({message: t('user.copy_token_success'), severity: 'success', duration: 2000})
   }
+  const canEdit = canEditUser(params?.user)
+
+  const fetchAPIToken = () => {
+    if(canEdit && !apiToken)
+      APIService.users().appendToUrl('api-token/').get().then(response => setApiToken(response?.data?.token))
+  }
+
+  React.useEffect(() => {
+    fetchAPIToken()
+  }, [])
+
 
   return (
     <React.Fragment>
@@ -85,7 +100,7 @@ const UserProfile = ({ user, apiToken }) => {
         Joined {formatDate(user?.date_joined)}
       </Typography>
       {
-        user?.username && canEditUser(user.username) &&
+        canEdit &&
           <div style={{paddingLeft: '12px'}}>
             <Link
               label={t('user.edit_my_profile')}

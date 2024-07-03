@@ -8,7 +8,7 @@ const UserEdit = () => {
   const height = 'calc(100vh - 100px)'
   return (
     <div className='col-xs-12 padding-0'>
-      <div className='col-xs-3' style={{height: height, padding: '24px', maxWidth: '20%'}}>
+      <div className='col-xs-3' style={{height: height, padding: '24px 24px 24px 8px', maxWidth: '20%'}}>
         <UserProfile user={user} />
       </div>
       <div className='col-xs-10 padding-0' style={{height: height, maxWidth: '80%'}}>
