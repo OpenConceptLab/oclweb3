@@ -43,6 +43,7 @@
     "settings": "Settings",
     "add": "Add",
     "cancel": "Cancel",
+    "upload": "Upload",
     "custom_attributes": "Custom Attributes"
   },
   "errors": {
@@ -158,7 +159,9 @@
     "profile_update_success": "Profile updated successfully",
     "profile_update_failure": "An error occurred while updating profile.",
     "copy_api_token": "Copy API token",
-    "copy_token_success": "Copied token to your clipboard"
+    "copy_token_success": "Copied token to your clipboard",
+    "avatar": "Avatar",
+    "update_avatar": "Update your avatar"
   },
   "search": {
     "filters": "Filters",

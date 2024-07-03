@@ -5,12 +5,15 @@ import Typography from '@mui/material/Typography'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
+import merge from 'lodash/merge'
 import APIService from '../../services/APIService'
 import { OperationsContext } from '../app/LayoutContext';
 import { LANGUAGES } from '../../common/constants';
 import { refreshCurrentUserCache, getCurrentUser, getResetPasswordURL } from '../../common/utils'
 import Link from '../common/Link'
 import Button from '../common/Button'
+import HeaderLogo from '../common/HeaderLogo'
+import UserIcon from './UserIcon';
 
 const UserForm = ({ user }) => {
   const sessionUser = getCurrentUser()
@@ -24,6 +27,7 @@ const UserForm = ({ user }) => {
   const [location, setLocation] = React.useState(user.location || '')
   const [website, setWebsite] = React.useState(user.website || '')
   const [preferredLocale, setPreferredLocale] = React.useState(user.preferred_locale || 'en')
+  const [isLogoUpdated, setIsLogoUpdated] = React.useState(false)
 
   const getPayload = () => ({
     first_name: firstName,
@@ -39,10 +43,13 @@ const UserForm = ({ user }) => {
     const isValid = form.reportValidity()
     if(isValid) {
       APIService.users(user.username).put(getPayload()).then(response => {
-        if(response.status === 200) {
+        if(response?.status === 200) {
           const callback = () => {
             history.push(user.url)
             setAlert({duration: 2000, message: t('user.profile_update_success'), severity: 'success'})
+
+            if(isLogoUpdated)
+              window.location.reload()
           }
           if(sessionUser.username === user.username)
             refreshCurrentUserCache(() => {})
@@ -51,6 +58,21 @@ const UserForm = ({ user }) => {
           setAlert({duration: 2000, message: t('user.profile_update_failure'), severity: 'error'})
       })
     }
+  }
+
+  const onLogoUpload = (base64, name) => {
+    APIService.new().overrideURL(user.url).appendToUrl('logo/')
+      .post({base64: base64, name: name})
+      .then(response => {
+        if(response?.status === 200){
+          setIsLogoUpdated(true)
+          const url = response?.data?.logo_url || user.logo_url
+          localStorage.setItem(
+            'user',
+            JSON.stringify(merge(JSON.parse(localStorage.user), {logo_url: url}))
+          )
+        }
+      })
   }
 
   return (
@@ -180,6 +202,19 @@ const UserForm = ({ user }) => {
             </TextField>
           </div>
         </div>
+        <div className='col-xs-12' style={{marginTop: '16px', padding: '24px', borderRadius: '10px', border: '1px solid rgba(0, 0, 0, 0.12)', backgroundColor: '#FFF'}}>
+            <Typography component='h3' sx={{fontSize: '16px', fontWeight: 'bold', lineHeight: 1.5, letterSpacing: '0.15px'}}>
+              {t('user.avatar')}
+            </Typography>
+          <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
+            <HeaderLogo
+              isCircle
+              logoURL={user.logo_url}
+              onUpload={onLogoUpload}
+              defaultIcon={<UserIcon user={user} color='secondary' sx={{fontSize: '100px'}} logoClassName='user-img-medium' />}
+            />
+            </div>
+          </div>
         <Button onClick={onSubmit} label={t('common.save')} color='primary' sx={{margin: '16px 0 24px 0'}} />
       </form>
     </div>
