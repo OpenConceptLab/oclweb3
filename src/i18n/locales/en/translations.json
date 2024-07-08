@@ -76,7 +76,8 @@
   "custom_attributes": {
     "label": "Custom attributes",
     "key": "Attribute name",
-    "value": "Attribute value"
+    "value": "Attribute value",
+    "add": "Add a Custom Attribute"
   },
   "concept": {
     "concepts": "Concepts",

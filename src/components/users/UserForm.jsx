@@ -5,7 +5,12 @@ import Typography from '@mui/material/Typography'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
+import Switch from '@mui/material/Switch'
 import merge from 'lodash/merge'
+import isEmpty from 'lodash/isEmpty'
+import map from 'lodash/map'
+import forEach from 'lodash/forEach'
+import get from 'lodash/get'
 import APIService from '../../services/APIService'
 import { OperationsContext } from '../app/LayoutContext';
 import { LANGUAGES } from '../../common/constants';
@@ -20,6 +25,9 @@ const UserForm = ({ user }) => {
   const history = useHistory()
   const { t } = useTranslation()
   const { setAlert } = React.useContext(OperationsContext);
+  const [custom, setCustom] = React.useState(!isEmpty(user?.extras))
+
+  //form fields
   const [firstName, setFirstName] = React.useState(user.first_name || '')
   const [lastName, setLastName] = React.useState(user.last_name || '')
   const [email, setEmail] = React.useState(user.email)
@@ -28,6 +36,15 @@ const UserForm = ({ user }) => {
   const [website, setWebsite] = React.useState(user.website || '')
   const [preferredLocale, setPreferredLocale] = React.useState(user.preferred_locale || 'en')
   const [isLogoUpdated, setIsLogoUpdated] = React.useState(false)
+  const [extras, setExtras] = React.useState(isEmpty(user?.extras) ? [{key: '', value: ''}] : map(user.extras, (v, k) => ({key: k, value: v})))
+
+  const getExtrasPayload = () => {
+    let newExtras = {}
+    forEach(extras, ({value, key}) => newExtras[key] = value)
+    if(isEmpty(newExtras))
+      newExtras = null
+    return newExtras
+  }
 
   const getPayload = () => ({
     first_name: firstName,
@@ -35,7 +52,8 @@ const UserForm = ({ user }) => {
     company: company,
     location: location,
     website: website,
-    preferred_locale: preferredLocale || 'en'
+    preferred_locale: preferredLocale || 'en',
+    extras: getExtrasPayload()
   })
 
   const onSubmit = () => {
@@ -60,6 +78,8 @@ const UserForm = ({ user }) => {
     }
   }
 
+  const onCancel = () => history.push(user.url)
+
   const onLogoUpload = (base64, name) => {
     APIService.new().overrideURL(user.url).appendToUrl('logo/')
       .post({base64: base64, name: name})
@@ -74,6 +94,14 @@ const UserForm = ({ user }) => {
         }
       })
   }
+
+  const setExtrasValue = (index, key, value) => {
+    const newExtras = [...extras]
+    newExtras[index][key] = value
+    setExtras(newExtras)
+  }
+
+  const onAddExtras = () => setExtras([...extras, {key: "", value: ""}])
 
   return (
     <div className='col-xs-12' style={{display: 'flex', justifyContent: 'center'}}>
@@ -101,7 +129,7 @@ const UserForm = ({ user }) => {
               onChange={event => setLastName(event.target.value || '')}
               sx={{width: '35%', marginLeft: '10px'}}
             />
-            <Typography component="div" sx={{width: '30%', fontSize: '12px', marginLeft: '16px'}}>
+            <Typography component="div" sx={{width: 'calc(30% - 10px - 16px)', fontSize: '12px', marginLeft: '16px'}}>
               <span style={{opacity: 0.7}}>Your URL will be:</span><br />
               <span>{window.location.origin}/#/users/<b>{user.username}</b>/</span>
             </Typography>
@@ -115,7 +143,7 @@ const UserForm = ({ user }) => {
               label={t('user.email_address')}
               value={email}
               onChange={event => setEmail(event.target.value || '')}
-              sx={{width: '70%'}}
+              sx={{width: 'calc(70% + 10px)'}}
             />
           </div>
           <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
@@ -144,7 +172,7 @@ const UserForm = ({ user }) => {
               label={t('user.location')}
               value={location}
               onChange={event => setLocation(event.target.value || '')}
-              sx={{width: '70%'}}
+              sx={{width: 'calc(70% + 10px)'}}
             />
           </div>
         </div>
@@ -203,9 +231,9 @@ const UserForm = ({ user }) => {
           </div>
         </div>
         <div className='col-xs-12' style={{marginTop: '16px', padding: '24px', borderRadius: '10px', border: '1px solid rgba(0, 0, 0, 0.12)', backgroundColor: '#FFF'}}>
-            <Typography component='h3' sx={{fontSize: '16px', fontWeight: 'bold', lineHeight: 1.5, letterSpacing: '0.15px'}}>
-              {t('user.avatar')}
-            </Typography>
+          <Typography component='h3' sx={{fontSize: '16px', fontWeight: 'bold', lineHeight: 1.5, letterSpacing: '0.15px'}}>
+            {t('user.avatar')}
+          </Typography>
           <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
             <HeaderLogo
               isCircle
@@ -213,9 +241,56 @@ const UserForm = ({ user }) => {
               onUpload={onLogoUpload}
               defaultIcon={<UserIcon user={user} color='secondary' sx={{fontSize: '100px'}} logoClassName='user-img-medium' />}
             />
-            </div>
           </div>
+        </div>
+        <div className='col-xs-12' style={{marginTop: '16px', padding: '24px', borderRadius: '10px', border: '1px solid rgba(0, 0, 0, 0.12)', backgroundColor: '#FFF'}}>
+          <Typography component='h3' sx={{fontSize: '16px', fontWeight: 'bold', lineHeight: 1.5, letterSpacing: '0.15px'}}>
+            <span>{t('common.custom_attributes')}</span>
+            <span style={{marginLeft: '8px'}}>
+              <Switch color="primary" checked={custom} onChange={() => setCustom(!custom)} />
+            </span>
+          </Typography>
+          {
+            custom &&
+              <div className='col-xs-12' style={{padding: 0}}>
+                {
+                  map(extras, (extra, index) => {
+                    return (
+                      <div key={index} className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
+                        <TextField
+                          fullWidth
+                          id={`extras.${index}.key`}
+                          value={get(extras, `${index}.key`)}
+                          label={t('custom_attributes.key')}
+                          variant='outlined'
+                          required
+                          size='small'
+                          onChange={event => setExtrasValue(index, 'key', event.target.value || '')}
+                          sx={{width: '35%'}}
+                        />
+                        <TextField
+                          fullWidth
+                          id={`extras.${index}.value`}
+                          value={get(extras, `${index}.value`)}
+                          label={t('custom_attributes.value')}
+                          variant='outlined'
+                          required
+                          size='small'
+                          onChange={event => setExtrasValue(index, 'value', event.target.value || '')}
+                          sx={{width: '35%', marginLeft: '10px'}}
+                        />
+                      </div>
+                    )
+                  })
+                }
+                <div className='col-xs-12' style={{padding: '0 8px 0 0'}}>
+                  <Link onClick={onAddExtras} label={t('custom_attributes.add')} sx={{margin: '16px 16px 24px 16px', fontSize: '0.8125rem'}} />
+                </div>
+              </div>
+          }
+        </div>
         <Button onClick={onSubmit} label={t('common.save')} color='primary' sx={{margin: '16px 0 24px 0'}} />
+        <Link onClick={onCancel} label={t('common.cancel')} sx={{margin: '16px 16px 24px 16px', fontSize: '0.8125rem'}} />
       </form>
     </div>
   )
