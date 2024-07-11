@@ -12,6 +12,8 @@
     "show": "Show",
     "hide": "Hide",
     "more": "More",
+    "read_more": "Read more",
+    "read_less": "Read less",
     "refresh": "refresh",
     "go_to": "go to",
     "go_to_your": "go to your ",
@@ -44,7 +46,8 @@
     "add": "Add",
     "cancel": "Cancel",
     "upload": "Upload",
-    "custom_attributes": "Custom Attributes"
+    "custom_attributes": "Custom Attributes",
+    "public": "Public"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -62,6 +65,7 @@
   "bookmarks": {
     "name": "Bookmarks",
     "pinned": "Pinned",
+    "pinned_repos": "Pinned repositories",
     "following": "Following"
   },
   "auth": {

@@ -1,36 +1,23 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useHistory } from 'react-router-dom'
-import {map, reject, filter, orderBy, chunk} from 'lodash';
-import PersonIcon from '@mui/icons-material/Face2';
+import { map } from 'lodash';
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Tooltip from '@mui/material/Tooltip';
 import Bookmark from '../common/Bookmark';
 import About from '../common/About';
-import UserIcon from '../users/UserIcon';
-import RepoIcon from '../repos/RepoIcon';
-
-const Member = ({ member }) => {
-  return (
-    <Tooltip key={member.url} title={member.name}>
-      <IconButton href={`#${member.url}`} sx={{marginRight: '4px'}}>
-        <UserIcon user={member} sx={{width: '45px', height: '45px'}} />
-      </IconButton>
-    </Tooltip>
-  )
-}
+import OrgMembers from './OrgMembers';
+import OrgStatistics from './OrgStatistics';
+import Paper from '@mui/material/Paper'
+import PinIcon from '@mui/icons-material/PushPinOutlined';
 
 const OrgBookmarks = ({ bookmarks }) => {
   const { t } = useTranslation()
 
   return bookmarks && bookmarks?.length ? (
     <div className='col-xs-12 padding-0'>
-      <Typography component='h3' sx={{margin: '16px 0', fontWeight: 'bold'}}>{t('bookmarks.pinned')}</Typography>
+      <Typography component='h3' sx={{margin: '16px 0', fontWeight: 'bold', display: 'flex'}}>
+        <PinIcon sx={{mr: 1, color: 'surface.contrastText', transform: 'rotate(45deg)'}} />
+        {t('bookmarks.pinned_repos')}
+      </Typography>
       <div style={{display: 'flex', alignItems: 'center'}}>
         {
           map(bookmarks, (bookmark, i) => (
@@ -43,76 +30,23 @@ const OrgBookmarks = ({ bookmarks }) => {
   ) : null
 }
 
-const OrgMembers = ({ members }) => {
-  const { t } = useTranslation()
-  return members && members?.length ? (
-    <div className='col-xs-12 padding-0' style={{margin: '16px 0 24px 0'}}>
-      <Typography component='h3' sx={{marginBottom: '16px', fontWeight: 'bold'}}>
-        {t('org.members')}
-      </Typography>
-      <div style={{display: 'flex', alignItems: 'flex-start', flexDirection: 'column'}}>
-        {
-          map(chunk([...orderBy(filter(members, 'logo_url'), 'name'), ...orderBy(reject(members, 'logo_url'), 'name')], 5), (_members, i) => (
-            <div key={i} style={{display: 'flex', alignItems: 'center', width: '100%'}}>
-              {
-                map(_members, member => (<Member key={member.url} member={member} />))
-              }
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  ) : null
-}
-
-const OrgStatistics = ({ org, marginTop }) => {
-  const { t } = useTranslation()
-  const repos = org.public_sources + org.public_collections
-  const history = useHistory()
-  const onRepoStatsClick = () => history.push(org.url + 'repos')
-  return (
-    <div className='col-xs-12 padding-0' style={{margin: `${marginTop} 0 24px 0`}}>
-      <Typography component='h3' sx={{marginBottom: '16px', fontWeight: 'bold'}}>
-        {t('org.statistics')}
-      </Typography>
-      <div style={{display: 'flex', alignItems: 'flex-start', flexDirection: 'column'}}>
-        <List sx={{color: 'secondary.main', p: 0}}>
-          <ListItem disablePadding  href={`#${org.url}repos`} sx={{cursor: 'pointer'}} onClick={onRepoStatsClick}>
-            <ListItemIcon sx={{minWidth: 0, marginRight: '8px'}}>
-              <RepoIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary={`${repos} ${t('repo.repos').toLowerCase()}`}
-            />
-          </ListItem>
-          <ListItem disablePadding sx={{marginTop: '8px'}}>
-            <ListItemIcon sx={{minWidth: 0, marginRight: '8px'}}>
-              <PersonIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary={`${org.members} ${t('org.members').toLowerCase()}`}
-            />
-          </ListItem>
-        </List>
-      </div>
-    </div>
-  )
-}
-
-
 const OrgOverview = ({ org, bookmarks, members, height }) => {
   const { t } = useTranslation()
 
   return (
-    <div className='col-xs-12' style={{height: height || '100%', overflow: 'auto' }}>
-      <div className='col-xs-9' style={{paddingLeft: 0, paddingRight: '16px'}}>
+    <div className='col-xs-12 padding-0' style={{height: height || '100%' }}>
+      <div className='col-xs-9' style={{padding: '0 16px', height: '100%', overflow: 'auto', width: '80%'}}>
         <OrgBookmarks bookmarks={bookmarks} />
         <About text={org?.text} title={t('org.about_the_org')} />
       </div>
-      <div className='col-xs-3'>
-        <OrgMembers members={members} />
-        <OrgStatistics org={org} marginTop={members?.length ? 0 : '16px'} />
-      </div>
+      <Paper className='col-xs-3' sx={{width: '20% !important', borderLeft: '0.5px solid', borderColor: 'surface.n90', borderRadius: 0, boxShadow: 'none', padding: '16px', height: '100%', overflow: 'auto', backgroundColor: 'default.main'}}>
+        <div className='col-xs-12 padding-0'>
+          <OrgStatistics org={org}/>
+        </div>
+        <div className='col-xs-12 padding-0'>
+          <OrgMembers members={members} />
+        </div>
+      </Paper>
     </div>
   )
 }

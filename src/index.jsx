@@ -9,7 +9,7 @@ import StylesProvider from '@mui/styles/StylesProvider';
 import App from './components/app/App';
 import LayoutContext from './components/app/LayoutContext';
 import './index.scss';
-import { PRIMARY, SECONDARY, WHITE, BG_GRAY, TEXT_GRAY, PRIMARY_DARK, SECONDARY_DARK, TERTIARY, TERTIARY_DARK, ERROR, ERROR_DARK, SURFACE, PRIMARY_95, SURFACE_DARK, SURFACE_LIGHT, LIGHT_GRAY, SECONDARY_50, NV_80, N_92, S_90 } from './common/constants';
+import { PRIMARY, SECONDARY, WHITE, BG_GRAY, TEXT_GRAY, PRIMARY_DARK, SECONDARY_DARK, TERTIARY, TERTIARY_DARK, ERROR, ERROR_DARK, SURFACE, PRIMARY_95, SURFACE_DARK, SURFACE_LIGHT, LIGHT_GRAY, SECONDARY_50, NV_80, N_92, S_90, VERY_LIGH_GRAY } from './common/constants';
 import './i18n/config';
 
 const theme = createTheme();
@@ -37,7 +37,8 @@ const v5Theme = createTheme(theme, {
     },
     "default": {
       main: BG_GRAY,
-      dark: BG_GRAY
+      dark: BG_GRAY,
+      light: VERY_LIGH_GRAY
     },
     error: {
       main: ERROR,

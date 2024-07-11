@@ -1,6 +1,5 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import OrgIcon from '@mui/icons-material/AccountBalance';
 import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -9,7 +8,6 @@ import DownloadIcon from '@mui/icons-material/Download';
 import ShareIcon from '@mui/icons-material/Share';
 import BookmarkIcon from '@mui/icons-material/BookmarkBorder';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
-import HeaderChip from '../common/HeaderChip';
 import LocationIcon from '@mui/icons-material/LocationOnOutlined';
 import LinkIcon from '@mui/icons-material/LinkOutlined';
 import { formatWebsiteLink } from '../../common/utils'
@@ -41,10 +39,10 @@ const OrgHeader = ({ org }) => {
           </div>
       }
       <div className='col-xs-12 padding-0' style={style}>
-        <div className='col-xs-6 padding-0'>
-          <HeaderChip label={org.type} icon={<OrgIcon sx={{color: 'surface.contrastText'}} />} />
+        <div className='col-xs-8 padding-0' style={{margin: '4px 0 8px 0'}}>
+          <Typography sx={{fontSize: '28px', color: 'surface.dark', fontWeight: 600}}>{org.name}</Typography>
         </div>
-        <div className='col-xs-6 padding-0' style={{textAlign: 'right'}}>
+        <div className='col-xs-4 padding-0' style={{textAlign: 'right'}}>
           <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
             <DownloadIcon fontSize='inherit' />
           </IconButton>
@@ -58,12 +56,9 @@ const OrgHeader = ({ org }) => {
             {t('common.manage')}
           </Button>
         </div>
-        <div className='col-xs-12 padding-0' style={{margin: '4px 0 8px 0'}}>
-          <Typography sx={{fontSize: '28px', color: 'surface.dark', fontWeight: 600}}>{org.name}</Typography>
-        </div>
         <div className='col-xs-12 padding-0' style={{margin: '4px 0 8px 0', display: 'inline-flex'}}>
           <Property icon={<LocationIcon sx={iconStyle} />} value={org.location} />
-        <Property icon={<LinkIcon sx={iconStyle} />} value={org?.website} label={formatWebsiteLink(org?.website, {color: 'inherit'})} />
+          <Property icon={<LinkIcon sx={iconStyle} />} value={org?.website} label={formatWebsiteLink(org?.website, {color: 'inherit'})} />
         </div>
       </div>
     </Paper>
