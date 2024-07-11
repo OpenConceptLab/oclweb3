@@ -7,6 +7,7 @@ import Link from './Link'
 const About = ({ title, text }) => {
   const { t } = useTranslation()
   const [showAll, setShowAll] = React.useState(false)
+  const [showReadMoreButton, setShowReadMoreButton] = React.useState(false)
 
   const shouldShowReadMore = () => {
     if(!showAll && text) {
@@ -14,8 +15,12 @@ const About = ({ title, text }) => {
       if(el && el?.clientHeight)
         return el.clientHeight > 70
     }
-    return true
+    return Boolean(text)
   }
+
+  React.useEffect(() => {
+    setShowReadMoreButton(shouldShowReadMore())
+  }, [text])
 
   return text ? (
     <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
@@ -27,7 +32,7 @@ const About = ({ title, text }) => {
         <div id='about-text' className='col-xs-12 padding-0 md-content' dangerouslySetInnerHTML={{__html: text.replaceAll('href="/', 'href="/#/')}} />
       </Collapse>
       {
-        shouldShowReadMore() &&
+        showReadMoreButton &&
           <Link onClick={() => setShowAll(!showAll)} sx={{fontSize: '12px', marginTop: '8px'}} color='primary' label={showAll ? t('common.read_less') : t('common.read_more')} />
       }
     </div>

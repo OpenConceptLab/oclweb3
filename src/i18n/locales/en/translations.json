@@ -135,7 +135,8 @@
     "org": "Organization",
     "about_the_org": "About the Organization",
     "members": "Members",
-    "statistics": "Statistics"
+    "statistics": "Statistics",
+    "org_have_not_created_public_repos_suffix": "have not created any public repositories"
   },
   "user": {
     "users": "Users",

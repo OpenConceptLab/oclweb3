@@ -59,7 +59,7 @@ const OrgHome = () => {
   React.useEffect(() => { fetchOrg() }, [params.org])
   React.useEffect(() => { setTab(params.tab || 'overview') }, [params.tab])
 
-  const height = 'calc(100vh - 400px)'
+  const height = 'calc(100vh - 300px)'
 
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '8px'}}>
