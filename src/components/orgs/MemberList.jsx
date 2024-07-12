@@ -5,7 +5,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Divider from '@mui/material/Divider';
@@ -38,8 +38,8 @@ const MemberList = ({ members, open, onClose }) => {
         <List sx={{ width: '100%', bgcolor: 'surface.n92', p: 0, maxHeight: 700 }}>
           {
             map(members, (member, i) => (
-              <React.Fragment>
-                <ListItem alignItems="flex-start" key={member.url} sx={{padding: '8px 24px 8px 16px'}}>
+              <React.Fragment key={i}>
+                <ListItemButton component='a' className='no-anchor-styles' alignItems="flex-start" key={member.url} sx={{padding: '8px 24px 8px 16px', cursor: 'pointer'}} href={`#${member.url}`}>
                   <ListItemAvatar sx={{marginTop: '4px', minWidth: 'auto', mr: 2}}>
                     <UserIcon user={member} sx={{width: '40px', height: '40px'}} />
                   </ListItemAvatar>
@@ -51,7 +51,7 @@ const MemberList = ({ members, open, onClose }) => {
                     primary={member.name}
                     secondary={member.company}
                   />
-                </ListItem>
+                </ListItemButton>
                 {
                   i !== members.length - 1 &&
                     <Divider component="li" />
