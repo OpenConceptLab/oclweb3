@@ -47,7 +47,8 @@
     "cancel": "Cancel",
     "upload": "Upload",
     "custom_attributes": "Custom Attributes",
-    "public": "Public"
+    "public": "Public",
+    "close": "Close"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -136,7 +137,8 @@
     "about_the_org": "About the Organization",
     "members": "Members",
     "statistics": "Statistics",
-    "org_have_not_created_public_repos_suffix": "have not created any public repositories"
+    "org_have_not_created_public_repos_suffix": "have not created any public repositories",
+    "browse_members": "Browse members"
   },
   "user": {
     "users": "Users",

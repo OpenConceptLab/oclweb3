@@ -33,7 +33,7 @@ const OrgHome = () => {
     })
   }
   const fetchMembers = () => {
-    APIService.orgs(params.org).appendToUrl('members/').get().then(response => {
+    APIService.orgs(params.org).appendToUrl('members/?verbose=true').get().then(response => {
       if(response?.data?.length)
         setMembers(response.data)
     })

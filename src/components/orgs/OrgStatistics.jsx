@@ -8,9 +8,11 @@ import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import RepoIcon from '../repos/RepoIcon';
+import MemberList from './MemberList'
 
-const OrgStatistics = ({ org }) => {
+const OrgStatistics = ({ org, members }) => {
   const { t } = useTranslation()
+  const [membersOpen, setMembersOpen] = React.useState(false)
   const repos = org.public_sources + org.public_collections
   const history = useHistory()
   const onRepoStatsClick = () => history.push(org.url + 'repos')
@@ -30,7 +32,7 @@ const OrgStatistics = ({ org }) => {
               primary={`${repos} ${t('common.public').toLowerCase()} ${t('repo.repos').toLowerCase()}`}
             />
           </ListItem>
-          <ListItem disablePadding sx={{marginTop: '8px'}}>
+          <ListItem disablePadding sx={{marginTop: '8px', cursor: 'pointer'}} onClick={() => setMembersOpen(true)}>
             <ListItemIcon sx={{minWidth: 0, marginRight: '8px'}}>
               <PersonIcon sx={{color: 'default.light', width: '20px', height: '20px'}} />
             </ListItemIcon>
@@ -41,6 +43,7 @@ const OrgStatistics = ({ org }) => {
           </ListItem>
         </List>
       </div>
+      <MemberList members={members} open={Boolean(members?.length && membersOpen)} onClose={() => setMembersOpen(false)} />
     </div>
   )
 }

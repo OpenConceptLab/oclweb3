@@ -49,7 +49,7 @@ const OrgOverview = ({ org, bookmarks, members, height }) => {
       </div>
       <Paper className='col-xs-3' sx={{width: '20% !important', borderLeft: '0.5px solid', borderColor: 'surface.n90', borderRadius: 0, boxShadow: 'none', padding: '16px', height: '100%', overflow: 'auto', backgroundColor: 'default.main'}}>
         <div className='col-xs-12 padding-0'>
-          <OrgStatistics org={org}/>
+          <OrgStatistics org={org} members={members} />
         </div>
         <div className='col-xs-12 padding-0'>
           <OrgMembers members={members} />
