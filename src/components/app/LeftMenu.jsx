@@ -12,10 +12,11 @@ import Button from '@mui/material/Button';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
 import Divider from '@mui/material/Divider';
-import { getCurrentUser, getCurrentUserOrgs } from '../../common/utils';
+import { getCurrentUser, refreshCurrentUserCache, getCurrentUserOrgs } from '../../common/utils';
 import Drawer from '../common/Drawer';
 import OrgIcon from '../orgs/OrgIcon';
 import { getIcon } from '../common/Bookmark'
+
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -30,8 +31,22 @@ const LeftMenu = ({ isOpen, onClose }) => {
   const { t } = useTranslation()
   const location = useLocation()
   const user = getCurrentUser()
-  const orgs = getCurrentUserOrgs()
-  const bookmarks = user?.pins || []
+
+  const [orgs, setOrgs] = React.useState(getCurrentUserOrgs())
+  const [bookmarks, setBookmarks] = React.useState(user?.pins || [])
+
+  const fetchData = () => {
+    refreshCurrentUserCache(response => {
+      setOrgs(getCurrentUserOrgs())
+      setBookmarks(response?.data?.pins || [])
+    })
+  }
+
+  React.useEffect(() => {
+    if(isOpen && getCurrentUser()?.url)
+      fetchData()
+  }, [isOpen && user?.url])
+
   return (
     <Drawer isOpen={isOpen} onClose={onClose} anchor='left' bgColor='default.main'>
       <DrawerHeader>
@@ -92,7 +107,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
           </ListItemButton>
         </ListItem>
       </List>
-      <Divider style={{width: '100%'}} />
+      <Divider style={{width: '100%', marginTop: '16px'}} />
       <List sx={{maxHeight: '300px', overflow: 'auto', p: 0}}>
         <ListItem
           disablePadding
@@ -143,7 +158,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
           ))
         }
       </List>
-      <Divider style={{width: '100%'}} />
+      <Divider style={{width: '100%', marginTop: '16px'}} />
       <List sx={{maxHeight: '300px', overflow: 'auto', p: 0}}>
         <ListItem
           disablePadding
@@ -156,7 +171,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
               <Typography
                 component="div"
                 sx={{color: 'secondary.main', fontWeight: 'bold'}}>
-                {t('bookmarks.following')}
+                {t('bookmarks.name')}
               </Typography>
             }
           />

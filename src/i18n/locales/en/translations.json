@@ -182,6 +182,7 @@
     "display": "Display",
     "loading": "Refining your search results...",
     "no_results": "We could not find any matches for ",
+    "input_placeholder_drawer": "Enter a search term or tap / for options",
     "input_placeholder": "Search OCL...",
     "table": "Table",
     "card": "Card",
