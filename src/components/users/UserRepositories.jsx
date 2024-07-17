@@ -22,8 +22,11 @@ const UserRepositories = ({ user, profile }) => {
   const [accessDenied, setAccessDenied] = React.useState(false)
 
   React.useEffect(() => {
-    !user && fetchUser()
-  }, [params.user])
+    if(user?.url)
+      setCurrentUser(user)
+    else
+      fetchUser()
+  }, [params.user, user])
 
   const fetchUser = () => {
     if(params.user === sessionUser?.username) {

@@ -60,7 +60,7 @@ const UserProfile = ({ user }) => {
 
   React.useEffect(() => {
     fetchAPIToken()
-  }, [])
+  }, [params.user])
 
 
   return (
