@@ -23,6 +23,7 @@
     "name": "Name",
     "create": "Create",
     "created_on": "Created On",
+    "created_by": "Created By",
     "version": "Version",
     "versions": "Versions",
     "summary": "Summary",
@@ -48,7 +49,10 @@
     "upload": "Upload",
     "custom_attributes": "Custom Attributes",
     "public": "Public",
-    "close": "Close"
+    "close": "Close",
+    "short_code": "Short Code",
+    "attribute": "Attribute",
+    "value": "Value"
   },
   "errors": {
     "404": "Sorry your page could not be found.",

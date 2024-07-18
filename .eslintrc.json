@@ -222,7 +222,8 @@
           "Roboto",
           "Helvetica",
           "Arial",
-          "validators"
+          "validators",
+          "lll"
         ],
         "skipIfMatch": [
           "http://[^s]*",
