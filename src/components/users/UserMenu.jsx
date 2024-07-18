@@ -16,9 +16,10 @@ import CommunityIcon from '@mui/icons-material/GroupsOutlined';
 import SettingsIcon from '@mui/icons-material/SettingsOutlined';
 import find from 'lodash/find';
 import { useLocation } from 'react-router-dom'
-import { getCurrentUser, logoutUser, isLoggedIn, getLoginURL } from '../../common/utils'
+import { getCurrentUser, logoutUser, isLoggedIn, getLoginURL, getRegisterURL } from '../../common/utils'
 import { LANGUAGES } from '../../common/constants';
 import Button from '../common/Button';
+import Link from '../common/Link';
 import Drawer from '../common/Drawer';
 import UserProfileButton from './UserProfileButton';
 import CloseIconButton from '../common/CloseIconButton';
@@ -70,7 +71,8 @@ const UserMenu = ({ isOpen, onClose }) => {
                 </ListItemButton>
               </List> :
             <div className='col-xs-12 padding-0' style={{marginBottom: '24px'}}>
-              <Button className='no-anchor-styles' label={t('auth.sign_in')} sx={{ bgcolor: 'primary.dark', maxWidth: '100%', minWidth: '92px' }} href={getLoginURL()} component='a' />
+              <Button className='no-anchor-styles' label={t('auth.sign_in')} sx={{ backgroundColor: 'surface.s90', maxWidth: '100%', minWidth: '92px' }} href={getLoginURL()} component='a' />
+              <Link sx={{fontSize: '14px', marginLeft: '16px'}} label={t('auth.register')} href={getRegisterURL()} />
             </div>
           }
         </div>
