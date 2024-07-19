@@ -4,7 +4,6 @@ import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-import DownloadIcon from '@mui/icons-material/Download';
 import ShareIcon from '@mui/icons-material/Share';
 import BookmarkIcon from '@mui/icons-material/BookmarkBorder';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
@@ -47,9 +46,6 @@ const OrgHeader = ({ org }) => {
           <Typography sx={{fontSize: '28px', color: 'surface.dark', fontWeight: 600}}>{org.name}</Typography>
         </div>
         <div className='col-xs-4 padding-0' style={{textAlign: 'right'}}>
-          <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
-            <DownloadIcon fontSize='inherit' />
-          </IconButton>
           <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
             <BookmarkIcon fontSize='inherit' />
           </IconButton>
