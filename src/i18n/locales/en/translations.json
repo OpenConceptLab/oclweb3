@@ -52,6 +52,7 @@
     "close": "Close",
     "short_code": "Short Code",
     "attribute": "Attribute",
+    "attributes": "Attributes",
     "value": "Value"
   },
   "errors": {

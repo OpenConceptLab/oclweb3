@@ -14,7 +14,7 @@ import { map, get } from 'lodash'
 import Link from '../common/Link'
 import { formatWebsiteLink } from '../../common/utils'
 
-const EntityAttributesDialog = ({ title, entity, fields, open, onClose }) => {
+const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
   const { t } = useTranslation()
   const getValue = (field, info) => {
     let value = get(entity, field)
@@ -47,7 +47,7 @@ const EntityAttributesDialog = ({ title, entity, fields, open, onClose }) => {
       }}
     >
       <DialogTitle sx={{p: 3, color: 'surface.dark', fontSize: '22px', textAlign: 'left'}}>
-        {title}
+        {entity.type} {t('common.attributes')}
       </DialogTitle>
       <DialogContent style={{padding: '0 8px'}}>
         <Table size="small">

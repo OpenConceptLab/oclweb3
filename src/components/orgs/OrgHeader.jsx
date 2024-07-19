@@ -72,7 +72,6 @@ const OrgHeader = ({ org }) => {
           created_by: {label: t('common.created_by'), type: 'user'},
           updated_by: {label: t('common.updated_by'), type: 'user'},
         }}
-        title={org.name}
         entity={org}
         open={viewAll}
         onClose={() => setViewAll(false)}
