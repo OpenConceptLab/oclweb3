@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
+import { useParams } from 'react-router-dom'
 import Typography from '@mui/material/Typography'
 import Button from '../common/Button';
 import { WHITE } from '../../common/constants';
@@ -9,7 +10,8 @@ import Search from '../search/Search';
 
 const URLRegistry = () => {
   const { t } = useTranslation()
-  const [owner, setOwner] = React.useState('/')
+  const params = useParams()
+  const [owner, setOwner] = React.useState(params?.org ? `/orgs/${params.org}/` : '/')
   const [testDialog, setTestDialog] = React.useState(false)
   const onOwnerChange = (event, item) => {
     setOwner(item?.url || '/')

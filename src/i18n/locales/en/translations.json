@@ -210,6 +210,7 @@
     "resolve_failed_with_entry": "{{url}} matched an entry in the <0/> Registry but did not resolve to a repository",
     "resolve_failed_without_entry": "{{url}} did not match an entry in the <0/> Registry or the Global Registry and did not resolve to a repository",
     "resolve_failed_without_entry_global": "{{url}} did not match an entry in the Global Registry",
-    "target_owner": "Target Owner"
+    "target_owner": "Target Owner",
+    "view_canonical_url_registry": "View Canonical URL registry"
   }
 }

@@ -86,6 +86,7 @@ const App = props => {
               <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:tab(${repoTabsStr})/:resource?`} component={RepoHome} />
               <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion/:tab(${repoTabsStr})/:resource?`} component={RepoHome} />
               <AuthenticationRequiredRoute exact path='/url-registry' component={URLRegistry} />
+              <AuthenticationRequiredRoute exact path='/orgs/:org/url-registry' component={URLRegistry} />
               <AuthenticationRequiredRoute exact path='/users/:user/repos' component={UserRepositories} />
               <SessionUserRoute exact path='/users/:user/edit' component={UserEdit} />
               <AuthenticationRequiredRoute exact path='/users/:user' component={UserHome} />
