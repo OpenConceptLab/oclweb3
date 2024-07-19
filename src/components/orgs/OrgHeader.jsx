@@ -65,11 +65,7 @@ const OrgHeader = ({ org }) => {
       </div>
       <EntityAttributesDialog
         fields={{
-          id: {label: t('common.short_code')},
-          name: {label: t('common.name')},
           company: {label: t('user.company')},
-          website: {label: t('user.website'), type: 'external_link'},
-          location: {label: t('user.location')},
           extras: {label: t('custom_attributes.label'), type: 'json'},
           created_on: {label: t('common.created_on'), type: 'datetime'},
           updated_on: {label: t('common.updated_on'), type: 'datetime'},
