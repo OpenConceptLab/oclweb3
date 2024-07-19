@@ -13,6 +13,7 @@ import LinkIcon from '@mui/icons-material/LinkOutlined';
 import { formatWebsiteLink } from '../../common/utils'
 import Link from '../common/Link'
 import EntityAttributesDialog from '../common/EntityAttributesDialog'
+import OrgIcon from './OrgIcon';
 
 
 const Property = ({icon, value, label}) => {
@@ -60,6 +61,7 @@ const OrgHeader = ({ org }) => {
           </Button>
         </div>
         <div className='col-xs-12 padding-0' style={{margin: '4px 0 8px 0', display: 'inline-flex'}}>
+          <Property icon={<OrgIcon strict noLink sx={iconStyle} />} value={org.id} />
           <Property icon={<LocationIcon sx={iconStyle} />} value={org.location} />
           <Property icon={<LinkIcon sx={iconStyle} />} value={org?.website} label={formatWebsiteLink(org?.website, {color: 'inherit'})} />
           <Property label={<Link sx={{fontSize: '14px'}} label={t('common.view_all_attributes')} onClick={() => setViewAll(true)} />} />
