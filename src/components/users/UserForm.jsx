@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom';
 import Typography from '@mui/material/Typography'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
+import FormHelperText from '@mui/material/FormHelperText'
 import MenuItem from '@mui/material/MenuItem'
 import Switch from '@mui/material/Switch'
 import merge from 'lodash/merge'
@@ -27,26 +28,17 @@ const UserForm = ({ user }) => {
   const history = useHistory()
   const { t } = useTranslation()
   const { setAlert } = React.useContext(OperationsContext);
-  const [custom, setCustom] = React.useState(!isEmpty(user?.extras))
 
   //form fields
   const [firstName, setFirstName] = React.useState(user.first_name || '')
   const [lastName, setLastName] = React.useState(user.last_name || '')
   const [email, setEmail] = React.useState(user.email)
+  const [bio, setBio] = React.useState(user.bio || '')
   const [company, setCompany] = React.useState(user.company || '')
   const [location, setLocation] = React.useState(user.location || '')
   const [website, setWebsite] = React.useState(user.website || '')
   const [preferredLocale, setPreferredLocale] = React.useState(user.preferred_locale || 'en')
   const [isLogoUpdated, setIsLogoUpdated] = React.useState(false)
-  const [extras, setExtras] = React.useState(isEmpty(user?.extras) ? [{key: '', value: ''}] : map(user.extras, (v, k) => ({key: k, value: v})))
-
-  const getExtrasPayload = () => {
-    let newExtras = {}
-    forEach(extras, ({value, key}) => newExtras[key] = value)
-    if(isEmpty(newExtras))
-      newExtras = null
-    return newExtras
-  }
 
   const getPayload = () => ({
     first_name: firstName,
@@ -55,7 +47,7 @@ const UserForm = ({ user }) => {
     location: location,
     website: website,
     preferred_locale: preferredLocale || 'en',
-    extras: getExtrasPayload()
+    bio: bio,
   })
 
   const onSubmit = () => {
@@ -95,19 +87,6 @@ const UserForm = ({ user }) => {
           )
         }
       })
-  }
-
-  const setExtrasValue = (index, key, value) => {
-    const newExtras = [...extras]
-    newExtras[index][key] = value
-    setExtras(newExtras)
-  }
-
-  const onAddExtras = () => setExtras([...extras, {key: "", value: ""}])
-  const onDeleteExtras = index => {
-    const newExtras = [...extras]
-    pullAt(newExtras, index)
-    setExtras(newExtras)
   }
 
   return (
@@ -185,6 +164,26 @@ const UserForm = ({ user }) => {
         </div>
         <div className='col-xs-12' style={{marginTop: '16px', padding: '24px', borderRadius: '10px', border: '1px solid rgba(0, 0, 0, 0.12)', backgroundColor: '#FFF'}}>
           <Typography component='h3' sx={{fontSize: '16px', fontWeight: 'bold', lineHeight: 1.5, letterSpacing: '0.15px'}}>
+            {t('user.about_me')}
+          </Typography>
+          <FormHelperText>{t('user.about_me_description')}</FormHelperText>
+          <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
+            <TextField
+              required
+              size='small'
+              variant='outlined'
+              label={t('user.bio')}
+              value={sessionUser?.bio}
+              onChange={event => setBio(event.target.value || '')}
+              sx={{width: '70%'}}
+              multiline
+              maxRows={2}
+              rows={2}
+            />
+          </div>
+        </div>
+        <div className='col-xs-12' style={{marginTop: '16px', padding: '24px', borderRadius: '10px', border: '1px solid rgba(0, 0, 0, 0.12)', backgroundColor: '#FFF'}}>
+          <Typography component='h3' sx={{fontSize: '16px', fontWeight: 'bold', lineHeight: 1.5, letterSpacing: '0.15px'}}>
             {t('user.login_and_security')}
           </Typography>
           <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
@@ -249,53 +248,6 @@ const UserForm = ({ user }) => {
               defaultIcon={<UserIcon user={user} color='secondary' sx={{fontSize: '100px'}} logoClassName='user-img-medium' />}
             />
           </div>
-        </div>
-        <div className='col-xs-12' style={{marginTop: '16px', padding: '24px', borderRadius: '10px', border: '1px solid rgba(0, 0, 0, 0.12)', backgroundColor: '#FFF'}}>
-          <Typography component='h3' sx={{fontSize: '16px', fontWeight: 'bold', lineHeight: 1.5, letterSpacing: '0.15px'}}>
-            <span>{t('common.custom_attributes')}</span>
-            <span style={{marginLeft: '8px'}}>
-              <Switch color="primary" checked={custom} onChange={() => setCustom(!custom)} />
-            </span>
-          </Typography>
-          {
-            custom &&
-              <div className='col-xs-12' style={{padding: 0}}>
-                {
-                  map(extras, (extra, index) => {
-                    return (
-                      <div key={index} className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
-                        <TextField
-                          fullWidth
-                          id={`extras.${index}.key`}
-                          value={get(extras, `${index}.key`)}
-                          label={t('custom_attributes.key')}
-                          variant='outlined'
-                          required
-                          size='small'
-                          onChange={event => setExtrasValue(index, 'key', event.target.value || '')}
-                          sx={{width: '35%'}}
-                        />
-                        <TextField
-                          fullWidth
-                          id={`extras.${index}.value`}
-                          value={get(extras, `${index}.value`)}
-                          label={t('custom_attributes.value')}
-                          variant='outlined'
-                          required
-                          size='small'
-                          onChange={event => setExtrasValue(index, 'value', event.target.value || '')}
-                          sx={{width: '35%', marginLeft: '10px'}}
-                        />
-                        <DeleteIconButton sx={{marginLeft: '16px'}} onClick={() => onDeleteExtras(index)} />
-                      </div>
-                    )
-                  })
-                }
-                <div className='col-xs-12' style={{padding: '0 8px 0 0'}}>
-                  <Link onClick={onAddExtras} label={t('custom_attributes.add')} sx={{margin: '16px 16px 24px 16px', fontSize: '0.8125rem'}} />
-                </div>
-              </div>
-          }
         </div>
         <Button onClick={onSubmit} label={t('common.save')} color='primary' sx={{margin: '16px 0 24px 0'}} />
         <Link onClick={onCancel} label={t('common.cancel')} sx={{margin: '16px 16px 24px 16px', fontSize: '0.8125rem'}} />

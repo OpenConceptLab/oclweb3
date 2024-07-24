@@ -174,7 +174,10 @@
     "copy_api_token": "Copy API token",
     "copy_token_success": "Copied token to your clipboard",
     "avatar": "Avatar",
-    "update_avatar": "Update your avatar"
+    "update_avatar": "Update your avatar",
+    "bio": "Short bio",
+    "about_me": "About me",
+    "about_me_description": "Create an introduction for visiting your profile."
   },
   "search": {
     "filters": "Filters",
