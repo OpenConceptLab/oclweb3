@@ -6,13 +6,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
 import FormHelperText from '@mui/material/FormHelperText'
 import MenuItem from '@mui/material/MenuItem'
-import Switch from '@mui/material/Switch'
 import merge from 'lodash/merge'
-import isEmpty from 'lodash/isEmpty'
-import map from 'lodash/map'
-import forEach from 'lodash/forEach'
-import get from 'lodash/get'
-import pullAt from 'lodash/pullAt'
 import APIService from '../../services/APIService'
 import { OperationsContext } from '../app/LayoutContext';
 import { LANGUAGES } from '../../common/constants';
@@ -21,7 +15,6 @@ import Link from '../common/Link'
 import Button from '../common/Button'
 import HeaderLogo from '../common/HeaderLogo'
 import UserIcon from './UserIcon';
-import DeleteIconButton from '../common/DeleteIconButton'
 
 const UserForm = ({ user }) => {
   const sessionUser = getCurrentUser()
