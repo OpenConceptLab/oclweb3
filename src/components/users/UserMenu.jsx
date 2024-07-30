@@ -86,12 +86,6 @@ const UserMenu = ({ isOpen, onClose }) => {
               <ListItemText primary={selectedLanguage.name} secondary={t('common.language')} />
               {languageOpen ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
-            <ListItemButton component='a' className='no-anchor-styles' sx={{p: 1, borderRadius: '100px'}} href={`#${user?.url}settings`} onClick={onClose} disabled={!user?.url} selected={location.pathname === user?.url + 'settings'}>
-              <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
-                <SettingsIcon />
-              </ListItemIcon>
-              <ListItemText primary={t('common.settings')} />
-            </ListItemButton>
             <Collapse in={languageOpen} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 {
@@ -103,6 +97,12 @@ const UserMenu = ({ isOpen, onClose }) => {
                 }
               </List>
             </Collapse>
+            <ListItemButton component='a' className='no-anchor-styles' sx={{p: 1, borderRadius: '100px'}} href={`#${user?.url}settings`} onClick={onClose} disabled={!user?.url} selected={location.pathname === user?.url + 'settings'}>
+              <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('common.settings')} />
+            </ListItemButton>
           </List>
         </div>
         <Divider style={{width: '100%'}} />
