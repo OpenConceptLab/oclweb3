@@ -7,6 +7,7 @@
     "chat": "OCL Chat",
     "clear": "Clear",
     "updated_on": "Last Updated",
+    "last_updated_on": "Last updated on",
     "updated_by": "Updated By",
     "owner": "Owner",
     "show": "Show",
@@ -53,7 +54,8 @@
     "short_code": "Short Code",
     "attribute": "Attribute",
     "attributes": "Attributes",
-    "value": "Value"
+    "value": "Value",
+    "by": "by"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
