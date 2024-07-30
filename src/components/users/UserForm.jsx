@@ -84,7 +84,7 @@ const UserForm = ({ user }) => {
 
   return (
     <div className='col-xs-12' style={{display: 'flex', justifyContent: 'center'}}>
-      <form id='user-form' style={{width: '85%'}}>
+      <form id='user-form' style={{minWidth: '750px', width: '85%'}}>
         <div className='col-xs-12' style={{padding: '24px', borderRadius: '10px', border: '1px solid rgba(0, 0, 0, 0.12)', backgroundColor: '#FFF'}}>
           <Typography component='h3' sx={{fontSize: '16px', fontWeight: 'bold', lineHeight: 1.5, letterSpacing: '0.15px'}}>
             {t('user.name_and_description')}
@@ -110,7 +110,7 @@ const UserForm = ({ user }) => {
             />
             <Typography component="div" sx={{width: 'calc(30% - 10px - 16px)', fontSize: '12px', marginLeft: '16px'}}>
               <span style={{opacity: 0.7}}>Your URL will be:</span><br />
-              <span>{window.location.origin}/#/users/<b>{user.username}</b>/</span>
+              <span style={{display: 'flex', flexWrap: 'wrap'}}>{window.location.origin}/#/users/<b>{user.username}</b>/</span>
             </Typography>
           </div>
           <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
@@ -166,7 +166,7 @@ const UserForm = ({ user }) => {
               size='small'
               variant='outlined'
               label={t('user.bio')}
-              value={sessionUser?.bio}
+              value={bio}
               onChange={event => setBio(event.target.value || '')}
               sx={{width: '70%'}}
               multiline
