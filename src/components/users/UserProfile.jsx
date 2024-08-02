@@ -12,7 +12,7 @@ import EmailIcon from '@mui/icons-material/EmailOutlined';
 import LinkIcon from '@mui/icons-material/LinkOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import CopyIcon from '@mui/icons-material/ContentCopyOutlined';
-import { formatWebsiteLink, formatDate, canEditUser, getCurrentUserOrgs, copyToClipboard } from '../../common/utils'
+import { formatWebsiteLink, formatDate, canEditUser, sortOrgs, copyToClipboard } from '../../common/utils'
 import UserIcon from './UserIcon';
 import OrgIcon from '../orgs/OrgIcon';
 import Link from '../common/Link'
@@ -46,7 +46,7 @@ const UserProfile = ({ user }) => {
   const [apiToken, setApiToken] = React.useState(undefined)
   const { setAlert } = React.useContext(OperationsContext);
   const iconStyle = {fontSize: '24px', color: 'secondary.main'}
-  const userOrgs = getCurrentUserOrgs()
+  const userOrgs = sortOrgs(user?.subscribed_orgs || [])
   const onCopyToken = () => {
     copyToClipboard(apiToken)
     setAlert({message: t('user.copy_token_success'), severity: 'success', duration: 2000})

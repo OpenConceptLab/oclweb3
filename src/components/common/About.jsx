@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography'
 import Collapse from '@mui/material/Collapse';
 import Link from './Link'
 
-const About = ({ title, text }) => {
+const About = ({ title, text, style }) => {
   const { t } = useTranslation()
   const [showAll, setShowAll] = React.useState(false)
   const [showReadMoreButton, setShowReadMoreButton] = React.useState(false)
@@ -23,7 +23,7 @@ const About = ({ title, text }) => {
   }, [text])
 
   return text ? (
-    <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
+    <div className='col-xs-12 padding-0' style={{marginTop: '16px', ...style}}>
       <Typography component='h2' sx={{color: '#000', fontWeight: 'bold'}}>
         {title}
       </Typography>

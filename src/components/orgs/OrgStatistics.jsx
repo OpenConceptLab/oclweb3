@@ -21,7 +21,7 @@ const OrgStatistics = ({ org, members }) => {
   return (
     <div className='col-xs-12 padding-0' style={{margin: `0 0 24px 0`}}>
       <Typography component='h3' sx={{marginBottom: '16px', fontWeight: 'bold'}}>
-        {t('org.statistics')}
+        {t('common.statistics')}
       </Typography>
       <div style={{display: 'flex', alignItems: 'flex-start', flexDirection: 'column'}}>
         <List sx={{color: 'secondary.main', p: 0}}>

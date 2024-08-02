@@ -2,13 +2,13 @@ import React from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 
-const RepoTabs = ({TABS, ...rest}) => {
+const RepoTabs = ({TABS, sx, ...rest}) => {
   return (
     <Tabs
       indicatorColor="primary"
       variant="fullWidth"
       aria-label="repo full width tabs"
-      sx={{backgroundColor: 'surface.main', width: '100%', borderTop: '0.3px solid', borderBottom: '0.3px solid', borderColor: 'surface.n90'}}
+      sx={{backgroundColor: 'surface.main', width: '100%', borderTop: '0.3px solid', borderBottom: '0.3px solid', borderColor: 'surface.n90', ...sx}}
       {...rest}
     >
       {

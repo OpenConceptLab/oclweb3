@@ -16,20 +16,23 @@ const OrgHome = () => {
   const [org, setOrg] = React.useState({})
   const [members, setMembers] = React.useState([])
   const [bookmarks, setBookmarks] = React.useState(false)
+  const [tab, setTab] = React.useState(findTab)
   const TABS = [
     {key: 'overview', label: t('common.overview')},
     {key: 'repos', label: t('repo.repos')},
   ]
   const TAB_KEYS = TABS.map(tab => tab.key)
   const findTab = () => TAB_KEYS.includes(params?.tab) ? params.tab : 'overview'
-  const [tab, setTab] = React.useState(findTab)
   const fetchOrg = () => {
     APIService.orgs(params.org).get().then(response => {
       if(response?.data?.id) {
         setOrg(response.data)
         fetchMembers()
         fetchBookmarks()
-      }
+      } else if(response.status)
+        window.location.hash = '#/' + response.status
+      else if(response.detail === 'Not found.')
+        window.location.hash = '#/404/'
     })
   }
   const fetchMembers = () => {

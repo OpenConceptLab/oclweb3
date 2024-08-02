@@ -55,7 +55,9 @@
     "attribute": "Attribute",
     "attributes": "Attributes",
     "value": "Value",
-    "by": "by"
+    "by": "by",
+    "statistics": "Statistics",
+    "subscribed": "Subscribed"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -143,7 +145,6 @@
     "org": "Organization",
     "about_the_org": "About the Organization",
     "members": "Members",
-    "statistics": "Statistics",
     "org_have_not_created_public_repos_suffix": "have not created any public repositories",
     "browse_members": "Browse members"
   },
@@ -179,7 +180,8 @@
     "update_avatar": "Update your avatar",
     "bio": "Short bio",
     "about_me": "About me",
-    "about_me_description": "Create an introduction for visiting your profile."
+    "about_me_description": "Create an introduction for visiting your profile.",
+    "user_has_not_created_public_repos_suffix": "has not created any public repositories"
   },
   "search": {
     "filters": "Filters",

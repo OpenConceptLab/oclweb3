@@ -152,8 +152,12 @@ export const getCurrentUser = () => {
 
 export const getCurrentUserOrgs = () => {
   const user = getCurrentUser()
-  return [...orderBy(filter(user?.subscribed_orgs, 'logo_url'), 'name'), ...orderBy(reject(user?.subscribed_orgs, 'logo_url'), 'name')]
+  return sortOrgs(user?.subscribed_orgs)
 };
+
+export const sortOrgs = orgs => {
+  return [...orderBy(filter(orgs, 'logo_url'), 'name'), ...orderBy(reject(orgs, 'logo_url'), 'name')]
+}
 
 export const getCurrentUserUsername = () => get(getCurrentUser(), 'username');
 

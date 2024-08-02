@@ -11,11 +11,23 @@ import Search from '../search/Search';
 const URLRegistry = () => {
   const { t } = useTranslation()
   const params = useParams()
-  const [owner, setOwner] = React.useState(params?.org ? `/orgs/${params.org}/` : '/')
+  const [owner, setOwner] = React.useState(getOwner)
   const [testDialog, setTestDialog] = React.useState(false)
   const onOwnerChange = (event, item) => {
     setOwner(item?.url || '/')
   }
+
+  const getOwner = () => {
+    if(params?.org)
+      return `/orgs/${params.org}/`
+    if(params?.user)
+      return `/users/${params.user}/`
+    return '/'
+  }
+
+  React.useEffect(() => {
+    setOwner(getOwner())
+  }, [params.org, params.user])
 
   return (
     <div className='col-xs-12 padding-0'>

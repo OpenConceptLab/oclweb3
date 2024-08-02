@@ -20,7 +20,6 @@ import { OperationsContext } from './LayoutContext';
 import Alert from '../common/Alert';
 import RepoHome from '../repos/RepoHome';
 import UserHome from '../users/UserHome'
-import UserRepositories from '../users/UserRepositories'
 import UserEdit from '../users/UserEdit';
 import UserSettings from '../users/UserSettings';
 import OrgHome from '../orgs/OrgHome';
@@ -87,10 +86,10 @@ const App = props => {
               <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion/:tab(${repoTabsStr})/:resource?`} component={RepoHome} />
               <AuthenticationRequiredRoute exact path='/url-registry' component={URLRegistry} />
               <AuthenticationRequiredRoute exact path='/orgs/:org/url-registry' component={URLRegistry} />
-              <AuthenticationRequiredRoute exact path='/users/:user/repos' component={UserRepositories} />
+              <AuthenticationRequiredRoute exact path='/users/:user/url-registry' component={URLRegistry} />
               <SessionUserRoute exact path='/users/:user/edit' component={UserEdit} />
-              <AuthenticationRequiredRoute exact path='/users/:user' component={UserHome} />
               <AuthenticationRequiredRoute path='/users/:user/settings' component={UserSettings} />
+              <AuthenticationRequiredRoute path={`/users/:user/:tab(${orgTabsStr})?`} component={UserHome} />
               <Route path={`/orgs/:org/:tab(${orgTabsStr})?`} component={OrgHome} />
 
               <Route exact path='/403' component={Error403} />
