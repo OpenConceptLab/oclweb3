@@ -11,8 +11,10 @@ import LocationIcon from '@mui/icons-material/LocationOnOutlined';
 import EmailIcon from '@mui/icons-material/EmailOutlined';
 import LinkIcon from '@mui/icons-material/LinkOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
+import FollowIcon from '@mui/icons-material/VisibilityOutlined';
+import UnFollowIcon from '@mui/icons-material/VisibilityOffOutlined';
 import CopyIcon from '@mui/icons-material/ContentCopyOutlined';
-import { formatWebsiteLink, formatDate, canEditUser, sortOrgs, copyToClipboard } from '../../common/utils'
+import { formatWebsiteLink, formatDate, canEditUser, sortOrgs, copyToClipboard, getCurrentUser, refreshCurrentUserCache } from '../../common/utils'
 import UserIcon from './UserIcon';
 import OrgIcon from '../orgs/OrgIcon';
 import Link from '../common/Link'
@@ -40,11 +42,12 @@ const UserProperty = ({icon, value, label}) => {
 }
 
 
-const UserProfile = ({ user }) => {
+const UserProfile = ({ user, isCurrentUser }) => {
   const { t } = useTranslation()
   const params = useParams()
   const [apiToken, setApiToken] = React.useState(undefined)
   const { setAlert } = React.useContext(OperationsContext);
+  const [updated, setUpdated] = React.useState(0)
   const iconStyle = {fontSize: '24px', color: 'secondary.main'}
   const userOrgs = sortOrgs(user?.subscribed_orgs || [])
   const onCopyToken = () => {
@@ -61,6 +64,21 @@ const UserProfile = ({ user }) => {
   React.useEffect(() => {
     fetchAPIToken()
   }, [params.user])
+
+  const currentUser = getCurrentUser()
+  const isFollowing = currentUser?.following?.find(following => following.username == user.username)
+
+  const onFollowToggle = () => {
+    const service = APIService.users(currentUser.username).appendToUrl('following/')
+    if(isFollowing)
+      service.appendToUrl(`${user.username}/`).delete().then(() => {
+        refreshCurrentUserCache(() => setUpdated(updated + 1))
+      })
+    else
+      service.post({'follow': user.username}).then(() => {
+        refreshCurrentUserCache(() => setUpdated(updated + 1))
+      })
+  }
 
 
   return (
@@ -119,6 +137,18 @@ const UserProfile = ({ user }) => {
                 />
             }
           </div>
+      }
+      {
+        Boolean(currentUser?.username && !isCurrentUser && user?.name) &&
+          <div style={{paddingLeft: '12px'}}>
+            <Link
+              label={`${isFollowing ? t('common.unfollow') : t('common.follow')} ${user.name}`}
+              onClick={onFollowToggle}
+              sx={{fontSize: '14px', fontWeight: 'bold', marginTop: '16px'}}
+              startIcon={isFollowing ? <UnFollowIcon fontSize='inherit' /> : <FollowIcon fontSize='inherit' />}
+            />
+          </div>
+
       }
     </React.Fragment>
   )

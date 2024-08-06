@@ -223,7 +223,8 @@
           "Helvetica",
           "Arial",
           "validators",
-          "lll"
+          "lll",
+          "unfollow"
         ],
         "skipIfMatch": [
           "http://[^s]*",

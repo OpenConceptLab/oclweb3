@@ -6,6 +6,7 @@ import Paper from '@mui/material/Paper'
 import URLRegistryIcon from '@mui/icons-material/DatasetLinked';
 import Link from '../common/Link'
 import UserStatistics from './UserStatistics'
+import Members from '../orgs/OrgMembers';
 
 const UserOverview = ({ user, bookmarks, height }) => {
   const { t } = useTranslation()
@@ -25,6 +26,9 @@ const UserOverview = ({ user, bookmarks, height }) => {
       <Paper className='col-xs-3' sx={{width: '20% !important', borderLeft: '0.5px solid', borderColor: 'surface.n90', borderRadius: 0, boxShadow: 'none', padding: '16px', height: '100%', overflow: 'auto', backgroundColor: 'default.main'}}>
         <div className='col-xs-12 padding-0'>
           <UserStatistics user={user} />
+        </div>
+        <div className='col-xs-12 padding-0'>
+          <Members title={t('common.following')} members={user?.following || []} />
         </div>
         <div className='col-xs-12 padding-0'>
           <Link label={t('url_registry.view_canonical_url_registry')} href={`#/users/${user.username}/url-registry`} sx={{fontSize: '12px'}} startIcon={<URLRegistryIcon fontSize='inherit' sx={{color: 'surface.contrastText'}} />} />

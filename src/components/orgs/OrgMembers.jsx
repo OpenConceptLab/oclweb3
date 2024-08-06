@@ -19,7 +19,7 @@ const Member = ({ member }) => {
   )
 }
 
-const OrgMembers = ({ members }) => {
+const OrgMembers = ({ members, title }) => {
   const { t } = useTranslation()
   const [more, setMore] = React.useState(false)
   const ordered = [...orderBy(filter(members, 'logo_url'), 'name'), ...orderBy(reject(members, 'logo_url'), 'name')]
@@ -28,7 +28,7 @@ const OrgMembers = ({ members }) => {
   return members && members?.length ? (
     <div className='col-xs-12 padding-0' style={{margin: '16px 0 24px 0'}}>
       <Typography component='h3' sx={{marginBottom: '16px', fontWeight: 'bold'}}>
-        {t('org.members')}
+        {title || t('org.members')}
       </Typography>
       <div className='col-xs-12 col-md-12 col-sm-12 padding-0'>
         {

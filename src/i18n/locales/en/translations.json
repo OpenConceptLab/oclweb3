@@ -57,7 +57,10 @@
     "value": "Value",
     "by": "by",
     "statistics": "Statistics",
-    "subscribed": "Subscribed"
+    "subscribed": "Subscribed",
+    "following": "Following",
+    "follow": "Follow",
+    "unfollow": "Unfollow"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
