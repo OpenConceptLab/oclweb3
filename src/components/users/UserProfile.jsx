@@ -33,6 +33,7 @@ const UserProperty = ({icon, value, label}) => {
         primary={label || value}
         sx={{
           '.MuiTypography-root': {
+            fontSize: '12px',
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
             overflow: 'hidden'
@@ -49,7 +50,7 @@ const UserProfile = ({ user, isCurrentUser }) => {
   const [apiToken, setApiToken] = React.useState(undefined)
   const { setAlert } = React.useContext(OperationsContext);
   const [updated, setUpdated] = React.useState(0)
-  const iconStyle = {fontSize: '24px', color: 'secondary.main'}
+  const iconStyle = {fontSize: '20px', color: 'secondary.main'}
   const userOrgs = sortOrgs(user?.subscribed_orgs || [])
   const onCopyToken = () => {
     copyToClipboard(apiToken)
@@ -85,7 +86,7 @@ const UserProfile = ({ user, isCurrentUser }) => {
   return (
     <React.Fragment>
       <UserIcon user={user} color='primary' sx={{color: 'primary', fontSize: '100px'}} logoClassName='user-img-medium' />
-      <Typography component='h2' sx={{marginTop: '16px', color: 'surface.dark', fontWeight: 'bold', fontSize: '2em'}}>
+      <Typography component='h2' sx={{marginTop: '16px', color: 'surface.dark', fontWeight: 'bold', fontSize: '24px', letterSpacing: 'normal'}}>
         {user?.name}
       </Typography>
       <Typography component='h3' sx={{color: 'surface.light', display: 'flex', alignItems: 'center'}}>
@@ -127,7 +128,7 @@ const UserProfile = ({ user, isCurrentUser }) => {
             <Divider sx={{marginTop: '16px', width: '100%', display: 'inline-block'}} />
           </React.Fragment>
       }
-      <Typography component='h1' sx={{color: 'surface.light', marginTop: '16px', fontSize: '14px'}}>
+      <Typography component='h1' sx={{color: 'surface.light', marginTop: '16px', fontSize: '12px'}}>
         Joined {formatDate(user?.date_joined)}
       </Typography>
       {
@@ -136,7 +137,7 @@ const UserProfile = ({ user, isCurrentUser }) => {
             <Link
               label={t('user.edit_my_profile')}
               href={`#${user.url}edit`}
-              sx={{fontSize: '14px', fontWeight: 'bold', marginTop: '16px'}}
+              sx={{fontSize: '12px', fontWeight: 'bold', marginTop: '16px'}}
               startIcon={<PersonOutlineOutlinedIcon fontSize='inherit' />}
             />
             <br />
@@ -145,7 +146,7 @@ const UserProfile = ({ user, isCurrentUser }) => {
                 <Link
                   label={t('user.copy_api_token')}
                   onClick={onCopyToken}
-                  sx={{fontSize: '14px', fontWeight: 'bold', marginTop: '8px'}}
+                  sx={{fontSize: '12px', fontWeight: 'bold', marginTop: '8px'}}
                   startIcon={<CopyIcon fontSize='inherit' />}
                 />
             }
