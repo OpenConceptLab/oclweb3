@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Bookmarks from '../common/Bookmarks';
 import EmptyOverview from '../common/EmptyOverview'
 import Paper from '@mui/material/Paper'
-import URLRegistryIcon from '@mui/icons-material/DatasetLinked';
+import CanonicalURLIcon from '../common/CanonicalURLIcon';
 import Link from '../common/Link'
 import UserStatistics from './UserStatistics'
 import Members from '../orgs/OrgMembers';
@@ -31,7 +31,7 @@ const UserOverview = ({ user, bookmarks, height }) => {
           <Members title={t('common.following')} members={user?.following || []} />
         </div>
         <div className='col-xs-12 padding-0'>
-          <Link label={t('url_registry.view_canonical_url_registry')} href={`#/users/${user.username}/url-registry`} sx={{fontSize: '12px'}} startIcon={<URLRegistryIcon fontSize='inherit' sx={{color: 'surface.contrastText'}} />} />
+          <Link label={t('url_registry.view_canonical_url_registry')} href={`#/users/${user.username}/url-registry`} sx={{fontSize: '12px'}} startIcon={<CanonicalURLIcon fontSize='inherit' />} />
         </div>
       </Paper>
     </div>

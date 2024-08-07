@@ -6,7 +6,7 @@ import OrgMembers from './OrgMembers';
 import OrgStatistics from './OrgStatistics';
 import Paper from '@mui/material/Paper'
 import EmptyOverview from '../common/EmptyOverview'
-import URLRegistryIcon from '@mui/icons-material/DatasetLinked';
+import CanonicalURLIcon from '../common/CanonicalURLIcon';
 import Link from '../common/Link'
 
 
@@ -34,7 +34,7 @@ const OrgOverview = ({ org, bookmarks, members, height }) => {
           <OrgMembers members={members} />
         </div>
         <div className='col-xs-12 padding-0'>
-          <Link label={t('url_registry.view_canonical_url_registry')} href={`#/orgs/${org.id}/url-registry`} sx={{fontSize: '12px'}} startIcon={<URLRegistryIcon fontSize='inherit' sx={{color: 'surface.contrastText'}} />} />
+          <Link label={t('url_registry.view_canonical_url_registry')} href={`#/orgs/${org.id}/url-registry`} sx={{fontSize: '12px'}} startIcon={<CanonicalURLIcon fontSize='inherit' />} />
         </div>
       </Paper>
     </div>
