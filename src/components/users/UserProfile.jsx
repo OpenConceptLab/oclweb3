@@ -12,7 +12,7 @@ import EmailIcon from '@mui/icons-material/EmailOutlined';
 import LinkIcon from '@mui/icons-material/LinkOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import FollowIcon from '@mui/icons-material/VisibilityOutlined';
-import UnFollowIcon from '@mui/icons-material/VisibilityOffOutlined';
+import FollowingIcon from '@mui/icons-material/Done';
 import CopyIcon from '@mui/icons-material/ContentCopyOutlined';
 import { formatWebsiteLink, formatDate, canEditUser, sortOrgs, copyToClipboard, getCurrentUser, refreshCurrentUserCache } from '../../common/utils'
 import UserIcon from './UserIcon';
@@ -20,6 +20,7 @@ import OrgIcon from '../orgs/OrgIcon';
 import Link from '../common/Link'
 import { OperationsContext } from '../app/LayoutContext';
 import APIService from '../../services/APIService';
+import Button from '../common/Button'
 
 
 const UserProperty = ({icon, value, label}) => {
@@ -95,6 +96,18 @@ const UserProfile = ({ user, isCurrentUser }) => {
         <UserProperty icon={<EmailIcon sx={iconStyle} />} value={user?.email} />
         <UserProperty icon={<LinkIcon sx={iconStyle} />} value={user?.website} label={formatWebsiteLink(user?.website, {color: 'inherit'})} />
       </List>
+      {
+        Boolean(currentUser?.username && !isCurrentUser && user?.name) &&
+          <div style={{marginTop: '8px', marginBottom: '16px'}}>
+            <Button
+              icon={isFollowing ? <FollowingIcon sx={{fontSize: 'large'}} /> : <FollowIcon sx={{fontSize: 'large'}} />}
+              label={`${isFollowing ? t('common.following') : t('common.follow')} ${user.name}`}
+              onClick={onFollowToggle}
+              sx={{ backgroundColor: isFollowing ? 'surface.s90' : 'transparent', fontWeight: 'bold', borderColor: isFollowing ? 'none' : 'surface.s90', border: isFollowing ? 'none' : '1px solid', '.MuiChip-icon': {color: 'initial'} }}
+            />
+          </div>
+
+      }
       <Divider sx={{marginTop: '8px'}} />
       {
         userOrgs.length > 0 &&
@@ -137,18 +150,6 @@ const UserProfile = ({ user, isCurrentUser }) => {
                 />
             }
           </div>
-      }
-      {
-        Boolean(currentUser?.username && !isCurrentUser && user?.name) &&
-          <div style={{paddingLeft: '12px'}}>
-            <Link
-              label={`${isFollowing ? t('common.unfollow') : t('common.follow')} ${user.name}`}
-              onClick={onFollowToggle}
-              sx={{fontSize: '14px', fontWeight: 'bold', marginTop: '16px'}}
-              startIcon={isFollowing ? <UnFollowIcon fontSize='inherit' /> : <FollowIcon fontSize='inherit' />}
-            />
-          </div>
-
       }
     </React.Fragment>
   )
