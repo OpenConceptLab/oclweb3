@@ -44,7 +44,7 @@ const UserProperty = ({icon, value, label}) => {
 }
 
 
-const UserProfile = ({ user, isCurrentUser }) => {
+const UserProfile = ({ user }) => {
   const { t } = useTranslation()
   const params = useParams()
   const [apiToken, setApiToken] = React.useState(undefined)
@@ -68,6 +68,7 @@ const UserProfile = ({ user, isCurrentUser }) => {
   }, [params.user])
 
   const currentUser = getCurrentUser()
+  const isCurrentUser = Boolean(currentUser?.username && currentUser?.username == params.user)
   const isFollowing = currentUser?.following?.find(following => following.username == user.username)
 
   const onFollowToggle = () => {

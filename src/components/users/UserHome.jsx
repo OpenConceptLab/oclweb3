@@ -74,7 +74,7 @@ const UserHome = () => {
   return (
     <div className='col-xs-12 padding-0'>
       <div className='col-xs-3' style={{height: height, padding: '24px 24px 24px 8px', maxWidth: '20%', overflow: 'auto'}}>
-        <UserProfile user={user} isCurrentUser={isCurrentUser} />
+        <UserProfile user={user} />
       </div>
       <div className='col-xs-10 padding-0' style={{backgroundColor: '#FFF', borderRadius: '10px', height: height, maxWidth: '80%', border: `1px solid ${S_90}`, borderTop: 'none'}}>
         <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} sx={{borderTopLeftRadius: '10px', borderTopRightRadius: '10px'}} />
