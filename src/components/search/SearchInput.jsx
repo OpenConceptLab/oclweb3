@@ -55,8 +55,12 @@ const SearchInput = props => {
   }
 
   const applyURLRules = URL => {
-    if(URL.startsWith('/orgs/') && !URL.includes('/sources/') && !URL.includes('/collections/') && !URL.includes('/repos/') && !URL.endsWith('/repos'))
-      URL += 'repos/'
+    if((URL.startsWith('/orgs/') || URL.startsWith('/users/')) && !URL.includes('/sources/') && !URL.includes('/collections/') && !URL.includes('/repos/') && !URL.endsWith('/repos')) {
+      if(URL.includes('/edit'))
+        URL = URL.replace('/edit', '/repos')
+      else
+        URL += 'repos/'
+    }
     return URL
   }
 
