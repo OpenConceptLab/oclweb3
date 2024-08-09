@@ -320,6 +320,7 @@ const Search = props => {
   }
 
   const onShowItemSelect = item => {
+    setSelected([])
     setShowItem(item || false)
     props.onShowItem && props.onShowItem(item || false)
   }
@@ -373,6 +374,7 @@ const Search = props => {
                   results={result[resource]}
                   resource={resource}
                   onPageChange={onPageChange}
+                  selected={selected}
                   onSelect={newSelected => setSelected(newSelected)}
                   selectedToShow={showItem}
                   onShowItemSelect={onShowItemSelect}

@@ -83,7 +83,7 @@ const SearchResults = props => {
   const [display, setDisplay] = React.useState(props.display || 'table')
   const [cardDisplayAnimation, setCardDisplayAnimation] = React.useState('animation-disappear')
   const [tableDisplayAnimation, setTableDisplayAnimation] = React.useState('animation-appear')
-  const [selected, setSelected] = React.useState([]);
+  const [selected, setSelected] = React.useState(props.selected || []);
   const page = props.results?.page;
   const rowsPerPage = props.results?.pageSize;
 
@@ -194,6 +194,10 @@ const SearchResults = props => {
   }
 
   const isCardDisplay = display === 'card'
+
+  React.useEffect(() => {
+    setSelected(props.selected || [])
+  }, [props.selected])
 
   return (
     <Box sx={{ width: '100%', background: 'inherit', height: '100%' }}>
