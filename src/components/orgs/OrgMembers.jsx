@@ -22,7 +22,9 @@ const Member = ({ member }) => {
 const OrgMembers = ({ members, title }) => {
   const { t } = useTranslation()
   const [more, setMore] = React.useState(false)
-  const ordered = [...orderBy(filter(members, 'logo_url'), 'name'), ...orderBy(reject(members, 'logo_url'), 'name')]
+  const ordered = [
+    ...orderBy(filter(members, 'logo_url'), 'name'), ...orderBy(reject(members, 'logo_url'), 'name'),
+  ]
   const isMore = ordered.length > DEFAULT_MEMBERS_TO_SHOW
   const getMembers = () => isMore ? (more ? ordered : ordered.slice(0, DEFAULT_MEMBERS_TO_SHOW)) : ordered
   return members && members?.length ? (
@@ -35,7 +37,20 @@ const OrgMembers = ({ members, title }) => {
           map(getMembers(), member => (<Member key={member.url} member={member} />))
         }
         {
-          isMore && !more && <Link label={`+${members.length - DEFAULT_MEMBERS_TO_SHOW} ${t('common.more')}`} onClick={() => setMore(!more)} sx={{fontSize: '12px'}} />
+          isMore && !more &&
+            <Link
+              label={`+${members.length - DEFAULT_MEMBERS_TO_SHOW} ${t('common.more')}`}
+              onClick={() => setMore(!more)}
+              sx={{fontSize: '12px'}}
+            />
+        }
+        {
+          isMore && more &&
+            <Link
+              label={t('common.less')}
+              onClick={() => setMore(!more)}
+              sx={{fontSize: '12px'}}
+            />
         }
       </div>
     </div>
