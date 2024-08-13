@@ -57,8 +57,9 @@ const UserForm = ({ user }) => {
               window.location.reload()
           }
           if(sessionUser.username === user.username)
-            refreshCurrentUserCache(() => {})
-          callback()
+            refreshCurrentUserCache(callback)
+          else
+            callback()
         } else
           setAlert({duration: 2000, message: t('user.profile_update_failure'), severity: 'error'})
       })
@@ -162,7 +163,6 @@ const UserForm = ({ user }) => {
           <FormHelperText>{t('user.about_me_description')}</FormHelperText>
           <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>
             <TextField
-              required
               size='small'
               variant='outlined'
               label={t('user.bio')}

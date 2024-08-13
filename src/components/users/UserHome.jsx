@@ -30,7 +30,7 @@ const UserHome = () => {
   const fetchUser = () => {
     setBookmarks(false)
     if(isCurrentUser) {
-      setUser(currentUser)
+      setUser(getCurrentUser())
       fetchBookmarks()
     } else {
       APIService.users(params.user).get(null, null, {includeSubscribedOrgs: true}).then(response => {
