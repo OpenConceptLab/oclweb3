@@ -109,6 +109,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
               const isItemSelectedToShow = isItemShown(id)
               const labelId = `enhanced-table-checkbox-${index}`;
               const color = row.retired ? SECONDARY : 'none'
+              let bgColor = isItemSelected ? 'primary.80' : (isItemSelectedToShow ? 'primary.90' : '')
 
               return (
                 <TableRow
@@ -122,8 +123,12 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
                   className={isItemSelectedToShow ? 'show-item' : ''}
                   sx={{
                     cursor: 'pointer',
-                    '&.Mui-selected': {backgroundColor: WHITE},
-                    '&.Mui-selected:hover': {backgroundColor: WHITE},
+                    '&.Mui-selected': {backgroundColor: bgColor},
+                    '&.Mui-selected:hover': {backgroundColor: bgColor},
+                    backgroundColor: bgColor,
+                    '&.MuiTableRow-hover:hover': {
+                      backgroundColor: bgColor
+                    }
                   }}
                 >
                   <TableCell padding="checkbox" onClick={event => handleClick(event, id)} style={{color: color}}>
