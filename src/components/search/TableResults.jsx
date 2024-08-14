@@ -11,7 +11,7 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { visuallyHidden } from '@mui/utils';
 import { filter, reject, get } from 'lodash'
-import { SECONDARY, WHITE } from '../../common/constants';
+import { SECONDARY } from '../../common/constants';
 import { ALL_COLUMNS } from './ResultConstants';
 
 const EnhancedTableHead = props => {
