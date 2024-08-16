@@ -13,7 +13,7 @@
     "@mui/material": "5.14.5",
     "@mui/styles": "5.14.5",
     "@mui/x-date-pickers": "^5.0.20",
-    "axios": "^1.7.3",
+    "axios": "^1.7.4",
     "core-js": "^3.38.0",
     "i18next": "^22.4.9",
     "lodash": "^4.17.21",
