@@ -2,7 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import Carousel from 'react-material-ui-carousel'
 import { Chip } from '@mui/material'
-import {  WHITE } from '../../common/constants'
+import {  WHITE } from '../../common/colors'
 import { getCurrentUser, isLoggedIn, getLoginURL, getRegisterURL } from '../../common/utils';
 import AddButton from '../common/AddButton';
 import Link from '../common/Link';

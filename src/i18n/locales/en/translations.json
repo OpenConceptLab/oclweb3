@@ -185,7 +185,8 @@
     "bio": "Short bio",
     "about_me": "About me",
     "about_me_description": "Create an introduction for visiting your profile.",
-    "user_has_not_created_public_repos_suffix": "has not created any public repositories"
+    "user_has_not_created_public_repos_suffix": "has not created any public repositories",
+    "recent_activity": "recent activity"
   },
   "search": {
     "filters": "Filters",

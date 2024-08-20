@@ -1,57 +1,14 @@
-export const WHITE = '#FFF';
-export const BLACK = '#000';
-
-// v3
-export const PRIMARY = '#4836ff'
-export const SECONDARY = '#5e5c71'
-export const TERTIARY = '#7a5368'
-export const ERROR = '#ba1a1a'
-export const SURFACE = '#fcf8fd'
-
-export const SURFACE_DARK = '#1c1b1f'
-export const SURFACE_LIGHT = '#787680'
-export const PRIMARY_95 = '#f2efff'
-export const PRIMARY_90 = '#e2dfff'
-export const PRIMARY_80 = '#c3c0ff'
-export const PRIMARY_DARK = '#c3c0ff'
-export const SECONDARY_DARK = '#c7c4dd';
-export const SECONDARY_50 = '#76758b';
-export const TERTIARY_DARK = '#eab9d1';
-export const ERROR_DARK = '#ffb4ab'
-export const TEXT_GRAY = '#47464f'
-export const BG_GRAY = '#f6f2f7'
-export const LIGHT_GRAY = '#e5e1e6'
-export const VERY_LIGH_GRAY = '#5e5c71'
-export const NV_80 = '#c8c5d0'
-export const N_92 = '#ebe7ec'
-export const S_90 = '#e3e0f9'
-
 export const LANGUAGES = [
   {locale: 'en', name: 'English'},
   {locale: 'es', name: "Español"}
 ]
 
 
-// v2
-export const BLUE = 'rgb(51, 115, 170)';
-export const DARKGRAY = 'rgb(119, 119, 119)';
-export const HEADER_GRAY = '#f6f8fa';
 export const DATE_FORMAT = 'MM/DD/YYYY';
-export const DATETIME_FORMAT = DATE_FORMAT + ' hh:mm A';
+export const TIME_FORMAT = 'hh:mm A';
+export const DATETIME_FORMAT = DATE_FORMAT + ' ' + TIME_FORMAT;
 export const DEFAULT_LIMIT = 25;
-export const COLOR_SELECTED = 'rgb(170, 100, 123)';
-export const COLOR_ROW_SELECTED = 'rgba(119, 119, 119, 0.16)';
-export const GREEN = '#5cb85c';
-export const RED = '#c33';
-export const ERROR_RED = '#f44336';
-export const TOMATO_RED = '#ef6030';
-export const ACTION_RED = '#d32f2f';
-export const ORANGE = 'rgb(253, 164, 41)';
 export const EMPTY_VALUE = '-';
-export const DIFF_BG_HIGHLIGHT = '#fffbdd';
-export const DIFF_HIGHLIGHT_RED = '#fdb8c0';
-export const DIFF_BG_GREEN = '#e6ffed';
-export const DIFF_HIGHLIGHT_GREEN = '#acf2bd';
 export const SOURCE_TYPES = [
   'Dictionary',
   'Interface Terminology',

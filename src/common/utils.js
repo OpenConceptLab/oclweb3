@@ -10,7 +10,7 @@ import {
   uniqBy, cloneDeep, isEqual, without, capitalize, last, nth, startCase, uniq, flatten, pickBy
 } from 'lodash';
 import {
-  DATE_FORMAT, DATETIME_FORMAT, OCL_SERVERS_GROUP, OCL_FHIR_SERVERS_GROUP, HAPI_FHIR_SERVERS_GROUP,
+  DATE_FORMAT, TIME_FORMAT, DATETIME_FORMAT, OCL_SERVERS_GROUP, OCL_FHIR_SERVERS_GROUP, HAPI_FHIR_SERVERS_GROUP,
   OPENMRS_URL, DEFAULT_FHIR_SERVER_FOR_LOCAL_ID, OPERATIONS_PANEL_GROUP
 } from './constants';
 import APIService from '../services/APIService';
@@ -23,7 +23,7 @@ export const isAtGlobalSearch = () => window.location.hash.includes('#/search') 
 export const isAtRoot = () => currentPath() === '#/';
 
 export const formatDate = date => moment(date).format(DATE_FORMAT);
-
+export const formatTime = date => moment(date).format(TIME_FORMAT);
 export const formatDateTime = date => moment(date).format(DATETIME_FORMAT);
 
 export const formatWebsiteLink = (value, style, text) => {

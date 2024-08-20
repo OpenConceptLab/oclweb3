@@ -1,7 +1,7 @@
 import React from 'react';
 import SvgIcon from '@mui/material/SvgIcon';
 import { useTranslation } from 'react-i18next'
-import { BLACK, PRIMARY } from '../../common/constants';
+import { BLACK, PRIMARY_COLORS } from '../../common/colors';
 
 const Error404 = () => {
   const { t } = useTranslation()
@@ -59,7 +59,7 @@ const Error404 = () => {
       </div>
       <div className='col-xs-12'>
         <p style={{color: BLACK, fontSize: '16px', margin: 0}}>
-          {t('common.please')} <a className='no-anchor-styles' onClick={() => window.location.reload()} style={{cursor: 'pointer', color: PRIMARY}}>{t('common.refresh')}</a> {t('common.or')} {t('common.go_to_your')} <a href='/' className='no-anchor-styles' style={{color: PRIMARY}}>{t('dashboard.name')}</a>.
+          {t('common.please')} <a className='no-anchor-styles' onClick={() => window.location.reload()} style={{cursor: 'pointer', color: PRIMARY_COLORS.main}}>{t('common.refresh')}</a> {t('common.or')} {t('common.go_to_your')} <a href='/' className='no-anchor-styles' style={{color: PRIMARY_COLORS.main}}>{t('dashboard.name')}</a>.
         </p>
       </div>
     </div>

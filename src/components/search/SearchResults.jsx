@@ -10,7 +10,6 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
 import { isNumber, isNaN } from 'lodash'
-import { TEXT_GRAY } from '../../common/constants';
 import SearchControls from './SearchControls';
 import NoResults from './NoResults';
 import TableResults from './TableResults';
@@ -235,7 +234,7 @@ const SearchResults = props => {
             showLastButton
             sx={{
               width: '100%',
-              '& .MuiTablePagination-actions svg': { color: TEXT_GRAY},
+              '& .MuiTablePagination-actions svg': { color: 'surface.contrastText'},
               '& .MuiTablePagination-actions .Mui-disabled.MuiIconButton-root svg': { color: 'rgba(0, 0, 0, 0.26)'}
             }}
           />

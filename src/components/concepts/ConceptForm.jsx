@@ -5,7 +5,6 @@ import TextField from '@mui/material/TextField'
 import CloseIconButton from '../common/CloseIconButton';
 import APIService from '../../services/APIService'
 import FormComponent, { CardSection } from '../common/FormComponent'
-import { S_90 } from '../../common/constants';
 import { sortValuesBySourceSummary } from '../repos/utils';
 import {
   fetchDatatypes, fetchNameTypes, fetchDescriptionTypes, fetchConceptClasses, fetchLocales
@@ -290,7 +289,7 @@ class ConceptForm extends FormComponent  {
             }
           </div>
           <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
-            <Button label={t('common.add')} sx={{backgroundColor: S_90}} onClick={this.onAddNameLocale} />
+            <Button label={t('common.add')} sx={{backgroundColor: 'surface.s90'}} onClick={this.onAddNameLocale} />
           </div>
         </CardSection>
         <CardSection title={t('concept.form.descriptions.header')}>
@@ -313,7 +312,7 @@ class ConceptForm extends FormComponent  {
             }
           </div>
           <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
-            <Button label={t('common.add')} sx={{backgroundColor: S_90}} onClick={this.onAddDescriptionLocale} />
+            <Button label={t('common.add')} sx={{backgroundColor: 'surface.s90'}} onClick={this.onAddDescriptionLocale} />
           </div>
         </CardSection>
         <CardSection title={t('custom_attributes.label')}>
@@ -351,12 +350,12 @@ class ConceptForm extends FormComponent  {
             }
           </div>
           <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
-            <Button label={t('common.add')} sx={{backgroundColor: S_90}} onClick={this.onAddExtras} />
+            <Button label={t('common.add')} sx={{backgroundColor: 'surface.s90'}} onClick={this.onAddExtras} />
           </div>
         </CardSection>
 
         <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
-          <Button label={t('common.submit')} sx={{backgroundColor: S_90}} onClick={this.handleSubmit} />
+          <Button label={t('common.submit')} sx={{backgroundColor: 'surface.s90'}} onClick={this.handleSubmit} />
         </div>
       </div>
     )

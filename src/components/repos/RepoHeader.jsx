@@ -14,7 +14,7 @@ import RepoVersionChip from './RepoVersionChip';
 import RepoIcon from './RepoIcon';
 import DotSeparator from '../common/DotSeparator';
 import OwnerIcon from '../common/OwnerIcon';
-import { PRIMARY } from '../../common/constants';
+import { PRIMARY_COLORS } from '../../common/colors';
 import { formatDate } from '../../common/utils';
 import RepoManagementList from './RepoManagementList';
 
@@ -65,7 +65,7 @@ const RepoHeader = ({repo, versions, onVersionChange, onCreateConceptClick}) => 
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', fontSize: '16px'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
           <OwnerIcon ownerType={repo.ownerType} sx={{marginRight: '8px', color: 'surface.contrastText'}} />
-          <a style={{color: PRIMARY}} className='no-anchor-styles' href={`#${repo.owner_url}`}>{repo.owner}</a>
+          <a style={{color: PRIMARY_COLORS.main}} className='no-anchor-styles' href={`#${repo.owner_url}`}>{repo.owner}</a>
         </span>
         {
           isNumber(repo?.summary?.active_concepts) &&
@@ -87,7 +87,7 @@ const RepoHeader = ({repo, versions, onVersionChange, onCreateConceptClick}) => 
         }
         <DotSeparator margin="0 6px" />
         <span style={{display: 'flex', alignItems: 'center'}}>
-          <a style={{color: PRIMARY}} className='no-anchor-styles'>{t('common.view_all_attributes')}</a>
+          <a style={{color: PRIMARY_COLORS.main}} className='no-anchor-styles'>{t('common.view_all_attributes')}</a>
         </span>
         <DotSeparator margin="0 6px" />
         <span style={{display: 'flex', alignItems: 'center', opacity: 0.7}}>

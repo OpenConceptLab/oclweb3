@@ -7,7 +7,7 @@ import Tab from '@mui/material/Tab';
 import OrgIcon from '@mui/icons-material/AccountBalance';
 import UserIcon from '@mui/icons-material/Person';
 import { forEach, keys, pickBy, isEmpty, find, uniq, has, orderBy as sortBy, uniqBy, omit, max, isEqual } from 'lodash';
-import { WHITE, LIGHT_GRAY } from '../../common/constants';
+import { COLORS } from '../../common/colors';
 import { highlightTexts } from '../../common/utils';
 import APIService from '../../services/APIService';
 import RepoIcon from '../repos/RepoIcon';
@@ -297,7 +297,7 @@ const Search = props => {
   }
 
   const TAB_STYLES = {textTransform: 'none'}
-  const searchBgColor = showItem ? '#fcf8fd' : WHITE
+  const searchBgColor = showItem ? '#fcf8fd' : COLORS.primary.contrastText
   const getLastSelectedURL = () => {
     let URL = showItem?.version_url || showItem?.url
     if(showItem && ['concepts', 'mappings'].includes(resource)) {
@@ -340,7 +340,7 @@ const Search = props => {
       <div className={!props.nested && showItem?.id ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: props.nested ? '0px' : '10px', height: '100%', ...(props.containerStyle || {})}}>
         {
           !props.noTabs &&
-            <div className='col-xs-12 padding-0' style={{borderBottom: `1px solid ${LIGHT_GRAY}`}}>
+            <div className='col-xs-12 padding-0' style={{borderBottom: `1px solid ${COLORS.surface.n90}`}}>
               <Tabs value={resource} onChange={handleResourceChange} aria-label="search tabs" TabIndicatorProps={{style: {height: '3px'}}}>
                 <Tab value='concepts' icon={<ConceptIcon selected={resource == 'concepts'} fontSize='small' />} label={t('concept.concepts')} style={TAB_STYLES} />
                 <Tab value='repos' icon={<RepoIcon selected={resource == 'repos'} fontSize='small' />} label={t('repo.repos')} style={TAB_STYLES} />
@@ -391,7 +391,7 @@ const Search = props => {
       </div>
       {
         !props.nested &&
-          <div className={'col-xs-5 padding-0' + (showItem ? ' split-appear' : '')} style={{marginLeft: '16px', width: showItem ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: showItem ? 'calc(100vh - 100px)' : 0, opacity: showItem ? 1 : 0}}>
+          <div className={'col-xs-5 padding-0' + (showItem ? ' split-appear' : '')} style={{marginLeft: '16px', width: showItem ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: COLORS.primary.contrastText, borderRadius: '10px', height: showItem ? 'calc(100vh - 100px)' : 0, opacity: showItem ? 1 : 0}}>
             {
               showItem &&
                 <ConceptHome url={getLastSelectedURL()} onClose={() => setShowItem(false)} />

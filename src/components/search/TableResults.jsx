@@ -11,7 +11,7 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { visuallyHidden } from '@mui/utils';
 import { filter, reject, get } from 'lodash'
-import { SECONDARY } from '../../common/constants';
+import { SECONDARY_COLORS } from '../../common/colors';
 import { ALL_COLUMNS } from './ResultConstants';
 
 const EnhancedTableHead = props => {
@@ -108,7 +108,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
               const isItemSelected = isSelected(id);
               const isItemSelectedToShow = isItemShown(id)
               const labelId = `enhanced-table-checkbox-${index}`;
-              const color = row.retired ? SECONDARY : 'none'
+              const color = row.retired ? SECONDARY_COLORS.main : 'none'
               let bgColor = isItemSelected ? 'primary.80' : (isItemSelectedToShow ? 'primary.90' : '')
 
               return (

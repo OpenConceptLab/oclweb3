@@ -8,7 +8,7 @@ import RepoHeader from './RepoHeader';
 import CommonTabs from '../common/CommonTabs';
 import Search from '../search/Search';
 import { dropVersion, toParentURI } from '../../common/utils';
-import { WHITE } from '../../common/constants';
+import { WHITE } from '../../common/colors';
 import ConceptHome from '../concepts/ConceptHome';
 import ConceptForm from '../concepts/ConceptForm';
 import Error404 from '../errors/Error404';

@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useHistory } from 'react-router-dom'
 import { getCurrentUser } from '../../common/utils'
-import { S_90 } from '../../common/constants'
+import { COLORS } from '../../common/colors'
 import UserProfile from './UserProfile'
 import APIService from '../../services/APIService'
 import CommonTabs from '../common/CommonTabs';
@@ -17,6 +17,7 @@ const UserHome = () => {
   const [tab, setTab] = React.useState(findTab || 'overview')
   const [user, setUser] = React.useState({})
   const [bookmarks, setBookmarks] = React.useState(false)
+  const [events, setEvents] = React.useState(false)
   const height = 'calc(100vh - 100px)'
   const TABS = [
     {key: 'overview', label: t('common.overview')},
@@ -31,11 +32,13 @@ const UserHome = () => {
     setBookmarks(false)
     if(isCurrentUser) {
       setUser(getCurrentUser())
+      fetchEvents()
       fetchBookmarks()
     } else {
       APIService.users(params.user).get(null, null, {includeSubscribedOrgs: true}).then(response => {
         if(response.status === 200) {
           setUser(response.data)
+          fetchEvents()
           fetchBookmarks()
         }
         else if(response.status)
@@ -50,6 +53,14 @@ const UserHome = () => {
     if(params?.user && isCurrentUser) {
       APIService.users(params?.user).appendToUrl('pins/').get().then(response => {
         setBookmarks(response?.data?.length ? response.data : [])
+      })
+    }
+  }
+
+  const fetchEvents = () => {
+    if(params?.user) {
+      APIService.users(params?.user).appendToUrl('events/').get().then(response => {
+        setEvents(response?.data?.length ? response.data : [])
       })
     }
   }
@@ -76,7 +87,7 @@ const UserHome = () => {
       <div className='col-xs-3' style={{height: height, padding: '24px 24px 24px 8px', maxWidth: '20%', overflow: 'auto'}}>
         <UserProfile user={user} />
       </div>
-      <div className='col-xs-10 padding-0' style={{backgroundColor: '#FFF', borderRadius: '10px', height: height, maxWidth: '80%', border: `1px solid ${S_90}`, borderTop: 'none'}}>
+      <div className='col-xs-10 padding-0' style={{backgroundColor: COLORS.primary.contrastText, borderRadius: '10px', height: height, maxWidth: '80%', border: `1px solid ${COLORS.surface.s90}`, borderTop: 'none'}}>
         <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} sx={{borderTopLeftRadius: '10px', borderTopRightRadius: '10px'}} />
         {
           user?.url && tab === 'repos' &&
@@ -95,7 +106,7 @@ const UserHome = () => {
         }
         {
           tab === 'overview' && user?.url &&
-            <UserOverview user={user} bookmarks={bookmarks} height={height} />
+            <UserOverview user={user} bookmarks={bookmarks} events={events} height={height} />
         }
       </div>
     </div>

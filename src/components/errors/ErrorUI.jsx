@@ -2,13 +2,13 @@ import React from 'react';
 import { Divider, Collapse, Chip } from '@mui/material'
 import {ArrowRight as RightIcon, ArrowDropDown as DownIcon} from '@mui/icons-material'
 import { get, isObject } from 'lodash';
-import { ERROR_RED } from '../../common/constants';
+import { COLORS } from '../../common/colors';
 
 const ErrorUI = ({header, message, error, errorInfo}) => {
   const [open, setOpen] = React.useState(false)
   const icon = open ?
-               <DownIcon style={{color: ERROR_RED}} /> :
-               <RightIcon style={{color: ERROR_RED}} />;
+               <DownIcon color='error' sx={{color: 'error'}} /> :
+               <RightIcon color='error' sx={{color: 'error'}} />;
   const errorDetails = get(errorInfo, 'componentStack') ? errorInfo.componentStack : JSON.stringify(errorInfo, undefined, 2);
   const errorMsg = isObject(error) ? error.toString() : error;
   return (
@@ -23,7 +23,7 @@ const ErrorUI = ({header, message, error, errorInfo}) => {
           </div>
       {
         errorMsg &&
-          <div style={{color: ERROR_RED, display: 'inline-block', textAlign: 'center', marginTop: '15px'}}>
+          <div style={{color: COLORS.error.main, display: 'inline-block', textAlign: 'center', marginTop: '15px'}}>
           <Chip
             className='error-chip no-border'
             variant='outlined'

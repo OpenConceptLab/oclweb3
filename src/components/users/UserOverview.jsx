@@ -7,8 +7,9 @@ import CanonicalURLIcon from '../common/CanonicalURLIcon';
 import Link from '../common/Link'
 import UserStatistics from './UserStatistics'
 import Members from '../orgs/OrgMembers';
+import Events from '../common/Events';
 
-const UserOverview = ({ user, bookmarks, height }) => {
+const UserOverview = ({ user, bookmarks, events, height }) => {
   const { t } = useTranslation()
   const repos = (user?.public_sources || 0) + (user?.public_collections || 0)
 
@@ -21,6 +22,10 @@ const UserOverview = ({ user, bookmarks, height }) => {
             <div className='col-xs-12' style={{marginTop: '15%', marginBottom: '16px'}}>
               <EmptyOverview label={`${user.name} ${t('user.user_has_not_created_public_repos_suffix')}`} />
             </div>
+        }
+        {
+          events?.length &&
+            <Events user={user} events={events} />
         }
       </div>
       <Paper className='col-xs-3' sx={{width: '20% !important', borderLeft: '0.5px solid', borderColor: 'surface.n90', borderRadius: 0, boxShadow: 'none', padding: '16px', height: '100%', overflow: 'auto', backgroundColor: 'default.main'}}>

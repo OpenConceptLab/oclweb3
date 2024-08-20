@@ -10,7 +10,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import CloseIconButton from '../common/CloseIconButton';
 import { toOwnerURI } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
-import { BLACK } from '../../common/constants'
+import { BLACK } from '../../common/colors'
 import ConceptManagementList from './ConceptManagementList'
 
 const ConceptHeader = ({concept, onClose, repoURL, onEdit}) => {

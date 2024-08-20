@@ -9,7 +9,6 @@ import InputAdornment from '@mui/material/InputAdornment';
 import GlobalIcon from '@mui/icons-material/Language';
 import filter from 'lodash/filter';
 import { getCurrentUser, getCurrentUserOrgs } from '../../common/utils';
-import { WHITE } from '../../common/constants'
 import UserIcon from '../users/UserIcon';
 import OrgIcon from '../orgs/OrgIcon';
 
@@ -66,7 +65,7 @@ const NamespaceDropdown = ({onChange, label, id, owner, backgroundColor}) => {
           <TextField
             {...params}
             label={label}
-            sx={{backgroundColor: backgroundColor || WHITE}}
+            sx={{backgroundColor: backgroundColor || 'primary.contrastText'}}
             InputProps={ selectedOption?.icon ? {
               ...params.InputProps,
               startAdornment: (

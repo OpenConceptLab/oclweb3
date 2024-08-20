@@ -20,7 +20,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
 import BookmarkIcon from '@mui/icons-material/BookmarkBorder';
 import Chip from '@mui/material/Chip';
-import { BG_GRAY, TEXT_GRAY } from '../../common/constants';
+import { COLORS } from '../../common/colors';
 import { getCurrentUser } from '../../common/utils';
 import OCLLogo from '../common/OCLLogo';
 import SearchInput from '../search/SearchInput';
@@ -100,7 +100,7 @@ const Header = props => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" open={open} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} style={{backgroundColor: BG_GRAY, color: TEXT_GRAY, boxShadow: 'none'}}>
+      <AppBar position="fixed" open={open} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} style={{backgroundColor: COLORS.surface.n96, color: COLORS.surface.contrastText, boxShadow: 'none'}}>
         <Toolbar style={{paddingRight: '16px'}}>
           <div className='col-xs-12 padding-0 flex-vertical-center'>
             <div className='col-xs-1 padding-0 flex-vertical-center'>

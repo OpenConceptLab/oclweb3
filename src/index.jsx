@@ -9,67 +9,27 @@ import StylesProvider from '@mui/styles/StylesProvider';
 import App from './components/app/App';
 import LayoutContext from './components/app/LayoutContext';
 import './index.scss';
-import { PRIMARY, SECONDARY, WHITE, BG_GRAY, TEXT_GRAY, PRIMARY_DARK, SECONDARY_DARK, TERTIARY, TERTIARY_DARK, ERROR, ERROR_DARK, SURFACE, PRIMARY_95, PRIMARY_80, PRIMARY_90, SURFACE_DARK, SURFACE_LIGHT, LIGHT_GRAY, SECONDARY_50, NV_80, N_92, S_90, VERY_LIGH_GRAY } from './common/constants';
+import { COLORS } from './common/colors';
 import './i18n/config';
 
 const theme = createTheme();
 const v5Theme = createTheme(theme, {
   palette: {
-    primary: {
-      main: PRIMARY,
-      light: PRIMARY,
-      dark: PRIMARY_DARK,
-      "95": PRIMARY_95,
-      "90": PRIMARY_90,
-      "80": PRIMARY_80,
-      contrastText: WHITE,
-    },
-    secondary: {
-      main: SECONDARY,
-      light: SECONDARY,
-      dark: SECONDARY_DARK,
-      contrastText: WHITE,
-      s50: SECONDARY_50,
-    },
-    tertiary: {
-      main: TERTIARY,
-      light: TERTIARY,
-      dark: TERTIARY_DARK,
-      contrastText: WHITE,
-    },
-    "default": {
-      main: BG_GRAY,
-      dark: BG_GRAY,
-      light: VERY_LIGH_GRAY
-    },
-    error: {
-      main: ERROR,
-      light: ERROR,
-      dark: ERROR_DARK,
-      contrastText: WHITE,
-    },
+    ...COLORS,
     success: {
-      main: PRIMARY,
-      dark: PRIMARY_DARK,
-      light: PRIMARY,
-      contrastText: WHITE,
+      ...COLORS.primary
     },
     info: {
-      main: SECONDARY,
-      dark: SECONDARY,
-      light: SECONDARY,
-      contrastText: WHITE,
+      ...COLORS.secondary
     },
     surface: {
-      main: SURFACE,
-      light: SURFACE_LIGHT,
-      dark: SURFACE_DARK,
-      n90: LIGHT_GRAY,
-      n92: N_92,
-      contrastText: TEXT_GRAY,
-      nv80: NV_80,
-      s90: S_90
-    }
+      ...COLORS.surface
+    },
+    "default": {
+      main: COLORS.surface.n96,
+      dark: COLORS.surface.n96,
+      light: COLORS.secondary['40']
+    },
   },
   components: {
     MuiTooltip: {
@@ -86,34 +46,34 @@ const v5Theme = createTheme(theme, {
       },
       styleOverrides: {
         root: {
-          background: WHITE,
+          background: COLORS.primary.contrastText,
         },
       },
     },
     MuiListItemIcon: {
       styleOverrides: {
         root: {
-          color: TEXT_GRAY
+          color: COLORS.surface.contrastText
         }
       }
     },
     MuiTab: {
       styleOverrides: {
         root: {
-          color: TEXT_GRAY
+          color: COLORS.surface.contrastText
         }
       }
     },
     MuiButton: {
       variants: [
         {
-          props: { variant: "contained", color: BG_GRAY },
+          props: { variant: "contained", color: COLORS.surface.n96 },
           style: {
-            color: theme.palette.getContrastText(BG_GRAY)
+            color: theme.palette.getContrastText(COLORS.surface.n96)
           }
         },
         {
-          props: { variant: "outlined", color: BG_GRAY },
+          props: { variant: "outlined", color: COLORS.surface.n96 },
           style: {
             color: theme.palette.text.primary,
             borderColor:
@@ -136,7 +96,7 @@ const v5Theme = createTheme(theme, {
           }
         },
         {
-          props: { color: TEXT_GRAY, variant: "text" },
+          props: { color: COLORS.surface.contrastText, variant: "text" },
           style: {
             color: theme.palette.text.primary,
             "&:hover": {

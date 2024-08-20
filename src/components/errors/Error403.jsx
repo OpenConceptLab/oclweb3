@@ -2,7 +2,7 @@ import React from 'react';
 import SvgIcon from '@mui/material/SvgIcon';
 import { useTranslation } from 'react-i18next'
 import { startCase } from 'lodash'
-import { BLACK, PRIMARY } from '../../common/constants';
+import { BLACK, PRIMARY_COLORS } from '../../common/colors';
 
 const Error401 = () => {
   const { t } = useTranslation()
@@ -60,7 +60,7 @@ const Error401 = () => {
       </div>
       <div className='col-xs-12'>
         <p style={{color: BLACK, fontSize: '16px', margin: 0}}>
-          {startCase(t('common.go_to_your'))} <a className='no-anchor-styles' href='#/' style={{cursor: 'pointer', color: PRIMARY}}>{t('dashboard.name')}</a>.
+          {startCase(t('common.go_to_your'))} <a className='no-anchor-styles' href='#/' style={{cursor: 'pointer', color: PRIMARY_COLORS.main}}>{t('dashboard.name')}</a>.
         </p>
       </div>
     </div>
