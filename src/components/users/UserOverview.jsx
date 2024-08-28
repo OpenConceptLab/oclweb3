@@ -6,7 +6,7 @@ import Paper from '@mui/material/Paper'
 import CanonicalURLIcon from '../common/CanonicalURLIcon';
 import Link from '../common/Link'
 import UserStatistics from './UserStatistics'
-import Members from '../orgs/OrgMembers';
+import Following from './Following';
 import Events from '../common/Events';
 
 const UserOverview = ({ user, bookmarks, events, height }) => {
@@ -33,7 +33,7 @@ const UserOverview = ({ user, bookmarks, events, height }) => {
           <UserStatistics user={user} />
         </div>
         <div className='col-xs-12 padding-0'>
-          <Members title={t('common.following')} members={user?.following || []} />
+          <Following title={t('common.following')} following={user?.following || []} />
         </div>
         <div className='col-xs-12 padding-0'>
           <Link label={t('url_registry.view_canonical_url_registry')} href={`#/users/${user.username}/url-registry`} sx={{fontSize: '12px'}} startIcon={<CanonicalURLIcon fontSize='inherit' />} />

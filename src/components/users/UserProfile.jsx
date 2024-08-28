@@ -11,16 +11,14 @@ import LocationIcon from '@mui/icons-material/LocationOnOutlined';
 import EmailIcon from '@mui/icons-material/EmailOutlined';
 import LinkIcon from '@mui/icons-material/LinkOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
-import FollowIcon from '@mui/icons-material/VisibilityOutlined';
-import FollowingIcon from '@mui/icons-material/Done';
 import CopyIcon from '@mui/icons-material/ContentCopyOutlined';
-import { formatWebsiteLink, formatDate, canEditUser, sortOrgs, copyToClipboard, getCurrentUser, refreshCurrentUserCache } from '../../common/utils'
+import { formatWebsiteLink, formatDate, canEditUser, sortOrgs, copyToClipboard, getCurrentUser } from '../../common/utils'
 import UserIcon from './UserIcon';
 import OrgIcon from '../orgs/OrgIcon';
 import Link from '../common/Link'
 import { OperationsContext } from '../app/LayoutContext';
 import APIService from '../../services/APIService';
-import Button from '../common/Button'
+import FollowActionButton from '../common/FollowActionButton'
 
 
 const UserProperty = ({icon, value, label}) => {
@@ -49,7 +47,6 @@ const UserProfile = ({ user }) => {
   const params = useParams()
   const [apiToken, setApiToken] = React.useState(undefined)
   const { setAlert } = React.useContext(OperationsContext);
-  const [updated, setUpdated] = React.useState(0)
   const iconStyle = {fontSize: '20px', color: 'secondary.main'}
   const userOrgs = sortOrgs(user?.subscribed_orgs || [])
   const onCopyToken = () => {
@@ -69,20 +66,6 @@ const UserProfile = ({ user }) => {
 
   const currentUser = getCurrentUser()
   const isCurrentUser = Boolean(currentUser?.username && currentUser?.username == params.user)
-  const isFollowing = currentUser?.following?.find(following => following.username == user.username)
-
-  const onFollowToggle = () => {
-    const service = APIService.users(currentUser.username).appendToUrl('following/')
-    if(isFollowing)
-      service.appendToUrl(`${user.username}/`).delete().then(() => {
-        refreshCurrentUserCache(() => setUpdated(updated + 1))
-      })
-    else
-      service.post({'follow': user.username}).then(() => {
-        refreshCurrentUserCache(() => setUpdated(updated + 1))
-      })
-  }
-
 
   return (
     <React.Fragment>
@@ -101,12 +84,7 @@ const UserProfile = ({ user }) => {
       {
         Boolean(currentUser?.username && !isCurrentUser && user?.name) &&
           <div style={{marginTop: '8px', marginBottom: '16px'}}>
-            <Button
-              icon={isFollowing ? <FollowingIcon sx={{fontSize: 'large'}} /> : <FollowIcon sx={{fontSize: 'large'}} />}
-              label={`${isFollowing ? t('common.following') : t('common.follow')} ${user.name}`}
-              onClick={onFollowToggle}
-              sx={{ backgroundColor: isFollowing ? 'surface.s90' : 'transparent', fontWeight: 'bold', borderColor: isFollowing ? 'none' : 'surface.s90', border: isFollowing ? 'none' : '1px solid', '.MuiChip-icon': {color: 'initial'} }}
-            />
+            <FollowActionButton entity={user} />
           </div>
 
       }

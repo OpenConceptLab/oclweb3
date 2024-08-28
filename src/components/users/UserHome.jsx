@@ -28,14 +28,21 @@ const UserHome = () => {
   const currentUser = getCurrentUser()
   const isCurrentUser = Boolean(currentUser?.username && currentUser?.username == params.user)
 
-  const fetchUser = () => {
+  const reset = () => {
+    setUser({})
+    setEvents(false)
     setBookmarks(false)
+  }
+
+  const fetchUser = () => {
+    reset()
+
     if(isCurrentUser) {
       setUser(getCurrentUser())
       fetchEvents()
       fetchBookmarks()
     } else {
-      APIService.users(params.user).get(null, null, {includeSubscribedOrgs: true}).then(response => {
+      APIService.users(params.user).get(null, null, {includeSubscribedOrgs: true, includeFollowing: true}).then(response => {
         if(response.status === 200) {
           setUser(response.data)
           fetchEvents()

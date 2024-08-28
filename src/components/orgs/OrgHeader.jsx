@@ -5,7 +5,6 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import ShareIcon from '@mui/icons-material/Share';
-import BookmarkIcon from '@mui/icons-material/BookmarkBorder';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import LocationIcon from '@mui/icons-material/LocationOnOutlined';
 import LinkIcon from '@mui/icons-material/LinkOutlined';
@@ -13,6 +12,7 @@ import { formatWebsiteLink } from '../../common/utils'
 import Link from '../common/Link'
 import EntityAttributesDialog from '../common/EntityAttributesDialog'
 import OrgIcon from './OrgIcon';
+import FollowActionButton from '../common/FollowActionButton'
 
 
 const Property = ({icon, value, label}) => {
@@ -46,9 +46,7 @@ const OrgHeader = ({ org }) => {
           <Typography sx={{fontSize: '28px', color: 'surface.dark', fontWeight: 600}}>{org.name}</Typography>
         </div>
         <div className='col-xs-4 padding-0' style={{textAlign: 'right'}}>
-          <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
-            <BookmarkIcon fontSize='inherit' />
-          </IconButton>
+          <FollowActionButton iconButton entity={org} />
           <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
             <ShareIcon fontSize='inherit' />
           </IconButton>

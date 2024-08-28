@@ -12,10 +12,11 @@ import Button from '@mui/material/Button';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
 import Divider from '@mui/material/Divider';
+import map from 'lodash/map'
 import { getCurrentUser, refreshCurrentUserCache, getCurrentUserOrgs } from '../../common/utils';
 import Drawer from '../common/Drawer';
 import OrgIcon from '../orgs/OrgIcon';
-import { getIcon } from '../common/Bookmark'
+import EntityIcon from '../common/EntityIcon'
 
 
 const DrawerHeader = styled('div')(({ theme }) => ({
@@ -32,13 +33,16 @@ const LeftMenu = ({ isOpen, onClose }) => {
   const location = useLocation()
   const user = getCurrentUser()
 
+  const formatFollowing = following => map(following, 'object') || []
+
   const [orgs, setOrgs] = React.useState(getCurrentUserOrgs())
-  const [bookmarks, setBookmarks] = React.useState(user?.pins || [])
+  const [following, setFollowing] = React.useState(formatFollowing(user?.following))
+
 
   const fetchData = () => {
     refreshCurrentUserCache(response => {
       setOrgs(getCurrentUserOrgs())
-      setBookmarks(response?.data?.pins || [])
+      setFollowing(formatFollowing(response?.data?.following))
     })
   }
 
@@ -164,21 +168,21 @@ const LeftMenu = ({ isOpen, onClose }) => {
           disablePadding
           sx={{ display: 'block', padding: 2, borderRadius: '100px' }}
           secondaryAction={
-            <span><b>{bookmarks?.length}</b></span>
+            <span><b>{following?.length}</b></span>
           }>
           <ListItemText
             primary={
               <Typography
                 component="div"
                 sx={{color: 'secondary.main', fontWeight: 'bold'}}>
-                {t('bookmarks.name')}
+                {t('common.following')}
               </Typography>
             }
           />
         </ListItem>
         {
-          bookmarks.map(bookmark => (
-            <ListItem disablePadding sx={{ display: 'block', maxWidth: '336px' }} key={bookmark.id}>
+          following.map(followed => (
+            <ListItem disablePadding sx={{ display: 'block', maxWidth: '336px' }} key={followed.url}>
               <ListItemButton
                 onClick={onClose}
                 sx={{
@@ -187,7 +191,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
                   px: 2,
                   borderRadius: '100px'
                 }}
-                href={`#${bookmark?.resource_uri}`}
+                href={`#${followed.url}`}
                 className='no-anchor-styles'
               >
                 <ListItemIcon
@@ -197,11 +201,9 @@ const LeftMenu = ({ isOpen, onClose }) => {
                     justifyContent: 'center',
                   }}
                 >
-                  {
-                    getIcon(bookmark, {color: 'secondary.main'})
-                  }
+                  <EntityIcon noLink strict entity={followed} isVersion={(followed?.short_code && followed?.version_url)} sx={{color: 'secondary.main'}} />
                 </ListItemIcon>
-                <ListItemText primary={bookmark.resource.name || bookmark.resource.id} sx={{ '.MuiListItemText-primary': {fontWeight: 'bold'} }} />
+                <ListItemText primary={followed.name || followed.id} sx={{ '.MuiListItemText-primary': {fontWeight: 'bold'} }} />
               </ListItemButton>
             </ListItem>
           ))

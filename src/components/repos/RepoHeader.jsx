@@ -6,7 +6,6 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
 import ShareIcon from '@mui/icons-material/Share';
-import BookmarkIcon from '@mui/icons-material/BookmarkBorder';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import isNumber from 'lodash/isNumber';
 import HeaderChip from '../common/HeaderChip';
@@ -17,6 +16,7 @@ import OwnerIcon from '../common/OwnerIcon';
 import { PRIMARY_COLORS } from '../../common/colors';
 import { formatDate } from '../../common/utils';
 import RepoManagementList from './RepoManagementList';
+import FollowActionButton from '../common/FollowActionButton'
 
 const RepoHeader = ({repo, versions, onVersionChange, onCreateConceptClick}) => {
   const { t } = useTranslation()
@@ -45,11 +45,9 @@ const RepoHeader = ({repo, versions, onVersionChange, onCreateConceptClick}) => 
         <RepoVersionChip version={repo} versions={versions} sx={{marginLeft: '8px'}} onChange={onVersionChange} />
       </div>
       <div className='col-xs-6 padding-0' style={{textAlign: 'right'}}>
+        <FollowActionButton iconButton entity={repo} />
         <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
           <DownloadIcon fontSize='inherit' />
-        </IconButton>
-        <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
-          <BookmarkIcon fontSize='inherit' />
         </IconButton>
         <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
           <ShareIcon fontSize='inherit' />

@@ -79,8 +79,7 @@
   "bookmarks": {
     "name": "Bookmarks",
     "pinned": "Pinned",
-    "pinned_repos": "Pinned repositories",
-    "following": "Following"
+    "pinned_repos": "Pinned repositories"
   },
   "auth": {
     "sign_in": "Sign in",
