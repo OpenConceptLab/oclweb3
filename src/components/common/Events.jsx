@@ -37,7 +37,7 @@ const EventDescription = ({ event, isFirst, isLast }) => {
       {
         rel ?
           <Link href={'#' + (event.referenced_object?.version_url || event.referenced_object?.url)} label={rel} sx={{fontSize: '14px', paddingLeft: '4px', minWidth: 'auto'}} /> :
-          null
+        null
       }
     </Typography>
   )
@@ -72,31 +72,52 @@ const Event = ({ event, isFirst, isLast }) => {
   )
 }
 
-const Events = ({ user, events }) => {
+const Events = ({ user, events, onLoadMore }) => {
   const { t } = useTranslation()
+
   return (
     <div className='col-xs-12 padding-0'>
       <Typography component='h3' sx={{margin: '16px 0', fontWeight: 'bold', display: 'flex'}}>
         {`${user.first_name}'s ${t('user.recent_activity')}`}
       </Typography>
-    <Timeline
-      sx={{
-        [`& .${timelineOppositeContentClasses.root}`]: {
-          flex: 0.2,
-        },
-        p: 0,
-        marginTop: 0,
-        maxHeight: '400px',
-        overflow: 'auto'
-      }}
-    >
-      {
-        map(events, (event, i) => (
-          <Event key={i} event={event} isFirst={i === 0} isLast={i === events?.length - 1} />
-        ))
-      }
-    </Timeline>
-        </div>
+      <Timeline
+        id="events-timeline"
+        sx={{
+          [`& .${timelineOppositeContentClasses.root}`]: {
+            flex: 0.2,
+          },
+          p: 0,
+          marginTop: 0,
+          maxHeight: '420px',
+          overflow: 'auto'
+        }}
+      >
+        {
+          map(events, (event, i) => (
+            <Event key={i} event={event} isFirst={i === 0} isLast={onLoadMore ? false : i === events?.length - 1} />
+          ))
+        }
+        {
+          onLoadMore &&
+            <TimelineItem>
+              <TimelineOppositeContent
+                sx={{ m: 'auto 0', fontSize: '12px', px: '19px' }}
+                variant="body2"
+              />
+              <TimelineSeparator>
+                <TimelineDot sx={{backgroundColor: 'transparent', boxShadow: 'none', marginLeft: '-15px', marginTop: 0}}>
+                  <Link
+                    label={t('common.more')}
+                    onClick={onLoadMore}
+                    sx={{fontSize: '12px'}}
+                  />
+                </TimelineDot>
+              </TimelineSeparator>
+              <TimelineContent />
+            </TimelineItem>
+        }
+      </Timeline>
+    </div>
   );
 }
 

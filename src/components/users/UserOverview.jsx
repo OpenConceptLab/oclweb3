@@ -9,7 +9,7 @@ import UserStatistics from './UserStatistics'
 import Following from './Following';
 import Events from '../common/Events';
 
-const UserOverview = ({ user, bookmarks, events, height }) => {
+const UserOverview = ({ user, bookmarks, events, height, onLoadMoreEvents }) => {
   const { t } = useTranslation()
   const repos = (user?.public_sources || 0) + (user?.public_collections || 0)
 
@@ -19,7 +19,7 @@ const UserOverview = ({ user, bookmarks, events, height }) => {
         <Bookmarks bookmarks={bookmarks} />
         {
           Boolean(events?.length) &&
-            <Events user={user} events={events} height={height} />
+            <Events user={user} events={events} height={height} onLoadMore={onLoadMoreEvents} />
         }
         {
           Boolean(user?.url && repos == 0 && events?.length === 0) &&

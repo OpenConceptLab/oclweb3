@@ -18,6 +18,8 @@ const UserHome = () => {
   const [user, setUser] = React.useState({})
   const [bookmarks, setBookmarks] = React.useState(false)
   const [events, setEvents] = React.useState(false)
+  const [eventsPage, setEventsPage] = React.useState(0)
+  const [haveMoreEvents, setHaveMoreEvents] = React.useState(false)
   const height = 'calc(100vh - 100px)'
   const TABS = [
     {key: 'overview', label: t('common.overview')},
@@ -66,8 +68,16 @@ const UserHome = () => {
 
   const fetchEvents = () => {
     if(params?.user) {
-      APIService.users(params?.user).appendToUrl('events/').get().then(response => {
-        setEvents(response?.data?.length ? response.data : [])
+      APIService.users(params?.user).appendToUrl('events/').get(null, null, {limit: 5, page: eventsPage + 1}).then(response => {
+        setEvents([...(events || []), ...(response?.data?.length ? response.data : [])])
+        setEventsPage(response?.headers?.page_number ? parseInt(response.headers.page_number) : 0)
+        setHaveMoreEvents(Boolean(response?.headers?.next))
+        setTimeout(() => {
+          const el = document.getElementById('events-timeline')
+          if(el) {
+            el.scrollTop = el.scrollHeight
+          }
+        }, 50)
       })
     }
   }
@@ -113,7 +123,7 @@ const UserHome = () => {
         }
         {
           tab === 'overview' && user?.url &&
-            <UserOverview user={user} bookmarks={bookmarks} events={events} height={height} />
+            <UserOverview user={user} bookmarks={bookmarks} events={events} height={height} onLoadMoreEvents={haveMoreEvents ? fetchEvents : false} />
         }
       </div>
     </div>
