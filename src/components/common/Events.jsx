@@ -46,6 +46,8 @@ const EventDescription = ({ event, isFirst, isLast }) => {
 
 
 const Event = ({ event, isFirst, isLast }) => {
+  const hasReferencedObjectLogo = Boolean(event.referenced_object?.logo_url)
+  let dotStyle = hasReferencedObjectLogo ? {padding: 0, borderWidth: '1px'} : {}
   return (
     <TimelineItem>
       <TimelineOppositeContent
@@ -61,7 +63,7 @@ const Event = ({ event, isFirst, isLast }) => {
       </TimelineOppositeContent>
       <TimelineSeparator>
         { !isFirst && <TimelineConnector /> }
-        <TimelineDot sx={{backgroundColor: 'primary.60'}}>
+        <TimelineDot sx={{backgroundColor: 'primary.60', ...dotStyle}}>
           <EntityIcon noLink strict entity={event.referenced_object} isVersion={(event.referenced_object?.short_code && event.referenced_object?.version_url)} sx={{color: '#FFF'}} />
         </TimelineDot>
         { !isLast && <TimelineConnector /> }
