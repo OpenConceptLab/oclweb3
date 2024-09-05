@@ -64,7 +64,7 @@ const Event = ({ event, isFirst, isLast }) => {
       <TimelineSeparator>
         { !isFirst && <TimelineConnector /> }
         <TimelineDot sx={{backgroundColor: 'primary.60', ...dotStyle}}>
-          <EntityIcon noLink strict entity={event.referenced_object} isVersion={(event.referenced_object?.short_code && event.referenced_object?.version_url)} sx={{color: '#FFF'}} />
+          <EntityIcon noLink strict entity={event.referenced_object} isVersion={(event.referenced_object?.short_code && event.referenced_object?.version_url)} sx={{color: '#FFF'}} logoClassName='user-img-xsmall' />
         </TimelineDot>
         { !isLast && <TimelineConnector /> }
       </TimelineSeparator>
