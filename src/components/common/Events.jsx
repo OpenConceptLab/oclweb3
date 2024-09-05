@@ -91,7 +91,7 @@ const Events = ({ user, events, onLoadMore, showAvatar, moreMarginLeft }) => {
         id="events-timeline"
         sx={{
           [`& .${timelineOppositeContentClasses.root}`]: {
-            flex: 0.2,
+            flex: 0.1,
           },
           p: 0,
           marginTop: 0,

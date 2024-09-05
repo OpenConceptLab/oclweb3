@@ -80,7 +80,7 @@ const UserDashboard = ({ user }) => {
 
   return (
     <div className='col-xs-12 padding-0'>
-      <div className='col-xs-9' style={{maxWidth: 'calc(100% - 360px)'}}>
+      <div className='col-xs-9' style={{maxWidth: 'calc(100% - 360px)', minWidth: '500px'}}>
         <div className='col-xs-12 padding-0' style={{marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
           <Typography sx={{fontWeight: 'bold', color: 'secondary.main'}}>
             {upperFirst(t('user.recent_activity'))}
@@ -91,7 +91,7 @@ const UserDashboard = ({ user }) => {
       </div>
       <div className='col-xs-3 padding-0' style={{minWidth: '360px'}}>
         <div className='col-xs-12' style={{background: WHITE, borderRadius: '10px', border: `1px solid ${SURFACE_COLORS.nv80}`}}>
-          <Events user={user} events={selfEvents.events} onLoadMore={selfEvents.headers?.next ? fetchEventsForSelf : false} moreMarginLeft='-15px' showAvatar />
+          <Events user={user} events={selfEvents.events} onLoadMore={selfEvents.headers?.next ? fetchEventsForSelf : false} moreMarginLeft='12px' showAvatar />
         </div>
       </div>
     </div>
