@@ -15,6 +15,7 @@ import Typography from '@mui/material/Typography';
 import { formatTime, formatDate } from '../../common/utils'
 import EntityIcon from '../common/EntityIcon';
 import Link from '../common/Link'
+import UserIcon from '../users/UserIcon'
 
 const EventDescription = ({ event, isFirst, isLast }) => {
   const { event_type, description, referenced_object} = event;
@@ -32,11 +33,11 @@ const EventDescription = ({ event, isFirst, isLast }) => {
   }
   const {eventDescription, rel} = getDescription()
   return (
-    <Typography sx={{fontSize: '14px', display: 'flex', alignItems: 'center', marginTop: isFirst ? '2px' :  (isLast ? '12px' : '8px')}}>
+    <Typography sx={{fontSize: '14px', alignItems: 'center', marginTop: isFirst ? '2px' :  (isLast ? '12px' : '8px'), display: 'block'}}>
       {eventDescription}
       {
         rel ?
-          <Link href={'#' + (event.referenced_object?.version_url || event.referenced_object?.url)} label={rel} sx={{fontSize: '14px', paddingLeft: '4px', minWidth: 'auto'}} /> :
+          <Link href={'#' + (event.referenced_object?.version_url || event.referenced_object?.url)} label={rel} sx={{fontSize: '14px', paddingLeft: 0, minWidth: 'auto', paddingTop: '1px'}} /> :
         null
       }
     </Typography>
@@ -48,7 +49,7 @@ const Event = ({ event, isFirst, isLast }) => {
   return (
     <TimelineItem>
       <TimelineOppositeContent
-        sx={{ m: 'auto 0', fontSize: '12px', px: '19px' }}
+        sx={{ m: 'auto 0', fontSize: '12px', paddingRight: '19px', paddingLeft: 0 }}
         align="right"
         variant="body2"
         color="default.light"
@@ -72,13 +73,17 @@ const Event = ({ event, isFirst, isLast }) => {
   )
 }
 
-const Events = ({ user, events, onLoadMore }) => {
+const Events = ({ user, events, onLoadMore, showAvatar, moreMarginLeft }) => {
   const { t } = useTranslation()
 
   return (
     <div className='col-xs-12 padding-0'>
-      <Typography component='h3' sx={{margin: '16px 0', fontWeight: 'bold', display: 'flex'}}>
-        {`${user.first_name}'s ${t('user.recent_activity')}`}
+      <Typography component='h3' sx={{margin: '16px 0', fontWeight: 'bold', display: 'flex', alignItems: 'center'}}>
+          {
+            showAvatar &&
+              <UserIcon user={user} sx={{width: '40px', height: '40px', marginRight: '16px'}} color='primary' />
+          }
+        {`${t('user.your')} ${t('user.recent_activity')}`}
       </Typography>
       <Timeline
         id="events-timeline"
@@ -99,13 +104,13 @@ const Events = ({ user, events, onLoadMore }) => {
         }
         {
           onLoadMore &&
-            <TimelineItem>
+            <TimelineItem sx={{minHeight: '20px'}}>
               <TimelineOppositeContent
-                sx={{ m: 'auto 0', fontSize: '12px', px: '19px' }}
+                sx={{ m: 0, fontSize: '12px', px: '19px', height: 0 }}
                 variant="body2"
               />
               <TimelineSeparator>
-                <TimelineDot sx={{backgroundColor: 'transparent', boxShadow: 'none', marginLeft: '-15px', marginTop: 0}}>
+                <TimelineDot sx={{backgroundColor: 'transparent', boxShadow: 'none', marginLeft: moreMarginLeft || '-35px', marginTop: 0, marginBottom: 0, height: '20px'}}>
                   <Link
                     label={t('common.more')}
                     onClick={onLoadMore}
@@ -113,7 +118,7 @@ const Events = ({ user, events, onLoadMore }) => {
                   />
                 </TimelineDot>
               </TimelineSeparator>
-              <TimelineContent />
+              <TimelineContent sx={{m: 0, height: 0}} />
             </TimelineItem>
         }
       </Timeline>
