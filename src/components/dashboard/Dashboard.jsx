@@ -11,7 +11,7 @@ const Dashboard = () => {
   const user = getCurrentUser()
   return (
     <div className='col-xs-12 padding-0' style={{display: 'flex', justifyContent: 'center', width: '100%'}}>
-      <div className='col-xs-12 padding-0'>
+      <div className='col-xs-12 padding-0' style={{maxWidth: 'calc(1280px - 32px)'}}>
         <div className='col-xs-12 padding-0 flex-vertical-center' style={{fontSize: '22px'}}>
           {
             authenticated ?
