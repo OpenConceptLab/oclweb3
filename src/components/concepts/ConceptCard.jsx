@@ -39,7 +39,7 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
         <div className='col-xs-12' style={{marginTop: '16px', display: 'flex', alignItems: 'center'}}>
           <div className={(isSplitView ? 'col-xs-12' : 'col-xs-6') + ' padding-0'} style={{display: 'flex', alignItems: 'center'}}>
             <span style={{display: 'flex', alignItems: 'center', fontSize: '14px', color: COLORS.secondary['40']}}>
-              <OwnerIcon fontSize='inherit' style={{marginRight: '8px'}} ownerType={concept.owner_type} /> {concept.owner}
+              <OwnerIcon fontSize='inherit' sx={{marginRight: '8px'}} ownerType={concept.owner_type} /> {concept.owner}
             </span>
             <DotSeparator />
             <span style={{display: 'flex', alignItems: 'center', fontSize: '14px', color: COLORS.secondary['40']}}>
