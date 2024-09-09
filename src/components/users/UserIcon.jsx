@@ -11,7 +11,7 @@ const UserIcon = ({ user, color, logoClassName, sx, authenticated }) => {
         (authenticated || isLoggedIn()) ?
           (
             user?.logo_url ?
-              <img src={user.logo_url} className={logoClassName || 'user-img-small'} /> :
+              <img src={user.logo_url} className={logoClassName || 'user-img-small'} style={iconStyle} /> :
             <PersonIcon color={color} sx={iconStyle} />
           ) :
           <StrangerIcon color={color} sx={iconStyle} />
