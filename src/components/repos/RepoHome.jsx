@@ -67,8 +67,7 @@ const RepoHome = () => {
 
   React.useEffect(() => {
     fetchRepo()
-    if(versions === false)
-      fetchVersions()
+    fetchVersions()
   }, [location.pathname])
 
   const onVersionChange = version => {

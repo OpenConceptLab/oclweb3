@@ -108,6 +108,7 @@
     "descriptions": "Descriptions",
     "copied_name": "Concept name URL copied to clipboard",
     "copied_description": "Concept description URL copied to clipboard",
+    "associations": "Associations",
     "form": {
       "id": "Concept ID",
       "external_id": "External ID",
@@ -134,7 +135,12 @@
     "mappings": "Mappings",
     "fromConcept": "From concept",
     "toConcept": "To Concept",
-    "type": "Type"
+    "type": "Type",
+    "relationship": "Relationship",
+    "code": "Code",
+    "inverse_mappings": "Inverse Mappings",
+    "self_mappings": "Self Mappings",
+    "direct_mappings": "Direct Mappings"
   },
   "repo": {
     "repos": "Repositories",
@@ -142,7 +148,8 @@
     "repo_type": "Repository Type",
     "manage": "Manage Repository",
     "repo_id": "Repository ID",
-    "add_concept": "Add Concept"
+    "add_concept": "Add Concept",
+    "source": "Source"
   },
   "org": {
     "my": "My organizations",

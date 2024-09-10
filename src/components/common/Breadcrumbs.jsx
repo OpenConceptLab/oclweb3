@@ -29,7 +29,7 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, id, version,
             background: 'transparent',
             outline: 'none'
           },
-          padding: ownerURL ? '4px' : 0,
+          padding: ownerURL ? '4px' : '0 8px',
           minWidth: 'auto',
         }}
             startIcon={!noIcons && <OwnerIcon ownerType={ownerType} {...iconProps} />}

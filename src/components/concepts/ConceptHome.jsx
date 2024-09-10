@@ -6,19 +6,23 @@ import ConceptTabs from './ConceptTabs';
 import Locales from './Locales'
 import ConceptForm from './ConceptForm'
 import Fade from '@mui/material/Fade';
+import Associations from './Associations'
 
 const ConceptHome = props => {
   const { t } = useTranslation()
   const [concept, setConcept] = React.useState(props.concept || {})
+  const [mappings, setMappings] = React.useState([])
+  const [reverseMappings, setReverseMappings] = React.useState([])
   const [repo, setRepo] = React.useState(props.repo || {})
   const [tab, setTab] = React.useState('metadata')
   const [edit, setEdit] = React.useState(false)
 
   React.useEffect(() => {
-    APIService.new().overrideURL(props.url).get().then(response => {
+    getService().get().then(response => {
       const resource = response.data
       setConcept(resource)
       props.repo?.id ? setRepo(repo) : fetchRepo(resource)
+      getMappings(resource)
     })
   }, [props.url])
 
@@ -33,6 +37,53 @@ const ConceptHome = props => {
   }
 
   const onEdit = () => setEdit(true)
+
+  const getService = () => {
+    let url = props.url
+    if(props.scoped === 'collection' && props.parentURL && concept?.id)
+      url = `${props.parentURL}concepts/${encodeURIComponent(concept.id)}/`
+
+    return APIService.new().overrideURL(encodeURI(url))
+  }
+
+  const getMappings = (concept, directOnly) => {
+    getService()
+      .appendToUrl('$cascade/')
+      .get(
+        null,
+        null,
+        {
+          uri: concept?.source_url,
+          cascadeLevels: 1,
+          method: 'sourceToConcepts',
+          view: 'hierarchy',
+        }
+      )
+      .then(response => {
+        setMappings(response?.data?.entry?.entries || [])
+        !directOnly && getInverseMappings(concept)
+      })
+  }
+
+  const getInverseMappings = concept => {
+    getService()
+      .appendToUrl('$cascade/')
+      .get(
+        null,
+        null,
+        {
+          uri: concept?.source_url,
+          cascadeLevels: 1,
+          method: 'sourceToConcepts',
+          view: 'hierarchy',
+          reverse: true,
+        })
+      .then(response => {
+        setReverseMappings(response?.data?.entry?.entries || [])
+      })
+  }
+
+
 
   return (concept?.id && repo?.id) ? (
     <>
@@ -68,6 +119,9 @@ const ConceptHome = props => {
                       </div>
                       <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
                         <Locales concept={concept} locales={concept.descriptions} title={t('concept.descriptions')} repo={repo} />
+                      </div>
+                      <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
+                        <Associations concept={concept} mappings={mappings} reverseMappings={reverseMappings} />
                       </div>
                     </div>
                 }
