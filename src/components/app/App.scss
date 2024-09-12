@@ -107,3 +107,9 @@ div.split-appear {
     0%    {opacity: 1;   transform: scale(1);}
     100%  {opacity: 0;   transform: scale(0.5);}
 }
+.sticky-col {
+    position: sticky;
+    left: 0;
+    background-color: white; /* To avoid overlap effects */
+    border-right: 1px solid #ddd; /* Optional: to add a dividing line */
+}

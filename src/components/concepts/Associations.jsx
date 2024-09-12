@@ -69,7 +69,7 @@ const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect}) => {
   return (
     <React.Fragment>
       <TableRow id={id || mapType}>
-        <TableCell rowSpan={mappings.length} align='left' style={{verticalAlign: 'top', width: '10%', paddingLeft: '8px'}}>
+        <TableCell className='sticky-col' rowSpan={mappings.length} align='left' sx={{verticalAlign: 'top', width: '10%', paddingLeft: '8px', top: '37px', zIndex: 1}}>
           <span className='flex-vertical-center'>
             <Tooltip placement='left' title={isIndirect ? t('mapping.inverse_mappings') : (isSelf ? t('mapping.self_mappings') : t('mapping.direct_mappings'))}>
               <Chip
@@ -131,7 +131,7 @@ const Associations = ({concept, mappings, reverseMappings}) => {
             <Table stickyHeader size='small'>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{width: '10%'}}><b>{t('mapping.relationship')}</b></TableCell>
+                  <TableCell sx={{width: '10%', zIndex: 2}} className='sticky-col'><b>{t('mapping.relationship')}</b></TableCell>
                   <TableCell sx={{width: '30%'}}><b>{t('mapping.code')}</b></TableCell>
                   <TableCell sx={{width: '40%'}}><b>{t('common.name')}</b></TableCell>
                   <TableCell sx={{width: '10%'}}><b>{t('repo.source')}</b></TableCell>
