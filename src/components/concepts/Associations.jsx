@@ -38,7 +38,8 @@ const groupMappings = (orderedMappings, concept, mappings, forward) => {
 }
 
 
-const MappingCells = ({mapping}) => {
+const MappingCells = ({mapping, isIndirect}) => {
+  const { t } = useTranslation()
   const conceptCodeAttr = 'cascade_target_concept_code'
   const conceptCodeName = 'cascade_target_concept_name'
   const sourceAttr = 'cascade_target_source_name';
@@ -47,10 +48,22 @@ const MappingCells = ({mapping}) => {
     if(name) return name;
     return get(mapping, `${attr.split('_name')[0]}.display_name`)
   }
+  const isDefinedInOCL = Boolean(mapping.cascade_target_concept_url)
+  const getTitle = () => {
+    return isDefinedInOCL ?
+      (isIndirect ? t('mapping.from_concept_defined') : t('mapping.to_concept_defined')) :
+      (isIndirect ? t('mapping.from_concept_not_defined') : t('mapping.to_concept_not_defined'))
+  }
+  console.log(getTitle())
+
   return (
     <React.Fragment>
       <TableCell>
-        <ConceptIcon selected={Boolean(mapping.cascade_target_concept_url)} sx={{width: '10px', height: '10px', marginRight: '12px'}} />
+        <Tooltip title={getTitle()}>
+          <span>
+            <ConceptIcon selected={isDefinedInOCL} sx={{width: '10px', height: '10px', marginRight: '12px'}} />
+          </span>
+        </Tooltip>
         { mapping[conceptCodeAttr] }
       </TableCell>
       <TableCell>
@@ -88,13 +101,13 @@ const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect}) => {
             </Tooltip>
           </span>
         </TableCell>
-        <MappingCells mapping={mappings[0]} />
+        <MappingCells mapping={mappings[0]} isIndirect={isIndirect} />
       </TableRow>
       {
         map(mappings.slice(1), (mapping, index) => {
           return (
             <TableRow key={index}>
-              <MappingCells mapping={mapping} />
+              <MappingCells mapping={mapping} isIndirect={isIndirect} />
             </TableRow>
           )
         })
