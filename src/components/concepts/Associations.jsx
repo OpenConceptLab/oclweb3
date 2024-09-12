@@ -54,7 +54,6 @@ const MappingCells = ({mapping, isIndirect}) => {
       (isIndirect ? t('mapping.from_concept_defined') : t('mapping.to_concept_defined')) :
       (isIndirect ? t('mapping.from_concept_not_defined') : t('mapping.to_concept_not_defined'))
   }
-  console.log(getTitle())
 
   return (
     <React.Fragment>
