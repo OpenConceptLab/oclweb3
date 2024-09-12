@@ -132,9 +132,9 @@ const Associations = ({concept, mappings, reverseMappings}) => {
               <TableHead>
                 <TableRow>
                   <TableCell sx={{width: '10%', zIndex: 2}} className='sticky-col'><b>{t('mapping.relationship')}</b></TableCell>
-                  <TableCell sx={{width: '30%'}}><b>{t('mapping.code')}</b></TableCell>
+                  <TableCell sx={{width: '20%'}}><b>{t('mapping.code')}</b></TableCell>
                   <TableCell sx={{width: '40%'}}><b>{t('common.name')}</b></TableCell>
-                  <TableCell sx={{width: '10%'}}><b>{t('repo.source')}</b></TableCell>
+                  <TableCell sx={{width: '20%'}}><b>{t('repo.source')}</b></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
