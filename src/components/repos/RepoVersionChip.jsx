@@ -3,13 +3,10 @@ import { useTranslation } from 'react-i18next';
 import HeaderChip from '../common/HeaderChip';
 import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import merge from 'lodash/merge'
 import Menu from '@mui/material/Menu';
-import ListItemButton from '@mui/material/ListItemButton';
-import { find, reject, orderBy, isArray } from 'lodash'
-import { formatDate } from '../../common/utils'
+import { find, reject, orderBy, merge } from 'lodash'
+import { SURFACE_COLORS } from '../../common/colors'
+import VersionsTable from './VersionsTable'
 
 const RepoVersionChip = ({ version, versions, sx, onChange }) => {
   const { t } = useTranslation()
@@ -49,29 +46,27 @@ const RepoVersionChip = ({ version, versions, sx, onChange }) => {
         onClose={onClose}
         MenuListProps={{
           'aria-labelledby': 'versions-dropdown',
+          style: {
+            padding: 0,
+            maxHeight: '320px',
+            minWidth: '650px',
+          }
         }}
         PaperProps={{
           style: {
-            maxHeight: '350px',
-            minWidth: '250px'
+            padding: '12px',
+            maxHeight: '320px',
+            minWidth: '650px',
+            borderRadius: '16px',
+            boxShadow: 'none',
+            border: '1px solid',
+            borderColor: SURFACE_COLORS.nv80,
+            background: SURFACE_COLORS.main
           },
         }}
       >
-        {
-          isArray(allVersions) ? allVersions.map(_version => {
-            const isSelected = version?.version_url ? version.version_url === _version.version_url : version.url === _version.version_url
-            return (
-              <ListItemButton key={_version.version_url} selected={isSelected} onClick={() => onSelect(_version)}>
-                <ListItemIcon sx={{minWidth: '38px'}}>
-                  <VersionIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText primary={_version.version} secondary={formatDate(_version.created_at)} />
-              </ListItemButton>
-            )
-          }) : null
-        }
+        <VersionsTable selected={version} versions={allVersions} onChange={onSelect} bgColor={SURFACE_COLORS.main} />
       </Menu>
-
     </React.Fragment>
   )
 }

@@ -24,6 +24,7 @@
     "id": "ID",
     "name": "Name",
     "create": "Create",
+    "created": "Created",
     "created_on": "Created On",
     "created_by": "Created By",
     "version": "Version",
@@ -38,6 +39,7 @@
     "navigate": "Navigate",
     "select": "Select",
     "search": "Search",
+    "content_summary": "Content summary",
     "for": "for",
     "please": "Please",
     "save": "Save",
@@ -153,7 +155,8 @@
     "manage": "Manage Repository",
     "repo_id": "Repository ID",
     "add_concept": "Add Concept",
-    "source": "Source"
+    "source": "Source",
+    "compare_versions": "Compare versions"
   },
   "org": {
     "my": "My organizations",

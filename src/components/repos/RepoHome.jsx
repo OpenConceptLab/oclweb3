@@ -59,8 +59,9 @@ const RepoHome = () => {
       setRepoSummary(response?.data || response?.response?.data)
     })
   }
+
   const fetchVersions = () => {
-    APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get().then(response => {
+    APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true}).then(response => {
       setVersions(response?.data || [])
     })
   }
