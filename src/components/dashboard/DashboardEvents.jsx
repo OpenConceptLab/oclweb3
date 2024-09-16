@@ -22,7 +22,7 @@ const EventCard = ({ event }) => {
     return (
       <span style={{display: 'flex', alignItems: 'center'}}>
              <Typography component='span' sx={{fontWeight: 'bold'}}>
-               <Link label={title} href={'#' + object.url} sx={{color: 'secondary.main', fontSize: '16px', fontWeight: 'bold'}} />
+               <Link label={title} href={'#' + object.url} sx={{color: 'secondary.main', fontSize: '16px', fontWeight: 'bold', minWidth: 'auto'}} />
              </Typography>
              {
                includeSubtitle &&
@@ -49,7 +49,7 @@ const EventCard = ({ event }) => {
         title={getTitle(event, event.object, true)}
         subheader={moment(event.created_at).fromNow()}
       />
-      <CardContent sx={{backgroundColor: 'surface.main', margin: '0 16px 16px 16px', borderRadius: '10px', paddingBottom: '16px !important', display: 'flex'}}>
+      <CardContent sx={{backgroundColor: 'surface.main', margin: '0 16px 16px 16px', borderRadius: '10px', padding: '0px !important', display: 'flex'}}>
         <CardHeader
           avatar={
             <Avatar sx={{backgroundColor: 'secondary.main', cursor: 'pointer'}} onClick={() => history.push(event.referenced_object?.version_url || event.referenced_object?.url)}>
