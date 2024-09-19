@@ -54,6 +54,7 @@
     "upload": "Upload",
     "custom_attributes": "Custom Attributes",
     "public": "Public",
+    "private": "Private",
     "close": "Close",
     "short_code": "Short Code",
     "attribute": "Attribute",
@@ -65,7 +66,10 @@
     "following": "Following",
     "follow": "Follow",
     "unfollow": "Unfollow",
-    "a": "a"
+    "a": "a",
+    "with": "with",
+    "json": "JSON",
+    "draft": "Draft"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -156,7 +160,10 @@
     "repo_id": "Repository ID",
     "add_concept": "Add Concept",
     "source": "Source",
-    "compare_versions": "Compare versions"
+    "compare_versions": "Compare versions",
+    "compare": "Compare",
+    "compare_origin_version_disabled_tooltip": "You must select an older version to compare",
+    "compare_destination_version_disabled_tooltip": "You must select a newer version to compare"
   },
   "org": {
     "my": "My organizations",

@@ -19,6 +19,7 @@ import OIDLoginCallback from '../users/OIDLoginCallback';
 import { OperationsContext } from './LayoutContext';
 import Alert from '../common/Alert';
 import RepoHome from '../repos/RepoHome';
+import CompareVersions from '../repos/CompareVersions';
 import UserHome from '../users/UserHome'
 import UserEdit from '../users/UserEdit';
 import UserSettings from '../users/UserSettings';
@@ -80,6 +81,7 @@ const App = props => {
               <Route exact path="/oidc/login" component={OIDLoginCallback} />
               <Route exact path="/search" component={Search} />
               <Route exact path="/" component={Dashboard} />
+              <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/compare-versions`} component={CompareVersions} />
               <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo`} component={RepoHome} />
               <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion`} component={RepoHome} />
               <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:tab(${repoTabsStr})/:resource?`} component={RepoHome} />

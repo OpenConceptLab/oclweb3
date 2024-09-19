@@ -8,7 +8,7 @@ import { find, reject, orderBy, merge } from 'lodash'
 import { SURFACE_COLORS } from '../../common/colors'
 import VersionsTable from './VersionsTable'
 
-const RepoVersionChip = ({ version, versions, sx, onChange }) => {
+const RepoVersionChip = ({ version, versions, sx, onChange, size, disabledFrom, disabledUntil, compare, originVersion, checkbox }) => {
   const { t } = useTranslation()
   const [anchorEl, setAnchorEl] = React.useState(null);
   const onOpen = event => setAnchorEl(event.currentTarget);
@@ -32,12 +32,13 @@ const RepoVersionChip = ({ version, versions, sx, onChange }) => {
       <HeaderChip
         id='versions-dropdown'
         labelPrefix={`${t('common.version')}: `}
-        label={version.version}
-        icon={<VersionIcon color='surface.contrastText' />}
+        label={version?.version}
+        icon={<VersionIcon color='surface.contrastText' fontSize='inherit' />}
         sx={merge({backgroundColor: 'surface.main'}, (sx || {}))}
-        deleteIcon={<DownIcon color='surface.contrastText' />}
+        deleteIcon={<DownIcon color='surface.contrastText' fontSize='inherit' />}
         onDelete={onOpen}
         onClick={onOpen}
+        size={size}
       />
       <Menu
         id="basic-menu"
@@ -65,7 +66,17 @@ const RepoVersionChip = ({ version, versions, sx, onChange }) => {
           },
         }}
       >
-        <VersionsTable selected={version} versions={allVersions} onChange={onSelect} bgColor={SURFACE_COLORS.main} />
+        <VersionsTable
+          selected={version}
+          versions={allVersions}
+          onChange={onSelect}
+          bgColor={SURFACE_COLORS.main}
+          disabledFrom={disabledFrom}
+          disabledUntil={disabledUntil}
+          compare={compare}
+          originVersion={originVersion}
+          checkbox={checkbox}
+        />
       </Menu>
     </React.Fragment>
   )
