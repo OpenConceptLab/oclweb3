@@ -32,10 +32,10 @@ const NamespaceDropdown = ({onChange, label, id, owner, backgroundColor}) => {
   const prepareOwnerOptions = () => {
     let options = [
       {url: '/', id: t('url_registry.global_registry'), type: '', name: t('url_registry.global_registry'), icon: <GlobalIcon />, group: '' },
-      {url: user?.url, id: user?.username, type: user?.type, name: user?.username, icon: <UserIcon authenticated user={user} logoClassName='user-img-xxsmall' />, group: ''},
+      {url: user?.url, id: user?.username, type: user?.type, name: user?.username, icon: <UserIcon authenticated user={user} logoClassName='user-img-xsmall' />, group: ''},
     ]
     getCurrentUserOrgs().forEach(org => {
-      options.push({url: org.url, id: org.id, type: org.type, name: org.name, icon: <OrgIcon noLink strict logoClassName='user-img-xxsmall' org={org} />, group: t('org.my')})
+      options.push({url: org.url, id: org.id, type: org.type, name: org.name, icon: <OrgIcon noLink strict logoClassName='user-img-xsmall' org={org} />, group: t('org.my')})
     })
     setOwnerOptions(options)
   }
@@ -65,6 +65,7 @@ const NamespaceDropdown = ({onChange, label, id, owner, backgroundColor}) => {
           <TextField
             {...params}
             label={label}
+            size='medium'
             sx={{backgroundColor: backgroundColor || 'primary.contrastText'}}
             InputProps={ selectedOption?.icon ? {
               ...params.InputProps,
