@@ -62,6 +62,7 @@ const URLRegistry = () => {
           url={owner + 'url-registry/'}
           nested
           noTabs
+          noCardDisplay
           containerStyle={{padding: 0}}
           defaultFiltersOpen={false}
           resultSize='medium'

@@ -17,7 +17,7 @@ import CardResults from './CardResults';
 import { SORT_ATTRS } from './ResultConstants'
 
 const ResultsToolbar = props => {
-  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields } = props;
+  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay } = props;
   return (
     <Toolbar
       sx={{
@@ -65,6 +65,7 @@ const ResultsToolbar = props => {
         order={order}
         onOrderByChange={onOrderByChange}
         sortableFields={sortableFields}
+        noCardDisplay={noCardDisplay}
       />
       {
         isFilterable &&
@@ -212,6 +213,7 @@ const SearchResults = props => {
         order={props.order}
         orderBy={props.orderBy}
         onOrderByChange={props.onOrderByChange}
+        noCardDisplay={props.noCardDisplay}
       />
       {
         props.noResults ?

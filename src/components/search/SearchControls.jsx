@@ -5,7 +5,7 @@ import DownIcon from '@mui/icons-material/ArrowDropDown';
 import DisplayMenu from './DisplayMenu';
 import SortMenu from './SortMenu';
 
-const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields }) => {
+const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay }) => {
   const { t } = useTranslation()
   const [displayAnchorEl, setDisplayAnchorEl] = React.useState(null);
   const [sortAnchorEl, setSortAnchorEl] = React.useState(null);
@@ -22,16 +22,22 @@ const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, on
             {t('search.sort_by')}
           </Button>
       }
-      <Button id="display-menu" disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none', marginLeft: '8px'}} endIcon={<DownIcon fontSize='inherit' />} onClick={onDisplayClick}>
-        {t('search.display')}
-      </Button>
-      <DisplayMenu
-        labelId="display-menu"
-        anchorEl={displayAnchorEl}
-        onClose={onDisplayMenuClose}
-        onSelect={onDisplayChange}
-        selected={display}
-      />
+      {
+      !noCardDisplay &&
+          <Button id="display-menu" disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none', marginLeft: '8px'}} endIcon={<DownIcon fontSize='inherit' />} onClick={onDisplayClick}>
+            {t('search.display')}
+          </Button>
+      }
+      {
+      !noCardDisplay &&
+          <DisplayMenu
+            labelId="display-menu"
+            anchorEl={displayAnchorEl}
+            onClose={onDisplayMenuClose}
+            onSelect={onDisplayChange}
+            selected={display}
+          />
+      }
       <SortMenu
         labelId="sort-menu"
         anchorEl={sortAnchorEl}
