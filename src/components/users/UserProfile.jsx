@@ -8,6 +8,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import LocationIcon from '@mui/icons-material/LocationOnOutlined';
+import CompanyIcon from '@mui/icons-material/Business';
 import EmailIcon from '@mui/icons-material/EmailOutlined';
 import LinkIcon from '@mui/icons-material/LinkOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
@@ -78,6 +79,7 @@ const UserProfile = ({ user }) => {
       </Typography>
       <List sx={{color: 'secondary.main', marginTop: '8px'}}>
         <UserProperty icon={<LocationIcon sx={iconStyle} />} value={user?.location} />
+        <UserProperty icon={<CompanyIcon sx={iconStyle} />} value={user?.company} />
         <UserProperty icon={<EmailIcon sx={iconStyle} />} value={user?.email} />
         <UserProperty icon={<LinkIcon sx={iconStyle} />} value={user?.website} label={formatWebsiteLink(user?.website, {color: 'inherit'})} />
       </List>
