@@ -32,14 +32,14 @@ const LocaleItem = ({ locale, url }) => {
   return (
     <React.Fragment>
       <ListItem
-        sx={{color: 'surface.contrastText', paddingLeft: 0, paddingRight: '24px' }}
+        sx={{color: 'surface.contrastText', paddingTop: 0, paddingBottom: 0, paddingLeft: 0, paddingRight: '24px' }}
         secondaryAction={
-          <IconButton edge="end" aria-label="copy" sx={{color: 'surface.contrastText'}} onClick={onCopyClick}>
-            <CopyIcon />
+          <IconButton edge="end" aria-label="copy" sx={{color: 'surface.contrastText'}} onClick={onCopyClick} size='small'>
+            <CopyIcon fontSize='inherit' />
           </IconButton>
         }
       >
-        <ListItemText primary={locale.name || locale.description} secondary={externalID} />
+    <ListItemText primary={locale.name || locale.description} secondary={externalID} sx={{margin: '2px 0'}} />
       </ListItem>
       <Divider component="li" />
     </React.Fragment>
@@ -51,7 +51,7 @@ const LocaleList = ({url, lang, locales}) => {
   return (
     <React.Fragment key={lang}>
       <ListItem sx={{color: 'surface.contrastText', paddingRight: 0, position: 'relative'}}>
-        <ListItemAvatar sx={{color: 'surface.contrastText', position: 'absolute', height: 'calc(100% - 16px)', top: '16px'}}>
+        <ListItemAvatar sx={{color: 'surface.contrastText', position: 'absolute', height: 'calc(100% - 16px)', top: '12px'}}>
           {lang.toUpperCase()}
         </ListItemAvatar>
         <List
