@@ -3,12 +3,10 @@ import { useHistory } from 'react-router-dom';
 import moment from 'moment'
 import { useTranslation } from 'react-i18next';
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent';
 import Avatar from '@mui/material/Avatar';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { WHITE } from '../../common/colors'
 import EntityIcon from '../common/EntityIcon';
 import Link from '../common/Link'
@@ -40,11 +38,6 @@ const EventCard = ({ event }) => {
           <Avatar sx={{width: '45px', height: '45px', backgroundColor: event.object?.logo_url ? 'transparent' : 'primary.60', cursor: 'pointer'}} onClick={() => history.push(event.object?.version_url || event.object?.url)}>
             <EntityIcon noLink strict entity={event.object} sx={{color: WHITE}} />
           </Avatar>
-        }
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
         }
         title={getTitle(event, event.object, true)}
         subheader={moment(event.created_at).fromNow()}
