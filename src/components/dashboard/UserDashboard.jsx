@@ -7,6 +7,7 @@ import { WHITE, SURFACE_COLORS } from '../../common/colors'
 import Events from '../common/Events'
 import DashboardEvents from './DashboardEvents';
 import EventsButtonGroup from './EventsButtonGroup';
+import LoaderDialog from '../common/LoaderDialog';
 
 
 const UserDashboard = ({ user }) => {
@@ -16,6 +17,7 @@ const UserDashboard = ({ user }) => {
   const [followingEvents, setFollowingEvents] = React.useState({events: [], headers: {}})
   const [orgsEvents, setOrgsEvents] = React.useState({events: [], headers: {}})
   const [scope, setScope] = React.useState('all')
+  const [loading, setLoading] = React.useState(true)
 
   const getService = (scope, page, limit=10) => APIService.users(user.username).appendToUrl('events/').get(null, null, {scopes: scope, limit: limit, page: page})
 
@@ -34,20 +36,26 @@ const UserDashboard = ({ user }) => {
   }
 
   const fetchEventsForAll = () => {
+    setLoading(true)
     getService('following,orgs', parseInt(allEvents.headers.page_number || '0') + 1).then(response => {
       setAllEvents({events: [...allEvents.events, ...response.data], headers: response.headers})
+      setLoading(false)
     })
   }
 
   const fetchEventsForFollowing = () => {
+    setLoading(true)
     getService('following', parseInt(followingEvents.headers.page_number || '0') + 1).then(response => {
       setFollowingEvents({events: [...followingEvents.events, ...response.data], headers: response.headers})
+      setLoading(false)
     })
   }
 
   const fetchEventsForOrgs = () => {
+    setLoading(true)
     getService('orgs', parseInt(orgsEvents.headers.page_number || '0') + 1).then(response => {
       setOrgsEvents({events: [...orgsEvents.events, ...response.data], headers: response.headers})
+      setLoading(false)
     })
   }
 
@@ -87,6 +95,7 @@ const UserDashboard = ({ user }) => {
           </Typography>
           <EventsButtonGroup selected={scope} onClick={onScopeChange} />
         </div>
+        <LoaderDialog open={loading} />
         <DashboardEvents events={getScopeEvents()} />
       </div>
       <div className='col-xs-3 padding-0' style={{minWidth: '360px'}}>
