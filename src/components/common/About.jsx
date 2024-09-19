@@ -4,12 +4,14 @@ import Typography from '@mui/material/Typography'
 import Collapse from '@mui/material/Collapse';
 import Link from './Link'
 
-const About = ({ title, text, style }) => {
+const About = ({ title, text, style, expanded }) => {
   const { t } = useTranslation()
-  const [showAll, setShowAll] = React.useState(false)
+  const [showAll, setShowAll] = React.useState(Boolean(expanded))
   const [showReadMoreButton, setShowReadMoreButton] = React.useState(false)
 
   const shouldShowReadMore = () => {
+    if(expanded)
+      return false
     if(!showAll && text) {
       const el = document.getElementById('about-text')
       if(el && el?.clientHeight)
