@@ -15,30 +15,30 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, id, version,
       {
         ownerType && owner &&
           <Button
-        sx={{
-          textTransform: 'none',
-          color: 'inherit',
-          '&:hover': {
-            textTransform: 'none',
-            color: 'inherit',
-            background: 'transparent'
-          },
-          '&:focus': {
-            textTransform: 'none',
-            color: 'inherit',
-            background: 'transparent',
-            outline: 'none'
-          },
-          padding: ownerURL ? '4px' : '0 8px',
-          minWidth: 'auto',
-        }}
+            sx={{
+              textTransform: 'none',
+              color: 'inherit',
+              '&:hover': {
+                textTransform: 'none',
+                color: 'inherit',
+                background: 'transparent'
+              },
+              '&:focus': {
+                textTransform: 'none',
+                color: 'inherit',
+                background: 'transparent',
+                outline: 'none'
+              },
+              padding: ownerURL ? '4px' : '0 8px',
+              minWidth: 'auto',
+            }}
             startIcon={!noIcons && <OwnerIcon ownerType={ownerType} {...iconProps} />}
-        href={ownerURL ? '#' + ownerURL : undefined}
-        component="button"
-        size={size}
-        >
+            href={ownerURL ? '#' + ownerURL : undefined}
+            component="button"
+            size={size}
+          >
 
-        <span style={{marginLeft: '-8px'}}>{owner}</span>
+            <span>{owner}</span>
           </Button>
       }
       {
