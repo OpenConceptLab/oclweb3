@@ -81,7 +81,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
             >
               <DashboardIcon color={location.pathname === '/' ? 'primary' : undefined} />
             </ListItemIcon>
-            <ListItemText primary={t('dashboard.my')} sx={{ '.MuiListItemText-primary': {fontWeight: 'bold'} }} />
+            <ListItemText primary={t('dashboard.my')} />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding sx={{ display: 'block' }}>
@@ -106,16 +106,16 @@ const LeftMenu = ({ isOpen, onClose }) => {
             >
               <FolderOpenIcon color={location.pathname === (user?.url + 'repos') ? 'primary' : undefined} />
             </ListItemIcon>
-            <ListItemText primary={t('user.my_repositories')} sx={{ '.MuiListItemText-primary': {fontWeight: 'bold'} }} />
+            <ListItemText primary={t('user.my_repositories')} />
             <span><b>{((user?.collections || 0) + (user?.sources + 0)).toLocaleString()}</b></span>
           </ListItemButton>
         </ListItem>
       </List>
       <Divider style={{width: '100%', marginTop: '16px'}} />
-      <List sx={{maxHeight: '300px', overflow: 'auto', p: 0}}>
+      <List sx={{maxHeight: '300px', overflow: 'auto', p: 0}} dense>
         <ListItem
           disablePadding
-          sx={{ display: 'block', padding: 2, borderRadius: '100px' }}
+          sx={{ display: 'block', padding: 1, borderRadius: '100px' }}
           secondaryAction={
             <Button edge="end" aria-label="delete" variant='text' color='primary' sx={{textTransform: 'none'}}>
               <b>{t('common.create')}</b>
@@ -140,12 +140,12 @@ const LeftMenu = ({ isOpen, onClose }) => {
                 sx={{
                   minHeight: 56,
                   justifyContent: 'initial',
-                  px: 2,
+                  padding: '0px 16px',
                   borderRadius: '100px'
                 }}
                 href={`#${org?.url}`}
                 className='no-anchor-styles'
-                selected={location.pathname.includes(org?.url)}
+                selected={location.pathname === org?.url}
               >
                 <ListItemIcon
                   sx={{
@@ -154,19 +154,19 @@ const LeftMenu = ({ isOpen, onClose }) => {
                     justifyContent: 'center',
                   }}
                 >
-                  <OrgIcon org={org} iconColor={location.pathname.includes(org?.url) ? 'primary' : undefined} noLink strict />
+                  <OrgIcon org={org} iconColor={location.pathname === org?.url ? 'primary' : undefined} noLink strict />
                 </ListItemIcon>
-                <ListItemText primary={org.name} sx={{ '.MuiListItemText-primary': {fontWeight: 'bold'} }} />
+                <ListItemText primary={org.name} />
               </ListItemButton>
             </ListItem>
           ))
         }
       </List>
       <Divider style={{width: '100%', marginTop: '16px'}} />
-      <List sx={{maxHeight: '300px', overflow: 'auto', p: 0}}>
+      <List sx={{maxHeight: '300px', overflow: 'auto', p: 0}} dense>
         <ListItem
           disablePadding
-          sx={{ display: 'block', padding: 2, borderRadius: '100px' }}
+          sx={{ display: 'block', padding: 1, borderRadius: '100px' }}
           secondaryAction={
             <span><b>{following?.length}</b></span>
           }>
@@ -188,11 +188,12 @@ const LeftMenu = ({ isOpen, onClose }) => {
                 sx={{
                   minHeight: 56,
                   justifyContent: 'initial',
-                  px: 2,
+                  padding: '0px 16px',
                   borderRadius: '100px'
                 }}
                 href={`#${followed.url}`}
                 className='no-anchor-styles'
+                selected={location.pathname === followed?.url}
               >
                 <ListItemIcon
                   sx={{
@@ -201,9 +202,9 @@ const LeftMenu = ({ isOpen, onClose }) => {
                     justifyContent: 'center',
                   }}
                 >
-                  <EntityIcon noLink strict entity={followed} isVersion={(followed?.short_code && followed?.version_url)} sx={{color: 'secondary.main'}} />
+                  <EntityIcon noLink strict entity={followed} isVersion={(followed?.short_code && followed?.version_url)} sx={{color: location.pathname === followed?.url ? 'primary.main' : 'secondary.main'}} />
                 </ListItemIcon>
-                <ListItemText primary={followed.name || followed.id} sx={{ '.MuiListItemText-primary': {fontWeight: 'bold'} }} />
+                <ListItemText primary={followed.name || followed.id} />
               </ListItemButton>
             </ListItem>
           ))
