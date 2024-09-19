@@ -156,7 +156,10 @@ export const getCurrentUserOrgs = () => {
 };
 
 export const sortOrgs = orgs => {
-  return [...orderBy(filter(orgs, 'logo_url'), 'name'), ...orderBy(reject(orgs, 'logo_url'), 'name')]
+  return [
+    ...orderBy(filter(orgs, 'logo_url'), [org => org?.name?.toLowerCase()], 'asc'),
+    ...orderBy(reject(orgs, 'logo_url'), [org => org?.name?.toLowerCase()], 'asc')
+  ]
 }
 
 export const getCurrentUserUsername = () => get(getCurrentUser(), 'username');
