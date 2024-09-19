@@ -37,7 +37,7 @@ const EventCard = ({ event }) => {
     <Card sx={{boxShadow: 'none', border: '1px solid', borderColor: 'surface.nv80', margin: '16px 0', borderRadius: '10px'}}>
       <CardHeader
         avatar={
-          <Avatar sx={{backgroundColor: 'primary.60', cursor: 'pointer'}} onClick={() => history.push(event.object?.version_url || event.object?.url)}>
+          <Avatar sx={{width: '45px', height: '45px', backgroundColor: event.object?.logo_url ? 'transparent' : 'primary.60', cursor: 'pointer'}} onClick={() => history.push(event.object?.version_url || event.object?.url)}>
             <EntityIcon noLink strict entity={event.object} sx={{color: WHITE}} />
           </Avatar>
         }
@@ -52,7 +52,7 @@ const EventCard = ({ event }) => {
       <CardContent sx={{backgroundColor: 'surface.main', margin: '0 16px 16px 16px', borderRadius: '10px', padding: '0px !important', display: 'flex'}}>
         <CardHeader
           avatar={
-            <Avatar sx={{backgroundColor: 'secondary.main', cursor: 'pointer'}} onClick={() => history.push(event.referenced_object?.version_url || event.referenced_object?.url)}>
+            <Avatar sx={{width: '45px', height: '45px', backgroundColor: event.referenced_object?.logo_url ? 'transparent' : 'secondary.main', cursor: 'pointer'}} onClick={() => history.push(event.referenced_object?.version_url || event.referenced_object?.url)}>
               <EntityIcon noLink strict entity={event.referenced_object} isVersion={(event.referenced_object?.short_code && event.referenced_object?.version_url)} sx={{color: WHITE}} />
             </Avatar>
           }
