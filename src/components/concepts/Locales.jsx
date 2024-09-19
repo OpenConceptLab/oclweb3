@@ -108,8 +108,8 @@ const Locales = ({ concept, locales, title, repo }) => {
 
   return (
     <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor}}>
-      <Typography sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between'}}>
-        <span>{title}</span>
+      <Typography sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between'}}>
+        <span style={{fontWeight: 'bold'}}>{title}</span>
         <span>{locales?.length}</span>
       </Typography>
       <List
