@@ -2,6 +2,7 @@
   "common": {
     "or": "or",
     "language": "Language",
+    "preferred_language": "Preferrd Language",
     "help_and_documentation": "Help and documentation",
     "community_website": "Community website",
     "chat": "OCL Chat",
