@@ -58,12 +58,14 @@ const MappingCells = ({mapping, isIndirect}) => {
   return (
     <React.Fragment>
       <TableCell>
-        <Tooltip title={getTitle()}>
-          <span>
-            <ConceptIcon selected={isDefinedInOCL} sx={{width: '10px', height: '10px', marginRight: '12px'}} />
-          </span>
-        </Tooltip>
-        { mapping[conceptCodeAttr] }
+        <span style={{display: 'flex'}}>
+          <Tooltip title={getTitle()}>
+            <span>
+              <ConceptIcon selected={isDefinedInOCL} sx={{width: '10px', height: '10px', marginRight: '12px'}} />
+            </span>
+          </Tooltip>
+          { mapping[conceptCodeAttr] }
+        </span>
       </TableCell>
       <TableCell>
         { getConceptName(mapping, conceptCodeName) }
@@ -143,7 +145,7 @@ const Associations = ({concept, mappings, reverseMappings}) => {
             <Table stickyHeader size='small'>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{width: '10%', zIndex: 2}} className='sticky-col'><b>{t('mapping.relationship')}</b></TableCell>
+                  <TableCell sx={{width: '10%', zIndex: 3}} className='sticky-col'><b>{t('mapping.relationship')}</b></TableCell>
                   <TableCell sx={{width: '20%'}}><b>{t('mapping.code')}</b></TableCell>
                   <TableCell sx={{width: '40%'}}><b>{t('common.name')}</b></TableCell>
                   <TableCell sx={{width: '20%'}}><b>{t('repo.source')}</b></TableCell>
