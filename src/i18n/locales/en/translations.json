@@ -2,6 +2,7 @@
   "common": {
     "or": "or",
     "language": "Language",
+    "languages": "Languages",
     "preferred_language": "Preferrd Language",
     "help_and_documentation": "Help and documentation",
     "community_website": "Community website",
@@ -107,6 +108,7 @@
   },
   "concept": {
     "concepts": "Concepts",
+    "retired_concepts": "Retired Concepts",
     "display_name": "Display Name",
     "concept_class": "Class",
     "datatype": "Datatype",
@@ -116,6 +118,8 @@
     "copied_name": "Concept name URL copied to clipboard",
     "copied_description": "Concept description URL copied to clipboard",
     "associations": "Associations",
+    "concept_classes": "Concept Classes",
+    "name_types": "Name Types",
     "form": {
       "id": "Concept ID",
       "external_id": "External ID",
@@ -140,9 +144,13 @@
   },
   "mapping": {
     "mappings": "Mappings",
+    "retired_mappings": "Retired Mappings",
     "fromConcept": "From concept",
     "toConcept": "To Concept",
     "type": "Type",
+    "map_types": "Map Types",
+    "from_concept_sources": "From Concept Sources",
+    "to_concept_sources": "To Concept Sources",
     "relationship": "Relationship",
     "code": "Code",
     "inverse_mappings": "Inverse Mappings",

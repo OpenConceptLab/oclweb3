@@ -5,9 +5,10 @@ import Paper from '@mui/material/Paper'
 import { toParentURI } from '../../common/utils';
 import APIService from '../../services/APIService';
 import LoaderDialog from '../common/LoaderDialog';
+import Error404 from '../errors/Error404'
 import RepoHeader from './RepoHeader';
 import CompareToolbar from './CompareToolbar';
-import Error404 from '../errors/Error404'
+import VersionStats from './VersionStats'
 
 const CompareVersions = () => {
   const location = useLocation()
@@ -31,10 +32,14 @@ const CompareVersions = () => {
       _version2 = repoVersions?.find(version => (version.version_url || version.url) === version2URL)
     if(_version1?.id && _version2?.id && moment(_version1.created_on).isAfter(_version2.created_on)) {
       setVersion2(_version1)
+      fetchVerboseSummary(_version1, setVersion2)
       setVersion1(_version2)
+      fetchVerboseSummary(_version2, setVersion1)
     } else {
       setVersion2(_version2)
+      fetchVerboseSummary(_version2, setVersion2)
       setVersion1(_version1)
+      fetchVerboseSummary(_version1, setVersion1)
     }
   }
 
@@ -66,10 +71,21 @@ const CompareVersions = () => {
   const onVersionChange = (versionType, version) => {
     if(!versionType || !version?.id)
       return
-    if(versionType === 'version1')
+    if(versionType === 'version1'){
       setVersion1(version)
-    else if(versionType === 'version2')
+      fetchVerboseSummary(version, setVersion1)
+    }
+    else if(versionType === 'version2') {
       setVersion2(version)
+      fetchVerboseSummary(version, setVersion2)
+    }
+  }
+
+  const fetchVerboseSummary = (version, setter) => {
+    if(version?.id)
+      APIService.new().overrideURL(version.url + version.id + '/summary/').get(null, null, {verbose: true}).then(response => {
+        setter({...version, summary: {...version.summary, ...response.data}})
+      })
   }
 
 
@@ -95,6 +111,10 @@ const CompareVersions = () => {
           metric={metric}
           onMetricChange={setMetric}
         />
+        {
+          metric === 'stats' &&
+            <VersionStats version1={version1} version2={version2} />
+        }
       </Paper>
     </div>
   )

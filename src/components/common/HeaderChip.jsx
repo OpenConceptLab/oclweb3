@@ -3,8 +3,8 @@ import Chip from '@mui/material/Chip';
 import merge from 'lodash/merge'
 import Skeleton from '@mui/material/Skeleton';
 
-const HeaderChip = ({ labelPrefix, label, sx, ...rest }) => {
-  let _label = label ? `${labelPrefix || ''}${label}` : <Skeleton variant="text" sx={{ fontSize: '20px', width: '60px' }} />
+const HeaderChip = ({ labelPrefix, label, labelSuffix, sx, ...rest }) => {
+  let _label = label ? `${labelPrefix || ''}${label}${labelSuffix || ''}` : <Skeleton variant="text" sx={{ fontSize: '20px', width: '60px' }} />
   return (
     <Chip
       label={_label}
