@@ -44,7 +44,9 @@ const Version = ({ version }) => {
 
 const VersionStats = ({version1, version2}) => {
   const { t } = useTranslation()
-  const cellStyle = {borderRight: '1px solid', borderBottom: '1px solid', borderColor: 'surface.nv80'}
+  const lastCellStyle = {borderBottom: '1px solid', borderColor: 'surface.nv80'}
+  const cellStyle = {borderRight: '1px solid', ...lastCellStyle}
+  const lastHeadCellStyle = {...lastCellStyle, backgroundColor: 'surface.main'}
   const headCellStyle = {...cellStyle, backgroundColor: 'surface.main'}
   const getLocales = version => {
     let locales = []
@@ -54,15 +56,15 @@ const VersionStats = ({version1, version2}) => {
     return locales.join(', ')
   }
   return (
-    <TableContainer sx={{ maxHeight: 700 }}>
-      <Table stickyHeader aria-label="sticky table">
+    <TableContainer sx={{ maxHeight: 'calc(100vh - 300px)' }}>
+      <Table size='small' stickyHeader aria-label="sticky table">
         <TableHead>
           <TableRow>
             <TableCell sx={{...headCellStyle, width: '20%'}} />
             <TableCell sx={{...headCellStyle, width: '40%'}}>
               <Version version={version1} />
             </TableCell>
-            <TableCell sx={{...headCellStyle, width: '40%'}}>
+            <TableCell sx={{...lastHeadCellStyle, width: '40%'}}>
               <Version version={version2} />
             </TableCell>
           </TableRow>
@@ -80,7 +82,7 @@ const VersionStats = ({version1, version2}) => {
                   <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
               }
             </TableCell>
-            <TableCell sx={cellStyle}>
+            <TableCell sx={lastCellStyle}>
               {
                 version2?.id ?
                   version2?.summary?.active_concepts?.toLocaleString() :
@@ -90,7 +92,7 @@ const VersionStats = ({version1, version2}) => {
           </TableRow>
           <TableRow>
             <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center'}}>
-              <MappingIcon color='secondary' sx={{marginRight: '16px'}} />
+              <MappingIcon size='small' color='secondary' sx={{marginRight: '16px'}} />
               {t('mapping.mappings')}
             </TableCell>
             <TableCell sx={cellStyle}>
@@ -100,7 +102,7 @@ const VersionStats = ({version1, version2}) => {
                   <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
               }
             </TableCell>
-            <TableCell sx={cellStyle}>
+            <TableCell sx={lastCellStyle}>
               {
                 version2?.id ?
                   version2?.summary?.active_mappings?.toLocaleString() :
@@ -120,7 +122,7 @@ const VersionStats = ({version1, version2}) => {
                   <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
               }
             </TableCell>
-            <TableCell sx={cellStyle}>
+            <TableCell sx={lastCellStyle}>
               {
                 version2?.id ?
                   getLocales(version2) :
@@ -140,7 +142,7 @@ const VersionStats = ({version1, version2}) => {
                   <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
               }
             </TableCell>
-            <TableCell sx={cellStyle}>
+            <TableCell sx={lastCellStyle}>
               {
                 version2?.summary?.id ?
                   version2.summary.concepts.concept_class.length.toLocaleString():
@@ -160,7 +162,7 @@ const VersionStats = ({version1, version2}) => {
                   <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
               }
             </TableCell>
-            <TableCell sx={cellStyle}>
+            <TableCell sx={lastCellStyle}>
               {
                 version2?.summary?.id ?
                   version2.summary.concepts.datatype.length.toLocaleString():
@@ -180,7 +182,7 @@ const VersionStats = ({version1, version2}) => {
                   <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
               }
             </TableCell>
-            <TableCell sx={cellStyle}>
+            <TableCell sx={lastCellStyle}>
               {
                 version2?.summary?.id ?
                   version2.summary.concepts.name_type.length.toLocaleString():
@@ -200,7 +202,7 @@ const VersionStats = ({version1, version2}) => {
                   <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
               }
             </TableCell>
-            <TableCell sx={cellStyle}>
+            <TableCell sx={lastCellStyle}>
               {
                 version2?.summary?.id ?
                   version2.summary.concepts.retired.toLocaleString():
@@ -210,7 +212,7 @@ const VersionStats = ({version1, version2}) => {
           </TableRow>
           <TableRow>
             <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center'}}>
-              <MappingIcon color='secondary' sx={{marginRight: '16px'}} />
+              <MappingIcon size='small' color='secondary' sx={{marginRight: '16px'}} />
               {t('mapping.map_types')}
             </TableCell>
             <TableCell sx={cellStyle}>
@@ -220,7 +222,7 @@ const VersionStats = ({version1, version2}) => {
                   <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
               }
             </TableCell>
-            <TableCell sx={cellStyle}>
+            <TableCell sx={lastCellStyle}>
               {
                 version2?.summary?.id ?
                   version2.summary.mappings.map_type.length.toLocaleString():
@@ -230,7 +232,7 @@ const VersionStats = ({version1, version2}) => {
           </TableRow>
           <TableRow>
             <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center'}}>
-              <MappingIcon color='secondary' sx={{marginRight: '16px'}} />
+              <MappingIcon size='small' color='secondary' sx={{marginRight: '16px'}} />
               {t('mapping.to_concept_sources')}
             </TableCell>
             <TableCell sx={cellStyle}>
@@ -240,7 +242,7 @@ const VersionStats = ({version1, version2}) => {
                   <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
               }
             </TableCell>
-            <TableCell sx={cellStyle}>
+            <TableCell sx={lastCellStyle}>
               {
                 version2?.summary?.id ?
                   version2.summary.mappings.to_concept_source.length.toLocaleString():
@@ -249,18 +251,18 @@ const VersionStats = ({version1, version2}) => {
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center'}}>
-              <MappingIcon sx={{marginRight: '16px', color: 'secondary.60'}} />
+            <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center', borderBottom: 'none'}}>
+              <MappingIcon size='small' sx={{marginRight: '16px', color: 'secondary.60'}} />
               {t('mapping.retired_mappings')}
             </TableCell>
-            <TableCell sx={cellStyle}>
+            <TableCell sx={{...cellStyle, borderBottom: 'none'}}>
               {
                 version1?.summary?.id ?
                   version1.summary.mappings.retired.toLocaleString():
                   <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
               }
             </TableCell>
-            <TableCell sx={cellStyle}>
+            <TableCell sx={{...lastCellStyle, borderBottom: 'none'}}>
               {
                 version2?.summary?.id ?
                   version2.summary.mappings.retired.toLocaleString():
