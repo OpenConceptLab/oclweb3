@@ -12,6 +12,7 @@ import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
 import LanguageIcon from '@mui/icons-material/Translate';
 import startCase from 'lodash/startCase'
 import uniq from 'lodash/uniq'
+import get from 'lodash/get'
 import { SECONDARY_COLORS } from '../../common/colors'
 import HeaderChip from '../common/HeaderChip'
 import ConceptIcon from '../concepts/ConceptIcon'
@@ -31,7 +32,8 @@ const Version = ({ version }) => {
           padding: 0,
           fontSize: '14px',
           height: '24px',
-          marginLeft: '-8px'
+          marginLeft: '-8px',
+          fontWeight: 'bold'
         }}
         size='small'
       />
@@ -39,7 +41,40 @@ const Version = ({ version }) => {
         {` ${startCase(t('common.updated_on'))} ${moment(version?.updated_on).format('MM/DD/YYYY')}`}
       </span>
     </React.Fragment>
-  )}
+  )
+}
+
+const StatRow = ({icon, label, version1, version2, statKey, statFunc}) => {
+  const lastCellStyle = {borderBottom: '1px solid', borderColor: 'surface.nv80'}
+  const cellStyle = {borderRight: '1px solid', ...lastCellStyle}
+  const getValue = version => {
+    if(statFunc)
+      return statFunc(version)
+    return get(version, `summary.${statKey}`)?.toLocaleString()
+  }
+  return (
+  <TableRow>
+    <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center'}}>
+      {icon}
+      {label}
+    </TableCell>
+    <TableCell sx={cellStyle}>
+      {
+        version1?.id ?
+          getValue(version1):
+          <Skeleton variant="circular" width={20} height={20} />
+      }
+    </TableCell>
+    <TableCell sx={lastCellStyle}>
+      {
+        version2?.id ?
+          getValue(version2) :
+          <Skeleton variant="circular" width={20} height={20} />
+      }
+    </TableCell>
+  </TableRow>
+  )
+}
 
 
 const VersionStats = ({version1, version2}) => {
@@ -70,206 +105,76 @@ const VersionStats = ({version1, version2}) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          <TableRow>
-            <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center'}}>
-              <ConceptIcon fontSize='small' selected color='secondary' sx={{marginRight: '16px'}} />
-              {t('concept.concepts')}
-            </TableCell>
-            <TableCell sx={cellStyle}>
-              {
-                version1?.id ?
-                  version1?.summary?.active_concepts?.toLocaleString() :
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-            <TableCell sx={lastCellStyle}>
-              {
-                version2?.id ?
-                  version2?.summary?.active_concepts?.toLocaleString() :
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center'}}>
-              <MappingIcon size='small' color='secondary' sx={{marginRight: '16px'}} />
-              {t('mapping.mappings')}
-            </TableCell>
-            <TableCell sx={cellStyle}>
-              {
-                version1?.id ?
-                  version1?.summary?.active_mappings?.toLocaleString() :
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-            <TableCell sx={lastCellStyle}>
-              {
-                version2?.id ?
-                  version2?.summary?.active_mappings?.toLocaleString() :
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center'}}>
-              <LanguageIcon fontSize='small' color='secondary' sx={{marginRight: '16px'}} />
-              {t('common.languages')}
-            </TableCell>
-            <TableCell sx={cellStyle}>
-              {
-                version1?.id ?
-                  getLocales(version1) :
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-            <TableCell sx={lastCellStyle}>
-              {
-                version2?.id ?
-                  getLocales(version2) :
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center'}}>
-              <ConceptIcon fontSize='small' selected color='secondary' sx={{marginRight: '16px'}} />
-              {t('concept.concept_classes')}
-            </TableCell>
-            <TableCell sx={cellStyle}>
-              {
-                version1?.summary?.id ?
-                  version1.summary.concepts.concept_class.length.toLocaleString():
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-            <TableCell sx={lastCellStyle}>
-              {
-                version2?.summary?.id ?
-                  version2.summary.concepts.concept_class.length.toLocaleString():
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center'}}>
-              <ConceptIcon fontSize='small' selected color='secondary' sx={{marginRight: '16px'}} />
-              {t('concept.datatypes')}
-            </TableCell>
-            <TableCell sx={cellStyle}>
-              {
-                version1?.summary?.id ?
-                  version1.summary.concepts.datatype.length.toLocaleString():
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-            <TableCell sx={lastCellStyle}>
-              {
-                version2?.summary?.id ?
-                  version2.summary.concepts.datatype.length.toLocaleString():
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center'}}>
-              <ConceptIcon fontSize='small' selected color='secondary' sx={{marginRight: '16px'}} />
-              {t('concept.name_types')}
-            </TableCell>
-            <TableCell sx={cellStyle}>
-              {
-                version1?.summary?.id ?
-                  version1.summary.concepts.name_type.length.toLocaleString():
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-            <TableCell sx={lastCellStyle}>
-              {
-                version2?.summary?.id ?
-                  version2.summary.concepts.name_type.length.toLocaleString():
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center'}}>
-              <ConceptIcon fontSize='small' sx={{marginRight: '16px', color: 'secondary.60'}} />
-              {t('concept.retired_concepts')}
-            </TableCell>
-            <TableCell sx={cellStyle}>
-              {
-                version1?.summary?.id ?
-                  version1.summary.concepts.retired.toLocaleString():
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-            <TableCell sx={lastCellStyle}>
-              {
-                version2?.summary?.id ?
-                  version2.summary.concepts.retired.toLocaleString():
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center'}}>
-              <MappingIcon size='small' color='secondary' sx={{marginRight: '16px'}} />
-              {t('mapping.map_types')}
-            </TableCell>
-            <TableCell sx={cellStyle}>
-              {
-                version1?.summary?.id ?
-                  version1.summary.mappings.map_type.length.toLocaleString():
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-            <TableCell sx={lastCellStyle}>
-              {
-                version2?.summary?.id ?
-                  version2.summary.mappings.map_type.length.toLocaleString():
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center'}}>
-              <MappingIcon size='small' color='secondary' sx={{marginRight: '16px'}} />
-              {t('mapping.to_concept_sources')}
-            </TableCell>
-            <TableCell sx={cellStyle}>
-              {
-                version1?.summary?.id ?
-                  version1.summary.mappings.to_concept_source.length.toLocaleString():
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-            <TableCell sx={lastCellStyle}>
-              {
-                version2?.summary?.id ?
-                  version2.summary.mappings.to_concept_source.length.toLocaleString():
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center', borderBottom: 'none'}}>
-              <MappingIcon size='small' sx={{marginRight: '16px', color: 'secondary.60'}} />
-              {t('mapping.retired_mappings')}
-            </TableCell>
-            <TableCell sx={{...cellStyle, borderBottom: 'none'}}>
-              {
-                version1?.summary?.id ?
-                  version1.summary.mappings.retired.toLocaleString():
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-            <TableCell sx={{...lastCellStyle, borderBottom: 'none'}}>
-              {
-                version2?.summary?.id ?
-                  version2.summary.mappings.retired.toLocaleString():
-                  <Skeleton variant="text" sx={{ fontSize: '16px', width: '40px' }} />
-              }
-            </TableCell>
-          </TableRow>
+          <StatRow
+            label={t('concept.concepts')}
+            icon={<ConceptIcon fontSize='small' selected color='secondary' sx={{marginRight: '16px'}} />}
+            version1={version1}
+            version2={version2}
+            statKey='active_concepts'
+          />
+          <StatRow
+            label={t('mapping.mappings')}
+            icon={<MappingIcon fontSize='small' color='secondary' sx={{marginRight: '16px'}} />}
+            version1={version1}
+            version2={version2}
+            statKey='active_mappings'
+          />
+          <StatRow
+            label={t('common.languages')}
+            icon={<LanguageIcon fontSize='small' selected color='secondary' sx={{marginRight: '16px'}} />}
+            version1={version1}
+            version2={version2}
+            statFunc={getLocales}
+          />
+          <StatRow
+            label={t('concept.concept_classes')}
+            icon={<ConceptIcon fontSize='small' selected color='secondary' sx={{marginRight: '16px'}} />}
+            version1={version1}
+            version2={version2}
+            statKey='concepts.concept_class.length'
+          />
+          <StatRow
+            label={t('concept.datatypes')}
+            icon={<ConceptIcon fontSize='small' selected color='secondary' sx={{marginRight: '16px'}} />}
+            version1={version1}
+            version2={version2}
+            statKey='concepts.datatype.length'
+          />
+          <StatRow
+            label={t('concept.name_types')}
+            icon={<ConceptIcon fontSize='small' selected color='secondary' sx={{marginRight: '16px'}} />}
+            version1={version1}
+            version2={version2}
+            statKey='concepts.name_type.length'
+          />
+          <StatRow
+            label={t('concept.retired_concepts')}
+            icon={<ConceptIcon fontSize='small' selected color='secondary' sx={{marginRight: '16px', color: 'secondary.60'}} />}
+            version1={version1}
+            version2={version2}
+            statKey='concepts.retired'
+          />
+          <StatRow
+            label={t('mapping.map_types')}
+            icon={<MappingIcon fontSize='small' color='secondary' sx={{marginRight: '16px'}} />}
+            version1={version1}
+            version2={version2}
+            statKey='mappings.map_type.length'
+          />
+          <StatRow
+            label={t('mapping.to_concept_sources')}
+            icon={<MappingIcon fontSize='small' color='secondary' sx={{marginRight: '16px'}} />}
+            version1={version1}
+            version2={version2}
+            statKey='mappings.to_concept_source.length'
+          />
+          <StatRow
+            label={t('mapping.retired_mappings')}
+            icon={<MappingIcon fontSize='small' color='secondary' sx={{marginRight: '16px', color: 'secondary.60'}} />}
+            version1={version1}
+            version2={version2}
+            statKey='mappings.retired'
+          />
         </TableBody>
       </Table>
     </TableContainer>
