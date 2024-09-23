@@ -13,7 +13,6 @@ import TimelineOppositeContent, {
 } from '@mui/lab/TimelineOppositeContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import Typography from '@mui/material/Typography';
-import { formatTime, formatDate } from '../../common/utils'
 import EntityIcon from '../common/EntityIcon';
 import Link from '../common/Link'
 import UserIcon from '../users/UserIcon'
