@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
+import moment from 'moment';
 import map from 'lodash/map'
 import isEmpty from 'lodash/isEmpty'
 import Timeline from '@mui/lab/Timeline';
@@ -56,10 +57,7 @@ const Event = ({ event, isFirst, isLast }) => {
         variant="body2"
         color="default.light"
       >
-        {formatDate(event.created_at)}
-        <Typography sx={{fontSize: '12px'}}>
-          {formatTime(event.created_at)}
-        </Typography>
+        {moment(event.created_at).fromNow()}
       </TimelineOppositeContent>
       <TimelineSeparator>
         { !isFirst && <TimelineConnector /> }
@@ -91,7 +89,7 @@ const Events = ({ user, events, onLoadMore, showAvatar, moreMarginLeft }) => {
         id="events-timeline"
         sx={{
           [`& .${timelineOppositeContentClasses.root}`]: {
-            flex: 0.1,
+            flex: moreMarginLeft ? 0.25 : 0.1,
           },
           p: 0,
           marginTop: 0,
