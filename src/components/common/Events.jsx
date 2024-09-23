@@ -13,6 +13,7 @@ import TimelineOppositeContent, {
 } from '@mui/lab/TimelineOppositeContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import Typography from '@mui/material/Typography';
+import { getCurrentUser } from '../../common/utils'
 import EntityIcon from '../common/EntityIcon';
 import Link from '../common/Link'
 import UserIcon from '../users/UserIcon'
@@ -74,6 +75,8 @@ const Event = ({ event, isFirst, isLast }) => {
 
 const Events = ({ user, events, onLoadMore, showAvatar, moreMarginLeft }) => {
   const { t } = useTranslation()
+  const currentUser = getCurrentUser()
+  const isSelf = Boolean(currentUser?.username && currentUser?.username === user.username)
 
   return (
     <div className='col-xs-12 padding-0'>
@@ -82,7 +85,7 @@ const Events = ({ user, events, onLoadMore, showAvatar, moreMarginLeft }) => {
             showAvatar &&
               <UserIcon user={user} sx={{width: '40px', height: '40px', marginRight: '16px'}} color='primary' />
           }
-        {`${t('user.your')} ${t('user.recent_activity')}`}
+        {`${isSelf ? t('user.your') : (user.name + "'s")} ${t('user.recent_activity')}`}
       </Typography>
       <Timeline
         id="events-timeline"
