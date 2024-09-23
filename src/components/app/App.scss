@@ -116,6 +116,5 @@ div.split-appear {
 .sticky-col {
     position: sticky;
     left: 0;
-    background-color: white; /* To avoid overlap effects */
-    border-right: 1px solid #ddd; /* Optional: to add a dividing line */
+    background-color: white;
 }

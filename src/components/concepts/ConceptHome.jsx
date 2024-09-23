@@ -114,12 +114,18 @@ const ConceptHome = props => {
                 {
                   tab === 'metadata' &&
                     <div className='col-xs-12' style={{padding: '16px 0', height: 'calc(100vh - 330px)', overflow: 'auto'}}>
-                      <div className='col-xs-12 padding-0'>
-                        <Locales concept={concept} locales={concept.names} title={t('concept.name_and_synonyms')} repo={repo} />
-                      </div>
-                      <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
-                        <Locales concept={concept} locales={concept.descriptions} title={t('concept.descriptions')} repo={repo} />
-                      </div>
+                      {
+                        Boolean(concept.names.length) &&
+                          <div className='col-xs-12 padding-0'>
+                            <Locales concept={concept} locales={concept.names} title={t('concept.name_and_synonyms')} repo={repo} />
+                          </div>
+                      }
+                      {
+                        Boolean(concept.descriptions.length) &&
+                        <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
+                          <Locales concept={concept} locales={concept.descriptions} title={t('concept.descriptions')} repo={repo} />
+                        </div>
+                      }
                       <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
                         <Associations concept={concept} mappings={mappings} reverseMappings={reverseMappings} />
                       </div>
