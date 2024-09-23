@@ -58,7 +58,7 @@ const EventCard = ({ event }) => {
 
 const DashboardEvents = ({ events }) => {
   return (
-      <div className='col-xs-12 padding-0' style={{maxHeight: '90vh', overflow: 'auto'}}>
+      <div className='col-xs-12 padding-0' style={{maxHeight: '85vh', overflow: 'auto'}}>
       {
         events.map(event => (
           <EventCard key={event.id} event={event} />
