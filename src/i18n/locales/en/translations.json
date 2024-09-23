@@ -94,7 +94,7 @@
   "auth": {
     "sign_in": "Sign in",
     "sign_out": "Sign out",
-    "register": "Register",
+    "register": "Sign up",
     "signing_in": "Signing in...",
     "sign_in_success": "Successfully signed in.",
     "sign_in_error": "Unable to signin at the time.",
