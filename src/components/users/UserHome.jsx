@@ -110,7 +110,7 @@ const UserHome = () => {
           user?.url && tab === 'repos' &&
             <Search
               resource='repos'
-              url={user?.url + 'orgs/repos/'}
+              url={user?.url + 'repos/'}
               nested
               noTabs
               filtersHeight={`calc(100vh - ${baseHeightToDeduct}px)`}
