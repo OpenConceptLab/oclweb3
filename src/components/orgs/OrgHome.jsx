@@ -6,7 +6,6 @@ import APIService from '../../services/APIService'
 import OrgHeader from './OrgHeader'
 import CommonTabs from '../common/CommonTabs';
 import Search from '../search/Search';
-import { isSubscribedTo } from '../../common/utils'
 import OrgOverview from './OrgOverview';
 
 const OrgHome = () => {
@@ -42,7 +41,7 @@ const OrgHome = () => {
     })
   }
   const fetchBookmarks = () => {
-    if(params?.org && isSubscribedTo(params.org)) {
+    if(params?.org) {
       APIService.orgs(params?.org).appendToUrl('pins/').get().then(response => {
         setBookmarks(response?.data?.length ? response.data : [])
       })
