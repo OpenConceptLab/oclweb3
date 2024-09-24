@@ -21,7 +21,7 @@ const ResultsToolbar = props => {
   return (
     <Toolbar
       sx={{
-        pl: { sm: 2 },
+        pl: { sm: 1 },
         pr: { xs: 1, sm: 1 },
         ...(numSelected > 0 && {
           bgcolor: (theme) =>
@@ -33,6 +33,12 @@ const ResultsToolbar = props => {
         borderTopRightRadius: '8px'
       }}
     >
+      {
+        isFilterable &&
+          <IconButton style={{marginRight: '4px'}} onClick={onFiltersToggle} disabled={Boolean(disabled)}>
+            <FilterListIcon />
+          </IconButton>
+      }
       {numSelected > 0 ? (
         <Typography
           sx={{ flex: '1 1 100%' }}
@@ -67,12 +73,6 @@ const ResultsToolbar = props => {
         sortableFields={sortableFields}
         noCardDisplay={noCardDisplay}
       />
-      {
-        isFilterable &&
-          <IconButton style={{marginLeft: '5px'}} onClick={onFiltersToggle} disabled={Boolean(disabled)}>
-            <FilterListIcon />
-          </IconButton>
-      }
     </Toolbar>
   );
 }
