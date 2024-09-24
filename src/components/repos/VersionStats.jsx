@@ -1,5 +1,4 @@
 import React from 'react'
-import moment from 'moment'
 import { useTranslation } from 'react-i18next';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -8,41 +7,12 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Skeleton from '@mui/material/Skeleton';
-import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
 import LanguageIcon from '@mui/icons-material/Translate';
-import startCase from 'lodash/startCase'
 import uniq from 'lodash/uniq'
 import get from 'lodash/get'
-import { SECONDARY_COLORS } from '../../common/colors'
-import HeaderChip from '../common/HeaderChip'
 import ConceptIcon from '../concepts/ConceptIcon'
 import MappingIcon from '../mappings/MappingIcon'
-
-const Version = ({ version }) => {
-  const { t } = useTranslation()
-  return (
-    <React.Fragment>
-      <HeaderChip
-        labelPrefix={`${t('common.version')} `}
-        label={version?.version || version?.id}
-        icon={<VersionIcon color='surface.contrastText' fontSize='inherit' />}
-        sx={{
-          backgroundColor: 'surface.main',
-          border: 'none',
-          padding: 0,
-          fontSize: '14px',
-          height: '24px',
-          marginLeft: '-8px',
-          fontWeight: 'bold'
-        }}
-        size='small'
-      />
-      <span style={{fontSize: '12px', marginLeft: '-4px', color: SECONDARY_COLORS.main }}>
-        {` ${startCase(t('common.updated_on'))} ${moment(version?.updated_on).format('MM/DD/YYYY')}`}
-      </span>
-    </React.Fragment>
-  )
-}
+import RepoVersionLabel from './RepoVersionLabel'
 
 const StatRow = ({icon, label, version1, version2, statKey, statFunc}) => {
   const lastCellStyle = {borderBottom: '1px solid', borderColor: 'surface.nv80'}
@@ -97,10 +67,10 @@ const VersionStats = ({version1, version2}) => {
           <TableRow>
             <TableCell sx={{...headCellStyle, width: '20%'}} />
             <TableCell sx={{...headCellStyle, width: '40%'}}>
-              <Version version={version1} />
+              <RepoVersionLabel version={version1} />
             </TableCell>
             <TableCell sx={{...lastHeadCellStyle, width: '40%'}}>
-              <Version version={version2} />
+              <RepoVersionLabel version={version2} />
             </TableCell>
           </TableRow>
         </TableHead>

@@ -9,6 +9,7 @@ import Error404 from '../errors/Error404'
 import RepoHeader from './RepoHeader';
 import CompareToolbar from './CompareToolbar';
 import VersionStats from './VersionStats'
+import VersionMeta from './VersionMeta'
 
 const CompareVersions = () => {
   const location = useLocation()
@@ -114,6 +115,10 @@ const CompareVersions = () => {
         {
           metric === 'stats' &&
             <VersionStats version1={version1} version2={version2} />
+        }
+        {
+          metric === 'meta' &&
+            <VersionMeta version1={version1} version2={version2} />
         }
       </Paper>
     </div>

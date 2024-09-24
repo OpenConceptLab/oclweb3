@@ -134,10 +134,10 @@ const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabl
                 {t('common.content_summary')}
               </TableCell>
               <TableCell sx={{fontSize: '12px', fontWeight: 'bold', background: bgColor}}>
-                Visibility
+                {t('repo.visibility')}
               </TableCell>
               <TableCell sx={{fontSize: '12px', fontWeight: 'bold', background: bgColor}}>
-                Release status
+                {t('repo.release_status')}
               </TableCell>
             </TableRow>
           </TableHead>

@@ -25,6 +25,8 @@
     "retired": "Retired",
     "id": "ID",
     "name": "Name",
+    "full_name": "Full Name",
+    "description": "Description",
     "create": "Create",
     "created": "Created",
     "created_on": "Created On",
@@ -162,16 +164,25 @@
     "to_concept_not_defined": "Target concept is not defined in OCL",
     "to_concept_defined": "Target concept is defined in OCL"
   },
+  "checksums": {
+    "standard": "Standard Checksum",
+    "smart": "Smart Checksum"
+  },
   "repo": {
     "repos": "Repositories",
     "repo": "Repository",
     "repo_type": "Repository Type",
+    "source_type": "Source Type",
+    "collection_type": "Collection Type",
     "manage": "Manage Repository",
     "repo_id": "Repository ID",
     "add_concept": "Add Concept",
     "source": "Source",
+    "release_status": "Release status",
     "compare_versions": "Compare versions",
     "compare": "Compare",
+    "visibility": "Visibility",
+    "custom_validation_schema": "Custom Validation Schema",
     "compare_origin_version_disabled_tooltip": "You must select an older version to compare",
     "compare_destination_version_disabled_tooltip": "You must select a newer version to compare"
   },
@@ -207,7 +218,6 @@
     "company": "Company",
     "email_address": "Email Address",
     "location": "Location",
-    "website": "Website",
     "profile_update_success": "Profile updated successfully",
     "profile_update_failure": "An error occurred while updating profile.",
     "copy_api_token": "Copy API token",
