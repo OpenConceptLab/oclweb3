@@ -154,7 +154,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                     const key = `${field}-${value[0]}`
 
                     return (
-                      <ListItemButton key={key} onClick={handleToggle(field, value)} sx={{p: '0 5px'}} disabled={value[3] === true}>
+                      <ListItemButton key={key} onClick={handleToggle(field, value)} sx={{p: '0 12px 0 4px'}} disabled={value[3] === true}>
                         <ListItemIcon sx={{minWidth: '25px'}}>
                           <Checkbox
                             size="small"
