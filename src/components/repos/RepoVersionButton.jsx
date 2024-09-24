@@ -2,7 +2,7 @@ import React from 'react';
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 
-const RepoVersionLabel = ({icon, repo, version, versionStyle, href, vertical, size}) => {
+const RepoVersionButton = ({icon, repo, version, versionStyle, href, vertical, size}) => {
   const verticalStyle = version && vertical ? {flexDirection: 'column', alignItems: 'baseline'} : {}
   return (
     <Button
@@ -40,4 +40,4 @@ const RepoVersionLabel = ({icon, repo, version, versionStyle, href, vertical, si
   )
 }
 
-export default RepoVersionLabel;
+export default RepoVersionButton;

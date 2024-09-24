@@ -4,7 +4,7 @@ import RepoIcon from '../repos/RepoIcon';
 import ConceptIcon from '../concepts/ConceptIcon';
 import DotSeparator from './DotSeparator'
 import OwnerIcon from './OwnerIcon'
-import RepoVersionLabel from '../repos/RepoVersionLabel'
+import RepoVersionButton from '../repos/RepoVersionButton'
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button'
 
@@ -45,7 +45,7 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, id, version,
         repo &&
           <React.Fragment>
             <DotSeparator />
-            <RepoVersionLabel size={size} href={repoURL} icon={noIcons ? false : <RepoIcon sx={{color: 'secondary'}} />} repo={repo} version={repoVersion} versionStyle={{fontSize: fontSize || '14px'}} />
+            <RepoVersionButton size={size} href={repoURL} icon={noIcons ? false : <RepoIcon sx={{color: 'secondary'}} />} repo={repo} version={repoVersion} versionStyle={{fontSize: fontSize || '14px'}} />
           </React.Fragment>
       }
       {
