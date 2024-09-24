@@ -13,6 +13,8 @@ import TimelineOppositeContent, {
 } from '@mui/lab/TimelineOppositeContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import Typography from '@mui/material/Typography';
+import Tooltip from '@mui/material/Tooltip';
+import MoreIcon from '@mui/icons-material/ExpandCircleDownOutlined';
 import { getCurrentUser } from '../../common/utils'
 import EntityIcon from '../common/EntityIcon';
 import Link from '../common/Link'
@@ -81,10 +83,10 @@ const Events = ({ user, events, onLoadMore, showAvatar, moreMarginLeft }) => {
   return (
     <div className='col-xs-12 padding-0'>
       <Typography component='h3' sx={{margin: '16px 0', fontWeight: 'bold', display: 'flex', alignItems: 'center'}}>
-          {
-            showAvatar &&
-              <UserIcon user={user} sx={{width: '40px', height: '40px', marginRight: '16px'}} color='primary' />
-          }
+        {
+          showAvatar &&
+            <UserIcon user={user} sx={{width: '40px', height: '40px', marginRight: '16px'}} color='primary' />
+        }
         {`${isSelf ? t('user.your') : (user.name + "'s")} ${t('user.recent_activity')}`}
       </Typography>
       <Timeline
@@ -106,19 +108,19 @@ const Events = ({ user, events, onLoadMore, showAvatar, moreMarginLeft }) => {
         }
         {
           onLoadMore &&
-            <TimelineItem sx={{minHeight: '20px'}}>
+            <TimelineItem sx={{minHeight: '50px'}}>
               <TimelineOppositeContent
-                sx={{ m: 0, fontSize: '12px', px: '19px', height: 0 }}
+                sx={{ m: 'auto 0', fontSize: '12px', paddingRight: '19px', paddingLeft: 0 }}
+                align="right"
                 variant="body2"
+                color="default.light"
               />
               <TimelineSeparator>
-                <TimelineDot sx={{backgroundColor: 'transparent', boxShadow: 'none', marginLeft: moreMarginLeft || '-35px', marginTop: 0, marginBottom: 0, height: '20px'}}>
-                  <Link
-                    label={t('common.more')}
-                    onClick={onLoadMore}
-                    sx={{fontSize: '12px'}}
-                  />
-                </TimelineDot>
+                <Tooltip title='Show more'>
+                  <TimelineDot sx={{backgroundColor: 'transparent', boxShadow: 'none', cursor: 'pointer'}} onClick={onLoadMore}>
+                    <MoreIcon sx={{color: 'primary.60'}} />
+                  </TimelineDot>
+                </Tooltip>
               </TimelineSeparator>
               <TimelineContent sx={{m: 0, height: 0}} />
             </TimelineItem>
