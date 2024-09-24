@@ -32,7 +32,7 @@ const RepoVersionButton = ({icon, repo, version, versionStyle, href, vertical, s
       <span style={{display: 'flex', fontSize: versionStyle?.fontSize}}>{repo}</span>
       {
         version &&
-          <Typography component='span' sx={{marginLeft: '4px', color: 'secondary.s50', fontFamily: '"Roboto Mono","Helvetica","Arial",sans-serif', display: 'flex', fontSize: '0.85rem', marginTop: '1px', ...(versionStyle || {})}}>
+          <Typography component='span' sx={{marginLeft: '4px', color: 'secondary.50', fontFamily: '"Roboto Mono","Helvetica","Arial",sans-serif', display: 'flex', fontSize: '0.85rem', marginTop: '1px', ...(versionStyle || {})}}>
             {version}
           </Typography>
       }
