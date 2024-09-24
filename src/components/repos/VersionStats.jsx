@@ -119,7 +119,7 @@ const VersionStats = ({version1, version2}) => {
           />
           <StatRow
             label={t('concept.retired_concepts')}
-            icon={<ConceptIcon fontSize='small' selected color='secondary' sx={{marginRight: '16px', color: 'secondary.60'}} />}
+            icon={<ConceptIcon fontSize='small' color='secondary' sx={{marginRight: '16px', color: 'secondary.60'}} />}
             version1={version1}
             version2={version2}
             statKey='concepts.retired'
