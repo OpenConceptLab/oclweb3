@@ -3,15 +3,29 @@ import { useTranslation } from 'react-i18next';
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import DownloadIcon from '@mui/icons-material/Download';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
-import ShareIcon from '@mui/icons-material/Share';
 import CloseIconButton from '../common/CloseIconButton';
 import { toOwnerURI } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
-import { BLACK } from '../../common/colors'
+import { BLACK, SECONDARY_COLORS } from '../../common/colors'
 import ConceptManagementList from './ConceptManagementList'
+import ExternalIdLabel from '../common/ExternalIdLabel';
+
+const PropertyChip = ({name, property, sx}) => {
+  const label = (
+    <span style={{display: 'flex', alignItems: 'center'}}>
+      <span style={{display: 'flex', alignItems: 'center'}}>
+        {name}:
+    </span>
+      <span style={{fontWeight: 'bold', display: 'flex', alignItems: 'center', color: SECONDARY_COLORS.main, marginLeft: '4px'}}>
+        {property}
+      </span>
+    </span>
+  )
+  return (
+    <Chip label={label} variant='outlined' sx={{color: 'surface.contrastText', borderRadius: '8px', ...sx}} />
+  )
+}
 
 const ConceptHeader = ({concept, onClose, repoURL, onEdit}) => {
   const { t } = useTranslation()
@@ -58,17 +72,15 @@ const ConceptHeader = ({concept, onClose, repoURL, onEdit}) => {
         <Typography sx={{fontSize: '22px', color: BLACK}} className='searchable'>{concept.display_name}</Typography>
       </div>
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-        <span>
-          <Chip label={concept.concept_class} sx={{backgroundColor: 'surface.n90', color: 'surface.dark', borderRadius: '4px'}} />
-          <Chip label={concept.datatype} sx={{backgroundColor: 'surface.n90', color: 'surface.dark', borderRadius: '4px', marginLeft: '8px'}} />
+        <span style={{display: 'flex', alignItems: 'center'}}>
+          <PropertyChip name={t('concept.concept_class')} property={concept.concept_class} sx={{marginRight: '8px'}} />
+          <PropertyChip name={t('concept.datatype')} property={concept.datatype} />
+          {
+            concept.external_id &&
+              <ExternalIdLabel value={concept.external_id} style={{marginLeft: '8px'}} />
+          }
         </span>
         <span>
-          <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
-            <DownloadIcon fontSize='inherit' />
-          </IconButton>
-          <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
-            <ShareIcon fontSize='inherit' />
-          </IconButton>
           <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='concept-actions'>
             {t('common.actions')}
           </Button>

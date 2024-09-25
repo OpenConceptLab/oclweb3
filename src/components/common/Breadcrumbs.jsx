@@ -54,7 +54,7 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, id, version,
             <DotSeparator />
             {
               !noIcons &&
-                <ConceptIcon selected {...iconProps} />
+                <ConceptIcon selected {...iconProps} color='primary' />
             }
             <span className='searchable'>{id}</span>
           </React.Fragment>
