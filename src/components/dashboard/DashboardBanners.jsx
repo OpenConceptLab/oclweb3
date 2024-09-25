@@ -4,7 +4,7 @@ import { WHITE } from '../../common/colors'
 import Carousel from 'react-material-ui-carousel'
 import { Chip } from '@mui/material'
 import CategoryIcon from '@mui/icons-material/Category';
-import WorkspaceIcon from '@mui/icons-material/Workspaces';
+import WorkIcon from '@mui/icons-material/Workspaces';
 import SquareIcon from '@mui/icons-material/Dashboard';
 import ConceptIcon from '../concepts/ConceptIcon'
 
@@ -17,24 +17,24 @@ const Item = props => {
       <div className='col-xs-12 padding-0'>
         <div className='col-xs-12 padding-0'>
           <ConceptIcon selected sx={{color: WHITE, width: '50px', height: '50px'}} />
-          <WorkspaceIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
+          <WorkIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
           <SquareIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
           <CategoryIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
           <ConceptIcon selected sx={{color: WHITE, width: '50px', height: '50px'}} />
-          <WorkspaceIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
+          <WorkIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
     </div>
         <div className='col-xs-12 padding-0'>
-          <WorkspaceIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
+          <WorkIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
           <ConceptIcon selected sx={{color: WHITE, width: '50px', height: '50px'}} />
           <CategoryIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
           <SquareIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
-          <WorkspaceIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
+          <WorkIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
           <ConceptIcon selected sx={{color: WHITE, width: '50px', height: '50px'}} />
         </div>
         <div className='col-xs-12 padding-0'>
           <ConceptIcon selected sx={{color: WHITE, width: '50px', height: '50px'}} />
           <SquareIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
-          <WorkspaceIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
+          <WorkIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
           <CategoryIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
           <ConceptIcon selected sx={{color: WHITE, width: '50px', height: '50px'}} />
           <SquareIcon sx={{color: WHITE, width: '50px', height: '50px'}} />
