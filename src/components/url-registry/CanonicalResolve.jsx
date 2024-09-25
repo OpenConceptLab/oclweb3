@@ -58,6 +58,7 @@ const CanonicalResolve = ({open, onClose, defaultOwner}) => {
           </div>
           <div className='col-xs-6' style={{paddingRight: '8px', paddingLeft: 0}}>
             <TextField
+              size='medium'
               onChange={onURLChange}
               label={t('url_registry.canonical_url')}
               fullWidth
