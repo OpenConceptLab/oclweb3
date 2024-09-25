@@ -117,7 +117,7 @@ const Events = ({ user, events, onLoadMore, showAvatar, moreMarginLeft }) => {
               />
               <TimelineSeparator>
                 <Tooltip title='Show more'>
-                  <TimelineDot sx={{backgroundColor: 'transparent', boxShadow: 'none', cursor: 'pointer'}} onClick={onLoadMore}>
+                  <TimelineDot sx={{backgroundColor: 'transparent', boxShadow: 'none', cursor: 'pointer', marginTop: 0}} onClick={onLoadMore}>
                     <MoreIcon sx={{color: 'primary.60'}} />
                   </TimelineDot>
                 </Tooltip>
