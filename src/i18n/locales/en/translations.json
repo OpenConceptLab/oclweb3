@@ -73,7 +73,8 @@
     "a": "a",
     "with": "with",
     "json": "JSON",
-    "draft": "Draft"
+    "draft": "Draft",
+    "highlights": "Highlights"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -84,9 +85,10 @@
     "name": "Dashboard",
     "my": "My dashboard",
     "welcome_line": "Welcome to OCL.",
-    "take_a_tour": "Take a tour",
+    "take_a_tour": "View release notes and take a tour",
     "hello": "Hello",
-    "create_repository": "Create Repository"
+    "create_repository": "Create Repository",
+    "anonymous_heading": "What's new?"
   },
   "bookmarks": {
     "name": "Bookmarks",

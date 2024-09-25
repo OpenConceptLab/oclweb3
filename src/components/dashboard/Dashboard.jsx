@@ -1,12 +1,9 @@
 import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { getCurrentUser, isLoggedIn, getLoginURL, getRegisterURL } from '../../common/utils';
-import Link from '../common/Link';
+import { getCurrentUser, isLoggedIn } from '../../common/utils';
 import UserDashboard from './UserDashboard';
-import DashboardBanners from './DashboardBanners'
+import GuestDashboard from './GuestDashboard';
 
 const Dashboard = () => {
-  const { t } = useTranslation()
   const authenticated = isLoggedIn()
   const user = getCurrentUser()
   return (
@@ -16,15 +13,9 @@ const Dashboard = () => {
           {
             authenticated ?
               <UserDashboard user={user} /> :
-            <span>
-              {t('dashboard.welcome_line')} <Link label={t('auth.sign_in')} href={getLoginURL()} /> {t('common.or')} <Link label={t('auth.register')} href={getRegisterURL()} />
-            </span>
+            <GuestDashboard />
           }
         </div>
-        {
-          !authenticated &&
-            <DashboardBanners />
-        }
       </div>
     </div>
   )
