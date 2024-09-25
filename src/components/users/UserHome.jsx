@@ -31,23 +31,23 @@ const UserHome = () => {
   const isCurrentUser = Boolean(currentUser?.username && currentUser?.username == params.user)
 
   const reset = () => {
-    setUser({})
-    setEvents(false)
     setBookmarks(false)
+    setEvents(false)
+    setEventsPage(0)
+    setUser({})
+    fetchUser(true)
   }
 
-  const fetchUser = () => {
-    reset()
-
+  const fetchUser = reset => {
     if(isCurrentUser) {
       setUser(getCurrentUser())
-      fetchEvents()
+      fetchEvents(reset)
       fetchBookmarks()
     } else {
       APIService.users(params.user).get(null, null, {includeSubscribedOrgs: true, includeFollowing: true}).then(response => {
         if(response.status === 200) {
           setUser(response.data)
-          fetchEvents()
+          fetchEvents(reset)
           fetchBookmarks()
         }
         else if(response.status)
@@ -59,17 +59,18 @@ const UserHome = () => {
   }
 
   const fetchBookmarks = () => {
-    if(params?.user && isCurrentUser) {
+    if(params?.user) {
       APIService.users(params?.user).appendToUrl('pins/').get().then(response => {
         setBookmarks(response?.data?.length ? response.data : [])
       })
     }
   }
 
-  const fetchEvents = () => {
+  const fetchEvents = reset => {
     if(params?.user) {
-      APIService.users(params?.user).appendToUrl('events/').get(null, null, {limit: 5, page: eventsPage + 1}).then(response => {
-        setEvents([...(events || []), ...(response?.data?.length ? response.data : [])])
+      const isReset = reset === true
+      APIService.users(params?.user).appendToUrl('events/').get(null, null, {limit: 5, page: isReset ? 1 : (eventsPage + 1)}).then(response => {
+        setEvents([...(isReset ? [] : events || []), ...(response?.data?.length ? response.data : [])])
         setEventsPage(response?.headers?.page_number ? parseInt(response.headers.page_number) : 0)
         setHaveMoreEvents(Boolean(response?.headers?.next))
         setTimeout(() => {
@@ -95,7 +96,11 @@ const UserHome = () => {
 
 
 
-  React.useEffect(() => { fetchUser() }, [params.user])
+  React.useEffect(
+    () => {
+      reset()
+    }, [params.user]
+  )
   React.useEffect(() => { setTab(params.tab || 'overview') }, [params.tab])
 
   const baseHeightToDeduct = bookmarks ? 325 : 175
