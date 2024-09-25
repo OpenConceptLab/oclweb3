@@ -13,7 +13,7 @@ const Item = props => {
   return (
     <div style={{width: '100%', margin: '0 auto'}}>
       <p style={{fontSize: '16px', margin: 0}}>{props.item.name}</p>
-      <p style={{fontSize: '32px', fontWeight: 'bold', marginBottom: '16px', marginTop: 0}}>{props.item.description}</p>
+      <p style={{fontSize: '32px', fontWeight: 'bold', marginBottom: '16px', marginTop: '-8px'}}>{props.item.description}</p>
       <div className='col-xs-12 padding-0'>
         <div className='col-xs-12 padding-0'>
           <ConceptIcon selected sx={{color: WHITE, width: '50px', height: '50px'}} />
