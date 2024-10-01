@@ -13,12 +13,12 @@ const Icon = ({isFollowing, ...rest}) => (
 )
 
 
-const FollowIconButton = ({isFollowing, onClick, entity}) => {
+const FollowIconButton = ({isFollowing, onClick, entity, size, sx}) => {
   const { t } = useTranslation()
 
   return (
     <Tooltip title={`${isFollowing ? t('common.unfollow') : t('common.follow')} ${entity.id || entity.username || entity.name}`}>
-      <IconButton sx={{color: 'surface.contrastText', mr: 1}} onClick={onClick}>
+      <IconButton sx={{color: 'surface.contrastText', mr: 1, ...sx}} onClick={onClick} size={size}>
         <Icon isFollowing={isFollowing} fontSize='inherit' />
       </IconButton>
     </Tooltip>
@@ -26,11 +26,12 @@ const FollowIconButton = ({isFollowing, onClick, entity}) => {
 }
 
 
-const FollowButton = ({ entity, isFollowing, onClick }) => {
+const FollowButton = ({ entity, isFollowing, onClick, sx, size }) => {
   const { t } = useTranslation()
 
   return (
     <Button
+      size={size}
       icon={<Icon isFollowing={isFollowing} sx={{fontSize: 'large'}} />}
       label={`${isFollowing ? t('common.following') : t('common.follow')} ${entity.name || entity.id}`}
       onClick={onClick}
@@ -41,13 +42,14 @@ const FollowButton = ({ entity, isFollowing, onClick }) => {
         border: isFollowing ? 'none' : '1px solid',
         '.MuiChip-icon': {
           color: isFollowing ? 'primary.main' : 'initial'
-        }
+        },
+        ...sx
       }}
     />
   )
 }
 
-const FollowActionButton = ({ entity, iconButton }) => {
+const FollowActionButton = ({ entity, iconButton, sx, size}) => {
   const [updated, setUpdated] = React.useState(0)
   const currentUser = getCurrentUser()
   const followingObject = currentUser?.following?.find(following => following?.object?.url === entity?.url)
@@ -63,8 +65,8 @@ const FollowActionButton = ({ entity, iconButton }) => {
 
   return currentUser?.url ? (
     iconButton ?
-    <FollowIconButton isFollowing={isFollowing} onClick={onFollowToggle} entity={entity} /> :
-    <FollowButton isFollowing={isFollowing} onClick={onFollowToggle} entity={entity} />
+      <FollowIconButton isFollowing={isFollowing} onClick={onFollowToggle} entity={entity} sx={sx} size={size} /> :
+    <FollowButton isFollowing={isFollowing} onClick={onFollowToggle} entity={entity} sx={sx} size={size} />
   ) : null
 }
 

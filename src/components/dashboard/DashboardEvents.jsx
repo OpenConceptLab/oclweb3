@@ -10,6 +10,7 @@ import HighlightIcon from '@mui/icons-material/CampaignOutlined';
 import Avatar from '@mui/material/Avatar';
 import { WHITE } from '../../common/colors'
 import EntityIcon from '../common/EntityIcon';
+import EntityChip from '../common/EntityChip';
 import Link from '../common/Link'
 
 const EventCard = ({ event, highlight }) => {
@@ -43,15 +44,8 @@ const EventCard = ({ event, highlight }) => {
         title={getTitle(event, event.object, true)}
         subheader={moment(event.created_at).fromNow()}
       />
-      <CardContent sx={{backgroundColor: 'surface.main', margin: '0 16px 16px 16px', borderRadius: '10px', padding: '0px !important', display: 'flex'}}>
-        <CardHeader
-          avatar={
-            <Avatar sx={{width: '45px', height: '45px', backgroundColor: event.referenced_object?.logo_url ? 'transparent' : 'secondary.main', cursor: 'pointer'}} onClick={() => history.push(event.referenced_object?.version_url || event.referenced_object?.url)}>
-              <EntityIcon noLink strict entity={event.referenced_object} isVersion={(event.referenced_object?.short_code && event.referenced_object?.version_url)} sx={{color: WHITE}} />
-            </Avatar>
-          }
-          title={getTitle(event, event.referenced_object, false)}
-        />
+      <CardContent sx={{backgroundColor: 'surface.main', margin: '0 16px 16px 16px', borderRadius: '10px', padding: '16px !important', display: 'flex', borderColor: 'surface.main'}}>
+          <EntityChip entity={event.referenced_object} sx={{color: WHITE, cursor: 'pointer'}} onClick={() => history.push(event.referenced_object?.version_url || event.referenced_object?.url)} />
       </CardContent>
     </Card>
   )
@@ -60,7 +54,7 @@ const EventCard = ({ event, highlight }) => {
 const HighlightCard = props => {
   const { t } = useTranslation()
   return (
-    <Card variant="outlined" sx={{backgroundColor: 'surface.main', marginBottom: '16px', borderRadius: '10px', borderColor: 'surface.nv80'}}>
+    <Card variant="outlined" sx={{backgroundColor: 'surface.main', marginBottom: '16px', borderRadius: '10px'}}>
       <CardHeader
         sx={{
           color: 'surface.contrastText',

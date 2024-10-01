@@ -725,6 +725,19 @@ export const paramsToURI = (params, versioned=false, expansion=false) => {
   return uri + '/';
 }
 
+export const URIToOwnerParams = uri => {
+  const ownerURI = toOwnerURI(uri)
+  let owner = {ownerType: undefined, owner: undefined, uri: ownerURI}
+  if(ownerURI?.includes('/orgs/')) {
+    owner.ownerType = 'Organization'
+    owner.owner = ownerURI.split('/orgs/')[1].replaceAll('/', '')
+  } else {
+    owner.ownerType = 'User'
+    owner.owner = ownerURI.split('/users/')[1].replaceAll('/', '')
+  }
+  return owner
+}
+
 export const getWidthOfText = (txt, fontname, fontsize) => {
   if(getWidthOfText.c === undefined){
     getWidthOfText.c=document.createElement('canvas');
