@@ -86,6 +86,11 @@ const TooltipTitle = ({ repo }) => {
 const RepoTooltip = ({ repo, children, spanStyle }) => {
   return (
     <HTMLTooltip
+      sx={{
+        '.MuiTooltip-tooltip': {
+          maxWidth: 400
+        }
+      }}
       title={
         <React.Fragment>
           <TooltipTitle repo={repo} />

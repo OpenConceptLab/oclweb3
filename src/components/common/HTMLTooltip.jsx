@@ -9,9 +9,9 @@ const HTMLTooltip = styled(({ className, ...props }) => (
   [`& .${tooltipClasses.tooltip}`]: {
     backgroundColor: WHITE,
     color: SECONDARY_COLORS.main,
-    minWidth: 250,
+    minWidth: 285,
     width: 'auto',
-    maxWidth: 400,
+    maxWidth: 285,
     fontSize: theme.typography.pxToRem(12),
     border: '1px solid',
     borderColor: SURFACE_COLORS.nv80,
