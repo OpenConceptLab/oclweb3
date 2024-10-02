@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import {map, reject, filter, orderBy} from 'lodash';
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
 import EntityIcon from '../common/EntityIcon';
 import Link from '../common/Link';
 
@@ -11,11 +10,9 @@ const DEFAULT_MEMBERS_TO_SHOW = 12
 
 const Followed = ({ object }) => {
   return (
-    <Tooltip key={object.url} title={object.name || object.id}>
-      <IconButton href={`#${object.url}`} sx={{marginRight: '10px', padding: 0, marginBottom: '10px'}}>
-        <EntityIcon noLink strict entity={object} isVersion={(object?.short_code && object?.version_url)} sx={{width: '32px', height: '32px'}} />
-      </IconButton>
-    </Tooltip>
+    <IconButton href={`#${object.url}`} sx={{marginRight: '10px', padding: 0, marginBottom: '10px'}}>
+      <EntityIcon noLink strict entity={object} isVersion={(object?.short_code && object?.version_url)} sx={{width: '32px', height: '32px'}} />
+    </IconButton>
   )
 }
 

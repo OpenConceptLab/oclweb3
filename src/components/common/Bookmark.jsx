@@ -3,8 +3,7 @@ import { useHistory } from 'react-router-dom';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
-import RepoIcon from '../repos/RepoIcon';
-import OrganizationIcon from '@mui/icons-material/AccountBalance';
+import EntityIcon from './EntityIcon'
 
 
 const Title = ({ bookmark }) => {
@@ -27,15 +26,7 @@ const Title = ({ bookmark }) => {
 }
 
 export const getIcon = (bookmark, style) => {
-  if(bookmark.resource?.logo_url) {
-    return <img src={bookmark.resource.logo_url} className='user-img-small' style={style || {width: '56px', height: '56px'}} />
-  }
-  if(['Collection', 'Collection Version', 'Source', 'Source Version'].includes(bookmark.resource?.type)) {
-    return <RepoIcon sx={ style || {width: '56px', height: '56px', color: 'secondary.main'}} />
-  }
-  if(['Organization', 'Org'].includes(bookmark.resource?.type)) {
-    return <OrganizationIcon sx={style || {width: '56px', height: '56px', color: 'secondary.main'}} />
-  }
+  return <EntityIcon entity={bookmark.resource} sx={style || {width: '56px', height: '56px', color: 'secondary.main'}}/>
 }
 
 const Bookmark = ({ bookmark, isLast }) => {

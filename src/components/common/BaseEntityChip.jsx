@@ -7,6 +7,7 @@ const PRIMARY_STYLE = {
   backgroundColor: `${PRIMARY_COLORS['95']} !important`,
   '&:hover': {
     backgroundColor: `${PRIMARY_COLORS['95']} !important`,
+    textDecoration: 'none !important'
   }
 }
 
@@ -14,6 +15,7 @@ const SECONDARY_STYLE = {
   backgroundColor: "#FFF",
   '&:hover': {
     backgroundColor: `${PRIMARY_COLORS['95']} !important`,
+    textDecoration: 'none !important'
   }
 }
 
@@ -66,9 +68,9 @@ const ENTITY_CHIP_SIZE_MAP = {
       backgroundColor: 'transparent',
     },
     '.MuiSvgIcon-root': {
-        color: '#000',
-        fontSize: '16px'
-      },
+      color: '#000',
+      fontSize: '16px'
+    },
     '.divider-span': {
       width: '3px',
       height: '3px',
@@ -95,28 +97,33 @@ const Avatar = ({ entity, icon }) => {
     </MuiAvatar>
 }
 
-const Label = ({ entity }) => {
+const Label = ({ entity, hideType }) => {
   return (
     <span style={{display: 'flex', alignItems: 'center'}}>
       <span className='entity-id'>
         <b>{entity.short_code || entity.id || entity.username}</b>
       </span>
-      <span className='divider-span' />
-      <span className='entity-type'>
-        {entity.type}
-      </span>
+      {
+        !hideType &&
+          <React.Fragment>
+            <span className='divider-span' />
+            <span className='entity-type'>
+              {entity.type}
+            </span>
+          </React.Fragment>
+      }
     </span>
   )
 }
 
 
-const BaseEntityChip = ({ entity, icon, primary, size, sx, ...rest }) => {
+const BaseEntityChip = ({ entity, icon, hideType, primary, size, sx, ...rest }) => {
   const sizeStyle = ENTITY_CHIP_SIZE_MAP[size || 'medium'] || ENTITY_CHIP_SIZE_MAP.medium
   const baseStyle = primary ? PRIMARY_STYLE : SECONDARY_STYLE
   return (
     <Chip
       avatar={<Avatar entity={entity} icon={icon} />}
-      label={<Label entity={entity} />}
+      label={<Label entity={entity} hideType={hideType} />}
       variant='outlined'
       sx={{
         borderRadius: '4px',
@@ -127,6 +134,8 @@ const BaseEntityChip = ({ entity, icon, primary, size, sx, ...rest }) => {
         ...sizeStyle,
         ...sx
       }}
+      href={'#' + (entity.version_url || entity.url)}
+      component='a'
       {...rest}
     />
   )

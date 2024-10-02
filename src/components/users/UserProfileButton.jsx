@@ -6,7 +6,7 @@ import UserIcon from './UserIcon';
 const UserProfileButton = props => {
   return (
     <IconButton color='primary' {...props}>
-      <UserIcon user={getCurrentUser()} />
+      <UserIcon noTooltip user={getCurrentUser()} />
     </IconButton>
   )
 }

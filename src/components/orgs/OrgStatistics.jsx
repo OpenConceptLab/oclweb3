@@ -27,7 +27,7 @@ const OrgStatistics = ({ org, members }) => {
         <List sx={{color: 'secondary.main', p: 0}}>
           <ListItem disablePadding  href={`#${org.url}repos`} sx={{cursor: 'pointer'}} onClick={onRepoStatsClick}>
             <ListItemIcon sx={{minWidth: 0, marginRight: '8px'}}>
-              <RepoIcon sx={{color: 'default.light', width: '20px', height: '20px'}} />
+              <RepoIcon noTooltip sx={{color: 'default.light', width: '20px', height: '20px'}} />
             </ListItemIcon>
             <ListItemText
               sx={{color: 'default.light', '.MuiListItemText-primary': {fontSize: '12px'}}}

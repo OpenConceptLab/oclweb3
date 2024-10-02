@@ -24,13 +24,13 @@ const OwnerButton = ({owner, ownerType, ownerURL, noIcons, sx, ...rest}) => {
         minWidth: 'auto',
         ...sx
       }}
-      startIcon={!noIcons && <OwnerIcon ownerType={ownerType} {...iconProps} />}
+      startIcon={!noIcons && <OwnerIcon noTooltip ownerType={ownerType} {...iconProps} />}
       href={ownerURL ? '#' + ownerURL : undefined}
       component="button"
-    {...rest}
+      {...rest}
     >
 
-      <span>{owner}</span>
+      <span className='owner-button-label'>{owner}</span>
     </Button>
   )
 }

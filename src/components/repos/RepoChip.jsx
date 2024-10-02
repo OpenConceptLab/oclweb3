@@ -12,11 +12,11 @@ const RepoChip = ({ repo, noTooltip, ...rest }) => {
     />
   ) : (
     <RepoTooltip repo={repo}>
-        <BaseEntityChip
-          entity={repo}
-          icon={<RepoIcon />}
-          {...rest}
-        />
+      <BaseEntityChip
+        entity={repo}
+        icon={<RepoIcon />}
+        {...rest}
+      />
     </RepoTooltip>
   )
 }

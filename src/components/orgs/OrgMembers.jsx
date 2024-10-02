@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import {map, reject, filter, orderBy} from 'lodash';
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
 import UserIcon from '../users/UserIcon';
 import Link from '../common/Link';
 
@@ -11,11 +10,9 @@ const DEFAULT_MEMBERS_TO_SHOW = 12
 
 const Member = ({ member }) => {
   return (
-    <Tooltip key={member.url} title={member.name}>
-      <IconButton href={`#${member.url}`} sx={{marginRight: '10px', padding: 0, marginBottom: '10px'}}>
-        <UserIcon user={member} sx={{width: '32px', height: '32px'}} />
-      </IconButton>
-    </Tooltip>
+    <IconButton href={`#${member.url}`} sx={{marginRight: '10px', padding: 0, marginBottom: '10px'}}>
+      <UserIcon user={member} sx={{width: '32px', height: '32px'}} />
+    </IconButton>
   )
 }
 

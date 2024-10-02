@@ -134,7 +134,7 @@ export const copyURL = url => copyToClipboard(url, 'Copied URL to clipboard!');
 
 export const toParentURI = uri => uri.split('/').splice(0, 5).join('/') + '/';
 
-export const toOwnerURI = uri => uri.split('/').splice(0, 3).join('/') + '/';
+export const toOwnerURI = uri => uri && uri.split('/').splice(0, 3).join('/') + '/';
 
 export const headFirst = versions => compact([find(versions, version => (version.version || version.id) === 'HEAD'), ...reject(versions, version => (version.version || version.id) === 'HEAD')]);
 
@@ -733,7 +733,7 @@ export const URIToOwnerParams = uri => {
     owner.owner = ownerURI.split('/orgs/')[1].replaceAll('/', '')
   } else {
     owner.ownerType = 'User'
-    owner.owner = ownerURI.split('/users/')[1].replaceAll('/', '')
+    owner.owner = ownerURI?.split('/users/')[1]?.replaceAll('/', '')
   }
   return owner
 }

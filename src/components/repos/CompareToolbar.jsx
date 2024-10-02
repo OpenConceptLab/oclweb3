@@ -51,7 +51,7 @@ const CompareToolbar = ({version1, version2, versions, metric, onMetricChange, o
         <span style={{display: 'flex', alignItems: 'center'}}>
           <ButtonGroup size="small" aria-label="Small button group" color='secondary'>
             <ButtonControl label={t('common.statistics')} selected={metric === 'stats'} terminal onClick={() => onMetricChange('stats')} icon={<StatsIcon fontSize='inherit' />} />
-            <ButtonControl label={t('common.metadata')} selected={metric === 'meta'} onClick={() => onMetricChange('meta')} icon={<RepoIcon fontSize='inherit' />} />
+            <ButtonControl label={t('common.metadata')} selected={metric === 'meta'} onClick={() => onMetricChange('meta')} icon={<RepoIcon noTooltip fontSize='inherit' />} />
             <ButtonControl label={t('concept.concepts')} selected={metric === 'concepts'} onClick={() => onMetricChange('concepts')} icon={<ConceptIcon selected color='secondary' fontSize='inherit' sx={{width: '10px', height: '10px'}} />} />
             <ButtonControl label={t('mapping.mappings')} selected={metric === 'mappings'} onClick={() => onMetricChange('mappings')} icon={<MappingIcon fontSize='inherit' />} />
             <ButtonControl label={t('common.json')} terminal selected={metric === 'json'} onClick={() => onMetricChange('json')} icon={<JSONIcon fontSize='inherit' />} />

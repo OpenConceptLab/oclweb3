@@ -85,7 +85,7 @@ const Events = ({ user, events, onLoadMore, showAvatar, moreMarginLeft }) => {
       <Typography component='h3' sx={{margin: '16px 0', fontWeight: 'bold', display: 'flex', alignItems: 'center'}}>
         {
           showAvatar &&
-            <UserIcon user={user} sx={{width: '40px', height: '40px', marginRight: '16px'}} color='primary' />
+            <UserIcon noTooltip user={user} sx={{width: '40px', height: '40px', marginRight: '16px'}} color='primary' />
         }
         {`${isSelf ? t('user.your') : (user.name + "'s")} ${t('user.recent_activity')}`}
       </Typography>

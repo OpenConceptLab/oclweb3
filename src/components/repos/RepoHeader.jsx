@@ -41,7 +41,7 @@ const RepoHeader = ({repo, versions, onVersionChange, onCreateConceptClick}) => 
   return (
     <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderRadius: '8px 8px 0 0'}}>
       <div className='col-xs-6 padding-0'>
-        <HeaderChip label={repo.type} icon={<RepoIcon sx={{color: 'surface.contrastText'}} />} />
+        <HeaderChip label={repo.type} icon={<RepoIcon noTooltip sx={{color: 'surface.contrastText'}} />} />
         {
           onVersionChange &&
             <RepoVersionChip checkbox version={repo} versions={versions} sx={{marginLeft: '8px'}} onChange={onVersionChange} />

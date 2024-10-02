@@ -34,7 +34,7 @@ const TooltipTitle = ({ org }) => {
   )
 }
 
-const OrgTooltip = ({ org, children }) => {
+const OrgTooltip = ({ org, children, spanStyle }) => {
   return (
     <HTMLTooltip
       title={
@@ -43,9 +43,9 @@ const OrgTooltip = ({ org, children }) => {
         </React.Fragment>
       }
     >
-      <span>
+      <span style={{display: 'flex', ...spanStyle}}>
         {children}
-        </span>
+      </span>
     </HTMLTooltip>
   )
 }

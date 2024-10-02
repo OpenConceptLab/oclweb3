@@ -25,7 +25,7 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, id, version,
         repo &&
           <React.Fragment>
             <DotSeparator />
-            <RepoVersionButton size={size} href={repoURL} icon={noIcons ? false : <RepoIcon sx={{color: 'secondary'}} />} repo={repo} version={repoVersion} versionStyle={{fontSize: fontSize || '14px'}} />
+            <RepoVersionButton size={size} href={repoURL} icon={noIcons ? false : <RepoIcon noTooltip sx={{color: 'secondary'}} />} repo={repo} version={repoVersion} versionStyle={{fontSize: fontSize || '14px'}} />
           </React.Fragment>
       }
       {

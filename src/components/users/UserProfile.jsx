@@ -15,7 +15,7 @@ import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined
 import CopyIcon from '@mui/icons-material/ContentCopyOutlined';
 import { formatWebsiteLink, formatDate, canEditUser, sortOrgs, copyToClipboard, getCurrentUser } from '../../common/utils'
 import UserIcon from './UserIcon';
-import OrgIcon from '../orgs/OrgIcon';
+import OrgChip from '../orgs/OrgChip'
 import Link from '../common/Link'
 import { OperationsContext } from '../app/LayoutContext';
 import APIService from '../../services/APIService';
@@ -70,7 +70,7 @@ const UserProfile = ({ user }) => {
 
   return (
     <React.Fragment>
-      <UserIcon user={user} color='primary' sx={{color: 'primary', fontSize: '100px'}} logoClassName='user-img-medium' />
+      <UserIcon noTooltip user={user} color='primary' sx={{color: 'primary', fontSize: '100px'}} logoClassName='user-img-medium' />
       <Typography component='h2' sx={{marginTop: '16px', color: 'surface.dark', fontWeight: 'bold', fontSize: '24px', letterSpacing: 'normal'}}>
         {user?.name}
       </Typography>
@@ -99,9 +99,7 @@ const UserProfile = ({ user }) => {
               <div className='col-xs-12 padding-0' style={{marginTop: '8px', maxHeight: '300px', overflow: 'auto'}}>
                 {
                   userOrgs.map(org => (
-                    <span key={org.url} style={{margin: '4px', display: 'inline-block'}}>
-                      <OrgIcon org={org} />
-                    </span>
+                    <OrgChip hideType key={org?.id} org={org} sx={{margin: '4px'}} />
                   ))
                 }
               </div>
