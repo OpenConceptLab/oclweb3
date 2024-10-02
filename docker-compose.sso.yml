@@ -18,4 +18,4 @@ services:
     environment:
       - LOGIN_REDIRECT_URL=${LOGIN_REDIRECT_URL-http://localhost:4002}
       - OIDC_RP_CLIENT_ID=${OIDC_RP_CLIENT_ID-ocllocal}
-      - OIDC_RP_CLIENT_SECRET=${OIDC_RP_CLIENT_SECRET-RfciYkksQf7CoqVTC7xzy0glz9GE4gC4}
+      - OIDC_RP_CLIENT_SECRET
