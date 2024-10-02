@@ -4,7 +4,8 @@ import BaseEntityChip from '../common/BaseEntityChip'
 import OrgTooltip from './OrgTooltip'
 
 
-const OrgChip = ({ org, noTooltip, ...rest }) => {
+const OrgChip = ({ org, noTooltip, tooltipProps, ...rest }) => {
+  let _tooltipProps = tooltipProps || {}
   return noTooltip ? (
     <BaseEntityChip
       entity={org}
@@ -12,7 +13,7 @@ const OrgChip = ({ org, noTooltip, ...rest }) => {
       {...rest}
     />
   ) : (
-    <OrgTooltip org={org}>
+    <OrgTooltip org={org} {..._tooltipProps}>
       <BaseEntityChip
         entity={org}
         icon={<OrganizationIcon />}

@@ -99,7 +99,7 @@ const UserProfile = ({ user }) => {
               <div className='col-xs-12 padding-0' style={{marginTop: '8px', maxHeight: '300px', overflow: 'auto'}}>
                 {
                   userOrgs.map(org => (
-                    <OrgChip hideType key={org?.id} org={org} sx={{margin: '4px'}} />
+                    <OrgChip hideType key={org?.id} org={org} sx={{margin: '4px'}} tooltipProps={{spanStyle: {display: 'inline'}}} />
                   ))
                 }
               </div>

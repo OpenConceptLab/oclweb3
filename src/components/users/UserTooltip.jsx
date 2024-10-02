@@ -11,7 +11,7 @@ const TooltipTitle = ({ user }) => {
       <div style={{width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
         {
           user?.logo_url ?
-            <img src={user.logo_url} style={{width: '48px', height: '48px', border-radius: '50%', objectFit: 'cover'}} /> :
+            <img src={user.logo_url} style={{width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover'}} /> :
           <UserIcon sx={{width: '30px', height: '30px'}} />
         }
         <FollowActionButton iconButton entity={user} sx={{mr: 0, ml: 1.5}} size='small' />

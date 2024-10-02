@@ -11,7 +11,7 @@ const TooltipTitle = ({ org }) => {
       <div style={{width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
         {
           org?.logo_url ?
-            <img src={org.logo_url} style={{width: '48px', height: '48px', border-radius: '50%', objectFit: 'cover'}} /> :
+            <img src={org.logo_url} style={{width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover'}} /> :
           <OrganizationIcon sx={{width: '30px', height: '30px'}} />
         }
         <FollowActionButton iconButton entity={org} sx={{mr: 0, ml: 1.5}} size='small' />
