@@ -157,8 +157,8 @@ export const getCurrentUserOrgs = () => {
 
 export const sortOrgs = orgs => {
   return [
-    ...orderBy(filter(orgs, 'logo_url'), [org => org?.name?.toLowerCase()], 'asc'),
-    ...orderBy(reject(orgs, 'logo_url'), [org => org?.name?.toLowerCase()], 'asc')
+    ...orderBy(filter(orgs, 'logo_url'), [org => org?.id?.toLowerCase()], 'asc'),
+    ...orderBy(reject(orgs, 'logo_url'), [org => org?.id?.toLowerCase()], 'asc')
   ]
 }
 
