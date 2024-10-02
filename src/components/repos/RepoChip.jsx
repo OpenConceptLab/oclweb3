@@ -7,7 +7,7 @@ import FollowActionButton from '../common/FollowActionButton'
 import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
 import OwnerButton from '../common/OwnerButton'
 import RepoVersionButton from './RepoVersionButton'
-import { URIToOwnerParams } from '../../common/utils'
+import { URIToOwnerParams, dropVersion } from '../../common/utils'
 import DotSeparator from '../common/DotSeparator'
 
 const TooltipTitle = ({ repo }) => {
@@ -34,7 +34,7 @@ const TooltipTitle = ({ repo }) => {
           <RepoVersionButton
             icon={<RepoIcon sx={{width: '15px', height: '15px'}} />}
             repo={repoId}
-            href={repo?.url}
+            href={dropVersion(url)}
             size='small'
           />
           <DotSeparator margin='0 8px' />
