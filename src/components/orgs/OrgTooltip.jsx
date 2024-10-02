@@ -17,11 +17,14 @@ const TooltipTitle = ({ org }) => {
         <FollowActionButton iconButton entity={org} sx={{mr: 0, ml: 1.5}} size='small' />
       </div>
       <div style={{width: '100%', fontSize: '14px', marginTop: '6px'}}>
-        <span style={{color: '#000', cursor: 'pointer'}} onClick={() => history.push(org.url)}>
-          <b>{org.name}</b>
-        </span>
-        <span style={{marginLeft: '8px', cursor: 'pointer'}} onClick={() => history.push(org.url)}>
-          {org.id}
+        {
+          org?.name &&
+            <span style={{color: '#000', cursor: 'pointer'}} onClick={() => history.push(org?.url)}>
+              <b>{org?.name}</b>
+            </span>
+        }
+        <span style={{marginLeft: '8px', cursor: 'pointer'}} onClick={() => history.push(org?.url)}>
+          {org?.id}
         </span>
       </div>
       {

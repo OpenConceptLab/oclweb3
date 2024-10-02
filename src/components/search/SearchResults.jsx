@@ -192,8 +192,9 @@ const SearchResults = props => {
     size: props.resultSize,
     excludedColumns: props.excludedColumns
   }
+  const noCardDisplay = props.resource !== 'concepts' || props.noCardDisplay
 
-  const isCardDisplay = display === 'card'
+  const isCardDisplay = !noCardDisplay && display === 'card'
 
   React.useEffect(() => {
     setSelected(props.selected || [])
@@ -213,7 +214,7 @@ const SearchResults = props => {
         order={props.order}
         orderBy={props.orderBy}
         onOrderByChange={props.onOrderByChange}
-        noCardDisplay={props.noCardDisplay}
+        noCardDisplay={noCardDisplay}
       />
       {
         props.noResults ?

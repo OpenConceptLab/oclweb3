@@ -1,4 +1,5 @@
 import React from 'react'
+import { useHistory } from 'react-router-dom'
 import Chip from '@mui/material/Chip'
 import { Avatar as MuiAvatar } from '@mui/material'
 import { PRIMARY_COLORS } from '../../common/colors'
@@ -8,6 +9,11 @@ const PRIMARY_STYLE = {
   '&:hover': {
     backgroundColor: `${PRIMARY_COLORS['95']} !important`,
     textDecoration: 'none !important'
+  },
+  '&:active': {
+    outline: 'none',
+    outlineOffset: 0,
+    textDecoration: 'none !important'
   }
 }
 
@@ -15,6 +21,11 @@ const SECONDARY_STYLE = {
   backgroundColor: "#FFF",
   '&:hover': {
     backgroundColor: `${PRIMARY_COLORS['95']} !important`,
+    textDecoration: 'none !important'
+  },
+  '&:active': {
+    outline: 'none',
+    outlineOffset: 0,
     textDecoration: 'none !important'
   }
 }
@@ -118,6 +129,7 @@ const Label = ({ entity, hideType }) => {
 
 
 const BaseEntityChip = ({ entity, icon, hideType, primary, size, sx, ...rest }) => {
+  const history = useHistory()
   const sizeStyle = ENTITY_CHIP_SIZE_MAP[size || 'medium'] || ENTITY_CHIP_SIZE_MAP.medium
   const baseStyle = primary ? PRIMARY_STYLE : SECONDARY_STYLE
   return (
@@ -130,9 +142,15 @@ const BaseEntityChip = ({ entity, icon, hideType, primary, size, sx, ...rest }) 
         minWidth: '95px',
         border: '1px solid',
         borderColor: 'surface.nv80',
+        justifyContent: 'flex-start',
         ...baseStyle,
         ...sizeStyle,
         ...sx
+      }}
+      onClick={event => {
+        event.preventDefault()
+        event.stopPropagation()
+        history.push(entity.version_url || entity.url)
       }}
       href={'#' + (entity.version_url || entity.url)}
       component='a'
