@@ -49,8 +49,8 @@ const OrgStatistics = ({ org, members }) => {
             </ListItemIcon>
             <ListItemText
               sx={{color: 'default.light', '.MuiListItemText-primary': {fontSize: '12px'}, '.MuiListItemText-secondary': {fontSize: '12px'}}}
-              primary={`${t('common.created_on')} ${formatDate(org.created_on)} ${t('common.by')} ${org.created_by}`}
-              secondary={`${t('common.last_updated_on')} ${formatDate(org.updated_on)} ${t('common.by')} ${org.updated_by}`}
+              primary={`${t('common.created')} ${formatDate(org.created_on)} ${t('common.by')} ${org.created_by}`}
+              secondary={`${t('common.last_updated')} ${formatDate(org.updated_on)} ${t('common.by')} ${org.updated_by}`}
             />
           </ListItem>
         </List>
