@@ -88,6 +88,11 @@ const SearchInput = props => {
     setInput(queryParams.get('q') || '')
   }, [])
 
+  React.useEffect(() => {
+    if(location.pathname !== '/search/')
+      setInput('')
+  }, [location.pathname])
+
 
   const inputProps = {
     input: input || '',
