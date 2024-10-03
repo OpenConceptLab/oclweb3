@@ -83,6 +83,13 @@ const UserForm = ({ user }) => {
       })
   }
 
+  const onBioChange = event => {
+    let value = event.target.value || ''
+    if(value?.length > 200)
+      value = value.slice(0, 200)
+    setBio(value)
+  }
+
   return (
     <div className='col-xs-12' style={{display: 'flex', justifyContent: 'center'}}>
       <form id='user-form' style={{minWidth: '750px', width: '85%'}}>
@@ -167,7 +174,7 @@ const UserForm = ({ user }) => {
               variant='outlined'
               label={t('user.bio')}
               value={bio}
-              onChange={event => setBio(event.target.value || '')}
+              onChange={onBioChange}
               sx={{width: '70%'}}
               multiline
               maxRows={2}
