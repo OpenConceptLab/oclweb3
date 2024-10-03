@@ -17,7 +17,7 @@ const EventCard = ({ event, highlight }) => {
   const history = useHistory()
   const { t } = useTranslation()
   const getTitle = (event, object, includeSubtitle) => {
-    let title = object?.name || object?.id || object?.username
+    let title = object?.id || object?.username || object?.name
     let subTitle = `${event.event_type.toLowerCase()} ${t('common.a')} ${event.referenced_object.type.toLowerCase()}`
     return (
       <span style={{display: 'flex', alignItems: 'center'}}>

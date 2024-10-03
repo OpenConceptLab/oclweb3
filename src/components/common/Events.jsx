@@ -30,7 +30,7 @@ const EventDescription = ({ event, isFirst, isLast }) => {
       if(['Source Version', 'Collection Version'].includes(referenced_object.type)) {
         rel = `${referenced_object.short_code}/${referenced_object.id}`
       } else
-        rel = referenced_object.name || referenced_object.id
+        rel = referenced_object.id || referenced_object.username || referenced_object.name
     }
     return {eventDescription, rel}
   }
