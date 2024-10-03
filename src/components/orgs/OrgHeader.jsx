@@ -17,11 +17,11 @@ import FollowActionButton from '../common/FollowActionButton'
 
 const Property = ({icon, value, label}) => {
   return (label || value) ? (
-    <span style={{width: 'auto', maxWidth: '500px', display: 'flex', alignItems: 'center', marginRight: '16px'}}>
+    <span style={{display: 'flex', alignItems: 'center', marginRight: '16px'}}>
       <span style={{minWidth: 0, marginRight: '4px', display: 'flex'}}>
         {icon}
       </span>
-      <Typography sx={{whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', fontSize: '14px', color: 'secondary.main'}} component="span">
+      <Typography sx={{maxWidth: '200px', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', fontSize: '14px', color: 'secondary.main'}} component="span">
         {label || value}
     </Typography>
     </span>
