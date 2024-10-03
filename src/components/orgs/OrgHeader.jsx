@@ -8,6 +8,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import LocationIcon from '@mui/icons-material/LocationOnOutlined';
 import LinkIcon from '@mui/icons-material/LinkOutlined';
+import CompanyIcon from '@mui/icons-material/Business';
 import { formatWebsiteLink } from '../../common/utils'
 import Link from '../common/Link'
 import EntityAttributesDialog from '../common/EntityAttributesDialog'
@@ -58,6 +59,7 @@ const OrgHeader = ({ org }) => {
           <Property icon={<OrgIcon strict noLink sx={iconStyle} />} value={org.id} />
           <Property icon={<LocationIcon sx={iconStyle} />} value={org.location} />
           <Property icon={<LinkIcon sx={iconStyle} />} value={org?.website} label={formatWebsiteLink(org?.website, {color: 'inherit'})} />
+          <Property icon={<CompanyIcon sx={iconStyle} />} value={org?.company} />
           <Property label={<Link sx={{fontSize: '14px'}} label={t('common.view_all_attributes')} onClick={() => setViewAll(true)} />} />
         </div>
       </div>
