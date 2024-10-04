@@ -9,6 +9,7 @@ import CardContent from '@mui/material/CardContent';
 import HighlightIcon from '@mui/icons-material/CampaignOutlined';
 import Avatar from '@mui/material/Avatar';
 import { WHITE } from '../../common/colors'
+import { getSiteTitle } from '../../common/utils'
 import EntityIcon from '../common/EntityIcon';
 import EntityChip from '../common/EntityChip';
 import Link from '../common/Link'
@@ -18,7 +19,11 @@ const EventCard = ({ event, highlight }) => {
   const { t } = useTranslation()
   const getTitle = (event, object, includeSubtitle) => {
     let title = object?.id || object?.username || object?.name
-    let subTitle = `${event.event_type.toLowerCase()} ${t('common.a')} ${event.referenced_object.type.toLowerCase()}`
+    let subTitle = event?.event_type?.toLowerCase()
+    if(event?.referenced_object?.type)
+      subTitle += ` ${t('common.a')} ${event.referenced_object?.type?.toLowerCase()}`
+    else
+      subTitle += ` ${getSiteTitle()}`
     return (
       <span style={{display: 'flex', alignItems: 'center'}}>
         <Typography component='span' sx={{fontWeight: 'bold'}}>
@@ -44,9 +49,12 @@ const EventCard = ({ event, highlight }) => {
         title={getTitle(event, event.object, true)}
         subheader={moment(event.created_at).fromNow()}
       />
-      <CardContent sx={{backgroundColor: 'surface.main', margin: '0 16px 16px 16px', borderRadius: '10px', padding: '16px !important', display: 'flex', borderColor: 'surface.main'}}>
-          <EntityChip entity={event.referenced_object} sx={{color: WHITE, cursor: 'pointer'}} onClick={() => history.push(event.referenced_object?.version_url || event.referenced_object?.url)} />
-      </CardContent>
+      {
+        event?.referenced_object?.type &&
+          <CardContent sx={{backgroundColor: 'surface.main', margin: '0 16px 16px 16px', borderRadius: '10px', padding: '16px !important', display: 'flex', borderColor: 'surface.main'}}>
+            <EntityChip entity={event.referenced_object} sx={{color: WHITE, cursor: 'pointer'}} onClick={() => history.push(event.referenced_object?.version_url || event.referenced_object?.url)} />
+          </CardContent>
+      }
     </Card>
   )
 }
