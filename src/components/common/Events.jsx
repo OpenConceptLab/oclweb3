@@ -15,15 +15,17 @@ import TimelineDot from '@mui/lab/TimelineDot';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
 import MoreIcon from '@mui/icons-material/ExpandCircleDownOutlined';
-import { getCurrentUser } from '../../common/utils'
+import { getCurrentUser, getSiteTitle } from '../../common/utils'
 import EntityIcon from '../common/EntityIcon';
 import Link from '../common/Link'
 import UserIcon from '../users/UserIcon'
 
-const EventDescription = ({ event, isFirst, isLast }) => {
+const EventDescription = ({ event, isFirst, isLast, isJoined }) => {
   const { event_type, description, referenced_object} = event;
   const getDescription = () => {
     let eventDescription = description
+    if(isJoined)
+      eventDescription += ' ' + getSiteTitle()
     let rel;
     if(event_type && !isEmpty(referenced_object)) {
       eventDescription = `${event_type} ${referenced_object.type} `
@@ -36,7 +38,7 @@ const EventDescription = ({ event, isFirst, isLast }) => {
   }
   const {eventDescription, rel} = getDescription()
   return (
-    <Typography sx={{fontSize: '14px', alignItems: 'center', marginTop: isFirst ? '2px' :  (isLast ? '12px' : '8px'), display: 'block'}}>
+    <Typography sx={{fontSize: '14px', alignItems: 'center', marginTop: isFirst ? '2px' :  (isLast ? (isJoined ? 0 : '12px') : '8px'), display: 'block'}}>
       {eventDescription}
       {
         rel ?
@@ -51,8 +53,9 @@ const EventDescription = ({ event, isFirst, isLast }) => {
 const Event = ({ event, isFirst, isLast }) => {
   const hasReferencedObjectLogo = Boolean(event.referenced_object?.logo_url)
   let dotStyle = hasReferencedObjectLogo ? {padding: 0, borderWidth: '1px'} : {}
+  const isJoined = event?.event_type?.toLowerCase() === 'joined' && !event?.referenced_object
   return (
-    <TimelineItem>
+    <TimelineItem sx={isJoined ? {display: 'flex', alignItems: 'center'} : {}}>
       <TimelineOppositeContent
         sx={{ m: 'auto 0', fontSize: '12px', paddingRight: '19px', paddingLeft: 0 }}
         align="right"
@@ -63,13 +66,17 @@ const Event = ({ event, isFirst, isLast }) => {
       </TimelineOppositeContent>
       <TimelineSeparator>
         { !isFirst && <TimelineConnector /> }
-        <TimelineDot sx={{backgroundColor: event.referenced_object?.logo_url ? 'transparent' : 'primary.60', ...dotStyle}}>
+        <TimelineDot sx={{backgroundColor: event.referenced_object?.logo_url ? 'transparent' : (isJoined ? 'primary.main' : 'primary.60'), ...dotStyle}}>
+          {
+            isJoined ?
+              <EntityIcon entity={event.object} sx={{color: '#FFF'}} logoClassName='user-img-xsmall' /> :
           <EntityIcon noLink strict entity={event.referenced_object} isVersion={(event.referenced_object?.short_code && event.referenced_object?.version_url)} sx={{color: '#FFF'}} logoClassName='user-img-xsmall' />
+          }
         </TimelineDot>
         { !isLast && <TimelineConnector /> }
       </TimelineSeparator>
       <TimelineContent sx={{ py: '12px', px: '19px', color: 'rgba(0, 0, 0, 0.87)'}}>
-        <EventDescription event={event} isFirst={isFirst} isLast={isLast} />
+        <EventDescription event={event} isFirst={isFirst} isLast={isLast} isJoined={isJoined} />
       </TimelineContent>
     </TimelineItem>
   )
