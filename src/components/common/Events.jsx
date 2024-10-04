@@ -66,7 +66,7 @@ const Event = ({ event, isFirst, isLast }) => {
       </TimelineOppositeContent>
       <TimelineSeparator>
         { !isFirst && <TimelineConnector /> }
-        <TimelineDot sx={{backgroundColor: event.referenced_object?.logo_url ? 'transparent' : (isJoined ? 'primary.main' : 'primary.60'), ...dotStyle}}>
+        <TimelineDot sx={{backgroundColor: hasReferencedObjectLogo ? 'transparent' : (isJoined ? 'primary.main' : 'primary.60'), ...dotStyle}}>
           {
             isJoined ?
               <EntityIcon entity={event.object} sx={{color: '#FFF'}} logoClassName='user-img-xsmall' /> :
