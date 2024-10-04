@@ -51,9 +51,9 @@ const EventDescription = ({ event, isFirst, isLast, isJoined }) => {
 
 
 const Event = ({ event, isFirst, isLast }) => {
-  const hasReferencedObjectLogo = Boolean(event.referenced_object?.logo_url)
-  let dotStyle = hasReferencedObjectLogo ? {padding: 0, borderWidth: '1px'} : {}
   const isJoined = event?.event_type?.toLowerCase() === 'joined' && !event?.referenced_object
+  const hasReferencedObjectLogo = Boolean(event?.referenced_object?.logo_url || (isJoined && event?.object?.logo_url))
+  let dotStyle = hasReferencedObjectLogo ? {padding: 0, borderWidth: '1px'} : {}
   return (
     <TimelineItem sx={isJoined ? {display: 'flex', alignItems: 'center'} : {}}>
       <TimelineOppositeContent
