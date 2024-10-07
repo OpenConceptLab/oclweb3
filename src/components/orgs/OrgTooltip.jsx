@@ -1,6 +1,7 @@
 import React from 'react'
 import { useHistory } from 'react-router-dom';
 import OrganizationIcon from '@mui/icons-material/AccountBalance';
+import Avatar from '@mui/material/Avatar'
 import HTMLTooltip from '../common/HTMLTooltip'
 import FollowActionButton from '../common/FollowActionButton'
 
@@ -12,7 +13,9 @@ const TooltipTitle = ({ org }) => {
         {
           org?.logo_url ?
             <img src={org.logo_url} style={{width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover'}} /> :
-          <OrganizationIcon sx={{width: '30px', height: '30px'}} />
+            <Avatar sx={{width: '36px', height: '36px'}}>
+              <OrganizationIcon sx={{width: '24px', height: '24px'}}  />
+            </Avatar>
         }
         <FollowActionButton iconButton entity={org} sx={{mr: 0, ml: 1.5}} size='small' />
       </div>

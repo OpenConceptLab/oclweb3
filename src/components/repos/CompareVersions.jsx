@@ -2,7 +2,7 @@ import React from 'react'
 import moment from 'moment'
 import { useLocation } from 'react-router-dom';
 import Paper from '@mui/material/Paper'
-import { toParentURI } from '../../common/utils';
+import { toParentURI, toOwnerURI } from '../../common/utils';
 import APIService from '../../services/APIService';
 import LoaderDialog from '../common/LoaderDialog';
 import Error404 from '../errors/Error404'
@@ -17,6 +17,7 @@ const CompareVersions = () => {
   const [loading, setLoading] = React.useState(false)
   const [status, setStatus] = React.useState(false)
   const [repo, setRepo] = React.useState(false)
+  const [owner, setOwner] = React.useState(false)
   const [versions, setVersions] = React.useState(false)
   const [version1, setVersion1] = React.useState()
   const [version2, setVersion2] = React.useState()
@@ -52,7 +53,14 @@ const CompareVersions = () => {
       setStatus(response?.status || response?.response.status)
       setLoading(false)
       setRepo(response?.data || response?.response?.data || {})
+      fetchOwner()
       fetchVersions()
+    })
+  }
+
+  const fetchOwner = () => {
+    APIService.new().overrideURL(toOwnerURI(getURL())).get().then(response => {
+      setOwner(response.data || {})
     })
   }
 
@@ -97,7 +105,7 @@ const CompareVersions = () => {
         {
           (repo?.id || loading) &&
             <React.Fragment>
-              <RepoHeader repo={repo} versions={versions} />
+              <RepoHeader repo={repo} owner={owner} versions={versions} />
             </React.Fragment>
         }
         {

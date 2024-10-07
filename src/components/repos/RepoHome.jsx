@@ -7,7 +7,7 @@ import LoaderDialog from '../common/LoaderDialog';
 import RepoHeader from './RepoHeader';
 import CommonTabs from '../common/CommonTabs';
 import Search from '../search/Search';
-import { dropVersion, toParentURI } from '../../common/utils';
+import { dropVersion, toParentURI, toOwnerURI } from '../../common/utils';
 import { WHITE } from '../../common/colors';
 import ConceptHome from '../concepts/ConceptHome';
 import ConceptForm from '../concepts/ConceptForm';
@@ -34,6 +34,7 @@ const RepoHome = () => {
   const [tab, setTab] = React.useState(findTab)
   const [status, setStatus] = React.useState(false)
   const [repo, setRepo] = React.useState(false)
+  const [owner, setOwner] = React.useState(false)
   const [repoSummary, setRepoSummary] = React.useState(false)
   const [versions, setVersions] = React.useState(false)
   const [loading, setLoading] = React.useState(true)
@@ -48,9 +49,16 @@ const RepoHome = () => {
       setLoading(false)
       const _repo = response?.data || response?.response?.data || {}
       setRepo(_repo)
+      fetchOwner()
       fetchRepoSummary()
       if(isConceptURL)
         setShowItem(true)
+    })
+  }
+
+  const fetchOwner = () => {
+    APIService.new().overrideURL(toOwnerURI(getURL())).get().then(response => {
+      setOwner(response?.data || {})
     })
   }
 
@@ -104,7 +112,7 @@ const RepoHome = () => {
         {
           (repo?.id || loading) &&
             <React.Fragment>
-              <RepoHeader repo={repo} versions={versions} onVersionChange={onVersionChange} onCreateConceptClick={onCreateConceptClick} onCloseConceptForm={() => setConceptForm(false)} />
+              <RepoHeader owner={owner} repo={repo} versions={versions} onVersionChange={onVersionChange} onCreateConceptClick={onCreateConceptClick} onCloseConceptForm={() => setConceptForm(false)} />
               <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
               {
                 repo?.id && ['concepts', 'mappings'].includes(tab) &&
@@ -130,7 +138,7 @@ const RepoHome = () => {
       <div className={'col-xs-5 padding-0' + (isSplitView ? ' split-appear' : '')} style={{marginLeft: '16px', width: isSplitView ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: isSplitView ? 'calc(100vh - 100px)' : 0, opacity: isSplitView ? 1 : 0}}>
         {
           showConceptURL && !conceptForm &&
-            <ConceptHome repoSummary={repoSummary} source={repo} repo={repo} url={showConceptURL} onClose={() => setShowItem(false)} />
+            <ConceptHome repoSummary={repoSummary} source={repo} repo={repo} url={showConceptURL} onClose={() => setShowItem(false)} nested />
         }
         {
           conceptForm &&

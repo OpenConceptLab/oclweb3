@@ -1,6 +1,7 @@
 import React from 'react'
 import { useHistory } from 'react-router-dom';
 import UserIcon from '@mui/icons-material/Face2';
+import Avatar from '@mui/material/Avatar'
 import HTMLTooltip from '../common/HTMLTooltip'
 import FollowActionButton from '../common/FollowActionButton'
 
@@ -12,7 +13,9 @@ const TooltipTitle = ({ user }) => {
         {
           user?.logo_url ?
             <img src={user.logo_url} style={{width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover'}} /> :
-          <UserIcon sx={{width: '30px', height: '30px'}} />
+          <Avatar sx={{width: '36px', height: '36px'}}>
+            <UserIcon sx={{width: '24px', height: '24px'}} />
+            </Avatar>
         }
         <FollowActionButton iconButton entity={user} sx={{mr: 0, ml: 1.5}} size='small' />
       </div>

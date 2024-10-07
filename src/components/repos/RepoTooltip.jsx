@@ -1,12 +1,15 @@
 import React from 'react'
 import { useHistory } from 'react-router-dom';
 import RepoIcon from '@mui/icons-material/FolderOutlined';
+import isNumber from 'lodash/isNumber';
 import HTMLTooltip from '../common/HTMLTooltip'
 import FollowActionButton from '../common/FollowActionButton'
 import OwnerButton from '../common/OwnerButton'
 import RepoVersionButton from './RepoVersionButton'
 import { URIToOwnerParams } from '../../common/utils'
 import DotSeparator from '../common/DotSeparator'
+import ConceptIcon from '../concepts/ConceptIcon'
+import MappingIcon from '../mappings/MappingIcon'
 
 const TooltipTitle = ({ repo }) => {
   // only need --> repo = {url: '/orgs/MyOrg/sources/MySource/', id: 'MyOrg'}
@@ -44,7 +47,7 @@ const TooltipTitle = ({ repo }) => {
           />
           <DotSeparator margin='0 8px' />
           <RepoVersionButton
-            icon={<RepoIcon noTooltip sx={{width: '15px', height: '15px'}} />}
+            icon={<RepoIcon sx={{width: '15px', height: '15px'}} />}
             repo={repoId}
             href={url}
             size='small'
@@ -71,13 +74,29 @@ const TooltipTitle = ({ repo }) => {
           </div>
       }
       <div style={{width: '100%', fontSize: '12px', marginTop: '6px', display: 'flex', justifyContent: 'space-between'}}>
-        <span />
-        {
-          (repo?.type === 'Source Version' || repo?.type === 'Collection Version') &&
-            <span style={{marginLeft: '8px', cursor: 'pointer'}} onClick={() => history.push(url)}>
-              {repo?.version || repo?.id}
-            </span>
-        }
+        <span style={{display: 'flex', alignItems: 'center'}}>
+          {
+            isNumber(repo?.summary?.active_concepts) &&
+              <span style={{cursor: 'pointer', display: 'flex', alignItems: 'center'}} onClick={() => history.push(url + 'concepts/')}>
+                <ConceptIcon fontSize='small' selected color='secondary' sx={{marginRight: '4px', width: '10px', height: '10px'}} />
+                {repo.summary.active_concepts.toLocaleString()}
+              </span>
+          }
+          {
+            isNumber(repo?.summary?.active_mappings) &&
+              <span style={{marginLeft: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center'}} onClick={() => history.push(url + 'mappings/')}>
+                <MappingIcon fontSize='small' color='secondary' sx={{marginRight: '4px', width: '15px', height: '15px'}} />
+                {repo.summary.active_mappings.toLocaleString()}
+              </span>
+          }
+        </span>
+        <span style={{marginLeft: '8px', cursor: 'pointer'}} onClick={() => history.push(url)}>
+          {
+            (repo?.type === 'Source Version' || repo?.type === 'Collection Version') ?
+              (repo?.version || repo?.id):
+              'HEAD'
+          }
+        </span>
       </div>
     </React.Fragment>
   )

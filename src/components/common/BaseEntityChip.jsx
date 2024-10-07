@@ -42,7 +42,7 @@ const ENTITY_CHIP_SIZE_MAP = {
     '.MuiAvatar-root': {
       width: '18px',
       height: '18px',
-      margin: '1px 4px 1px 0',
+      margin: '1px 6px 1px 0',
       backgroundColor: 'transparent'
     },
     '.MuiSvgIcon-root': {
@@ -75,7 +75,7 @@ const ENTITY_CHIP_SIZE_MAP = {
     '.MuiAvatar-root': {
       width: '16px',
       height: '16px',
-      margin: '0 4px 0 0',
+      margin: '0 6px 0 0',
       backgroundColor: 'transparent',
     },
     '.MuiSvgIcon-root': {
@@ -112,14 +112,14 @@ const Label = ({ entity, hideType }) => {
   return (
     <span style={{display: 'flex', alignItems: 'center'}}>
       <span className='entity-id'>
-        <b>{entity.short_code || entity.id || entity.username}</b>
+        <b>{entity?.short_code || entity?.id || entity?.username}</b>
       </span>
       {
         !hideType &&
           <React.Fragment>
             <span className='divider-span' />
             <span className='entity-type'>
-              {entity.type}
+              {entity?.type}
             </span>
           </React.Fragment>
       }
@@ -152,7 +152,7 @@ const BaseEntityChip = ({ entity, icon, hideType, primary, size, sx, ...rest }) 
         event.stopPropagation()
         history.push(entity.version_url || entity.url)
       }}
-      href={'#' + (entity.version_url || entity.url)}
+      href={'#' + (entity?.version_url || entity?.url)}
       component='a'
       {...rest}
     />
