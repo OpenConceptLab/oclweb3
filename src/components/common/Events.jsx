@@ -8,9 +8,6 @@ import TimelineItem from '@mui/lab/TimelineItem';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
-import TimelineOppositeContent, {
-  timelineOppositeContentClasses,
-} from '@mui/lab/TimelineOppositeContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
@@ -38,14 +35,19 @@ const EventDescription = ({ event, isFirst, isLast, isJoined }) => {
   }
   const {eventDescription, rel} = getDescription()
   return (
-    <Typography sx={{fontSize: '14px', alignItems: 'center', marginTop: isFirst ? '2px' :  (isLast ? (isJoined ? 0 : '12px') : '8px'), display: 'block'}}>
-      {eventDescription}
-      {
-        rel ?
-          <Link href={'#' + (event.referenced_object?.version_url || event.referenced_object?.url)} label={rel} sx={{fontSize: '14px', paddingLeft: 0, minWidth: 'auto', paddingTop: '1px'}} /> :
-        null
-      }
-    </Typography>
+    <React.Fragment>
+      <Typography sx={{fontSize: '14px', alignItems: 'center', marginTop: isFirst ? '2px' :  (isLast ? (isJoined ? 0 : '12px') : '8px'), display: 'block'}}>
+        {eventDescription}
+        {
+          rel ?
+            <Link href={'#' + (event.referenced_object?.version_url || event.referenced_object?.url)} label={rel} sx={{fontSize: '14px', paddingLeft: 0, minWidth: 'auto', paddingTop: '1px'}} /> :
+          null
+        }
+      </Typography>
+      <Typography sx={{fontSize: '12px', m: 'auto 0', color: 'default.light'}}>
+        {moment(event.created_at).fromNow()}
+      </Typography>
+    </React.Fragment>
   )
 }
 
@@ -56,21 +58,13 @@ const Event = ({ event, isFirst, isLast }) => {
   let dotStyle = hasReferencedObjectLogo ? {padding: 0, borderWidth: '1px'} : {}
   return (
     <TimelineItem sx={isJoined ? {display: 'flex', alignItems: 'center'} : {}}>
-      <TimelineOppositeContent
-        sx={{ m: 'auto 0', fontSize: '12px', paddingRight: '19px', paddingLeft: 0 }}
-        align="right"
-        variant="body2"
-        color="default.light"
-      >
-        {moment(event.created_at).fromNow()}
-      </TimelineOppositeContent>
       <TimelineSeparator>
         { !isFirst && <TimelineConnector /> }
         <TimelineDot sx={{backgroundColor: hasReferencedObjectLogo ? 'transparent' : (isJoined ? 'primary.main' : 'primary.60'), ...dotStyle}}>
           {
             isJoined ?
               <EntityIcon entity={event.object} sx={{color: '#FFF'}} logoClassName='user-img-xsmall' /> :
-          <EntityIcon noLink strict entity={event.referenced_object} isVersion={(event.referenced_object?.short_code && event.referenced_object?.version_url)} sx={{color: '#FFF'}} logoClassName='user-img-xsmall' />
+            <EntityIcon noLink strict entity={event.referenced_object} isVersion={(event.referenced_object?.short_code && event.referenced_object?.version_url)} sx={{color: '#FFF'}} logoClassName='user-img-xsmall' />
           }
         </TimelineDot>
         { !isLast && <TimelineConnector /> }
@@ -82,7 +76,7 @@ const Event = ({ event, isFirst, isLast }) => {
   )
 }
 
-const Events = ({ user, events, onLoadMore, showAvatar, moreMarginLeft }) => {
+const Events = ({ user, events, onLoadMore, showAvatar }) => {
   const { t } = useTranslation()
   const currentUser = getCurrentUser()
   const isSelf = Boolean(currentUser?.username && currentUser?.username === user.username)
@@ -99,8 +93,9 @@ const Events = ({ user, events, onLoadMore, showAvatar, moreMarginLeft }) => {
       <Timeline
         id="events-timeline"
         sx={{
-          [`& .${timelineOppositeContentClasses.root}`]: {
-            flex: moreMarginLeft ? 0.25 : 0.1,
+          '.MuiTimelineItem-root:before': {
+            flex: 0,
+            p: 0
           },
           p: 0,
           marginTop: 0,
@@ -116,12 +111,6 @@ const Events = ({ user, events, onLoadMore, showAvatar, moreMarginLeft }) => {
         {
           onLoadMore &&
             <TimelineItem sx={{minHeight: '50px'}}>
-              <TimelineOppositeContent
-                sx={{ m: 'auto 0', fontSize: '12px', paddingRight: '19px', paddingLeft: 0 }}
-                align="right"
-                variant="body2"
-                color="default.light"
-              />
               <TimelineSeparator>
                 <Tooltip title='Show more'>
                   <TimelineDot sx={{backgroundColor: 'transparent', boxShadow: 'none', cursor: 'pointer', marginTop: 0}} onClick={onLoadMore}>
