@@ -220,6 +220,8 @@ const Search = props => {
       return
     setLoading(true)
     setResult({[__resource]: {...result[__resource], results: []}})
+    if(__resource === 'users')
+      params.verbose = true
     APIService.new().overrideURL(getURL(__resource)).get(null, null, params).then(response => {
       if(response?.detail) {
         setAlert({message: response.detail, severity: 'error', duration: 5000})
