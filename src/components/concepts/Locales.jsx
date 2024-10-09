@@ -5,15 +5,51 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Paper from '@mui/material/Paper';
+import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 import CopyIcon from '@mui/icons-material/ContentCopy';
+import PreferredIcon from '@mui/icons-material/FlagOutlined';
 import { groupBy, forEach, has, compact, without, keys, orderBy, map } from 'lodash'
 import { toFullAPIURL, copyURL } from '../../common/utils';
 import { OperationsContext } from '../app/LayoutContext';
 
 const borderColor = 'rgba(0, 0, 0, 0.12)'
+
+const LocalePrimary = ({ locale }) => {
+  const locale_type = locale.name_type || locale.description_type
+  return (
+    <React.Fragment>
+      <Typography component="span" sx={{fontSize: '12px', color: '#000000de'}}>
+        {locale.name || locale.description}
+      </Typography>
+      {
+        Boolean(locale_type) &&
+          <Chip
+            label={locale_type}
+            size='small'
+            sx={{
+              height: '20px',
+              borderRadius: '4px',
+              backgroundColor: '#e4e1ec',
+              fontSize: '12px',
+              color: 'surface.dark',
+              marginLeft: '8px',
+              '.MuiChip-label': {
+                padding: '0 6px',
+                fontSize: '12px'
+              }
+            }}
+          />
+      }
+      {
+        locale.locale_preferred &&
+          <PreferredIcon fontSize='small' sx={{color: 'surface.contrastText', marginLeft: '8px', height: '16px'}}/>
+      }
+      </React.Fragment>
+  )
+}
 
 const LocaleItem = ({ locale, url }) => {
   const { t } = useTranslation()
@@ -39,7 +75,16 @@ const LocaleItem = ({ locale, url }) => {
           </IconButton>
         }
       >
-    <ListItemText primary={locale.name || locale.description} secondary={externalID} sx={{margin: '2px 0'}} />
+        <ListItemText
+          primary={<LocalePrimary locale={locale} />}
+          secondary={externalID}
+          sx={{
+            margin: '2px 0',
+            '.MuiListItemText-primary': {
+              display: 'flex'
+            }
+          }}
+        />
       </ListItem>
       <Divider component="li" />
     </React.Fragment>
