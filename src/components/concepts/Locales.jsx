@@ -13,6 +13,7 @@ import CopyIcon from '@mui/icons-material/ContentCopy';
 import PreferredIcon from '@mui/icons-material/FlagOutlined';
 import { groupBy, forEach, has, compact, without, keys, orderBy, map } from 'lodash'
 import { toFullAPIURL, copyURL } from '../../common/utils';
+import TagCountLabel from '../common/TagCountLabel';
 import { OperationsContext } from '../app/LayoutContext';
 
 const borderColor = 'rgba(0, 0, 0, 0.12)'
@@ -153,9 +154,8 @@ const Locales = ({ concept, locales, title, repo }) => {
 
   return (
     <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor}}>
-      <Typography sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between'}}>
-        <span style={{fontWeight: 'bold'}}>{title}</span>
-        <span>{locales?.length}</span>
+      <Typography component='span' sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between'}}>
+        <TagCountLabel label={title} count={locales?.length}/>
       </Typography>
       <List
         dense

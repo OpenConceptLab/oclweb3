@@ -13,6 +13,7 @@ import Chip from '@mui/material/Chip'
 import { get, isEmpty, forEach, map, find, compact, flatten, values } from 'lodash';
 import ConceptIcon from './ConceptIcon'
 import { generateRandomString, dropVersion } from '../../common/utils'
+import TagCountLabel from '../common/TagCountLabel'
 
 const groupMappings = (orderedMappings, concept, mappings, forward) => {
   forEach(mappings, resource => {
@@ -135,9 +136,8 @@ const Associations = ({concept, mappings, reverseMappings}) => {
 
   return (
     <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor}}>
-      <Typography sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between'}}>
-        <span style={{fontWeight: 'bold'}}>{t('concept.associations')}</span>
-        <span>{count}</span>
+      <Typography component="span" sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between'}}>
+        <TagCountLabel label={t('concept.associations')} count={count}/>
       </Typography>
       {
         count > 0 &&
