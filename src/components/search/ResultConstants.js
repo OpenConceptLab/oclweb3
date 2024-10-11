@@ -20,8 +20,8 @@ export const ALL_COLUMNS = {
     {id: 'datatype', labelKey: 'concept.datatype', value: 'datatype', sortOn: 'datatype'},
     {id: 'updatedOn', labelKey: 'common.updated_on', value: 'version_updated_on', formatter: formatDate, sortOn: 'last_update', global: false},
     {id: 'updatedBy', labelKey: 'common.updated_by', value: 'version_updated_by', global: false},
-    {id: 'parent', labelKey: 'repo.repo', value: 'source', sortOn: 'source', nested: false, renderer: (item, isSplitView) => <RepoChip size='small' hideType repo={{type: 'Source Version', short_code: item.source, id: item?.latest_source_version, url: toParentURI(item.url)}} version={item.latest_source_version} vertical={isSplitView} />},
-    {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', nested: false, renderer: item => <OrgChip size='small' hideType org={{ownerType: item.owner_type, id: item.owner, url: toOwnerURI(item.url)}} />},
+    {id: 'parent', labelKey: 'repo.repo', value: 'source', sortOn: 'source', nested: false, sortable: false, renderer: (item, isSplitView) => <RepoChip size='small' hideType repo={{type: 'Source Version', short_code: item.source, id: item?.latest_source_version, url: toParentURI(item.url)}} version={item.latest_source_version} vertical={isSplitView} />},
+    {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', nested: false, sortable: false, renderer: item => <OrgChip size='small' hideType org={{ownerType: item.owner_type, id: item.owner, url: toOwnerURI(item.url)}} />},
   ],
   mappings: [
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id_lowercase', className: 'searchable'},
@@ -32,13 +32,13 @@ export const ALL_COLUMNS = {
   repos: [
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id', className: 'searchable'},
     {id: 'name', labelKey: 'common.name', value: 'name', sortOn: 'name', className: 'searchable'},
-    {id: 'type', labelKey: 'repo.repo_type', value: 'type'},
-    {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', renderer: item => <OrgChip size='small' hideType org={{ownerType: item.owner_type, id: item.owner, url: toOwnerURI(item.url)}} />},
+    {id: 'type', labelKey: 'repo.repo_type', value: 'type', sortable: false},
+    {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', sortable: false, renderer: item => <OrgChip size='small' hideType org={{ownerType: item.owner_type, id: item.owner, url: toOwnerURI(item.url)}} />},
   ],
   orgs: [
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: '_mnemonic', className: 'searchable'},
     {id: 'name', labelKey: 'common.name', value: 'name', sortOn: '_name', sortBy: 'asc', className: 'searchable'},
-    {id: 'createdOn', labelKey: 'common.created_on', value: 'created_on', formatter: formatDate, sortOn: 'created_on'},
+    {id: 'createdOn', labelKey: 'common.created_on', value: 'created_on', formatter: formatDate, sortOn: 'created_on', sortable: false},
   ],
   users: [
     {id: 'username', labelKey: 'user.username', value: 'username', sortOn: '_username', sortBy: 'asc', className: 'searchable'},
