@@ -365,6 +365,7 @@ const Search = props => {
             <div className='col-xs-9 split' style={{width: getSearchResultsWidth(), paddingRight: 0, paddingLeft: showFilters ? '15px' : 0, float: 'right', height: '100%'}}>
               <div className='col-xs-12 padding-0' style={{height: '100%'}}>
                 <SearchResults
+                  showFilters={showFilters}
                   noCardDisplay={props.noCardDisplay}
                   order={order}
                   orderBy={orderBy}
