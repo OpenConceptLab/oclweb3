@@ -151,7 +151,7 @@ const Associations = ({concept, mappings, reverseMappings}) => {
                   <TableCell sx={{width: '20%'}}><b>{t('repo.source')}</b></TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
+              <TableBody sx={{ '.MuiTableRow-root': {'&:last-child td': {border: 0}} }}>
                 {
                   map(orderedMappings, (oMappings, mapType) => {
                     const key = generateRandomString()
