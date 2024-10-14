@@ -18,7 +18,23 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
   const isSelectedToShow = isShown(id)
   const border = (isChecked || isSelectedToShow) ? `1px solid ${COLORS.primary.main}` : '0.3px solid rgba(0, 0, 0, 0.12)'
   return (
-    <Card variant='outlined' className={'col-xs-12' + (isSelectedToShow ? ' show-item' : '')} sx={{padding: '16px', border: border, borderRadius: '10px', display: 'flex', alignItems: 'center', margin: firstChild ? '0 0 4px 0' : '4px 0', cursor: 'pointer', backgroundColor: isSelectedToShow ? COLORS.primary.contrastText : bgColor}} onClick={event => onCardClick(event, id)}>
+    <Card
+      variant='outlined'
+      className={'col-xs-12' + (isSelectedToShow ? ' show-item' : '')}
+      sx={{
+        padding: '16px',
+        border: border, borderRadius: '10px',
+        display: 'flex',
+        alignItems: 'center',
+        margin: firstChild ? '0 0 4px 0' : '4px 0',
+        cursor: 'pointer',
+        backgroundColor: isSelectedToShow ? 'primary.90' : bgColor,
+        '&:hover': {
+          backgroundColor: isSelectedToShow ? 'primary.90' : 'primary.95'
+        }
+      }}
+      onClick={event => onCardClick(event, id)}
+    >
       <div className='col-xs-1 padding-0' style={{maxWidth: '24px'}}>
         <Checkbox
           color="primary"
