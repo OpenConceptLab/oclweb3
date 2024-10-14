@@ -2,8 +2,6 @@ import React from 'react';
 import {
   formatDate,
   formatWebsiteLink,
-  toParentURI,
-  toOwnerURI,
 } from '../../common/utils';
 import Retired from '../common/Retired';
 import FromConcept from '../concepts/FromConcept';
