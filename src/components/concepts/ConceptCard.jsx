@@ -60,7 +60,7 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
             <DotSeparator />
             <span style={{display: 'flex', alignItems: 'center', fontSize: '14px', color: COLORS.secondary['40']}}>
               <RepoIcon noTooltip fontSize='inherit' style={{marginRight: '8px'}} />
-              <RepoVersionButton repo={concept.source} version={concept.latest_source_version}/>
+              <RepoVersionButton repo={concept.source} version={concept.latest_source_version} vertical />
             </span>
             <DotSeparator />
             <span className='searchable' style={{display: 'flex', alignItems: 'center', fontSize: '14px', color: COLORS.secondary['40']}}>
