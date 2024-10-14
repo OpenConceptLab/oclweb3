@@ -76,7 +76,7 @@ const SearchInput = props => {
         if(isGlobal)
           queryParams.set('type', resourceType)
         URL += `?${queryParams.toString()}`
-      } else if(isGlobal) {
+      } else if(isGlobal || queryParams.get('type')) {
         URL += `?type=${resourceType}`
       }
       history.push(URL.replace('?&', '?'));
