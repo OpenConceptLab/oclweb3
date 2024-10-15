@@ -69,7 +69,7 @@ const RepoHome = () => {
   }
 
   const fetchVersions = () => {
-    APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true}).then(response => {
+    APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit: 100}).then(response => {
       setVersions(response?.data || [])
     })
   }

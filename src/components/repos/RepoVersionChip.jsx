@@ -4,7 +4,7 @@ import HeaderChip from '../common/HeaderChip';
 import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import Menu from '@mui/material/Menu';
-import { find, reject, orderBy, merge } from 'lodash'
+import { find, reject, orderBy, merge, compact } from 'lodash'
 import { SURFACE_COLORS } from '../../common/colors'
 import VersionsTable from './VersionsTable'
 
@@ -22,7 +22,7 @@ const RepoVersionChip = ({ version, versions, sx, onChange, size, disabledFrom, 
     if(!versions?.length)
       return versions
     const head = find(versions, {version: 'HEAD'})
-    return [head, ...orderBy(reject(versions, {version: 'HEAD'}), 'created_at', 'desc')]
+    return compact([head, ...orderBy(reject(versions, {version: 'HEAD'}), 'created_at', 'desc')])
   }
 
   const allVersions = getVersions()
