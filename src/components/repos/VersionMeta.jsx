@@ -9,7 +9,7 @@ import TableRow from '@mui/material/TableRow';
 import Skeleton from '@mui/material/Skeleton';
 import get from 'lodash/get'
 import RepoVersionLabel from './RepoVersionLabel'
-import { formatDate } from '../../common'
+import { formatDate } from '../../common/utils'
 
 const StatRow = ({icon, label, version1, version2, statKey, statFunc}) => {
   const lastCellStyle = {borderBottom: '1px solid', borderColor: 'surface.nv80'}
