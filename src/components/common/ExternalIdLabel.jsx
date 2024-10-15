@@ -7,7 +7,7 @@ import ExternalIdIcon from './ExternalIdIcon'
 import { OperationsContext } from '../app/LayoutContext';
 import { copyToClipboard } from '../../common/utils'
 
-const ExternalIdLabel = ({ value, style }) => {
+const ExternalIdLabel = ({ value, style, iconStyle }) => {
   const { t } = useTranslation()
   const { setAlert } = React.useContext(OperationsContext);
   const getValue = () => {
@@ -26,14 +26,14 @@ const ExternalIdLabel = ({ value, style }) => {
   return (
     <Tooltip title={t('common.click_to_copy')}>
       <span style={{display: 'flex', alignItems: 'center', cursor: 'copy', ...style}} onClick={onClick}>
-      <ExternalIdIcon size='small' sx={{marginTop: '4px', width: '18px', height: '18px'}} />
-      <span style={{marginRight: '4px', fontSize: '12px', colors: SECONDARY_COLORS.main}}>
-        {t('concept.form.external_id')}
+        <ExternalIdIcon size='small' sx={{marginTop: '4px', width: '18px', height: '18px', ...iconStyle}} />
+        <span style={{marginRight: '4px', fontSize: '12px', colors: SECONDARY_COLORS.main}}>
+          {t('concept.form.external_id')}
+        </span>
+        <span style={{fontSize: '12px', color: SECONDARY_COLORS['50']}}>
+          {getValue()}
+        </span>
       </span>
-      <span style={{fontSize: '12px', color: SECONDARY_COLORS['50']}}>
-        {getValue()}
-      </span>
-    </span>
     </Tooltip>
   )
 }

@@ -15,6 +15,7 @@ import { groupBy, forEach, has, compact, without, keys, orderBy, map } from 'lod
 import { toFullAPIURL, copyURL } from '../../common/utils';
 import TagCountLabel from '../common/TagCountLabel';
 import { OperationsContext } from '../app/LayoutContext';
+import ExternalIdLabel from '../common/ExternalIdLabel';
 
 const borderColor = 'rgba(0, 0, 0, 0.12)'
 
@@ -78,7 +79,7 @@ const LocaleItem = ({ locale, url }) => {
       >
         <ListItemText
           primary={<LocalePrimary locale={locale} />}
-          secondary={externalID}
+          secondary={externalID ? <ExternalIdLabel value={externalID} style={{marginTop: '4px'}} iconStyle={{marginTop: '2px'}} /> : undefined}
           sx={{
             margin: '2px 0',
             '.MuiListItemText-primary': {
