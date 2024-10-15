@@ -2,6 +2,7 @@ import React from 'react'
 import { useHistory } from 'react-router-dom';
 import RepoIcon from '@mui/icons-material/FolderOutlined';
 import isNumber from 'lodash/isNumber';
+import has from 'lodash/has'
 import HTMLTooltip from '../common/HTMLTooltip'
 import FollowActionButton from '../common/FollowActionButton'
 import OwnerButton from '../common/OwnerButton'
@@ -10,13 +11,29 @@ import { URIToOwnerParams } from '../../common/utils'
 import DotSeparator from '../common/DotSeparator'
 import ConceptIcon from '../concepts/ConceptIcon'
 import MappingIcon from '../mappings/MappingIcon'
+import APIService from '../../services/APIService'
 
 const TooltipTitle = ({ repo }) => {
   // only need --> repo = {url: '/orgs/MyOrg/sources/MySource/', id: 'MyOrg'}
-  const history = useHistory()
   const url = repo?.version_url || repo?.url
   const owner = URIToOwnerParams(url)
   const repoId = repo?.short_code || repo?.id
+
+  const [entity, setEntity] = React.useState(repo || {})
+  const shouldRefetch = () => Boolean(url && !has(entity, 'summary'))
+  const fetchEntity = () => {
+    if(shouldRefetch())
+      APIService.new().overrideURL(url).get(null, null, {includeSummary: true}).then(response => setEntity(response.data))
+    else
+      setEntity(repo)
+  }
+
+  React.useEffect(() => {
+    fetchEntity()
+  }, [repo?.version_url || repo?.url])
+
+  const history = useHistory()
+
   return (
     <React.Fragment>
       <div style={{width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '-8px'}}>
@@ -60,40 +77,40 @@ const TooltipTitle = ({ repo }) => {
             }}
           />
         </span>
-        <FollowActionButton iconButton entity={repo} sx={{mr: 0, ml: 1.5}} size='small' />
+        <FollowActionButton iconButton entity={entity} sx={{mr: 0, ml: 1.5}} size='small' />
       </div>
       <div style={{width: '100%', fontSize: '14px', marginTop: '6px'}}>
         <span style={{color: '#000', cursor: 'pointer'}} onClick={() => history.push(url)}>
-          <b>{repo?.name}</b>
+          <b>{entity?.name}</b>
         </span>
       </div>
       {
-        Boolean(repo?.description) &&
+        Boolean(entity?.description) &&
           <div style={{width: '100%', fontSize: '12px', marginTop: '4px'}} className='ellipsis-text-3'>
-            {repo.description}
+            {entity.description}
           </div>
       }
       <div style={{width: '100%', fontSize: '12px', marginTop: '6px', display: 'flex', justifyContent: 'space-between'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
           {
-            isNumber(repo?.summary?.active_concepts) &&
+            isNumber(entity?.summary?.active_concepts) &&
               <span style={{cursor: 'pointer', display: 'flex', alignItems: 'center'}} onClick={() => history.push(url + 'concepts/')}>
                 <ConceptIcon fontSize='small' selected color='secondary' sx={{marginRight: '4px', width: '10px', height: '10px'}} />
-                {repo.summary.active_concepts.toLocaleString()}
+                {entity.summary.active_concepts.toLocaleString()}
               </span>
           }
           {
             isNumber(repo?.summary?.active_mappings) &&
               <span style={{marginLeft: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center'}} onClick={() => history.push(url + 'mappings/')}>
                 <MappingIcon fontSize='small' color='secondary' sx={{marginRight: '4px', width: '15px', height: '15px'}} />
-                {repo.summary.active_mappings.toLocaleString()}
+                {entity.summary.active_mappings.toLocaleString()}
               </span>
           }
         </span>
         <span style={{marginLeft: '8px', cursor: 'pointer'}} onClick={() => history.push(url)}>
           {
-            (repo?.type === 'Source Version' || repo?.type === 'Collection Version') ?
-              (repo?.version || repo?.id):
+            (entity?.type === 'Source Version' || entity?.type === 'Collection Version') ?
+              (entity?.version || entity?.id):
               'HEAD'
           }
         </span>

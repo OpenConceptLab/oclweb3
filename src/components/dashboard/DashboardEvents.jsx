@@ -93,7 +93,7 @@ const DashboardEvents = ({ events, highlight, sx }) => {
         events.map(event => (
           highlight ?
             <HighlightCard key={event.id}>
-              <EventCard key={event.id} event={event} highlight={highlight} />
+              <EventCard event={event} highlight={highlight} />
             </HighlightCard> :
           <EventCard key={event.id} event={event} highlight={highlight} />
         ))
