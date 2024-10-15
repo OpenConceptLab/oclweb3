@@ -63,7 +63,7 @@ const TooltipTitle = ({ org }) => {
               <UserIcon sx={{marginRight: '4px', fontSize: '14px'}} size='small' />
               <span style={{marginTop: '2px'}}>{entity.members} {t('org.members').toLowerCase()}</span>
             </span> :
-          <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+          <Skeleton variant="text" sx={{ fontSize: '1rem', width: '33%' }} />
         }
         {
           entity?.public_sources >= 0 ?
@@ -71,7 +71,7 @@ const TooltipTitle = ({ org }) => {
               <RepoIcon sx={{marginRight: '4px', fontSize: '14px'}} size='small' noTooltip />
               <span style={{marginTop: '2px'}}>{entity.public_sources + entity.public_collections} {t('repo.repos').toLowerCase()}</span>
             </span> :
-          <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+          <Skeleton variant="text" sx={{ fontSize: '1rem', width: '33%', marginLeft: '8px' }} />
         }
       </div>
     </React.Fragment>
