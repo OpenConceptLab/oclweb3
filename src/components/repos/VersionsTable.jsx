@@ -115,7 +115,7 @@ const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabl
       <TableContainer sx={{height: '220px'}}>
         <Table
           stickyHeader
-          sx={{ maxWidth: 650 }}
+          sx={{ minWidth: 650 }}
           size='small'
         >
           <TableHead>
