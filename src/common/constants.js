@@ -4,8 +4,8 @@ export const LANGUAGES = [
 ]
 
 
-export const DATE_FORMAT = 'MM/DD/YYYY';
-export const TIME_FORMAT = 'hh:mm A';
+export const DATE_FORMAT = 'M/D/YYYY';
+export const TIME_FORMAT = 'h:mm A';
 export const DATETIME_FORMAT = DATE_FORMAT + ' ' + TIME_FORMAT;
 export const DEFAULT_LIMIT = 25;
 export const EMPTY_VALUE = '-';

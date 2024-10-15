@@ -1,5 +1,4 @@
 import React from 'react';
-import moment from 'moment'
 import { useTranslation } from 'react-i18next';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -10,6 +9,7 @@ import TableRow from '@mui/material/TableRow';
 import Skeleton from '@mui/material/Skeleton';
 import get from 'lodash/get'
 import RepoVersionLabel from './RepoVersionLabel'
+import { formatDate } from '../../common'
 
 const StatRow = ({icon, label, version1, version2, statKey, statFunc}) => {
   const lastCellStyle = {borderBottom: '1px solid', borderColor: 'surface.nv80'}
@@ -129,7 +129,7 @@ const VersionMeta = ({version1, version2}) => {
             label={t('repo.release_status')}
             version1={version1}
             version2={version2}
-            statFunc={version => version.released ? moment(version.updated_on).format('MM/DD/YYYY') : null }
+            statFunc={version => version.released ? formatDate(version.updated_on) : null }
           />
           <StatRow
             label={t('repo.visibility')}
@@ -171,13 +171,13 @@ const VersionMeta = ({version1, version2}) => {
             label={t('common.created_on')}
             version1={version1}
             version2={version2}
-            statFunc={version => moment(version.created_on).format('MM/DD/YYYY') }
+            statFunc={version => formatDate(version.created_on) }
           />
           <StatRow
             label={t('common.updated_on')}
             version1={version1}
             version2={version2}
-            statFunc={version => moment(version.updated_on).format('MM/DD/YYYY') }
+            statFunc={version => formatDate(version.updated_on) }
           />
           <StatRow
             label={t('common.created_by')}

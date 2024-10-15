@@ -1,10 +1,10 @@
 import React from 'react';
-import moment from 'moment'
 import { useTranslation } from 'react-i18next';
 import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
 import startCase from 'lodash/startCase'
 import { SECONDARY_COLORS } from '../../common/colors'
 import HeaderChip from '../common/HeaderChip'
+import { formatDate } from '../../common/utils'
 
 const RepoVersionLabel = ({ version }) => {
   const { t } = useTranslation()
@@ -26,7 +26,7 @@ const RepoVersionLabel = ({ version }) => {
         size='small'
       />
       <span style={{fontSize: '12px', marginLeft: '-4px', color: SECONDARY_COLORS.main }}>
-        {` ${startCase(t('common.updated_on'))} ${moment(version?.updated_on).format('MM/DD/YYYY')}`}
+        {` ${startCase(t('common.updated_on'))} ${formatDate(version?.updated_on)}`}
       </span>
     </React.Fragment>
   )
