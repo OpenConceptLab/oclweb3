@@ -144,7 +144,7 @@ const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabl
           <TableBody>
             {
               versions?.map(version => {
-                const isSelected = version.version_url == (selected.version_url || selected.url)
+                const isSelected = version?.version_url == (selected?.version_url || selected?.url)
                 const disabled = isDisabled(version)
                 const bodyCellStyle = getBodyCellStyle(isSelected, disabled)
                 return (
@@ -168,7 +168,7 @@ const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabl
       </TableContainer>
       {
         checked?.length == 2 &&
-          <Button sx={{marginTop: '16px', display: 'flex'}} onClick={() => history.push(`${selected.url + 'compare-versions'}?version1=${checked[0]}&version2=${checked[1]}`)} label={t('repo.compare_versions')} color='primary' variant='outlined' />
+          <Button sx={{marginTop: '16px', display: 'flex'}} onClick={() => history.push(`${selected?.url + 'compare-versions'}?version1=${checked[0]}&version2=${checked[1]}`)} label={t('repo.compare_versions')} color='primary' variant='outlined' />
       }
     </React.Fragment>
   )
