@@ -20,6 +20,15 @@ const CanonicalResolve = ({open, onClose, defaultOwner}) => {
     setOwner(item?.url || '/')
   }
 
+  const onKeyDown = event => {
+    if (event.target.value && event.key === 'Enter') {
+      onResolve()
+    }
+
+    return false
+  }
+
+
   const onResolve = () => {
     setResult(false)
     setIsResolving(true)
@@ -63,6 +72,9 @@ const CanonicalResolve = ({open, onClose, defaultOwner}) => {
               label={t('url_registry.canonical_url')}
               fullWidth
               sx={{backgroundColor: 'surface.n92'}}
+              inputProps={{
+                onKeyDown: onKeyDown
+              }}
             />
           </div>
           <div className='col-xs-2 padding-0'>

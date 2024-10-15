@@ -264,7 +264,7 @@
     "global_registry": "Global registry",
     "test_canonical_url": "Test a Canonical URL",
     "add_entry": "Add Canonical URL",
-    "test_canonical_url_description": "See how a canonical URL will be resolved in a namespace (e.g. your user workspace or an organization you are a member of). Simulate how OCL evaluates references and mappings in your repositories. To <0>learn more</0> about how to use canonical URLs in OCL.",
+    "test_canonical_url_description": "Enter a canonical URL to test how OCL will resolve it in a specific namespace, such as your user workspace or an organization that you are a member of. Use this to simulate how OCL will evaluate references and mappings in your repositories. <0>Learn more at OCL Docs</0>",
     "canonical_url": "Canonical URL",
     "resolve_success_with_entry": "{{url}} resolved to <0/> in <1/> using an entry in the <2/> Registry",
     "resolve_success_without_entry": "{{url}} resolved to <0/> in <1/> by matching a repository in the <2/>",
