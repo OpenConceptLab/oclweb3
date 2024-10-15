@@ -76,7 +76,8 @@
     "json": "JSON",
     "draft": "Draft",
     "highlights": "Highlights",
-    "click_to_copy": "Click to Copy"
+    "click_to_copy": "Click to Copy",
+    "submit": "Submit"
   },
   "errors": {
     "404": "Sorry your page could not be found.",

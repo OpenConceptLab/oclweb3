@@ -43,6 +43,7 @@ const LocaleForm = ({index, locales, idPrefix, localeType, field, localeTypes, o
           value={get(field, `${localeType}_type.value`)}
           edit={edit}
           required
+          freeSolo
         />
       </div>
       <div className='col-xs-5' style={{marginTop: '24px', padding: '0 8px 0 8px', width: '45%'}}>
