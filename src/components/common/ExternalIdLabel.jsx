@@ -24,7 +24,7 @@ const ExternalIdLabel = ({ value, style, iconStyle }) => {
   }
 
   return (
-    <Tooltip title={t('common.click_to_copy')}>
+    <Tooltip title={t('common.click_to_copy') + ' ' + value}>
       <span style={{display: 'flex', alignItems: 'center', cursor: 'copy', ...style}} onClick={onClick}>
         <ExternalIdIcon size='small' sx={{marginTop: '4px', width: '18px', height: '18px', ...iconStyle}} />
         <span style={{marginRight: '4px', fontSize: '12px', colors: SECONDARY_COLORS.main}}>
