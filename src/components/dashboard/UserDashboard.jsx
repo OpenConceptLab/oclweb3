@@ -90,8 +90,8 @@ const UserDashboard = ({ user }) => {
     <div className='col-xs-12 padding-0'>
       <div className='col-xs-9' style={{maxWidth: 'calc(100% - 360px)', minWidth: '500px'}}>
         <div className='col-xs-12 padding-0' style={{marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-          <Typography sx={{fontWeight: 'bold', color: 'secondary.main'}}>
-            {upperFirst(t('user.recent_activity'))}
+          <Typography sx={{fontSize: '22px', color: 'secondary.main'}}>
+            {upperFirst(t('dashboard.anonymous_heading'))}
           </Typography>
           <EventsButtonGroup selected={scope} onClick={onScopeChange} />
         </div>
