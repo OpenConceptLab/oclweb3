@@ -79,16 +79,16 @@ export const FACET_ORDER = {
 
 export const SORT_ATTRS = {
   global: {
-    concepts: ['score', 'id', 'name', 'concept_class', 'datatype', 'source', 'owner'],
-    mappings: ['score', 'id', 'map_type', 'source', 'owner'],
+    concepts: ['score', 'ID', 'name', 'concept_class', 'datatype', 'source', 'owner'],
+    mappings: ['score', 'ID', 'map_type', 'source', 'owner'],
   },
   nested: {
-    concepts: ['score', 'last_update', 'id', 'numeric_id', '_name', 'concept_class', 'datatype'],
-    mappings: ['score', 'last_update', 'id', 'map_type'],
+    concepts: ['score', 'last_update', 'ID', 'numeric_id', '_name', 'concept_class', 'datatype'],
+    mappings: ['score', 'last_update', 'ID', 'map_type'],
   },
   common: {
     users: ['score', 'username', 'date_joined', 'company', 'location'],
-    orgs: ['score', 'last_update', 'name', 'mnemonic'],
-    repos: ['score', 'last_update', 'mnemonic', 'name', 'owner', 'canonical_url'],
+    orgs: ['score', 'last_update', 'name', 'ID'],
+    repos: ['score', 'last_update', 'ID', 'name', 'owner', 'canonical_url'],
   },
 }

@@ -12,6 +12,8 @@ const SortMenu = ({anchorEl, labelId, onClose, order, orderBy, onChange, fields}
     onChange(newOrderBy, newOrder)
     onClose()
   }
+  let _order = order || 'desc'
+  let _orderBy = orderBy || 'score'
   return (
     <Menu
       id="basic-menu"
@@ -29,7 +31,7 @@ const SortMenu = ({anchorEl, labelId, onClose, order, orderBy, onChange, fields}
         map(fields, field => {
           let label = startCase(field)
           return ['desc', 'asc'].map(orderType => (
-            <MenuItem key={`${field}-${orderType}`} selected={orderBy === field && order === orderType} onClick={() => _onChange(field, orderType)}>
+            <MenuItem key={`${field}-${orderType}`} selected={_orderBy?.toLowerCase() === field?.toLowerCase() && _order === orderType} onClick={() => _onChange(field?.toLowerCase(), orderType)}>
               <ListItemText>{label}</ListItemText>
               {orderType === 'desc' ? <DownIcon />  : <UpIcon />}
             </MenuItem>
