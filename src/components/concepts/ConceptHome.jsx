@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
 import APIService from '../../services/APIService';
 import ConceptHeader from './ConceptHeader';
@@ -10,6 +11,9 @@ import Associations from './Associations'
 
 const ConceptHome = props => {
   const { t } = useTranslation()
+  const location = useLocation()
+  const isInitialMount = React.useRef(true);
+
   const [concept, setConcept] = React.useState(props.concept || {})
   const [mappings, setMappings] = React.useState([])
   const [reverseMappings, setReverseMappings] = React.useState([])
@@ -25,6 +29,14 @@ const ConceptHome = props => {
       getMappings(resource)
     })
   }, [props.url])
+
+  React.useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    } else {
+      props?.onClose()
+    }
+  }, [location])
 
   const fetchRepo = _concept => APIService.new().overrideURL(getRepoURL(_concept)).get().then(response => setRepo(response.data))
 
@@ -82,8 +94,6 @@ const ConceptHome = props => {
         setReverseMappings(response?.data?.entry?.entries || [])
       })
   }
-
-
 
   return (concept?.id && repo?.id) ? (
     <>
