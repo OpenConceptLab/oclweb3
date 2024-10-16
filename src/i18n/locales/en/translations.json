@@ -198,7 +198,8 @@
     "about_the_org": "About the Organization",
     "members": "Members",
     "org_have_not_created_public_repos_suffix": "have not created any public repositories",
-    "browse_members": "Browse members"
+    "browse_members": "Browse members",
+    "member_of": "Member of"
   },
   "user": {
     "users": "Users",

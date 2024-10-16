@@ -47,7 +47,7 @@ const UserStatistics = ({ user }) => {
             </ListItemIcon>
             <ListItemText
               sx={{color: 'default.light', '.MuiListItemText-primary': {fontSize: '12px'}}}
-              primary={`${user.orgs} ${t('common.subscribed').toLowerCase()} ${t('org.orgs').toLowerCase()}`}
+              primary={`${t('org.member_of')} ${user.orgs} ${t('org.orgs').toLowerCase()}`}
             />
           </ListItem>
         </List>
