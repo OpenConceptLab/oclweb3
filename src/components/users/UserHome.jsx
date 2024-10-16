@@ -103,7 +103,7 @@ const UserHome = () => {
   )
   React.useEffect(() => { setTab(params.tab || 'overview') }, [params.tab])
 
-  const baseHeightToDeduct = bookmarks ? 325 : 175
+  const baseHeightToDeduct = 150
   return (
     <div className='col-xs-12 padding-0'>
       <div className='col-xs-3' style={{height: height, padding: '24px 24px 24px 8px', maxWidth: '20%', overflow: 'auto'}}>
