@@ -3,9 +3,6 @@ import { useTranslation } from 'react-i18next';
 import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import DownloadIcon from '@mui/icons-material/Download';
-import ShareIcon from '@mui/icons-material/Share';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import RepoVersionChip from './RepoVersionChip';
 import RepoChip from './RepoChip'
@@ -48,12 +45,6 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
       </div>
       <div className='col-xs-3 padding-0' style={{textAlign: 'right'}}>
         <FollowActionButton iconButton entity={repo} />
-        <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
-          <DownloadIcon fontSize='inherit' />
-        </IconButton>
-        <IconButton sx={{color: 'surface.contrastText', mr: 1}}>
-          <ShareIcon fontSize='inherit' />
-        </IconButton>
         <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='repo-manage'>
           {t('repo.manage')}
         </Button>
