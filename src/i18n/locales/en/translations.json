@@ -78,7 +78,8 @@
     "highlights": "Highlights",
     "click_to_copy": "Click to Copy",
     "submit": "Submit",
-    "external_id": "External ID"
+    "external_id": "External ID",
+    "access_level": "Access Level"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
