@@ -39,41 +39,41 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, id, version,
         repo && !hideParents &&
           <React.Fragment>
             <DotSeparator />
-        <RepoTooltip repo={{url: repoURL}}>
-            <RepoVersionButton
-              size={size}
-              href={repoURL}
-              icon={
-                noIcons ?
-                  false :
-                  <RepoIcon
-                    noTooltip
-                    sx={{color: 'secondary', fontSize: '18px'}}
-                  />
-              }
-              sx={{
-                '.repo-button-label': {
-                  display: 'inline-block !important',
-                  maxWidth: '150px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  fontSize: '14px',
-                  whiteSpace: 'nowrap',
-                },
-                '.repo-version-label': {
-                  display: 'inline-block',
-                maxWidth: '75px',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                fontSize: '14px',
-                whiteSpace: 'nowrap',
+            <RepoTooltip repo={{url: repoURL}}>
+              <RepoVersionButton
+                size={size}
+                href={repoURL}
+                icon={
+                  noIcons ?
+                    false :
+                    <RepoIcon
+                      noTooltip
+                      sx={{color: 'secondary', fontSize: '18px'}}
+                    />
                 }
-              }}
-              repo={repo}
-              version={repoVersion}
-              versionStyle={{fontSize: fontSize || '14px'}}
-          />
-        </RepoTooltip>
+                sx={{
+                  '.repo-button-label': {
+                    display: 'inline-block !important',
+                    maxWidth: '150px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    fontSize: '14px',
+                    whiteSpace: 'nowrap',
+                  },
+                  '.repo-version-label': {
+                    display: 'inline-block',
+                    maxWidth: '75px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    fontSize: '14px',
+                    whiteSpace: 'nowrap',
+                  }
+                }}
+                repo={repo}
+                version={repoVersion}
+                versionStyle={{fontSize: fontSize || '14px'}}
+              />
+            </RepoTooltip>
           </React.Fragment>
       }
       {
