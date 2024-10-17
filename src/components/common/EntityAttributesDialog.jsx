@@ -12,7 +12,7 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import { map, get } from 'lodash'
 import Link from '../common/Link'
-import { formatWebsiteLink } from '../../common/utils'
+import { formatWebsiteLink, formatDate, formatDateTime } from '../../common/utils'
 
 const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
   const { t } = useTranslation()
@@ -21,10 +21,14 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
     if(value) {
       if(info.type === 'datetime')
         return moment(value).format('lll')
+      if(info.type === 'datetime')
+        return formatDateTime(value)
+      if(info.type === 'date')
+        return formatDate(value)
       if(info.type === 'external_link')
         return formatWebsiteLink(value)
       if(info.type === 'user')
-        return formatWebsiteLink(`${window.location.origin}/#/users/${value}/`, null, value)
+        return <Link sx={{fontSize: '14px'}} label={value} href={`#/users/${value}/`} />
       if(info.type === 'json')
         return <pre>{JSON.stringify(value, undefined, 2)}</pre>
     }
@@ -35,7 +39,7 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
       open={open}
       onClose={onClose}
       scroll='paper'
-      maxWidth="xs"
+      maxWidth="sm"
       sx={{
         '& .MuiDialog-paper': {
           backgroundColor: 'surface.n92',

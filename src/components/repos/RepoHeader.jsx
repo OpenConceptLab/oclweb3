@@ -4,6 +4,7 @@ import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
+import { uniq, compact } from 'lodash'
 import RepoVersionChip from './RepoVersionChip';
 import RepoChip from './RepoChip'
 import DotSeparator from '../common/DotSeparator';
@@ -12,11 +13,13 @@ import { PRIMARY_COLORS } from '../../common/colors';
 import { formatDate } from '../../common/utils';
 import RepoManagementList from './RepoManagementList';
 import FollowActionButton from '../common/FollowActionButton'
+import EntityAttributesDialog from '../common/EntityAttributesDialog'
 
 const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClick}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
+  const [viewAll, setViewAll] = React.useState(false)
   const onMenuOpen = event => {
     setMenuAnchorEl(event.currentTarget)
     setMenu(true)
@@ -31,6 +34,14 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
     if(option === 'addConcept') {
       onCreateConceptClick()
     }
+  }
+
+  const getRepo = () => {
+    if(repo?.id) {
+      const {default_locale, supported_locales} = repo
+      repo.locales = uniq(compact([default_locale, ...(supported_locales || [])]))
+    }
+    return repo
   }
 
   return (
@@ -55,13 +66,50 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
       </div>
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', fontSize: '16px'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
-          <a style={{color: PRIMARY_COLORS.main}} className='no-anchor-styles'>{t('common.view_all_attributes')}</a>
+          <a style={{color: PRIMARY_COLORS.main, cursor: 'pointer'}} className='no-anchor-styles' onClick={() => setViewAll(true)}>{t('common.view_all_attributes')}</a>
         </span>
         <DotSeparator margin="0 6px" />
         <span style={{display: 'flex', alignItems: 'center', opacity: 0.7}}>
           {t('common.updated_on')} {formatDate(repo.updated_on)}
         </span>
       </div>
+      <EntityAttributesDialog
+        fields={{
+          name: {label: t('common.name')},
+          full_name: {label: t('common.full_name')},
+          external_id: {label: t('common.external_id')},
+          locales: {label: t('repo.locales')},
+          canonical_url: {label: t('url_registry.canonical_url')},
+          description: {label: t('common.description')},
+          identifier: {label: t('repo.identifier'), type: 'json'},
+          contact: {label: t('repo.contact'), type: 'json'},
+          jurisdiction: {label: t('repo.jurisdiction'), type: 'json'},
+          publisher: {label: t('repo.publisher')},
+          purpose: {label: t('repo.purpose')},
+          copyright: {label: t('repo.copyright')},
+          content_type: {label: t('repo.content_type')},
+          revision_date: {label: t('repo.revision_date'), type: 'date'},
+          experimental: {label: t('repo.experimental')},
+          case_sensitive: {label: t('repo.case_sensitive')},
+          hierarchy_meaning: {label: t('repo.hierarchy_meaning')},
+          compositional: {label: t('repo.compositional')},
+          version_needed: {label: t('repo.version_needed')},
+          autoid_concept_mnemonic: {label: t('repo.autoid_concept_mnemonic')},
+          autoid_concept_external_id: {label: t('repo.autoid_concept_external_id')},
+          autoid_concept_name_external_id: {label: t('repo.autoid_concept_name_external_id')},
+          autoid_concept_description_external_id: {label: t('repo.autoid_concept_description_external_id')},
+          autoid_mapping_mnemonic: {label: t('repo.autoid_mapping_mnemonic')},
+          autoid_mapping_external_id: {label: t('repo.autoid_mapping_external_id')},
+          extras: {label: t('custom_attributes.label'), type: 'json'},
+          created_on: {label: t('common.created_on'), type: 'datetime'},
+          updated_on: {label: t('common.updated_on'), type: 'datetime'},
+          created_by: {label: t('common.created_by'), type: 'user'},
+          updated_by: {label: t('common.updated_by'), type: 'user'},
+        }}
+        entity={getRepo()}
+        open={viewAll}
+        onClose={() => setViewAll(false)}
+      />
     </Paper>
   )
 }
