@@ -17,8 +17,6 @@ export const ALL_COLUMNS = {
     {id: 'name', labelKey: 'concept.display_name', value: 'display_name', sortOn: '_name', className: 'searchable', sortBy: 'asc', renderer: item => (<span><React.Fragment>{item.retired && <Retired style={{marginRight: '8px'}}/>} {item.display_name}</React.Fragment></span>)},
     {id: 'concept_class', labelKey: 'concept.concept_class', value: 'concept_class', sortOn: 'concept_class'},
     {id: 'datatype', labelKey: 'concept.datatype', value: 'datatype', sortOn: 'datatype'},
-    {id: 'updatedOn', labelKey: 'common.updated_on', value: 'version_updated_on', formatter: formatDate, sortOn: 'last_update', global: false},
-    {id: 'updatedBy', labelKey: 'common.updated_by', value: 'version_updated_by', global: false},
     {id: 'parent', labelKey: 'repo.repo', value: 'source', sortOn: 'source', nested: false, renderer: item => <RepoVersionButton repo={item.source} version={item.latest_source_version} vertical />},
     {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', nested: false, renderer: item => (<span style={{display: 'flex'}}><OwnerIcon noTooltip ownerType={item.owner_type} fontSize='small' sx={{marginRight: '4px'}}/>{item.owner}</span>)}
   ],
