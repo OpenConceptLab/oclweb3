@@ -54,7 +54,7 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, id, version,
               sx={{
                 '.repo-button-label': {
                   display: 'inline-block !important',
-                  maxWidth: '200px',
+                  maxWidth: '150px',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   fontSize: '14px',
