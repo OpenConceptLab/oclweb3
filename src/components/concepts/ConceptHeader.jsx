@@ -1,11 +1,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import has from 'lodash/has';
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 import Button from '@mui/material/Button';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import CloseIconButton from '../common/CloseIconButton';
-import { toOwnerURI } from '../../common/utils';
+import { toOwnerURI, currentUserHasAccess } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
 import { BLACK, SECONDARY_COLORS } from '../../common/colors'
 import ConceptManagementList from './ConceptManagementList'
@@ -27,7 +28,7 @@ const PropertyChip = ({name, property, sx}) => {
   )
 }
 
-const ConceptHeader = ({concept, onClose, repoURL, onEdit}) => {
+const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -80,12 +81,15 @@ const ConceptHeader = ({concept, onClose, repoURL, onEdit}) => {
               <ExternalIdLabel value={concept.external_id} style={{marginLeft: '8px'}} />
           }
         </span>
-        <span>
-          <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='concept-actions'>
-            {t('common.actions')}
-          </Button>
-          <ConceptManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='concept-actions' onClick={onManageOptionClick} />
-        </span>
+        {
+          currentUserHasAccess() && repo?.version === 'HEAD' && has(repo, 'source_type') &&
+            <span>
+              <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='concept-actions'>
+                {t('common.actions')}
+              </Button>
+              <ConceptManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='concept-actions' onClick={onManageOptionClick} />
+            </span>
+        }
       </div>
     </React.Fragment>
   )
