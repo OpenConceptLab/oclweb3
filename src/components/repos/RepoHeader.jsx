@@ -4,13 +4,13 @@ import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
-import { uniq, compact } from 'lodash'
+import { uniq, compact, has } from 'lodash'
 import RepoVersionChip from './RepoVersionChip';
 import RepoChip from './RepoChip'
 import DotSeparator from '../common/DotSeparator';
 import OwnerChip from '../common/OwnerChip';
 import { PRIMARY_COLORS } from '../../common/colors';
-import { formatDate } from '../../common/utils';
+import { formatDate, currentUserHasAccess } from '../../common/utils';
 import RepoManagementList from './RepoManagementList';
 import FollowActionButton from '../common/FollowActionButton'
 import EntityAttributesDialog from '../common/EntityAttributesDialog'
@@ -44,6 +44,8 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
     return repo
   }
 
+  const hasAccess = currentUserHasAccess()
+
   return (
     <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderRadius: '8px 8px 0 0'}}>
       <div className='col-xs-9 padding-0' style={{display: 'flex'}}>
@@ -56,10 +58,15 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
       </div>
       <div className='col-xs-3 padding-0' style={{textAlign: 'right'}}>
         <FollowActionButton iconButton entity={repo} />
-        <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='repo-manage'>
-          {t('repo.manage')}
-        </Button>
-        <RepoManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-manage' onClick={onManageOptionClick} />
+        {
+          Boolean(hasAccess && repo.version === 'HEAD' && has(repo, 'source_type')) &&
+            <React.Fragment>
+              <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='repo-manage'>
+                {t('repo.manage')}
+              </Button>
+              <RepoManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-manage' onClick={onManageOptionClick} />
+          </React.Fragment>
+        }
       </div>
       <div className='col-xs-12 padding-0' style={{margin: '8px 0'}}>
         <Typography sx={{fontSize: '28px', color: 'surface.dark', fontWeight: 600}}>{repo.name}</Typography>
