@@ -28,7 +28,7 @@ const PropertyChip = ({name, property, sx}) => {
   )
 }
 
-const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit}) => {
+const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, nested}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -51,7 +51,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit}) => {
   return (
     <React.Fragment>
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-        <span>
+        <span style={{width: 'calc(100% - 40px)'}}>
           <Breadcrumbs
             ownerURL={repoURL ? toOwnerURI(repoURL) : false}
             owner={concept.owner}
@@ -63,6 +63,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit}) => {
             version={concept.version}
             repoURL={repoURL}
             concept
+            nested={nested}
           />
         </span>
         <span>

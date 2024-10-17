@@ -4,39 +4,102 @@ import RepoIcon from '../repos/RepoIcon';
 import ConceptIcon from '../concepts/ConceptIcon';
 import DotSeparator from './DotSeparator'
 import RepoVersionButton from '../repos/RepoVersionButton'
+import RepoTooltip from '../repos/RepoTooltip'
 import Box from '@mui/material/Box';
 import OwnerButton from './OwnerButton'
 
-const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, id, version, concept, noIcons, color, fontSize, size, ownerURL}) => {
+const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, id, version, concept, noIcons, color, fontSize, size, ownerURL, nested}) => {
   const iconProps = {color: 'secondary', style: {marginRight: '8px', width: '0.8em'}}
+  const hideParents = Boolean(concept && nested)
   return (
     <Box className='col-xs-12 padding-0' sx={{display: 'flex', alignItems: 'center', color: color, fontSize: fontSize}}>
       {
-        ownerType && owner &&
+        ownerType && owner && !hideParents &&
           <OwnerButton
             ownerType={ownerType}
             owner={owner}
             ownerURL={ownerURL}
             noIcons={noIcons}
             size={size}
+            sx={{
+              '.owner-button-label': {
+                maxWidth: '125px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                fontSize: '14px',
+                whiteSpace: 'nowrap',
+              },
+              '.MuiButton-startIcon': {
+                fontSize: '18px',
+              }
+            }}
           />
       }
       {
-        repo &&
+        repo && !hideParents &&
           <React.Fragment>
             <DotSeparator />
-            <RepoVersionButton size={size} href={repoURL} icon={noIcons ? false : <RepoIcon noTooltip sx={{color: 'secondary'}} />} repo={repo} version={repoVersion} versionStyle={{fontSize: fontSize || '14px'}} />
+        <RepoTooltip repo={{url: repoURL}}>
+            <RepoVersionButton
+              size={size}
+              href={repoURL}
+              icon={
+                noIcons ?
+                  false :
+                  <RepoIcon
+                    noTooltip
+                    sx={{color: 'secondary', fontSize: '18px'}}
+                  />
+              }
+              sx={{
+                '.repo-button-label': {
+                  display: 'inline-block !important',
+                  maxWidth: '200px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  fontSize: '14px',
+                  whiteSpace: 'nowrap',
+                },
+                '.repo-version-label': {
+                  display: 'inline-block',
+                maxWidth: '75px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                fontSize: '14px',
+                whiteSpace: 'nowrap',
+                }
+              }}
+              repo={repo}
+              version={repoVersion}
+              versionStyle={{fontSize: fontSize || '14px'}}
+          />
+        </RepoTooltip>
           </React.Fragment>
       }
       {
         id && concept &&
           <React.Fragment>
-            <DotSeparator />
+            {!hideParents && <DotSeparator />}
             {
               !noIcons &&
-                <ConceptIcon selected {...iconProps} color='primary' />
+                <ConceptIcon
+                  selected
+                  sx={{
+                    fontSize: '18px'
+                  }}
+                  {...iconProps}
+                  color='primary'
+                />
             }
-            <span className='searchable'>{id}</span>
+            <span className='searchable' style={{
+              maxWidth: '125px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              fontSize: '14px',
+              whiteSpace: 'nowrap',
+            }}>
+              {id}
+            </span>
           </React.Fragment>
       }
       {

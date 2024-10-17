@@ -48,15 +48,16 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
 
   return (
     <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderRadius: '8px 8px 0 0'}}>
-      <div className='col-xs-9 padding-0' style={{display: 'flex'}}>
+      <div className='col-xs-12 padding-0' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'auto'}}>
+        <span style={{display: 'flex', alignItems: 'center'}}>
         <OwnerChip owner={owner} sx={{background: 'transparent', borderColor: 'surface.light'}} hideType />
         <RepoChip repo={repo} sx={{marginLeft: '12px', background: 'transparent', borderColor: 'surface.light'}} onChange={onVersionChange} checkbox version={repo} versions={versions}  />
         {
           onVersionChange &&
             <RepoVersionChip checkbox version={repo} versions={versions} sx={{marginLeft: '8px', borderRadius: '4px'}} onChange={onVersionChange} />
         }
-      </div>
-      <div className='col-xs-3 padding-0' style={{textAlign: 'right'}}>
+      </span>
+        <span style={{display: 'flex', alignItems: 'center', marginLeft: '16px'}}>
         <FollowActionButton iconButton entity={repo} />
         {
           Boolean(hasAccess && repo.version === 'HEAD' && has(repo, 'source_type')) &&
@@ -67,6 +68,7 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
               <RepoManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-manage' onClick={onManageOptionClick} />
           </React.Fragment>
         }
+          </span>
       </div>
       <div className='col-xs-12 padding-0' style={{margin: '8px 0'}}>
         <Typography sx={{fontSize: '28px', color: 'surface.dark', fontWeight: 600}}>{repo.name}</Typography>
