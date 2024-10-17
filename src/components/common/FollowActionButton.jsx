@@ -16,8 +16,15 @@ const Icon = ({isFollowing, ...rest}) => (
 const FollowIconButton = ({isFollowing, onClick, entity, size, sx}) => {
   const { t } = useTranslation()
 
+  const getTitle = () => {
+    if(entity?.type?.includes('Version')) {
+      return `${entity.short_code}:${entity.id}`
+    }
+    return entity?.id || entity?.username || entity?.name
+  }
+
   return (
-    <Tooltip title={`${isFollowing ? t('common.unfollow') : t('common.follow')} ${entity?.id || entity?.username || entity?.name}`}>
+    <Tooltip title={`${isFollowing ? t('common.unfollow') : t('common.follow')} ${getTitle()}`}>
       <IconButton sx={{color: 'surface.contrastText', mr: 1, ...sx}} onClick={onClick} size={size}>
         <Icon isFollowing={isFollowing} fontSize='inherit' />
       </IconButton>
