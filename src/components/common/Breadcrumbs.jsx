@@ -8,9 +8,9 @@ import RepoTooltip from '../repos/RepoTooltip'
 import Box from '@mui/material/Box';
 import OwnerButton from './OwnerButton'
 
-const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, version, concept, noIcons, color, fontSize, size, ownerURL, nested}) => {
+const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, id, version, concept, noIcons, color, fontSize, size, ownerURL, nested}) => {
   const iconProps = {color: 'secondary', style: {marginRight: '8px', width: '0.8em'}}
-  const hideParents = Boolean(concept?.id && nested)
+  const hideParents = Boolean(concept && nested)
   return (
     <Box className='col-xs-12 padding-0' sx={{display: 'flex', alignItems: 'center', color: color, fontSize: fontSize}}>
       {
@@ -77,7 +77,7 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, version, con
           </React.Fragment>
       }
       {
-        concept?.id &&
+        id && concept &&
           <React.Fragment>
             {!hideParents && <DotSeparator />}
             {
@@ -88,7 +88,7 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, version, con
                     fontSize: '18px'
                   }}
                   {...iconProps}
-                  color={concept.retired? 'error': 'primary'}
+                  color='primary'
                 />
             }
             <span className='searchable' style={{
@@ -98,7 +98,7 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, version, con
               fontSize: '14px',
               whiteSpace: 'nowrap',
             }}>
-              {concept.id}
+              {id}
             </span>
           </React.Fragment>
       }
