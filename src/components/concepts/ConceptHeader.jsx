@@ -59,10 +59,9 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, nested}) => {
             repo={concept.source}
             repoVersion={concept.latest_source_version}
             repoType='Source Version'
-            id={concept.id}
             version={concept.version}
             repoURL={repoURL}
-            concept
+            concept={concept}
             nested={nested}
           />
         </span>
