@@ -51,7 +51,7 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
       <div className='col-xs-12 padding-0' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'auto'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
         <OwnerChip owner={owner} sx={{background: 'transparent', borderColor: 'surface.light'}} hideType />
-        <RepoChip repo={repo} sx={{marginLeft: '12px', background: 'transparent', borderColor: 'surface.light'}} onChange={onVersionChange} checkbox version={repo} versions={versions}  />
+        <RepoChip repo={repo} sx={{marginLeft: '12px', background: 'transparent', borderColor: 'surface.light'}} onChange={onVersionChange}  />
         {
           onVersionChange &&
             <RepoVersionChip checkbox version={repo} versions={versions} sx={{marginLeft: '8px', borderRadius: '4px'}} onChange={onVersionChange} />
