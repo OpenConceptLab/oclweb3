@@ -200,6 +200,9 @@ const SearchResults = props => {
     setSelected(props.selected || [])
   }, [props.selected])
 
+
+  const defaultLabelDisplayedRows = ({ from, to, count }) => `${from}–${to} of ${count !== -1 ? count?.toLocaleString() : `more than ${to?.toLocaleString()}`}`
+
   return (
     <Box sx={{ width: '100%', background: 'inherit', height: '100%' }}>
       <ResultsToolbar
@@ -236,6 +239,7 @@ const SearchResults = props => {
             onRowsPerPageChange={handleChangeRowsPerPage}
             showFirstButton
             showLastButton
+            labelDisplayedRows={defaultLabelDisplayedRows}
             sx={{
               width: '100%',
               '& .MuiTablePagination-actions svg': { color: 'surface.contrastText'},
