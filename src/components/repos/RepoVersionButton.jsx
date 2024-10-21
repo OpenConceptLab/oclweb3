@@ -31,7 +31,7 @@ const RepoVersionButton = ({icon, repo, repoType, version, repoLabelStyle, versi
       component="button"
       size={size}
     >
-      <span className='repo-button-group' style={{display: 'flex', alignItems: 'center'}}>
+      <span className='repo-button-group' style={{display: 'flex', alignItems: 'center', ...verticalStyle}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
           <span className='repo-button-label'  style={{whiteSpace: 'nowrap', display: 'flex', fontSize: versionStyle?.fontSize, ...repoLabelStyle}}>
             {repo}
@@ -40,7 +40,7 @@ const RepoVersionButton = ({icon, repo, repoType, version, repoLabelStyle, versi
             repoType &&
               <React.Fragment>
                 <span style={{display: 'flex', alignItems: 'center', fontSize: versionStyle?.fontSize, ...repoLabelStyle}}>
-                  <DotSeparator />
+                  <DotSeparator margin='0 8px' />
                   <Typography component='span' sx={{color: 'secondary.50', fontSize: '0.85rem'}}>
                     {repoType}
                   </Typography>
