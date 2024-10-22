@@ -15,7 +15,7 @@ const ConceptDetails = ({ concept, repo, mappings, reverseMappings }) => {
   const updatedBy = concept?.version_updated_by || concept?.updated_by
   return (
     <div className='col-xs-12' style={{padding: '16px 0', height: 'calc(100vh - 330px)', overflow: 'auto'}}>
-      <Paper className='col-xs-12 padding-0' sx={{marginTop: '16px', boxShadow: 'none', border: '1px solid', borderColor: borderColor, borderRadius: '10px'}}>
+      <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor, borderRadius: '10px'}}>
         <Typography component='span' sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold'}}>
           {t('common.properties')}
         </Typography>
@@ -23,7 +23,7 @@ const ConceptDetails = ({ concept, repo, mappings, reverseMappings }) => {
       </Paper>
       {
         Boolean(concept.names?.length) &&
-          <div className='col-xs-12 padding-0'>
+          <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
             <Locales concept={concept} locales={concept.names} title={t('concept.name_and_synonyms')} repo={repo} />
           </div>
       }
