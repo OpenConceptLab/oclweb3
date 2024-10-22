@@ -29,7 +29,7 @@ const MappingDetails = ({ mapping }) => {
         <MappingProperties mapping={mapping} />
       </Paper>
       <Typography component='span' sx={{display: 'inline-block', margin: '32px 0 16px 0', padding: 0, fontSize: '12px', color: 'surface.contrastText'}}>
-        {t('common.last_updated')} {formatDateTime(mapping.updated_on)}
+        {t('common.last_updated')} {formatDateTime(mapping.versioned_updated_on || mapping.updated_on)} {t('common.by')} {mapping.version_updated_by || mapping.updated_by}
       </Typography>
     </React.Fragment>
   )

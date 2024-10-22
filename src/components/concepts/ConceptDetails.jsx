@@ -35,7 +35,7 @@ const ConceptDetails = ({ concept, repo, mappings, reverseMappings }) => {
         <Associations concept={concept} mappings={mappings} reverseMappings={reverseMappings} />
       </div>
       <Typography component='span' sx={{display: 'inline-block', margin: '32px 0 16px 0', padding: 0, fontSize: '12px', color: 'surface.contrastText'}}>
-        {t('common.last_updated')} {formatDateTime(concept.updated_on)}
+        {t('common.last_updated')} {formatDateTime(concept.versioned_updated_on || concept.updated_on)} {t('common.by')} {concept.version_updated_by || concept.updated_by}
       </Typography>
     </div>
   )
