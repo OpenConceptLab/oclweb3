@@ -49,7 +49,7 @@ const LocalePrimary = ({ locale }) => {
         locale.locale_preferred &&
           <PreferredIcon fontSize='small' sx={{color: 'surface.contrastText', marginLeft: '8px', height: '16px'}}/>
       }
-      </React.Fragment>
+    </React.Fragment>
   )
 }
 
@@ -82,9 +82,6 @@ const LocaleItem = ({ locale, url }) => {
           secondary={externalID ? <ExternalIdLabel value={externalID} style={{marginTop: '4px'}} iconStyle={{marginTop: '2px'}} /> : undefined}
           sx={{
             margin: '2px 0',
-            '.MuiListItemText-primary': {
-              display: 'flex'
-            }
           }}
         />
       </ListItem>
