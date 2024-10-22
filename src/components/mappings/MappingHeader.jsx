@@ -2,7 +2,6 @@ import React from 'react';
 import CloseIconButton from '../common/CloseIconButton';
 import { toOwnerURI } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
-import ExternalIdLabel from '../common/ExternalIdLabel';
 
 const MappingHeader = ({mapping, onClose, repoURL, nested}) => {
   return (
@@ -24,14 +23,6 @@ const MappingHeader = ({mapping, onClose, repoURL, nested}) => {
         </span>
         <span>
           <CloseIconButton color='secondary' onClick={onClose} />
-        </span>
-      </div>
-      <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-        <span style={{display: 'flex', alignItems: 'center'}}>
-          {
-            mapping.external_id &&
-              <ExternalIdLabel value={mapping.external_id} style={{marginLeft: '8px'}} />
-          }
         </span>
       </div>
     </React.Fragment>

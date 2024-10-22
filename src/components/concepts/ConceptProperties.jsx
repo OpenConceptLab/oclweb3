@@ -6,6 +6,7 @@ import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
 import Chip from '@mui/material/Chip';
 import map from 'lodash/map'
+import ExternalIdLabel from '../common/ExternalIdLabel'
 
 const ConceptProperties = ({ concept }) => {
   const { t } = useTranslation()
@@ -35,7 +36,7 @@ const ConceptProperties = ({ concept }) => {
                 {t('common.external_id')}
               </TableCell>
               <TableCell sx={{ fontSize: '12px' }}>
-                {concept.external_id}
+                <ExternalIdLabel value={concept.external_id} showFull valueOnly valueStyle={{color: 'rgba(0, 0, 0, 0.87)'}} />
               </TableCell>
             </TableRow>
         }

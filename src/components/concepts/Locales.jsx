@@ -79,7 +79,7 @@ const LocaleItem = ({ locale, url }) => {
       >
         <ListItemText
           primary={<LocalePrimary locale={locale} />}
-          secondary={externalID ? <ExternalIdLabel value={externalID} style={{marginTop: '4px'}} iconStyle={{marginTop: '2px'}} /> : undefined}
+          secondary={externalID ? <ExternalIdLabel showFull value={externalID} style={{marginTop: '4px'}} iconStyle={{marginTop: '2px'}} /> : undefined}
           sx={{
             margin: '2px 0',
           }}

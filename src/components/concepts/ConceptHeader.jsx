@@ -9,7 +9,6 @@ import { toOwnerURI, currentUserHasAccess } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
 import { BLACK } from '../../common/colors'
 import ConceptManagementList from './ConceptManagementList'
-import ExternalIdLabel from '../common/ExternalIdLabel';
 
 const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, nested}) => {
   const { t } = useTranslation()
@@ -56,12 +55,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, nested}) => {
         <Typography sx={{fontSize: '22px', color: BLACK}} className='searchable'>{concept.display_name}</Typography>
       </div>
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-        <span style={{display: 'flex', alignItems: 'center'}}>
-          {
-            concept.external_id &&
-              <ExternalIdLabel value={concept.external_id} style={{marginLeft: '8px'}} />
-          }
-        </span>
+        <span style={{display: 'flex', alignItems: 'center'}} />
         {
           currentUserHasAccess() && repo?.version === 'HEAD' && has(repo, 'source_type') &&
             <span>
