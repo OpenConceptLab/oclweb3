@@ -9,7 +9,7 @@ const MappingProperties = ({ mapping }) => {
   const { t } = useTranslation()
   return (
     <Table>
-      <TableBody>
+      <TableBody sx={{ '.MuiTableRow-root': {'&:last-child td': {border: 0, borderRadius: '10px'}} }}>
         {
           mapping?.external_id &&
             <TableRow>

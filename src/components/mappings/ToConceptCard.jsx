@@ -19,7 +19,7 @@ const ToConceptCard = ({ mapping }) => {
   const repoURL = getRepoURL()
   return (
     <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor}}>
-      <Typography component='span' sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold'}}>
+      <Typography component='span' sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', borderRadius: '10px'}}>
         {t('common.target')}
       </Typography>
       <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center'}}>

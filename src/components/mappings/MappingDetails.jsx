@@ -15,14 +15,14 @@ const MappingDetails = ({ mapping }) => {
   const { t } = useTranslation()
   return (
     <React.Fragment>
-      <Paper className='col-xs-12' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor, padding: '16px'}}>
+      <Paper className='col-xs-12' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor, padding: '16px', borderRadius: '10px'}}>
         <FromConceptCard mapping={mapping} />
         <div className='col-xs-12' style={{padding: '16px', color: SECONDARY_COLORS.light, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
           <MappingIcon sx={{marginRight: '8px'}}/> {mapping?.map_type}
         </div>
         <ToConceptCard mapping={mapping} />
       </Paper>
-      <Paper className='col-xs-12 padding-0' sx={{marginTop: '16px', boxShadow: 'none', border: '1px solid', borderColor: borderColor}}>
+      <Paper className='col-xs-12 padding-0' sx={{marginTop: '16px', boxShadow: 'none', border: '1px solid', borderColor: borderColor, borderRadius: '10px'}}>
         <Typography component='span' sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold'}}>
           {t('common.properties')}
         </Typography>
