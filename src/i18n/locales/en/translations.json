@@ -83,7 +83,8 @@
     "history": "History and comments",
     "from": "From",
     "target": "Target",
-    "properties": "Properties"
+    "properties": "Properties",
+    "custom": "Custom"
   },
   "errors": {
     "404": "Sorry your page could not be found.",

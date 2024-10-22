@@ -4,6 +4,8 @@ import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
+import Chip from '@mui/material/Chip';
+import map from 'lodash/map'
 
 const ConceptProperties = ({ concept }) => {
   const { t } = useTranslation()
@@ -44,7 +46,7 @@ const ConceptProperties = ({ concept }) => {
                 {t('common.retired')}
               </TableCell>
               <TableCell sx={{ fontSize: '12px' }}>
-                {concept.retired}
+                {concept.retired.toString()}
               </TableCell>
             </TableRow>
         }
@@ -64,6 +66,34 @@ const ConceptProperties = ({ concept }) => {
             {concept?.checksums?.smart}
           </TableCell>
         </TableRow>
+        {
+          map(concept.extras, (value, key) => (
+            <TableRow key={key}>
+              <TableCell style={{fontSize: '12px', width: '170px'}}>
+                {key}
+                <Chip
+                  label={t('common.custom')}
+                  size='small'
+                  sx={{
+                    height: '20px',
+                    borderRadius: '4px',
+                    backgroundColor: '#e4e1ec',
+                    fontSize: '12px',
+                    color: 'surface.dark',
+                    marginLeft: '8px',
+                    '.MuiChip-label': {
+                      padding: '0 6px',
+                      fontSize: '12px'
+                    }
+                  }}
+                />
+              </TableCell>
+              <TableCell sx={{ fontSize: '12px' }}>
+                {value}
+              </TableCell>
+            </TableRow>
+          ))
+        }
       </TableBody>
     </Table>
   )
