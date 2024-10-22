@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import { formatDateTime } from '../../common/utils'
+import Link from '../common/Link'
 import Locales from './Locales'
 import Associations from './Associations'
 import ConceptProperties from './ConceptProperties'
@@ -11,6 +12,7 @@ const borderColor = 'rgba(0, 0, 0, 0.12)'
 
 const ConceptDetails = ({ concept, repo, mappings, reverseMappings }) => {
   const { t } = useTranslation()
+  const updatedBy = concept?.version_updated_by || concept?.updated_by
   return (
     <div className='col-xs-12' style={{padding: '16px 0', height: 'calc(100vh - 330px)', overflow: 'auto'}}>
       <Paper className='col-xs-12 padding-0' sx={{marginTop: '16px', boxShadow: 'none', border: '1px solid', borderColor: borderColor, borderRadius: '10px'}}>
@@ -35,7 +37,7 @@ const ConceptDetails = ({ concept, repo, mappings, reverseMappings }) => {
         <Associations concept={concept} mappings={mappings} reverseMappings={reverseMappings} />
       </div>
       <Typography component='span' sx={{display: 'inline-block', margin: '32px 0 16px 0', padding: 0, fontSize: '12px', color: 'surface.contrastText'}}>
-        {t('common.last_updated')} {formatDateTime(concept.versioned_updated_on || concept.updated_on)} {t('common.by')} {concept.version_updated_by || concept.updated_by}
+        {t('common.last_updated')} {formatDateTime(concept.versioned_updated_on || concept.updated_on)} {t('common.by')} <Link sx={{fontSize: '12px', justifyContent: 'flex-start'}} href={`#/users/${updatedBy}`} label={updatedBy} />
       </Typography>
     </div>
   )
