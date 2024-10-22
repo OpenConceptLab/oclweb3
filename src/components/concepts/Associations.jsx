@@ -136,7 +136,7 @@ const Associations = ({concept, mappings, reverseMappings}) => {
 
   return (
     <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor, borderRadius: '10px'}}>
-      <Typography component="span" sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between'}}>
+      <Typography component="span" sx={{borderBottom: count > 0 ? '1px solid' : '0', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between'}}>
         <TagCountLabel label={t('concept.associations')} count={count}/>
       </Typography>
       {
