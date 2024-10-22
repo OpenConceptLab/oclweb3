@@ -4,7 +4,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 
 const TAB_STYLES = {textTransform: 'none'}
-const ConceptTabs = ({ tab, onTabChange }) => {
+const MappingTabs = ({ tab, onTabChange }) => {
   const { t } = useTranslation()
   return (
     <Tabs
@@ -12,7 +12,7 @@ const ConceptTabs = ({ tab, onTabChange }) => {
       onChange={onTabChange}
       indicatorColor="primary"
       variant="fullWidth"
-      aria-label="concept tabs"
+      aria-label="mapping tabs"
       sx={{width: '100%', borderBottom: '1px solid', borderColor: 'surface.n90'}}
     >
       <Tab value="metadata" label={t('common.metadata')} sx={TAB_STYLES} />
@@ -21,4 +21,4 @@ const ConceptTabs = ({ tab, onTabChange }) => {
   )
 }
 
-export default ConceptTabs
+export default MappingTabs

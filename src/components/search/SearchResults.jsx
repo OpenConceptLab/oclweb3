@@ -148,7 +148,7 @@ const SearchResults = props => {
     event.preventDefault()
     event.stopPropagation()
     const item = rows.find(row => id == (row.version_url || row.url || row.id)) || false
-    if(props.resource === 'concepts') {
+    if(['concepts', 'mappings'].includes(props.resource)) {
       props.onShowItemSelect(item)
     } else if (['repos', 'users', 'orgs'].includes(props.resource)) {
       history.push(item.version_url || item.url)

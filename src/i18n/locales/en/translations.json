@@ -79,7 +79,11 @@
     "click_to_copy": "Click to Copy",
     "submit": "Submit",
     "external_id": "External ID",
-    "access_level": "Access Level"
+    "access_level": "Access Level",
+    "history": "History and comments",
+    "from": "From",
+    "target": "Target",
+    "properties": "Properties"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -122,7 +126,6 @@
     "concept_class": "Class",
     "datatype": "Datatype",
     "datatypes": "Datatypes",
-    "history": "History and comments",
     "name_and_synonyms": "Name and synonyms",
     "descriptions": "Descriptions",
     "copied_name": "Concept name URL copied to clipboard",

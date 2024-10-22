@@ -10,6 +10,7 @@ import Search from '../search/Search';
 import { dropVersion, toParentURI, toOwnerURI } from '../../common/utils';
 import { WHITE } from '../../common/colors';
 import ConceptHome from '../concepts/ConceptHome';
+import MappingHome from '../mappings/MappingHome';
 import ConceptForm from '../concepts/ConceptForm';
 import Error404 from '../errors/Error404';
 
@@ -18,7 +19,6 @@ const RepoHome = () => {
   const location = useLocation()
   const history = useHistory()
   const params = useParams()
-  const isConceptURL = params?.resource && params?.tab === 'concepts'
 
   const TABS = [
     {key: 'concepts', label: t('concept.concepts')},
@@ -100,9 +100,13 @@ const RepoHome = () => {
     setConceptForm(true)
   }
 
-  const getConceptURLFromMainURL = () => isConceptURL ? getURL() + 'concepts/' + params.resource + '/' : false
-  const showConceptURL = showItem ? showItem?.version_url || showItem?.url || getConceptURLFromMainURL() : false
-  const isSplitView = showConceptURL || conceptForm
+  const isConceptURL = tab === 'concepts'
+  const isMappingURL = tab === 'mappings'
+  const getConceptURLFromMainURL = () => (isConceptURL && params.resource) ? getURL() + 'concepts/' + params.resource + '/' : false
+  const getMappingURLFromMainURL = () => (isMappingURL && params.resource) ? getURL() + 'mappings/' + params.resource + '/' : false
+  const showConceptURL = ((showItem?.concept_class || params.resource) && isConceptURL) ? showItem?.version_url || showItem?.url || getConceptURLFromMainURL() : false
+  const showMappingURL = ((showItem?.map_type || params.resource) && isMappingURL) ? showItem?.version_url || showItem?.url || getMappingURLFromMainURL() : false
+  const isSplitView = conceptForm || showConceptURL || showMappingURL
   const bgColor = isSplitView ? 'surface.light' : 'info.contrastText'
 
   return (
@@ -137,8 +141,12 @@ const RepoHome = () => {
       </Paper>
       <div className={'col-xs-5 padding-0' + (isSplitView ? ' split-appear' : '')} style={{marginLeft: '16px', width: isSplitView ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: isSplitView ? 'calc(100vh - 100px)' : 0, opacity: isSplitView ? 1 : 0}}>
         {
-          showConceptURL && !conceptForm &&
+          Boolean(showConceptURL && !conceptForm) &&
             <ConceptHome repoSummary={repoSummary} source={repo} repo={repo} url={showConceptURL} onClose={() => setShowItem(false)} nested />
+        }
+        {
+          showMappingURL &&
+            <MappingHome repoSummary={repoSummary} source={repo} repo={repo} url={showMappingURL} onClose={() => setShowItem(false)} nested />
         }
         {
           conceptForm &&

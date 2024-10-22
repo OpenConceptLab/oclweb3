@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
 import APIService from '../../services/APIService';
+import { toParentURI } from '../../common/utils'
 import ConceptHeader from './ConceptHeader';
 import ConceptTabs from './ConceptTabs';
 import Locales from './Locales'
@@ -41,7 +42,7 @@ const ConceptHome = props => {
   const fetchRepo = _concept => APIService.new().overrideURL(getRepoURL(_concept)).get().then(response => setRepo(response.data))
 
   const getRepoURL = _concept => {
-    let url = _concept?.source_url || concept?.source_url
+    let url = toParentURI(_concept?.version_url || concept?.url)
     const repoVersion = _concept?.latest_source_version || concept?.latest_source_version
     if(repoVersion)
       url += repoVersion + '/'
@@ -125,13 +126,13 @@ const ConceptHome = props => {
                   tab === 'metadata' &&
                     <div className='col-xs-12' style={{padding: '16px 0', height: 'calc(100vh - 330px)', overflow: 'auto'}}>
                       {
-                        Boolean(concept.names.length) &&
+                        Boolean(concept.names?.length) &&
                           <div className='col-xs-12 padding-0'>
                             <Locales concept={concept} locales={concept.names} title={t('concept.name_and_synonyms')} repo={repo} />
                           </div>
                       }
                       {
-                        Boolean(concept.descriptions.length) &&
+                        Boolean(concept.descriptions?.length) &&
                         <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
                           <Locales concept={concept} locales={concept.descriptions} title={t('concept.descriptions')} repo={repo} />
                         </div>

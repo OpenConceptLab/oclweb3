@@ -110,10 +110,16 @@ const Avatar = ({ entity, icon }) => {
 
 const Label = ({ entity, hideType }) => {
   return (
-    <span style={{display: 'flex', alignItems: 'center'}}>
+    <span style={{display: 'flex', alignItems: 'center'}} className='entity-label'>
       <span className='entity-id'>
         <b>{entity?.short_code || entity?.id || entity?.username}</b>
       </span>
+      {
+        entity?.type?.includes('Concept') && entity?.name &&
+          <span className='entity-name' style={{marginLeft: '4px'}}>
+            {entity.name}
+          </span>
+      }
       {
         !hideType &&
           <React.Fragment>

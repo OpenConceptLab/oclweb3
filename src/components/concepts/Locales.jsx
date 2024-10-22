@@ -186,7 +186,6 @@ const Locales = ({ concept, locales, title, repo }) => {
         }
       </List>
     </Paper>
-
   )
 }
 
