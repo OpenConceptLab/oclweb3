@@ -53,16 +53,16 @@ const MappingHome = props => {
     <>
       <Fade in={true}>
         <div className='col-xs-12' style={{padding: '8px 16px 12px 16px'}}>
-                <div className='col-xs-12 padding-0' style={{marginBottom: '12px'}}>
-                  <MappingHeader mapping={mapping} onClose={props.onClose} repoURL={getRepoURL()} repo={repo} nested={props.nested} />
-                </div>
-                <MappingTabs tab={tab} onTabChange={(event, newTab) => setTab(newTab)} />
-                {
-                  tab === 'metadata' &&
-                    <div className='col-xs-12' style={{padding: '16px 0', height: 'calc(100vh - 330px)', overflow: 'auto'}}>
-                      <MappingDetails mapping={mapping} />
-                    </div>
-                }
+          <div className='col-xs-12 padding-0' style={{marginBottom: '12px'}}>
+            <MappingHeader mapping={mapping} onClose={props.onClose} repoURL={getRepoURL()} repo={repo} nested={props.nested} />
+          </div>
+          <MappingTabs tab={tab} onTabChange={(event, newTab) => setTab(newTab)} />
+          {
+            tab === 'metadata' &&
+              <div className='col-xs-12' style={{padding: '16px 0', height: 'calc(100vh - 330px)', overflow: 'auto'}}>
+                <MappingDetails mapping={mapping} />
+              </div>
+          }
         </div>
       </Fade>
     </>

@@ -1,17 +1,14 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom'
-import { useTranslation } from 'react-i18next';
 import APIService from '../../services/APIService';
 import { toParentURI } from '../../common/utils'
 import ConceptHeader from './ConceptHeader';
 import ConceptTabs from './ConceptTabs';
-import Locales from './Locales'
 import ConceptForm from './ConceptForm'
 import Fade from '@mui/material/Fade';
-import Associations from './Associations'
+import ConceptDetails from './ConceptDetails'
 
 const ConceptHome = props => {
-  const { t } = useTranslation()
   const location = useLocation()
   const isInitialMount = React.useRef(true);
 
@@ -124,23 +121,7 @@ const ConceptHome = props => {
                 <ConceptTabs tab={tab} onTabChange={(event, newTab) => setTab(newTab)} />
                 {
                   tab === 'metadata' &&
-                    <div className='col-xs-12' style={{padding: '16px 0', height: 'calc(100vh - 330px)', overflow: 'auto'}}>
-                      {
-                        Boolean(concept.names?.length) &&
-                          <div className='col-xs-12 padding-0'>
-                            <Locales concept={concept} locales={concept.names} title={t('concept.name_and_synonyms')} repo={repo} />
-                          </div>
-                      }
-                      {
-                        Boolean(concept.descriptions?.length) &&
-                        <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
-                          <Locales concept={concept} locales={concept.descriptions} title={t('concept.descriptions')} repo={repo} />
-                        </div>
-                      }
-                      <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
-                        <Associations concept={concept} mappings={mappings} reverseMappings={reverseMappings} />
-                      </div>
-                    </div>
+                    <ConceptDetails concept={concept} repo={repo} mappings={mappings} reverseMappings={reverseMappings} />
                 }
               </>
           }

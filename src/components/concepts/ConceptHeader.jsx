@@ -2,31 +2,14 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import has from 'lodash/has';
 import Typography from '@mui/material/Typography'
-import Chip from '@mui/material/Chip'
 import Button from '@mui/material/Button';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import CloseIconButton from '../common/CloseIconButton';
 import { toOwnerURI, currentUserHasAccess } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
-import { BLACK, SECONDARY_COLORS } from '../../common/colors'
+import { BLACK } from '../../common/colors'
 import ConceptManagementList from './ConceptManagementList'
 import ExternalIdLabel from '../common/ExternalIdLabel';
-
-const PropertyChip = ({name, property, sx}) => {
-  const label = (
-    <span style={{display: 'flex', alignItems: 'center'}}>
-      <span style={{display: 'flex', alignItems: 'center'}}>
-        {name}:
-    </span>
-      <span style={{fontWeight: 'bold', display: 'flex', alignItems: 'center', color: SECONDARY_COLORS.main, marginLeft: '4px'}}>
-        {property}
-      </span>
-    </span>
-  )
-  return (
-    <Chip label={label} variant='outlined' sx={{color: 'surface.contrastText', borderRadius: '8px', ...sx}} />
-  )
-}
 
 const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, nested}) => {
   const { t } = useTranslation()
@@ -74,8 +57,6 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, nested}) => {
       </div>
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
-          <PropertyChip name={t('concept.concept_class')} property={concept.concept_class} sx={{marginRight: '8px'}} />
-          <PropertyChip name={t('concept.datatype')} property={concept.datatype} />
           {
             concept.external_id &&
               <ExternalIdLabel value={concept.external_id} style={{marginLeft: '8px'}} />
