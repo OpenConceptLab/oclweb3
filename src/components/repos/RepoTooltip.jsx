@@ -18,7 +18,6 @@ const TooltipTitle = ({ repo }) => {
   // only need --> repo = {url: '/orgs/MyOrg/sources/MySource/', id: 'MyOrg'}
   const url = repo?.version_url || repo?.url
   const owner = URIToOwnerParams(url)
-  const repoId = repo?.short_code || repo?.id
 
   const [entity, setEntity] = React.useState(repo || {})
   const shouldRefetch = () => Boolean(url && !has(entity, 'summary'))
@@ -34,6 +33,7 @@ const TooltipTitle = ({ repo }) => {
   }, [repo?.version_url || repo?.url])
 
   const history = useHistory()
+  const repoId = entity?.short_code || entity?.id || repo?.short_code || repo?.id
 
   return (
     <React.Fragment>
@@ -66,7 +66,7 @@ const TooltipTitle = ({ repo }) => {
           <DotSeparator margin='0 8px' />
           <RepoVersionButton
             icon={<RepoIcon sx={{width: '15px', height: '15px'}} />}
-            repo={repoId}
+            repo={entity?.short_code || entity?.id || repoId}
             href={url}
             size='small'
             repoLabelStyle={{
