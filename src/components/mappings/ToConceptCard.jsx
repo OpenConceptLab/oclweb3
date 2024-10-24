@@ -25,7 +25,7 @@ const ToConceptCard = ({ mapping }) => {
       <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center'}}>
         <RepoChip
           hideType
-          noTooltip={!mapping?.to_source_name}
+          basicTooltip={mapping?.to_source_name ? false : repoURL}
           filled={mapping?.to_source_name}
           repo={{url: repoURL, id: repoURL}}
           noLink={!mapping?.to_source_name}

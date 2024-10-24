@@ -4,7 +4,7 @@ import RepoFilledIcon from '@mui/icons-material/Folder';
 import BaseEntityChip from '../common/BaseEntityChip'
 import RepoTooltip from './RepoTooltip'
 
-const RepoChip = ({ repo, noTooltip, filled, ...rest }) => {
+const RepoChip = ({ repo, noTooltip, basicTooltip, filled, ...rest }) => {
   return noTooltip ? (
     <BaseEntityChip
       entity={repo}
@@ -12,7 +12,7 @@ const RepoChip = ({ repo, noTooltip, filled, ...rest }) => {
       {...rest}
     />
   ) : (
-    <RepoTooltip repo={repo}>
+    <RepoTooltip repo={repo} basicTooltip={basicTooltip}>
       <BaseEntityChip
         entity={repo}
         icon={filled ? <RepoFilledIcon /> : <RepoIcon />}

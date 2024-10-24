@@ -24,7 +24,7 @@ const FromConceptCard = ({ mapping }) => {
       </Typography>
       <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center'}}>
         <RepoChip
-          noTooltip={!mapping?.from_source_name}
+          basicTooltip={mapping?.from_source_name ? false : repoURL}
           noLink={!mapping?.from_source_name}
           hideType
           filled={mapping?.from_source_name}

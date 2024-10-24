@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 import RepoIcon from '@mui/icons-material/FolderOutlined';
 import isNumber from 'lodash/isNumber';
 import has from 'lodash/has'
+import MUIBasicTooltip from '@mui/material/Tooltip'
 import HTMLTooltip from '../common/HTMLTooltip'
 import FollowActionButton from '../common/FollowActionButton'
 import OwnerButton from '../common/OwnerButton'
@@ -119,8 +120,14 @@ const TooltipTitle = ({ repo }) => {
   )
 }
 
-const RepoTooltip = ({ repo, children, spanStyle }) => {
-  return (
+const RepoTooltip = ({ repo, basicTooltip, children, spanStyle }) => {
+  return basicTooltip ? (
+    <MUIBasicTooltip title={basicTooltip}>
+      <span style={{display: 'flex', ...spanStyle}}>
+        {children}
+      </span>
+    </MUIBasicTooltip>
+  ) : (
     <HTMLTooltip
       sx={{
         '.MuiTooltip-tooltip': {
