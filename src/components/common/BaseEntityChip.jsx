@@ -134,7 +134,7 @@ const Label = ({ entity, hideType }) => {
 }
 
 
-const BaseEntityChip = ({ entity, icon, hideType, primary, size, sx, ...rest }) => {
+const BaseEntityChip = ({ entity, icon, hideType, primary, size, sx, noLink, ...rest }) => {
   const history = useHistory()
   const sizeStyle = ENTITY_CHIP_SIZE_MAP[size || 'medium'] || ENTITY_CHIP_SIZE_MAP.medium
   const baseStyle = primary ? PRIMARY_STYLE : SECONDARY_STYLE
@@ -153,12 +153,12 @@ const BaseEntityChip = ({ entity, icon, hideType, primary, size, sx, ...rest }) 
         ...sizeStyle,
         ...sx
       }}
-      onClick={event => {
+      onClick={noLink ? undefined : event => {
         event.preventDefault()
         event.stopPropagation()
         history.push(entity.version_url || entity.url)
       }}
-      href={'#' + (entity?.version_url || entity?.url)}
+      href={noLink ? undefined : '#' + (entity?.version_url || entity?.url)}
       component='a'
       {...rest}
     />

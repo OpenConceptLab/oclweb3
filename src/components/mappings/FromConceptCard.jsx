@@ -25,6 +25,7 @@ const FromConceptCard = ({ mapping }) => {
       <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center'}}>
         <RepoChip
           noTooltip={!mapping?.from_source_name}
+          noLink={!mapping?.from_source_name}
           hideType
           filled={mapping?.from_source_name}
           repo={{url: repoURL, id: repoURL}}
@@ -48,6 +49,7 @@ const FromConceptCard = ({ mapping }) => {
         <ConceptChip
           hideType
           noTooltip
+          noLink={!mapping?.from_concept_name_resolved}
           filled={Boolean(mapping?.from_concept_name_resolved)}
           concept={{url: mapping.from_concept_url, id: mapping.from_concept_code, name: mapping.from_concept_name_resolved || mapping.from_concept_name, type: 'Concept'}}
           sx={{

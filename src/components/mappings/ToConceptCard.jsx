@@ -28,6 +28,7 @@ const ToConceptCard = ({ mapping }) => {
           noTooltip={!mapping?.to_source_name}
           filled={mapping?.to_source_name}
           repo={{url: repoURL, id: repoURL}}
+          noLink={!mapping?.to_source_name}
           sx={{
             '.entity-id': {
               marginTop: '2px',
@@ -48,6 +49,7 @@ const ToConceptCard = ({ mapping }) => {
         <ConceptChip
           hideType
           noTooltip
+          noLink={!mapping?.to_concept_name_resolved}
           filled={Boolean(mapping?.to_concept_name_resolved)}
           concept={{url: mapping.to_concept_url, id: mapping.to_concept_code, name: mapping.to_concept_name_resolved || mapping.to_concept_name, type: 'Concept'}}
           sx={{
