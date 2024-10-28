@@ -21,6 +21,8 @@ const ResultsToolbar = props => {
   return (
     <Toolbar
       sx={{
+        bgcolor: '#FFF',
+        borderRadius: 0,
         pl: { sm: 1 },
         pr: { xs: 1, sm: 1 },
         ...(numSelected > 0 && {
@@ -29,8 +31,6 @@ const ResultsToolbar = props => {
         }),
         borderBottom: (disabled || display === 'card') ? 'none': '1px solid rgba(224, 224, 224, 1)',
         minHeight: '48px !important',
-        borderTopLeftRadius: '8px',
-        borderTopRightRadius: '8px'
       }}
     >
       {

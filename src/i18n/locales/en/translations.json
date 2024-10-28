@@ -215,7 +215,10 @@
     "autoid_mapping_external_id": "Mapping External ID Auto Assignment",
     "custom_validation_schema": "Custom Validation Schema",
     "compare_origin_version_disabled_tooltip": "You must select an older version to compare",
-    "compare_destination_version_disabled_tooltip": "You must select a newer version to compare"
+    "compare_destination_version_disabled_tooltip": "You must select a newer version to compare",
+    "summary_active_concepts_from_total": "{{active}} active from {{total}} Concepts",
+    "summary_active_mappings_from_total": "{{active}} active from {{total}} Mappings",
+    "summary_released_versions_from_total": "{{released}} released from {{total}} Versions"
   },
   "org": {
     "my": "My organizations",

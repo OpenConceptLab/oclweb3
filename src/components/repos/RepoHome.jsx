@@ -13,6 +13,7 @@ import ConceptHome from '../concepts/ConceptHome';
 import MappingHome from '../mappings/MappingHome';
 import ConceptForm from '../concepts/ConceptForm';
 import Error404 from '../errors/Error404';
+import RepoSummary from './RepoSummary'
 
 const RepoHome = () => {
   const { t } = useTranslation()
@@ -21,11 +22,9 @@ const RepoHome = () => {
   const params = useParams()
 
   const TABS = [
+    {key: 'about', label: t('common.overview')},
     {key: 'concepts', label: t('concept.concepts')},
     {key: 'mappings', label: t('mapping.mappings')},
-    {key: 'versions', label: t('common.versions')},
-    {key: 'summary', label: t('common.summary')},
-    {key: 'about', label: t('common.about')}
   ]
   const TAB_KEYS = TABS.map(tab => tab.key)
   const findTab = () => TAB_KEYS.includes(params?.tab || params?.repoVersion) ? params.tab || params.repoVersion : 'concepts'
@@ -117,6 +116,7 @@ const RepoHome = () => {
           (repo?.id || loading) &&
             <React.Fragment>
               <RepoHeader owner={owner} repo={repo} versions={versions} onVersionChange={onVersionChange} onCreateConceptClick={onCreateConceptClick} onCloseConceptForm={() => setConceptForm(false)} />
+              <div className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
               <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
               {
                 repo?.id && ['concepts', 'mappings'].includes(tab) &&
@@ -129,9 +129,14 @@ const RepoHome = () => {
                     onShowItem={onShowItem}
                     showItem={showItem}
                     filtersHeight='calc(100vh - 300px)'
-                    resultContainerStyle={{height: showItem ? 'calc(100vh - 440px)' : 'calc(100vh - 400px)', overflow: 'auto'}}
+                    resultContainerStyle={{height: isSplitView ? 'calc(100vh - 440px)' : 'calc(100vh - 400px)', overflow: 'auto'}}
+                    containerStyle={{padding: 0}}
                   />
               }
+        </div>
+              <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderLeft: 'solid 0.3px', borderTop: 'solid 0.3px', borderColor: 'surface.n90', width: '272px !important', height: 'calc(100vh - 250px)', borderRadius: 0}}>
+                <RepoSummary repo={repo} summary={repoSummary} />
+              </Paper>
             </React.Fragment>
         }
         {

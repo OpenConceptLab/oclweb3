@@ -22,7 +22,7 @@ const EnhancedTableHead = props => {
   };
   return (
     <TableHead sx={{background: props.bgColor}}>
-      <TableRow sx={{background: 'inherit'}}>
+      <TableRow sx={{background: '#FFF'}}>
         <TableCell padding="checkbox" sx={{background: 'inherit'}}>
           <Checkbox
             color="primary"
@@ -40,7 +40,7 @@ const EnhancedTableHead = props => {
             align='left'
             padding='normal'
             sortDirection={orderBy === headCell.id ? order : false}
-            sx={{background: 'inherit'}}
+            sx={{background: 'inherit', ...headCell.sx}}
           >
             <TableSortLabel
               active={orderBy === headCell.id}
@@ -125,13 +125,18 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
                   className={isItemSelectedToShow ? 'show-item' : ''}
                   sx={{
                     cursor: 'pointer',
-                    backgroundColor: bgColor,
+                    '&:nth-of-type(odd)': {
+                      backgroundColor: 'surface.main'
+                    },
+                    '&:nth-of-type(even)': {
+                      backgroundColor: '#FFF'
+                    },
                     '&.Mui-selected': {
                       backgroundColor: bgColor
                     },
                     '&.MuiTableRow-hover:hover': {
                       backgroundColor: isItemSelectedToShow ? bgColor : 'primary.95'
-                    }
+                    },
                   }}
                 >
                   <TableCell padding="checkbox" onClick={event => handleClick(event, id)} style={{color: color}}>
@@ -154,11 +159,11 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
                           scope="row"
                           padding="normal"
                           className={column.className}
-                          style={{color: color}}
+                          sx={{color: color}}
                         >
                           {value}
                         </TableCell>:
-                      <TableCell key={idx} align="left" className={column.className} style={{color: color}}>
+                      <TableCell key={idx} align="left" className={column.className} sx={{color: color}}>
                         {value}
                       </TableCell>
                     })

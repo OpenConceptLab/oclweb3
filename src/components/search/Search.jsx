@@ -358,7 +358,7 @@ const Search = props => {
         }
         <div className='col-xs-12 padding-0' style={{height: '100%'}}>
           <div className='col-xs-12 padding-0' style={{height: '100%'}}>
-            <div className='col-xs-3 split' style={{width: showFilters ? `${FILTERS_WIDTH}px` : 0, padding: showFilters ? '0 8px' : 0, height: props.filtersHeight || 'calc(100vh - 175px)', overflow: 'auto'}}>
+            <div className='col-xs-3 split' style={{width: showFilters ? `${FILTERS_WIDTH}px` : 0, padding: showFilters ? '0 8px' : 0, height: props.filtersHeight || 'calc(100vh - 175px)', overflow: 'auto', ...(showFilters ? {borderRight: '0.3px solid', borderColor: COLORS.surface.n90} : {})}}>
               <SearchFilters
                 resource={resource}
                 filters={result[resource]?.facets || {}}
@@ -367,7 +367,7 @@ const Search = props => {
                 appliedFilters={filters}
               />
             </div>
-            <div className='col-xs-9 split' style={{width: getSearchResultsWidth(), paddingRight: 0, paddingLeft: showFilters ? '15px' : 0, float: 'right', height: '100%'}}>
+            <div className='col-xs-9 split' style={{width: getSearchResultsWidth(), paddingRight: 0, paddingLeft: 0, float: 'right', height: '100%'}}>
               <div className='col-xs-12 padding-0' style={{height: '100%'}}>
                 <SearchResults
                   showFilters={showFilters}
