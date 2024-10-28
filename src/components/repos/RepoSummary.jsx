@@ -54,7 +54,11 @@ const RepoSummary = ({ repo, summary }) => {
       <div>
         <PropertyChip label={repo?.source_type || repo?.collection_type} sx={{margin: '4px 8px 4px 0'}} />
         <AccessChip sx={{margin: '4px 8px 4px 0'}} public_access={repo?.public_access} />
-        <PropertyChip sx={{margin: '4px 8px 4px 0'}} label={t('repo.experimental')} icon={<ExperimentalIcon fontSize='inherit' />} />
+        {
+          repo?.experimental ?
+            <PropertyChip sx={{margin: '4px 8px 4px 0'}} label={t('repo.experimental')} icon={<ExperimentalIcon fontSize='inherit' />} /> :
+          null
+        }
       </div>
       <div style={{marginTop: '24px'}}>
         <Typography sx={{color: '#000', fontSize: '16px', fontWeight: 'bold', marginBottom: '12px'}}>
