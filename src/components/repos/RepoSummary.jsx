@@ -9,17 +9,45 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
+import Collapse from '@mui/material/Collapse'
 import ExperimentalIcon from '@mui/icons-material/ScienceOutlined';
 import LanguageIcon from '@mui/icons-material/TranslateOutlined';
 import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
 
 import isEmpty from 'lodash/isEmpty'
+import without from 'lodash/without'
+import map from 'lodash/map'
 
 import AccessChip from '../common/AccessChip'
 import ConceptIcon from '../concepts/ConceptIcon'
 import MappingIcon from '../mappings/MappingIcon'
 
 const SkeletonText = () => (<Skeleton width={60} variant='text' />)
+
+
+const CollapsedStatList = ({open, stat}) => {
+  return (
+    <Collapse in={open} timeout="auto" unmountOnExit>
+      <List dense component="div" sx={{padding: '0 16px'}}>
+        {
+          map(stat, value => (
+            <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}}>
+              <ListItemText
+                primary={value[0]}
+                sx={{
+                  '.MuiListItemText-primary': {fontSize: '12px', color: 'secondary.main'}
+                }}
+              />
+              <Typography component='span' sx={{fontSize: '12px', color: 'secondary.main'}}>
+                {value[1]?.toLocaleString()}
+              </Typography>
+            </ListItemButton>
+          ))
+        }
+      </List>
+    </Collapse>
+  )
+}
 
 const PropertyChip = ({label, icon, ...rest}) => {
   return (
@@ -35,6 +63,8 @@ const PropertyChip = ({label, icon, ...rest}) => {
 
 const RepoSummary = ({ repo, summary }) => {
   const { t } = useTranslation()
+  const [openStat, setOpenStat] = React.useState([])
+  const repoSubType = repo?.source_type || repo?.collection_type
 
   const isLoaded = isEmpty(summary)
   const activeConcepts = isLoaded ? false : (summary?.concepts?.active || 0)
@@ -48,12 +78,20 @@ const RepoSummary = ({ repo, summary }) => {
   const locales = isLoaded ? false : (summary?.concepts?.locale?.length || 0)
   const totalVersions = isLoaded ? false : (summary?.versions?.total || 0)
   const releasedVersions = isLoaded ? false : (summary?.versions?.released || 0)
+  const toggleStat = stat => setOpenStat(openStat.includes(stat) ? without(openStat, stat) : [...openStat, stat])
 
   return (
     <div className='col-xs-12 padding-0'>
       <div>
-        <PropertyChip label={repo?.source_type || repo?.collection_type} sx={{margin: '4px 8px 4px 0'}} />
-        <AccessChip sx={{margin: '4px 8px 4px 0'}} public_access={repo?.public_access} />
+        {
+          repoSubType ?
+            <PropertyChip label={repoSubType} sx={{margin: '4px 8px 4px 0'}} /> :
+          null
+        }
+        {
+          repo?.id &&
+          <AccessChip sx={{margin: '4px 8px 4px 0'}} public_access={repo?.public_access} />
+        }
         {
           repo?.experimental ?
             <PropertyChip sx={{margin: '4px 8px 4px 0'}} label={t('repo.experimental')} icon={<ExperimentalIcon fontSize='inherit' />} /> :
@@ -106,7 +144,7 @@ const RepoSummary = ({ repo, summary }) => {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}}>
+            <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}} onClick={() => toggleStat('datatype')}>
               <ListItemIcon sx={{minWidth: '20px', marginRight: '8px', justifyContent: 'center'}}>
                 <ConceptIcon selected fontSize='small' color='secondary' sx={{width: '14px', height: '14px'}} />
               </ListItemIcon>
@@ -122,8 +160,9 @@ const RepoSummary = ({ repo, summary }) => {
               />
             </ListItemButton>
           </ListItem>
+          <CollapsedStatList stat={summary?.concepts?.datatype} open={openStat?.includes('datatype')} />
           <ListItem disablePadding>
-            <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}}>
+            <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}} onClick={() => toggleStat('concept_class')}>
               <ListItemIcon sx={{minWidth: '20px', marginRight: '8px', justifyContent: 'center'}}>
                 <ConceptIcon selected fontSize='small' color='secondary' sx={{width: '14px', height: '14px'}} />
               </ListItemIcon>
@@ -139,8 +178,9 @@ const RepoSummary = ({ repo, summary }) => {
               />
             </ListItemButton>
           </ListItem>
+          <CollapsedStatList stat={summary?.concepts?.concept_class} open={openStat?.includes('concept_class')} />
           <ListItem disablePadding>
-            <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}}>
+            <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}} onClick={() => toggleStat('name_type')}>
               <ListItemIcon sx={{minWidth: '20px', marginRight: '8px', justifyContent: 'center'}}>
                 <ConceptIcon selected fontSize='small' color='secondary' sx={{width: '14px', height: '14px'}} />
               </ListItemIcon>
@@ -156,8 +196,9 @@ const RepoSummary = ({ repo, summary }) => {
               />
             </ListItemButton>
           </ListItem>
+          <CollapsedStatList stat={summary?.concepts?.name_type} open={openStat?.includes('name_type')} />
           <ListItem disablePadding>
-            <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}}>
+            <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}} onClick={() => toggleStat('locale')}>
               <ListItemIcon sx={{minWidth: '20px', marginRight: '8px', justifyContent: 'center'}}>
                 <LanguageIcon fontSize='small' color='secondary' style={{fontSize: '1rem'}} />
               </ListItemIcon>
@@ -173,8 +214,9 @@ const RepoSummary = ({ repo, summary }) => {
               />
             </ListItemButton>
           </ListItem>
+          <CollapsedStatList stat={summary?.concepts?.locale} open={openStat?.includes('locale')} />
           <ListItem disablePadding>
-            <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}}>
+            <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}} onClick={() => toggleStat('map_type')}>
               <ListItemIcon sx={{minWidth: '20px', marginRight: '8px', justifyContent: 'center'}}>
                 <MappingIcon fontSize='small' color='secondary' />
               </ListItemIcon>
@@ -190,6 +232,7 @@ const RepoSummary = ({ repo, summary }) => {
               />
             </ListItemButton>
           </ListItem>
+          <CollapsedStatList stat={summary?.mappings?.map_type} open={openStat?.includes('map_type')} />
           {
             totalVersions > 0 &&
               <ListItem disablePadding>
