@@ -113,7 +113,7 @@ const RepoHome = () => {
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '8px'}}>
       <LoaderDialog open={loading} />
-      <Paper component="div" className={isSplitView ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: bgColor, borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.n90'}}>
+      <Paper component="div" className={isSplitView ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: bgColor, borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.nv80'}}>
         {
           (repo?.id || loading) &&
             <React.Fragment>
@@ -136,7 +136,7 @@ const RepoHome = () => {
                     />
                 }
               </div>
-              <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderLeft: 'solid 0.3px', borderTop: 'solid 0.3px', borderColor: 'surface.n90', width: '272px !important', height: 'calc(100vh - 250px)', borderRadius: 0}}>
+              <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderLeft: 'solid 0.5px', borderTop: 'solid 0.5px', borderColor: 'surface.nv80', width: '272px !important', height: 'calc(100vh - 250px)', borderRadius: '0 0 10px 0'}}>
                 <RepoSummary repo={repo} summary={repoSummary} />
               </Paper>
             </React.Fragment>

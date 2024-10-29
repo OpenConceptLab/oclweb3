@@ -47,7 +47,7 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
   const hasAccess = currentUserHasAccess()
 
   return (
-    <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderRadius: '8px 8px 0 0'}}>
+    <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderRadius: '10px 10px 0 0'}}>
       <div className='col-xs-12 padding-0' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'auto'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
         <OwnerChip owner={owner} sx={{background: 'transparent', borderColor: 'surface.light'}} hideType />

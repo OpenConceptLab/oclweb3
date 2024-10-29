@@ -66,7 +66,7 @@ const OrgHome = () => {
 
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '8px'}}>
-      <Paper component="div" className='col-xs-12 split padding-0' sx={{backgroundColor: 'info.contrastText', borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.n90'}}>
+      <Paper component="div" className='col-xs-12 split padding-0' sx={{backgroundColor: 'info.contrastText', borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.nv80'}}>
         {
           org?.id &&
             <React.Fragment>
@@ -81,8 +81,8 @@ const OrgHome = () => {
                       defaultFiltersOpen={false}
                       nested
                       noTabs
-                      filtersHeight='calc(100vh - 275px)'
-                      resultContainerStyle={{height: 'calc(100vh - 375px)', overflow: 'auto'}}
+                      filtersHeight='calc(100vh - 280px)'
+                      resultContainerStyle={{height: 'calc(100vh - 380px)', overflow: 'auto'}}
                       containerStyle={{padding: 0}}
                     />
                 }
@@ -91,7 +91,7 @@ const OrgHome = () => {
                     <OrgOverview org={org} bookmarks={bookmarks} height={height} />
                 }
               </div>
-              <Paper component='div' className='col-xs-12' sx={{height: 'calc(100vh - 225px)', width: '272px !important', borderLeft: '0.5px solid', borderColor: 'surface.n90', borderRadius: 0, boxShadow: 'none', padding: '16px', overflow: 'auto', backgroundColor: 'default.main'}}>
+              <Paper component='div' className='col-xs-12' sx={{height: 'calc(100vh - 228px)', width: '272px !important', borderLeft: '0.5px solid', borderTop: '0.5px solid', borderColor: 'surface.nv80', borderRadius: '0 0 10px 0', boxShadow: 'none', padding: '16px', overflow: 'auto', backgroundColor: 'default.main'}}>
                 <OrgSummary org={org} members={members} />
               </Paper>
             </React.Fragment>

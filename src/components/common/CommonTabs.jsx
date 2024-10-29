@@ -8,7 +8,7 @@ const RepoTabs = ({TABS, sx, ...rest}) => {
       indicatorColor="primary"
       variant="fullWidth"
       aria-label="repo full width tabs"
-      sx={{backgroundColor: 'surface.main', width: '100%', borderTop: '0.3px solid', borderBottom: '0.3px solid', borderColor: 'surface.n90', ...sx}}
+      sx={{backgroundColor: 'surface.main', width: '100%', borderTop: '0.3px solid', borderBottom: '0.3px solid', borderColor: 'surface.nv80', ...sx}}
       {...rest}
     >
       {

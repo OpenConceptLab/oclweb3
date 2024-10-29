@@ -1,13 +1,15 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useHistory } from 'react-router-dom'
+import Paper from '@mui/material/Paper'
 import { getCurrentUser } from '../../common/utils'
 import { COLORS } from '../../common/colors'
-import UserProfile from './UserProfile'
 import APIService from '../../services/APIService'
 import CommonTabs from '../common/CommonTabs';
-import UserOverview from './UserOverview';
 import Search from '../search/Search';
+import UserOverview from './UserOverview';
+import UserSummary from './UserSummary'
+import UserProfile from './UserProfile'
 
 
 const UserHome = () => {
@@ -20,7 +22,7 @@ const UserHome = () => {
   const [events, setEvents] = React.useState(false)
   const [eventsPage, setEventsPage] = React.useState(0)
   const [haveMoreEvents, setHaveMoreEvents] = React.useState(false)
-  const height = 'calc(100vh - 100px)'
+  const height = 'calc(100vh - 95px)'
   const TABS = [
     {key: 'overview', label: t('common.overview')},
     {key: 'repos', label: t('repo.repos')},
@@ -109,27 +111,33 @@ const UserHome = () => {
       <div className='col-xs-3' style={{height: height, padding: '24px 24px 24px 8px', maxWidth: '20%', overflow: 'auto'}}>
         <UserProfile user={user} />
       </div>
-      <div className='col-xs-10 padding-0' style={{backgroundColor: COLORS.primary.contrastText, borderRadius: '10px', height: height, maxWidth: '80%', border: `1px solid ${COLORS.surface.s90}`, borderTop: 'none'}}>
-        <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} sx={{borderTopLeftRadius: '10px', borderTopRightRadius: '10px'}} />
-        {
-          user?.url && tab === 'repos' &&
-            <Search
-              resource='repos'
-              url={user?.url + 'repos/'}
-              nested
-              noTabs
-              filtersHeight={`calc(100vh - ${baseHeightToDeduct}px)`}
-              resultContainerStyle={{height: `calc(100vh - ${baseHeightToDeduct}px - 100px)`, overflow: 'auto'}}
-              containerStyle={{padding: 0}}
-              defaultFiltersOpen={false}
-              resultSize='medium'
-              excludedColumns={['owner']}
-            />
-        }
-        {
-          tab === 'overview' && user?.url &&
-            <UserOverview user={user} bookmarks={bookmarks} events={events} height={height} onLoadMoreEvents={haveMoreEvents ? fetchEvents : false} />
-        }
+      <div className='col-xs-10 padding-0' style={{backgroundColor: COLORS.primary.contrastText, borderRadius: '10px', height: height, maxWidth: '80%', border: `1px solid ${COLORS.surface.nv80}`, borderTop: 'none'}}>
+        <div className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
+          <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} sx={{borderTopLeftRadius: '10px'}} />
+          {
+            user?.url && tab === 'repos' &&
+              <Search
+                resource='repos'
+                url={user?.url + 'repos/'}
+                nested
+                noTabs
+                filtersHeight={`calc(100vh - ${baseHeightToDeduct}px)`}
+                resultContainerStyle={{height: `calc(100vh - ${baseHeightToDeduct}px - 100px)`, overflow: 'auto'}}
+                containerStyle={{padding: 0}}
+                defaultFiltersOpen={false}
+                resultSize='medium'
+                excludedColumns={['owner']}
+              />
+          }
+          {
+            tab === 'overview' && user?.url &&
+              <UserOverview user={user} bookmarks={bookmarks} events={events} height={height} onLoadMoreEvents={haveMoreEvents ? fetchEvents : false} />
+          }
+        </div>
+
+        <Paper component='div' className='col-xs-12' sx={{height: 'calc(100vh - 96px)', width: '272px !important', borderLeft: '0.5px solid', borderTop: '0.5px solid', borderColor: 'surface.nv80', borderRadius: '0 10px 10px 0', boxShadow: 'none', padding: '16px', overflow: 'auto', backgroundColor: 'default.main'}}>
+          <UserSummary user={user} />
+        </Paper>
       </div>
     </div>
   )
