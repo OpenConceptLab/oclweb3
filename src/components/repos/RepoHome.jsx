@@ -12,7 +12,7 @@ import { WHITE } from '../../common/colors';
 import ConceptHome from '../concepts/ConceptHome';
 import MappingHome from '../mappings/MappingHome';
 import ConceptForm from '../concepts/ConceptForm';
-import Error404 from '../errors/Error404';
+import Error40X from '../errors/Error40X';
 import RepoSummary from './RepoSummary'
 
 const RepoHome = () => {
@@ -43,8 +43,10 @@ const RepoHome = () => {
   const getURL = () => ((toParentURI(location.pathname) + '/').replace('//', '/') + versionFromURL + '/').replace('//', '/')
   const fetchRepo = () => {
     setLoading(true)
+    setStatus(false)
     APIService.new().overrideURL(getURL()).get(null, null, {includeSummary: true}, true).then(response => {
-      setStatus(response?.status || response?.response.status)
+      const newStatus = response?.status || response?.response.status
+      setStatus(newStatus)
       setLoading(false)
       const _repo = response?.data || response?.response?.data || {}
       setRepo(_repo)
@@ -117,31 +119,30 @@ const RepoHome = () => {
             <React.Fragment>
               <RepoHeader owner={owner} repo={repo} versions={versions} onVersionChange={onVersionChange} onCreateConceptClick={onCreateConceptClick} onCloseConceptForm={() => setConceptForm(false)} />
               <div className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
-              <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
-              {
-                repo?.id && ['concepts', 'mappings'].includes(tab) &&
-                  <Search
-                    resource={tab}
-                    url={getURL() + tab + '/'}
-                    defaultFiltersOpen={false}
-                    nested
-                    noTabs
-                    onShowItem={onShowItem}
-                    showItem={showItem}
-                    filtersHeight='calc(100vh - 300px)'
-                    resultContainerStyle={{height: isSplitView ? 'calc(100vh - 440px)' : 'calc(100vh - 400px)', overflow: 'auto'}}
-                    containerStyle={{padding: 0}}
-                  />
-              }
-        </div>
+                <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
+                {
+                  repo?.id && ['concepts', 'mappings'].includes(tab) &&
+                    <Search
+                      resource={tab}
+                      url={getURL() + tab + '/'}
+                      defaultFiltersOpen={false}
+                      nested
+                      noTabs
+                      onShowItem={onShowItem}
+                      showItem={showItem}
+                      filtersHeight='calc(100vh - 300px)'
+                      resultContainerStyle={{height: isSplitView ? 'calc(100vh - 440px)' : 'calc(100vh - 400px)', overflow: 'auto'}}
+                      containerStyle={{padding: 0}}
+                    />
+                }
+              </div>
               <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderLeft: 'solid 0.3px', borderTop: 'solid 0.3px', borderColor: 'surface.n90', width: '272px !important', height: 'calc(100vh - 250px)', borderRadius: 0}}>
                 <RepoSummary repo={repo} summary={repoSummary} />
               </Paper>
             </React.Fragment>
         }
         {
-          !loading && status === 404 &&
-            <Error404 />
+          !loading && status && <Error40X status={status} />
         }
       </Paper>
       <div className={'col-xs-5 padding-0' + (isSplitView ? ' split-appear' : '')} style={{marginLeft: '16px', width: isSplitView ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: isSplitView ? 'calc(100vh - 100px)' : 0, opacity: isSplitView ? 1 : 0}}>

@@ -1,10 +1,12 @@
 import React from 'react';
+import { useHistory } from 'react-router-dom'
 import SvgIcon from '@mui/material/SvgIcon';
-import { useTranslation } from 'react-i18next'
-import { startCase } from 'lodash'
-import { BLACK, PRIMARY_COLORS } from '../../common/colors';
+import { Trans, useTranslation } from 'react-i18next'
+import { BLACK} from '../../common/colors';
+import Link from '../common/Link'
 
-const Error401 = () => {
+const Error403 = () => {
+  const history = useHistory()
   const { t } = useTranslation()
   return (
     <div style={{display: 'flex', height: 'calc(100vh - 100px)', alignItems: 'center', justifyContent: 'center', textAlign: 'center', flexDirection: 'column'}}>
@@ -59,12 +61,18 @@ const Error401 = () => {
         </p>
       </div>
       <div className='col-xs-12'>
-        <p style={{color: BLACK, fontSize: '16px', margin: 0}}>
-          {startCase(t('common.go_to_your'))} <a className='no-anchor-styles' href='#/' style={{cursor: 'pointer', color: PRIMARY_COLORS.main}}>{t('dashboard.name')}</a>.
+        <p style={{color: BLACK, fontSize: '16px', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+          <Trans
+            i18nKey='common.go_back_or_to_your_dashboard'
+            components={[
+              <Link key='back' sx={{minWidth: 'auto', fontSize: '16px', padding: '0 4px'}} label={t('common.back')} onClick={() => history.goBack()} />,
+              <Link key='dashboard' sx={{minWidth: 'auto', fontSize: '16px', paddingLeft: '4px'}} label={t('dashboard.name')} href='/#/' />,
+            ]}
+          />
         </p>
       </div>
     </div>
   )
 }
 
-export default Error401;
+export default Error403;

@@ -12,6 +12,7 @@ import Checkbox from '@mui/material/Checkbox';
 import Tooltip from '@mui/material/Tooltip';
 import ReleaseIcon from '@mui/icons-material/VerifiedOutlined';
 import DraftIcon from '@mui/icons-material/EditOutlined';
+import isNumber from 'lodash/isNumber'
 import without from 'lodash/without'
 import ConceptIcon from '../concepts/ConceptIcon'
 import AccessIcon from '../common/AccessIcon'
@@ -41,12 +42,20 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
       </TableCell>
       <TableCell sx={{...bodyCellStyle}} onClick={() => onVersionChange(version)}>
         <span style={{display: 'flex', alignItems: 'center'}}>
-          <span style={{marginRight: '8px', display: 'flex', alignItems: 'center'}}>
-            <ConceptIcon selected color='secondary' sx={{width: '9px', height: '9px', marginRight: '4px'}} /> {version.summary.active_concepts?.toLocaleString()}
-          </span>
-          <span style={{display: 'flex', alignItems: 'center'}}>
-            <MappingIcon width="15px" height='13px' fill='secondary.main' color='secondary' sx={{width: '15px', height: '13px', marginRight: '4px'}} /> {version.summary.active_mappings?.toLocaleString()}
-          </span>
+          {
+            isNumber(version?.summary?.active_concepts) &&
+              <span style={{marginRight: '8px', display: 'flex', alignItems: 'center'}}>
+                <ConceptIcon selected color='secondary' sx={{width: '9px', height: '9px', marginRight: '4px'}} />
+                {version.summary.active_concepts.toLocaleString()}
+              </span>
+          }
+          {
+            isNumber(version?.summary?.active_mappings) &&
+              <span style={{display: 'flex', alignItems: 'center'}}>
+                <MappingIcon width="15px" height='13px' fill='secondary.main' color='secondary' sx={{width: '15px', height: '13px', marginRight: '4px'}} />
+                {version.summary.active_mappings.toLocaleString()}
+              </span>
+          }
         </span>
       </TableCell>
         <TableCell sx={{...bodyCellStyle}} onClick={() => onVersionChange(version)}>
