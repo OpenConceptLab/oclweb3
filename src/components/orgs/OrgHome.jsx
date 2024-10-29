@@ -7,6 +7,7 @@ import OrgHeader from './OrgHeader'
 import CommonTabs from '../common/CommonTabs';
 import Search from '../search/Search';
 import OrgOverview from './OrgOverview';
+import OrgSummary from './OrgSummary';
 
 const OrgHome = () => {
   const { t } = useTranslation()
@@ -70,24 +71,30 @@ const OrgHome = () => {
           org?.id &&
             <React.Fragment>
               <OrgHeader org={org} />
-              <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
-              {
-                tab === 'repos' &&
-                  <Search
-                    resource={tab}
-                    url={org.url + tab + '/'}
-                    defaultFiltersOpen={false}
-                    nested
-                    noTabs
-                    filtersHeight='calc(100vh - 275px)'
-                    resultContainerStyle={{height: 'calc(100vh - 375px)', overflow: 'auto'}}
-                  />
-              }
-              {
-                tab === 'overview' && org?.id &&
-                  <OrgOverview org={org} bookmarks={bookmarks} members={members} height={height} />
-              }
-              </React.Fragment>
+              <div className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
+                <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
+                {
+                  tab === 'repos' &&
+                    <Search
+                      resource={tab}
+                      url={org.url + tab + '/'}
+                      defaultFiltersOpen={false}
+                      nested
+                      noTabs
+                      filtersHeight='calc(100vh - 275px)'
+                      resultContainerStyle={{height: 'calc(100vh - 375px)', overflow: 'auto'}}
+                      containerStyle={{padding: 0}}
+                    />
+                }
+                {
+                  tab === 'overview' && org?.id &&
+                    <OrgOverview org={org} bookmarks={bookmarks} height={height} />
+                }
+              </div>
+              <Paper component='div' className='col-xs-12' sx={{height: 'calc(100vh - 225px)', width: '272px !important', borderLeft: '0.5px solid', borderColor: 'surface.n90', borderRadius: 0, boxShadow: 'none', padding: '16px', overflow: 'auto', backgroundColor: 'default.main'}}>
+                <OrgSummary org={org} members={members} />
+              </Paper>
+            </React.Fragment>
         }
       </Paper>
 
