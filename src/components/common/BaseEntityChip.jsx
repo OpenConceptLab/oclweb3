@@ -1,6 +1,7 @@
 import React from 'react'
 import { useHistory } from 'react-router-dom'
 import Chip from '@mui/material/Chip'
+import Skeleton from '@mui/material/Skeleton'
 import { Avatar as MuiAvatar } from '@mui/material'
 import { PRIMARY_COLORS } from '../../common/colors'
 
@@ -115,10 +116,11 @@ const Label = ({ entity, hideType }) => {
         <b>{entity?.short_code || entity?.id || entity?.username}</b>
       </span>
       {
-        entity?.type?.includes('Concept') && entity?.name &&
+        (entity?.type?.includes('Concept') && entity?.name) ?
           <span className='entity-name' style={{marginLeft: '4px'}}>
             {entity.name}
-          </span>
+          </span> :
+        <Skeleton variant='text' width={60}/>
       }
       {
         !hideType &&
