@@ -13,6 +13,7 @@ import Collapse from '@mui/material/Collapse'
 import ExperimentalIcon from '@mui/icons-material/ScienceOutlined';
 import LanguageIcon from '@mui/icons-material/TranslateOutlined';
 import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
+import ConceptClassIcon from '@mui/icons-material/CategoryOutlined';
 
 import isEmpty from 'lodash/isEmpty'
 import without from 'lodash/without'
@@ -144,6 +145,24 @@ const RepoSummary = ({ repo, summary }) => {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
+            <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}} onClick={() => toggleStat('concept_class')}>
+              <ListItemIcon sx={{minWidth: '20px', marginRight: '8px', justifyContent: 'center'}}>
+                <ConceptClassIcon fontSize='small' color='secondary' />
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  conceptClasses === false ?
+                    <SkeletonText /> :
+                    <>{`${conceptClasses?.toLocaleString()} ${t('concept.concept_classes')}`}</>
+                }
+                sx={{
+                  '.MuiListItemText-primary': {fontSize: '12px', color: 'secondary.main'}
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+          <CollapsedStatList stat={summary?.concepts?.concept_class} open={openStat?.includes('concept_class')} />
+          <ListItem disablePadding>
             <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}} onClick={() => toggleStat('datatype')}>
               <ListItemIcon sx={{minWidth: '20px', marginRight: '8px', justifyContent: 'center'}}>
                 <ConceptIcon selected fontSize='small' color='secondary' sx={{width: '14px', height: '14px'}} />
@@ -161,24 +180,6 @@ const RepoSummary = ({ repo, summary }) => {
             </ListItemButton>
           </ListItem>
           <CollapsedStatList stat={summary?.concepts?.datatype} open={openStat?.includes('datatype')} />
-          <ListItem disablePadding>
-            <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}} onClick={() => toggleStat('concept_class')}>
-              <ListItemIcon sx={{minWidth: '20px', marginRight: '8px', justifyContent: 'center'}}>
-                <ConceptIcon selected fontSize='small' color='secondary' sx={{width: '14px', height: '14px'}} />
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  conceptClasses === false ?
-                    <SkeletonText /> :
-                    <>{`${conceptClasses?.toLocaleString()} ${t('concept.concept_classes')}`}</>
-                }
-                sx={{
-                  '.MuiListItemText-primary': {fontSize: '12px', color: 'secondary.main'}
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-          <CollapsedStatList stat={summary?.concepts?.concept_class} open={openStat?.includes('concept_class')} />
           <ListItem disablePadding>
             <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}} onClick={() => toggleStat('name_type')}>
               <ListItemIcon sx={{minWidth: '20px', marginRight: '8px', justifyContent: 'center'}}>
