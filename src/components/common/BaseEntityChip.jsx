@@ -127,7 +127,7 @@ const Label = ({ entity, hideType }) => {
           <React.Fragment>
             <span className='divider-span' />
             <span className='entity-type'>
-              {entity?.type}
+              {entity?.type ? entity.type : <Skeleton variant='text' width={40} />}
             </span>
           </React.Fragment>
       }
