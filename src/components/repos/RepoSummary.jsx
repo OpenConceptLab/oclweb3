@@ -31,7 +31,7 @@ const CollapsedStatList = ({open, stat}) => {
       <List dense component="div" sx={{padding: '0 16px'}}>
         {
           map(stat, value => (
-            <ListItemButton sx={{padding: '4px 0', fontSize: '12px'}}>
+            <ListItemButton key={value[0]} sx={{padding: '4px 0', fontSize: '12px'}}>
               <ListItemText
                 primary={value[0]}
                 sx={{

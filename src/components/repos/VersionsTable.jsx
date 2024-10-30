@@ -17,7 +17,7 @@ import without from 'lodash/without'
 import ConceptIcon from '../concepts/ConceptIcon'
 import AccessIcon from '../common/AccessIcon'
 import MappingIcon from '../mappings/MappingIcon';
-import { formatDate } from '../../common/utils'
+import { formatDate, hasAccessToURL } from '../../common/utils'
 import { SURFACE_COLORS, BLACK } from '../../common/colors'
 import Button from '../common/Button';
 
@@ -25,22 +25,24 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
   const { t } = useTranslation()
   const isPublic = ['view', 'edit'].includes(version.public_access.toLowerCase())
   const tooltip = originVersion ? t('repo.compare_origin_version_disabled_tooltip') : t('repo.compare_destination_version_disabled_tooltip')
+  const isPrivateAndHasNoAccess = !isPublic && !hasAccessToURL(version.version_url || version.url)
+  const isDisabled = disabled || isPrivateAndHasNoAccess
   return (
     <Tooltip title={disabled ? tooltip : undefined} placement='right'>
-      <TableRow key={version.id} id={version.id} sx={{cursor: 'pointer'}} disabled={disabled}>
+      <TableRow key={version.id} id={version.id} sx={{cursor: isDisabled ? 'not-allowed' : 'pointer'}} disabled={isDisabled}>
         {
           checkbox &&
-            <TableCell padding="checkbox" sx={{...bodyCellStyle, borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px'}} onClick={() => !disabled && onCheck(version)}>
-              <Checkbox color="primary" size='small' checked={!disabled && checked.includes(version.version_url)} onChange={() => onCheck(version)} disabled={disabled} />
+            <TableCell padding="checkbox" sx={{...bodyCellStyle, borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px'}} onClick={() => !isDisabled && onCheck(version)}>
+              <Checkbox color="primary" size='small' checked={!isDisabled && checked.includes(version.version_url)} onChange={() => onCheck(version)} disabled={isDisabled} />
             </TableCell>
         }
-        <TableCell sx={{...bodyCellStyle, ...(checkbox ? {} : {borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px'})}} onClick={() => onVersionChange(version)}>
+        <TableCell sx={{...bodyCellStyle, ...(checkbox ? {} : {borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px'})}} onClick={isDisabled ? undefined : () => onVersionChange(version)}>
           {version.id}
         </TableCell>
-      <TableCell sx={{...bodyCellStyle}} onClick={() => onVersionChange(version)}>
+        <TableCell sx={{...bodyCellStyle}} onClick={isDisabled ? undefined : () => onVersionChange(version)}>
         {moment(version.created_on).fromNow()}
       </TableCell>
-      <TableCell sx={{...bodyCellStyle}} onClick={() => onVersionChange(version)}>
+        <TableCell sx={{...bodyCellStyle}} onClick={isDisabled ? undefined : () => onVersionChange(version)}>
         <span style={{display: 'flex', alignItems: 'center'}}>
           {
             isNumber(version?.summary?.active_concepts) &&
@@ -58,12 +60,12 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
           }
         </span>
       </TableCell>
-        <TableCell sx={{...bodyCellStyle}} onClick={() => onVersionChange(version)}>
+        <TableCell sx={{...bodyCellStyle}} onClick={isDisabled ? undefined : () => onVersionChange(version)}>
           <span style={{display: 'flex', alignItems: 'center'}}>
             <AccessIcon sx={{width: '17px', height: '17px', marginRight: '4px'}} public_access={version.public_access} /> {isPublic ? t('common.public') : t('common.private')}
             </span>
       </TableCell>
-        <TableCell sx={{...bodyCellStyle, borderTopRightRadius: '50px', borderBottomRightRadius: '50px'}} onClick={() => onVersionChange(version)}>
+        <TableCell sx={{...bodyCellStyle, borderTopRightRadius: '50px', borderBottomRightRadius: '50px'}} onClick={isDisabled ? undefined : () => onVersionChange(version)}>
           {
             version.id === 'HEAD' &&
               <span style={{display: 'flex', alignItems: 'center'}}>

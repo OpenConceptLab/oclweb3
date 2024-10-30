@@ -209,13 +209,14 @@ export const arrayToObject = arr => {
   }, {});
 }
 
-export const currentUserHasAccess = () => {
+export const currentUserHasAccess = () => hasAccessToURL(window.location.hash.replace('#/', ''))
+
+export const hasAccessToURL = url => {
   if(!isLoggedIn())
     return false;
   if(isAdminUser())
     return true;
 
-  const url = window.location.hash.replace('#/', '');
   if(!url)
     return false;
 
