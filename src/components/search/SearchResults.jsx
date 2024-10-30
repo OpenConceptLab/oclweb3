@@ -17,7 +17,7 @@ import CardResults from './CardResults';
 import { SORT_ATTRS } from './ResultConstants'
 
 const ResultsToolbar = props => {
-  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, showFilters } = props;
+  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, isFiltersApplied } = props;
   return (
     <Toolbar
       sx={{
@@ -35,13 +35,13 @@ const ResultsToolbar = props => {
     >
       {
         isFilterable &&
-          <IconButton style={{marginRight: '4px'}} onClick={onFiltersToggle} disabled={Boolean(disabled)}>
-            <FilterListIcon sx={{color: showFilters ? 'secondary.10' : 'secondary'}} />
+          <IconButton style={{marginRight: '4px', ...(isFiltersApplied ? {backgroundColor: 'rgba(73, 69, 79, 0.12)'} : {})}} onClick={onFiltersToggle} disabled={Boolean(disabled)}>
+            <FilterListIcon sx={{color: '#000'}} />
           </IconButton>
       }
       {numSelected > 0 ? (
         <Typography
-          sx={{ flex: '1 1 100%' }}
+          sx={{ flex: '1 1 100%', marginLeft: isFilterable ? '8px' : 0 }}
           color="inherit"
           variant="subtitle1"
           component="div"
@@ -51,18 +51,17 @@ const ResultsToolbar = props => {
       ) : (
         title ?
           <Typography
-            sx={{ flex: '1 1 100%' }}
+            sx={{ flex: '1 1 100%', marginLeft: isFilterable ? '8px' : 0 }}
             variant="h7"
             id="tableTitle"
             component="div"
           >
             {title}
           </Typography> :
-        <div style={{flex: '1 1 100%'}}>
+        <div style={{flex: '1 1 100%', marginLeft: isFilterable ? '8px' : 0}}>
           <Skeleton variant="text" sx={{ fontSize: '1rem', width: '15%' }} />
         </div>
       )}
-
       <SearchControls
         disabled={disabled}
         onDisplayChange={onDisplayChange}
@@ -206,6 +205,7 @@ const SearchResults = props => {
   return (
     <Box sx={{ width: '100%', background: 'inherit', height: '100%' }}>
       <ResultsToolbar
+        isFiltersApplied={props.isFiltersApplied}
         numSelected={selected.length}
         title={getTitle()}
         onFiltersToggle={props.onFiltersToggle}
@@ -218,7 +218,6 @@ const SearchResults = props => {
         orderBy={props.orderBy}
         onOrderByChange={props.onOrderByChange}
         noCardDisplay={noCardDisplay}
-        showFilters={props.showFilters}
       />
       {
         props.noResults ?
