@@ -10,15 +10,20 @@ import ListItemText from '@mui/material/ListItemText'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import Collapse from '@mui/material/Collapse'
+import Button from '@mui/material/Button';
 import ExperimentalIcon from '@mui/icons-material/ScienceOutlined';
 import LanguageIcon from '@mui/icons-material/TranslateOutlined';
 import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
 import ConceptClassIcon from '@mui/icons-material/CategoryOutlined';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 import isEmpty from 'lodash/isEmpty'
 import without from 'lodash/without'
 import map from 'lodash/map'
 
+import APIService from '../../services/APIService'
+import { currentUserHasAccess } from '../../common/utils'
+import { OperationsContext } from '../app/LayoutContext';
 import AccessChip from '../common/AccessChip'
 import ConceptIcon from '../concepts/ConceptIcon'
 import MappingIcon from '../mappings/MappingIcon'
@@ -64,6 +69,7 @@ const PropertyChip = ({label, icon, ...rest}) => {
 
 const RepoSummary = ({ repo, summary }) => {
   const { t } = useTranslation()
+  const { setAlert } = React.useContext(OperationsContext);
   const [openStat, setOpenStat] = React.useState([])
   const repoSubType = repo?.source_type || repo?.collection_type
 
@@ -80,6 +86,11 @@ const RepoSummary = ({ repo, summary }) => {
   const totalVersions = isLoaded ? false : (summary?.versions?.total || 0)
   const releasedVersions = isLoaded ? false : (summary?.versions?.released || 0)
   const toggleStat = stat => setOpenStat(openStat.includes(stat) ? without(openStat, stat) : [...openStat, stat])
+  const onRefresh = () => {
+    APIService.new().overrideURL(repo.version_url || repo.url).appendToUrl('summary/').put().then(() => {
+      setAlert({message: t('repo.repo_summary_is_calculating')})
+    })
+  }
 
   return (
     <div className='col-xs-12 padding-0'>
@@ -91,7 +102,7 @@ const RepoSummary = ({ repo, summary }) => {
         }
         {
           repo?.id &&
-          <AccessChip sx={{margin: '4px 8px 4px 0'}} public_access={repo?.public_access} />
+            <AccessChip sx={{margin: '4px 8px 4px 0'}} public_access={repo?.public_access} />
         }
         {
           repo?.experimental ?
@@ -258,6 +269,19 @@ const RepoSummary = ({ repo, summary }) => {
               </ListItem>
           }
         </List>
+        {
+          onRefresh && currentUserHasAccess() &&
+            <Button
+              color='primary'
+              variant='text'
+              startIcon={<RefreshIcon fontSize='inherit'/>}
+              size='small'
+              sx={{marginTop: '4px', marginLeft: '-4px', fontSize: '12px', textTransform: 'none', '.MuiButton-startIcon': {marginRight: '2px'}}}
+              onClick={onRefresh}
+            >
+              {t('repo.refresh_summary')}
+            </Button>
+        }
       </div>
     </div>
   )
