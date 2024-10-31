@@ -116,11 +116,10 @@ const Label = ({ entity, hideType }) => {
         <b>{entity?.short_code || entity?.id || entity?.username}</b>
       </span>
       {
-        (entity?.type?.includes('Concept') && entity?.name) ?
+        (entity?.type?.includes('Concept') && entity?.name) &&
           <span className='entity-name' style={{marginLeft: '4px'}}>
             {entity.name}
-          </span> :
-        <Skeleton variant='text' width={60}/>
+          </span>
       }
       {
         !hideType &&
