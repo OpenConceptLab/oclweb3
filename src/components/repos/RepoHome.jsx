@@ -14,6 +14,7 @@ import MappingHome from '../mappings/MappingHome';
 import ConceptForm from '../concepts/ConceptForm';
 import Error40X from '../errors/Error40X';
 import RepoSummary from './RepoSummary'
+import RepoOverview from './RepoOverview'
 
 const RepoHome = () => {
   const { t } = useTranslation()
@@ -112,7 +113,7 @@ const RepoHome = () => {
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
       <LoaderDialog open={loading} />
-      <Paper component="div" className={isSplitView ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: 'transparent', borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.nv80'}}>
+      <Paper component="div" className={isSplitView ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: 'white', borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.nv80'}}>
         {
           (repo?.id || loading) &&
             <React.Fragment>
@@ -133,6 +134,10 @@ const RepoHome = () => {
                       resultContainerStyle={{height: isSplitView ? 'calc(100vh - 440px)' : 'calc(100vh - 400px)', overflow: 'auto'}}
                       containerStyle={{padding: 0}}
                     />
+                }
+                {
+                  tab === 'about' &&
+                    <RepoOverview repo={repo} height='calc(100vh - 300px)' />
                 }
               </div>
               <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderLeft: 'solid 0.5px', borderTop: 'solid 0.5px', borderColor: 'surface.nv80', width: '272px !important', height: 'calc(100vh - 250px)', borderRadius: '0 0 10px 0'}}>

@@ -223,7 +223,8 @@
     "summary_active_mappings_from_total": "{{active}} active from {{total}} Mappings",
     "summary_released_versions_from_total": "{{released}} released from {{total}} Versions",
     "refresh_summary": "Refresh summary",
-    "repo_summary_is_calculating": "Repo summary is calculating, please check back after some time."
+    "repo_summary_is_calculating": "Repo summary is calculating, please check back after some time.",
+    "no_overview": "The owner has not created an Overview page for this repository"
   },
   "org": {
     "my": "My organizations",

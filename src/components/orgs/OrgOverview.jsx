@@ -11,12 +11,12 @@ const OrgOverview = ({ org, bookmarks, height }) => {
 
   return (
     <div className='col-xs-12 padding-0' style={{height: height || '100%' }}>
-      <div className='col-xs-12' style={{padding: '0 16px', height: '100%', overflow: 'auto', width: '80%'}}>
+      <div className='col-xs-12' style={{padding: '0 16px', height: '100%', overflow: 'auto'}}>
         <Bookmarks bookmarks={bookmarks} />
         <About text={org?.text} title={t('org.about_the_org')} expanded />
         {
-          Boolean(org?.id && repos == 0) &&
-            <div className='col-xs-12' style={{marginTop: '15%', marginBottom: '16px'}}>
+          Boolean(org?.id && repos === 0) &&
+            <div className='col-xs-12 padding-0' style={{height: height || '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
               <EmptyOverview label={`${org.name} ${t('org.org_have_not_created_public_repos_suffix')}`} />
             </div>
         }
