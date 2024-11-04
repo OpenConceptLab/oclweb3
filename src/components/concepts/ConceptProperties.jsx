@@ -51,22 +51,6 @@ const ConceptProperties = ({ concept }) => {
               </TableCell>
             </TableRow>
         }
-        <TableRow>
-          <TableCell style={{fontSize: '12px', width: '150px'}}>
-            {t('checksums.standard')}
-          </TableCell>
-          <TableCell style={{fontSize: '12px'}}>
-            {concept?.checksums?.standard}
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell style={{fontSize: '12px', width: '170px'}}>
-            {t('checksums.smart')}
-          </TableCell>
-          <TableCell sx={{ fontSize: '12px' }}>
-            {concept?.checksums?.smart}
-          </TableCell>
-        </TableRow>
         {
           map(concept.extras, (value, key) => (
             <TableRow key={key}>

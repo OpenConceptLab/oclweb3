@@ -35,22 +35,17 @@ const MappingProperties = ({ mapping }) => {
               </TableCell>
             </TableRow>
         }
-        <TableRow>
-          <TableCell style={{fontSize: '12px', width: '150px'}}>
-            {t('checksums.standard')}
-          </TableCell>
-          <TableCell style={{fontSize: '12px'}}>
-            {mapping?.checksums?.standard}
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell style={{fontSize: '12px', width: '170px'}}>
-            {t('checksums.smart')}
-          </TableCell>
-          <TableCell sx={{ fontSize: '12px' }}>
-            {mapping?.checksums?.smart}
-          </TableCell>
-        </TableRow>
+        {
+          mapping?.sort_weight &&
+            <TableRow>
+              <TableCell style={{fontSize: '12px', width: '170px'}}>
+                {t('mapping.sort_weight')}
+              </TableCell>
+              <TableCell sx={{ fontSize: '12px' }}>
+                {mapping.sort_weight}
+              </TableCell>
+            </TableRow>
+        }
         {
           map(mapping.extras, (value, key) => (
             <TableRow key={key}>

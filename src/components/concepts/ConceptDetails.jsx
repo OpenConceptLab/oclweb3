@@ -36,8 +36,14 @@ const ConceptDetails = ({ concept, repo, mappings, reverseMappings }) => {
       <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
         <Associations concept={concept} mappings={mappings} reverseMappings={reverseMappings} />
       </div>
-      <Typography component='span' sx={{display: 'inline-block', margin: '32px 0 16px 0', padding: 0, fontSize: '12px', color: 'surface.contrastText'}}>
+      <Typography component='span' sx={{display: 'inline-block', marginTop: '32px', padding: 0, fontSize: '12px', color: 'surface.contrastText', width: '100%'}}>
         {t('common.last_updated')} {formatDateTime(concept.versioned_updated_on || concept.updated_on)} {t('common.by')} <Link sx={{fontSize: '12px', justifyContent: 'flex-start'}} href={`#/users/${updatedBy}`} label={updatedBy} />
+      </Typography>
+      <Typography component='span' sx={{display: 'inline-block', padding: 0, fontSize: '12px', color: 'surface.contrastText', width: '100%'}}>
+        {t('checksums.standard')} {concept?.checksums?.standard}
+      </Typography>
+      <Typography component='span' sx={{display: 'inline-block', padding: 0, fontSize: '12px', color: 'surface.contrastText', width: '100%'}}>
+        {t('checksums.smart')} {concept?.checksums?.smart}
       </Typography>
     </div>
   )

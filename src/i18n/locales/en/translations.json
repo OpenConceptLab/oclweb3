@@ -175,7 +175,8 @@
     "from_concept_not_defined": "Source concept is not defined in OCL",
     "from_concept_defined": "Source concept is defined in OCL",
     "to_concept_not_defined": "Target concept is not defined in OCL",
-    "to_concept_defined": "Target concept is defined in OCL"
+    "to_concept_defined": "Target concept is defined in OCL",
+    "sort_weight": "Sort Weight"
   },
   "checksums": {
     "standard": "Standard Checksum",
