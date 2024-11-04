@@ -108,12 +108,11 @@ const RepoHome = () => {
   const showConceptURL = ((showItem?.concept_class || params.resource) && isConceptURL) ? showItem?.version_url || showItem?.url || getConceptURLFromMainURL() : false
   const showMappingURL = ((showItem?.map_type || params.resource) && isMappingURL) ? showItem?.version_url || showItem?.url || getMappingURLFromMainURL() : false
   const isSplitView = conceptForm || showConceptURL || showMappingURL
-  const bgColor = isSplitView ? 'surface.light' : 'info.contrastText'
 
   return (
-    <div className='col-xs-12 padding-0' style={{borderRadius: '8px'}}>
+    <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
       <LoaderDialog open={loading} />
-      <Paper component="div" className={isSplitView ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: bgColor, borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.nv80'}}>
+      <Paper component="div" className={isSplitView ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: 'transparent', borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.nv80'}}>
         {
           (repo?.id || loading) &&
             <React.Fragment>
