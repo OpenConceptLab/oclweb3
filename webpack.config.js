@@ -92,6 +92,13 @@ module.exports = (env) => {
       historyApiFallback: {
         index: 'index.html',
       },
+      proxy: {
+        '/api': {
+          target: 'https://openconceptlab.org',
+          changeOrigin: true,
+          pathRewrite: { '^/api': '' },
+        },
+      },
     },
     devtool: env.NODE_ENV == 'production' ? "source-map" : undefined,
     plugins: [

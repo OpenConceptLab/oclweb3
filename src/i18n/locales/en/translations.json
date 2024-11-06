@@ -100,7 +100,8 @@
     "take_a_tour": "View release notes and take a tour",
     "hello": "Hello",
     "create_repository": "Create Repository",
-    "anonymous_heading": "What's new?"
+    "anonymous_heading": "What's new?",
+    "community_blog": "Community Blog"
   },
   "bookmarks": {
     "name": "Bookmarks",

@@ -6,6 +6,7 @@ import DashboardEvents from './DashboardEvents';
 import EventsButtonGroup from './EventsButtonGroup';
 import LoaderDialog from '../common/LoaderDialog';
 import DashboardBanners from './DashboardBanners'
+import CommunityBlog from './CommunityBlog'
 
 
 const GuestDashboard = () => {
@@ -61,6 +62,7 @@ const GuestDashboard = () => {
       </div>
       <div className='col-xs-3 padding-0' style={{minWidth: '360px'}}>
         <DashboardBanners />
+        <CommunityBlog sx={{marginTop: '8px'}} />
       </div>
     </div>
   )

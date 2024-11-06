@@ -224,7 +224,8 @@
           "Arial",
           "validators",
           "lll",
-          "unfollow"
+          "unfollow",
+          "rss"
         ],
         "skipIfMatch": [
           "http://[^s]*",

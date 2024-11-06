@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
-import { WHITE } from '../../common/colors'
-import Carousel from 'react-material-ui-carousel'
+import { WHITE, PRIMARY_COLORS } from '../../common/colors'
 import { Chip } from '@mui/material'
 import CategoryIcon from '@mui/icons-material/Category';
 import WorkIcon from '@mui/icons-material/Workspaces';
@@ -53,37 +52,11 @@ const DashboardBanners = () => {
       name: "We've made a few changes...",
       description: "open concept lab"
     },
-    {
-      name: "We've made a few changes2...",
-      description: "open concept lab"
-    },
   ]
 
   return (
-    <div className='col-xs-12 padding-0 flex-vertical-center' style={{height: '370px', borderRadius: '10px'}}>
-      <Carousel
-        height='370'
-        indicatorContainerProps={{style: {marginTop: '-5px'}}}
-        indicatorIconButtonProps={{style: {margin: '2px', zIndex: 1}}}
-        activeIndicatorIconButtonProps={{
-          style: {
-            backgroundColor: 'primary.contrastText',
-            color: WHITE
-          }
-        }}
-        sx={{
-          width: '100%',
-          height: '370px',
-          backgroundColor: 'primary.light',
-          color: WHITE,
-          padding: '24px',
-          borderRadius: '10px'
-        }}
-      >
-        {
-          items.map( (item, i) => <Item key={i} item={item} /> )
-        }
-      </Carousel>
+    <div className='col-xs-12 flex-vertical-center' style={{height: '340px', borderRadius: '10px', background: PRIMARY_COLORS.main, color: WHITE, padding: '16px'}}>
+      <Item item={items[0]} />
     </div>
   )
 }
