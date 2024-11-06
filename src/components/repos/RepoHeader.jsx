@@ -71,7 +71,11 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
           </span>
       </div>
       <div className='col-xs-12 padding-0' style={{margin: '8px 0'}}>
-        <Typography sx={{fontSize: '28px', color: 'surface.dark', fontWeight: 600}}>{repo.name}</Typography>
+        <Typography component='span' sx={{fontSize: '28px', color: 'surface.dark', fontWeight: 600}}>{repo.name}</Typography>
+        {
+          repo?.canonical_url &&
+            <Typography component='span' sx={{marginLeft: '8px', fontSize: '14px', color: 'secondary.main'}}>{repo.canonical_url}</Typography>
+        }
       </div>
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', fontSize: '16px'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
