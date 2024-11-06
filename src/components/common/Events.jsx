@@ -36,7 +36,7 @@ const EventDescription = ({ event, isFirst, isLast, isJoined }) => {
   const {eventDescription, rel} = getDescription()
   return (
     <React.Fragment>
-      <Typography sx={{fontSize: '14px', alignItems: 'center', marginTop: isFirst ? '2px' :  (isLast ? (isJoined ? 0 : '12px') : '8px'), display: 'block'}}>
+      <Typography sx={{fontSize: '14px', alignItems: 'center', marginTop: isFirst ? 0 :  (isLast ? (isJoined ? 0 : '10px') : '6px'), display: 'block'}}>
         {eventDescription}
         {
           rel ?
@@ -44,7 +44,7 @@ const EventDescription = ({ event, isFirst, isLast, isJoined }) => {
           null
         }
       </Typography>
-      <Typography sx={{fontSize: '12px', m: 'auto 0', color: 'default.light'}}>
+      <Typography sx={{fontSize: '12px', m: 'auto 0', color: 'default.light', marginTop: '-4px'}}>
         {moment(event.created_at).fromNow()}
       </Typography>
     </React.Fragment>
@@ -69,7 +69,7 @@ const Event = ({ event, isFirst, isLast }) => {
         </TimelineDot>
         { !isLast && <TimelineConnector /> }
       </TimelineSeparator>
-      <TimelineContent sx={{ py: '12px', px: '19px', color: 'rgba(0, 0, 0, 0.87)'}}>
+      <TimelineContent sx={{ padding: '8px 16px 0px 16px', paddingTop: isJoined ? '0' : '8px', color: 'rgba(0, 0, 0, 0.87)'}}>
         <EventDescription event={event} isFirst={isFirst} isLast={isLast} isJoined={isJoined} />
       </TimelineContent>
     </TimelineItem>
