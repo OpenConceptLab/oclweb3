@@ -26,7 +26,7 @@ const CommunityBlog = ({ sx }) => {
 
 
   const fetchFeed = () => {
-    fetch('/api/feed/')
+    fetch(window.location.href.includes('https://') ? 'https://openconceptlab.org/feed/' : '/api/feed/')
       .then(response => response.text())
       .then(res => rssParser.parse(res))
       .then(rss => setFeed(rss));
