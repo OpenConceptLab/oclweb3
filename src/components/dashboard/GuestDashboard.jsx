@@ -7,6 +7,9 @@ import EventsButtonGroup from './EventsButtonGroup';
 import LoaderDialog from '../common/LoaderDialog';
 import DashboardBanners from './DashboardBanners'
 import CommunityBlog from './CommunityBlog'
+import EmptyOverview from '../repos/RepoEmptyOverview'
+import Button from '../common/Button';
+import { getLoginURL } from '../../common/utils'
 
 
 const GuestDashboard = () => {
@@ -58,7 +61,18 @@ const GuestDashboard = () => {
           <EventsButtonGroup selected={scope} onClick={onScopeChange} />
         </div>
         <LoaderDialog open={loading} />
-        <DashboardEvents events={getScopeEvents()} sx={{marginTop: '16px'}} highlight />
+        {
+          ['all', 'highlights'].includes(scope) ?
+            <DashboardEvents events={getScopeEvents()} sx={{marginTop: '16px'}} highlight />:
+          <div className='col-xs-12 padding-0' style={{height: '86vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
+            <EmptyOverview
+              label={t('dashboard.events_scope_sign_in')}
+              action={
+                <Button className='no-anchor-styles' label={t('auth.sign_in')} sx={{ backgroundColor: 'primary.main', maxWidth: '100%', minWidth: '92px', color: '#FFF !important', marginTop: '16px' }} href={getLoginURL()} component='a' />
+              }
+            />
+          </div>
+        }
       </div>
       <div className='col-xs-3 padding-0' style={{minWidth: '360px'}}>
         <DashboardBanners />
