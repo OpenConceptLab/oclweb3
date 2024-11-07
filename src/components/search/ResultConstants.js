@@ -4,11 +4,10 @@ import {
   formatWebsiteLink,
 } from '../../common/utils';
 import Retired from '../common/Retired';
-import FromConcept from '../concepts/FromConcept';
-import ToConcept from '../concepts/ToConcept';
 import OwnerIcon from '../common/OwnerIcon';
 import RepoVersionButton from '../repos/RepoVersionButton';
-
+import FromAndTargetSource from '../mappings/FromAndTargetSource'
+import ConceptCell from '../mappings/ConceptCell'
 
 
 export const ALL_COLUMNS = {
@@ -21,10 +20,10 @@ export const ALL_COLUMNS = {
     {id: 'parent', labelKey: 'repo.repo', value: 'source', sortOn: 'source', nested: false, renderer: item => <RepoVersionButton repoType='Source' repo={item.source} version={item.latest_source_version} vertical />},
   ],
   mappings: [
-    {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id_lowercase', className: 'searchable'},
-    {id: 'fromConcept', labelKey: 'mapping.fromConcept', value: 'fromConceptCode', className: 'searchable', sortable: false, renderer: item => <FromConcept mapping={item} />},
-    {id: 'mapType', labelKey: 'mapping.type', value: 'map_type', sortable: true},
-    {id: 'toConcept', labelKey: 'mapping.toConcept', value: 'toConceptCode', className: 'searchable', sortable: false, renderer: item => <ToConcept mapping={item} />},
+    {id: 'fromAndTargetSource', labelKey: 'mapping.fromAndTargetSource', sortable: false, className: 'searchable', renderer: item => <FromAndTargetSource mapping={item} />},
+    {id: 'fromConcept', labelKey: 'mapping.fromConcept', value: 'fromConceptCode', className: 'searchable', sortable: false, renderer: item => <ConceptCell mapping={item} direction='from' />},
+    {id: 'mapType', labelKey: 'mapping.map_type', value: 'map_type', sortable: true},
+    {id: 'toConcept', labelKey: 'mapping.toConcept', value: 'toConceptCode', className: 'searchable', sortable: false, renderer: item => <ConceptCell mapping={item} direction='to' />},
   ],
   repos: [
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id', className: 'searchable'},

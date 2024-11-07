@@ -7,7 +7,7 @@ import { Tooltip } from '@mui/material';
 import {
   filter, difference, compact, find, reject, intersectionBy, size, keys, omitBy, isEmpty,
   get, includes, map, isArray, values, pick, sortBy, zipObject, orderBy, isObject, merge,
-  uniqBy, cloneDeep, isEqual, without, capitalize, last, nth, startCase, uniq, flatten, pickBy
+  uniqBy, cloneDeep, isEqual, without, capitalize, last, nth, startCase, uniq, flatten, pickBy, upperFirst
 } from 'lodash';
 import {
   DATE_FORMAT, TIME_FORMAT, DATETIME_FORMAT, OCL_SERVERS_GROUP, OCL_FHIR_SERVERS_GROUP, HAPI_FHIR_SERVERS_GROUP,
@@ -737,6 +737,21 @@ export const URIToOwnerParams = uri => {
     owner.owner = ownerURI?.split('/users/')[1]?.replaceAll('/', '')
   }
   return owner
+}
+
+export const URIToParentParams = uri => {
+  const parentURI = toParentURI(uri)
+  let parent = {ownerType: undefined, owner: undefined, url: parentURI, repo: undefined, repoType: undefined}
+  const parts = parentURI.split('/')
+  if(parts[1] === 'orgs') {
+    parent.ownerType = 'Organization'
+  } else {
+    parent.ownerType = 'User'
+  }
+  parent.owner = parts[2]
+  parent.repoType = upperFirst(parts[3]?.slice(0, -1))
+  parent.repo = parts[4]
+  return parent
 }
 
 export const getWidthOfText = (txt, fontname, fontsize) => {

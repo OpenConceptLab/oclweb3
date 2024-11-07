@@ -164,9 +164,10 @@
     "mappings": "Mappings",
     "retired_mappings": "Retired Mappings",
     "fromConcept": "From concept",
-    "toConcept": "To Concept",
+    "toConcept": "Target Concept",
     "type": "Type",
     "map_types": "Map Types",
+    "map_type": "Map type",
     "from_concept_sources": "From Concept Sources",
     "to_concept_sources": "Target Concept Sources",
     "relationship": "Relationship",
@@ -178,7 +179,8 @@
     "from_concept_defined": "Source concept is defined in OCL",
     "to_concept_not_defined": "Target concept is not defined in OCL",
     "to_concept_defined": "Target concept is defined in OCL",
-    "sort_weight": "Sort Weight"
+    "sort_weight": "Sort Weight",
+    "fromAndTargetSource": "From and target Source"
   },
   "checksums": {
     "standard": "Standard Checksum",

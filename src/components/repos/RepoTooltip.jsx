@@ -40,6 +40,7 @@ const TooltipTitle = ({ repo }) => {
       <div style={{width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '-8px'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
           <OwnerButton
+            noTooltip
             ownerType={owner.ownerType}
             owner={owner.owner}
             ownerURL={owner.uri}
