@@ -23,10 +23,10 @@ const Repo = ({mapping, direction, sx}) => {
   const isPresent = Boolean(repoName)
   return (
     <RepoTooltip basicTooltip={!isPresent} repo={{...repo, url: repoURL, id: repo?.repo || repoURL}}>
-      <span style={{maxWidth: '300px', textAlign: 'left', ...sx}}>
+      <span style={{maxWidth: '175px', textAlign: 'left', ...sx}}>
       <div style={{display: 'flex', alignItems: 'center', justifyContent: 'left'}}>
         <SourceIcon selected={isPresent} />
-        <Typography className='overflow-ellipsis' component='span' sx={{maxWidth: '275px', fontSize: '14px', color: 'rgba(0, 0, 0, 0.87)', marginLeft: '8px'}}>
+        <Typography className='overflow-ellipsis' component='span' sx={{maxWidth: '150px', fontSize: '14px', color: 'rgba(0, 0, 0, 0.87)', marginLeft: '8px'}}>
           {get(mapping, `${direction}_source_url`) || get(mapping, `${direction}_source_name`)}
     </Typography>
         <span/>
