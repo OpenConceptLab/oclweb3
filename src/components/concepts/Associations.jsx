@@ -47,7 +47,7 @@ const MappingCells = ({mapping, isIndirect}) => {
   const getConceptName = (mapping, attr) => {
     let name = get(mapping, attr) || get(mapping, `${attr}_resolved`);
     if(name) return name;
-    return get(mapping, `${attr.split('_name')[0]}.display_name`)
+    return get(mapping, `${attr.split('_name')}.0.display_name`)
   }
   const isDefinedInOCL = Boolean(mapping.cascade_target_concept_url)
   const getTitle = () => {
