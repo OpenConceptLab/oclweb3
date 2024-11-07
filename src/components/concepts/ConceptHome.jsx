@@ -20,13 +20,14 @@ const ConceptHome = props => {
   const [edit, setEdit] = React.useState(false)
 
   React.useEffect(() => {
+    setConcept(props.concept || {})
     getService().get().then(response => {
       const resource = response.data
       setConcept(resource)
       props.repo?.id ? setRepo(repo) : fetchRepo(resource)
       getMappings(resource)
     })
-  }, [props.url])
+  }, [props.concept?.id, props.url])
 
   React.useEffect(() => {
     if (isInitialMount.current) {
@@ -41,7 +42,7 @@ const ConceptHome = props => {
   const getRepoURL = _concept => {
     if(props?.repo?.id)
       return props?.repo?.version_url || props?.repo?.url
-    let url = toParentURI(_concept?.version_url || concept?.url)
+    let url = toParentURI(_concept?.version_url || _concept?.url || props?.url || '')
     const repoVersion = _concept?.latest_source_version || concept?.latest_source_version
     if(repoVersion)
       url += repoVersion + '/'
@@ -51,10 +52,11 @@ const ConceptHome = props => {
   const onEdit = () => setEdit(true)
 
   const getService = () => {
-    let url = props.url
+    let _concept = props.concept?.id ? props.concept : concept
+    let url = _concept?.verison_url || _concept?.url || props.url
     const parentURL = getRepoURL()
-    if(parentURL && concept?.id)
-      url = `${parentURL}concepts/${encodeURIComponent(concept.id)}/`
+    if(parentURL && _concept?.id)
+      url = `${parentURL}concepts/${encodeURIComponent(_concept.id)}/`
 
     return APIService.new().overrideURL(encodeURI(url))
   }

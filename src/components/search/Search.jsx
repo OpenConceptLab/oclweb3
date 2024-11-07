@@ -407,7 +407,7 @@ const Search = props => {
           <div className={'col-xs-5 padding-0' + (showItem ? ' split-appear' : '')} style={{marginLeft: '16px', width: showItem ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: COLORS.primary.contrastText, borderRadius: '10px', height: showItem ? 'calc(100vh - 100px)' : 0, opacity: showItem ? 1 : 0}}>
             {
               showItem &&
-                <ConceptHome url={getLastSelectedURL()} onClose={() => setShowItem(false)} />
+                <ConceptHome concept={showItem} url={getLastSelectedURL()} onClose={() => setShowItem(false)} />
             }
           </div>
       }

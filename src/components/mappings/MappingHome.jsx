@@ -16,12 +16,13 @@ const MappingHome = props => {
   const [tab, setTab] = React.useState('metadata')
 
   React.useEffect(() => {
+    setMapping(props.mapping || {})
     getService().get().then(response => {
       const resource = response.data
       setMapping(resource)
       props.repo?.id ? setRepo(props.repo) : fetchRepo(resource)
     })
-  }, [props.url])
+  }, [props.mapping?.id, props.url])
 
   React.useEffect(() => {
     if (isInitialMount.current) {
@@ -36,7 +37,7 @@ const MappingHome = props => {
   const getRepoURL = _mapping => {
     if(props?.repo?.id)
       return props?.repo?.version_url || props?.repo?.url
-    let url = toParentURI(_mapping?.version_url || mapping?.url)
+    let url = toParentURI(_mapping?.version_url || _mapping?.url || props?.url || '')
     const repoVersion = _mapping?.latest_source_version || mapping?.latest_source_version
     if(repoVersion)
       url += repoVersion + '/'
@@ -44,10 +45,11 @@ const MappingHome = props => {
   }
 
   const getService = () => {
-    let url = props.url
+    let _mapping = props.mapping?.id ? props.mapping : mapping
+    let url = _mapping?.version_url || _mapping.url || props.url
     const parentURL = getRepoURL()
-    if(parentURL && mapping?.id)
-      url = `${parentURL}mappings/${encodeURIComponent(mapping.id)}/`
+    if(parentURL && _mapping?.id)
+      url = `${parentURL}mappings/${encodeURIComponent(_mapping.id)}/`
 
     return APIService.new().overrideURL(encodeURI(url))
   }

@@ -92,8 +92,8 @@ const RepoHome = () => {
   }
 
   const onShowItem = item => {
-    setConceptForm(false)
     setShowItem(item)
+    setConceptForm(false)
   }
 
   const onCreateConceptClick = () => {
