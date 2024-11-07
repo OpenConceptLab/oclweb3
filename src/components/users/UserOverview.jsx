@@ -10,7 +10,7 @@ const UserOverview = ({ user, bookmarks, events, height, onLoadMoreEvents }) => 
 
   return (
     <div className='col-xs-12 padding-0' style={{height: height || '100%' }}>
-      <div className='col-xs-9' style={{padding: '0 16px', height: '100%', overflow: 'auto', width: '80%'}}>
+      <div className='col-xs-9' style={{padding: '0 16px', height: '100%', overflow: 'auto', width: '100%'}}>
         <Bookmarks bookmarks={bookmarks} />
         {
           Boolean(events?.length) &&
