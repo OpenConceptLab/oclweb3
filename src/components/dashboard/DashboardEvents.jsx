@@ -9,7 +9,6 @@ import CardContent from '@mui/material/CardContent';
 import HighlightIcon from '@mui/icons-material/CampaignOutlined';
 import Avatar from '@mui/material/Avatar';
 import isEmpty from 'lodash/isEmpty'
-import isArray from 'lodash/isArray'
 import { WHITE } from '../../common/colors'
 import { getSiteTitle } from '../../common/utils'
 import EntityIcon from '../common/EntityIcon';
