@@ -103,11 +103,14 @@ const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect}) => {
             </Tooltip>
           </span>
         </TableCell>
-        <MappingCells mapping={mappings[0]} isIndirect={isIndirect} />
+        {
+          !isEmpty(get(mappings, 0)) &&
+            <MappingCells mapping={get(mappings, 0)} isIndirect={isIndirect} />
+        }
       </TableRow>
       {
         map(mappings?.slice(1), (mapping, index) => {
-          return (
+          return (!mapping || isEmpty(mapping)) ? null : (
             <TableRow key={index}>
               <MappingCells mapping={mapping} isIndirect={isIndirect} />
             </TableRow>
