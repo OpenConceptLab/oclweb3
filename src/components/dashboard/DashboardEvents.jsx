@@ -8,11 +8,14 @@ import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent';
 import HighlightIcon from '@mui/icons-material/CampaignOutlined';
 import Avatar from '@mui/material/Avatar';
+import isEmpty from 'lodash/isEmpty'
+import isArray from 'lodash/isArray'
 import { WHITE } from '../../common/colors'
 import { getSiteTitle } from '../../common/utils'
 import EntityIcon from '../common/EntityIcon';
 import EntityChip from '../common/EntityChip';
 import Link from '../common/Link'
+import EmptyOverview from '../common/EmptyOverview'
 
 const EventCard = ({ event, highlight }) => {
   const history = useHistory()
@@ -86,17 +89,24 @@ const HighlightCard = props => {
   )
 }
 
-const DashboardEvents = ({ events, highlight, sx }) => {
+const DashboardEvents = ({ events, highlight, sx, isLoading }) => {
+  const { t } = useTranslation()
   return (
     <div className='col-xs-12 padding-0' style={{maxHeight: '85vh', overflow: 'auto', ...sx}}>
       {
-        events.map(event => (
+        !isLoading && isEmpty(events) ?
+          (
+            <div className='col-xs-12 padding-0' style={{height: '40vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
+              <EmptyOverview label={t('dashboard.no_events')} />
+            </div>
+          ):
+        (events.map(event => (
           highlight ?
             <HighlightCard key={event.id}>
               <EventCard event={event} highlight={highlight} />
             </HighlightCard> :
           <EventCard key={event.id} event={event} highlight={highlight} />
-        ))
+        )))
       }
     </div>
   )

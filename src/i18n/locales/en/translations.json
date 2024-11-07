@@ -102,7 +102,8 @@
     "create_repository": "Create Repository",
     "anonymous_heading": "What's new?",
     "community_blog": "Community Blog",
-    "events_scope_sign_in": "You need to be signed in to see content from publishers you follow"
+    "events_scope_sign_in": "You need to be signed in to see content from publishers you follow",
+    "no_events": "There are no updates to show yet."
   },
   "bookmarks": {
     "name": "Bookmarks",

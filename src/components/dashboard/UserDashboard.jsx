@@ -96,7 +96,7 @@ const UserDashboard = ({ user }) => {
           <EventsButtonGroup selected={scope} onClick={onScopeChange} />
         </div>
         <LoaderDialog open={loading} />
-        <DashboardEvents events={getScopeEvents()} />
+        <DashboardEvents isLoading={loading} events={getScopeEvents()} />
       </div>
       <div className='col-xs-3 padding-0' style={{minWidth: '360px', minHeight: '370px'}}>
         <div className='col-xs-12' style={{background: WHITE, borderRadius: '10px', border: `1px solid ${SURFACE_COLORS.nv80}`}}>

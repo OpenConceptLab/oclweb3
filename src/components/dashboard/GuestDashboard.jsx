@@ -63,7 +63,7 @@ const GuestDashboard = () => {
         <LoaderDialog open={loading} />
         {
           ['all', 'highlights'].includes(scope) ?
-            <DashboardEvents events={getScopeEvents()} sx={{marginTop: '16px'}} highlight />:
+            <DashboardEvents events={getScopeEvents()} sx={{marginTop: '16px'}} highlight isLoading={loading} />:
           <div className='col-xs-12 padding-0' style={{height: '86vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
             <EmptyOverview
               label={t('dashboard.events_scope_sign_in')}
