@@ -11,31 +11,31 @@ import ExternalIdLabel from '../common/ExternalIdLabel'
 const ConceptProperties = ({ concept }) => {
   const { t } = useTranslation()
   return (
-    <Table>
+    <Table size='small'>
       <TableBody sx={{ '.MuiTableRow-root': {'&:last-child td': {border: 0, borderRadius: '10px'}} }}>
         <TableRow>
-          <TableCell style={{fontSize: '12px', width: '150px'}}>
+          <TableCell style={{fontSize: '0.875rem', width: '150px'}}>
             {t('concept.concept_class')}
           </TableCell>
-          <TableCell style={{fontSize: '12px'}}>
+          <TableCell style={{fontSize: '0.875rem'}}>
             {concept?.concept_class}
           </TableCell>
         </TableRow>
         <TableRow>
-          <TableCell style={{fontSize: '12px', width: '150px'}}>
+          <TableCell style={{fontSize: '0.875rem', width: '150px'}}>
             {t('concept.datatype')}
           </TableCell>
-          <TableCell style={{fontSize: '12px'}}>
+          <TableCell style={{fontSize: '0.875rem'}}>
             {concept?.datatype}
           </TableCell>
         </TableRow>
         {
           concept?.external_id &&
             <TableRow>
-              <TableCell style={{fontSize: '12px', width: '170px'}}>
+              <TableCell style={{fontSize: '0.875rem', width: '170px'}}>
                 {t('common.external_id')}
               </TableCell>
-              <TableCell sx={{ fontSize: '12px' }}>
+              <TableCell sx={{ fontSize: '0.875rem' }}>
                 <ExternalIdLabel value={concept.external_id} showFull valueOnly valueStyle={{color: 'rgba(0, 0, 0, 0.87)'}} />
               </TableCell>
             </TableRow>
@@ -43,10 +43,10 @@ const ConceptProperties = ({ concept }) => {
         {
           concept?.retired &&
             <TableRow>
-              <TableCell style={{fontSize: '12px', width: '170px'}}>
+              <TableCell style={{fontSize: '0.875rem', width: '170px'}}>
                 {t('common.retired')}
               </TableCell>
-              <TableCell sx={{ fontSize: '12px' }}>
+              <TableCell sx={{ fontSize: '0.875rem' }}>
                 {concept.retired.toString()}
               </TableCell>
             </TableRow>
@@ -54,7 +54,7 @@ const ConceptProperties = ({ concept }) => {
         {
           map(concept.extras, (value, key) => (
             <TableRow key={key}>
-              <TableCell style={{fontSize: '12px', width: '170px'}}>
+              <TableCell style={{fontSize: '0.875rem', width: '170px'}}>
                 {key}
                 <Chip
                   label={t('common.custom')}
@@ -73,7 +73,7 @@ const ConceptProperties = ({ concept }) => {
                   }}
                 />
               </TableCell>
-              <TableCell sx={{ fontSize: '12px' }}>
+              <TableCell sx={{ fontSize: '0.875rem' }}>
                 {value}
               </TableCell>
             </TableRow>

@@ -23,7 +23,7 @@ const LocalePrimary = ({ locale }) => {
   const locale_type = locale.name_type || locale.description_type
   return (
     <React.Fragment>
-      <Typography component="span" sx={{fontSize: '12px', color: '#000000de'}}>
+      <Typography component="span" sx={{fontSize: '0.875rem', color: '#000000de'}}>
         {locale.name || locale.description}
       </Typography>
       {
@@ -35,7 +35,7 @@ const LocalePrimary = ({ locale }) => {
               height: '20px',
               borderRadius: '4px',
               backgroundColor: '#e4e1ec',
-              fontSize: '12px',
+              fontSize: '0.875rem',
               color: 'surface.dark',
               marginLeft: '8px',
               '.MuiChip-label': {
