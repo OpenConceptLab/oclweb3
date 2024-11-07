@@ -54,7 +54,7 @@ const ConceptProperties = ({ concept }) => {
         {
           map(concept.extras, (value, key) => (
             <TableRow key={key}>
-              <TableCell style={{fontSize: '0.875rem', width: '170px'}}>
+              <TableCell style={{fontSize: '0.875rem', width: '170px', whiteSpace: 'pre'}}>
                 {key}
                 <Chip
                   label={t('common.custom')}
@@ -73,7 +73,7 @@ const ConceptProperties = ({ concept }) => {
                   }}
                 />
               </TableCell>
-            <TableCell sx={{ fontSize: '0.875rem', whiteSpace: 'pre' }}>
+            <TableCell sx={{ fontSize: '0.875rem' }}>
                 {value}
               </TableCell>
             </TableRow>
