@@ -16,10 +16,10 @@ const MappingProperties = ({ mapping }) => {
         {
           mapping?.external_id &&
             <TableRow>
-              <TableCell style={{fontSize: '12px', width: '170px'}}>
+              <TableCell style={{fontSize: '0.875rem', width: '170px'}}>
                 {t('common.external_id')}
               </TableCell>
-              <TableCell sx={{ fontSize: '12px' }}>
+              <TableCell sx={{ fontSize: '0.875rem' }}>
                 <ExternalIdLabel value={mapping.external_id} showFull valueOnly valueStyle={{color: 'rgba(0, 0, 0, 0.87)'}} />
               </TableCell>
             </TableRow>
@@ -27,10 +27,10 @@ const MappingProperties = ({ mapping }) => {
         {
           mapping?.retired &&
             <TableRow>
-              <TableCell style={{fontSize: '12px', width: '170px'}}>
+              <TableCell style={{fontSize: '0.875rem', width: '170px'}}>
                 {t('common.retired')}
               </TableCell>
-              <TableCell sx={{ fontSize: '12px' }}>
+              <TableCell sx={{ fontSize: '0.875rem' }}>
                 {mapping.retired.toString()}
               </TableCell>
             </TableRow>
@@ -38,10 +38,10 @@ const MappingProperties = ({ mapping }) => {
         {
           mapping?.sort_weight &&
             <TableRow>
-              <TableCell style={{fontSize: '12px', width: '170px'}}>
+              <TableCell style={{fontSize: '0.875rem', width: '170px'}}>
                 {t('mapping.sort_weight')}
               </TableCell>
-              <TableCell sx={{ fontSize: '12px' }}>
+              <TableCell sx={{ fontSize: '0.875rem' }}>
                 {mapping.sort_weight}
               </TableCell>
             </TableRow>
@@ -49,7 +49,7 @@ const MappingProperties = ({ mapping }) => {
         {
           map(mapping.extras, (value, key) => (
             <TableRow key={key}>
-              <TableCell style={{fontSize: '12px', width: '170px'}}>
+              <TableCell style={{fontSize: '0.875rem', width: '170px'}}>
                 {key}
                 <Chip
                   label={t('common.custom')}
@@ -68,7 +68,7 @@ const MappingProperties = ({ mapping }) => {
                   }}
                 />
               </TableCell>
-              <TableCell sx={{ fontSize: '12px' }}>
+              <TableCell sx={{ fontSize: '0.875rem', whiteSpace: 'pre' }}>
                 {value}
               </TableCell>
             </TableRow>

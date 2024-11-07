@@ -73,7 +73,7 @@ const ConceptProperties = ({ concept }) => {
                   }}
                 />
               </TableCell>
-              <TableCell sx={{ fontSize: '0.875rem' }}>
+            <TableCell sx={{ fontSize: '0.875rem', whiteSpace: 'pre' }}>
                 {value}
               </TableCell>
             </TableRow>
