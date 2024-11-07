@@ -122,6 +122,7 @@ const RepoHome = () => {
                 {
                   repo?.id && ['concepts', 'mappings'].includes(tab) &&
                     <Search
+                      summary={repoSummary || repo?.summary}
                       resource={tab}
                       url={getURL() + tab + '/'}
                       defaultFiltersOpen={false}

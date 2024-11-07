@@ -233,7 +233,11 @@ const Search = props => {
         setLoading(false)
         return
       }
-      const resourceResult = {total: parseInt(response?.headers?.num_found), pageSize: max([parseInt(response?.headers?.num_returned), params?.limit]), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || [], facets: result[__resource]?.facets || {}}
+      let total = parseInt(response?.headers?.num_found)
+      const summaryCount = get(props.summary, `active_${__resource}`) || get(props.summary, `${__resource}.active`) || 0
+      if(!params.q && props?.summary && props.nested && total < summaryCount)
+        total = summaryCount
+      const resourceResult = {total: total, pageSize: max([parseInt(response?.headers?.num_returned), params?.limit]), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || [], facets: result[__resource]?.facets || {}}
       setResult({[__resource]: resourceResult})
       setLoading(false)
       if(facets && isFilterable(__resource))
