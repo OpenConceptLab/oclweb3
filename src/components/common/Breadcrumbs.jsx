@@ -1,5 +1,4 @@
 import React from 'react';
-import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
 import RepoIcon from '../repos/RepoIcon';
 import ConceptIcon from '../concepts/ConceptIcon';
 import MappingIcon from '../mappings/MappingIcon';
@@ -9,7 +8,7 @@ import RepoTooltip from '../repos/RepoTooltip'
 import Box from '@mui/material/Box';
 import OwnerButton from './OwnerButton'
 
-const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, version, concept, mapping, noIcons, color, fontSize, size, ownerURL, nested}) => {
+const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, concept, mapping, noIcons, color, fontSize, size, ownerURL, nested}) => {
   const iconProps = {color: 'secondary', style: {marginRight: '8px', width: '0.8em'}}
   const hideParents = Boolean((concept?.id || mapping?.id) && nested)
   return (
@@ -124,17 +123,6 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, version, con
             }}>
               {mapping.id}
             </span>
-          </React.Fragment>
-      }
-      {
-        version  &&
-          <React.Fragment>
-            <DotSeparator />
-            {
-              !noIcons &&
-                <VersionIcon {...iconProps} />
-            }
-            {version}
           </React.Fragment>
       }
     </Box>
