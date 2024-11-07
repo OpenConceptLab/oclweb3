@@ -173,7 +173,7 @@ const Associations = ({concept, mappings, reverseMappings}) => {
                 {
                   !isEmpty(orderedMappings?.children?.hierarchy) &&
                     <AssociationRow
-                      concepts={orderedMappings?.children?.hierarchy}
+                      mappings={orderedMappings?.children?.hierarchy}
                       id='has-child'
                       mapType='Has child'
                       isHierarchy
@@ -182,7 +182,7 @@ const Associations = ({concept, mappings, reverseMappings}) => {
                 {
                   !isEmpty(orderedMappings?.parent?.reverseHierarchy) &&
                     <AssociationRow
-                      concepts={orderedMappings?.parent?.reverseHierarchy}
+                      mappings={orderedMappings?.parent?.reverseHierarchy}
                       id='has-parent'
                       mapType='Has parent'
                       isHierarchy

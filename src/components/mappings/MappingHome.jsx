@@ -31,9 +31,11 @@ const MappingHome = props => {
     }
   }, [location])
 
-  const fetchRepo = _mapping => APIService.new().overrideURL(getRepoURL(_mapping)).get().then(response => setRepo(response.data))
+  const fetchRepo = _mapping => props?.repo?.id ? setRepo(props.repo) : APIService.new().overrideURL(getRepoURL(_mapping)).get().then(response => setRepo(response.data))
 
   const getRepoURL = _mapping => {
+    if(props?.repo?.id)
+      return props?.repo?.version_url || props?.repo?.url
     let url = toParentURI(_mapping?.version_url || mapping?.url)
     const repoVersion = _mapping?.latest_source_version || mapping?.latest_source_version
     if(repoVersion)
@@ -43,8 +45,9 @@ const MappingHome = props => {
 
   const getService = () => {
     let url = props.url
-    if(props.scoped === 'collection' && props.parentURL && mapping?.id)
-      url = `${props.parentURL}mappings/${encodeURIComponent(mapping.id)}/`
+    const parentURL = getRepoURL()
+    if(parentURL && mapping?.id)
+      url = `${parentURL}mappings/${encodeURIComponent(mapping.id)}/`
 
     return APIService.new().overrideURL(encodeURI(url))
   }

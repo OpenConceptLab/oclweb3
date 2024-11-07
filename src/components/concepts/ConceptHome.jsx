@@ -36,9 +36,11 @@ const ConceptHome = props => {
     }
   }, [location])
 
-  const fetchRepo = _concept => APIService.new().overrideURL(getRepoURL(_concept)).get().then(response => setRepo(response.data))
+  const fetchRepo = _concept => props?.repo?.id ? setRepo(props.repo) : APIService.new().overrideURL(getRepoURL(_concept)).get().then(response => setRepo(response.data))
 
   const getRepoURL = _concept => {
+    if(props?.repo?.id)
+      return props?.repo?.version_url || props?.repo?.url
     let url = toParentURI(_concept?.version_url || concept?.url)
     const repoVersion = _concept?.latest_source_version || concept?.latest_source_version
     if(repoVersion)
@@ -50,8 +52,9 @@ const ConceptHome = props => {
 
   const getService = () => {
     let url = props.url
-    if(props.scoped === 'collection' && props.parentURL && concept?.id)
-      url = `${props.parentURL}concepts/${encodeURIComponent(concept.id)}/`
+    const parentURL = getRepoURL()
+    if(parentURL && concept?.id)
+      url = `${parentURL}concepts/${encodeURIComponent(concept.id)}/`
 
     return APIService.new().overrideURL(encodeURI(url))
   }
