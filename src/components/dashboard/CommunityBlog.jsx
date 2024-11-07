@@ -18,6 +18,7 @@ import map from 'lodash/map'
 
 import OCLLogo from '../common/OCLLogo'
 import { WHITE } from '../../common/colors'
+import { formatDate } from '../../common/utils'
 
 
 const CommunityBlog = ({ sx }) => {
@@ -36,7 +37,6 @@ const CommunityBlog = ({ sx }) => {
     fetchFeed()
   }, [])
 
-
   return (
     <Card variant='outlined' sx={{height: '298px', borderRadius: '10px', display: 'inline-block', width: '100%', overflow: 'auto', ...sx}}>
       <CardHeader
@@ -48,7 +48,7 @@ const CommunityBlog = ({ sx }) => {
         title={t('dashboard.community_blog')}
         sx={{paddingBottom: 0, '.MuiCardHeader-title': {color: 'surface.dark', fontWeight: 'bold'}}}
       />
-      <CardContent sx={{padding: '8px 16px 16px 16px'}}>
+      <CardContent sx={{padding: '0px 16px 16px 16px'}}>
         {
           isArray(feed?.items) && feed?.items?.length > 0 &&
             <List dense sx={{padding: 0}}>
@@ -61,7 +61,8 @@ const CommunityBlog = ({ sx }) => {
                       </ListItemIcon>
                       <ListItemText
                         primary={item.title}
-                        sx={{'.MuiListItemText-primary': { fontSize: '14px'}}}
+                        secondary={formatDate(item.published)}
+                        sx={{'.MuiListItemText-primary': { fontSize: '14px'}, '.MuiListItemText-secondary': { fontSize: '12px'}}}
                       />
                     </ListItemButton>
                   </ListItem>

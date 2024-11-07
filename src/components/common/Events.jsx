@@ -76,7 +76,7 @@ const Event = ({ event, isFirst, isLast }) => {
   )
 }
 
-const Events = ({ user, events, onLoadMore, showAvatar }) => {
+const Events = ({ user, events, onLoadMore, showAvatar, maxHeight, dashboard }) => {
   const { t } = useTranslation()
   const currentUser = getCurrentUser()
   const isSelf = Boolean(currentUser?.username && currentUser?.username === user.username)
@@ -99,7 +99,7 @@ const Events = ({ user, events, onLoadMore, showAvatar }) => {
           },
           p: 0,
           marginTop: 0,
-          maxHeight: '420px',
+          maxHeight: maxHeight || '420px',
           overflow: 'auto'
         }}
       >
@@ -110,7 +110,7 @@ const Events = ({ user, events, onLoadMore, showAvatar }) => {
         }
         {
           onLoadMore &&
-            <TimelineItem sx={{minHeight: '50px'}}>
+            <TimelineItem sx={dashboard ? {height: '34px', minHeight: '34px'} : {}}>
               <TimelineSeparator>
                 <Tooltip title='Show more'>
                   <TimelineDot sx={{backgroundColor: 'transparent', boxShadow: 'none', cursor: 'pointer', marginTop: 0}} onClick={onLoadMore}>

@@ -8,6 +8,7 @@ import Events from '../common/Events'
 import DashboardEvents from './DashboardEvents';
 import EventsButtonGroup from './EventsButtonGroup';
 import LoaderDialog from '../common/LoaderDialog';
+import CommunityBlog from './CommunityBlog'
 
 
 const UserDashboard = ({ user }) => {
@@ -24,14 +25,6 @@ const UserDashboard = ({ user }) => {
   const fetchEventsForSelf = () => {
     getService('self', parseInt(selfEvents.headers.page_number || '0') + 1, 5).then(response => {
       setSelfEvents({events: [...selfEvents.events, ...response.data], headers: response.headers})
-      if(scroll) {
-        setTimeout(() => {
-          const el = document.getElementById('events-timeline')
-          if(el) {
-            el.scrollTop = el.scrollHeight
-          }
-        }, 50)
-      }
     })
   }
 
@@ -100,8 +93,9 @@ const UserDashboard = ({ user }) => {
       </div>
       <div className='col-xs-3 padding-0' style={{minWidth: '360px', minHeight: '370px'}}>
         <div className='col-xs-12' style={{background: WHITE, borderRadius: '10px', border: `1px solid ${SURFACE_COLORS.nv80}`}}>
-          <Events user={user} events={selfEvents.events} onLoadMore={selfEvents.headers?.next ? fetchEventsForSelf : false} showAvatar />
+          <Events user={user} events={selfEvents.events} onLoadMore={selfEvents.headers?.next ? fetchEventsForSelf : false} showAvatar maxHeight="245px" dashboard />
         </div>
+        <CommunityBlog sx={{marginTop: '8px'}} />
       </div>
     </div>
   )
