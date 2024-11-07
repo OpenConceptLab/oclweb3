@@ -84,7 +84,7 @@ const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect}) => {
   return (
     <React.Fragment>
       <TableRow id={id || mapType}>
-        <TableCell className='sticky-col' rowSpan={mappings.length} align='left' sx={{verticalAlign: 'top', width: '10%', paddingLeft: '8px', top: '37px', zIndex: 1}}>
+        <TableCell className='sticky-col' rowSpan={mappings?.length} align='left' sx={{verticalAlign: 'top', width: '10%', paddingLeft: '8px', top: '37px', zIndex: 1}}>
           <span className='flex-vertical-center'>
             <Tooltip placement='left' title={isIndirect ? t('mapping.inverse_mappings') : (isSelf ? t('mapping.self_mappings') : t('mapping.direct_mappings'))}>
               <Chip
@@ -106,7 +106,7 @@ const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect}) => {
         <MappingCells mapping={mappings[0]} isIndirect={isIndirect} />
       </TableRow>
       {
-        map(mappings.slice(1), (mapping, index) => {
+        map(mappings?.slice(1), (mapping, index) => {
           return (
             <TableRow key={index}>
               <MappingCells mapping={mapping} isIndirect={isIndirect} />
