@@ -53,7 +53,7 @@ const ConceptHome = props => {
 
   const getService = () => {
     let _concept = props.concept?.id ? props.concept : concept
-    let url = _concept?.verison_url || _concept?.url || props.url
+    let url = _concept?.version_url || _concept?.url || props.url
     const parentURL = getRepoURL()
     if(parentURL && _concept?.id)
       url = `${parentURL}concepts/${encodeURIComponent(_concept.id)}/`
