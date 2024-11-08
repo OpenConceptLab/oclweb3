@@ -23,7 +23,6 @@ const RepoHome = () => {
   const params = useParams()
 
   const TABS = [
-    {key: 'about', label: t('common.overview')},
     {key: 'concepts', label: t('concept.concepts')},
     {key: 'mappings', label: t('mapping.mappings')},
   ]
