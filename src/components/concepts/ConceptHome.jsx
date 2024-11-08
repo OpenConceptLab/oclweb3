@@ -1,17 +1,19 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom'
+import Fade from '@mui/material/Fade';
+import Skeleton from '@mui/material/Skeleton';
 import APIService from '../../services/APIService';
 import { toParentURI } from '../../common/utils'
 import ConceptHeader from './ConceptHeader';
 import ConceptTabs from './ConceptTabs';
 import ConceptForm from './ConceptForm'
-import Fade from '@mui/material/Fade';
 import ConceptDetails from './ConceptDetails'
 
 const ConceptHome = props => {
   const location = useLocation()
   const isInitialMount = React.useRef(true);
 
+  const [loading, setLoading] = React.useState(false)
   const [concept, setConcept] = React.useState(props.concept || {})
   const [mappings, setMappings] = React.useState([])
   const [reverseMappings, setReverseMappings] = React.useState([])
@@ -20,6 +22,7 @@ const ConceptHome = props => {
   const [edit, setEdit] = React.useState(false)
 
   React.useEffect(() => {
+    setLoading(true)
     setConcept(props.concept || {})
     getService().get().then(response => {
       const resource = response.data
@@ -76,6 +79,8 @@ const ConceptHome = props => {
       )
       .then(response => {
         setMappings(response?.data?.entry?.entries || [])
+        if(directOnly)
+          setTimeout(() => setLoading(false), 300)
         !directOnly && getInverseMappings(concept)
       })
   }
@@ -95,6 +100,7 @@ const ConceptHome = props => {
         })
       .then(response => {
         setReverseMappings(response?.data?.entry?.entries || [])
+        setTimeout(() => setLoading(false), 300)
       })
   }
 
@@ -121,19 +127,19 @@ const ConceptHome = props => {
             !edit &&
               <>
                 <div className='col-xs-12 padding-0' style={{marginBottom: '12px'}}>
-                  <ConceptHeader concept={concept} onClose={props.onClose} repoURL={getRepoURL()} onEdit={onEdit} repo={repo} nested={props.nested} />
+                  <ConceptHeader concept={concept} onClose={props.onClose} repoURL={getRepoURL()} onEdit={onEdit} repo={repo} nested={props.nested} loading={loading} />
                 </div>
-                <ConceptTabs tab={tab} onTabChange={(event, newTab) => setTab(newTab)} />
+                <ConceptTabs tab={tab} onTabChange={(event, newTab) => setTab(newTab)} loading={loading} />
                 {
                   tab === 'metadata' &&
-                    <ConceptDetails concept={concept} repo={repo} mappings={mappings} reverseMappings={reverseMappings} />
+                    <ConceptDetails concept={concept} repo={repo} mappings={mappings} reverseMappings={reverseMappings} loading={loading} />
                 }
               </>
           }
         </div>
       </Fade>
     </>
-  ) : null
+  ) : <Skeleton variant="rounded" width={'100%'} height={'100%'} />
 }
 
 
