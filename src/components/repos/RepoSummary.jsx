@@ -196,21 +196,6 @@ const RepoSummary = ({ repo, summary }) => {
               }}
             />
           </ListItem>
-          <ListItem sx={{padding: '4px 0', fontSize: '12px'}}>
-            <ListItemIcon sx={{minWidth: '20px', marginRight: '8px', justifyContent: 'center'}}>
-              <MappingIcon fontSize='small' color='secondary' />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                mapTypes === false ?
-                  <SkeletonText /> :
-                  <>{`${mapTypes?.toLocaleString()} ${t('mapping.map_types')}`}</>
-              }
-              sx={{
-                '.MuiListItemText-primary': {fontSize: '12px', color: 'secondary.main'}
-              }}
-            />
-          </ListItem>
           {
             !isEmpty(summary?.references) &&
               <>
