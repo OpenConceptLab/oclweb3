@@ -24,23 +24,23 @@ const Repo = ({mapping, direction, sx}) => {
   return (
     <RepoTooltip basicTooltip={!isPresent} repo={{...repo, url: repoURL, id: repo?.repo || repoURL}}>
       <span style={{maxWidth: '175px', textAlign: 'left', ...sx}}>
-      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'left'}}>
-        <SourceIcon selected={isPresent} />
-        <Typography className='overflow-ellipsis' component='span' sx={{maxWidth: '150px', fontSize: '14px', color: 'rgba(0, 0, 0, 0.87)', marginLeft: '8px'}}>
-          {get(mapping, `${direction}_source_url`) || get(mapping, `${direction}_source_name`)}
-    </Typography>
-        <span/>
-    </div>
         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'left'}}>
-          <Typography component='span' sx={{fontSize: '12px'}}>
-          {repo?.repo}
-        </Typography>
-        <DotSeparator margin='0 6px' />
+          <SourceIcon selected={isPresent} />
+          <Typography className='overflow-ellipsis' component='span' sx={{maxWidth: '150px', fontSize: '14px', color: 'rgba(0, 0, 0, 0.87)', marginLeft: '8px'}}>
+            {get(mapping, `${direction}_source_url`) || get(mapping, `${direction}_source_name`)}
+          </Typography>
+          <span/>
+        </div>
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'left'}}>
+          <Typography component='span' sx={{fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px'}}>
+            {repo?.repo}
+          </Typography>
+          <DotSeparator margin='0 6px' />
           <Typography component='span' sx={{fontSize: '12px', color: 'secondary.main'}}>
-          {repo?.repoType}
-        </Typography>
-      </div>
-    </span>
+            {repo?.repoType}
+          </Typography>
+        </div>
+      </span>
     </RepoTooltip>
   )
 }
