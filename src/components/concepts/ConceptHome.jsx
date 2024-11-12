@@ -126,7 +126,7 @@ const ConceptHome = props => {
           {
             !edit &&
               <>
-                <div className='col-xs-12 padding-0' style={{marginBottom: '12px'}}>
+                <div className='col-xs-12 padding-0'>
                   <ConceptHeader concept={concept} onClose={props.onClose} repoURL={getRepoURL()} onEdit={onEdit} repo={repo} nested={props.nested} loading={loading} />
                 </div>
                 <ConceptTabs tab={tab} onTabChange={(event, newTab) => setTab(newTab)} loading={loading} />
@@ -139,7 +139,7 @@ const ConceptHome = props => {
         </div>
       </Fade>
     </>
-  ) : <Skeleton variant="rounded" width={'100%'} height={'100%'} />
+  ) : <Skeleton variant="rounded" width='100%' height='100%' />
 }
 
 

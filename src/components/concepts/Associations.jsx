@@ -144,7 +144,7 @@ const Associations = ({concept, mappings, reverseMappings}) => {
       </Typography>
       {
         count > 0 &&
-          <TableContainer sx={{ maxHeight: 400 }}>
+          <TableContainer sx={{ maxHeight: 400, borderRadius: '10px' }}>
             <Table stickyHeader size='small'>
               <TableHead>
                 <TableRow>

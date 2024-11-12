@@ -15,7 +15,7 @@ const ConceptDetails = ({ concept, repo, mappings, reverseMappings, loading }) =
   const { t } = useTranslation()
   const updatedBy = concept?.version_updated_by || concept?.updated_by
   return (
-    <div className='col-xs-12' style={{padding: '16px 0', height: 'calc(100vh - 330px)', overflow: 'auto'}}>
+    <div className='col-xs-12' style={{padding: '16px 0', height: 'calc(100vh - 245px)', overflow: 'auto'}}>
       {
         loading ?
           <Skeleton variant="rounded" width='100%' height={120} sx={{borderRadius: '10px'}} /> :
@@ -64,7 +64,7 @@ const ConceptDetails = ({ concept, repo, mappings, reverseMappings, loading }) =
           concept?.checksums?.standard
         }
       </Typography>
-      <Typography component='span' sx={{display: 'inline-block', padding: 0, fontSize: '12px', color: 'surface.contrastText', width: '100%'}}>
+      <Typography component='span' sx={{display: 'inline-block', padding: 0, fontSize: '12px', color: 'surface.contrastText', width: '100%', marginBottom: '12px'}}>
         {t('checksums.smart')} {
           loading ?
             <Skeleton variant='text' width='40%' sx={{marginLeft: '8px', fontSize: '12px', display: 'inline-block'}} />:
