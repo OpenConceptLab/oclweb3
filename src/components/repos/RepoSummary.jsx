@@ -123,6 +123,21 @@ const RepoSummary = ({ repo, summary }) => {
           </ListItem>
           <ListItem sx={{padding: '4px 0', fontSize: '12px'}}>
             <ListItemIcon sx={{minWidth: '20px', marginRight: '8px', justifyContent: 'center'}}>
+              <LanguageIcon fontSize='small' color='secondary' style={{fontSize: '1rem'}} />
+            </ListItemIcon>
+            <ListItemText
+              primary={
+                locales === false ?
+                  <SkeletonText /> :
+                  <>{`${locales?.toLocaleString()} ${t('repo.locales')}`}</>
+              }
+              sx={{
+                '.MuiListItemText-primary': {fontSize: '12px', color: 'secondary.main'}
+              }}
+            />
+          </ListItem>
+          <ListItem sx={{padding: '4px 0', fontSize: '12px'}}>
+            <ListItemIcon sx={{minWidth: '20px', marginRight: '8px', justifyContent: 'center'}}>
               <ConceptClassIcon fontSize='small' color='secondary' />
             </ListItemIcon>
             <ListItemText
@@ -160,21 +175,6 @@ const RepoSummary = ({ repo, summary }) => {
                 nameTypes === false ?
                   <SkeletonText /> :
                   <>{`${nameTypes?.toLocaleString()} ${t('concept.name_types')}`}</>
-              }
-              sx={{
-                '.MuiListItemText-primary': {fontSize: '12px', color: 'secondary.main'}
-              }}
-            />
-          </ListItem>
-          <ListItem sx={{padding: '4px 0', fontSize: '12px'}}>
-            <ListItemIcon sx={{minWidth: '20px', marginRight: '8px', justifyContent: 'center'}}>
-              <LanguageIcon fontSize='small' color='secondary' style={{fontSize: '1rem'}} />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                locales === false ?
-                  <SkeletonText /> :
-                  <>{`${locales?.toLocaleString()} ${t('repo.locales')}`}</>
               }
               sx={{
                 '.MuiListItemText-primary': {fontSize: '12px', color: 'secondary.main'}

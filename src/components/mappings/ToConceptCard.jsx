@@ -69,7 +69,6 @@ const ToConceptCard = ({ mapping }) => {
           }}
         />
       </div>
-
     </Paper>
   )
 }

@@ -75,6 +75,12 @@ const RepoHome = () => {
   }
 
   React.useEffect(() => {
+      if(toParentURI(location.pathname) === (repo?.version_url || repo.url)) {
+          if(location.pathname.includes('/concepts/'))
+              setTab('concepts')
+          if(location.pathname.includes('/mappings/'))
+              setTab('mappings')
+      }
     fetchRepo()
     fetchVersions()
   }, [location.pathname])
@@ -116,7 +122,7 @@ const RepoHome = () => {
           (repo?.id || loading) &&
             <React.Fragment>
               <RepoHeader owner={owner} repo={repo} versions={versions} onVersionChange={onVersionChange} onCreateConceptClick={onCreateConceptClick} onCloseConceptForm={() => setConceptForm(false)} />
-              <div className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
+              <div className='padding-0 col-xs-12' style={{width: isSplitView ? '100%' : 'calc(100% - 272px)'}}>
                 <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
                 {
                   repo?.id && ['concepts', 'mappings'].includes(tab) &&
@@ -139,9 +145,12 @@ const RepoHome = () => {
                     <RepoOverview repo={repo} height='calc(100vh - 300px)' />
                 }
               </div>
-              <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderLeft: 'solid 0.5px', borderTop: 'solid 0.5px', borderColor: 'surface.nv80', width: '272px !important', height: 'calc(100vh - 250px)', borderRadius: '0 0 10px 0'}}>
-                <RepoSummary repo={repo} summary={repoSummary} />
-              </Paper>
+              {
+                !isSplitView &&
+                  <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderLeft: 'solid 0.5px', borderTop: 'solid 0.5px', borderColor: 'surface.nv80', width: '272px !important', height: 'calc(100vh - 250px)', borderRadius: '0 0 10px 0'}}>
+                    <RepoSummary repo={repo} summary={repoSummary} />
+                  </Paper>
+              }
             </React.Fragment>
         }
         {
