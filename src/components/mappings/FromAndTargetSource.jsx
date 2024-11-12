@@ -22,7 +22,7 @@ const Repo = ({mapping, direction, sx}) => {
   const repo = URIToParentParams(repoURL)
   const isPresent = Boolean(repoName)
   return (
-    <RepoTooltip basicTooltip={!isPresent} repo={{...repo, url: repoURL, id: repo?.repo || repoURL}}>
+    <RepoTooltip basicTooltip={isPresent ? undefined : repo?.repo || repoURL} repo={{...repo, url: repoURL, id: repo?.repo || repoURL}}>
       <span style={{maxWidth: '175px', textAlign: 'left', ...sx}}>
         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'left'}}>
           <SourceIcon selected={isPresent} />
