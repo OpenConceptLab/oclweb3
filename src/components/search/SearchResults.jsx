@@ -149,7 +149,9 @@ const SearchResults = props => {
     const item = rows.find(row => id == (row.version_url || row.url || row.id)) || false
     if(['concepts', 'mappings'].includes(props.resource)) {
       props.onShowItemSelect(item)
-    } else if (['repos', 'users', 'orgs'].includes(props.resource)) {
+    } else if (props.resource === 'repos') {
+      history.push(item.url + 'latest/')
+    } else if (['users', 'orgs'].includes(props.resource)) {
       history.push(item.version_url || item.url)
     }
     setTimeout(() => document.querySelector('.show-item')?.scrollIntoViewIfNeeded(), 100)
