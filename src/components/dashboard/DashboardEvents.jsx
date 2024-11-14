@@ -22,7 +22,9 @@ const EventCard = ({ event, highlight }) => {
   const getTitle = (event, object, includeSubtitle) => {
     let title = object?.id || object?.username || object?.name
     let subTitle = event?.event_type?.toLowerCase()
-    if(event?.referenced_object?.type)
+    if(event?.referenced_object?.type === 'Organization')
+      subTitle += ` ${t('common.an')} ${event.referenced_object?.type?.toLowerCase()}`
+    else if(event?.referenced_object?.type)
       subTitle += ` ${t('common.a')} ${event.referenced_object?.type?.toLowerCase()}`
     else
       subTitle += ` ${getSiteTitle()}`
