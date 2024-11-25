@@ -8,7 +8,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import DateIcon from '@mui/icons-material/Today';
-import { formatDate } from '../../common/utils'
+import { formatDate, pluralize } from '../../common/utils'
 import RepoIcon from '../repos/RepoIcon';
 import MemberList from './MemberList'
 
@@ -31,7 +31,7 @@ const OrgStatistics = ({ org, members }) => {
             </ListItemIcon>
             <ListItemText
               sx={{color: 'default.light', '.MuiListItemText-primary': {fontSize: '12px'}}}
-              primary={`${repos} ${t('common.public').toLowerCase()} ${t('repo.repos').toLowerCase()}`}
+              primary={pluralize(repos, t('common.public').toLowerCase() + ' ' + t('repo.repo').toLowerCase(), t('common.public').toLowerCase() + ' ' + t('repo.repos').toLowerCase())}
             />
           </ListItem>
           <ListItem disablePadding sx={{marginTop: '8px', cursor: 'pointer'}} onClick={() => setMembersOpen(true)}>
@@ -40,7 +40,7 @@ const OrgStatistics = ({ org, members }) => {
             </ListItemIcon>
             <ListItemText
               sx={{color: 'default.light', '.MuiListItemText-primary': {fontSize: '12px'}}}
-              primary={`${org.members} ${t('org.members').toLowerCase()}`}
+              primary={pluralize(org.members, t('org.member').toLowerCase(), t('org.members').toLowerCase())}
             />
           </ListItem>
           <ListItem disablePadding>

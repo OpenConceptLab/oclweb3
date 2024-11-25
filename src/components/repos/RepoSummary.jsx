@@ -18,7 +18,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import isEmpty from 'lodash/isEmpty'
 
 import APIService from '../../services/APIService'
-import { currentUserHasAccess } from '../../common/utils'
+import { currentUserHasAccess, pluralize } from '../../common/utils'
 import { OperationsContext } from '../app/LayoutContext';
 import AccessChip from '../common/AccessChip'
 import ConceptIcon from '../concepts/ConceptIcon'
@@ -129,7 +129,7 @@ const RepoSummary = ({ repo, summary }) => {
               primary={
                 locales === false ?
                   <SkeletonText /> :
-                  <>{`${locales?.toLocaleString()} ${t('repo.locales')}`}</>
+                  <>{pluralize(locales, t('repo.locale'), t('repo.locales'))}</>
               }
               sx={{
                 '.MuiListItemText-primary': {fontSize: '12px', color: 'secondary.main'}
@@ -144,7 +144,7 @@ const RepoSummary = ({ repo, summary }) => {
               primary={
                 conceptClasses === false ?
                   <SkeletonText /> :
-                  <>{`${conceptClasses?.toLocaleString()} ${t('concept.concept_classes')}`}</>
+                  <>{pluralize(conceptClasses, t('concept.concept_class'), t('concept.concept_classes'))}</>
               }
               sx={{
                 '.MuiListItemText-primary': {fontSize: '12px', color: 'secondary.main'}
@@ -159,7 +159,7 @@ const RepoSummary = ({ repo, summary }) => {
               primary={
                 datatypes === false ?
                   <SkeletonText /> :
-                  <>{`${datatypes?.toLocaleString()} ${t('concept.datatypes')}`}</>
+                  <>{pluralize(datatypes, t('concept.datatype'), t('concept.datatypes'))}</>
               }
               sx={{
                 '.MuiListItemText-primary': {fontSize: '12px', color: 'secondary.main'}
@@ -174,7 +174,7 @@ const RepoSummary = ({ repo, summary }) => {
               primary={
                 nameTypes === false ?
                   <SkeletonText /> :
-                  <>{`${nameTypes?.toLocaleString()} ${t('concept.name_types')}`}</>
+                  <>{pluralize(nameTypes, t('concept.name_types'), t('concept.name_types'))}</>
               }
               sx={{
                 '.MuiListItemText-primary': {fontSize: '12px', color: 'secondary.main'}
@@ -189,7 +189,7 @@ const RepoSummary = ({ repo, summary }) => {
               primary={
                 mapTypes === false ?
                   <SkeletonText /> :
-                  <>{`${mapTypes?.toLocaleString()} ${t('mapping.map_types')}`}</>
+                  <>{pluralize(mapTypes, t('mapping.map_type'), t('mapping.map_types'))}</>
               }
               sx={{
                 '.MuiListItemText-primary': {fontSize: '12px', color: 'secondary.main'}

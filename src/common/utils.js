@@ -996,3 +996,6 @@ export const highlightTexts = (items, texts, unmark=false) => {
     markInstance.unmark(options)
   markInstance.mark(_texts, options);
 }
+
+export const pluralize = (count, singular, plural) => `${count?.toLocaleString()} ${count === 1 ? singular : plural}`;
+
