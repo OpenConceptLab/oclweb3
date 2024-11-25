@@ -166,7 +166,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                             style={{padding: '4px 8px'}}
                           />
                         </ListItemIcon>
-                        <ListItemText id={labelId} primary={formattedName(field, value[0])} primaryTypographyProps={{style: {fontSize: '0.875rem'}}} style={{margin: 0}} />
+                        <ListItemText id={labelId} primary={formattedName(field, value[0]) || 'None'} primaryTypographyProps={{style: {fontSize: '0.875rem'}}} style={{margin: 0}} />
                         <span style={{fontSize: '0.7rem'}}>{value[1].toLocaleString()}</span>
                       </ListItemButton>
                     );
