@@ -2,6 +2,8 @@ import React from 'react';
 import { useLocation, useHistory, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import Paper from '@mui/material/Paper'
+import orderBy from 'lodash/orderBy'
+import filter from 'lodash/filter'
 import APIService from '../../services/APIService';
 import LoaderDialog from '../common/LoaderDialog';
 import RepoHeader from './RepoHeader';
@@ -70,7 +72,14 @@ const RepoHome = () => {
 
   const fetchVersions = () => {
     APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit: 100}).then(response => {
-      setVersions(response?.data || [])
+      const _versions = response?.data || []
+      setVersions(_versions)
+      if(!repo.version_url && params.repoVersion !== 'HEAD') {
+        const releasedVersions = filter(_versions, {released: true})
+        let version = orderBy(releasedVersions, 'created_on', ['desc'])[0] || orderBy(_versions, 'created_on', ['desc'])[0]
+        if((version?.version_url || version?.url) != (repo?.version_url || repo?.url))
+          onVersionChange(version)
+      }
     })
   }
 

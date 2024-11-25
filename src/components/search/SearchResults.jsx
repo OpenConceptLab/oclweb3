@@ -150,7 +150,7 @@ const SearchResults = props => {
     if(['concepts', 'mappings'].includes(props.resource)) {
       props.onShowItemSelect(item)
     } else if (props.resource === 'repos') {
-      history.push(item.url + 'latest/')
+      history.push(item.url)
     } else if (['users', 'orgs'].includes(props.resource)) {
       history.push(item.version_url || item.url)
     }
