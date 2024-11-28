@@ -13,13 +13,18 @@ const ConceptHome = props => {
   const location = useLocation()
   const isInitialMount = React.useRef(true);
 
-  const [loading, setLoading] = React.useState(false)
   const [concept, setConcept] = React.useState(props.concept || {})
-  const [mappings, setMappings] = React.useState([])
-  const [reverseMappings, setReverseMappings] = React.useState([])
+
   const [repo, setRepo] = React.useState(props.repo || {})
   const [tab, setTab] = React.useState('metadata')
   const [edit, setEdit] = React.useState(false)
+
+  const [loading, setLoading] = React.useState(false)
+  const [loadingOwnerMappings, setLoadingOwnerMappings] = React.useState(null)
+  const [mappings, setMappings] = React.useState([])
+  const [reverseMappings, setReverseMappings] = React.useState([])
+  const [ownerMappings, setOwnerMappings] = React.useState([])
+  const [reverseOwnerMappings, setReverseOwnerMappings] = React.useState([])
 
   React.useEffect(() => {
     setLoading(true)
@@ -104,6 +109,45 @@ const ConceptHome = props => {
       })
   }
 
+  const getOwnerMappings = (concept, directOnly) => {
+    setLoadingOwnerMappings(true)
+    APIService
+      .mappings()
+      .get(null, null, {
+        ownerType: concept.owner_type,
+        owner: concept.owner,
+        fromConcept: concept.id,
+        fromConceptSource: concept.source,
+        source: `!${concept.source}`,
+        brief: true,
+        pageSize: 1000
+      })
+      .then(response => {
+        setOwnerMappings(response?.data || [])
+        if(directOnly)
+          setTimeout(() => setLoadingOwnerMappings(false), 300)
+        !directOnly && getInverseOwnerMappings(concept)
+      })
+  }
+
+  const getInverseOwnerMappings = concept => {
+    APIService
+      .mappings()
+      .get(null, null, {
+        ownerType: concept.owner_type,
+        owner: concept.owner,
+        toConcept: concept.id,
+        toConceptSource: concept.source,
+        source: `!${concept.source}`,
+        brief: true,
+        pageSize: 1000
+      })
+      .then(response => {
+        setReverseOwnerMappings(response?.data || [])
+        setTimeout(() => setLoadingOwnerMappings(false), 300)
+      })
+  }
+
   return (concept?.id && repo?.id) ? (
     <>
       <Fade in={edit}>
@@ -132,7 +176,17 @@ const ConceptHome = props => {
                 <ConceptTabs tab={tab} onTabChange={(event, newTab) => setTab(newTab)} loading={loading} />
                 {
                   tab === 'metadata' &&
-                    <ConceptDetails concept={concept} repo={repo} mappings={mappings} reverseMappings={reverseMappings} loading={loading} />
+                    <ConceptDetails
+                      concept={concept}
+                      repo={repo}
+                      mappings={mappings}
+                      reverseMappings={reverseMappings}
+                      loading={loading}
+                      ownerMappings={ownerMappings}
+                      reverseOwnerMappings={reverseOwnerMappings}
+                      loadingOwnerMappings={loadingOwnerMappings}
+                      onLoadOwnerMappings={() => getOwnerMappings(concept)}
+                    />
                 }
               </>
           }

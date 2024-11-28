@@ -138,6 +138,7 @@
     "copied_name": "Concept name URL copied to clipboard",
     "copied_description": "Concept description URL copied to clipboard",
     "associations": "Associations",
+    "namespace_associations": "Namespace Associations",
     "concept_classes": "Concept Classes",
     "name_type": "Name Type",
     "name_types": "Name Types",

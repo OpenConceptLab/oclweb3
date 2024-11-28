@@ -11,7 +11,7 @@ import ConceptProperties from './ConceptProperties'
 
 const borderColor = 'rgba(0, 0, 0, 0.12)'
 
-const ConceptDetails = ({ concept, repo, mappings, reverseMappings, loading }) => {
+const ConceptDetails = ({ concept, repo, mappings, reverseMappings, loading, loadingOwnerMappings, ownerMappings, reverseOwnerMappings, onLoadOwnerMappings }) => {
   const { t } = useTranslation()
   const updatedBy = concept?.version_updated_by || concept?.updated_by
   return (
@@ -47,7 +47,7 @@ const ConceptDetails = ({ concept, repo, mappings, reverseMappings, loading }) =
         {
           loading ?
           <Skeleton variant="rounded" width='100%' height={120} sx={{borderRadius: '10px'}} /> :
-          <Associations concept={concept} mappings={mappings} reverseMappings={reverseMappings} />
+          <Associations concept={concept} mappings={mappings} reverseMappings={reverseMappings} ownerMappings={ownerMappings} reverseOwnerMappings={reverseOwnerMappings} onLoadOwnerMappings={onLoadOwnerMappings} loadingOwnerMappings={loadingOwnerMappings} />
         }
       </div>
       <Typography component='span' sx={{display: 'inline-block', marginTop: '32px', padding: 0, fontSize: '12px', color: 'surface.contrastText', width: '100%'}}>
