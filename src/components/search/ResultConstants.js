@@ -14,8 +14,8 @@ export const ALL_COLUMNS = {
   concepts: [
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id_lowercase', className: 'searchable'},
     {id: 'name', labelKey: 'concept.display_name', value: 'display_name', sortOn: '_name', className: 'searchable', sortBy: 'asc', renderer: item => (<span><React.Fragment>{item.retired && <Retired style={{marginRight: '8px'}}/>} {item.display_name}</React.Fragment></span>)},
-    {id: 'concept_class', labelKey: 'concept.concept_class', value: 'concept_class', sortOn: 'concept_class', sx: {whiteSpace: 'pre'}},
-    {id: 'datatype', labelKey: 'concept.datatype', value: 'datatype', sortOn: 'datatype'},
+    {id: 'concept_class', labelKey: 'concept.concept_class', value: 'concept_class', sortOn: 'concept_class', className: 'searchable', sx: {whiteSpace: 'pre'}},
+    {id: 'datatype', labelKey: 'concept.datatype', value: 'datatype', sortOn: 'datatype', className: 'searchable'},
     {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', nested: false, renderer: item => (<span style={{display: 'flex', whiteSpace: 'nowrap'}}><OwnerIcon noTooltip ownerType={item.owner_type} fontSize='small' sx={{marginRight: '4px'}}/>{item.owner}</span>)},
     {id: 'parent', labelKey: 'repo.repo', value: 'source', sortOn: 'source', nested: false, renderer: item => <RepoVersionButton repoType='Source' repo={item.source} version={item.latest_source_version} vertical />},
   ],
