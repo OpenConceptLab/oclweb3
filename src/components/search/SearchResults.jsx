@@ -17,7 +17,7 @@ import CardResults from './CardResults';
 import { SORT_ATTRS } from './ResultConstants'
 
 const ResultsToolbar = props => {
-  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, isFiltersApplied } = props;
+  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, isFiltersApplied, toolbarControl } = props;
   return (
     <Toolbar
       sx={{
@@ -72,6 +72,7 @@ const ResultsToolbar = props => {
         sortableFields={sortableFields}
         noCardDisplay={noCardDisplay}
       />
+      {toolbarControl}
     </Toolbar>
   );
 }
@@ -159,11 +160,13 @@ const SearchResults = props => {
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
   const showItem = props.selectedToShow
-  const isItemShown = id => (showItem.version_url || showItem.url || showItem.id) === id
+  const isItemShown = id => (showItem?.version_url || showItem?.url || showItem?.id) === id
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const getTitle = () => {
-    const { results, resource } = props
+    const { results, resource, title } = props
+    if(title)
+      return title
     const total = results?.total
     if(isNumber(total) && !isNaN(total)) {
       const isMore = total && total === 10000;
@@ -191,7 +194,8 @@ const SearchResults = props => {
     orderBy: props.orderBy,
     selectedToShowItem: props.selectedToShow,
     size: props.resultSize,
-    excludedColumns: props.excludedColumns
+    excludedColumns: props.excludedColumns,
+    extraColumns: props.extraColumns
   }
   const noCardDisplay = props.resource !== 'concepts' || props.noCardDisplay
 
@@ -205,7 +209,7 @@ const SearchResults = props => {
   const defaultLabelDisplayedRows = ({ from, to, count }) => `${from}–${to} of ${count !== -1 ? count?.toLocaleString() : `more than ${to?.toLocaleString()}`}`
 
   return (
-    <Box sx={{ width: '100%', background: 'inherit', height: '100%' }}>
+    <Box sx={{ width: '100%', background: 'inherit', height: '100%', ...props.sx }}>
       <ResultsToolbar
         isFiltersApplied={props.isFiltersApplied}
         numSelected={selected.length}
@@ -215,11 +219,12 @@ const SearchResults = props => {
         isFilterable={props.isFilterable}
         onDisplayChange={onDisplayChange}
         display={display}
-        sortableFields={sortableFields}
+        sortableFields={props.noSorting ? false : sortableFields}
         order={props.order}
         orderBy={props.orderBy}
         onOrderByChange={props.onOrderByChange}
         noCardDisplay={noCardDisplay}
+        toolbarControl={props.toolbarControl}
       />
       {
         props.noResults ?
@@ -230,23 +235,26 @@ const SearchResults = props => {
               <CardResults {...resultsProps} className={cardDisplayAnimation} /> :
             <TableResults {...resultsProps} className={tableDisplayAnimation} />
           }
-          <TablePagination
-            rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
-            count={props.results?.total || 0}
-            rowsPerPage={rowsPerPage || 25}
-            page={(page || 1) - 1}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            showFirstButton
-            showLastButton
-            labelDisplayedRows={defaultLabelDisplayedRows}
-            sx={{
-              width: '100%',
-              '& .MuiTablePagination-actions svg': { color: 'surface.contrastText'},
-              '& .MuiTablePagination-actions .Mui-disabled.MuiIconButton-root svg': { color: 'rgba(0, 0, 0, 0.26)'}
-            }}
-          />
+          {
+          !props.noPagination &&
+              <TablePagination
+                rowsPerPageOptions={[10, 25, 50, 100]}
+                component="div"
+                count={props.results?.total || 0}
+                rowsPerPage={rowsPerPage || 25}
+                page={(page || 1) - 1}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                showFirstButton
+                showLastButton
+                labelDisplayedRows={defaultLabelDisplayedRows}
+                sx={{
+                  width: '100%',
+                  '& .MuiTablePagination-actions svg': { color: 'surface.contrastText'},
+                  '& .MuiTablePagination-actions .Mui-disabled.MuiIconButton-root svg': { color: 'rgba(0, 0, 0, 0.26)'}
+                }}
+              />
+          }
         </React.Fragment>
       }
     </Box>

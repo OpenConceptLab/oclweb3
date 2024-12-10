@@ -25,6 +25,7 @@ const EnhancedTableHead = props => {
       <TableRow sx={{background: '#FFF'}}>
         <TableCell padding="checkbox" sx={{background: 'inherit'}}>
           <Checkbox
+            size={props.size || 'medium'}
             color="primary"
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={rowCount > 0 && numSelected === rowCount}
@@ -37,7 +38,7 @@ const EnhancedTableHead = props => {
         {columns.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align='left'
+            align={headCell.align || 'left'}
             padding='normal'
             sortDirection={orderBy === headCell.id ? order : false}
             sx={{background: 'inherit', ...headCell.sx}}
@@ -63,7 +64,7 @@ const EnhancedTableHead = props => {
   );
 }
 
-const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns}) => {
+const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns, extraColumns}) => {
   const rows = results?.results || []
   const getValue = (row, column) => {
     let val = get(row, column.value)
@@ -78,6 +79,8 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
     ALL_COLUMNS[resource] || [],
     column => nested ? column.nested !== false : column.global !== false
   );
+  if(extraColumns?.length)
+    columns = [...columns, ...extraColumns]
 
   columns = excludedColumns?.length ? reject(columns, column => excludedColumns?.includes(column.id)) : columns
 
@@ -90,10 +93,10 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
     <TableContainer style={style || {height: 'calc(100vh - 275px)'}} className={className}>
         <Table
           stickyHeader
-          sx={{ minWidth: 750 }}
           size={size || 'small'}
         >
           <EnhancedTableHead
+            size={size}
             bgColor={bgColor}
             numSelected={selected.length}
             order={order}
@@ -141,6 +144,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
                 >
                   <TableCell padding="checkbox" onClick={event => handleClick(event, id)} style={{color: color}}>
                     <Checkbox
+                      size={size || 'medium'}
                       color="primary"
                       checked={isItemSelected}
                       inputProps={{
@@ -159,11 +163,11 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
                           scope="row"
                           padding="normal"
                           className={column.className}
-                          sx={{color: color}}
+                          sx={{color: color, ...column.sx}}
                         >
                           {value}
                         </TableCell>:
-                      <TableCell key={idx} align="left" className={column.className} sx={{color: color}}>
+                      <TableCell key={idx} align="left" className={column.className} sx={{color: color, ...column.sx}}>
                         {value}
                       </TableCell>
                     })
