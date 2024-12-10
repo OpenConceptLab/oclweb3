@@ -308,7 +308,7 @@ const Search = props => {
   }
 
   const TAB_STYLES = {textTransform: 'none'}
-  const searchBgColor = showItem ? '#fcf8fd' : COLORS.primary.contrastText
+  const searchBgColor = showItem ? COLORS.surface.main : COLORS.primary.contrastText
   const getLastSelectedURL = () => {
     let URL = showItem?.version_url || showItem?.url
     if(showItem && ['concepts', 'mappings'].includes(resource)) {
