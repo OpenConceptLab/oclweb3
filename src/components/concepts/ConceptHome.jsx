@@ -166,7 +166,7 @@ const ConceptHome = props => {
         </div>
       </Fade>
       <Fade in={!edit}>
-        <div className='col-xs-12' style={{padding: '8px 16px 12px 16px'}}>
+        <div className='col-xs-12' style={{padding: '8px 16px 12px 16px', ...props.style}}>
           {
             !edit &&
               <>
@@ -177,6 +177,7 @@ const ConceptHome = props => {
                 {
                   tab === 'metadata' &&
                     <ConceptDetails
+                      style={props.detailsStyle}
                       concept={concept}
                       repo={repo}
                       mappings={mappings}

@@ -36,7 +36,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, nested, loading
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
         <span style={{width: 'calc(100% - 40px)'}}>
           {
-            loading ?
+            !concept?.source ?
               <Skeleton variant='text' sx={{fontSize: '22px', width: '50px'}} />:
             <Breadcrumbs
               ownerURL={repoURL ? toOwnerURI(repoURL) : false}
@@ -58,7 +58,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, nested, loading
       </div>
     <div className='col-xs-12' style={{padding: '0px'}}>
     {
-      loading ?
+      !concept?.id ?
         <Skeleton variant='text' sx={{fontSize: '22px', width: '150px'}} />:
       <Typography sx={{fontSize: '22px', color: BLACK}} className='searchable'>
       {concept.display_name}
@@ -66,7 +66,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, nested, loading
     }
     </div>
     {
-          currentUserHasAccess() && repo?.version === 'HEAD' && has(repo, 'source_type') && !loading &&
+      currentUserHasAccess() && repo?.version === 'HEAD' && has(repo, 'source_type') && !loading &&
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
         <span style={{display: 'flex', alignItems: 'center'}} />
             <span>
