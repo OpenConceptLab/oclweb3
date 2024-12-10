@@ -225,7 +225,18 @@
           "validators",
           "lll",
           "unfollow",
-          "rss"
+          "rss",
+          "algo",
+          "lightgreen",
+          "lightpink",
+          "codepage",
+          "defval",
+          "xls",
+          "xlsx",
+          "sameas",
+          "nbsp",
+          "scroller",
+          "llm"
         ],
         "skipIfMatch": [
           "http://[^s]*",

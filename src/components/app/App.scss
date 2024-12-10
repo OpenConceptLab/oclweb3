@@ -116,6 +116,35 @@ div.split-appear {
     border-radius: 50px;
 }
 
+.confidence-bar {
+    width: 65px;
+    height: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    position: relative;
+    background-color: white;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 8px;
+}
+
+.confidence-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--confidence-width, 0%);
+    height: 100%;
+    background-color: var(--confidence-color, lightgreen);
+    z-index: 0;
+}
+
+.confidence-text {
+    position: relative;
+    z-index: 1; /* Ensures text stays above the background */
+}
+
 .animation-appear{
     animation: bounce-in 0.2s ease-in;
 }

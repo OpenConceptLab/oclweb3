@@ -25,6 +25,7 @@ import UserEdit from '../users/UserEdit';
 import UserSettings from '../users/UserSettings';
 import OrgHome from '../orgs/OrgHome';
 import URLRegistry from '../url-registry/URLRegistry'
+import RepoConceptsMatch from '../repos/RepoConceptsMatch'
 
 const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
   <Route
@@ -81,6 +82,7 @@ const App = props => {
               <Route exact path="/oidc/login" component={OIDLoginCallback} />
               <Route exact path="/search" component={Search} />
               <Route exact path="/" component={Dashboard} />
+              <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/sources/:repo/:repoVersion/concepts/$match`} component={RepoConceptsMatch} />
               <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/compare-versions`} component={CompareVersions} />
               <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo`} component={RepoHome} />
               <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion`} component={RepoHome} />

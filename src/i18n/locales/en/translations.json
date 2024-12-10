@@ -304,7 +304,9 @@
     "search_this_repository": "Search this repository",
     "search_this_url_registry": "Search this URL registry for ",
     "search_all_concepts": "Search all concepts",
-    "url_registry": "entries"
+    "url_registry": "entries",
+    "confidence": "Confidence",
+    "score": "Score"
   },
   "url_registry": {
     "url_registry": "Canonical URL registry",
