@@ -265,7 +265,7 @@ const RepoConceptsMatch = () => {
           data.row[newKey] = newValue
       }
     })
-    APIService.concepts().appendToUrl('$match/').post(data, null, null, {includeSearchMeta: true, includeMappings: true, mappingBrief: true}).then(response => {
+    APIService.concepts().appendToUrl('$match/').post(data, null, null, {includeSearchMeta: true, includeMappings: true, mappingBrief: true, mapTypes: 'SAME-AS,SAME AS,SAME_AS', verbose: true}).then(response => {
       setConceptsResponse(response)
       setTimeout(() => {
         highlightTexts(response?.data || [], null, true)
@@ -355,13 +355,13 @@ const RepoConceptsMatch = () => {
                 map(same_as_mappings, (mapping, i) => (
                   <ListItem disablePadding key={i}>
                     <ListItemText
-                      primary={`[${mapping.map_type}] ${mapping.cascade_target_concept_name || '-'}`}
+                      primary={`${mapping.cascade_target_concept_name || '-'}`}
                       secondary={`${mapping.cascade_target_source_name}/${mapping.to_concept_code}`}
                       sx={{
                         marginTop: '2px',
                         marginBottom: '2px',
                         '.MuiListItemText-primary': {fontSize: '12px'},
-                        '.MuiListItemText-secondary': {fontSize: '10px'}
+                        '.MuiListItemText-secondary': {fontSize: '12px'}
                       }}
                     />
                   </ListItem>
@@ -382,7 +382,7 @@ const RepoConceptsMatch = () => {
                         marginTop: '2px',
                         marginBottom: '2px',
                         '.MuiListItemText-primary': {fontSize: '12px'},
-                        '.MuiListItemText-secondary': {fontSize: '10px'}
+                        '.MuiListItemText-secondary': {fontSize: '12px'}
                       }}
                     />
                   </ListItem>
@@ -485,18 +485,19 @@ const RepoConceptsMatch = () => {
           noSorting
           resultContainerStyle={{height: showItem?.id ? '25vh' : 'calc(100vh - 200px)'}}
           onShowItemSelect={item => setShowItem(item)}
+          selectedToShow={showItem}
           extraColumns={[
             {
               sortable: false,
               id: 'mappings',
-              labelKey: 'mapping.mappings',
+              labelKey: 'mapping.same_as_mappings',
               renderer: formatMappings,
             },
             {
               sortable: false,
-              id: 'search_meta.search_confidence',
+              id: 'search_meta.search_score',
               labelKey: 'search.score',
-              value: 'search_meta.search_confidence',
+              value: 'search_meta.search_score',
               renderer: item => (
                 <span style={{display: 'flex'}} onClick={event => onConfidenceClick(event, item)}>
                   <span className='confidence-bar' style={{"--confidence-width": item.search_meta.search_confidence, "--confidence-color": getConfidenceColor(item)}}>
@@ -504,6 +505,13 @@ const RepoConceptsMatch = () => {
                   </span>
                 </span>
               )
+            },
+            {
+              sortable: false,
+              id: 'search_meta.search_confidence',
+              labelKey: 'search.confidence',
+              value: 'search_meta.search_confidence',
+              align: 'right'
             }
           ]}
           toolbarControl={<CloseIconButton color='secondary' onClick={onCloseResults}/>}

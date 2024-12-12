@@ -167,7 +167,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
                         >
                           {value}
                         </TableCell>:
-                      <TableCell key={idx} align="left" className={column.className} sx={{color: color, ...column.sx}}>
+                      <TableCell key={idx} align={column.align || "left"} className={column.className} sx={{color: color, ...column.sx}}>
                         {value}
                       </TableCell>
                     })
