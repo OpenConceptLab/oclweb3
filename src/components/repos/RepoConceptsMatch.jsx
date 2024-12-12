@@ -484,7 +484,12 @@ const RepoConceptsMatch = () => {
           noPagination
           noSorting
           resultContainerStyle={{height: showItem?.id ? '25vh' : 'calc(100vh - 200px)'}}
-          onShowItemSelect={item => setShowItem(item)}
+          onShowItemSelect={item => {
+            setShowItem(item)
+            setTimeout(() => {
+              highlightTexts([item], null, false)
+            }, 100)
+          }}
           selectedToShow={showItem}
           extraColumns={[
             {

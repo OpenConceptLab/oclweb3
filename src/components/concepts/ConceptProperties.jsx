@@ -17,7 +17,7 @@ const ConceptProperties = ({ concept }) => {
           <TableCell style={{fontSize: '0.875rem', width: '150px'}}>
             {t('concept.concept_class')}
           </TableCell>
-          <TableCell style={{fontSize: '0.875rem'}}>
+          <TableCell style={{fontSize: '0.875rem'}} className='searchable'>
             {concept?.concept_class}
           </TableCell>
         </TableRow>
@@ -25,7 +25,7 @@ const ConceptProperties = ({ concept }) => {
           <TableCell style={{fontSize: '0.875rem', width: '150px'}}>
             {t('concept.datatype')}
           </TableCell>
-          <TableCell style={{fontSize: '0.875rem'}}>
+          <TableCell style={{fontSize: '0.875rem'}} className='searchable'>
             {concept?.datatype}
           </TableCell>
         </TableRow>

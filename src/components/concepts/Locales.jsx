@@ -23,7 +23,7 @@ const LocalePrimary = ({ locale }) => {
   const locale_type = locale.name_type || locale.description_type
   return (
     <React.Fragment>
-      <Typography component="span" sx={{fontSize: '0.875rem', color: '#000000de'}}>
+      <Typography component="span" sx={{fontSize: '0.875rem', color: '#000000de'}} className={locale?.name ? 'searchable' : undefined}>
         {locale.name || locale.description}
       </Typography>
       {

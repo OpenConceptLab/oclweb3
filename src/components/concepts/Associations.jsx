@@ -64,7 +64,7 @@ const MappingCells = ({mapping, isIndirect}) => {
   return (
     <React.Fragment>
       <TableCell>
-        <span style={{display: 'flex'}}>
+        <span style={{display: 'flex'}} className='searchable'>
           <Tooltip title={getTitle()}>
             <span>
               <ConceptIcon selected={isDefinedInOCL} sx={{width: '10px', height: '10px', marginRight: '12px'}} />

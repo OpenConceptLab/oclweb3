@@ -1,4 +1,5 @@
 import React from 'react';
+import find from 'lodash/find'
 import {
   formatDate,
   formatWebsiteLink,
@@ -9,11 +10,33 @@ import RepoVersionButton from '../repos/RepoVersionButton';
 import FromAndTargetSource from '../mappings/FromAndTargetSource'
 import ConceptCell from '../mappings/ConceptCell'
 
+const getLocale = (concept, synonym) => {
+  let cleaned = synonym.replaceAll('<em>', '').replaceAll('</em>', '')
+  let locale = find(concept?.names, name => name?.name.toLowerCase() === cleaned.toLowerCase())
+
+  return <div>{locale?.locale ? `[${locale.locale}] ${[locale.name]}` : cleaned}</div>
+}
+
 
 export const ALL_COLUMNS = {
   concepts: [
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id_lowercase', className: 'searchable'},
-    {id: 'name', labelKey: 'concept.display_name', value: 'display_name', sortOn: '_name', className: 'searchable', sortBy: 'asc', renderer: item => (<span><React.Fragment>{item.retired && <Retired style={{marginRight: '8px'}}/>} {item.display_name}</React.Fragment></span>)},
+    {id: 'name', labelKey: 'concept.display_name', value: 'display_name', sortOn: '_name', className: 'searchable', sortBy: 'asc', renderer: item => (
+      <span>
+        <React.Fragment>
+          {item.retired && <Retired style={{marginRight: '8px'}}/>} {item.display_name}
+          {
+            item.search_meta?.search_highlight?.synonyms?.length && item?.names?.length &&
+              <div style={{marginTop: '6px', color: 'rgba(0, 0, 0, 0.5)', fontSize: '12px'}}>
+                {
+                  item.search_meta?.search_highlight?.synonyms.map(syn => <React.Fragment key={syn}>{getLocale(item, syn)}</React.Fragment>)
+                }
+              </div>
+          }
+        </React.Fragment>
+      </span>
+    )
+    },
     {id: 'concept_class', labelKey: 'concept.concept_class', value: 'concept_class', sortOn: 'concept_class', className: 'searchable', sx: {whiteSpace: 'pre'}},
     {id: 'datatype', labelKey: 'concept.datatype', value: 'datatype', sortOn: 'datatype', className: 'searchable'},
     {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', nested: false, renderer: item => (<span style={{display: 'flex', whiteSpace: 'nowrap'}}><OwnerIcon noTooltip ownerType={item.owner_type} fontSize='small' sx={{marginRight: '4px'}}/>{item.owner}</span>)},
