@@ -12,6 +12,8 @@ import Tooltip from '@mui/material/Tooltip'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Skeleton from '@mui/material/Skeleton'
+import ButtonGroup from '@mui/material/ButtonGroup'
+import SelectedIcon from '@mui/icons-material/Done';
 import { get, isEmpty, forEach, map, find, compact, flatten, values, filter } from 'lodash';
 import ConceptIcon from './ConceptIcon'
 import { generateRandomString, dropVersion, URIToParentParams, toParentURI } from '../../common/utils'
@@ -127,6 +129,7 @@ const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect}) => {
 
 const borderColor = 'rgba(0, 0, 0, 0.12)'
 const Associations = ({concept, mappings, reverseMappings, ownerMappings, reverseOwnerMappings, onLoadOwnerMappings, loadingOwnerMappings}) => {
+  const [scope, setScope] = React.useState('repo')
   const [orderedMappings, setOrderedMappings] = React.useState({});
   const [orderedOwnerMappings, setOrderedOwnerMappings] = React.useState({});
   const [ownerMappingsGroupedByRepo, setOwnerMappingsGroupedByRepo] = React.useState({});
@@ -174,10 +177,28 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
   React.useEffect(() => setOrderedMappings(getMappings()), [mappings, reverseMappings])
   React.useEffect(() => setOrderedOwnerMappings(getOwnerMappings()), [ownerMappings, reverseOwnerMappings])
 
+  const onScopeClick = newScope => {
+    setScope(newScope)
+    if(['all', 'namespace'].includes(newScope)) {
+      loadingOwnerMappings === null ? onLoadOwnerMappings() : undefined
+    }
+  }
+
   return (
     <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor, borderRadius: '10px'}}>
       <Typography component="span" sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between'}}>
         <TagCountLabel label={t('concept.associations')} count={count}/>
+        <ButtonGroup size='small' color='secondary'>
+          <Button selected={scope === 'repo'} startIcon={scope === 'repo' ? <SelectedIcon /> : undefined } sx={{textTransform: 'none', borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px', backgroundColor: scope === 'repo' ? 'primary.90' : undefined}} onClick={() => onScopeClick('repo')}>
+            <b>{t('repo.repo')}</b>
+          </Button>
+          <Button selected={scope === 'namespace'} startIcon={scope === 'namespace' ? <SelectedIcon /> : undefined } sx={{backgroundColor: scope === 'namespace' ? 'primary.90' : undefined, textTransform: 'none'}} onClick={() => onScopeClick('namespace')}>
+            <b>{t('concept.namespace')}</b>
+          </Button>
+          <Button selected={scope === 'all'} startIcon={scope === 'all' ? <SelectedIcon /> : undefined } sx={{backgroundColor: scope==='all' ? 'primary.90' : undefined, textTransform: 'none', borderTopRightRadius: '50px', borderBottomRightRadius: '50px'}} onClick={() => onScopeClick('all')}>
+            <b>{t('common.all')}</b>
+          </Button>
+        </ButtonGroup>
       </Typography>
       <TableContainer sx={{ maxHeight: 400, borderRadius: '10px' }}>
         <Table stickyHeader size='small'>
@@ -191,145 +212,166 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
           </TableHead>
           <TableBody sx={{ '.MuiTableRow-root': {'&:last-child td': {border: 0, borderRadius: '10px'}} }}>
             {
-              map(orderedMappings, (oMappings, mapType) => {
-                const key = generateRandomString()
-                const hasSelfMappings = !isEmpty(oMappings.self)
-                return hasSelfMappings &&
-                  <React.Fragment key={key}>
-                    <AssociationRow
-                      key={mapType}
-                      mapType='SAME-AS'
-                      mappings={oMappings.self}
-                      isSelf
-                    />
-                  </React.Fragment>
-              })
-            }
-            {
-              !isEmpty(orderedMappings?.children?.hierarchy) &&
-                <AssociationRow
-                  mappings={orderedMappings?.children?.hierarchy}
-                  id='has-child'
-                  mapType='Has child'
-                  isHierarchy
-                />
-            }
-            {
-              !isEmpty(orderedMappings?.parent?.reverseHierarchy) &&
-                <AssociationRow
-                  mappings={orderedMappings?.parent?.reverseHierarchy}
-                  id='has-parent'
-                  mapType='Has parent'
-                  isHierarchy
-                  isIndirect
-                />
-            }
-            {
-              map(orderedMappings, (oMappings, mapType) => {
-                const key = generateRandomString()
-                const hasDirectMappings = !isEmpty(oMappings.direct)
-                return (
-                  <React.Fragment key={key}>
-                    {
-                      hasDirectMappings &&
-                        <AssociationRow
-                          key={mapType}
-                          mapType={mapType}
-                          mappings={oMappings.direct}
-                        />
-                    }
-                  </React.Fragment>
-                )
-              })
-            }
-            {
-              map(orderedMappings, (oMappings, mapType) => {
-                const key = generateRandomString()
-                const hasMappings = !isEmpty(oMappings.indirect)
-                return (
-                  <React.Fragment key={key}>
-                    {
-                      hasMappings &&
-                        <AssociationRow
-                          key={mapType}
-                          mappings={oMappings.indirect}
-                          mapType={mapType}
-                          isIndirect
-                        />
-                    }
-                  </React.Fragment>
-                )
-              })
-            }
-            <TableRow onClick={loadingOwnerMappings === null ? onLoadOwnerMappings : undefined} sx={loadingOwnerMappings === null ? {cursor: 'pointer'} : {}}>
-              <TableCell align='center' colSpan={4} sx={{fontSize: '12px', color: 'rgba(0, 0, 0, 0.65)'}}>
-                { loadingOwnerMappings === true && <Skeleton width='100%' /> }
-                { loadingOwnerMappings === false && `${t('concept.namespace_associations')} (${countOwnerMappings})` }
-                {
-                  loadingOwnerMappings === null
-                    &&
-                    <Button variant='text' size='small' color='primary' sx={{textTransform: 'none', padding: '0 6px', fontSize: '12px'}}>
-                      {t('common.show')} {t('concept.namespace_associations')}
-                    </Button>
-                }
-              </TableCell>
-            </TableRow>
-            {
-              map(orderedOwnerMappings, (gMappings, repoURI) => {
-                const repoMappings = ownerMappingsGroupedByRepo[repoURI]
-                const repo = repoMappings[0].parent
-                return (
-                  <React.Fragment key={repoURI}>
-                    <TableRow>
-                      <TableCell align='left' colSpan={4} sx={{fontSize: '12px', padding: '6px 12px'}}>
-                        <TagCountLabel
-                          label={
-                            <RepoChip sx={{paddingLeft: '12px !important'}} size='small' repo={{...repo, url: repoURI, id: repo.repo, type: repo.repoType}} />
+              ['repo', 'all'].includes(scope) &&
+                <React.Fragment>
+                  {
+                    map(orderedMappings, (oMappings, mapType) => {
+                      const key = generateRandomString()
+                      const hasSelfMappings = !isEmpty(oMappings.self)
+                      return hasSelfMappings &&
+                        <React.Fragment key={key}>
+                          <AssociationRow
+                            key={mapType}
+                            mapType='SAME-AS'
+                            mappings={oMappings.self}
+                            isSelf
+                          />
+                        </React.Fragment>
+                    })
+                  }
+                  {
+                    !isEmpty(orderedMappings?.children?.hierarchy) &&
+                      <AssociationRow
+                        mappings={orderedMappings?.children?.hierarchy}
+                        id='has-child'
+                        mapType='Has child'
+                        isHierarchy
+                      />
+                  }
+                  {
+                    !isEmpty(orderedMappings?.parent?.reverseHierarchy) &&
+                      <AssociationRow
+                        mappings={orderedMappings?.parent?.reverseHierarchy}
+                        id='has-parent'
+                        mapType='Has parent'
+                        isHierarchy
+                        isIndirect
+                      />
+                  }
+                  {
+                    map(orderedMappings, (oMappings, mapType) => {
+                      const key = generateRandomString()
+                      const hasDirectMappings = !isEmpty(oMappings.direct)
+                      return (
+                        <React.Fragment key={key}>
+                          {
+                            hasDirectMappings &&
+                              <AssociationRow
+                                key={mapType}
+                                mapType={mapType}
+                                mappings={oMappings.direct}
+                              />
                           }
-                          count={repoMappings?.length}
-                        />
-                      </TableCell>
-                    </TableRow>
-                    {
-                      map(gMappings, (oMappings, mapType) => {
-                        const key = generateRandomString()
-                        const hasMappings = !isEmpty(oMappings.direct)
-                        return (
-                          <React.Fragment key={key}>
-                            {
-                              hasMappings &&
-                                <AssociationRow
-                                  key={mapType}
-                                  mapType={mapType}
-                                  mappings={oMappings.direct}
-                                />
-                            }
-                          </React.Fragment>
-                        )
-                      })
-                    }
-                    {
-                      map(gMappings, (oMappings, mapType) => {
-                        const key = generateRandomString()
-                        const hasMappings = !isEmpty(oMappings.indirect)
-                        return (
-                          <React.Fragment key={key}>
-                            {
-                              hasMappings &&
-                                <AssociationRow
-                                  key={mapType}
-                                  mapType={mapType}
-                                  mappings={oMappings.indirect}
-                                  isIndirect
-                                />
-                            }
-                          </React.Fragment>
-                        )
-                      })
-                    }
-                  </React.Fragment>
-                )
-              })
+                        </React.Fragment>
+                      )
+                    })
+                  }
+                  {
+                    map(orderedMappings, (oMappings, mapType) => {
+                      const key = generateRandomString()
+                      const hasMappings = !isEmpty(oMappings.indirect)
+                      return (
+                        <React.Fragment key={key}>
+                          {
+                            hasMappings &&
+                              <AssociationRow
+                                key={mapType}
+                                mappings={oMappings.indirect}
+                                mapType={mapType}
+                                isIndirect
+                              />
+                          }
+                        </React.Fragment>
+                      )
+                    })
+                  }
+                </React.Fragment>
+            }
+            {
+              ['namespace', 'all'].includes(scope) &&
+                <React.Fragment>
+                  {
+                    loadingOwnerMappings === true ?
+                      <TableRow>
+                        <TableCell colSpan={4}>
+                          <Skeleton width='100%' />
+                        </TableCell>
+                      </TableRow> :
+                    <React.Fragment>
+                      {
+                        map(orderedOwnerMappings, (gMappings, repoURI) => {
+                          const repoMappings = ownerMappingsGroupedByRepo[repoURI]
+                          const repo = repoMappings[0].parent
+                          return (
+                            <React.Fragment key={repoURI}>
+                              <TableRow>
+                                <TableCell align='left' colSpan={4} sx={{fontSize: '12px', padding: '6px 12px', backgroundColor: 'primary.95'}}>
+                                  <TagCountLabel
+                                    label={
+                                      <RepoChip
+                                        filled
+                                        color='primary'
+                                        size='medium'
+                                        sx={{
+                                          padding: '0 12px !important',
+                                          height: '28px !important',
+                                          background: 'transparent',
+                                          border: 'none',
+                                          '.MuiAvatar-root .MuiSvgIcon-root': {
+                                            color: 'primary.main'
+                                          }
+                                        }}
+                                        repo={{...repo, url: repoURI, id: repo.repo, type: repo.repoType}}
+                                      />
+                                    }
+                                    count={repoMappings?.length}
+                                  />
+                                </TableCell>
+                              </TableRow>
+                              {
+                                map(gMappings, (oMappings, mapType) => {
+                                  const key = generateRandomString()
+                                  const hasMappings = !isEmpty(oMappings.direct)
+                                  return (
+                                    <React.Fragment key={key}>
+                                      {
+                                        hasMappings &&
+                                          <AssociationRow
+                                            key={mapType}
+                                            mapType={mapType}
+                                            mappings={oMappings.direct}
+                                          />
+                                      }
+                                    </React.Fragment>
+                                  )
+                                })
+                              }
+                              {
+                                map(gMappings, (oMappings, mapType) => {
+                                  const key = generateRandomString()
+                                  const hasMappings = !isEmpty(oMappings.indirect)
+                                  return (
+                                    <React.Fragment key={key}>
+                                      {
+                                        hasMappings &&
+                                          <AssociationRow
+                                            key={mapType}
+                                            mapType={mapType}
+                                            mappings={oMappings.indirect}
+                                            isIndirect
+                                          />
+                                      }
+                                    </React.Fragment>
+                                  )
+                                })
+                              }
+                            </React.Fragment>
+                          )
+                        })
+                      }
+                    </React.Fragment>
+                  }
+                </React.Fragment>
             }
           </TableBody>
         </Table>
