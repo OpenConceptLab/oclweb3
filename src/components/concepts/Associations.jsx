@@ -313,7 +313,7 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
                                         color='primary'
                                         size='medium'
                                         sx={{
-                                          padding: '0 12px !important',
+                                          padding: '0 0 0 3px !important',
                                           height: '28px !important',
                                           background: 'transparent',
                                           border: 'none',
