@@ -85,7 +85,7 @@ const VirtuosoTableComponents = {
   ),
   TableHead: React.forwardRef((props, ref) => <TableHead {...props} ref={ref} sx={{'.MuiTableCell-head': {padding: '0px 8px'}}} />),
   TableRow,
-  TableBody: React.forwardRef((props, ref) => <TableBody {...props} ref={ref} sx={{'.MuiTableCell-body': {padding: '2px 8px'}}} />),
+  TableBody: React.forwardRef((props, ref) => <TableBody {...props} ref={ref} sx={{'.MuiTableCell-body': {padding: '6px', verticalAlign: 'baseline'}}} />),
 };
 
 
@@ -347,21 +347,27 @@ const RepoConceptsMatch = () => {
     same_as_mappings = orderBy(same_as_mappings, ['cascade_target_source_name', 'to_concept_code', 'cascade_target_concept_name'])
     other_mappings = orderBy(other_mappings, ['map_type', 'cascade_target_source_name', 'to_concept_code', 'cascade_target_concept_name'])
     return (
-      <List dense sx={{p: 0}}>
+      <List dense sx={{p: 0, listStyleType: 'disc'}}>
         {
           same_as_mappings.length > 1 &&
             <>
               {
                 map(same_as_mappings, (mapping, i) => (
-                  <ListItem disablePadding key={i}>
+                  <ListItem disablePadding key={i} sx={{display: 'list-item'}}>
                     <ListItemText
-                      primary={`${mapping.cascade_target_concept_name || '-'}`}
-                      secondary={`${mapping.cascade_target_source_name}/${mapping.to_concept_code}`}
+                      primary={
+                        <>
+                          <Typography component='span' sx={{fontSize: '12px', color: 'rgba(0, 0, 0, 0.7)'}}>
+                            {`${mapping.cascade_target_source_name}:${mapping.to_concept_code}`}
+                          </Typography>
+                          <Typography component='span' sx={{fontSize: '13px', marginLeft: '4px'}}>
+                            {mapping.cascade_target_concept_name}
+                          </Typography>
+                        </>
+                      }
                       sx={{
                         marginTop: '2px',
                         marginBottom: '2px',
-                        '.MuiListItemText-primary': {fontSize: '12px'},
-                        '.MuiListItemText-secondary': {fontSize: '12px'}
                       }}
                     />
                   </ListItem>
@@ -374,15 +380,21 @@ const RepoConceptsMatch = () => {
             <React.Fragment key={mapType}>
               {
                 map(mappings, (mapping, i) => (
-                  <ListItem disablePadding key={i}>
+                  <ListItem disablePadding key={i} sx={{display: 'list-item'}}>
                     <ListItemText
-                      primary={`[${mapping.map_type}] ${mapping.cascade_target_concept_name || '-'}`}
-                      secondary={`${mapping.cascade_target_source_name}/${mapping.to_concept_code}`}
+                      primary={
+                        <>
+                          <Typography component='span' sx={{fontSize: '12px', color: 'rgba(0, 0, 0, 0.7)'}}>
+                            {`${mapping.cascade_target_source_name}:${mapping.to_concept_code}`}
+                          </Typography>
+                          <Typography component='span' sx={{fontSize: '13px', marginLeft: '4px'}}>
+                            {mapping.cascade_target_concept_name}
+                          </Typography>
+                        </>
+                      }
                       sx={{
                         marginTop: '2px',
                         marginBottom: '2px',
-                        '.MuiListItemText-primary': {fontSize: '12px'},
-                        '.MuiListItemText-secondary': {fontSize: '12px'}
                       }}
                     />
                   </ListItem>
@@ -467,7 +479,8 @@ const RepoConceptsMatch = () => {
           sx={{
             borderRadius: '10px 10px 0 0',
             '.MuiTableCell-root': {
-              padding: '2px 6px !important'
+              padding: '6px !important',
+              verticalAlign: 'baseline',
             },
             '.MuiTableCell-head': {
               padding: '2px 6px !important'
@@ -510,13 +523,6 @@ const RepoConceptsMatch = () => {
                   </span>
                 </span>
               )
-            },
-            {
-              sortable: false,
-              id: 'search_meta.search_confidence',
-              labelKey: 'search.confidence',
-              value: 'search_meta.search_confidence',
-              align: 'right'
             }
           ]}
           toolbarControl={<CloseIconButton color='secondary' onClick={onCloseResults}/>}
@@ -549,7 +555,7 @@ const RepoConceptsMatch = () => {
             }}
           >
             <DialogTitle sx={{p: 3, color: 'surface.dark', fontSize: '22px', textAlign: 'left'}}>
-              {t('search.confidence')} - {getConfidenceNum(confidence)}%
+              {t('search.search_highlight')}
             </DialogTitle>
             <DialogContent style={{padding: 0}}>
               <List dense sx={{ width: '100%', bgcolor: 'surface.n92', padding: '0 10px', maxHeight: 700 }}>

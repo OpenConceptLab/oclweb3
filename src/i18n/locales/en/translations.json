@@ -308,7 +308,8 @@
     "search_all_concepts": "Search all concepts",
     "url_registry": "entries",
     "confidence": "Confidence",
-    "score": "Score"
+    "score": "Score",
+    "search_highlight": "Search Highlight"
   },
   "url_registry": {
     "url_registry": "Canonical URL registry",
