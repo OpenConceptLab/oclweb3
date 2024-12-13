@@ -13,8 +13,11 @@ import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Skeleton from '@mui/material/Skeleton'
 import ButtonGroup from '@mui/material/ButtonGroup'
+
 import SelectedIcon from '@mui/icons-material/Done';
-import { get, isEmpty, forEach, map, find, compact, flatten, values, filter } from 'lodash';
+import UpIcon from '@mui/icons-material/KeyboardArrowUp';
+import DownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { get, isEmpty, forEach, map, find, compact, flatten, values, filter, without } from 'lodash';
 import ConceptIcon from './ConceptIcon'
 import { generateRandomString, dropVersion, URIToParentParams, toParentURI } from '../../common/utils'
 import TagCountLabel from '../common/TagCountLabel'
@@ -84,11 +87,11 @@ const MappingCells = ({mapping, isIndirect}) => {
 }
 
 
-const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect}) => {
+const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect, hide}) => {
   const { t } = useTranslation()
   return (
     <React.Fragment>
-      <TableRow id={id || mapType}>
+      <TableRow id={id || mapType} sx={hide ? {display: 'none'} : {}}>
         <TableCell className='sticky-col' rowSpan={mappings?.length} align='left' sx={{verticalAlign: 'top', width: '10%', paddingLeft: '8px', top: '37px', zIndex: 1}}>
           <span className='flex-vertical-center'>
             <Tooltip placement='left' title={isIndirect ? t('mapping.inverse_mappings') : (isSelf ? t('mapping.self_mappings') : t('mapping.direct_mappings'))}>
@@ -116,7 +119,7 @@ const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect}) => {
       {
         map(mappings?.slice(1), (mapping, index) => {
           return (!mapping || isEmpty(mapping)) ? null : (
-            <TableRow key={index}>
+            <TableRow key={index} sx={hide ? {display: 'none'} : {}}>
               <MappingCells mapping={mapping} isIndirect={isIndirect} />
             </TableRow>
           )
@@ -133,6 +136,7 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
   const [orderedMappings, setOrderedMappings] = React.useState({});
   const [orderedOwnerMappings, setOrderedOwnerMappings] = React.useState({});
   const [ownerMappingsGroupedByRepo, setOwnerMappingsGroupedByRepo] = React.useState({});
+  const [collapsedSections, setCollapsedSections] = React.useState([])
   const { t } = useTranslation()
   const getMappings = () => {
     let _mappings = {}
@@ -183,11 +187,12 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
       loadingOwnerMappings === null ? onLoadOwnerMappings() : undefined
     }
   }
+  const toggleSection = repoURI => setCollapsedSections(collapsedSections?.includes(repoURI) ? without(collapsedSections, repoURI) : [...collapsedSections, repoURI])
 
   return (
     <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor, borderRadius: '10px'}}>
       <Typography component="span" sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between'}}>
-        <TagCountLabel label={t('concept.associations')} count={count}/>
+        <TagCountLabel label={t('concept.associations')} count={scope === 'all' ? count : (scope === 'namespace' ? countOwnerMappings : count - countOwnerMappings)}/>
         <ButtonGroup size='small' color='secondary'>
           <Button selected={scope === 'repo'} startIcon={scope === 'repo' ? <SelectedIcon /> : undefined } sx={{textTransform: 'none', borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px', backgroundColor: scope === 'repo' ? 'primary.90' : undefined}} onClick={() => onScopeClick('repo')}>
             <b>{t('repo.repo')}</b>
@@ -302,10 +307,13 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
                         map(orderedOwnerMappings, (gMappings, repoURI) => {
                           const repoMappings = ownerMappingsGroupedByRepo[repoURI]
                           const repo = repoMappings[0].parent
+                          const isCollapsed = collapsedSections.includes(repoURI)
                           return (
                             <React.Fragment key={repoURI}>
                               <TableRow>
-                                <TableCell align='left' colSpan={4} sx={{fontSize: '12px', padding: '6px 12px', backgroundColor: 'primary.95'}}>
+                                <TableCell align='left' colSpan={4} sx={{cursor: 'pointer', fontSize: '12px', padding: '6px 12px', backgroundColor: 'primary.95'}} onClick={() => toggleSection(repoURI)}>
+                                <span style={{display: 'flex', alignItems: 'center'}}>
+                                  {isCollapsed ? <DownIcon /> : <UpIcon />}
                                   <TagCountLabel
                                     label={
                                       <RepoChip
@@ -313,6 +321,7 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
                                         color='primary'
                                         size='medium'
                                         sx={{
+                                          marginLeft: '10px',
                                           padding: '0 0 0 3px !important',
                                           height: '28px !important',
                                           background: 'transparent',
@@ -326,6 +335,7 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
                                     }
                                     count={repoMappings?.length}
                                   />
+                                  </span>
                                 </TableCell>
                               </TableRow>
                               {
@@ -337,6 +347,7 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
                                       {
                                         hasMappings &&
                                           <AssociationRow
+                                            hide={isCollapsed}
                                             key={mapType}
                                             mapType={mapType}
                                             mappings={oMappings.direct}
@@ -355,6 +366,7 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
                                       {
                                         hasMappings &&
                                           <AssociationRow
+                                            hide={isCollapsed}
                                             key={mapType}
                                             mapType={mapType}
                                             mappings={oMappings.indirect}
