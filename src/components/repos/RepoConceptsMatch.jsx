@@ -24,6 +24,8 @@ import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import OutlinedInput from '@mui/material/OutlinedInput';
+import TextField from '@mui/material/TextField';
+import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment';
 import FormControl, { useFormControl } from '@mui/material/FormControl';
 import { styled } from '@mui/material/styles';
@@ -32,6 +34,8 @@ import DownIcon from '@mui/icons-material/ArrowDropDown';
 import UploadIcon from '@mui/icons-material/Upload';
 import MatchingIcon from '@mui/icons-material/DeviceHub';
 import SearchIcon from '@mui/icons-material/Search';
+import EditIcon from '@mui/icons-material/EditOutlined';
+import SaveIcon from '@mui/icons-material/SaveOutlined';
 
 import orderBy from 'lodash/orderBy'
 import filter from 'lodash/filter'
@@ -43,6 +47,8 @@ import startCase from 'lodash/startCase'
 import values from 'lodash/values'
 import find from 'lodash/find'
 import debounce from 'lodash/debounce'
+import without from 'lodash/without'
+import has from 'lodash/has'
 
 import APIService from '../../services/APIService';
 import { dropVersion, toParentURI, toOwnerURI, highlightTexts } from '../../common/utils';
@@ -58,11 +64,12 @@ import ConceptHome from '../concepts/ConceptHome'
 import RepoHeader from './RepoHeader';
 
 
+const UPDATED_COLOR = 'rgba(255, 167, 38, 0.1)'
+
 const ALGOS = [
   {id: 'es', label: 'Generic Elastic Search Matching'},
   {id: 'llm', label: 'LLM Matching', disabled: true},
 ]
-
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -83,11 +90,10 @@ const VirtuosoTableComponents = {
   Table: (props) => (
     <Table {...props} stickyHeader size='small' sx={{ borderCollapse: 'separate', tableLayout: 'fixed' }} />
   ),
-  TableHead: React.forwardRef((props, ref) => <TableHead {...props} ref={ref} sx={{'.MuiTableCell-head': {padding: '0px 8px'}}} />),
+  TableHead: React.forwardRef((props, ref) => <TableHead {...props} ref={ref} />),
   TableRow,
-  TableBody: React.forwardRef((props, ref) => <TableBody {...props} ref={ref} sx={{'.MuiTableCell-body': {padding: '6px', verticalAlign: 'baseline'}}} />),
+  TableBody: React.forwardRef((props, ref) => <TableBody {...props} ref={ref} />),
 };
-
 
 const SearchField = ({onChange}) => {
   const [input, setInput] = React.useState('')
@@ -123,6 +129,21 @@ const SearchField = ({onChange}) => {
          />
 }
 
+const TableCellAction = ({ isEditing, onEdit, onSave, sx }) => {
+  return (
+    <TableCell align='center' sx={{width: '40px', padding: 0, ...sx}}>
+      {
+        isEditing ?
+          <IconButton size='small' color='primary' onClick={onSave}>
+            <SaveIcon fontSize='inherit' />
+          </IconButton> :
+        <IconButton size='small' color='primary' onClick={onEdit}>
+          <EditIcon fontSize='inherit' />
+        </IconButton>
+      }
+    </TableCell>
+  )
+}
 
 const RepoConceptsMatch = () => {
   const { t } = useTranslation()
@@ -130,8 +151,10 @@ const RepoConceptsMatch = () => {
   const history = useHistory()
   const params = useParams()
 
+  const [edit, setEdit] = React.useState([]);
   const [file, setFile] = React.useState(false);
   const [data, setData] = React.useState(false);
+  const [columns, setColumns] = React.useState([]);
   const [searchedRows, setSearchedRows] = React.useState(false);
   const [row, setRow] = React.useState(false)
   const [confidence, setConfidence] = React.useState(false)
@@ -163,6 +186,7 @@ const RepoConceptsMatch = () => {
       const jsonData = XLSX.utils.sheet_to_json(sheet, { raw: false, defval: '' });
       setData(jsonData);
       setSearchedRows(jsonData);
+      setColumns(getColumns(jsonData[0]))
     };
     reader.readAsBinaryString(file);
   };
@@ -210,11 +234,10 @@ const RepoConceptsMatch = () => {
   }
 
   const isSplitView = conceptsResponse !== false
-  const getColumns = () => {
-    let columns = []
-    if(data?.length) {
-      const row = data[0]
-      columns = map(row, (value, key) => {
+  const getColumns = row => {
+    let _columns = []
+    if(row) {
+      _columns = map(row, (value, key) => {
         let width;
         if(['id', 'code'].includes(key.toLowerCase()))
           width = '60px'
@@ -222,37 +245,136 @@ const RepoConceptsMatch = () => {
           width = '75px'
         else if(['class', 'concept class', 'datatype'].includes(key.toLowerCase()))
           width = '100px'
-        return {label: key, dataKey: key, width: width }
+        return {label: key, dataKey: key, width: width, original: key }
       })
     }
-    return columns
+    return _columns
+  }
+
+  const updateColumn = (position, newValue) => {
+    setColumns(prev => {
+      prev[position].label = newValue
+      return prev
+    })
+  }
+
+  const updateRow = (index, columnKey, newValue) => {
+    setSearchedRows(prevData => {
+      return map(prevData, (row, i) => (i === index ? {...row, [`${columnKey}__updated`]: newValue} : row))
+    })
   }
 
   const fixedHeaderContent = () => {
-    return (
+    const isEditing = edit?.includes(-1)
+    return columns?.length ? (
       <TableRow>
         {
-          getColumns().map(column => (
-            <TableCell key={column.dataKey} variant="head" sx={{width: column.width || undefined}}>
-              <b>{column.label}</b>
+          map(columns, (column, position) => {
+            const isUpdatedValue = column.label !== column.original
+            return (
+            <TableCell
+              key={column.dataKey}
+              variant="head"
+              sx={{
+                width: column.width || undefined,
+                padding: isEditing ? '8px': '0px 8px',
+                backgroundColor: isUpdatedValue ? UPDATED_COLOR : WHITE
+              }}
+            >
+              {
+                isEditing ?
+                  <TextField
+                    margin="dense"
+                    onChange={event => updateColumn(position, event.target.value)}
+                    size='small'
+                    fullWidth
+                    defaultValue={column.label}
+                    helperText={column.original}
+                    sx={{'.MuiOutlinedInput-root': {padding: '4px 10px'}, '.MuiInputBase-input': {padding: 0}, '.MuiFormHelperText-root': {margin: 0, padding: '2px 0 0 10px', backgroundColor: isUpdatedValue ? UPDATED_COLOR : undefined}}}
+                  /> :
+                <b>{column.label}</b>
+              }
             </TableCell>
-          ))}
+          )
+          })
+        }
+        <TableCellAction
+          isEditing={isEditing}
+          onSave={() => setEdit(without(edit, -1))}
+          onEdit={() => setEdit([...edit, -1])}
+        />
       </TableRow>
+    ) : null;
+  }
+
+  const rowContent = (_index, _row) => {
+    const isEditing = edit?.includes(_index)
+    const bgColor = isEqual(_row, row) ? SURFACE_COLORS.main : WHITE
+    return (
+      <React.Fragment>
+        {
+          columns.map(column => {
+            const defaultValue = _row[column.dataKey]
+            const value = has(_row, column.dataKey + '__updated') ? _row[column.dataKey + '__updated'] : defaultValue
+            const isUpdatedValue = defaultValue !== value
+            return (
+            <TableCell
+              sx={{
+                cursor: 'pointer',
+                backgroundColor: isUpdatedValue ? UPDATED_COLOR : bgColor,
+                padding: isEditing ? '8px' : '6px',
+                verticalAlign: 'baseline'
+              }}
+              onClick={() => onCSVRowSelect(_row)}
+              key={column.dataKey}
+            >
+              {
+                isEditing ?
+                  <TextField
+                    margin="dense"
+                    multiline
+                    size='small'
+                    fullWidth
+                    defaultValue={value}
+                    helperText={defaultValue}
+                    onChange={event => updateRow(_index, column.dataKey, event.target.value)}
+                    sx={{'.MuiOutlinedInput-root': {padding: '4px 10px'}, '.MuiFormHelperText-root': {margin: 0, padding: '2px 0 0 10px', whiteSpace: 'pre-line', backgroundColor: isUpdatedValue ? UPDATED_COLOR : undefined}}}
+                  /> :
+                <span style={{whiteSpace: 'pre-line'}}>{value}</span>
+              }
+            </TableCell>
+            )
+          })
+        }
+        <TableCellAction
+          sx={{backgroundColor: bgColor, verticalAlign: 'baseline'}}
+          isEditing={isEditing}
+          onSave={() => setEdit(without(edit, _index))}
+          onEdit={() => setEdit([...edit, _index])}
+        />
+      </React.Fragment>
     );
   }
 
+
   const onCSVRowSelect = csvRow => {
+    if(edit?.length > 0)
+      return
+
     setShowItem(false)
     setRow(csvRow)
     let data = {row: {}, target_repo_url: repo.version_url};
     forEach(csvRow,  (value, key) => {
-      if(value) {
+      if(value && !has(csvRow, key + '__updated')) {
+        key = find(columns, {original: key.replace('__updated', '')})?.label || key
         let newValue = value
         let newKey = snakeCase(key.toLowerCase())
         let isList = newValue.includes('\n')
 
         if(isList)
           newValue = newValue.split('\n')
+        if(key.includes('__updated'))
+          newKey = key.replace('__updated', '')
         if(newKey.includes('class'))
           newKey = 'concept_class'
         if(newKey === 'set_members')
@@ -271,24 +393,6 @@ const RepoConceptsMatch = () => {
         highlightTexts(response?.data || [], null, true)
       }, 100)
     })
-  }
-
-  const rowContent = (_index, _row) => {
-    return (
-      <React.Fragment>
-        {
-          getColumns().map(column => (
-            <TableCell
-              sx={{cursor: 'pointer', backgroundColor: isEqual(_row, row) ? SURFACE_COLORS.main : WHITE}}
-              onClick={() => onCSVRowSelect(_row)}
-              key={column.dataKey}
-            >
-              {_row[column.dataKey]}
-            </TableCell>
-          ))
-        }
-      </React.Fragment>
-    );
   }
 
   const getConfidenceNum = item => parseFloat(item.search_meta.search_confidence.match(/\d+(\.\d+)?/)[0])
