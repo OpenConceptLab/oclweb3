@@ -31,7 +31,7 @@
     "react-password-strength-bar": "^0.3.5",
     "react-router-dom": "^5.3.4",
     "react-virtuoso": "^4.12.3",
-    "react-window": "^1.8.10",
+    "react-window": "^1.8.11",
     "stacktrace-js": "^2.0.2",
     "xlsx": "^0.18.5"
   },
@@ -51,7 +51,7 @@
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.4.1",
     "copy-webpack-plugin": "^4.6.0",
-    "cross-fetch": "^3.1.8",
+    "cross-fetch": "^3.2.0",
     "css-loader": "^0.28.8",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",

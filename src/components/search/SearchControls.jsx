@@ -5,7 +5,7 @@ import DownIcon from '@mui/icons-material/ArrowDropDown';
 import DisplayMenu from './DisplayMenu';
 import SortMenu from './SortMenu';
 
-const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay}) => {
+const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, extraControls}) => {
   const { t } = useTranslation()
   const [displayAnchorEl, setDisplayAnchorEl] = React.useState(null);
   const [sortAnchorEl, setSortAnchorEl] = React.useState(null);
@@ -47,6 +47,7 @@ const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, on
         orderBy={orderBy}
         fields={sortableFields}
       />
+      {extraControls}
     </div>
   )
 }

@@ -236,7 +236,10 @@
           "sameas",
           "nbsp",
           "scroller",
-          "llm"
+          "llm",
+          "unmapped",
+          "unmap",
+          "mins"
         ],
         "skipIfMatch": [
           "http://[^s]*",

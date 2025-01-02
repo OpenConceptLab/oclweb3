@@ -26,6 +26,7 @@ import UserSettings from '../users/UserSettings';
 import OrgHome from '../orgs/OrgHome';
 import URLRegistry from '../url-registry/URLRegistry'
 import RepoConceptsMatch from '../repos/RepoConceptsMatch'
+import Matching from '../repos/Matching'
 
 const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
   <Route
@@ -94,6 +95,7 @@ const App = props => {
               <SessionUserRoute exact path='/users/:user/edit' component={UserEdit} />
               <AuthenticationRequiredRoute path='/users/:user/settings' component={UserSettings} />
               <AuthenticationRequiredRoute path={`/users/:user/:tab(${orgTabsStr})?`} component={UserHome} />
+              <AuthenticationRequiredRoute exact path='/$term-match' component={Matching} />
               <Route path={`/orgs/:org/:tab(${orgTabsStr})?`} component={OrgHome} />
 
               <Route exact path='/403' component={Error403} />

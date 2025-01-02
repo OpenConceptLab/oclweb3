@@ -71,8 +71,8 @@ const ResultsToolbar = props => {
         onOrderByChange={onOrderByChange}
         sortableFields={sortableFields}
         noCardDisplay={noCardDisplay}
+        extraControls={toolbarControl}
       />
-      {toolbarControl}
     </Toolbar>
   );
 }
@@ -177,9 +177,9 @@ const SearchResults = props => {
   const sortableFields = (props.nested ? SORT_ATTRS.nested[props.resource] : SORT_ATTRS.global[props.resource]) || SORT_ATTRS.common[props.resource]
 
   const resultsProps = {
-    handleClick: handleClick,
+    handleClick: props.onSelect ? handleClick : false,
     handleRowClick: handleRowClick,
-    handleSelectAllClick: handleSelectAllClick,
+    handleSelectAllClick: props.onSelect ? handleSelectAllClick : false,
     selected: selected,
     results: props.results,
     resource: props.resource,
@@ -210,22 +210,25 @@ const SearchResults = props => {
 
   return (
     <Box sx={{ width: '100%', background: 'inherit', height: '100%', ...props.sx }}>
-      <ResultsToolbar
-        isFiltersApplied={props.isFiltersApplied}
-        numSelected={selected.length}
-        title={getTitle()}
-        onFiltersToggle={props.onFiltersToggle}
-        disabled={props.noResults}
-        isFilterable={props.isFilterable}
-        onDisplayChange={onDisplayChange}
-        display={display}
-        sortableFields={props.noSorting ? false : sortableFields}
-        order={props.order}
-        orderBy={props.orderBy}
-        onOrderByChange={props.onOrderByChange}
-        noCardDisplay={noCardDisplay}
-        toolbarControl={props.toolbarControl}
-      />
+      {
+      !props.noToolbar &&
+          <ResultsToolbar
+            isFiltersApplied={props.isFiltersApplied}
+            numSelected={selected.length}
+            title={getTitle()}
+            onFiltersToggle={props.onFiltersToggle}
+            disabled={props.noResults}
+            isFilterable={props.isFilterable}
+            onDisplayChange={onDisplayChange}
+            display={display}
+            sortableFields={props.noSorting ? false : sortableFields}
+            order={props.order}
+            orderBy={props.orderBy}
+            onOrderByChange={props.onOrderByChange}
+            noCardDisplay={noCardDisplay}
+            toolbarControl={props.toolbarControl}
+          />
+      }
       {
         props.noResults ?
           <NoResults searchedText={props.searchedText} height={props.height} /> :

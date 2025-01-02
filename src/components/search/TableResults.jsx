@@ -23,18 +23,21 @@ const EnhancedTableHead = props => {
   return (
     <TableHead sx={{background: props.bgColor}}>
       <TableRow sx={{background: '#FFF'}}>
-        <TableCell padding="checkbox" sx={{background: 'inherit'}}>
-          <Checkbox
-            size={props.size || 'medium'}
-            color="primary"
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              'aria-label': 'select all desserts',
-            }}
-          />
-        </TableCell>
+        {
+          onSelectAllClick &&
+            <TableCell padding="checkbox" sx={{background: 'inherit'}}>
+              <Checkbox
+                size={props.size || 'medium'}
+                color="primary"
+                indeterminate={numSelected > 0 && numSelected < rowCount}
+                checked={rowCount > 0 && numSelected === rowCount}
+                onChange={onSelectAllClick}
+                inputProps={{
+                  'aria-label': 'select all desserts',
+                }}
+              />
+            </TableCell>
+        }
         {columns.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -142,16 +145,19 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
                     },
                   }}
                 >
-                  <TableCell padding="checkbox" onClick={event => handleClick(event, id)} style={{color: color}}>
-                    <Checkbox
-                      size={size || 'medium'}
-                      color="primary"
-                      checked={isItemSelected}
-                      inputProps={{
-                        'aria-labelledby': labelId,
-                      }}
-                    />
-                  </TableCell>
+                  {
+                  handleClick &&
+                      <TableCell padding="checkbox" onClick={event => handleClick(event, id)} style={{color: color}}>
+                        <Checkbox
+                          size={size || 'medium'}
+                          color="primary"
+                          checked={isItemSelected}
+                          inputProps={{
+                            'aria-labelledby': labelId,
+                          }}
+                        />
+                      </TableCell>
+                  }
                   {
                     columns.map((column, idx) => {
                       const value = getValue(row, column)
