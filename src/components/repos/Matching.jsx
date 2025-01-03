@@ -72,7 +72,7 @@ import uniqBy from 'lodash/uniqBy'
 
 import APIService from '../../services/APIService';
 import { highlightTexts } from '../../common/utils';
-import { WHITE, SURFACE_COLORS } from '../../common/colors';
+import { WHITE, SURFACE_COLORS, ERROR_COLORS } from '../../common/colors';
 
 import CloseIconButton from '../common/CloseIconButton';
 import SearchResults from '../search/SearchResults';
@@ -119,7 +119,7 @@ const ALGOS = [
   {id: 'llm', label: 'LLM Matching', disabled: true},
 ]
 const DECISION_TABS = ['map', 'candidates', 'search', 'propose']
-const UPDATED_COLOR = 'rgba(255, 167, 38, 0.1)'
+const UPDATED_COLOR = ERROR_COLORS['95']
 
 const formatMappings = item => {
   let same_as_mappings = []
@@ -431,7 +431,7 @@ const Matching = () => {
                 variant="head"
                 sx={{
                   width: column.width || undefined,
-                  padding: isEditing ? '8px': '0px 8px',
+                  padding: isEditing ? '0 8px': '6px',
                   backgroundColor: isUpdatedValue ? UPDATED_COLOR : WHITE
                 }}
               >
@@ -737,7 +737,7 @@ const Matching = () => {
     const worksheet = XLSX.utils.json_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Dates");
-    XLSX.writeFile(workbook, "Matched.csv", { compression: true });
+    XLSX.writeFile(workbook, `${name || 'Matched'}.${moment().format('YYYYMMDDHHmmss')}.csv`, { compression: true });
   }
 
   const onCSVRowSelect = csvRow => {
@@ -939,11 +939,13 @@ const Matching = () => {
                 variant='fullWidth'
                 value={selectedRowStatus}
                 onChange={(event, newValue) => onStateTabChange(newValue)}
+                sx={{minHeight: '38px', height: '38px'}}
               >
                 <Tab
+                  size='small'
                   label={`All (${data.length.toLocaleString()})`}
                   value='all'
-                  sx={{padding: '2px 6px'}}
+                  sx={{padding: '2px 6px', minHeight: '38px', height: '38px', textTransform: 'none'}}
                 />
                 {
                   ROW_STATES.map(state => {
@@ -951,7 +953,7 @@ const Matching = () => {
                     return (
                       <Tab
                         size='small'
-                        sx={{padding: '2px 6px !important'}}
+                        sx={{padding: '2px 6px !important', minHeight: '38px', height: '38px', textTransform: 'none'}}
                         value={state}
                         key={state}
                         disabled={count === 0}
@@ -1066,7 +1068,7 @@ const Matching = () => {
                 DECISION_TABS.map(_tab => {
                   return (
                     <Tab
-                      sx={{padding: '2px 6px !important'}}
+                      sx={{padding: '2px 6px !important', textTransform: 'none'}}
                       value={_tab}
                       key={_tab}
                       label={startCase(_tab)}

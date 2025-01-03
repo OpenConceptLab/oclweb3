@@ -77,6 +77,7 @@ export const ERROR_COLORS = {
   light: '#ba1a1a',
   dark: '#ffb4ab',
   contrastText: WHITE,
+  '95': '#ffedea'
 }
 
 export const COLORS = {
