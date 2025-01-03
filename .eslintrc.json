@@ -239,7 +239,8 @@
           "llm",
           "unmapped",
           "unmap",
-          "mins"
+          "mins",
+          "Hmmss"
         ],
         "skipIfMatch": [
           "http://[^s]*",
