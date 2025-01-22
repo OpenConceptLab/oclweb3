@@ -12,6 +12,7 @@ import Footer from './Footer';
 import DocumentTitle from "./DocumentTitle"
 import './App.scss';
 import { hotjar } from 'react-hotjar';
+import APIService from '../../services/APIService'
 import Header from './Header';
 import Dashboard from '../dashboard/Dashboard';
 import Search from '../search/Search';
@@ -43,12 +44,21 @@ const SessionUserRoute = ({component: Component, ...rest}) => (
 )
 
 const App = props => {
-  const { alert, setAlert } = React.useContext(OperationsContext);
+  const { alert, setAlert, setToggles } = React.useContext(OperationsContext);
   const setupHotJar = () => {
     /*eslint no-undef: 0*/
     const HID = window.HOTJAR_ID || process.env.HOTJAR_ID
     if(HID)
       hotjar.initialize(HID, 6);
+  }
+
+  const fetchToggles = async () => {
+    return new Promise(resolve => {
+      APIService.toggles().get().then(response => {
+        setToggles(response.data)
+        resolve();
+      });
+    });
   }
 
   const addLogoutListenerForAllTabs = () => window.addEventListener(
@@ -63,6 +73,7 @@ const App = props => {
     });
 
   React.useEffect(() => {
+    fetchToggles()
     addLogoutListenerForAllTabs()
     recordGAPageView()
     setupHotJar()

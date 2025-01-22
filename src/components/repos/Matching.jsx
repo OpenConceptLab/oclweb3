@@ -91,6 +91,8 @@ import every from 'lodash/every'
 import times from 'lodash/times'
 import isEmpty from 'lodash/isEmpty'
 
+import { OperationsContext } from '../app/LayoutContext';
+
 import APIService from '../../services/APIService';
 import { highlightTexts } from '../../common/utils';
 import { WHITE, SURFACE_COLORS, ERROR_COLORS } from '../../common/colors';
@@ -160,10 +162,6 @@ const MATCH_TYPES = {
   },
 }
 
-const ALGOS = [
-  {id: 'es', label: 'Generic Elastic Search Matching'},
-  {id: 'llm', label: 'Semantic Search (all-MiniLM-L6-v2)', disabled: !window.SEMANTIC_SEARCH_TOGGLE},
-]
 const DECISION_TABS = ['map_and_review', 'candidates', 'propose']
 const UPDATED_COLOR = ERROR_COLORS['95']
 const SearchField = ({onChange}) => {
@@ -416,6 +414,7 @@ const VisuallyHiddenInput = styled('input')({
 
 
 const Matching = () => {
+  const { toggles } = React.useContext(OperationsContext);
   // project state
   const [name, setName] = React.useState('')
   const [file, setFile] = React.useState(false)
@@ -454,6 +453,11 @@ const Matching = () => {
   // repo state
   const [repo, setRepo] = React.useState(false)
   const [conceptCache, setConceptCache] = React.useState({})
+
+  const ALGOS = [
+    {id: 'es', label: 'Generic Elastic Search Matching'},
+    {id: 'llm', label: 'Semantic Search (all-MiniLM-L6-v2)', disabled: !toggles?.SEMANTIC_SEARCH_TOGGLE},
+  ]
 
   const rowIndex = row?.__index
 
