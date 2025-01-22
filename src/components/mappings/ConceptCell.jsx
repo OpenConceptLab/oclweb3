@@ -6,10 +6,10 @@ import get from 'lodash/get'
 
 import ConceptIcon from '../concepts/ConceptIcon'
 
-const ConceptCell = ({mapping, direction}) => {
-  const conceptName = get(mapping, `${direction}_concept_name`) || get(mapping, `${direction}_concept_name_resolved`)
-  const conceptId = get(mapping, `${direction}_concept_code`)
-  const isPresent = Boolean(get(mapping, `${direction}_concept_url`))
+const ConceptCell = ({mapping, concept, direction, noId}) => {
+  const conceptName = concept?.display_name || get(mapping, `${direction}_concept_name`) || get(mapping, `${direction}_concept_name_resolved`)
+  const conceptId = concept?.id || get(mapping, `${direction}_concept_code`)
+  const isPresent = Boolean(concept?.url || get(mapping, `${direction}_concept_url`))
   return (
     <span style={{maxWidth: '172px', textAlign: 'left'}}>
       <div style={{display: 'flex', alignItems: 'center', justifyContent: 'left'}}>
@@ -19,11 +19,14 @@ const ConceptCell = ({mapping, direction}) => {
         </Typography>
         <span/>
       </div>
-      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'left'}}>
-        <Typography component='span' sx={{fontSize: '12px', color: 'secondary.main'}}>
-          {conceptId}
-        </Typography>
-      </div>
+      {
+        !noId &&
+          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'left'}}>
+            <Typography component='span' sx={{fontSize: '12px', color: 'secondary.main'}}>
+              {conceptId}
+            </Typography>
+          </div>
+      }
     </span>
   )
 }

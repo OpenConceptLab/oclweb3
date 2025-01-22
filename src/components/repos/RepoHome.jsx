@@ -23,7 +23,6 @@ const RepoHome = () => {
   const location = useLocation()
   const history = useHistory()
   const params = useParams()
-
   const TABS = [
     {key: 'concepts', label: t('concept.concepts')},
     {key: 'mappings', label: t('mapping.mappings')},

@@ -29,10 +29,20 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import Checkbox from '@mui/material/Checkbox';
 import Autocomplete from '@mui/material/Autocomplete';
 import Chip from '@mui/material/Chip';
 import Menu from '@mui/material/Menu';
+import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl, { useFormControl } from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
+import Switch from '@mui/material/Switch';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputAdornment from '@mui/material/InputAdornment';
+import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 
 import JoinRightIcon from '@mui/icons-material/JoinRight';
@@ -43,12 +53,19 @@ import EditIcon from '@mui/icons-material/EditOutlined';
 import SaveIcon from '@mui/icons-material/SaveOutlined';
 import ConfirmedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
-import AutoMatchIcon from '@mui/icons-material/ChecklistRtl';
 import MediumMatchIcon from '@mui/icons-material/Rule';
 import LowMatchIcon from '@mui/icons-material/DynamicForm';
 import NoMatchIcon from '@mui/icons-material/RemoveRoad';
 import DownloadIcon from '@mui/icons-material/Download';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import ListIcon from '@mui/icons-material/FormatListNumbered';
+import UnMappedIcon from '@mui/icons-material/LinkOff';
+import MappedIcon from '@mui/icons-material/Link';
+import ReviewedIcon from '@mui/icons-material/FactCheckOutlined';
+import SearchIcon from '@mui/icons-material/Search';
+import AutoMatchIcon from '@mui/icons-material/MotionPhotosAutoOutlined';
+import DoneIcon from '@mui/icons-material/Done';
+import CloseIcon from '@mui/icons-material/Close';
 
 import orderBy from 'lodash/orderBy'
 import filter from 'lodash/filter'
@@ -60,7 +77,6 @@ import values from 'lodash/values'
 import find from 'lodash/find'
 import without from 'lodash/without'
 import has from 'lodash/has'
-import compact from 'lodash/compact'
 import chunk from 'lodash/chunk'
 import get from 'lodash/get'
 import countBy from 'lodash/countBy'
@@ -68,7 +84,12 @@ import sum from 'lodash/sum'
 import omit from 'lodash/omit'
 import reject from 'lodash/reject'
 import uniq from 'lodash/uniq'
-import uniqBy from 'lodash/uniqBy'
+import debounce from 'lodash/debounce'
+import keys from 'lodash/keys'
+import pickBy from 'lodash/pickBy'
+import every from 'lodash/every'
+import times from 'lodash/times'
+import isEmpty from 'lodash/isEmpty'
 
 import APIService from '../../services/APIService';
 import { highlightTexts } from '../../common/utils';
@@ -78,19 +99,44 @@ import CloseIconButton from '../common/CloseIconButton';
 import SearchResults from '../search/SearchResults';
 import SearchHighlightsDialog from '../search/SearchHighlightsDialog'
 import ConceptHome from '../concepts/ConceptHome'
+import ConceptChip from '../concepts/ConceptChip'
 import RepoSearchAutocomplete from './RepoSearchAutocomplete'
 
 const HEADERS = [
   {id: 'id', label: 'ID'},
   {id: 'name', label: 'Name'},
   {id: 'synonyms', label: 'Synonyms'},
+  {id: 'description', label: 'Description'},
   {id: 'concept_class', label: 'Concept Class'},
   {id: 'datatype', label: 'Datatype'},
   {id: 'same_as_map_codes', label: 'Same As Codes'},
   {id: 'other_map_codes', label: 'Concept Set'},
 ]
 
-const ROW_STATES = ['readyForReview', 'mapped', 'unmapped']
+const ROW_STATES = ['unmapped', 'readyForReview', 'reviewed']
+const VIEWS = {
+  all: {
+    label: 'All',
+    icon: <ListIcon fontSize='small' />,
+    color: 'grey',
+  },
+  unmapped: {
+    label: 'Unmapped',
+    icon: <UnMappedIcon fontSize='small' />,
+    color: 'secondary',
+  },
+  readyForReview: {
+    label: 'Proposed',
+    icon: <MappedIcon fontSize='small' />,
+    color: 'warning',
+  },
+  reviewed: {
+    label: 'Approved',
+    icon: <ReviewedIcon fontSize='small' />,
+    color: 'primary',
+  },
+}
+
 const MATCH_TYPES = {
   very_high: {
     label: 'Auto Match',
@@ -116,10 +162,44 @@ const MATCH_TYPES = {
 
 const ALGOS = [
   {id: 'es', label: 'Generic Elastic Search Matching'},
-  {id: 'llm', label: 'LLM Matching', disabled: true},
+  {id: 'llm', label: 'Semantic Search (all-MiniLM-L6-v2)', disabled: !window.SEMANTIC_SEARCH_TOGGLE},
 ]
-const DECISION_TABS = ['map', 'candidates', 'search', 'propose']
+const DECISION_TABS = ['map_and_review', 'candidates', 'propose']
 const UPDATED_COLOR = ERROR_COLORS['95']
+const SearchField = ({onChange}) => {
+  const [input, setInput] = React.useState('')
+  const { focused } = useFormControl() || {};
+  const _onChange = event => {
+    const value = event.target.value
+    setInput(value)
+    onChange(value)
+  }
+
+  const comp = React.useMemo(() => {
+    return Boolean(focused || input)
+  }, [focused, input]);
+
+  const style = comp ? {height: '31px', paddingLeft: '7px'} : {padding: 0, height: '31px', justifyContent: 'flex-start'}
+
+  return <OutlinedInput
+           color='primary'
+           value={input}
+           onChange={_onChange}
+           startAdornment={
+             <InputAdornment position="start">
+               <SearchIcon color={comp || !focused ? 'primary' : undefined} fontSize='small' />
+             </InputAdornment>
+           }
+           sx={{
+             ...style,
+             width: comp ? '200px' : '20px',
+             '.MuiOutlinedInput-notchedOutline': comp ? {borderColor: 'primary.main'} : {display: 'none'},
+             '.MuiInputBase-input': comp ? {marginLeft: '-4px'} : {marginLeft: '-30px'}
+           }}
+           size='small'
+         />
+}
+
 
 const formatMappings = item => {
   let same_as_mappings = []
@@ -232,28 +312,33 @@ const HeaderAutocomplete = ({isUpdatedValue, helperText, ...rest}) => {
 }
 
 
-const MatchSummaryCard = ({id, icon, label, count, loading, color, selected, onClick }) => {
+const MatchSummaryCard = ({id, icon, label, count, loading, color, selected, onClick, size, isLast, dividerBgColor }) => {
   const isSelected = id === selected
+  const isLarge = size === 'large'
+  const _iconSize = (isLarge ? 32 : 24)
+  const iconSize =  _iconSize + 'px'
+  const isDisabled = count === '0' && id !== 'all'
   return (
-    <div className='col-xs-2' style={{padding: '0px 3px', minWidth: '130px', width: 'auto'}}>
-      <Card variant={isSelected ? undefined : 'outlined'} sx={{borderColor: isSelected ? color : undefined, cursor: 'pointer', backgroundColor: isSelected ? 'rgba(72,54,255, 0.1)' : WHITE}} onClick={onClick}>
+    <div style={{display: 'flex', alignItems: 'center'}}>
+    <div className='col-xs-2' style={{padding: '0px 3px', minWidth: '160px', width: 'auto', marginRight: 0 }}>
+      <Card variant={isSelected ? undefined : 'outlined'} sx={{borderColor: color + '.main', cursor: isDisabled ? 'not-allowed' : 'pointer', backgroundColor: isSelected ? 'rgba(72,54,255, 0.1)' : WHITE, opacity: isDisabled ? 0.5 : 1}} onClick={isDisabled ? undefined : onClick}>
         <CardContent sx={{padding: '0px !important'}}>
-          <ListItem sx={{padding: '4px 8px'}}>
+          <ListItem sx={{padding: '2px 8px'}}>
             <ListItemAvatar sx={{minWidth: 'auto'}}>
               <Box sx={{ position: 'relative' }}>
-                <Avatar sx={{backgroundColor: `${color}.main`, width: '24px', height: '24px'}}>
+                <Avatar sx={{backgroundColor: `${color}.main`, width: iconSize, height: iconSize}}>
                   {icon}
                 </Avatar>
                 {loading && (
                   <CircularProgress
-                    size={32}
+                    size={_iconSize + 8}
                     sx={{
                       color: `${color}.main`,
                       position: 'absolute',
                       top: '50%',
                       left: '50%',
-                      marginTop: '-16px',
-                      marginLeft: '-16px',
+                      marginTop: '-20px',
+                      marginLeft: '-20px'
                     }}
                   />
                 )}
@@ -266,12 +351,12 @@ const MatchSummaryCard = ({id, icon, label, count, loading, color, selected, onC
                 paddingLeft: '12px',
                 margin: 0,
                 '.MuiListItemText-primary': {
-                  fontSize: '10px',
+                  fontSize: isLarge ? '12px' : '10px',
                   color: 'rgba(0, 0, 0, 0.7)'
                 },
                 '.MuiListItemText-secondary': {
                   color: '#000',
-                  fontSize: '14px',
+                  fontSize: isLarge ? '16px' : '12px',
                   fontWeight: 'bold'
                 }
               }}
@@ -279,6 +364,11 @@ const MatchSummaryCard = ({id, icon, label, count, loading, color, selected, onC
           </ListItem>
         </CardContent>
       </Card>
+    </div>
+      {
+          !isLast &&
+          <Divider sx={{width: '24px', margin: '0 2px', backgroundColor: dividerBgColor, height: '1px'}} />
+        }
     </div>
   )
 }
@@ -331,12 +421,16 @@ const Matching = () => {
   const [file, setFile] = React.useState(false)
   const [data, setData] = React.useState(false)
   const [columns, setColumns] = React.useState([])
-  const [rowStatuses, setRowStatuses] = React.useState({mapped: [], readyForReview: [], unmapped: []})
+  const [rowStatuses, setRowStatuses] = React.useState({reviewed: [], readyForReview: [], unmapped: []})
+  const [decisions, setDecisions] = React.useState({})
+  const [decisionFilters, setDecisionFilters] = React.useState([])
   const [matchTypes, setMatchTypes] = React.useState({very_high: 0, high: 0, low: 0, no_match: 0})
   const [matchedConcepts, setMatchedConcepts] = React.useState([]);
   const [otherMatchedConcepts, setOtherMatchedConcepts] = React.useState([]);
   const [algo, setAlgo] = React.useState('es')
-  const [decisions, setDecisions] = React.useState({})
+  const [notes, setNotes] = React.useState({})
+  const [proposed, setProposed] = React.useState({})
+  const [mapSelected, setMapSelected] = React.useState({})
   const [startMatchingAt, setStartMatchingAt] = React.useState(false)
   const [endMatchingAt, setEndMatchingAt] = React.useState(false)
 
@@ -346,12 +440,16 @@ const Matching = () => {
   const [selectedRowStatus, setSelectedRowStatus] = React.useState('all')
   const [selectedMatchBucket, setSelectedMatchBucket] = React.useState(false)
   const [editName, setEditName] = React.useState(false)
-  const [decisionTab, setDecisionTab] = React.useState('map')
+  const [decisionTab, setDecisionTab] = React.useState('map_and_review')
   const [algoMenuAnchorEl, setAlgoMenuAnchorEl] = React.useState(null)
+  const [decisionAnchorEl, setDecisionAnchorEl] = React.useState(null)
+  const [searchText, setSearchText] = React.useState('')
+  const [attributes, setAttributes] = React.useState(1)
 
   const [matchDialog, setMatchDialog] = React.useState(false)
   const [showHighlights, setShowHighlights] = React.useState(false)
   const [showItem, setShowItem] = React.useState(false)
+  const [autoMatchUnmappedOnly, setAutoMatchUnmappedOnly] = React.useState(true)
 
   // repo state
   const [repo, setRepo] = React.useState(false)
@@ -397,8 +495,56 @@ const Matching = () => {
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(sheet, { raw: false, defval: '' });
-      setData(map(jsonData, (data, index) => ({...data, __index: index})));
-      setColumns(getColumns(jsonData[0]))
+      let _data = []
+
+      const reservedKeys = ['__Concept ID__', '__Concept URL__', '__Match Score__', '__Match Type__', '__Decision__', '__Note__', '__State__', '__Proposed__', '__Repo Version__', '__Repo ID__', '__Repo URL__']
+      const optionalReservedKeys = ['__Concept Name__']
+      let columns = keys(jsonData[0])
+      let isResuming = every(reservedKeys, key => columns.includes(key))
+      let _decisions = {}
+      let _mapSelected = {}
+      let _notes = {}
+      let _proposed = {}
+      let _repo = null
+      let _states = {...rowStatuses}
+      forEach(jsonData, (data, index) => {
+        data.__index = index
+        if(isResuming) {
+          let repo = {id: data['__Repo ID__'], version: data['__Repo Version__'], url: data['__Repo URL__']}
+          let concept = {id: data['__Concept ID__'], url: data['__Concept URL__'], search_meta: {search_score: data['__Match Score__'], match_type: snakeCase(data['__Match Type__'])}, repo: repo}
+          if(concept?.id) {
+            _mapSelected[index] = concept
+            _repo = repo
+          }
+          let rowStateLabel = data['__State__']
+          let state = keys(pickBy(VIEWS, info => info.label === rowStateLabel))[0]
+          _states[state] = _states[state] || []
+          _states[state].push(index)
+          _decisions[index] = data['__Decision__'] === 'None' ? undefined : data['__Decision__']
+          _notes[index] = data['__Note__']
+          _proposed[index] = data['__Proposed__'] ? JSON.parse(data['__Proposed__']) : undefined
+          data = omit(data, [...reservedKeys, ...optionalReservedKeys])
+        }
+        _data.push(data)
+      })
+      if(isResuming) {
+        setNotes(_notes)
+        setDecisions(_decisions)
+        setMapSelected(_mapSelected)
+        setRowStatuses(_states)
+        setProposed(_proposed)
+        if(_repo?.url)
+          resolveRepo(_repo.url, _repo)
+      }
+
+      setData(_data);
+      if(!isResuming)
+        setRowStatuses(prev => {
+          prev.unmapped = map(_data, '__index')
+          return prev
+        })
+
+      setColumns(getColumns(omit(_data[0], ['__index'])))
     };
     reader.readAsBinaryString(file);
   };
@@ -465,15 +611,16 @@ const Matching = () => {
     const isEditing = edit?.includes(_row.__index)
     const bgColor = _row.__index === row.__index ? SURFACE_COLORS.main : WHITE
     const defaultMatchTypeColor = 'rgba(0, 0, 0, 0.05)'
-    const matchType = get(find(matchedConcepts, c => c.row.__index === _row.__index), 'results[0].search_meta.match_type')
-    const matchTypeColor = matchType ? MATCH_TYPES[matchType].color + '.main' : defaultMatchTypeColor
+    const state = getStateFromIndex(_row.__index)
     return (
       <React.Fragment>
         <TableCell
           align='center'
           sx={{
             backgroundColor: defaultMatchTypeColor,
-            ...(showMatchSummary && matchType ? {borderLeft: '2px solid', borderColor: matchTypeColor, borderBottom: '1px solid rgba(224, 224, 224, 1)'} : {}),
+            borderLeft: state ? '2px solid' : 'none',
+            borderColor: state ? VIEWS[state].color + '.main' : 'none',
+            borderBottom: '1px solid rgba(224, 224, 224, 1)',
             padding: '0px',
             verticalAlign: 'baseline',
             color: 'rgba(0, 0, 0, 0.6)',
@@ -541,8 +688,10 @@ const Matching = () => {
 
 
   const getRowsResults = async (rows) => {
-    const CHUNK_SIZE = 300; // Number of rows per batch
-    const MAX_CONCURRENT_REQUESTS = 4; // Number of parallel API requests allowed
+    const CHUNK_SIZE = 50; // Number of rows per batch
+    const MAX_CONCURRENT_REQUESTS = 2; // Number of parallel API requests allowed
+    if(autoMatchUnmappedOnly)
+      rows = filter(rows, row => rowStatuses.unmapped.includes(row.__index))
     const rowChunks = chunk(rows, CHUNK_SIZE);
 
     // Function to process a single batch
@@ -554,6 +703,8 @@ const Matching = () => {
               .appendToUrl('$match/')
               .post(payload, null, null, {
                 includeSearchMeta: true,
+                semantic: algo === 'llm',
+                bestMatch: true
               });
 
         return response.data || [];
@@ -581,7 +732,17 @@ const Matching = () => {
               no_match: prev.no_match + (sum(values(omit(counts, ['very_high', 'high', 'low']))) || 0)
             }));
             setRowStatuses(prev => {
-              prev.readyForReview = [...prev.readyForReview, ...map(data, 'row.__index')]
+              forEach(data, concept => {
+                if(get(concept, 'results.0.search_meta.match_type') === 'very_high') {
+                  setMapSelected(_prev => {
+                    _prev[concept.row.__index] = {...concept.results[0], repo: _repo}
+                    return _prev
+                  })
+                  prev.readyForReview = uniq([...prev.readyForReview, concept.row.__index])
+                  setDecisions(prev => ({...prev, [concept.row.__index]: 'map'}))
+                } else
+                  prev.unmapped = uniq([...prev.unmapped, concept.row.__index])
+              })
               return prev
             })
             setMatchedConcepts(prev => [...prev, ...data]);
@@ -595,6 +756,13 @@ const Matching = () => {
       }
     };
 
+    setRowStatuses(prev => {
+      prev.unmapped = []
+      if(!autoMatchUnmappedOnly)
+        prev.readyForReview = []
+      return prev
+    })
+
     const response = await APIService.new().overrideURL('/$resolveReference/').post({url: repo.version_url || repo.url})
     let _repo = get(response.data, '0.result.id') ? response.data[0].result : repo
     setRepo(_repo)
@@ -603,6 +771,14 @@ const Matching = () => {
     setLoadingMatches(false)
   };
 
+  const resolveRepo = (url, _repo) => {
+    APIService.new().overrideURL('/$resolveReference/').post({url: url}).then(response => {
+      if(get(response.data, '0.result.id'))
+        setRepo(response.data[0].result)
+      else
+        setRepo(_repo)
+    })
+  }
 
   const prepareRow = csvRow => {
     let row = {}
@@ -671,11 +847,9 @@ const Matching = () => {
 
   const getCandidatesButtonLabel = () => {
     const matchingDuration = getMatchingDuration()
-    if(loadingMatches)
-      return `Getting Candidates (${matchingDuration})`
-    if(matchedConcepts?.length)
-      return `Re-run? (last: ${matchingDuration})`
-    return 'Get Candidates'
+    if(loadingMatches || matchedConcepts?.length)
+      return `Auto Match (${matchingDuration})`
+    return 'Auto Match'
   }
 
   const onMatchTypeChange = bucket => {
@@ -695,42 +869,46 @@ const Matching = () => {
       const rowIndexes = map(matchedConcepts, getIndex)
       rows = filter(rows, r => rowIndexes.includes(r.__index))
     }
+    if(searchText)
+      rows = filter(rows, row => find(values(row), v => v?.toString().toLowerCase()?.search(searchText.trim().toLowerCase()) > -1))
+    if(decisionFilters?.length > 0) {
+      const hasNone = decisionFilters.includes('none')
+      let indexes = keys(pickBy(decisions, value => (hasNone && !value) || decisionFilters.includes(value)))
+      rows = filter(rows, row => indexes.includes(row.__index.toString()))
+    }
     return rows
   }
 
-  const getStatusFromConceptAndRowIndex = (concept, index) => {
-    if(isMappedInDecisions(concept, index))
-      return 'Mapped'
-    if(rowStatuses.unmapped.includes(index))
-      return 'Unmapped'
+  const getStateFromIndex = index => {
+    if(rowStatuses.reviewed.includes(index))
+      return 'reviewed'
     if(rowStatuses.readyForReview.includes(index))
-      return 'Ready for Review'
-    return 'No Decision'
+      return 'readyForReview'
+    return 'unmapped'
   }
 
   const onDownloadClick = () => {
     const rows = map(data, row => {
       const index = row.__index
-      let newRow = {...row, 'Concept ID': [], 'Concept URL': [], 'Match Score': [], 'Match Type': [], 'Decision': []}
-      let matched = find(matchedConcepts, concept => concept.row.__index === index)
-      let otherMatched = find(otherMatchedConcepts, concept => concept.row.__index === index)
-      let matches = orderBy([...(matched?.results || []), ...(otherMatched?.results || [])], 'search_meta.search_score', 'desc')
-      if(matches?.length) {
-        forEach(matches, concept => {
-          newRow['Concept ID'].push(concept.id)
-          newRow['Concept URL'].push(concept.version_url)
-          newRow['Match Score'].push(concept.search_meta.search_score)
-          newRow['Match Type'].push(startCase(concept.search_meta.match_type))
-          newRow['Decision'].push(getStatusFromConceptAndRowIndex(concept, index))
-          // newRow = {...newRow, 'Concept ID': concept.id, 'Concept URL': concept.url, 'Match Score': concept.search_meta.search_score, 'Match Type': startCase(concept.search_meta.match_type), 'Decision': getStatusFromConceptAndRowIndex(concept, index)}
-        })
-      } else {
-        newRow = {...newRow, 'Match Type': 'No Match'}
+      const rowState = getStateFromIndex(index)
+      const rowStateLabel = VIEWS[rowState].label
+      let concept = mapSelected[index]
+      let _repo = concept?.repo
+      let newRow = {
+        ...row,
+        '__Concept ID__': concept?.id,
+        '__Concept Name__': concept?.display_name,
+        '__Concept URL__': concept?.url,
+        '__Match Score__': concept?.search_meta?.search_score,
+        '__Match Type__': concept?.search_meta?.match_type ? startCase(concept.search_meta.match_type) : null,
+        '__Decision__': decisions[index] || 'None',
+        '__Note__': notes[index] || null,
+        '__State__': rowStateLabel,
+        '__Proposed__': isEmpty(proposed[index]) ? null : JSON.stringify(proposed[index]),
+        '__Repo Version__': _repo?.version || _repo?.id,
+        '__Repo ID__': _repo?.short_code || _repo?.id,
+        '__Repo URL__': _repo?.version_url || _repo?.url
       }
-      ['Concept ID', 'Concept URL', 'Match Score', 'Match Type', 'Decision'].forEach(col => {
-        newRow[col] = newRow[col].join('\n')
-      })
-      newRow = {...newRow, 'Repo Version': repo.version || repo.id, 'Repo ID': repo.short_code || repo.id, 'Repo URL': repo.version_url || repo.url}
       delete newRow.__index
       return newRow
     })
@@ -744,22 +922,19 @@ const Matching = () => {
     if(edit?.length > 0)
       return
 
-    const matched = get(find(matchedConcepts, concept => concept.row.__index === csvRow.__index), 'results.0')
-    let url = matched?.version_url || matched?.url
-    if(url)
+    const matched = get(find(matchedConcepts, concept => concept.row.__index === csvRow.__index), 'results.0') || mapSelected[csvRow.__index]
+    let url = matched?.url
+    if(url && !conceptCache[url])
       APIService
       .new()
       .overrideURL(url)
       .get(null, null, {includeMappings: true, mappingBrief: true, mapTypes: 'SAME-AS,SAME AS,SAME_AS', verbose: true})
       .then(response => {
-        const res = {...response.data, search_meta: {...matched.search_meta}}
+        const res = {...response.data, search_meta: {...matched.search_meta}, repo: {...matched.repo}}
         setConceptCache({...conceptCache, [url]: res})
-        setTimeout(() => {
-          highlightTexts([res], null, true)
-        }, 100)
       })
     setRow(csvRow)
-    setDecisionTab('map')
+    setDecisionTab('map_and_review')
   }
 
   const onCloseDecisions = () => {
@@ -767,47 +942,49 @@ const Matching = () => {
     setShowHighlights(false)
   }
 
-  const onMap = (event, concepts, unmap=false) => {
+  const onMap = (event, concept, unmap=false) => {
     event.preventDefault()
     event.stopPropagation()
-    let newDecisions = {...(decisions[rowIndex] || {})}
-    const conceptURLs = concepts.map(c => c.version_url)
+    _onMap(concept, unmap)
     setRowStatuses(prev => {
-      prev.readyForReview = without(prev.readyForReview, rowIndex)
+      prev.reviewed = without(prev.reviewed, rowIndex)
       if(unmap) {
-        newDecisions.mapped = reject(newDecisions.mapped, c => conceptURLs.includes(c.version_url))
-        if(newDecisions.mapped?.length === 0) {
-          prev.mapped = without(uniq(prev.mapped), rowIndex)
-          prev.unmapped = uniq([...prev.unmapped, rowIndex])
-        }
-      }
-      else {
-        prev.mapped = uniq([...prev.mapped, rowIndex])
-        prev.unmapped = without(uniq(prev.unmapped), rowIndex)
+        prev.readyForReview = without(prev.readyForReview, rowIndex)
+        prev.unmapped = uniq([...prev.unmapped, rowIndex])
+      } else {
+        prev.readyForReview = uniq([...prev.readyForReview, rowIndex])
+        prev.unmapped = without(prev.unmapped, rowIndex)
       }
       updateMatchTypeCounts(null, prev)
       return prev
     })
-    setDecisions(prev => {
-      let _decisions = prev[rowIndex] || {}
-      _decisions.mapped = unmap ? newDecisions.mapped : uniqBy([...(_decisions.mapped || []), ...concepts], 'version_url')
-      return {...prev, [rowIndex]: _decisions}
-    })
     return false
   }
 
-  const isMappedInDecisions = (concept, index) => Boolean(find(decisions[index || rowIndex]?.mapped, {version_url: concept.version_url}))
+  const _onMap = (concept, unmap=false) => {
+    setMapSelected(prev => ({...prev, [rowIndex]: unmap ? null : {...concept, repo: repo}}))
+    setDecisions(prev => ({...prev, [rowIndex]: unmap ? null : 'map'}))
+  }
+
+  const onReviewDone = () => {
+    const newRowStatuses = {...rowStatuses, reviewed: uniq([...rowStatuses.reviewed, rowIndex]), readyForReview: without(rowStatuses.readyForReview, rowIndex), unmapped: without(rowStatuses.unmapped, rowIndex)}
+    setRowStatuses(newRowStatuses)
+    updateMatchTypeCounts('reviewed', newRowStatuses)
+  }
+
+  const isSelectedForMap = (concept, index) => mapSelected[index || rowIndex]?.url == concept.url
 
   const onStateTabChange = newValue => {
     setSelectedRowStatus(newValue)
     updateMatchTypeCounts(newValue)
+    setDecisionFilters([])
+    if(newValue === 'unmapped')
+      setSelectedMatchBucket(false)
   }
 
   const updateMatchTypeCounts = (newRowStatus, newRowStatuses) => {
     let rowStatus = newRowStatus || selectedRowStatus
-    if(rowStatus === 'all')
-      return
-    let rows = filter(matchedConcepts, concept => (newRowStatuses || rowStatuses)[newRowStatus || selectedRowStatus].includes(concept.row.__index));
+    let rows = rowStatus === 'all' ? matchedConcepts : filter(matchedConcepts, concept => (newRowStatuses || rowStatuses)[rowStatus].includes(concept.row.__index));
     let matchTypes = map(rows, 'results.0.search_meta.match_type')
     let counts = countBy(matchTypes)
     setMatchTypes({
@@ -821,30 +998,57 @@ const Matching = () => {
   const onDecisionTabChange = (event, newValue) => {
     setShowItem(false)
     setDecisionTab(newValue)
-    if(newValue === 'candidates') {
-      if(!find(otherMatchedConcepts, c => c.row.__index === rowIndex)) {
-        const payload = getPayloadForMatching([row], repo)
-        APIService.concepts()
-          .appendToUrl('$match/')
-          .post(payload, null, null, {
-            includeSearchMeta: true,
-            includeMappings: true,
-            mappingBrief: true,
-            mapTypes: 'SAME-AS,SAME AS,SAME_AS',
-            verbose: true,
-            limit: 4,
-            offset: 1
-          }).then(response => {
-            setOtherMatchedConcepts([...otherMatchedConcepts, ...response.data])
-          });
-      }
+    if(newValue === 'candidates' && repo?.id) {
+      fetchOtherCandidates()
     }
   }
 
+  const onDecisionChange = (event, newValue) => {
+    if(newValue !== 'map')
+      _onMap(null, true)
+    if(newValue != 'propose')
+      setProposed(prev => ({...prev, [rowIndex]: undefined}))
 
-  const matchedResponse = find(matchedConcepts, concept => concept.row.__index === rowIndex)
-  const matchedConcept = get(matchedResponse, 'results.0') ? conceptCache[matchedResponse.results[0].version_url || matchedResponse.results[0].url] || matchedResponse.results[0] : null
-  const isSplitView = Boolean(matchedResponse?.row?.__index > -1 && rowIndex !== false)
+
+    setDecisions(prev => ({...prev, [rowIndex]: newValue || undefined}))
+
+    setRowStatuses(prev => {
+      prev.reviewed = without(prev.reviewed, rowIndex)
+      if(newValue) { // map or exclude or propose
+        prev.readyForReview = uniq([...prev.readyForReview, rowIndex])
+        prev.unmapped = without(prev.unmapped, rowIndex)
+      } else {
+        prev.readyForReview = without(prev.readyForReview, rowIndex)
+        prev.unmapped = uniq([...prev.unmapped, rowIndex])
+      }
+      updateMatchTypeCounts(null, prev)
+      return prev
+    })
+
+    setDecisionAnchorEl(null)
+  }
+
+  const fetchOtherCandidates = () => {
+      const payload = getPayloadForMatching([row], repo)
+      APIService.concepts()
+        .appendToUrl('$match/')
+        .post(payload, null, null, {
+          includeSearchMeta: true,
+          includeMappings: true,
+          mappingBrief: true,
+          mapTypes: 'SAME-AS,SAME AS,SAME_AS',
+          verbose: true,
+          limit: 5,
+          semantic: algo === 'llm'
+        }).then(response => {
+          setOtherMatchedConcepts([...reject(otherMatchedConcepts, c => c.row.__index == row.__index), ...response.data])
+          let items = get(response.data, '0.results') || []
+          if(items.length > 0)
+            setTimeout(() => highlightTexts(items, null, false), 100)
+        });
+  }
+
+  const isSplitView = Boolean(rowIndex !== undefined)
   const rows = getRows()
 
   const getTitle = () => {
@@ -852,6 +1056,13 @@ const Matching = () => {
     if(!editName && name)
       title += ` - ${name}`
     return title
+  }
+
+  const getConcept = concept => concept?.url ? conceptCache[concept.url] || concept : concept
+  const onProposedUpdate = event => {
+    setProposed(prev => {
+      return {...prev, [rowIndex]: {...(prev[rowIndex] || {}), [event.target.id]: event.target.value}}
+    })
   }
 
   return (
@@ -863,6 +1074,8 @@ const Matching = () => {
             {
               editName ?
                 <TextField
+                  focused
+                  autoFocus
                   size='small'
                   sx={{marginLeft: '16px', width: '250px'}}
                   value={name}
@@ -872,7 +1085,6 @@ const Matching = () => {
               <EditIcon sx={{marginLeft: '16px'}} onClick={() => setEditName(true)} />
             }
           </Typography>
-
           <div className='col-xs-12' style={{backgroundColor: SURFACE_COLORS.main, marginLeft: '-5px', paddingBottom: '0px', paddingLeft: '0px', paddingTop: '0px'}}>
             <Button
               component="label"
@@ -894,30 +1106,17 @@ const Matching = () => {
               />
             </Button>
             <Button
-              component="label"
-              role={undefined}
-              variant="outlined"
-              tabIndex={-1}
-              size='small'
-              sx={{textTransform: 'none', margin: '5px'}}
-              startIcon={<MatchingIcon />}
-              endIcon={<DownIcon />}
-              onClick={onAlgoButtonClick}
-            >
-              {ALGOS.find(_algo => _algo.id === algo).label}
-            </Button>
-            <Button
               variant='contained'
               size='small'
               sx={{textTransform: 'none', margin: '5px'}}
               endIcon={<DoubleArrowIcon />}
-              disabled={!rows?.length || loadingMatches}
+              disabled={loadingMatches || matchedConcepts?.length > 0 || !file}
               onClick={onGetCandidates}
             >
               {getCandidatesButtonLabel()}
             </Button>
             {
-              showMatchSummary && !loadingMatches &&
+              rows?.length > 0 && !loadingMatches &&
                 <Button
                   variant='contained'
                   color='secondary'
@@ -932,74 +1131,90 @@ const Matching = () => {
           </div>
         </Paper>
         {
-          (Boolean(rows?.length) || selectedMatchBucket || ROW_STATES.includes(selectedRowStatus)) &&
+          (Boolean(rows?.length) || selectedMatchBucket || ROW_STATES.includes(selectedRowStatus) || searchText) &&
             <div className='col-xs-12' style={{padding: '0', width: '100%', height: isSplitView ? 'calc(100vh - 245px)' : 'calc(100vh - 195px)'}}>
-              <Tabs
-                size='small'
-                variant='fullWidth'
-                value={selectedRowStatus}
-                onChange={(event, newValue) => onStateTabChange(newValue)}
-                sx={{minHeight: '38px', height: '38px'}}
-              >
-                <Tab
-                  size='small'
-                  label={`All (${data.length.toLocaleString()})`}
-                  value='all'
-                  sx={{padding: '2px 6px', minHeight: '38px', height: '38px', textTransform: 'none'}}
+              <div className='col-xs-12' style={{padding: '0 12px', display: 'flex', backgroundColor: SURFACE_COLORS.main}}>
+              {
+                map(VIEWS, (state, view) => {
+                  const count = view === 'all' ? data.length : rowStatuses[view].length
+                  const isLast = view === 'reviewed'
+                  const getDividerBgColor = () => {
+                    if(!selectedRowStatus || selectedRowStatus === 'all')
+                      return undefined
+                    if(selectedRowStatus === 'unmapped' && ['all'].includes(view))
+                      return 'primary.main'
+                    if(selectedRowStatus === 'readyForReview' && ['all', 'unmapped'].includes(view))
+                      return 'primary.main'
+                    if(selectedRowStatus === 'reviewed')
+                      return 'primary.main'
+                  }
+                  return (
+                    <MatchSummaryCard
+                      size='large'
+                      key={view}
+                      id={view}
+                      count={count.toLocaleString()}
+                      loading={loadingMatches}
+                      selected={selectedRowStatus}
+                      onClick={() => onStateTabChange(view)}
+                      {...VIEWS[view]}
+                      isLast={isLast}
+                      dividerBgColor={getDividerBgColor()}
+                    />
+                  )
+                })
+              }
+              </div>
+              <div className='col-xs-12' style={{padding: '8px 14px', display: 'flex', alignItems: 'center', backgroundColor: SURFACE_COLORS.main}}>
+                <FormControl>
+                  <SearchField onChange={debounce(val => setSearchText(val || ''))} />
+                </FormControl>
+                <FormControlLabel
+                  sx={{
+                    marginLeft: '10px',
+                    '.MuiFormControlLabel-label': {fontSize: '0.875rem'}
+                  }}
+                  control={<Switch disabled={!showMatchSummary || selectedRowStatus === 'unmapped'} size="small" checked={selectedMatchBucket === 'very_high'} onChange={() => onMatchTypeChange('very_high')} />}
+                  label={`Auto Match (${(matchTypes.very_high || 0).toLocaleString()})`}
                 />
                 {
-                  ROW_STATES.map(state => {
-                    let count = rowStatuses[state].length
-                    return (
-                      <Tab
-                        size='small'
-                        sx={{padding: '2px 6px !important', minHeight: '38px', height: '38px', textTransform: 'none'}}
-                        value={state}
-                        key={state}
-                        disabled={count === 0}
-                        label={`${startCase(state)} (${count.toLocaleString()})`}
-                      />
-                    )
-                  })
+                  ['reviewed', 'readyForReview'].includes(selectedRowStatus) &&
+                    <React.Fragment>
+                      {
+                        ['map', 'exclude', 'none', 'propose'].map(_decision => {
+                          const isApplied = decisionFilters.includes(_decision)
+                          const isExclude = _decision == 'exclude'
+                          const isNone = _decision == 'none'
+                          const isPropose = _decision == 'propose'
+                          const count = filter(keys(pickBy(decisions, value => isNone ? !value : value === _decision)), index => rowStatuses[selectedRowStatus].includes(parseInt(index))).length
+                          return (
+                            <Chip
+                              key={_decision}
+                              disabled={!count}
+                              label={`${startCase(_decision)} (${count})`}
+                              color={isExclude ? 'error' : (isNone ? 'secondary' : (isPropose ? 'warning' : 'primary'))}
+                              size='small'
+                              variant={isApplied ? 'contained' : 'outlined'}
+                              icon={
+                                isApplied ?
+                                  <CloseIcon fontSize='inherit' /> :
+                                  <DoneIcon fontSize='inherit' />
+                              }
+                              onClick={
+                                () => setDecisionFilters(
+                                  isApplied ?
+                                    without(decisionFilters, _decision) :
+                                    [...decisionFilters, _decision]
+                                )
+                              }
+                              sx={{marginLeft: '10px'}}
+                            />
+                          )
+                        })
+                      }
+                      </React.Fragment>
                 }
-              </Tabs>
-              {
-                showMatchSummary &&
-                  <div className='col-xs-12' style={{padding: '8px'}}>
-                    <MatchSummaryCard
-                      id='very_high'
-                      count={matchTypes.very_high || 0}
-                      loading={loadingMatches}
-                      selected={selectedMatchBucket}
-                      onClick={() => onMatchTypeChange('very_high')}
-                      {...MATCH_TYPES.very_high}
-                    />
-                    <MatchSummaryCard
-                      count={matchTypes.high || 0}
-                      loading={loadingMatches}
-                      id='high'
-                      selected={selectedMatchBucket}
-                      onClick={() => onMatchTypeChange('high')}
-                      {...MATCH_TYPES.high}
-                    />
-                    <MatchSummaryCard
-                      count={matchTypes.low || 0}
-                      loading={loadingMatches}
-                      id='low'
-                      selected={selectedMatchBucket}
-                      onClick={() => onMatchTypeChange('low')}
-                      {...MATCH_TYPES.low}
-                    />
-                    <MatchSummaryCard
-                      count={matchTypes.no_match || 0}
-                      loading={loadingMatches}
-                      id='no_match'
-                      selected={selectedMatchBucket}
-                      onClick={() => onMatchTypeChange('no_match')}
-                      {...MATCH_TYPES.no_match}
-                    />
-                  </div>
-              }
+              </div>
               <TableVirtuoso
                 style={{borderRadius: '10px', maxHeight: showMatchSummary ? isSplitView ? 'calc(100vh - 350px)' : 'calc(100vh - 305px)' : 'calc(100vh - 245px)'}}
                 data={rows}
@@ -1027,7 +1242,21 @@ const Matching = () => {
             Auto Match
           </DialogTitle>
           <DialogContent sx={{paddingTop: '12px !important'}}>
-            <RepoSearchAutocomplete label='Map Target' size='small' onChange={(id, item) => setRepo(item)} />
+            <Button
+              component="label"
+              role={undefined}
+              variant="outlined"
+              tabIndex={-1}
+              sx={{textTransform: 'none', margin: '0 0 10px 0', padding: '6.5px 15px', minWidth: '300px'}}
+              startIcon={<MatchingIcon />}
+              endIcon={<DownIcon />}
+              onClick={onAlgoButtonClick}
+            >
+              {ALGOS.find(_algo => _algo.id === algo).label}
+            </Button>
+            <RepoSearchAutocomplete label='Map Target' size='small' onChange={(id, item) => setRepo(item)} value={repo} />
+            <FormControlLabel sx={{marginTop: '8px'}} control={<Checkbox checked={autoMatchUnmappedOnly} onChange={event => setAutoMatchUnmappedOnly(event.target.checked)} />} label="Unmapped Only" />
+            {!autoMatchUnmappedOnly && <FormHelperText sx={{marginTop: '-4px'}}>This will override existing matches</FormHelperText>}
           </DialogContent>
           <DialogActions sx={{padding: '16px'}}>
             <Button
@@ -1072,7 +1301,6 @@ const Matching = () => {
                       value={_tab}
                       key={_tab}
                       label={startCase(_tab)}
-                      disabled={['search', 'propose'].includes(_tab)}
                     />
                   )
                 })
@@ -1080,8 +1308,75 @@ const Matching = () => {
             </Tabs>
           </div>
           {
-            ['map', 'candidates'].includes(decisionTab) && isSplitView &&
-              <div className='col-xs-12 padding-0'>
+            decisionTab === 'propose' && isSplitView &&
+              <div className='col-xs-12 padding-0' style={{margin: '12px 0'}}>
+                <div className='col-xs-12 padding-0'>
+                  <TextField id='source' sx={{width: 'calc(50% - 12px)', margin: '4px 6px'}} label='Target Source' value={proposed[rowIndex]?.source || ''} onChange={onProposedUpdate}/>
+                  <TextField id='id' sx={{width: 'calc(50% - 12px)', margin: '4px 6px'}} label='Concept ID' value={proposed[rowIndex]?.id || ''} onChange={onProposedUpdate}/>
+                  <TextField id='name' sx={{width: 'calc(50% - 12px)', margin: '4px 6px',}} label='Name' value={proposed[rowIndex]?.name || ''} onChange={onProposedUpdate}/>
+                  <Typography sx={{fontWeight: 'bold', margin: '10px 10px 4px'}}>Attributes</Typography>
+                  {
+                    times(attributes, i => {
+                      return (
+                        <div className='col-xs-12 padding-0' key={i}>
+                          <TextField id={`attributes.${i}.name`} sx={{width: 'calc(50% - 12px)', margin: '4px 6px'}} label='Attribute Name' value={get(proposed[rowIndex], `attributes.${i}.name`) || ''} onChange={onProposedUpdate}/>
+                          <TextField id={`attributes.${i}.value`} sx={{width: 'calc(50% - 12px)', margin: '4px 6px'}} label='Attribute Value' value={get(proposed[rowIndex], `attributes.${i}.value`) || ''} onChange={onProposedUpdate}/>
+                        </div>
+                      )
+                    })
+                  }
+                  <Button sx={{marginLeft: '8px', textTransform: 'none'}} size='small' variant='text' onClick={() => setAttributes(attributes + 1)}>
+                    Add more
+                  </Button>
+                </div>
+                <div className='col-xs-12 padding-0' style={{margin: '16px 0'}}>
+                  <TextField
+                    fullWidth
+                    id="note"
+                    label="Proposal note"
+                    multiline
+                    rows={5}
+                    value={proposed[rowIndex]?.note || ''}
+                    onChange={onProposedUpdate}
+                  />
+                </div>
+                <div className='col-xs-12 padding-0' style={{margin: '16px 0', display: 'flex', alignItems: 'center'}}>
+                  <Button color='primary' onClick={event => onDecisionChange(event, 'propose')} variant='contained' sx={{textTransform: 'none'}}>
+                    Propose
+                  </Button>
+                  <Button color='default' onClick={onCloseDecisions} variant='contained' sx={{textTransform: 'none', marginLeft: '16px'}}>
+                    Close
+                  </Button>
+                </div>
+                </div>
+          }
+          {
+            decisionTab === 'candidates' && isSplitView &&
+              <div className='col-xs-12 padding-0' style={{margin: '12px 0'}}>
+                <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', margin: '16px 0'}}>
+                  <Button
+                    component="label"
+                    role={undefined}
+                    variant="outlined"
+                    tabIndex={-1}
+                    sx={{textTransform: 'none', margin: '0 10px 0 0px', padding: '6.5px 15px', minWidth: '315px'}}
+                    startIcon={<MatchingIcon />}
+                    endIcon={<DownIcon />}
+                    onClick={onAlgoButtonClick}
+                  >
+                    {ALGOS.find(_algo => _algo.id === algo).label}
+                  </Button>
+                  <RepoSearchAutocomplete label='Map Target' size='small' onChange={(id, item) => setRepo(item)} value={repo} />
+                  <Button
+                    color='primary'
+                    variant="contained"
+                    sx={{textTransform: 'none', marginLeft: '10px'}}
+                    disabled={!repo?.id}
+                    onClick={fetchOtherCandidates}
+                  >
+                    Fetch
+                  </Button>
+                </div>
                 <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center'}}>
                   <SearchResults
                     id={rowIndex}
@@ -1103,14 +1398,14 @@ const Matching = () => {
                     noCardDisplay
                     nested
                     results={{
-                      results: orderBy(uniqBy(compact([matchedConcept, ...(decisions[rowIndex]?.mapped || []), ...(decisionTab === 'candidates' ? (find(otherMatchedConcepts, c => c.row.__index === rowIndex )?.results || []) : [])]), 'version_url'), 'search_meta.search_score', 'desc'),
+                      results: orderBy(find(otherMatchedConcepts, c => c.row.__index === rowIndex )?.results || [], 'search_meta.search_score', 'desc'),
                       total: 1
                     }}
                     resource='concepts'
                     noPagination
                     noSorting
                     noToolbar
-                    resultContainerStyle={{height: decisionTab === 'candidates' ? (showItem ? 'calc(100vh - 550px)' : 'calc(100vh - 200px)') : 'auto'}}
+                    resultContainerStyle={{height: decisionTab === 'candidates' ? (showItem ? '200px' : 'calc(100vh - 200px)') : 'auto'}}
                     onShowItemSelect={item => {
                       setShowItem(item)
                       setTimeout(() => {
@@ -1149,15 +1444,135 @@ const Matching = () => {
                         id: 'map-control',
                         labelKey: '',
                         renderer: concept => {
-                          const isMapped = isMappedInDecisions(concept)
+                          const isMapped = isSelectedForMap(concept)
                           return (
-                          <Button size='small' sx={{textTransform: 'none', whiteSpace: 'nowrap'}} color={isMapped ? 'error' : 'primary'} variant={isMapped ? 'outlined' : 'contained'} onClick={event => onMap(event, [concept], isMapped)}>
+                          <Button size='small' sx={{textTransform: 'none', whiteSpace: 'nowrap'}} color={isMapped ? 'error' : 'primary'} variant={isMapped ? 'outlined' : 'contained'} onClick={event => onMap(event, concept, isMapped)}>
                             {isMapped ? 'Un-Map' : 'Map'}
                           </Button>
                         )},
                       },
                     ]}
                   />
+                </div>
+              </div>
+          }
+          {
+            decisionTab === 'map_and_review' && isSplitView &&
+              <div className='col-xs-12' style={{padding: '8px'}}>
+                <div className='col-xs-12 padding-0' style={{margin: '12px 0 8px', display: 'flex', alignItems: 'center'}}>
+                  <div className='col-xs-2' style={{fontWeight: 'bold', fontSize: '16px'}}>
+                    Status
+                  </div>
+                  <div className='col-xs-10'>
+                    <Chip variant='outlined' label={startCase(getStateFromIndex(rowIndex))} {...VIEWS[getStateFromIndex(rowIndex)]} />
+                  </div>
+                </div>
+                <div className='col-xs-12 padding-0' style={{margin: '0px 0 8px', display: 'flex', alignItems: 'center'}}>
+                  <div className='col-xs-2' style={{fontWeight: 'bold', fontSize: '16px'}}>
+                    Decision
+                  </div>
+                  <div className='col-xs-10'>
+                    <Chip
+                      onClick={event => setDecisionAnchorEl(event.currentTarget)}
+                      onDelete={event => setDecisionAnchorEl(event.currentTarget)}
+                      variant='outlined'
+                      label={startCase(decisions[rowIndex] || 'none')}
+                      color={decisions[rowIndex] === 'map' ? 'primary' : (decisions[rowIndex] === 'exclude' ? 'error' : (decisions[rowIndex] === 'propose' ? 'warning' : 'secondary'))}
+                      deleteIcon={<DownIcon fontSize='inherit' />}
+                    />
+                    <Menu
+                      id="decision-menu"
+                      anchorEl={decisionAnchorEl}
+                      open={Boolean(decisionAnchorEl)}
+                      onClose={() => setDecisionAnchorEl(null)}
+                      MenuListProps={{
+                        'aria-labelledby': 'decision-menu',
+                        role: 'listbox',
+                      }}
+                    >
+                    <MenuList dense>
+                      <MenuItem selected={!decisions[rowIndex]} onClick={event => onDecisionChange(event, undefined)}>
+                        <ListItemText sx={{paddingLeft: 0}}>None</ListItemText>
+                      </MenuItem>
+
+                      <MenuItem disabled={!mapSelected[rowIndex]} selected={decisions[rowIndex] === 'map'} onClick={event => onDecisionChange(event, 'map')}>
+                        <ListItemText sx={{paddingLeft: 0}}>Map</ListItemText>
+                      </MenuItem>
+                      <MenuItem selected={decisions[rowIndex] === 'exclude'} onClick={event => onDecisionChange(event, 'exclude')}>
+                        <ListItemText sx={{paddingLeft: 0}}>Exclude</ListItemText>
+                      </MenuItem>
+                      <MenuItem disabled={!proposed[rowIndex]?.id} selected={decisions[rowIndex] === 'propose'} onClick={event => onDecisionChange(event, 'propose')}>
+                        <ListItemText sx={{paddingLeft: 0}}>Propose</ListItemText>
+                      </MenuItem>
+                    </MenuList>
+                      </Menu>
+                  </div>
+                </div>
+                {
+                  mapSelected[rowIndex]?.url &&
+                      <div key={mapSelected[rowIndex].url} className='col-xs-12 padding-0' style={{margin: '4px 0', display: 'flex', alignItems: 'center'}}>
+                        <div className='col-xs-2' style={{fontWeight: 'bold', fontSize: '16px', display: 'flex', alignItems: 'center'}}>
+                          <Tooltip title={MATCH_TYPES[mapSelected[rowIndex].search_meta.match_type].label}>
+                                <Button
+                                  sx={{
+                                    '.MuiButton-startIcon': {marginRight: '4px'}
+                                  }}
+                                  size='small'
+                                  variant='text'
+                                  color={MATCH_TYPES[mapSelected[rowIndex].search_meta.match_type].color}
+                                  startIcon={MATCH_TYPES[mapSelected[rowIndex].search_meta.match_type].icon}
+                                  onClick={event => {
+                                    event.preventDefault()
+                                    event.stopPropagation()
+                                    setShowHighlights(mapSelected[rowIndex])
+                                    return false
+                                  }}
+                                >
+                                  {parseFloat(mapSelected[rowIndex].search_meta.search_score || 0).toFixed(2)}
+                                </Button>
+                              </Tooltip>
+                        </div>
+                        <div className='col-xs-10'>
+                          <ConceptChip
+                            repoVersionPreferred
+                            concept={getConcept(mapSelected[rowIndex])}
+                                repo={repo}
+                                filled
+                                iconColor='primary'
+                                target='_blank'
+                                rel='noreferrer noopener'
+                                sx={{
+                                  '.MuiSvgIcon-root': {
+                                    color: 'primary'
+                                  }
+                                }}
+                          />
+                          <Tooltip title='Un-map'>
+                          <IconButton sx={{marginLeft: '10px'}} color='error' onClick={event => onMap(event, mapSelected[rowIndex], true)}>
+                            <CloseIcon />
+                          </IconButton>
+                            </Tooltip>
+                        </div>
+                      </div>
+                }
+                <div className='col-xs-12 padding-0' style={{margin: '16px 0', display: 'flex', alignItems: 'center'}}>
+                  <TextField
+                    fullWidth
+                    id="review-note"
+                    label="Review note"
+                    multiline
+                    value={notes[rowIndex] || ''}
+                    onChange={event => setNotes({...notes, [rowIndex]: event.target.value || ''})}
+                    rows={5}
+                  />
+                </div>
+                <div className='col-xs-12 padding-0' style={{margin: '16px 0', display: 'flex', alignItems: 'center'}}>
+                  <Button disabled={rowStatuses.reviewed.includes(rowIndex)} color='primary' onClick={() => onReviewDone()} variant='contained' sx={{textTransform: 'none'}}>
+                    Approve
+                  </Button>
+                  <Button color='default' onClick={onCloseDecisions} variant='contained' sx={{textTransform: 'none', marginLeft: '16px'}}>
+                    Close
+                  </Button>
                 </div>
               </div>
           }

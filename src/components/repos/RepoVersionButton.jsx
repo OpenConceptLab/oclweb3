@@ -50,7 +50,7 @@ const RepoVersionButton = ({icon, repo, repoType, version, repoLabelStyle, versi
         </span>
         {
           version &&
-            <Typography className='repo-version-label' component='span' sx={{marginLeft: '4px', color: 'secondary.50', fontFamily: '"Roboto Mono","Helvetica","Arial",sans-serif', display: 'flex', fontSize: '0.85rem', marginTop: '1px', ...(versionStyle || {})}}>
+            <Typography className='repo-version-label' component='span' sx={{marginLeft: '4px', color: 'secondary.50', fontFamily: '"Roboto Mono","Helvetica","Arial",sans-serif', display: 'flex', fontSize: '0.8125rem', lineHeight: 1.75, marginTop: '1px', ...(versionStyle || {})}}>
               {version}
             </Typography>
         }

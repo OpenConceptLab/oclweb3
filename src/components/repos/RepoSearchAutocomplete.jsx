@@ -1,7 +1,7 @@
 import React from 'react';
 import { TextField, CircularProgress, Divider } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
-import { get, debounce, map } from 'lodash'
+import { get, debounce, map, find } from 'lodash'
 import APIService from '../../services/APIService';
 import AutocompleteLoading from '../common/AutocompleteLoading';
 import RepoListItem from './RepoListItem';
@@ -9,13 +9,22 @@ import GroupHeader from '../common/GroupHeader'
 import GroupItems from '../common/GroupItems'
 
 
-const RepoSearchAutocomplete = ({onChange, label, id, required, minCharactersForSearch, size, suggested}) => {
+const RepoSearchAutocomplete = ({onChange, label, id, required, minCharactersForSearch, size, suggested, sx, value}) => {
   const minLength = minCharactersForSearch || 2;
   const [input, setInput] = React.useState('')
   const [open, setOpen] = React.useState(false)
   const [sources, setSources] = React.useState(map(suggested || [], instance => ({...instance, resultType: 'Suggested Sources'})))
   const [selected, setSelected] = React.useState(undefined)
   const [loading, setLoading] = React.useState(false)
+
+  React.useEffect(() => {
+    if(value?.url !== selected?.url && value?.url) {
+      setSelected(value)
+      if(!find(sources, {url: value.url})?.url)
+        setSources([value, ...sources])
+    }
+  }, [value])
+
   const isSearchable = input && input.length >= minLength;
   const handleInputChange = debounce((event, value, reason) => {
     setInput(value || '')
@@ -45,6 +54,7 @@ const RepoSearchAutocomplete = ({onChange, label, id, required, minCharactersFor
 
   return (
     <Autocomplete
+      sx={sx}
       filterOptions={x => x}
       openOnFocus
       blurOnSelect
@@ -63,7 +73,7 @@ const RepoSearchAutocomplete = ({onChange, label, id, required, minCharactersFor
         `Type atleast ${minLength} characters to search`
       }
       noOptionsText={(isSearchable && !loading) ? "No results" : 'Start typing...'}
-      getOptionLabel={option => option ? option.name : ''}
+      getOptionLabel={option => option ? (option.name || option.id) : ''}
       fullWidth
       required={required}
       onInputChange={handleInputChange}

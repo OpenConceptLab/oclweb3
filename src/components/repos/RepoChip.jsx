@@ -5,19 +5,12 @@ import BaseEntityChip from '../common/BaseEntityChip'
 import RepoTooltip from './RepoTooltip'
 
 const RepoChip = ({ repo, noTooltip, basicTooltip, filled, ...rest }) => {
+  const icon = filled ? <RepoFilledIcon /> : <RepoIcon />
   return noTooltip ? (
-    <BaseEntityChip
-      entity={repo}
-      icon={filled ? <RepoFilledIcon /> : <RepoIcon />}
-      {...rest}
-    />
+    <BaseEntityChip entity={repo} icon={icon} {...rest} />
   ) : (
     <RepoTooltip repo={repo} basicTooltip={basicTooltip}>
-      <BaseEntityChip
-        entity={repo}
-        icon={filled ? <RepoFilledIcon /> : <RepoIcon />}
-        {...rest}
-      />
+      <BaseEntityChip entity={repo} icon={icon} {...rest} />
     </RepoTooltip>
   )
 }

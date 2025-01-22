@@ -1,5 +1,4 @@
 import React from 'react'
-import { useHistory } from 'react-router-dom'
 import Chip from '@mui/material/Chip'
 import Skeleton from '@mui/material/Skeleton'
 import { Avatar as MuiAvatar } from '@mui/material'
@@ -116,9 +115,9 @@ const Label = ({ entity, hideType }) => {
         <b>{entity?.short_code || entity?.id || entity?.username}</b>
       </span>
       {
-        (entity?.type?.includes('Concept') && entity?.name) &&
+        (entity?.type?.includes('Concept') && entity?.display_name) &&
           <span className='entity-name' style={{marginLeft: '4px'}}>
-            {entity.name}
+            {entity.display_name}
           </span>
       }
       {
@@ -136,7 +135,6 @@ const Label = ({ entity, hideType }) => {
 
 
 const BaseEntityChip = ({ entity, icon, hideType, primary, size, sx, noLink, ...rest }) => {
-  const history = useHistory()
   const sizeStyle = ENTITY_CHIP_SIZE_MAP[size || 'medium'] || ENTITY_CHIP_SIZE_MAP.medium
   const baseStyle = primary ? PRIMARY_STYLE : SECONDARY_STYLE
   return (
@@ -155,9 +153,7 @@ const BaseEntityChip = ({ entity, icon, hideType, primary, size, sx, noLink, ...
         ...sx
       }}
       onClick={noLink ? undefined : event => {
-        event.preventDefault()
         event.stopPropagation()
-        history.push(entity.version_url || entity.url)
       }}
       href={noLink ? undefined : '#' + (entity?.version_url || entity?.url)}
       component='a'
