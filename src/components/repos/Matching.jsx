@@ -393,7 +393,7 @@ const VirtuosoTableComponents = {
     <TableContainer {...props} ref={ref} />
   )),
   Table: (props) => (
-    <Table {...props} stickyHeader size='small' sx={{ borderCollapse: 'separate', tableLayout: 'fixed' }} />
+    <Table {...props} stickyHeader size='small' sx={{ borderCollapse: 'separate', tableLayout: 'fixed', '.MuiTableCell-root': {fontSize: '12px'} }} />
   ),
   TableHead: React.forwardRef((props, ref) => <TableHead {...props} ref={ref} />),
   TableRow,
@@ -644,7 +644,9 @@ const Matching = () => {
                   cursor: 'pointer',
                   backgroundColor: isUpdatedValue ? UPDATED_COLOR : bgColor,
                   padding: isEditing ? '8px' : '6px',
-                  verticalAlign: 'baseline'
+                  verticalAlign: 'baseline',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
                 }}
                 onClick={() => onCSVRowSelect(_row)}
                 key={column.dataKey}
