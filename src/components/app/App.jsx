@@ -28,6 +28,8 @@ import OrgHome from '../orgs/OrgHome';
 import URLRegistry from '../url-registry/URLRegistry'
 import RepoConceptsMatch from '../repos/RepoConceptsMatch'
 import Matching from '../repos/Matching'
+import SigninRedirect from './SigninRedirect'
+import SignupRedirect from './SignupRedirect'
 
 const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
   <Route
@@ -92,6 +94,8 @@ const App = props => {
           <main className='content'>
             <Switch>
               <Route exact path="/oidc/login" component={OIDLoginCallback} />
+              <Route path="/signin" component={SigninRedirect} />
+              <Route path="/signup" component={SignupRedirect} />
               <Route exact path="/search" component={Search} />
               <Route exact path="/" component={Dashboard} />
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/sources/:repo/:repoVersion/concepts/$match`} component={RepoConceptsMatch} />
