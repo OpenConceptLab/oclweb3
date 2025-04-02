@@ -30,7 +30,7 @@
     "react-native-rss-parser": "^1.5.1",
     "react-password-strength-bar": "^0.3.5",
     "react-router-dom": "^5.3.4",
-    "react-virtuoso": "^4.12.5",
+    "react-virtuoso": "^4.12.6",
     "react-window": "^1.8.11",
     "stacktrace-js": "^2.0.2",
     "xlsx": "^0.18.5"
