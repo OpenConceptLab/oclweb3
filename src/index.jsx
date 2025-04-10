@@ -25,6 +25,9 @@ const v5Theme = createTheme(theme, {
     surface: {
       ...COLORS.surface
     },
+    neutral: {
+      ...COLORS.neutral
+    },
     "default": {
       main: COLORS.surface.n96,
       dark: COLORS.surface.n96,

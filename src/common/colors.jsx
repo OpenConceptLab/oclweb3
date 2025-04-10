@@ -69,7 +69,8 @@ export const SURFACE_COLORS = {
   n92: '#ebe7ec',
   n96: BG_GRAY,
   nv80: '#c8c5d0',
-  s90: '#e3e0f9'
+  s90: '#e3e0f9',
+  n94: '#f0edf1'
 }
 
 export const ERROR_COLORS = {
@@ -80,10 +81,16 @@ export const ERROR_COLORS = {
   '95': '#ffedea'
 }
 
+export const NEUTRAL_COLORS = {
+  '70': '#adaaaf',
+  '60': '#929094'
+}
+
 export const COLORS = {
   primary: {...PRIMARY_COLORS},
   secondary: {...SECONDARY_COLORS},
   tertiary: {...TERTIARY_COLORS},
   surface: {...SURFACE_COLORS},
-  error: {...ERROR_COLORS}
+  error: {...ERROR_COLORS},
+  neutral: {...NEUTRAL_COLORS}
 }
