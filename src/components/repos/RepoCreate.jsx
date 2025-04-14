@@ -327,6 +327,7 @@ const RepoCreate = () => {
               value={tab}
               onChange={(event, value) => setTab(value)}
               sx={{
+                minWidth: '325px',
                 '.MuiTabs-indicator': {
                   display: 'none'
                 }
