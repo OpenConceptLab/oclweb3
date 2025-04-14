@@ -272,7 +272,11 @@ const RepoCreate = () => {
     setFromOCLURLError(false)
     setIsFetchingFromOCLURL(true)
     if(isValidFromOCLURL(fromOCLURL)) {
-      fetch(fromOCLURL).then(response => {
+      let url = fromOCLURL
+      if(url.includes('/#/')) {
+        url = url.replace('/#/', '/').replace('//app.', '//api.')
+      }
+      fetch(url).then(response => {
         return response.json()
       }).then(json => {
         setIsFetchingFromOCLURL(false)
