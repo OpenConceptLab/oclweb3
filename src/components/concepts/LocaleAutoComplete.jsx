@@ -3,6 +3,7 @@ import {
   Alert, TextField, Box, Divider, Autocomplete, Dialog, DialogContent, DialogActions, DialogTitle, Button, Chip, Tooltip, Skeleton
 } from '@mui/material';
 import { createFilterOptions } from '@mui/material/Autocomplete';
+import InputAdornment from '@mui/material/InputAdornment';
 import { Add as AddIcon } from '@mui/icons-material';
 import { get, isEmpty, uniqBy, compact, map, find, filter } from 'lodash'
 import GroupHeader from '../common/GroupHeader';
@@ -94,7 +95,7 @@ const LocaleAutoComplete = ({ cachedLocales, id, multiple, required, onChange, l
       if(value) {
         const locale = value?.locale || value?.id || value
         if(multiple)
-          return filter(locales, locale => locale.includes(locale.locale))
+          return filter(locales, _locale => locale.includes(_locale.locale))
         return find(locales, {locale: locale}) || {id: locale, locale: locale, name: locale}
       }
     }
@@ -175,6 +176,17 @@ const LocaleAutoComplete = ({ cachedLocales, id, multiple, required, onChange, l
   }
 
   const selectedLocales = getSelectedLocales()
+  const getInputProps = params => {
+    const InputProps = {
+      ...params.InputProps,
+      endAdornment: (
+        <React.Fragment>{params.InputProps.endAdornment}</React.Fragment>
+      )
+    }
+    if(!multiple && value)
+      InputProps.startAdornment = (<InputAdornment sx={{color: 'primary.main'}} position="start"> {value} </InputAdornment>)
+    return InputProps
+  }
 
   return (
     <React.Fragment>
@@ -249,14 +261,9 @@ const LocaleAutoComplete = ({ cachedLocales, id, multiple, required, onChange, l
                   fullWidth={_fullWidth}
                   value={input}
                   onChange={event => setInput(event.target.value || '')}
-                  InputProps={{
-                    ...params.InputProps,
-                    endAdornment: (
-                      <React.Fragment>
-                        {params.InputProps.endAdornment}
-                      </React.Fragment>
-                    ),
-                  }}
+                  InputProps={
+                    getInputProps(params)
+                  }
                 />
               )
             }
@@ -267,12 +274,27 @@ const LocaleAutoComplete = ({ cachedLocales, id, multiple, required, onChange, l
                   <Tooltip key={index} title={isValid ? 'ISO-639-1 language code' : `${SITE_TITLE}'s data model supports ISO-639-1 (two digit) codes as standard. Consider updating.`}>
                     <Chip
                       size='small'
+                      icon={option?.locale ? <span>{option.locale}</span> : undefined}
                       label={getOptionLabel(option)}
                       {...getTagProps({ index })}
                       disabled={disabled}
                       color={isValid ? 'primary' : 'default'}
                       className={isValid ? '' : 'invalid-locale-chip'}
-                      style={{margin: '4px'}}
+                      sx={{
+                        margin: '4px',
+                        '.MuiChip-icon': {
+                          color: 'primary.main',
+                          fontSize: '12px',
+                          background: 'rgba(0, 0, 0, 0.07)',
+                          borderRadius: '50%',
+                          minWidth: '24px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          marginLeft: 0,
+                          marginRight: '-2px'
+                        }
+                      }}
                     />
                   </Tooltip>
                 )

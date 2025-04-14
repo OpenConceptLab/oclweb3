@@ -90,7 +90,7 @@ const VersionMeta = ({version1, version2}) => {
             statKey='description'
           />
           <StatRow
-            label={t('user.website')}
+            label={t('common.website')}
             version1={version1}
             version2={version2}
             statKey='website'

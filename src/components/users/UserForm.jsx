@@ -145,7 +145,7 @@ const UserForm = ({ user }) => {
             <TextField
               size='small'
               variant='outlined'
-              label={t('user.website')}
+              label={t('common.website')}
               value={website}
               onChange={event => setWebsite(event.target.value || '')}
               sx={{width: '35%', marginLeft: '10px'}}

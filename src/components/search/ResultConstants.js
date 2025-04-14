@@ -65,7 +65,7 @@ export const ALL_COLUMNS = {
     {id: 'email', labelKey: 'user.email', value: 'email', sortable: false},
     {id: 'company', labelKey: 'user.company', value: 'company'},
     {id: 'location', labelKey: 'user.location', value: 'location'},
-    {id: 'website', labelKey: 'user.website', value: 'website', sortable: false, formatter: formatWebsiteLink},
+    {id: 'website', labelKey: 'common.website', value: 'website', sortable: false, formatter: formatWebsiteLink},
     {id: 'date_joined', labelKey: 'user.joined_on', value: 'date_joined', formatter: formatDate, sortOn: 'date_joined'},
   ],
   url_registry: [

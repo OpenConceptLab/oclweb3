@@ -16,7 +16,7 @@ import OrgIcon from '../orgs/OrgIcon';
 const OwnerOption = ({ option, selected, ...rest }) => {
   return (
     <ListItem id={option.id} selected={selected} {...rest}>
-      <ListItemIcon>
+      <ListItemIcon sx={{minWidth: 'auto', marginRight: '16px'}}>
         {option.icon}
       </ListItemIcon>
       <ListItemText primary={option.id} secondary={option.name} />
@@ -25,15 +25,17 @@ const OwnerOption = ({ option, selected, ...rest }) => {
 }
 
 
-const NamespaceDropdown = ({onChange, label, id, owner, backgroundColor}) => {
+const NamespaceDropdown = ({onChange, label, id, owner, backgroundColor, asOwner, size, disabled}) => {
   const { t } = useTranslation()
   const user = getCurrentUser()
   const [ownerOptions, setOwnerOptions] = React.useState([])
   const prepareOwnerOptions = () => {
+      const global = {url: '/', id: t('url_registry.global_registry'), type: '', name: t('url_registry.global_registry'), icon: <GlobalIcon />, group: '' }
     let options = [
-      {url: '/', id: t('url_registry.global_registry'), type: '', name: t('url_registry.global_registry'), icon: <GlobalIcon />, group: '' },
       {url: user?.url, id: user?.username, type: user?.type, name: user?.username, icon: <UserIcon authenticated user={user} logoClassName='user-img-xsmall' />, group: ''},
     ]
+    if(!asOwner)
+      options = [global, ...options]
     getCurrentUserOrgs().forEach(org => {
       options.push({url: org.url, id: org.id, type: org.type, name: org.name, icon: <OrgIcon noLink strict logoClassName='user-img-xsmall' org={org} />, group: t('org.my')})
     })
@@ -49,6 +51,8 @@ const NamespaceDropdown = ({onChange, label, id, owner, backgroundColor}) => {
 
   return (
     <Autocomplete
+      disabled={disabled}
+      size={size || 'medium'}
       filterOptions={filterOptions}
       fullWidth
       disableClearable
@@ -58,14 +62,14 @@ const NamespaceDropdown = ({onChange, label, id, owner, backgroundColor}) => {
       value={selectedOption}
       groupBy={option => option.group}
       getOptionLabel={option => option.id || ''}
-      renderOption={(props, option, { selected }) => <OwnerOption key={option.id} option={option} {...props} selected={selected} />}
+      renderOption={(props, option, { selected }) => <OwnerOption key={option.id} option={option} dense={size === 'small'} {...props} selected={selected} />}
       onChange={onChange}
       renderInput={
         params => (
           <TextField
             {...params}
             label={label}
-            size='medium'
+            size={size || 'medium'}
             sx={{backgroundColor: backgroundColor || 'primary.contrastText'}}
             InputProps={ selectedOption?.icon ? {
               ...params.InputProps,

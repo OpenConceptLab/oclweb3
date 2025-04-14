@@ -1,6 +1,6 @@
 import React from 'react';
 import { withTranslation } from 'react-i18next';
-import { compact, map, isEmpty, get } from 'lodash';
+import { compact, map, isEmpty } from 'lodash';
 import TextField from '@mui/material/TextField'
 import CloseIconButton from '../common/CloseIconButton';
 import APIService from '../../services/APIService'
@@ -14,6 +14,7 @@ import Button from '../common/Button'
 import AutocompleteGroupByRepoSummary from '../common/AutocompleteGroupByRepoSummary'
 import LocaleForm from './LocaleForm'
 import Breadcrumbs from '../common/Breadcrumbs'
+import CustomAttributesForm from '../common/CustomAttributesForm'
 
 
 class ConceptForm extends FormComponent  {
@@ -316,44 +317,8 @@ class ConceptForm extends FormComponent  {
           </div>
         </CardSection>
         <CardSection title={t('custom_attributes.label')}>
-          <div id='locales-names' className='col-xs-12 padding-0' style={{maxHeight: '500px', overflow: 'auto'}}>
-            {
-              map(fields.extras, (extra, index) => {
-                return (
-                  <React.Fragment key={index}>
-                    <div className='col-xs-6' style={{padding: '0 8px 0 0', marginTop: '24px'}}>
-                      <TextField
-                        fullWidth
-                        id={`extras.${index}.key`}
-                        value={get(fields.extras, `${index}.key`)}
-                        label={t('custom_attributes.key')}
-                        variant='outlined'
-                        required
-                        size='small'
-                        onChange={event => this.setExtrasValue(index, 'key', event.target.value || '')}
-                      />
-                    </div>
-                    <div className='col-xs-6' style={{padding: '0 0 0 8px', marginTop: '24px'}}>
-                      <TextField
-                        fullWidth
-                        id={`extras.${index}.value`}
-                        value={get(fields.extras, `${index}.value`)}
-                        label={t('custom_attributes.value')}
-                        variant='outlined'
-                        required
-                        size='small'
-                        onChange={event => this.setExtrasValue(index, 'value', event.target.value || '')}
-                      />
-                    </div>
-                  </React.Fragment>
-                )})
-            }
-          </div>
-          <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
-            <Button label={t('common.add')} sx={{backgroundColor: 'surface.s90'}} onClick={this.onAddExtras} />
-          </div>
+          <CustomAttributesForm extras={fields.extras} onChange={this.setExtrasValue} onAdd={this.onAddExtras} />
         </CardSection>
-
         <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
           <Button label={t('common.submit')} sx={{backgroundColor: 'surface.s90'}} onClick={this.handleSubmit} />
         </div>

@@ -65,7 +65,7 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
                 <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='repo-manage'>
                   {t('repo.manage')}
                 </Button>
-                <RepoManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-manage' onClick={onManageOptionClick} />
+                <RepoManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-manage' onClick={onManageOptionClick} repo={repo} />
               </React.Fragment>
           }
         </span>

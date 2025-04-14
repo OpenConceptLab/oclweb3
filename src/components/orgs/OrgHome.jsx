@@ -65,7 +65,7 @@ const OrgHome = () => {
   const height = 'calc(100vh - 300px)'
 
   return (
-    <div className='col-xs-12 padding-0' style={{borderRadius: '8px'}}>
+    <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
       <Paper component="div" className='col-xs-12 split padding-0' sx={{backgroundColor: 'info.contrastText', borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.nv80'}}>
         {
           org?.id &&
