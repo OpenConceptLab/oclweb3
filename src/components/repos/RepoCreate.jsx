@@ -8,6 +8,7 @@ import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import Typography from '@mui/material/Typography'
 import ListItemText from '@mui/material/ListItemText'
+import TextField from '@mui/material/TextField'
 
 import orderBy from 'lodash/orderBy'
 import map from 'lodash/map'
@@ -26,6 +27,7 @@ import get from 'lodash/get'
 import APIService from '../../services/APIService'
 import { WHITE, BLACK } from '../../common/colors'
 import { SOURCE_TYPES, COLLECTION_TYPES } from '../../common/constants'
+import { URIToParentParams } from '../../common/utils'
 import { fetchLocales } from '../concepts/utils'
 import Button from '../common/Button'
 import RTEditor from '../common/RTEditor'
@@ -60,7 +62,7 @@ const TabPanel = props => {
 
 const FormSection = ({children, sx}) => (
   <Box
-    sx={{ padding: '24px', flexGrow: 1, bgcolor: 'background.paper', display: 'flex', width: 750, borderRadius: '10px', backgroundColor: WHITE, margin: '0 auto', border: '1px solid', borderColor: 'surface.nv80', flexDirection: 'column', ...sx }}
+    sx={{ padding: '24px', flexGrow: 1, bgcolor: 'background.paper', display: 'flex', width: 900, borderRadius: '10px', backgroundColor: WHITE, margin: '0 auto', border: '1px solid', borderColor: 'surface.nv80', flexDirection: 'column', ...sx }}
   >
     {children}
   </Box>
@@ -71,12 +73,17 @@ const RepoCreate = () => {
   const history = useHistory()
   const params = useParams()
   const location = useLocation()
+  const baseModel = {publicAccess: 'View', extras: [{key: '', value: ''}]}
   const [step, setStep] = React.useState(params.repo ? 1 : 0)
   const [tab, setTab] = React.useState(0)
   const [locales, setLocales] = React.useState([])
   const [ownerURL, setOwnerURL] = React.useState(params?.ownerType ? `/${params.ownerType}/${params.owner}/` : undefined)
-  const [model, setModel] = React.useState({publicAccess: 'View', extras: [{key: '', value: ''}]})
+  const [model, setModel] = React.useState({...baseModel})
   const [repo, setRepo] = React.useState(null)
+  const [isCreatingFromOCLURL, setIsCreatingFromOCLURL] = React.useState(false)
+  const [fromOCLURL, setFromOCLURL] = React.useState('')
+  const [fromOCLURLError, setFromOCLURLError] = React.useState(false)
+  const [isFetchingFromOCLURL, setIsFetchingFromOCLURL] = React.useState(false)
   const isEdit = Boolean(params.repo)
 
   const { setAlert } = React.useContext(OperationsContext);
@@ -185,7 +192,8 @@ const RepoCreate = () => {
         field = selectedTab?.id + '_type'
       else
         field = snakeCase(field)
-      payload[field] = [true, false].includes(value) ? value : value || null
+      if(value)
+        payload[field] = [true, false].includes(value) ? value : value || null
     })
     let service = getService()
     service = isEdit ? service.put(payload) : service.post(payload)
@@ -223,10 +231,8 @@ const RepoCreate = () => {
   }
 
   const setModelForEdit = data => {
-    if(isEdit) {
-      data = data || repo
-      setModel({id: data.id, fullName: data.full_name, name: data.name, canonicalURL: data.canonical_url, description: data.description, defaultLocale: data.default_locale, supportedLocales: data.supported_locales, type: data?.source_type || data?.collection_type, publicAccess: data.public_access, publisher: data.publisher, purpose: data.purpose, revisionDate: data.revision_date, customValidationSchema: data.custom_validation_schema, externalID: data.external_id, jurisdiction: objToValue(data.jurisdiction), copyright: data.copyright, identifier: objToValue(data.identifier), contact: objToValue(data.contact), contentType: data.content_type, meta: data.meta, experimental: data.experimental, caseSensitive: data.case_sensitive, compositional: data.compositional, versionNeeded: data.version_needed, text: data.text, extras: apiExtrasToExtras(data.extras), website: data.website, autoexpandHEAD: data.autoexpand_head})
-    }
+    data = data || repo
+    setModel({id: data.id, fullName: data.full_name, name: data.name, canonicalURL: data.canonical_url, description: data.description, defaultLocale: data.default_locale, supportedLocales: data.supported_locales, type: data?.source_type || data?.collection_type, publicAccess: data.public_access, publisher: data.publisher, purpose: data.purpose, revisionDate: data.revision_date, customValidationSchema: data.custom_validation_schema, externalID: data.external_id, jurisdiction: objToValue(data.jurisdiction), copyright: data.copyright, identifier: objToValue(data.identifier), contact: objToValue(data.contact), contentType: data.content_type, meta: data.meta, experimental: data.experimental, caseSensitive: data.case_sensitive, compositional: data.compositional, versionNeeded: data.version_needed, text: data.text, extras: apiExtrasToExtras(data.extras), website: data.website, autoexpandHEAD: data.autoexpand_head})
   }
 
   React.useEffect(() => {
@@ -240,7 +246,14 @@ const RepoCreate = () => {
       setStep(0)
   }, [params])
 
-  const onStepChange = newStep => {
+  const onStepChange = (newStep, resetFromOCLURL=true) => {
+    if(resetFromOCLURL) {
+      setIsFetchingFromOCLURL(false)
+      setFromOCLURLError(false)
+      setRepo({})
+      setModelForEdit({...baseModel})
+      setIsCreatingFromOCLURL(false)
+    }
     const isOnStep1 = location.pathname.endsWith('/1/') || location.pathname.endsWith('/1')
     if(newStep == 1){
       if(!isEdit && selectedTab.id === 'collection' && !model.autoexpandHEAD)
@@ -253,6 +266,33 @@ const RepoCreate = () => {
       history.push(location.pathname.replace('/1', '').replace('//', '/'))
     }
     setStep(newStep)
+  }
+
+  const onFetchRepoFromURL = () => {
+    setFromOCLURLError(false)
+    setIsFetchingFromOCLURL(true)
+    if(isValidFromOCLURL(fromOCLURL)) {
+      fetch(fromOCLURL).then(response => {
+        return response.json()
+      }).then(json => {
+        setIsFetchingFromOCLURL(false)
+        if(json?.id) {
+          setRepo(json)
+          setModelForEdit(json)
+          onStepChange(1, false)
+        }
+        else
+          setFromOCLURLError(json?.detail || json?.error || t('common.error'))
+      })
+    }
+  }
+
+  const isValidFromOCLURL = () => {
+    if(fromOCLURL && fromOCLURL.startsWith('https://') && fromOCLURL.includes('/' + selectedTab.id + 's/') && (fromOCLURL.includes('/orgs/') || fromOCLURL.includes('/users/'))) {
+      const params = URIToParentParams(fromOCLURL.split('//')[1])
+      return Boolean(params.repoType && params.repo && params.owner && params.ownerType)
+    }
+    return false
   }
 
   return (
@@ -279,7 +319,7 @@ const RepoCreate = () => {
       {
         step == 0 &&
           <Box
-            sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', width: 750, borderRadius: '10px', backgroundColor: WHITE, margin: '0 auto', border: '1px solid', borderColor: 'surface.nv80' }}
+            sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', width: 900, borderRadius: '10px', backgroundColor: WHITE, margin: '0 auto', border: '1px solid', borderColor: 'surface.nv80' }}
           >
             <Tabs
               orientation="vertical"
@@ -328,11 +368,33 @@ const RepoCreate = () => {
             </Tabs>
             {
               TABS.map(_tab => (
-                <TabPanel key={_tab.index} value={tab} index={_tab.index}>
+                <TabPanel key={_tab.index} value={tab} index={_tab.index} style={{width: 'calc(100vh - 320px)'}}>
                   <Typography sx={{color: 'secondary.40', fontSize: '14px'}}>
                     {_tab.content.description}
                   </Typography>
                   <Button sx={{margin: '24px 0', '.MuiChip-label': {fontWeight: 'bold'}}} label={t('common.create')} variant='outlined' color='primary' onClick={() => onStepChange(1)} />
+                  <Button sx={{margin: '24px 8px', '.MuiChip-label': {fontWeight: 'bold'}}} label={t('common.create_from_ocl_url')} variant={isCreatingFromOCLURL ? 'contained' : 'outlined'} color='secondary' onClick={() => setIsCreatingFromOCLURL(!isCreatingFromOCLURL)} />
+                  {
+                    isCreatingFromOCLURL && step === 0 && !isEdit &&
+                      <div className='col-xs-12 padding-0'>
+                        <div className='col-xs-9 padding-0'>
+                          <TextField
+                            autoFocus
+                            fullWidth
+                            required
+                            size='small'
+                            label={t('repo.ocl_repo_url')}
+                            value={fromOCLURL || ''}
+                            onChange={event => setFromOCLURL(event.target.value)}
+                            error={Boolean(fromOCLURLError)}
+                            helperText={fromOCLURLError}
+                          />
+                          </div>
+                        <div className='col-xs-3' style={{padding: '0 0 0 10px'}}>
+                          <Button disabled={isFetchingFromOCLURL || !isValidFromOCLURL()} sx={{'.MuiChip-label': {fontWeight: 'bold'}}} label={isFetchingFromOCLURL ? t('common.loading') : t('common.proceed')} variant='outlined' color='primary' onClick={onFetchRepoFromURL} />
+                          </div>
+                      </div>
+                  }
                 </TabPanel>
               ))
             }
@@ -370,7 +432,7 @@ const RepoCreate = () => {
         <CustomAttributesForm extras={model.extras || []} onChange={onChangeExtras} onAdd={onAddExtras} />
             </FormSection>
             <Box
-              sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', width: 750, borderRadius: '10px', backgroundColor: WHITE, margin: '0 auto', flexDirection: 'column' }}
+              sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', width: 900, borderRadius: '10px', backgroundColor: WHITE, margin: '0 auto', flexDirection: 'column' }}
             >
 
         <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>

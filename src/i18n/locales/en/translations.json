@@ -33,6 +33,7 @@
     "update": "Update",
     "create": "Create",
     "created": "Created",
+    "create_from_ocl_url": "Create from OCL URL",
     "created_on": "Created On",
     "created_by": "Created By",
     "version": "Version",
@@ -94,7 +95,9 @@
     "edit": "Edit",
     "visibility": "Visibility",
     "website": "Website",
-    "your_url_will_be": "Your URL will be"
+    "your_url_will_be": "Your URL will be",
+    "proceed": "Proceed",
+    "loading": "Loading..."
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -267,7 +270,8 @@
     "success_update": "Successfuly updated repo",
     "success_create": "Successfuly created repo",
     "autoexpand_head": "AutoExpand HEAD",
-    "immutable": "Immutable"
+    "immutable": "Immutable",
+    "ocl_repo_url": "OCL Repo URL"
   },
   "org": {
     "my": "My organizations",
