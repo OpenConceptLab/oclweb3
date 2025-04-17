@@ -1,7 +1,7 @@
 import React from 'react';
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
-import { set, forEach, get } from 'lodash'
+import { set, forEach, get, isArray, isObject, mapValues, map, fromPairs } from 'lodash'
 import {
   required,
 } from '../../common/validators';
@@ -68,13 +68,44 @@ class FormComponent extends React.Component {
 
   setAllFieldsErrors = () => {
     const newState = { ...this.state };
+    let isValid = true
 
     forEach(newState.fields, (value, key) => {
-      if(get(newState.fields, `${key}.errors`)) {
-        set(newState.fields, `${key}.errors`, this.getFieldErrors(key))
+      if(value?.validators?.length > 0) {
+        let errors = this.getFieldErrors(key)
+        if(isValid)
+          isValid = !errors?.length
+        set(newState.fields, `${key}.errors`, errors)
       }
-    });
+      else if(isArray(value)) {
+        forEach(value, (val, index) => {
+          if(isObject(val)) {
+            forEach(val, (v, k) => {
+              if(v?.validators?.length > 0) {
+                let _errors = this.getFieldErrors(`${key}.${index}.${k}`)
+                if(isValid)
+                  isValid = !_errors.length
+                set(newState.fields, `${key}.${index}.${k}.errors`, _errors)
+              }
+            })
+          }
+        })
+      }
+    })
     this.setState(newState);
+    return isValid
+  }
+
+  getValues = () => {
+    return mapValues(this.state.fields, (field, key) => {
+      if(key === 'extras'){
+        return fromPairs(field.filter(ex => ex?.key).map(({ key, value }) => [key, value]))
+      }
+      if(isArray(field) && isObject(get(field, 0))) {
+        return map(field, f => mapValues(f, 'value'))
+      }
+      return field.value
+    })
   }
 
   render() {

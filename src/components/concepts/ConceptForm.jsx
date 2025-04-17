@@ -2,6 +2,7 @@ import React from 'react';
 import { withTranslation } from 'react-i18next';
 import { compact, map, isEmpty } from 'lodash';
 import TextField from '@mui/material/TextField'
+import { flatten, values, keys, get, isArray } from 'lodash'
 import CloseIconButton from '../common/CloseIconButton';
 import APIService from '../../services/APIService'
 import FormComponent, { CardSection } from '../common/FormComponent'
@@ -10,6 +11,7 @@ import {
   fetchDatatypes, fetchNameTypes, fetchDescriptionTypes, fetchConceptClasses, fetchLocales
 } from './utils';
 import { toParentURI } from '../../common/utils'
+import { OperationsContext } from '../app/LayoutContext';
 import Button from '../common/Button'
 import AutocompleteGroupByRepoSummary from '../common/AutocompleteGroupByRepoSummary'
 import LocaleForm from './LocaleForm'
@@ -18,6 +20,8 @@ import CustomAttributesForm from '../common/CustomAttributesForm'
 
 
 class ConceptForm extends FormComponent  {
+  static contextType = OperationsContext;
+
   constructor(props) {
     super(props);
     const mandatoryFieldStruct = this.getMandatoryFieldStruct()
@@ -56,8 +60,8 @@ class ConceptForm extends FormComponent  {
     const fieldStruct = this.getFieldStruct()
 
     return {
-      locale: {...mandatoryFieldStruct},
-      name_type: {...mandatoryFieldStruct},
+      locale: {...mandatoryFieldStruct, value: this.props.source?.default_locale || this.state.parent?.default_locale || ''},
+      name_type: {...mandatoryFieldStruct, value: 'Fully-Specified'},
       name: {...mandatoryFieldStruct},
       external_id: {...fieldStruct},
       locale_preferred: {...this.getFieldStruct(preferred)}
@@ -69,8 +73,8 @@ class ConceptForm extends FormComponent  {
     const fieldStruct = this.getFieldStruct()
 
     return {
-      locale: {...mandatoryFieldStruct},
-      description_type: {...mandatoryFieldStruct},
+      locale: {...mandatoryFieldStruct, value: this.props.source?.default_locale || this.state.parent?.default_locale || ''},
+      description_type: {...mandatoryFieldStruct, value: 'Definition'},
       description: {...mandatoryFieldStruct},
       external_id: {...fieldStruct},
       locale_preferred: {...this.getFieldStruct(false)}
@@ -88,8 +92,11 @@ class ConceptForm extends FormComponent  {
       this.setFieldsForEdit(this.props.concept)
     if(this.props.copyFrom)
       this.fetchConceptToCreate()
-    if(!this.props.edit)
-      this.setState({parent: this.props.source})
+    if(!this.props.edit) {
+      const newState = {...this.state}
+      newState.fields.names[0].locale = this.props.source.default_locale
+      this.setState(newState)
+    }
     else
       this.fetchParent()
   }
@@ -186,7 +193,29 @@ class ConceptForm extends FormComponent  {
   handleSubmit = event => {
     event.preventDefault()
     event.stopPropagation()
-    this.setAllFieldsErrors()
+    const isValid = this.setAllFieldsErrors()
+    if(isValid) {
+      const { setAlert } = this.context;
+      const payload = this.getValues()
+      let service = APIService.new().overrideURL(this.props.source.url).appendToUrl('concepts/')
+      if(this.props.edit)
+        service = service.appendToUrl(this.state.fields.id.value + '/').put(payload)
+      else
+        service = service.post(payload)
+      service.then(response => {
+        if([200, 201].includes(response?.status)) {
+          setAlert({duration: 2000, message: this.props.edit ? this.props.t('concept.success_update') : this.props.t('concept.success_create'), severity: 'success'})
+          this.props.onClose(response.data)
+          window.location.hash = response.data.url
+        } else {
+          let error = compact(flatten(values(response)))
+          let field = get(keys(response), 0)
+          if(isArray(error) && error[0] && field)
+            error = error[0]
+          setAlert({duration: 10000, message: `${response.status || field || "Error"}: ${error || response.data?.error || response.data?.detail || (this.props.edit ? this.props.t("repo.error_update") : this.props.t("concept.error_create"))}`, severity: 'error'})
+          }
+        })
+    }
   }
 
 
@@ -283,8 +312,9 @@ class ConceptForm extends FormComponent  {
                     field={name}
                     idPrefix={`names.${index}`}
                     localeTypes={nameTypes}
-                    onChange={(id, value) => this.setFieldValue(id, value || '')}
+                    onChange={(id, value) => this.setFieldValue(id, value?.id ? value.id : value || '')}
                     repoSummary={repoSummary}
+                    repo={repo}
                   />
                 )})
             }

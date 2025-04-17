@@ -241,7 +241,8 @@
           "unmap",
           "mins",
           "Hmmss",
-          "signin"
+          "signin",
+          "eaecef"
         ],
         "skipIfMatch": [
           "http://[^s]*",

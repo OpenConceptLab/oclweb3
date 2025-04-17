@@ -73,7 +73,7 @@ const RepoHome = () => {
     APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit: 100}).then(response => {
       const _versions = response?.data || []
       setVersions(_versions)
-      if(!repo.version_url && params.repoVersion !== 'HEAD') {
+      if(!repo.version_url && params.repoVersion !== 'HEAD' && !showConceptURL && !showMappingURL) {
         const releasedVersions = filter(_versions, {released: true})
         let version = orderBy(releasedVersions, 'created_on', ['desc'])[0] || orderBy(_versions, 'created_on', ['desc'])[0]
         if((version?.version_url || version?.url) != (repo?.version_url || repo?.url))

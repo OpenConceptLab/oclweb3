@@ -160,7 +160,11 @@ const ConceptHome = props => {
                 concept={concept}
                 source={repo}
                 repo={repo}
-                onClose={() => setEdit(false)}
+                onClose={(updated) => {
+                  if(updated?.id)
+                    setConcept(updated)
+                  setEdit(false)
+                }}
               />
           }
         </div>
