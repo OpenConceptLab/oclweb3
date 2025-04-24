@@ -97,7 +97,8 @@
     "website": "Website",
     "your_url_will_be": "Your URL will be",
     "proceed": "Proceed",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "release": "Release"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -271,7 +272,16 @@
     "success_create": "Successfuly created repo",
     "autoexpand_head": "AutoExpand HEAD",
     "immutable": "Immutable",
-    "ocl_repo_url": "OCL Repo URL"
+    "ocl_repo_url": "OCL Repo URL",
+    "create_version": "Create Version",
+    "version": {
+      "form": {
+        "id": {
+          "label": "ID",
+          "helper_text": "Alphanumeric characters, @, hyphens, periods, and underscores are allowed."
+        }
+      }
+    }
   },
   "org": {
     "my": "My organizations",

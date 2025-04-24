@@ -35,6 +35,7 @@ export const AUTH_GROUPS = [
   {id: OPERATIONS_PANEL_GROUP, name: 'Operations Panel'},
 ];
 export const ROUTE_ID_PATTERN = "[a-zA-Z0-9\-\.\_\@]+";
+export const ID_REGEX = /^[a-zA-Z0-9._@-]+$/
 export const TABLE_LAYOUT_ID = 'table';
 export const LIST_LAYOUT_ID = 'list';
 export const SPLIT_LAYOUT_ID = 'split';

@@ -17,6 +17,7 @@ import ConceptForm from '../concepts/ConceptForm';
 import Error40X from '../errors/Error40X';
 import RepoSummary from './RepoSummary'
 import RepoOverview from './RepoOverview'
+import VersionForm from './VersionForm'
 
 const RepoHome = () => {
   const { t } = useTranslation()
@@ -39,6 +40,7 @@ const RepoHome = () => {
   const [loading, setLoading] = React.useState(true)
   const [showItem, setShowItem] = React.useState(false)
   const [conceptForm, setConceptForm] = React.useState(false)
+  const [versionForm, setVersionForm] = React.useState(false)
 
   const getURL = () => ((toParentURI(location.pathname) + '/').replace('//', '/') + versionFromURL + '/').replace('//', '/')
   const fetchRepo = () => {
@@ -110,8 +112,22 @@ const RepoHome = () => {
   }
 
   const onCreateConceptClick = () => {
+    setVersionForm(false)
     setShowItem(false)
     setConceptForm(true)
+  }
+
+  const onCreateVersionClick = () => {
+    setShowItem(false)
+    setConceptForm(false)
+    setVersionForm(true)
+  }
+
+  const onVersionFormClose = postUpsert => {
+    if(postUpsert) {
+      fetchVersions()
+    }
+    setVersionForm(false)
   }
 
   const isConceptURL = tab === 'concepts'
@@ -120,7 +136,7 @@ const RepoHome = () => {
   const getMappingURLFromMainURL = () => (isMappingURL && params.resource) ? getURL() + 'mappings/' + params.resource + '/' : false
   const showConceptURL = ((showItem?.concept_class || params.resource) && isConceptURL) ? showItem?.version_url || showItem?.url || getConceptURLFromMainURL() : false
   const showMappingURL = ((showItem?.map_type || params.resource) && isMappingURL) ? showItem?.version_url || showItem?.url || getMappingURLFromMainURL() : false
-  const isSplitView = conceptForm || showConceptURL || showMappingURL
+  const isSplitView = conceptForm || showConceptURL || showMappingURL || versionForm
 
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
@@ -129,7 +145,7 @@ const RepoHome = () => {
         {
           (repo?.id || loading) &&
             <React.Fragment>
-              <RepoHeader owner={owner} repo={repo} versions={versions} onVersionChange={onVersionChange} onCreateConceptClick={onCreateConceptClick} onCloseConceptForm={() => setConceptForm(false)} />
+              <RepoHeader owner={owner} repo={repo} versions={versions} onVersionChange={onVersionChange} onCreateConceptClick={onCreateConceptClick} onCloseConceptForm={() => setConceptForm(false)} onCreateVersionClick={onCreateVersionClick} />
               <div className='padding-0 col-xs-12' style={{width: isSplitView ? '100%' : 'calc(100% - 272px)'}}>
                 <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
                 {
@@ -177,6 +193,10 @@ const RepoHome = () => {
         {
           conceptForm &&
             <ConceptForm repoSummary={repoSummary} source={repo} repo={repo} onClose={() => setConceptForm(false)} />
+        }
+        {
+          versionForm &&
+            <VersionForm resourceType={repo?.type?.toLowerCase()} version={repo} onClose={(postUpsert) => onVersionFormClose(postUpsert)} />
         }
       </div>
     </div>

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Menu, ListItemButton, ListItemText, ListItemIcon} from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
+import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
 
 const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id }) => {
   const { t } = useTranslation()
@@ -25,6 +26,12 @@ const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id }) => {
           <AddIcon />
         </ListItemIcon>
         <ListItemText primary={t('repo.add_concept')} />
+      </ListItemButton>
+      <ListItemButton id='createVersion' onClick={() => onClick('createVersion')} sx={{padding: '8px 12px'}}>
+        <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+          <VersionIcon />
+        </ListItemIcon>
+        <ListItemText primary={t('repo.create_version')} />
       </ListItemButton>
     </Menu>
   )

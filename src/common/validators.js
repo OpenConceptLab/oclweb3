@@ -3,6 +3,7 @@ import {has, forEach, isEmpty, isNumber} from "lodash";
 export const MESSAGES = {
   REQUIRED: 'This field can not be blank',
   SELECTED: 'Please select from suggestions',
+  PATTERN: 'Invalid value'
 };
 
 export const VALUE_NOT_SELECTED = 'VALUE_NOT_SELECTED';
@@ -16,6 +17,12 @@ export const selected = (msg='') => getValidator(
   value => ('' + value).length && value === VALUE_NOT_SELECTED,
   (msg) ? msg : MESSAGES.SELECTED,
 );
+
+export const matchPattern = (pattern, msg='') => getValidator(
+  value => value?.length && !value.match(pattern)?.length,
+  (msg) ? msg : MESSAGES.PATTERN,
+);
+
 
 export const applyValidatorsOn = fields => {
   forEach(fields, (field) => {
