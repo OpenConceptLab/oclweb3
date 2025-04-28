@@ -36,6 +36,7 @@ export const AUTH_GROUPS = [
 ];
 export const ROUTE_ID_PATTERN = "[a-zA-Z0-9\-\.\_\@]+";
 export const ID_REGEX = /^[a-zA-Z0-9._@-]+$/
+export const NUM_REGEX = /[0-9.]+/
 export const TABLE_LAYOUT_ID = 'table';
 export const LIST_LAYOUT_ID = 'list';
 export const SPLIT_LAYOUT_ID = 'split';

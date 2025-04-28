@@ -46,6 +46,8 @@ class FormComponent extends React.Component {
     );
   }
 
+  onAddExtras = () => this.setState({fields: {...this.state.fields, extras: [...this.state.fields.extras, {key: '', value: ''}]}})
+
   getFieldErrors = key => {
     const errors = [];
     const value = get(this.state.fields, `${key}.value`);

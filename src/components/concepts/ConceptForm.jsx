@@ -44,7 +44,7 @@ class ConceptForm extends FormComponent  {
         datatype: {...mandatoryFieldStruct},
         external_id: {...fieldStruct},
         extras: [],
-        comment: '',
+        comment: {...(props.edit ? mandatoryFieldStruct : fieldStruct)},
         parent_concept_urls: [],
         names: [
           this.getNameStruct(true)
@@ -186,7 +186,6 @@ class ConceptForm extends FormComponent  {
     })
   }
 
-  onAddExtras = () => this.setState({fields: {...this.state.fields, extras: [...this.state.fields.extras, {key: '', value: ''}]}})
 
   onChange = (id, value) => this.setFieldValue(id, value)
 
@@ -198,21 +197,21 @@ class ConceptForm extends FormComponent  {
       const { setAlert } = this.context;
       const payload = this.getValues()
       let service = APIService.new().overrideURL(this.props.source.url).appendToUrl('concepts/')
-      if(this.props.edit)
-        service = service.appendToUrl(this.state.fields.id.value + '/').put(payload)
-      else
-        service = service.post(payload)
+      service = this.props.edit ? service.appendToUrl(this.state.fields.id.value + '/').put(payload) : service.post(payload)
       service.then(response => {
         if([200, 201].includes(response?.status)) {
           setAlert({duration: 2000, message: this.props.edit ? this.props.t('concept.success_update') : this.props.t('concept.success_create'), severity: 'success'})
           this.props.onClose(response.data)
           window.location.hash = response.data.url
+        } else if (response?.status === 208) {
+          let error = get(response?.data, '__all__.0') || this.props.t('common.already_exists')
+          setAlert({duration: 10000, message: `${response.status}: ${error}`, severity: 'error'})
         } else {
           let error = compact(flatten(values(response)))
           let field = get(keys(response), 0)
           if(isArray(error) && error[0] && field)
             error = error[0]
-          setAlert({duration: 10000, message: `${response.status || field || "Error"}: ${error || response.data?.error || response.data?.detail || (this.props.edit ? this.props.t("repo.error_update") : this.props.t("concept.error_create"))}`, severity: 'error'})
+          setAlert({duration: 10000, message: `${response.status || field || "Error"}: ${error || response.data?.error || response.data?.detail || (this.props.edit ? this.props.t("concept.error_update") : this.props.t("concept.error_create"))}`, severity: 'error'})
           }
         })
     }
@@ -349,6 +348,28 @@ class ConceptForm extends FormComponent  {
         <CardSection title={t('custom_attributes.label')}>
           <CustomAttributesForm extras={fields.extras} onChange={this.setExtrasValue} onAdd={this.onAddExtras} />
         </CardSection>
+        {
+          edit &&
+            <CardSection title={t('common.update_comment')}>
+              <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>
+                  <TextField
+                    id="comment"
+                    label={t('common.comment')}
+                    variant="outlined"
+                    fullWidth
+                    onChange={event => this.setFieldValue('comment', event.target.value || '')}
+                    value={fields.comment.value}
+                    required
+                    rows={3}
+                    maxRows={4}
+                    multiline
+                    helperText={fields.comment.errors[0]}
+                    error={Boolean(fields.comment.errors[0])}
+                  />
+                </div>
+            </CardSection>
+        }
+
         <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
           <Button label={t('common.submit')} sx={{backgroundColor: 'surface.s90'}} onClick={this.handleSubmit} />
         </div>

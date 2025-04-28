@@ -14,6 +14,7 @@ import { WHITE } from '../../common/colors';
 import ConceptHome from '../concepts/ConceptHome';
 import MappingHome from '../mappings/MappingHome';
 import ConceptForm from '../concepts/ConceptForm';
+import MappingForm from '../mappings/MappingForm';
 import Error40X from '../errors/Error40X';
 import RepoSummary from './RepoSummary'
 import RepoOverview from './RepoOverview'
@@ -40,6 +41,7 @@ const RepoHome = () => {
   const [loading, setLoading] = React.useState(true)
   const [showItem, setShowItem] = React.useState(false)
   const [conceptForm, setConceptForm] = React.useState(false)
+  const [mappingForm, setMappingForm] = React.useState(false)
   const [versionForm, setVersionForm] = React.useState(false)
 
   const getURL = () => ((toParentURI(location.pathname) + '/').replace('//', '/') + versionFromURL + '/').replace('//', '/')
@@ -54,7 +56,7 @@ const RepoHome = () => {
       setRepo(_repo)
       fetchOwner()
       fetchRepoSummary()
-      if(isConceptURL)
+      if(isConceptURL || isMappingURL)
         setShowItem(true)
     })
   }
@@ -109,17 +111,27 @@ const RepoHome = () => {
   const onShowItem = item => {
     setShowItem(item)
     setConceptForm(false)
+    setMappingForm(false)
   }
 
   const onCreateConceptClick = () => {
     setVersionForm(false)
     setShowItem(false)
+    setMappingForm(false)
     setConceptForm(true)
+  }
+
+  const onCreateMappingClick = () => {
+    setVersionForm(false)
+    setShowItem(false)
+    setConceptForm(false)
+    setMappingForm(true)
   }
 
   const onCreateVersionClick = () => {
     setShowItem(false)
     setConceptForm(false)
+    setMappingForm(false)
     setVersionForm(true)
   }
 
@@ -136,7 +148,7 @@ const RepoHome = () => {
   const getMappingURLFromMainURL = () => (isMappingURL && params.resource) ? getURL() + 'mappings/' + params.resource + '/' : false
   const showConceptURL = ((showItem?.concept_class || params.resource) && isConceptURL) ? showItem?.version_url || showItem?.url || getConceptURLFromMainURL() : false
   const showMappingURL = ((showItem?.map_type || params.resource) && isMappingURL) ? showItem?.version_url || showItem?.url || getMappingURLFromMainURL() : false
-  const isSplitView = conceptForm || showConceptURL || showMappingURL || versionForm
+  const isSplitView = conceptForm || mappingForm || showConceptURL || showMappingURL || versionForm
 
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
@@ -145,7 +157,7 @@ const RepoHome = () => {
         {
           (repo?.id || loading) &&
             <React.Fragment>
-              <RepoHeader owner={owner} repo={repo} versions={versions} onVersionChange={onVersionChange} onCreateConceptClick={onCreateConceptClick} onCloseConceptForm={() => setConceptForm(false)} onCreateVersionClick={onCreateVersionClick} />
+              <RepoHeader owner={owner} repo={repo} versions={versions} onVersionChange={onVersionChange} onCreateConceptClick={onCreateConceptClick} onCreateMappingClick={onCreateMappingClick} onCreateVersionClick={onCreateVersionClick} />
               <div className='padding-0 col-xs-12' style={{width: isSplitView ? '100%' : 'calc(100% - 272px)'}}>
                 <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
                 {
@@ -181,7 +193,7 @@ const RepoHome = () => {
           !loading && status && <Error40X status={status} />
         }
       </Paper>
-      <div className={'col-xs-5 padding-0' + (isSplitView ? ' split-appear' : '')} style={{marginLeft: '16px', width: isSplitView ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: isSplitView ? 'calc(100vh - 95px)' : 0, opacity: isSplitView ? 1 : 0}}>
+      <div className={'col-xs-5 padding-0' + (isSplitView ? ' split-appear' : '')} style={{marginLeft: '16px', width: isSplitView ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: isSplitView ? 'calc(100vh - 95px)' : 0, opacity: isSplitView ? 1 : 0, overflow: 'auto'}}>
         {
           Boolean(showConceptURL && !conceptForm) &&
             <ConceptHome repoSummary={repoSummary} source={repo} repo={repo} url={showConceptURL} concept={showItem} onClose={() => setShowItem(false)} nested />
@@ -193,6 +205,10 @@ const RepoHome = () => {
         {
           conceptForm &&
             <ConceptForm repoSummary={repoSummary} source={repo} repo={repo} onClose={() => setConceptForm(false)} />
+        }
+        {
+          mappingForm &&
+            <MappingForm repoSummary={repoSummary} source={repo} repo={repo} onClose={() => setMappingForm(false)} />
         }
         {
           versionForm &&

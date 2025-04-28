@@ -999,3 +999,7 @@ export const highlightTexts = (items, texts, unmark=false) => {
 
 export const pluralize = (count, singular, plural) => `${count?.toLocaleString()} ${count === 1 ? singular : plural}`;
 
+export const handleLookupValuesResponse = (data, callback, attr) => {
+  const _attr = attr || 'id';
+  callback(orderBy(uniqBy(map(data, cc => ({id: get(cc, _attr), name: get(cc, _attr)})), 'name')), 'name');
+}

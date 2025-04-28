@@ -27,6 +27,12 @@ const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id }) => {
         </ListItemIcon>
         <ListItemText primary={t('repo.add_concept')} />
       </ListItemButton>
+      <ListItemButton id='addMapping' onClick={() => onClick('addMapping')} sx={{padding: '8px 12px'}}>
+        <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+          <AddIcon />
+        </ListItemIcon>
+        <ListItemText primary={t('repo.add_mapping')} />
+      </ListItemButton>
       <ListItemButton id='createVersion' onClick={() => onClick('createVersion')} sx={{padding: '8px 12px'}}>
         <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
           <VersionIcon />

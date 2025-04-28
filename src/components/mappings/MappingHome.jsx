@@ -6,6 +6,7 @@ import { toParentURI } from '../../common/utils'
 import MappingHeader from './MappingHeader';
 import MappingTabs from './MappingTabs';
 import MappingDetails from './MappingDetails'
+import MappingForm from './MappingForm'
 
 const MappingHome = props => {
   const location = useLocation()
@@ -14,6 +15,7 @@ const MappingHome = props => {
   const [mapping, setMapping] = React.useState(props.mapping || {})
   const [repo, setRepo] = React.useState(props.repo || {})
   const [tab, setTab] = React.useState('metadata')
+  const [edit, setEdit] = React.useState(false)
 
   React.useEffect(() => {
     setMapping(props.mapping || {})
@@ -56,10 +58,29 @@ const MappingHome = props => {
 
   return (mapping?.id && repo?.id) ? (
     <>
-      <Fade in={true}>
+      <Fade in={edit}>
+        <div className='col-xs-12 padding-0'>
+          {
+            edit &&
+              <MappingForm
+                edit
+                repoSummary={props.repoSummary}
+                mapping={mapping}
+                source={repo}
+                repo={repo}
+                onClose={(updated) => {
+                  if(updated?.id)
+                    setMapping(updated)
+                  setEdit(false)
+                }}
+              />
+          }
+        </div>
+      </Fade>
+      <Fade in={!edit}>
         <div className='col-xs-12' style={{padding: '8px 16px 12px 16px'}}>
           <div className='col-xs-12 padding-0' style={{marginBottom: '12px'}}>
-            <MappingHeader mapping={mapping} onClose={props.onClose} repoURL={getRepoURL()} repo={repo} nested={props.nested} />
+            <MappingHeader mapping={mapping} onClose={props.onClose} repoURL={getRepoURL()} repo={repo} nested={props.nested} onEdit={() => setEdit(true)} />
           </div>
           <MappingTabs tab={tab} onTabChange={(event, newTab) => setTab(newTab)} />
           {

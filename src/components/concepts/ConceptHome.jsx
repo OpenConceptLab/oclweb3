@@ -57,8 +57,6 @@ const ConceptHome = props => {
     return url
   }
 
-  const onEdit = () => setEdit(true)
-
   const getService = () => {
     let _concept = props.concept?.id ? props.concept : concept
     let url = _concept?.version_url || _concept?.url || props.url
@@ -175,7 +173,7 @@ const ConceptHome = props => {
             !edit &&
               <>
                 <div className='col-xs-12 padding-0'>
-                  <ConceptHeader concept={concept} onClose={props.onClose} repoURL={getRepoURL()} onEdit={onEdit} repo={repo} nested={props.nested} loading={loading} />
+                  <ConceptHeader concept={concept} onClose={props.onClose} repoURL={getRepoURL()} onEdit={() => setEdit(true)} repo={repo} nested={props.nested} loading={loading} />
                 </div>
                 <ConceptTabs tab={tab} onTabChange={(event, newTab) => setTab(newTab)} loading={loading} />
                 {

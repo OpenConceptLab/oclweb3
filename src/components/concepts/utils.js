@@ -1,11 +1,7 @@
-import {orderBy, uniqBy, map, get } from 'lodash';
+import {orderBy, map } from 'lodash';
 
 import APIService from '../../services/APIService';
-
-const handleLookupValuesResponse = (data, callback, attr) => {
-  const _attr = attr || 'id';
-  callback(orderBy(uniqBy(map(data, cc => ({id: get(cc, _attr), name: get(cc, _attr)})), 'name')), 'name');
-}
+import { handleLookupValuesResponse } from '../../common/utils'
 
 export const fetchLocales = (callback, includeRawName=false) => {
   APIService.locales().get(null, null, {verbose: true}).then(response => {
