@@ -7,7 +7,7 @@ import Button from '../common/Button';
 import Dialog from '../common/Dialog'
 import DialogTitle from '../common/DialogTitle'
 
-const DeleteRepo = ({ onSubmit, onClose, open, title, repo }) => {
+const DeleteRepo = ({ onSubmit, onClose, open, repo }) => {
   const { t } = useTranslation()
   const [value, setValue] = React.useState('')
   const onChange = event => setValue(event.target.value || '')
@@ -37,14 +37,14 @@ const DeleteRepo = ({ onSubmit, onClose, open, title, repo }) => {
               relationship: 'versions, ',
               associationsLabel: 'concepts and mappings'
             }}
-            components={[<strong />]}
+            components={[<strong key='strong' />]}
           />
         </p>
         <p>
           <Trans
             i18nKey="repo.delete.confirmation_message"
             values={{resourceId: repoId}}
-            components={[<strong />]}
+            components={[<strong key='strong' />]}
           />
         </p>
 
