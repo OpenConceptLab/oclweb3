@@ -1,5 +1,6 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { useLocation, useHistory } from 'react-router-dom'
 import Fade from '@mui/material/Fade';
 import APIService from '../../services/APIService';
 import { toParentURI } from '../../common/utils'
@@ -7,15 +8,22 @@ import MappingHeader from './MappingHeader';
 import MappingTabs from './MappingTabs';
 import MappingDetails from './MappingDetails'
 import MappingForm from './MappingForm'
+import RetireConfirmDialog from '../common/RetireConfirmDialog'
+import { OperationsContext } from '../app/LayoutContext';
 
 const MappingHome = props => {
+  const { t } = useTranslation()
   const location = useLocation()
+  const history = useHistory()
   const isInitialMount = React.useRef(true);
 
   const [mapping, setMapping] = React.useState(props.mapping || {})
   const [repo, setRepo] = React.useState(props.repo || {})
   const [tab, setTab] = React.useState('metadata')
   const [edit, setEdit] = React.useState(false)
+
+  const [retireDialog, setRetireDialog] = React.useState(false)
+  const { setAlert } = React.useContext(OperationsContext);
 
   React.useEffect(() => {
     setMapping(props.mapping || {})
@@ -56,6 +64,24 @@ const MappingHome = props => {
     return APIService.new().overrideURL(encodeURI(url))
   }
 
+  const toggleRetire = reason => {
+    setRetireDialog(false)
+    const isRetired = mapping.retired
+    let service = APIService.new().overrideURL(mapping.url)
+    service = mapping.retired ? service.appendToUrl('reactivate/').put({comment: reason}) : service.delete({comment: reason})
+    service.then(response => {
+      if(response?.status === 204) {
+        setAlert({severity: 'success', message: isRetired ? t('mapping.success_unretired') : t('mapping.success_retired')})
+        history.push(mapping.url)
+        setTimeout(() => window.location.reload(), 1000)
+      }
+      else {
+        let error = response?.data?.__all__ || t('mapping.error_update')
+        setAlert({severity: 'error', message: error})
+      }
+    })
+  }
+
   return (mapping?.id && repo?.id) ? (
     <>
       <Fade in={edit}>
@@ -80,7 +106,7 @@ const MappingHome = props => {
       <Fade in={!edit}>
         <div className='col-xs-12' style={{padding: '8px 16px 12px 16px'}}>
           <div className='col-xs-12 padding-0' style={{marginBottom: '12px'}}>
-            <MappingHeader mapping={mapping} onClose={props.onClose} repoURL={getRepoURL()} repo={repo} nested={props.nested} onEdit={() => setEdit(true)} />
+            <MappingHeader mapping={mapping} onClose={props.onClose} repoURL={getRepoURL()} repo={repo} nested={props.nested} onEdit={() => setEdit(true)} onRetire={() => setRetireDialog(true)} />
           </div>
           <MappingTabs tab={tab} onTabChange={(event, newTab) => setTab(newTab)} />
           {
@@ -89,6 +115,12 @@ const MappingHome = props => {
                 <MappingDetails mapping={mapping} />
               </div>
           }
+          <RetireConfirmDialog
+            open={retireDialog}
+            onClose={() => setRetireDialog(false)}
+            title={`${t('common.retire')} ${t('mapping.mapping')}`}
+            onSubmit={toggleRetire}
+          />
         </div>
       </Fade>
     </>

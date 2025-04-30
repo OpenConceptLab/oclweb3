@@ -8,7 +8,7 @@ import { toOwnerURI, currentUserHasAccess } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
 import MappingManagementList from './MappingManagementList'
 
-const MappingHeader = ({mapping, onClose, repoURL, nested, onEdit, repo}) => {
+const MappingHeader = ({mapping, onClose, repoURL, nested, onEdit, onRetire, repo}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -25,6 +25,9 @@ const MappingHeader = ({mapping, onClose, repoURL, nested, onEdit, repo}) => {
     onMenuClose()
     if(option === 'editMapping') {
       onEdit()
+    }
+    if(option === 'retireMapping') {
+      onRetire()
     }
   }
 
@@ -57,7 +60,7 @@ const MappingHeader = ({mapping, onClose, repoURL, nested, onEdit, repo}) => {
               <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='mapping-actions'>
                 {t('common.actions')}
               </Button>
-              <MappingManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='mapping-actions' onClick={onManageOptionClick} />
+              <MappingManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='mapping-actions' onClick={onManageOptionClick} mapping={mapping} />
             </span>
           </div>
       }
