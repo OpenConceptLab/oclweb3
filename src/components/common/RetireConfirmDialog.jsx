@@ -6,7 +6,7 @@ import Button from './Button';
 import Dialog from './Dialog'
 import DialogTitle from './DialogTitle'
 
-const RetireConfirmDialog = ({ onSubmit, onClose, retired, open, title, message }) => {
+const RetireConfirmDialog = ({ onSubmit, onClose, open, title }) => {
   const { t } = useTranslation()
   const [value, setValue] = React.useState('')
   const [error, setError] = React.useState('')
