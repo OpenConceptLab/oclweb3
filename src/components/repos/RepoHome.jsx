@@ -19,6 +19,8 @@ import Error40X from '../errors/Error40X';
 import RepoSummary from './RepoSummary'
 import RepoOverview from './RepoOverview'
 import VersionForm from './VersionForm'
+import DeleteRepo from './DeleteRepo'
+import { OperationsContext } from '../app/LayoutContext';
 
 const RepoHome = () => {
   const { t } = useTranslation()
@@ -43,6 +45,9 @@ const RepoHome = () => {
   const [conceptForm, setConceptForm] = React.useState(false)
   const [mappingForm, setMappingForm] = React.useState(false)
   const [versionForm, setVersionForm] = React.useState(false)
+  const [deleteRepo, setDeleteRepo] = React.useState(false)
+
+  const { setAlert } = React.useContext(OperationsContext);
 
   const getURL = () => ((toParentURI(location.pathname) + '/').replace('//', '/') + versionFromURL + '/').replace('//', '/')
   const fetchRepo = () => {
@@ -142,6 +147,22 @@ const RepoHome = () => {
     setVersionForm(false)
   }
 
+  const onDeleteRepo = () => {
+    APIService.new().overrideURL(dropVersion(repo.url)).delete().then(response => {
+      if(!response || response?.status === 204) {
+        setDeleteRepo(false)
+        setAlert({severity: 'success', message: t('repo.success_delete')})
+        history.push(owner?.url || repo.owner_url)
+      }
+      else if(response?.status === 202 || response?.detail === 'Already Queued') {
+        setDeleteRepo(false)
+        setAlert({severity: 'warning', message: t('repo.delete_accepted')})
+      }
+      else
+        setAlert({severity: 'error', message: response?.data?.detail || t('common.generic_error')})
+    })
+  }
+
   const isConceptURL = tab === 'concepts'
   const isMappingURL = tab === 'mappings'
   const getConceptURLFromMainURL = () => (isConceptURL && params.resource) ? getURL() + 'concepts/' + params.resource + '/' : false
@@ -157,7 +178,16 @@ const RepoHome = () => {
         {
           (repo?.id || loading) &&
             <React.Fragment>
-              <RepoHeader owner={owner} repo={repo} versions={versions} onVersionChange={onVersionChange} onCreateConceptClick={onCreateConceptClick} onCreateMappingClick={onCreateMappingClick} onCreateVersionClick={onCreateVersionClick} />
+              <RepoHeader
+                owner={owner}
+                repo={repo}
+                versions={versions}
+                onVersionChange={onVersionChange}
+                onCreateConceptClick={onCreateConceptClick}
+                onCreateMappingClick={onCreateMappingClick}
+                onCreateVersionClick={onCreateVersionClick}
+                onDeleteRepoClick={() => setDeleteRepo(true)}
+              />
               <div className='padding-0 col-xs-12' style={{width: isSplitView ? '100%' : 'calc(100% - 272px)'}}>
                 <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
                 {
@@ -213,6 +243,10 @@ const RepoHome = () => {
         {
           versionForm &&
             <VersionForm resourceType={repo?.type?.toLowerCase()} version={repo} onClose={(postUpsert) => onVersionFormClose(postUpsert)} />
+        }
+        {
+        repo?.id &&
+            <DeleteRepo open={deleteRepo} onClose={() => setDeleteRepo(false)} repo={repo} onSubmit={onDeleteRepo}/>
         }
       </div>
     </div>

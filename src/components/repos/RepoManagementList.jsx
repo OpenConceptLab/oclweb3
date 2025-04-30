@@ -1,9 +1,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
-import { Menu, ListItemButton, ListItemText, ListItemIcon} from '@mui/material'
+import { Menu, ListItemButton, ListItemText, ListItemIcon, Divider} from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
+import DeleteIcon from '@mui/icons-material/Delete'
 
 const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id }) => {
   const { t } = useTranslation()
@@ -38,6 +39,13 @@ const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id }) => {
           <VersionIcon />
         </ListItemIcon>
         <ListItemText primary={t('repo.create_version')} />
+      </ListItemButton>
+      <Divider />
+      <ListItemButton id='delete' onClick={() => onClick('delete')} sx={{padding: '8px 12px', color: 'error.main'}}>
+        <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px', color: 'error.main'}}>
+          <DeleteIcon />
+        </ListItemIcon>
+        <ListItemText primary={t('repo.delete_repo')} />
       </ListItemButton>
     </Menu>
   )

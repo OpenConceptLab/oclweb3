@@ -288,7 +288,17 @@
           "helper_text": "Alphanumeric characters, @, hyphens, periods, and underscores are allowed."
         }
       }
-    }
+    },
+    "delete": {
+      "warning": "Unexpected bad things will happen if you don’t read this!",
+      "title": "Delete {{resourceType}}: {{resourceId}}",
+      "message": "This action <0>cannot</0> be undone!. This will delete the entire {{resourceType}} and all of its {{relationship}} {{associationsLabel}} (if any).",
+      "confirmation_title": "Are you sure you want to permanently delete this {{resourceType}}",
+      "confirmation_message": "Please type <0>{{resourceId}}</0> to confirm.",
+      "confirmation_button_label": "I understand the consequences, delete this {{resourceType}}"
+    },
+    "delete_repo": "Delete Repo",
+    "delete_accepted": "Repo Delete Accepted. This may take few minutes."
   },
   "org": {
     "my": "My organizations",
