@@ -1,9 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
-import { Menu, ListItem, ListItemButton, ListItemText, ListItemIcon} from '@mui/material'
+import { Menu, ListItem, ListItemButton, ListItemText, ListItemIcon, Divider} from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit';
+import RetireIcon from '@mui/icons-material/Delete';
+import UnretireIcon from '@mui/icons-material/RestoreFromTrash';
 
-const ConceptManagementList = ({ anchorEl, open, onClose, id, onClick }) => {
+const ConceptManagementList = ({ anchorEl, open, onClose, id, onClick, concept }) => {
   const { t } = useTranslation()
   return (
     <Menu
@@ -22,6 +24,15 @@ const ConceptManagementList = ({ anchorEl, open, onClose, id, onClick }) => {
             <EditIcon />
           </ListItemIcon>
           <ListItemText primary={t('concept.edit_concept')} />
+        </ListItemButton>
+      </ListItem>
+      <Divider />
+      <ListItem disablePadding>
+        <ListItemButton id='retireConcept' onClick={() => onClick('retireConcept')} sx={{padding: '8px 12px', color: 'error.main'}}>
+          <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px', color: 'error.main'}}>
+    {concept?.retired ? <UnretireIcon /> : <RetireIcon />}
+          </ListItemIcon>
+          <ListItemText primary={concept?.retired ? t('common.unretire') : t('common.retire')} />
         </ListItemButton>
       </ListItem>
     </Menu>

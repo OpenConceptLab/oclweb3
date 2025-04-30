@@ -1,5 +1,6 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { useLocation, useHistory } from 'react-router-dom'
 import Fade from '@mui/material/Fade';
 import Skeleton from '@mui/material/Skeleton';
 import APIService from '../../services/APIService';
@@ -8,9 +9,13 @@ import ConceptHeader from './ConceptHeader';
 import ConceptTabs from './ConceptTabs';
 import ConceptForm from './ConceptForm'
 import ConceptDetails from './ConceptDetails'
+import RetireConfirmDialog from '../common/RetireConfirmDialog'
+import { OperationsContext } from '../app/LayoutContext';
 
 const ConceptHome = props => {
+  const { t } = useTranslation()
   const location = useLocation()
+  const history = useHistory()
   const isInitialMount = React.useRef(true);
 
   const [concept, setConcept] = React.useState(props.concept || {})
@@ -25,6 +30,9 @@ const ConceptHome = props => {
   const [reverseMappings, setReverseMappings] = React.useState([])
   const [ownerMappings, setOwnerMappings] = React.useState([])
   const [reverseOwnerMappings, setReverseOwnerMappings] = React.useState([])
+
+  const [retireDialog, setRetireDialog] = React.useState(false)
+  const { setAlert } = React.useContext(OperationsContext);
 
   React.useEffect(() => {
     setLoading(true)
@@ -146,6 +154,24 @@ const ConceptHome = props => {
       })
   }
 
+  const toggleRetire = reason => {
+    setRetireDialog(false)
+    const isRetired = concept.retired
+    let service = APIService.new().overrideURL(concept.url)
+    service = concept.retired ? service.appendToUrl('reactivate/').put({comment: reason}) : service.delete({comment: reason})
+    service.then(response => {
+      if(response?.status === 204) {
+        setAlert({severity: 'success', message: isRetired ? t('concept.success_unretired') : t('concept.success_retired')})
+        history.push(concept.url)
+        setTimeout(() => window.location.reload(), 1000)
+      }
+      else {
+        let error = response?.data?.__all__ || t('concept.error_update')
+        setAlert({severity: 'error', message: error})
+      }
+    })
+  }
+
   return (concept?.id && repo?.id) ? (
     <>
       <Fade in={edit}>
@@ -173,7 +199,7 @@ const ConceptHome = props => {
             !edit &&
               <>
                 <div className='col-xs-12 padding-0'>
-                  <ConceptHeader concept={concept} onClose={props.onClose} repoURL={getRepoURL()} onEdit={() => setEdit(true)} repo={repo} nested={props.nested} loading={loading} />
+                  <ConceptHeader concept={concept} onClose={props.onClose} repoURL={getRepoURL()} onEdit={() => setEdit(true)} repo={repo} nested={props.nested} loading={loading} onRetire={() => setRetireDialog(true)} />
                 </div>
                 <ConceptTabs tab={tab} onTabChange={(event, newTab) => setTab(newTab)} loading={loading} />
                 {
@@ -191,6 +217,12 @@ const ConceptHome = props => {
                       onLoadOwnerMappings={() => getOwnerMappings(concept)}
                     />
                 }
+                <RetireConfirmDialog
+                  open={retireDialog}
+                  onClose={() => setRetireDialog(false)}
+                  title={`${t('common.retire')} ${t('concept.concept')}`}
+                  onSubmit={toggleRetire}
+                />
               </>
           }
         </div>

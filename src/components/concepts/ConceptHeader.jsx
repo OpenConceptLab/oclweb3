@@ -11,7 +11,7 @@ import Breadcrumbs from '../common/Breadcrumbs'
 import { BLACK } from '../../common/colors'
 import ConceptManagementList from './ConceptManagementList'
 
-const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, nested, loading}) => {
+const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, nested, loading}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -28,6 +28,9 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, nested, loading
     onMenuClose()
     if(option === 'editConcept') {
       onEdit()
+    }
+    if(option === 'retireConcept') {
+      onRetire()
     }
   }
 
@@ -73,7 +76,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, nested, loading
               <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='concept-actions'>
                 {t('common.actions')}
               </Button>
-              <ConceptManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='concept-actions' onClick={onManageOptionClick} />
+              <ConceptManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='concept-actions' onClick={onManageOptionClick} concept={concept} />
             </span>
       </div>
         }
