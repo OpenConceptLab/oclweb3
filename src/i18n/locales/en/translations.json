@@ -220,6 +220,7 @@
     "manage": "Manage Repository",
     "repo_id": "Repository ID",
     "add_concept": "Add Concept",
+    "add_mapping": "Add Mapping",
     "source": "Source",
     "collection": "Collection",
     "release_status": "Release status",
@@ -277,6 +278,8 @@
     "error_create": "Couldn't create repo",
     "success_update": "Successfuly updated repo",
     "success_create": "Successfuly created repo",
+    "success_delete": "Successfuly deleted repo",
+    "success_delete_version": "Successfuly deleted repo version",
     "autoexpand_head": "AutoExpand HEAD",
     "immutable": "Immutable",
     "ocl_repo_url": "OCL Repo URL",
@@ -298,7 +301,9 @@
       "confirmation_button_label": "I understand the consequences, delete this {{resourceType}}"
     },
     "delete_repo": "Delete Repo",
-    "delete_accepted": "Repo Delete Accepted. This may take few minutes."
+    "delete_accepted": "Repo Delete Accepted. This may take few minutes.",
+    "delete_repo_version": "Delete Repo Version",
+    "delete_accepted_version": "Repo Version Delete Accepted. This may take few minutes."
   },
   "org": {
     "my": "My organizations",

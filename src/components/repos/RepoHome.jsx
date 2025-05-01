@@ -147,16 +147,21 @@ const RepoHome = () => {
     setVersionForm(false)
   }
 
+  const isVersion = repo?.version && repo.version !== 'HEAD'
+
   const onDeleteRepo = () => {
-    APIService.new().overrideURL(dropVersion(repo.url)).delete().then(response => {
+    const url = isVersion ? repo.version_url : repo.url
+    if(!url)
+      return
+    APIService.new().overrideURL(url).delete().then(response => {
       if(!response || response?.status === 204) {
         setDeleteRepo(false)
-        setAlert({severity: 'success', message: t('repo.success_delete')})
-        history.push(owner?.url || repo.owner_url)
+        setAlert({severity: 'success', message: isVersion ? t('repo.success_delete_version') : t('repo.success_delete')})
+        history.push(isVersion ? repo.url : (owner?.url || repo.owner_url))
       }
       else if(response?.status === 202 || response?.detail === 'Already Queued') {
         setDeleteRepo(false)
-        setAlert({severity: 'warning', message: t('repo.delete_accepted')})
+        setAlert({severity: 'warning', message: isVersion ? t('repo.delete_accepted_version') : t('repo.delete_accepted')})
       }
       else
         setAlert({severity: 'error', message: response?.data?.detail || t('common.generic_error')})
@@ -179,6 +184,7 @@ const RepoHome = () => {
           (repo?.id || loading) &&
             <React.Fragment>
               <RepoHeader
+                isVersion={isVersion}
                 owner={owner}
                 repo={repo}
                 versions={versions}
@@ -246,7 +252,7 @@ const RepoHome = () => {
         }
         {
         repo?.id &&
-            <DeleteRepo open={deleteRepo} onClose={() => setDeleteRepo(false)} repo={repo} onSubmit={onDeleteRepo}/>
+            <DeleteRepo open={deleteRepo} onClose={() => setDeleteRepo(false)} repo={repo} onSubmit={onDeleteRepo} isVersion={isVersion} />
         }
       </div>
     </div>

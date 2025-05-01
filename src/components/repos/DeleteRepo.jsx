@@ -7,12 +7,12 @@ import Button from '../common/Button';
 import Dialog from '../common/Dialog'
 import DialogTitle from '../common/DialogTitle'
 
-const DeleteRepo = ({ onSubmit, onClose, open, repo }) => {
+const DeleteRepo = ({ onSubmit, onClose, open, repo, isVersion }) => {
   const { t } = useTranslation()
   const [value, setValue] = React.useState('')
   const onChange = event => setValue(event.target.value || '')
-  const repoType = repo.type.replace(' Version', '')
-  const repoId = repo.short_code || repo.id
+  const repoType = isVersion ? repo.type : repo.type.replace(' Version', '')
+  const repoId = isVersion ? `${repo.short_code} [${repo.version}]` : (repo.short_code || repo.id)
 
   return (
     <Dialog open={Boolean(open)} onClose={onClose}>
@@ -21,11 +21,14 @@ const DeleteRepo = ({ onSubmit, onClose, open, repo }) => {
           i18nKey='repo.delete.title'
           values={{resourceType: repoType, resourceId: repoId}}
         />
-    </DialogTitle>
+      </DialogTitle>
       <DialogContent sx={{padding: '16px 0 0 0 !important'}}>
-        <Alert variant="filled" severity="warning" sx={{backgroundColor: '#ed6c02 !important', padding: '6px 16px !important', borderRadius: '4px !important'}}>
-          {t('repo.delete.warning')}
-        </Alert>
+        {
+          !isVersion &&
+            <Alert variant="filled" severity="warning" sx={{backgroundColor: '#ed6c02 !important', padding: '6px 16px !important', borderRadius: '4px !important'}}>
+              {t('repo.delete.warning')}
+            </Alert>
+        }
         <p>
           {t('repo.delete.confirmation_title', {resourceType: repoType})} <b>{repoId}</b>?
         </p>
@@ -34,7 +37,7 @@ const DeleteRepo = ({ onSubmit, onClose, open, repo }) => {
             i18nKey='repo.delete.message'
             values={{
               resourceType: repoType.toLowerCase(),
-              relationship: 'versions, ',
+              relationship: isVersion ? 'versions, ' : '',
               associationsLabel: 'concepts and mappings'
             }}
             components={[<strong key='strong' />]}

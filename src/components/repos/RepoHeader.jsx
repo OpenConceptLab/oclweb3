@@ -15,7 +15,7 @@ import RepoManagementList from './RepoManagementList';
 import FollowActionButton from '../common/FollowActionButton'
 import EntityAttributesDialog from '../common/EntityAttributesDialog'
 
-const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClick, onCreateMappingClick, essentials, onCreateVersionClick, onDeleteRepoClick}) => {
+const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClick, onCreateMappingClick, essentials, onCreateVersionClick, onDeleteRepoClick, isVersion}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -65,12 +65,12 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
         <span style={{display: 'flex', alignItems: 'center', marginLeft: '16px'}}>
           <FollowActionButton iconButton entity={repo} />
           {
-            Boolean(hasAccess && repo.version === 'HEAD' && has(repo, 'source_type')) &&
+            Boolean(hasAccess && (has(repo, 'source_type') || has(repo, 'collection_type'))) &&
               <React.Fragment>
                 <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='repo-manage'>
                   {t('repo.manage')}
                 </Button>
-                <RepoManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-manage' onClick={onManageOptionClick} repo={repo} />
+                <RepoManagementList isVersion={isVersion} anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-manage' onClick={onManageOptionClick} repo={repo} />
               </React.Fragment>
           }
         </span>
