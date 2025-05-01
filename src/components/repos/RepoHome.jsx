@@ -93,9 +93,9 @@ const RepoHome = () => {
 
   React.useEffect(() => {
       if(toParentURI(location.pathname) === (repo?.version_url || repo.url)) {
-          if(location.pathname.includes('/concepts/'))
+          if(location.pathname.includes('/concepts'))
               setTab('concepts')
-          if(location.pathname.includes('/mappings/'))
+          if(location.pathname.includes('/mappings'))
               setTab('mappings')
       }
     fetchRepo()
@@ -103,7 +103,7 @@ const RepoHome = () => {
   }, [location.pathname])
 
   const onVersionChange = version => {
-    history.push(version.version_url)
+    history.push(version.version_url + tab)
   }
 
   const onTabChange = (event, newTab) => {
@@ -176,6 +176,8 @@ const RepoHome = () => {
   const showMappingURL = ((showItem?.map_type || params.resource) && isMappingURL) ? showItem?.version_url || showItem?.url || getMappingURLFromMainURL() : false
   const isSplitView = conceptForm || mappingForm || showConceptURL || showMappingURL || versionForm
 
+  const onVersionEditClick = () => isVersion && setVersionForm(true)
+
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
       <LoaderDialog open={loading} />
@@ -193,6 +195,7 @@ const RepoHome = () => {
                 onCreateMappingClick={onCreateMappingClick}
                 onCreateVersionClick={onCreateVersionClick}
                 onDeleteRepoClick={() => setDeleteRepo(true)}
+                onVersionEditClick={() => onVersionEditClick()}
               />
               <div className='padding-0 col-xs-12' style={{width: isSplitView ? '100%' : 'calc(100% - 272px)'}}>
                 <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
@@ -248,7 +251,7 @@ const RepoHome = () => {
         }
         {
           versionForm &&
-            <VersionForm resourceType={repo?.type?.toLowerCase()} version={repo} onClose={(postUpsert) => onVersionFormClose(postUpsert)} />
+            <VersionForm edit={isVersion && repo?.version} resourceType={repo?.type?.toLowerCase()} version={repo} onClose={(postUpsert) => onVersionFormClose(postUpsert)} />
         }
         {
         repo?.id &&

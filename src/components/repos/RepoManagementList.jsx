@@ -9,6 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id, isVersion }) => {
   const { t } = useTranslation()
   const url = isVersion ? repo.version_url : repo.url
+  let editParams = isVersion ? {onClick: () => onClick('editVersion')} : {href: `#${url}edit`}
   return (
     <Menu
       id={id}
@@ -17,7 +18,7 @@ const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id, isVers
       onClose={onClose}
       sx={{'.MuiPaper-root': {backgroundColor: 'surface.n94'}}}
     >
-      <ListItemButton id='addConcept' href={`#${url}edit`} sx={{padding: '8px 12px', '&:hover': {color: 'inherit'}, '&:focus': {outline: 'none', textDecoration: 'none', color: 'inherit'}}}>
+      <ListItemButton id='addConcept' {...editParams} sx={{padding: '8px 12px', '&:hover': {color: 'inherit'}, '&:focus': {outline: 'none', textDecoration: 'none', color: 'inherit'}}}>
         <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
           <EditIcon />
         </ListItemIcon>

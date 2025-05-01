@@ -81,7 +81,8 @@ class VersionForm extends FormComponent {
           delete payload.expansion_url
         }
 
-        let service = APIService.new().overrideURL(version.url)
+        const url = edit ? version.version_url : version.url
+        let service = APIService.new().overrideURL(url)
         service = edit ? service.put(payload) : service.appendToUrl('versions/').post(payload)
         service.then(response => this.handleSubmitResponse(response))
       }
@@ -116,7 +117,7 @@ class VersionForm extends FormComponent {
     const idLabel = fields.id.value ? fields.id.value : 'version-id';
     const resourceTypeLabel = startCase(resourceType)
     const versionLabel = `${version.short_code} [${idLabel}]`;
-    const header = edit ? `Edit ${resourceTypeLabel} Version: ${versionLabel}` : `New ${resourceTypeLabel} Version: ${versionLabel}`;
+    const header = edit ? `${t('common.edit')} ${resourceTypeLabel}: ${versionLabel}` : `New ${resourceTypeLabel} Version: ${versionLabel}`;
     return (
       <div className='col-xs-12' style={{marginBottom: '30px'}}>
           <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px'}}>
