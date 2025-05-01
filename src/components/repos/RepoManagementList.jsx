@@ -1,10 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
-import { Menu, ListItemButton, ListItemText, ListItemIcon, Divider} from '@mui/material'
+import { Menu, ListItemButton, ListItemText, ListItemIcon, Divider, Box} from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
 import DeleteIcon from '@mui/icons-material/Delete'
+import ReleaseIcon from '@mui/icons-material/NewReleases';
 
 const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id, isVersion }) => {
   const { t } = useTranslation()
@@ -25,27 +26,33 @@ const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id, isVers
         <ListItemText primary={t('common.edit')} />
       </ListItemButton>
       {
-        !isVersion &&
-          <>
-            <ListItemButton id='addConcept' onClick={() => onClick('addConcept')} sx={{padding: '8px 12px'}}>
-              <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
-                <AddIcon />
-              </ListItemIcon>
-              <ListItemText primary={t('repo.add_concept')} />
-            </ListItemButton>
-            <ListItemButton id='addMapping' onClick={() => onClick('addMapping')} sx={{padding: '8px 12px'}}>
-              <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
-                <AddIcon />
-              </ListItemIcon>
-              <ListItemText primary={t('repo.add_mapping')} />
-            </ListItemButton>
-            <ListItemButton id='createVersion' onClick={() => onClick('createVersion')} sx={{padding: '8px 12px'}}>
-              <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
-                <VersionIcon />
-              </ListItemIcon>
-              <ListItemText primary={t('repo.create_version')} />
-            </ListItemButton>
-          </>
+        isVersion ?
+          <ListItemButton id='addConcept' onClick={() => onClick('release')} sx={{padding: '8px 12px'}}>
+            <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+              <ReleaseIcon color={repo.released ? 'gray' : 'primary'} />
+            </ListItemIcon>
+            <ListItemText primary={repo.released ? t('repo.unrelease_version') : t('repo.release_version')} />
+          </ListItemButton> :
+        <Box>
+          <ListItemButton id='addConcept' onClick={() => onClick('addConcept')} sx={{padding: '8px 12px'}}>
+            <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+              <AddIcon />
+            </ListItemIcon>
+            <ListItemText primary={t('repo.add_concept')} />
+          </ListItemButton>
+          <ListItemButton id='addMapping' onClick={() => onClick('addMapping')} sx={{padding: '8px 12px'}}>
+            <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+              <AddIcon />
+            </ListItemIcon>
+            <ListItemText primary={t('repo.add_mapping')} />
+          </ListItemButton>
+          <ListItemButton id='createVersion' onClick={() => onClick('createVersion')} sx={{padding: '8px 12px'}}>
+            <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+              <VersionIcon />
+            </ListItemIcon>
+            <ListItemText primary={t('repo.create_version')} />
+          </ListItemButton>
+        </Box>
       }
       <Divider />
       <ListItemButton id='delete' onClick={() => onClick('delete')} sx={{padding: '8px 12px', color: 'error.main'}}>

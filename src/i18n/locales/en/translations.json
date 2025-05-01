@@ -101,13 +101,16 @@
     "proceed": "Proceed",
     "loading": "Loading...",
     "release": "Release",
-    "reason": "Reason"
+    "unrelease": "Un-Release",
+    "reason": "Reason",
+    "success_update": "Successfully Updated"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
     "401": "Login is required",
     "403": "Access to this page is not authorized",
-    "mandatory_field": "This field cannot be blank"
+    "mandatory_field": "This field cannot be blank",
+    "already_queued": "Already queued"
   },
   "dashboard": {
     "name": "Dashboard",
@@ -224,6 +227,8 @@
     "source": "Source",
     "collection": "Collection",
     "release_status": "Release status",
+    "release_version": "Release Version",
+    "unrelease_version": "Un-Release Version",
     "compare_versions": "Compare versions",
     "compare": "Compare",
     "visibility": "Visibility",
@@ -290,6 +295,10 @@
           "label": "ID",
           "helper_text": "Alphanumeric characters, @, hyphens, periods, and underscores are allowed."
         }
+      },
+      "update_dialog": {
+        "title": "Update {{resourceType}}: {{resourceId}}",
+        "message": "Are you sure you want to {{action}} this {{resourceType}} {{repoId}}?"
       }
     },
     "delete": {

@@ -20,6 +20,7 @@ import RepoSummary from './RepoSummary'
 import RepoOverview from './RepoOverview'
 import VersionForm from './VersionForm'
 import DeleteRepo from './DeleteRepo'
+import ReleaseVersion from './ReleaseVersion'
 import { OperationsContext } from '../app/LayoutContext';
 
 const RepoHome = () => {
@@ -46,6 +47,7 @@ const RepoHome = () => {
   const [mappingForm, setMappingForm] = React.useState(false)
   const [versionForm, setVersionForm] = React.useState(false)
   const [deleteRepo, setDeleteRepo] = React.useState(false)
+  const [releaseVersion, setReleaseVersion] = React.useState(false)
 
   const { setAlert } = React.useContext(OperationsContext);
 
@@ -168,6 +170,21 @@ const RepoHome = () => {
     })
   }
 
+  const onReleaseVersion = () => {
+    APIService.new().overrideURL(repo.version_url).put({released: !repo.released}).then(response => {
+      setReleaseVersion(false)
+      if(response?.status === 200) {
+        fetchVersions()
+        setAlert({severity: 'success', message: t('common.success_update')})
+      }
+      else if(response?.status === 202 || response?.detail === 'Already Queued' || response?.__all__ === 'Already Queued') {
+        setAlert({severity: 'warning', message: t('errors.already_queued')})
+      } else {
+        setAlert({severity: 'error', message: response?.data?.detail || t('common.generic_error')})
+      }
+    })
+  }
+
   const isConceptURL = tab === 'concepts'
   const isMappingURL = tab === 'mappings'
   const getConceptURLFromMainURL = () => (isConceptURL && params.resource) ? getURL() + 'concepts/' + params.resource + '/' : false
@@ -177,6 +194,7 @@ const RepoHome = () => {
   const isSplitView = conceptForm || mappingForm || showConceptURL || showMappingURL || versionForm
 
   const onVersionEditClick = () => isVersion && setVersionForm(true)
+  const onReleaseVersionClick = () => isVersion && setReleaseVersion(true)
 
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
@@ -196,6 +214,7 @@ const RepoHome = () => {
                 onCreateVersionClick={onCreateVersionClick}
                 onDeleteRepoClick={() => setDeleteRepo(true)}
                 onVersionEditClick={() => onVersionEditClick()}
+                onReleaseVersionClick={() => onReleaseVersionClick()}
               />
               <div className='padding-0 col-xs-12' style={{width: isSplitView ? '100%' : 'calc(100% - 272px)'}}>
                 <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
@@ -256,6 +275,10 @@ const RepoHome = () => {
         {
         repo?.id &&
             <DeleteRepo open={deleteRepo} onClose={() => setDeleteRepo(false)} repo={repo} onSubmit={onDeleteRepo} isVersion={isVersion} />
+        }
+        {
+          isVersion &&
+            <ReleaseVersion open={releaseVersion} onClose={() => setReleaseVersion(false)} repo={repo} onSubmit={onReleaseVersion} />
         }
       </div>
     </div>

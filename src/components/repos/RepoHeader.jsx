@@ -15,7 +15,7 @@ import RepoManagementList from './RepoManagementList';
 import FollowActionButton from '../common/FollowActionButton'
 import EntityAttributesDialog from '../common/EntityAttributesDialog'
 
-const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClick, onCreateMappingClick, onVersionEditClick, essentials, onCreateVersionClick, onDeleteRepoClick, isVersion}) => {
+const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClick, onCreateMappingClick, onVersionEditClick, essentials, onCreateVersionClick, onDeleteRepoClick, isVersion, onReleaseVersionClick}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -41,6 +41,8 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
       onDeleteRepoClick()
     else if (option === 'editVersion')
       onVersionEditClick()
+    else if (option === 'release')
+      onReleaseVersionClick()
   }
 
   const getRepo = () => {
