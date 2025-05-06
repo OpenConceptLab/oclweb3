@@ -70,7 +70,7 @@ const RepoCreateNameDescription = ({url, ownerURL, onOwnerChange, onChange, isEd
         <TextField type='url' label={t('url_registry.canonical_url')} fullWidth value={rest.canonicalURL || ''} onChange={event => onChange('canonicalURL', event.target.value)} />
       </div>
       <div className='col-xs-12 padding-0' style={{marginTop: '24px', textAlign: 'left'}}>
-        <TextField label={t('common.description')} fullWidth variant='standard' multiline maxRows={10} value={rest.description || ''} onChange={event => onChange('description', event.target.value)} />
+        <TextField label={t('common.description')} fullWidth multiline rows={3} maxRows={10} value={rest.description || ''} onChange={event => onChange('description', event.target.value)} />
       </div>
     </>
   )

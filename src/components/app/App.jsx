@@ -31,6 +31,7 @@ import RepoConceptsMatch from '../repos/RepoConceptsMatch'
 import Matching from '../repos/Matching'
 import SigninRedirect from './SigninRedirect'
 import SignupRedirect from './SignupRedirect'
+import OrgCreate from '../orgs/OrgCreate'
 
 const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
   <Route
@@ -115,6 +116,8 @@ const App = props => {
               <AuthenticationRequiredRoute path='/users/:user/settings' component={UserSettings} />
               <AuthenticationRequiredRoute path={`/users/:user/:tab(${orgTabsStr})?`} component={UserHome} />
               <AuthenticationRequiredRoute exact path='/$term-match' component={Matching} />
+              <AuthenticationRequiredRoute exact path='/orgs/new' component={OrgCreate} />
+              <AuthenticationRequiredRoute exact path='/orgs/:org/edit' component={OrgCreate} />
               <Route path={`/orgs/:org/:tab(${orgTabsStr})?`} component={OrgHome} />
 
               <Route exact path='/403' component={Error403} />

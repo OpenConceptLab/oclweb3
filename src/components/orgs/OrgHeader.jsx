@@ -104,13 +104,13 @@ const OrgHeader = ({ org }) => {
         open={Boolean(anchorEl)}
         onClose={handleManageClick}
       >
-        <MenuItem sx={{padding: '8px 12px'}} disabled>
+        <MenuItem sx={{padding: '8px 12px'}} href={`#/${org.url}edit`} onClick={() => history.push(`${org.url}edit`)}>
           <ListItemIcon>
             <EditIcon />
           </ListItemIcon>
           <ListItemText>{t('common.edit')}</ListItemText>
         </MenuItem>
-        <MenuItem sx={{padding: '8px 12px'}} onClick={handleNewRepoCreateClick}>
+        <MenuItem sx={{padding: '8px 12px'}} href={`#/${org.url}repos/new`} onClick={handleNewRepoCreateClick}>
           <ListItemIcon>
             <RepoIcon noTooltip />
           </ListItemIcon>

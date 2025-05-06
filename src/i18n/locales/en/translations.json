@@ -103,7 +103,9 @@
     "release": "Release",
     "unrelease": "Un-Release",
     "reason": "Reason",
-    "success_update": "Successfully Updated"
+    "success_update": "Successfully Updated",
+    "company": "Company",
+    "location": "Location"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -323,7 +325,10 @@
     "member": "Member",
     "org_have_not_created_public_repos_suffix": "have not created any public repositories",
     "browse_members": "Browse members",
-    "member_of": "Member of"
+    "member_of": "Member of",
+    "create_an_org": "Create an Organization",
+    "create_an_org_description": "Organize your content and contributors. <0> Learn more about Organizations in OCL.</0>",
+    "edit_org": "Edit Organization"
   },
   "user": {
     "users": "Users",

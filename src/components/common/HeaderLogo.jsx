@@ -8,7 +8,7 @@ import { currentUserHasAccess } from '../../common/utils';
 import ImageUploader from './ImageUploader';
 import './HeaderLogo.scss';
 
-const HeaderLogo = ({ logoURL, onUpload, defaultIcon, isCircle, shrink, className }) => {
+const HeaderLogo = ({ logoURL, onUpload, defaultIcon, isCircle, shrink, className, style }) => {
   const { t } = useTranslation()
   const hasAccess = currentUserHasAccess();
   const [base64, setBase64] = React.useState(null);
@@ -35,7 +35,7 @@ const HeaderLogo = ({ logoURL, onUpload, defaultIcon, isCircle, shrink, classNam
 
   return (
     <React.Fragment>
-      <div className={containerClasses}>
+      <div className={containerClasses} style={style}>
         {
           logo ?
           <img className='header-logo' src={logo} /> :
