@@ -3,20 +3,27 @@ import { useTranslation } from 'react-i18next';
 import { useParams, useHistory } from 'react-router-dom'
 import Paper from '@mui/material/Paper'
 import APIService from '../../services/APIService'
-import OrgHeader from './OrgHeader'
+import { getCurrentUser, isAdminUser } from '../../common/utils';
+import { OperationsContext } from '../app/LayoutContext';
 import CommonTabs from '../common/CommonTabs';
+import DeleteEntityDialog from '../common/DeleteEntityDialog'
 import Search from '../search/Search';
 import OrgOverview from './OrgOverview';
 import OrgSummary from './OrgSummary';
+import OrgHeader from './OrgHeader'
 
 const OrgHome = () => {
   const { t } = useTranslation()
   const params = useParams()
   const history = useHistory()
+  const user = getCurrentUser()
   const [org, setOrg] = React.useState({})
   const [members, setMembers] = React.useState([])
   const [bookmarks, setBookmarks] = React.useState(false)
+  const [deleteOrg, setDeleteOrg] = React.useState(false)
   const [tab, setTab] = React.useState(findTab)
+  const { setAlert } = React.useContext(OperationsContext);
+
   const TABS = [
     {key: 'overview', label: t('common.overview')},
     {key: 'repos', label: t('repo.repos')},
@@ -59,6 +66,25 @@ const OrgHome = () => {
     }
   }
 
+  const canDelete = org.id !== 'OCL' && (isAdminUser() || (org?.created_by === user?.username))
+  const onDelete = () => {
+    if(!canDelete)
+      return
+    APIService.orgs(org.id).delete().then(response => {
+      if([202, 409, 208].includes(response.status === 202) || response?.detail === 'Already Queued' || response?.__all__ === 'Already Queued') {
+        setDeleteOrg(false)
+        setAlert({severity: 'warning', message: t('org.delete_accepted')})
+      }
+      else if(response.status === 204) {
+        setDeleteOrg(false)
+        setAlert({severity: 'warning', message: t('org.success_delete')})
+        history.push(user?.url || '/')
+      }
+      else
+        setAlert({severity: 'error', message: response?.data?.detail || t('common.generic_error')})
+    })
+  }
+
   React.useEffect(() => { fetchOrg() }, [params.org])
   React.useEffect(() => { setTab(params.tab || 'overview') }, [params.tab])
 
@@ -70,7 +96,7 @@ const OrgHome = () => {
         {
           org?.id &&
             <React.Fragment>
-              <OrgHeader org={org} />
+              <OrgHeader org={org} canDelete={canDelete} onDeleteClick={() => setDeleteOrg(true)} />
               <div className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
                 <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
                 {
@@ -97,7 +123,19 @@ const OrgHome = () => {
             </React.Fragment>
         }
       </Paper>
+      {
+        org?.id &&
+          <DeleteEntityDialog
+            open={deleteOrg}
+            onClose={() => setDeleteOrg(false)}
+            onSubmit={onDelete}
+            entityType={org.type}
+            entityId={org.id}
+            relationship={t('repo.repos').toLowerCase()}
+            warning
+          />
 
+      }
     </div>
   )
 }

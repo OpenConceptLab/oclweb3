@@ -93,7 +93,7 @@
     "target": "Target",
     "properties": "Properties",
     "custom": "Custom",
-    "delete": "Delete",
+    "delete_label": "Delete",
     "edit": "Edit",
     "visibility": "Visibility",
     "website": "Website",
@@ -105,7 +105,15 @@
     "reason": "Reason",
     "success_update": "Successfully Updated",
     "company": "Company",
-    "location": "Location"
+    "location": "Location",
+    "delete": {
+      "warning": "Unexpected bad things will happen if you don’t read this!",
+      "title": "Delete {{resourceType}}: {{resourceId}}",
+      "message": "This action <0>cannot</0> be undone!. This will delete the entire {{resourceType}} and all of its {{relationship}} {{associationsLabel}} (if any).",
+      "confirmation_title": "Are you sure you want to permanently delete this {{resourceType}}",
+      "confirmation_message": "Please type <0>{{resourceId}}</0> to confirm.",
+      "confirmation_button_label": "I understand the consequences, delete this {{resourceType}}"
+    }
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -303,14 +311,6 @@
         "message": "Are you sure you want to {{action}} this {{resourceType}} {{repoId}}?"
       }
     },
-    "delete": {
-      "warning": "Unexpected bad things will happen if you don’t read this!",
-      "title": "Delete {{resourceType}}: {{resourceId}}",
-      "message": "This action <0>cannot</0> be undone!. This will delete the entire {{resourceType}} and all of its {{relationship}} {{associationsLabel}} (if any).",
-      "confirmation_title": "Are you sure you want to permanently delete this {{resourceType}}",
-      "confirmation_message": "Please type <0>{{resourceId}}</0> to confirm.",
-      "confirmation_button_label": "I understand the consequences, delete this {{resourceType}}"
-    },
     "delete_repo": "Delete Repo",
     "delete_accepted": "Repo Delete Accepted. This may take few minutes.",
     "delete_repo_version": "Delete Repo Version",
@@ -328,7 +328,9 @@
     "member_of": "Member of",
     "create_an_org": "Create an Organization",
     "create_an_org_description": "Organize your content and contributors. <0> Learn more about Organizations in OCL.</0>",
-    "edit_org": "Edit Organization"
+    "edit_org": "Edit Organization",
+    "delete_org": "Delete Organization",
+    "delete_accepted": "Organization Delete Accepted. This may take few minutes."
   },
   "user": {
     "users": "Users",

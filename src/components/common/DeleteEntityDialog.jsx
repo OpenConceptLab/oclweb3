@@ -7,50 +7,47 @@ import Button from '../common/Button';
 import Dialog from '../common/Dialog'
 import DialogTitle from '../common/DialogTitle'
 
-const DeleteRepo = ({ onSubmit, onClose, open, repo, isVersion }) => {
+const DeleteEntityDialog = ({ onSubmit, onClose, open, entityId, entityType, warning, relationship, associationsLabel }) => {
   const { t } = useTranslation()
   const [value, setValue] = React.useState('')
   const onChange = event => setValue(event.target.value || '')
-  const repoType = isVersion ? repo.type : repo.type.replace(' Version', '')
-  const repoId = isVersion ? `${repo.short_code} [${repo.version}]` : (repo.short_code || repo.id)
 
   return (
     <Dialog open={Boolean(open)} onClose={onClose}>
       <DialogTitle>
         <Trans
-          i18nKey='repo.delete.title'
-          values={{resourceType: repoType, resourceId: repoId}}
+          i18nKey='common.delete.title'
+          values={{resourceType: entityType, resourceId: entityId}}
         />
       </DialogTitle>
       <DialogContent sx={{padding: '16px 0 0 0 !important'}}>
         {
-          !isVersion &&
+          warning &&
             <Alert variant="filled" severity="warning" sx={{backgroundColor: '#ed6c02 !important', padding: '6px 16px !important', borderRadius: '4px !important'}}>
-              {t('repo.delete.warning')}
+              {t('common.delete.warning')}
             </Alert>
         }
         <p>
-          {t('repo.delete.confirmation_title', {resourceType: repoType})} <b>{repoId}</b>?
+          {t('common.delete.confirmation_title', {resourceType: entityType})} <b>{entityId}</b>?
         </p>
         <p>
           <Trans
-            i18nKey='repo.delete.message'
+            i18nKey='common.delete.message'
             values={{
-              resourceType: repoType.toLowerCase(),
-              relationship: isVersion ? 'versions, ' : '',
-              associationsLabel: 'concepts and mappings'
+              resourceType: entityType.toLowerCase(),
+              relationship: relationship,
+              associationsLabel: associationsLabel
             }}
             components={[<strong key='strong' />]}
           />
         </p>
         <p>
           <Trans
-            i18nKey="repo.delete.confirmation_message"
-            values={{resourceId: repoId}}
+            i18nKey='common.delete.confirmation_message'
+            values={{resourceId: entityId}}
             components={[<strong key='strong' />]}
           />
         </p>
-
         <TextField
           sx={{backgroundColor: 'surface.n92'}}
           fullWidth
@@ -63,16 +60,16 @@ const DeleteRepo = ({ onSubmit, onClose, open, repo, isVersion }) => {
           color='error'
           label={
             <Trans
-              i18nKey="repo.delete.confirmation_button_label"
-              values={{resourceType: repoType}}
+              i18nKey='common.delete.confirmation_button_label'
+              values={{resourceType: entityType}}
             />
           }
           onClick={onSubmit}
-          disabled={value !== repoId}
+          disabled={value !== entityId}
         />
     </DialogContent>
     </Dialog>
   )
 }
 
-export default DeleteRepo;
+export default DeleteEntityDialog;

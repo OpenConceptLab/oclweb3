@@ -4,13 +4,16 @@ import { useTranslation } from 'react-i18next'
 import Paper from '@mui/material/Paper'
 import orderBy from 'lodash/orderBy'
 import filter from 'lodash/filter'
+
 import APIService from '../../services/APIService';
-import LoaderDialog from '../common/LoaderDialog';
-import RepoHeader from './RepoHeader';
-import CommonTabs from '../common/CommonTabs';
-import Search from '../search/Search';
 import { dropVersion, toParentURI, toOwnerURI } from '../../common/utils';
 import { WHITE } from '../../common/colors';
+
+import { OperationsContext } from '../app/LayoutContext';
+import LoaderDialog from '../common/LoaderDialog';
+import CommonTabs from '../common/CommonTabs';
+import Search from '../search/Search';
+import DeleteEntityDialog from '../common/DeleteEntityDialog'
 import ConceptHome from '../concepts/ConceptHome';
 import MappingHome from '../mappings/MappingHome';
 import ConceptForm from '../concepts/ConceptForm';
@@ -19,9 +22,8 @@ import Error40X from '../errors/Error40X';
 import RepoSummary from './RepoSummary'
 import RepoOverview from './RepoOverview'
 import VersionForm from './VersionForm'
-import DeleteRepo from './DeleteRepo'
 import ReleaseVersion from './ReleaseVersion'
-import { OperationsContext } from '../app/LayoutContext';
+import RepoHeader from './RepoHeader';
 
 const RepoHome = () => {
   const { t } = useTranslation()
@@ -274,7 +276,16 @@ const RepoHome = () => {
         }
         {
         repo?.id &&
-            <DeleteRepo open={deleteRepo} onClose={() => setDeleteRepo(false)} repo={repo} onSubmit={onDeleteRepo} isVersion={isVersion} />
+            <DeleteEntityDialog
+              open={deleteRepo}
+              onClose={() => setDeleteRepo(false)}
+              onSubmit={onDeleteRepo}
+              entityType={isVersion ? repo.type : repo.type.replace(' Version', '')}
+              entityId={isVersion ? `${repo.short_code} [${repo.version}]` : (repo.short_code || repo.id)}
+              relationship={isVersion ? '' :  'versions, '}
+              associationsLabel='concepts and mappings'
+              warning={!isVersion}
+            />
         }
         {
           isVersion &&

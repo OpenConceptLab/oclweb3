@@ -38,7 +38,7 @@ const Property = ({icon, value, label}) => {
   ) : null
 }
 
-const OrgHeader = ({ org }) => {
+const OrgHeader = ({ org, onDeleteClick, canDelete }) => {
   const { t } = useTranslation()
   const history = useHistory()
 
@@ -117,11 +117,11 @@ const OrgHeader = ({ org }) => {
           <ListItemText>{t('repo.new_repo')}</ListItemText>
         </MenuItem>
         <Divider />
-        <MenuItem sx={{padding: '8px 12px'}} disabled>
+        <MenuItem sx={{padding: '8px 12px'}} disabled={!canDelete} onClick={onDeleteClick}>
           <ListItemIcon>
             <DeleteIcon color='error' />
           </ListItemIcon>
-          <ListItemText sx={{color: 'error.main'}}>{t('common.delete')}</ListItemText>
+          <ListItemText sx={{color: 'error.main'}}>{t('common.delete_label')}</ListItemText>
         </MenuItem>
       </Menu>
     </Paper>
