@@ -17,7 +17,6 @@
   },
   "globals": {
     "it": true,
-    "alertify": true,
     "window": true,
     "document": true,
     "localStorage": true,
@@ -145,8 +144,6 @@
           "getpagesoffset",
           "axios",
           "signup",
-          "alertifyjs",
-          "alertify",
           "mui",
           "tooltip",
           "pathname",
@@ -243,7 +240,9 @@
           "Hmmss",
           "signin",
           "eaecef",
-          "unrelease"
+          "unrelease",
+          "gzip",
+          "tgz"
         ],
         "skipIfMatch": [
           "http://[^s]*",

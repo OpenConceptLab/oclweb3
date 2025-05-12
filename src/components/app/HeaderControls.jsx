@@ -1,6 +1,7 @@
 import React from 'react';
 import IconButton from '@mui/material/IconButton'
 import AddIcon from '@mui/icons-material/Add'
+import ImportIcon from '@mui/icons-material/Publish';
 import UserMenu from '../users/UserMenu';
 import UserProfileButton from '../users/UserProfileButton';
 import AddMenuList from '../users/AddMenuList'
@@ -27,15 +28,20 @@ const HeaderControls = () => {
     <div className='col-xs-3 padding-0' style={{textAlign: 'right'}}>
       {
         authenticated &&
+          <>
+            <IconButton sx={{marginRight: '8px'}} href="#/imports">
+              <ImportIcon />
+            </IconButton>
           <IconButton sx={{marginRight: '8px'}} onClick={onAddMenuOpen}>
             <AddIcon />
-          </IconButton>
+        </IconButton>
+        </>
       }
       <UserProfileButton onClick={() => setUserMenu(true)} />
       <UserMenu isOpen={userMenu} onClose={() => setUserMenu(false)} />
       {
         authenticated &&
-          <AddMenuList open={addMenu} onClose={onAddMenuClose} anchorEl={addMenuAnchorEl} />
+        <AddMenuList open={addMenu} onClose={onAddMenuClose} anchorEl={addMenuAnchorEl} />
       }
     </div>
   )

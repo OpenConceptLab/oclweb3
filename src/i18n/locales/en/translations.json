@@ -106,6 +106,7 @@
     "success_update": "Successfully Updated",
     "company": "Company",
     "location": "Location",
+    "hierarchy": "Hierarchy",
     "delete": {
       "warning": "Unexpected bad things will happen if you don’t read this!",
       "title": "Delete {{resourceType}}: {{resourceId}}",
@@ -120,7 +121,11 @@
     "401": "Login is required",
     "403": "Access to this page is not authorized",
     "mandatory_field": "This field cannot be blank",
-    "already_queued": "Already queued"
+    "already_queued": "Already queued",
+    "generic": "Something failed, please try again later."
+  },
+  "success": {
+    "queued": "Successfully Queued"
   },
   "dashboard": {
     "name": "Dashboard",
@@ -407,5 +412,47 @@
     "resolve_failed_without_entry_global": "{{url}} did not match an entry in the Global Registry",
     "target_owner": "Target Owner",
     "view_canonical_url_registry": "View Canonical URL registry"
+  },
+  "import": {
+    "upload_file_tooltip": "Upload JSON/CSV/ZIP File",
+    "json_data_tooltip": "Submit JSON Data",
+    "url_tooltip": "Paste JSON/CSV/ZIP File URL",
+    "npm_tooltip": "NPM package import",
+    "queue_id_label": "Queue ID",
+    "queue_id_placeholder": "e.g. my-queue",
+    "queue_id_helper_text": "Imports that share the same queue ID are processed in sequence",
+    "update_if_exists_label": "Update Existing",
+    "update_if_exists_helper_text": "Update if existing concept/mapping found",
+    "hierarchy_helper_text": "Important to check this if the import content has hierarchy",
+    "file_url_label": "JSON/CSV/ZIP File URL",
+    "owner_helper_text": "Determines the namespace where the imported resources should be created",
+    "npm_package_name": "NPM Package Name",
+    "npm_package_version": "NPM Package Version",
+    "or_upload_package_file": "Or upload a package file:",
+    "json_data_label": "JSON Data",
+    "new_import_footer": "OCL processes bulk import asynchronously. A bulk import may include creates, updates, or deletes for multiple owners and repositories. <0> Read More...</0>",
+    "provide_npm_name_and_version": "Provide NPM package name and version to be fetched from <0>FHIR package registry</0>:",
+    "existing_imports": "Existing Imports",
+    "result_expiry_message": "Results will expire after <0>72 hours</0> from the task's start time",
+    "filter_tooltip": "Filter by queue or status",
+    "refresh_list_tooltip": "Refresh List",
+    "search_placeholder": "Search by task ID, status or queue name...",
+    "filter_by_date_tooltip": "Filter by date",
+    "statuses": "Statuses",
+    "queues": "Queues",
+    "result_expired": "Result Expired",
+    "received": "Received",
+    "queue": "Queue",
+    "download_report": "Download Report",
+    "task_id": "Task ID",
+    "started": "Started",
+    "runtime": "Runtime",
+    "failed": "Failed",
+    "retries": "Retries",
+    "revoked": "Revoked",
+    "exception": "Exception",
+    "result": "Result",
+    "args": "Args",
+    "sub_tasks": "Sub Tasks"
   }
 }

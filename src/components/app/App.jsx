@@ -32,6 +32,7 @@ import Matching from '../repos/Matching'
 import SigninRedirect from './SigninRedirect'
 import SignupRedirect from './SignupRedirect'
 import OrgCreate from '../orgs/OrgCreate'
+import ImportHome from '../imports/ImportHome'
 
 const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
   <Route
@@ -100,6 +101,7 @@ const App = props => {
               <Route path="/signup" component={SignupRedirect} />
               <Route exact path="/search" component={Search} />
               <Route exact path="/" component={Dashboard} />
+              <Route exact path="/imports" component={ImportHome} />
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/sources/:repo/:repoVersion/concepts/$match`} component={RepoConceptsMatch} />
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/repos/new/:step?`} component={RepoCreate} />
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/edit/:step?`} component={RepoCreate} />
