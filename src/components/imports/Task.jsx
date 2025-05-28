@@ -8,11 +8,11 @@ import {
 } from '@mui/material';
 import { get, includes, last, isObject } from 'lodash';
 import { formatDateTime } from '../../common/utils';
-import { ERROR_RED, GREEN, WHITE } from '../../common/constants';
+import { WHITE, ERROR_COLORS } from '../../common/colors';
 import TaskIcon from './TaskIcon';
 
 const ExpiredResult = ({label}) => (
-  <Chip variant='outlined' label={label} style={{border: `1px solid ${ERROR_RED}`, color: ERROR_RED}} size='small' />
+  <Chip variant='outlined' label={label} sx={{border: `1px solid ${ERROR_COLORS.main}`, color: ERROR_COLORS.main}} size='small' />
 );
 
 const TASK_RESULT_EXPIRY_HOURS = 72;
@@ -99,7 +99,7 @@ const Task = ({task, open, onOpen, onClose, onRevoke, onDownload}) => {
                         size='small'
                         variant='contained'
                         onClick={onCancelTaskClick}
-                        style={{backgroundColor: ERROR_RED, color: WHITE, padding: '0 5px', fontSize: '0.7125rem', marginLeft: '10px', marginTop: '3px'}}
+                        style={{backgroundColor: ERROR_COLORS.main, color: WHITE, padding: '0 5px', fontSize: '0.7125rem', marginLeft: '10px', marginTop: '3px'}}
                       >
                         {t('common.cancel')}
                       </Button>
@@ -110,7 +110,7 @@ const Task = ({task, open, onOpen, onClose, onRevoke, onDownload}) => {
                         size='small'
                         variant='contained'
                         onClick={onDownloadTaskClick}
-                        style={{backgroundColor: GREEN, color: WHITE, padding: '0 5px', fontSize: '0.7125rem', marginLeft: '10px', marginTop: '3px'}}
+                        sx={{backgroundColor: 'success.main', color: WHITE, padding: '0 5px', fontSize: '0.7125rem', marginLeft: '10px', marginTop: '3px'}}
                       >
                         {t('import.download_report')}
                       </Button>

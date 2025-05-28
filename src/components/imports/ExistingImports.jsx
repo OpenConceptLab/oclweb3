@@ -12,7 +12,7 @@ import {
   Info as InfoIcon,
 } from '@mui/icons-material';
 import { filter, map, startCase, includes, without, uniqBy, isEmpty, orderBy, forEach } from 'lodash';
-import { BLACK } from '../../common/constants';
+import { BLACK } from '../../common/colors';
 import { formatDate } from '../../common/utils';
 import ChipDatePicker from '../common/ChipDatePicker';
 import SearchInput from '../search/SearchInputText';

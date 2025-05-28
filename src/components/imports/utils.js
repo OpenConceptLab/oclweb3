@@ -9,11 +9,10 @@ import {
 } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { get } from 'lodash';
-import { ERROR_RED, GREEN, ORANGE, DARKGRAY, BLUE } from '../../common/constants';
 
 const COLORS = {
-  failure: ERROR_RED, success: GREEN, pending: ORANGE, retry: BLUE, started: BLUE,
-  revoked: DARKGRAY, received: BLUE
+  failure: 'error', success: 'primary', pending: 'warning', retry: 'warning', started: 'success',
+  revoked: 'default', received: 'warning'
 };
 
 const getIcon = (status, rest) => {
@@ -26,19 +25,19 @@ const getIcon = (status, rest) => {
   const height = get(rest, 'height', '20px');
 
   if(state === 'failure')
-    return <FailedIcon style={{color: color}} {...rest} />;
+    return <FailedIcon sx={{color: color}} {...rest} />;
   if(state === 'success')
-    return <SuccessIcon style={{color: color}} {...rest} />;
+    return <SuccessIcon sx={{color: color}} {...rest} />;
   if(state === 'pending')
-    return <PendingIcon style={{color: color}} {...rest} />;
+    return <PendingIcon sx={{color: color}} {...rest} />;
   if(state === 'retry')
-    return <RetryIcon style={{color: color}} {...rest} />;
+    return <RetryIcon sx={{color: color}} {...rest} />;
   if(state === 'started')
-    return <CircularProgress style={{color: BLUE, width: width, height: height}}  {...rest} />;
+    return <CircularProgress sx={{color: 'primary.main', width: width, height: height}}  {...rest} />;
   if(state === 'revoked')
-    return <RevokedIcon style={{color: color}} {...rest} />;
+    return <RevokedIcon sx={{color: color}} {...rest} />;
   if(state === 'received')
-    return <ReceivedIcon style={{color: color}} {...rest} />;
+    return <ReceivedIcon sx={{color: color}} {...rest} />;
 }
 
 
