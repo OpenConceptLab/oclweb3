@@ -10,7 +10,7 @@ import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
-import { map, get } from 'lodash'
+import { map, get, keys, flatten, uniq } from 'lodash'
 import Link from '../common/Link'
 import { formatWebsiteLink, formatDate, formatDateTime } from '../../common/utils'
 
@@ -31,6 +31,41 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
         return <Link sx={{fontSize: '14px'}} label={value} href={`#/users/${value}/`} />
       if(info.type === 'json')
         return <pre>{JSON.stringify(value, undefined, 2)}</pre>
+      if(info.type === 'table') {
+        if(value?.length > 0) {
+          let columns = uniq(flatten(value.map(val => keys(val))))
+          return <Table size='small' sx={{'.MuiTableCell-root': {padding: '6px', border: '1px solid rgba(0, 0, 0, 0.1)'}}}>
+                   <TableHead>
+                     <TableRow>
+                       {
+                         columns.map(
+                           col => <TableCell key={col} sx={{fontSize: '12px'}}><b>{col}</b></TableCell>
+                         )
+                       }
+                     </TableRow>
+                   </TableHead>
+                   <TableBody>
+                     {
+                       map(value, (val, index) => (
+                         <TableRow key={index}>
+                           {
+                             columns.map(col => (
+                               <TableCell key={col}>
+                                 <span style={{display: 'inline-block', maxWidth: '200px', wordBreak: 'break-all'}}>
+                                   {val[col] || null}
+                                 </span>
+                               </TableCell>
+                             ))
+                           }
+                         </TableRow>
+                       ))
+                     }
+          </TableBody>
+                 </Table>
+        } else {
+          return value
+        }
+      }
     }
     return value
   }
@@ -39,12 +74,12 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
       open={open}
       onClose={onClose}
       scroll='paper'
-      maxWidth="sm"
+      maxWidth="lg"
       sx={{
         '& .MuiDialog-paper': {
           backgroundColor: 'surface.n92',
           borderRadius: '28px',
-          minWidth: '312px',
+          minWidth: entity?.properties?.length > 0 ? '812px' : '312px',
           minHeight: '262px',
           padding: 0
         }
@@ -54,11 +89,11 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
         {entity.type} {t('common.attributes')}
       </DialogTitle>
       <DialogContent style={{padding: '0 8px'}}>
-        <Table size="small">
+        <Table size="small" sx={{'.MuiTableCell-root': {padding: '6px'}}}>
           <TableHead>
             <TableRow>
-              <TableCell><b>{t('common.attribute')}</b></TableCell>
-              <TableCell><b>{t('common.value')}</b></TableCell>
+              <TableCell sx={{fontSize: '12px'}}><b>{t('common.attribute')}</b></TableCell>
+              <TableCell sx={{fontSize: '12px'}}><b>{t('common.value')}</b></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -69,8 +104,8 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
                     key={field}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   >
-                    <TableCell component="th" scope="row">
-                      {info?.label}
+                    <TableCell component="th" scope="row" sx={{fontSize: '12px', color: 'rgba(0, 0, 0, 0.7)'}}>
+                      <span style={{maxWidth: '125px', display: 'inline-block'}}>{info?.label}</span>
                     </TableCell>
                     <TableCell>{getValue(field, info)}</TableCell>
                   </TableRow>
