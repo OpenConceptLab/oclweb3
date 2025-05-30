@@ -107,8 +107,10 @@ class DropDownChip extends React.Component {
   shouldSetDefault(prevProps) {
     const { defaultValue } = this.props;
     const { selected } = this.state;
-    return prevProps.defaultValue !== defaultValue && defaultValue && selected !== defaultValue;
+    return !this.isSame(prevProps.defaultValue, defaultValue) && defaultValue && !this.isSame(selected, defaultValue);
   }
+
+  isSame = (val1, val2) => val1 === val2 || val1?.replace('-', '')?.replace(' ', '')?.toLowerCase() === val2?.replace('-', '')?.replace(' ', '')?.toLowerCase()
 
   setDefault() {
     const { defaultValue } = this.props;

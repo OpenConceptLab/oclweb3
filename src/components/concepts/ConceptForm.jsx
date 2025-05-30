@@ -1,5 +1,4 @@
 import React from 'react';
-import { withTranslation } from 'react-i18next';
 import { compact, map, isEmpty } from 'lodash';
 import TextField from '@mui/material/TextField'
 import { flatten, values, keys, get, isArray } from 'lodash'
@@ -378,4 +377,4 @@ class ConceptForm extends FormComponent  {
   }
 }
 
-export default withTranslation()(ConceptForm);
+export default ConceptForm;

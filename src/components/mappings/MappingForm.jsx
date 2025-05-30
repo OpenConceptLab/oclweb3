@@ -1,6 +1,5 @@
 import React from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
-import { withTranslation } from 'react-i18next';
 import { TextField, IconButton, Tooltip } from '@mui/material';
 import {
   SwapVert as SwapIcon,
@@ -520,4 +519,4 @@ class MappingForm extends FormComponent {
   }
 }
 
-export default withTranslation()(MappingForm);
+export default MappingForm;

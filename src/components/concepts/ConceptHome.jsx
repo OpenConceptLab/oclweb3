@@ -179,6 +179,7 @@ const ConceptHome = props => {
           {
             edit &&
               <ConceptForm
+                t={t}
                 edit
                 repoSummary={props.repoSummary}
                 concept={concept}

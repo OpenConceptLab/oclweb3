@@ -90,6 +90,7 @@ const MappingHome = props => {
             edit &&
               <MappingForm
                 edit
+                t={t}
                 repoSummary={props.repoSummary}
                 mapping={mapping}
                 source={repo}

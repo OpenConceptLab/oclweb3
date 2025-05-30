@@ -264,11 +264,11 @@ const RepoHome = () => {
         }
         {
           conceptForm &&
-            <ConceptForm repoSummary={repoSummary} source={repo} repo={repo} onClose={() => setConceptForm(false)} />
+            <ConceptForm t={t} repoSummary={repoSummary} source={repo} repo={repo} onClose={() => setConceptForm(false)} />
         }
         {
           mappingForm &&
-            <MappingForm repoSummary={repoSummary} source={repo} repo={repo} onClose={() => setMappingForm(false)} />
+            <MappingForm t={t} repoSummary={repoSummary} source={repo} repo={repo} onClose={() => setMappingForm(false)} />
         }
         {
           versionForm &&
