@@ -1,11 +1,13 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import TableContainer from '@mui/material/TableContainer'
 import Table from '@mui/material/Table'
 import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
 import Button from '@mui/material/Button'
+import Skeleton from '@mui/material/Skeleton'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import APIService from '../../services/APIService'
 import { OperationsContext } from '../app/LayoutContext';
@@ -16,24 +18,26 @@ import forEach from 'lodash/forEach'
 import isEmpty from 'lodash/isEmpty'
 import startCase from 'lodash/startCase'
 import map from 'lodash/map'
+import keys from 'lodash/keys'
 
 const diffOrder = ['new', 'removed', 'changed_retired', 'changed_major', 'changed_minor']
 
 const VersionResourcesComparison = ({version1, version2, resource}) => {
   const { t } = useTranslation()
   const { setAlert } = React.useContext(OperationsContext);
-
+  const [response, setResponse] = React.useState(null)
   const [changelog, setChangelog] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
   const [filters, setFilters] = React.useState({})
-  const [selected, setSelected] = React.useState()
+  const [selected, setSelected] = React.useState([])
 
   const fetchChangelog = () => {
     if(loading)
       return
     setLoading(true)
     APIService.sources().appendToUrl('$changelog/').post({version1: version1.version_url, version2: version2.version_url, verbosity: 3}).then(res => {
-      if([202, 409].includes(res?.status_code) || res?.data?.task) {
+      setResponse(res)
+      if(isAccepted(res)) {
         setAlert({severity: 'warning', message: t('repo.version_changelog_request_accepted'), duration: 10000})
       } else if (res?.data?.meta) {
         setChangelog(res.data)
@@ -41,11 +45,14 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
         let _filters = {}
         forEach(diffFields, (count, field) => _filters[field] = [[field, count, false]])
         setFilters(_filters)
-        setSelected(getDefaultSelected(_filters))
+        let defaultSelected = getDefaultSelected(_filters)
+        setSelected(defaultSelected ? [defaultSelected] : [])
         setLoading(false)
       }
     })
   }
+
+  const isAccepted = res => [202, 409].includes(res?.status_code) || res?.data?.task || res?.detail === 'Already Queued'
 
   React.useState(() => {
     fetchChangelog()
@@ -57,16 +64,25 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
     return undefined
   }
 
-  const changes = get(changelog, `${resource}.${selected}`) || {}
-
-  const getChangeURL = entity => {
+  const getChangeURL = (entity, section) => {
     let resourceURI = resource + '/' + entity.id + '/'
-    if(selected === 'new')
+    if(section === 'new')
       return version2.version_url + resourceURI
-    if(selected === 'removed')
+    if(section === 'removed')
       return version1.version_url + resourceURI
     return '/concepts/compare?lhs=' + (version1.version_url + resourceURI) + '&rhs=' + (version2.version_url + resourceURI)
   }
+  const getApplied = () => {
+    if(selected?.length) {
+      let applied = {}
+      selected.forEach(section => {
+        applied[section] = {[section]: true}
+      })
+      return applied
+    }
+    return {}
+  }
+
   return (
     <div className='col-xs-12 padding-0' style={{height: '100%'}}>
       <>
@@ -74,15 +90,21 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
           <SearchFilters
             resource={resource}
             filters={loading ? {} : filters}
-            onChange={() => {}}
+            onChange={newApplied => setSelected(keys(newApplied))}
             fieldOrder={diffOrder}
-            appliedFilters={selected ? {[selected]: {[selected]: true}} : {}}
+            appliedFilters={getApplied()}
             noSubheader
             disabledZero
           />
         </div>
         <div className='col-xs-9 split' style={{width: 'calc(100% - 250px)', paddingRight: 0, paddingLeft: 0, float: 'right', height: '100%'}}>
-          <Table size='small'>
+          {
+            (loading || isAccepted(response)) ?
+              <div className='col-xs-12' style={{padding: '16px'}}>
+                <Skeleton variant="rectangular" width='100%' height={600} />
+              </div> :
+            <TableContainer sx={{height: 'calc(100vh - 320px)', overflow: 'auto'}}>
+          <Table size='small' stickyHeader>
             <TableHead>
               <TableRow>
                 <TableCell>
@@ -98,20 +120,25 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
             </TableHead>
             <TableBody>
               {
-                map(changes, (change, id) => (
-                  <TableRow key={id}>
-                    <TableCell>{change.id}</TableCell>
-                    <TableCell>{change.display_name}</TableCell>
-                    <TableCell>
-                      <Button type='text' href={'#' + getChangeURL(change)} size='small' endIcon={<OpenInNewIcon fontSize='inherit' />} target='_blank' sx={{textTransform: 'none'}}>
-                        {startCase(selected)}
+                map(selected, section => {
+                  return map(changelog[resource][section], (change, id) => (
+                    <TableRow key={id}>
+                      <TableCell>{change.id}</TableCell>
+                      <TableCell>{change.display_name}</TableCell>
+                      <TableCell>
+                        <Button type='text' href={'#' + getChangeURL(change, section)} size='small' endIcon={<OpenInNewIcon fontSize='inherit' />} target='_blank' sx={{textTransform: 'none'}}>
+                          {startCase(section)}
                         </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
+                      </TableCell>
+                    </TableRow>
+                  ))
+
+                })
               }
               </TableBody>
-            </Table>
+          </Table>
+              </TableContainer>
+          }
           </div>
       </>
     </div>
