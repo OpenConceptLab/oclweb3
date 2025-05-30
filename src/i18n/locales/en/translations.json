@@ -329,7 +329,8 @@
     "delete_repo_version": "Delete Repo Version",
     "delete_accepted_version": "Repo Version Delete Accepted. This may take few minutes.",
     "properties": "Properties",
-    "filters": "Filters"
+    "filters": "Filters",
+    "version_changelog_request_accepted": "Versions compare request is accepted, please come back in few minutes."
   },
   "org": {
     "my": "My organizations",
