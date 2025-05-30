@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography'
 import RightIcon from '@mui/icons-material/ChevronRight';
 
 import get from 'lodash/get'
+import isString from 'lodash/isString'
 
 import { URIToParentParams } from '../../common/utils'
 import DotSeparator from '../common/DotSeparator'
@@ -16,18 +17,18 @@ const SourceIcon = ({ selected }) => {
   )
 }
 
-const Repo = ({mapping, direction, sx}) => {
+export const Repo = ({mapping, direction, sx, present}) => {
   const repoName = get(mapping, `${direction}_source_name`)
-  const repoURL = get(mapping, `${direction}_source_url`)
+  const repoURL = get(mapping, `${direction}_source_url`) || (isString(get(mapping, `${direction}_source`)) ? get(mapping, `${direction}_source`) : '')
   const repo = URIToParentParams(repoURL)
-  const isPresent = Boolean(repoName)
+  const isPresent = present || Boolean(repoName)
   return (
     <RepoTooltip basicTooltip={isPresent ? undefined : repo?.repo || repoURL} repo={{...repo, url: repoURL, id: repo?.repo || repoURL}}>
       <span style={{maxWidth: '175px', textAlign: 'left', ...sx}}>
         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'left'}}>
           <SourceIcon selected={isPresent} />
           <Typography className='overflow-ellipsis' component='span' sx={{maxWidth: '150px', fontSize: '14px', color: 'rgba(0, 0, 0, 0.87)', marginLeft: '8px'}}>
-            {get(mapping, `${direction}_source_url`) || get(mapping, `${direction}_source_name`)}
+            {repoURL || repoName || repo?.repo}
           </Typography>
           <span/>
         </div>
@@ -45,12 +46,12 @@ const Repo = ({mapping, direction, sx}) => {
   )
 }
 
-const FromAndTargetSource = ({ mapping }) => {
+const FromAndTargetSource = ({ mapping, present }) => {
   return (
     <span style={{display: 'flex', alignItem: 'center'}}>
-      <Repo mapping={mapping} direction='from' />
+      <Repo mapping={mapping} direction='from' present={present} />
       <RightIcon sx={{margin: '0 8px'}} color='secondary' />
-      <Repo mapping={mapping} direction='to' />
+      <Repo mapping={mapping} direction='to' present={present} />
     </span>
   )
 }

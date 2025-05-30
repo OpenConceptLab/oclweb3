@@ -8,12 +8,11 @@ import { SURFACE_COLORS } from '../../common/colors'
 import RepoVersionChip from './RepoVersionChip'
 import RepoIcon from './RepoIcon'
 import ConceptIcon from '../concepts/ConceptIcon';
-import MappingIcon from '../mappings/MappingIcon';
 import JSONIcon from '../common/JSONIcon';
 
 const ButtonControl = ({ label, icon, selected, terminal, onClick, disabled }) => {
   return (
-    <Button id={label} sx={{textTransform: 'none', fontWeight: 'bold', backgroundColor: selected ? 'surface.s90' : '', borderRadius: terminal ? '25px' : undefined}} color='secondary' startIcon={selected ? <DoneIcon fontSize='inherit' /> : icon} onClick={onClick} disabled={disabled}>
+    <Button id={label} sx={{textTransform: 'none', fontWeight: 'bold', backgroundColor: selected ? 'surface.s90' : '', borderRadius: terminal ? '25px' : undefined, '.MuiButton-startIcon': {marginTop: '-2px', marginLeft: 0, marginRight: '6px'}}} color='secondary' startIcon={selected ? <DoneIcon fontSize='inherit' /> : icon} onClick={onClick} disabled={disabled}>
       {label}
     </Button>
   )
@@ -35,7 +34,7 @@ const CompareToolbar = ({version1, version2, versions, metric, onMetricChange, o
             version={version1}
             versions={versions}
             disabledFrom={version2}
-            sx={{margin: '0 8px', fontSize: '14px', height: '32px','.MuiSvgIcon-root': {fontSize: '14px'}}}
+            sx={{margin: '0 8px', fontSize: '14px', height: '32px','.MuiSvgIcon-root': {fontSize: '14px', color: 'black'}}}
             onChange={version => onVersionChange('version1', version)}
           />
           {t('common.with')}
@@ -45,7 +44,7 @@ const CompareToolbar = ({version1, version2, versions, metric, onMetricChange, o
             version={version2}
             versions={versions}
             disabledUntil={version1}
-            sx={{margin: '0 8px', fontSize: '15px', height: '32px', '.MuiSvgIcon-root': {fontSize: '14px'}}}
+            sx={{margin: '0 8px', fontSize: '15px', height: '32px', '.MuiSvgIcon-root': {fontSize: '14px', color: 'black'}}}
             onChange={version => onVersionChange('version2', version)}
           />
         </span>
@@ -55,10 +54,7 @@ const CompareToolbar = ({version1, version2, versions, metric, onMetricChange, o
             <ButtonControl label={t('common.metadata')} selected={metric === 'meta'} onClick={() => onMetricChange('meta')} icon={<RepoIcon noTooltip fontSize='inherit' />} />
             {
               isSource &&
-                <>
-                  <ButtonControl label={t('concept.concepts')} selected={metric === 'concepts'} onClick={() => onMetricChange('concepts')} icon={<ConceptIcon selected color='secondary' fontSize='inherit' sx={{width: '10px', height: '10px'}} />} />
-                  <ButtonControl label={t('mapping.mappings')} selected={metric === 'mappings'} onClick={() => onMetricChange('mappings')} icon={<MappingIcon fontSize='inherit' />} />
-                </>
+                <ButtonControl label={t('concept.concepts')} selected={metric === 'concepts'} onClick={() => onMetricChange('concepts')} icon={<ConceptIcon selected color='secondary' fontSize='inherit' sx={{width: '10px', height: '10px'}} />} />
             }
             <ButtonControl label={t('common.json')} terminal selected={metric === 'json'} onClick={() => onMetricChange('json')} icon={<JSONIcon fontSize='inherit' />} />
           </ButtonGroup>

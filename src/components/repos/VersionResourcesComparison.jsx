@@ -8,19 +8,31 @@ import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
 import Button from '@mui/material/Button'
 import Skeleton from '@mui/material/Skeleton'
+import IconButton from '@mui/material/IconButton'
+import Collapse from '@mui/material/Collapse'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import APIService from '../../services/APIService'
-import { OperationsContext } from '../app/LayoutContext';
-import SearchFilters from '../search/SearchFilters';
-import { COLORS } from '../../common/colors'
+import DownIcon from '@mui/icons-material/KeyboardArrowDown';
+import UpIcon from '@mui/icons-material/KeyboardArrowUp';
+
 import get from 'lodash/get'
 import forEach from 'lodash/forEach'
 import isEmpty from 'lodash/isEmpty'
 import startCase from 'lodash/startCase'
 import map from 'lodash/map'
 import keys from 'lodash/keys'
+import without from 'lodash/without'
 
-const diffOrder = ['new', 'removed', 'changed_retired', 'changed_major', 'changed_minor']
+import APIService from '../../services/APIService'
+import { OperationsContext } from '../app/LayoutContext';
+import { COLORS } from '../../common/colors'
+
+import SearchFilters from '../search/SearchFilters';
+import { Repo } from '../mappings/FromAndTargetSource'
+
+const diffOrder = ['new', 'changed_retired', 'changed_major', 'changed_minor', 'removed']
 
 const VersionResourcesComparison = ({version1, version2, resource}) => {
   const { t } = useTranslation()
@@ -30,6 +42,7 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
   const [loading, setLoading] = React.useState(false)
   const [filters, setFilters] = React.useState({})
   const [selected, setSelected] = React.useState([])
+  const [expanded, setExpanded] = React.useState([])
 
   const fetchChangelog = () => {
     if(loading)
@@ -104,42 +117,99 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
                 <Skeleton variant="rectangular" width='100%' height={600} />
               </div> :
             <TableContainer sx={{height: 'calc(100vh - 320px)', overflow: 'auto'}}>
-          <Table size='small' stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell>
-                  <b>{t('common.id')}</b>
-                  </TableCell>
-                <TableCell>
-                  <b>{t('common.name')}</b>
-                </TableCell>
-                <TableCell>
-                  <b>{t('common.change')}</b>
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {
-                map(selected, section => {
-                  return map(changelog[resource][section], (change, id) => (
-                    <TableRow key={id}>
-                      <TableCell>{change.id}</TableCell>
-                      <TableCell>{change.display_name}</TableCell>
-                      <TableCell>
-                        <Button type='text' href={'#' + getChangeURL(change, section)} size='small' endIcon={<OpenInNewIcon fontSize='inherit' />} target='_blank' sx={{textTransform: 'none'}}>
-                          {startCase(section)}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
+              <Table size='small' stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <TableCell />
+                    <TableCell>
+                      <b>{t('common.id')}</b>
+                    </TableCell>
+                    <TableCell>
+                      <b>{t('common.name')}</b>
+                    </TableCell>
+                    <TableCell>
+                      <b>{t('common.change')}</b>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {
+                    map(selected, section => {
+                      return map(changelog[resource][section], (change, id) => {
+                        const isExpanded = expanded?.includes(id)
+                        const mappingChangesKeys = keys(change?.mappings || {})
+                        return (
+                          <>
+                            <TableRow key={id}>
+                              <TableCell>
+                                {
+                                  mappingChangesKeys.length > 0 &&
+                                    <IconButton size='small' onClick={() => setExpanded(isExpanded ? without(expanded, id) : [...expanded, id])}>
+                                      {isExpanded ? <UpIcon fontSize='inherit' /> : <DownIcon fontSize='inherit' />}
+                                    </IconButton>
+                                }
+                              </TableCell>
+                              <TableCell>{change.id}</TableCell>
+                              <TableCell>{change.display_name}</TableCell>
+                              <TableCell>
+                                <Button type='text' href={'#' + getChangeURL(change, section)} size='small' endIcon={<OpenInNewIcon fontSize='inherit' />} target='_blank' sx={{textTransform: 'none'}}>
+                                  {startCase(section)}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={4}>
+                                <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                                  <Box sx={{ margin: 1 }}>
+                                    <Typography variant="h6" gutterBottom component="div">
+                                      {t('mapping.mappings')}
+                                    </Typography>
+                                    <Table size="small" aria-label="purchases">
+                                      <TableHead>
+                                        <TableRow>
+                                          <TableCell>{t('common.id')}</TableCell>
+                                          <TableCell>{t('mapping.map_type')}</TableCell>
+                                          <TableCell>{t('mapping.target_source')}</TableCell>
+                                          <TableCell>{t('mapping.toConcept')}</TableCell>
+                                          <TableCell />
+                                        </TableRow>
+                                      </TableHead>
+                                      <TableBody>
+                                        {
+                                          mappingChangesKeys.map(key => {
+                                            let mappings = change.mappings[key]
+                                            return map(mappings, mapping => {
+                                              return (
+                                                <TableRow key={mapping.id}>
+                                                  <TableCell component="th" scope="row">
+                                                    {mapping.id}
+                                                  </TableCell>
+                                                  <TableCell>{mapping.map_type}</TableCell>
+                                                  <TableCell><Repo mapping={mapping} direction='to' present /></TableCell>
+                                                  <TableCell>{mapping.to_concept}</TableCell>
+                                                  <TableCell>{startCase(key)}</TableCell>
+                                                </TableRow>
+                                              )
+                                            })
+                                          })
+                                        }
+                                      </TableBody>
+                                    </Table>
+                                  </Box>
+                                </Collapse>
+                              </TableCell>
+                            </TableRow>
+                          </>
+                        )
+                      })
 
-                })
-              }
-              </TableBody>
-          </Table>
-              </TableContainer>
+                    })
+                  }
+                </TableBody>
+              </Table>
+            </TableContainer>
           }
-          </div>
+        </div>
       </>
     </div>
   )
