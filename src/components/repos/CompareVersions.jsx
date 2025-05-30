@@ -10,6 +10,7 @@ import RepoHeader from './RepoHeader';
 import CompareToolbar from './CompareToolbar';
 import VersionStats from './VersionStats'
 import VersionMeta from './VersionMeta'
+import VersionResourcesComparison from './VersionResourcesComparison'
 
 const CompareVersions = () => {
   const location = useLocation()
@@ -127,6 +128,14 @@ const CompareVersions = () => {
         {
           metric === 'meta' &&
             <VersionMeta version1={version1} version2={version2} />
+        }
+        {
+          metric === 'concepts' &&
+            <VersionResourcesComparison version1={version1} version2={version2} resource='concepts' />
+        }
+        {
+          metric === 'mappings' &&
+            <VersionResourcesComparison version1={version1} version2={version2} resource='mappings' />
         }
       </Paper>
     </div>

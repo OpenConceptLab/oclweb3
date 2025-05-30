@@ -33,6 +33,8 @@ import SigninRedirect from './SigninRedirect'
 import SignupRedirect from './SignupRedirect'
 import OrgCreate from '../orgs/OrgCreate'
 import ImportHome from '../imports/ImportHome'
+import ConceptsComparison from '../concepts/ConceptsComparison'
+import MappingsComparison from '../mappings/MappingsComparison'
 
 const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
   <Route
@@ -121,7 +123,8 @@ const App = props => {
               <AuthenticationRequiredRoute exact path='/orgs/new' component={OrgCreate} />
               <AuthenticationRequiredRoute exact path='/orgs/:org/edit' component={OrgCreate} />
               <Route path={`/orgs/:org/:tab(${orgTabsStr})?`} component={OrgHome} />
-
+              <Route exact path="/concepts/compare" component={ConceptsComparison} />
+              <Route exact path="/mappings/compare" component={MappingsComparison} />
               <Route exact path='/403' component={Error403} />
               <Route component={Error404} />
             </Switch>

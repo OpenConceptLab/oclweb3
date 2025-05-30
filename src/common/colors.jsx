@@ -1,5 +1,9 @@
 export const WHITE = '#FFF';
 export const BLACK = '#000';
+export const DIFF_BG_HIGHLIGHT = '#fffbdd';
+export const DIFF_HIGHLIGHT_RED = '#fdb8c0';
+export const DIFF_BG_GREEN = '#e6ffed';
+export const DIFF_HIGHLIGHT_GREEN = '#acf2bd';
 
 // v3
 export const TEXT_GRAY = '#47464f'

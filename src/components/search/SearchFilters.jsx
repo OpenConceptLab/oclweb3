@@ -15,13 +15,13 @@ import Divider from '@mui/material/Divider';
 import { FACET_ORDER } from './ResultConstants';
 
 
-const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters}) => {
+const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero}) => {
   const { t } = useTranslation()
   const [applied, setApplied] = React.useState({});
   const [count, setCount] = React.useState(0);
   const [expanded, setExpanded] = React.useState([])
 
-  const filterOrder = FACET_ORDER[resource]
+  const filterOrder = fieldOrder || FACET_ORDER[resource]
   let blacklisted = ['is_active', 'is_latest_version', 'is_in_latest_source_version'];
   const isSourceChild = ['concepts', 'mappings'].includes(resource)
   const hasValidKwargs = !isEmpty(kwargs) && isObject(kwargs);
@@ -37,7 +37,6 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   }
 
   let uiFilters = omit(omitBy(filters, isEmpty), blacklisted)
-
   if(isObject(kwargs) && !kwargs.collection && isSourceChild && !isEmpty(uiFilters) && !isEmpty(uiFilters.collection)){
     uiFilters['collection_membership'] = uiFilters.collection
     delete uiFilters.collection
@@ -147,14 +146,17 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                   padding: '2px 0 4px 0',
                 }}
               >
-            <ListSubheader sx={{p: 0, fontWeight: 'bold', background: bgColor, lineHeight: '30px'}}>{startCase(field)}</ListSubheader>
+                {
+                !noSubheader &&
+                    <ListSubheader sx={{p: 0, fontWeight: 'bold', background: bgColor, lineHeight: '30px'}}>{startCase(field)}</ListSubheader>
+                }
                 {
                   getFieldFilters(field, fieldFilters).map(value => {
                     const labelId = `checkbox-list-label-${value[0]}`;
                     const key = `${field}-${value[0]}`
 
                     return (
-                      <ListItemButton key={key} onClick={handleToggle(field, value)} sx={{p: '0 12px 0 4px'}} disabled={value[3] === true}>
+                      <ListItemButton key={key} onClick={handleToggle(field, value)} sx={{p: '0 12px 0 4px'}} disabled={value[3] === true || (disabledZero && value[1] === 0)}>
                         <ListItemIcon sx={{minWidth: '25px'}}>
                           <Checkbox
                             size="small"
@@ -164,6 +166,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                             disableRipple
                             inputProps={{ 'aria-labelledby': labelId }}
                             style={{padding: '4px 8px'}}
+                            disabled={(disabledZero && value[1] === 0)}
                           />
                         </ListItemIcon>
                         <ListItemText id={labelId} primary={formattedName(field, value[0]) || 'None'} primaryTypographyProps={{style: {fontSize: '0.875rem'}}} style={{margin: 0}} />
@@ -178,7 +181,10 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                     {isExpanded ? t('common.hide') : `${t('common.show')} ${fieldFilters.length - 4} ${t('common.more').toLowerCase()}`}
                   </Button>
               }
+            {
+              !noSubheader &&
               <Divider />
+            }
             </React.Fragment>
           )
         })

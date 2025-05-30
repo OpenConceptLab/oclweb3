@@ -242,7 +242,9 @@
           "eaecef",
           "unrelease",
           "gzip",
-          "tgz"
+          "tgz",
+          "changelog",
+          "uid"
         ],
         "skipIfMatch": [
           "http://[^s]*",
