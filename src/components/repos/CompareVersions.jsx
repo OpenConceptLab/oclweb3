@@ -1,6 +1,8 @@
 import React from 'react'
 import moment from 'moment'
 import { useLocation } from 'react-router-dom';
+import ReactDiffViewer from 'react-diff-viewer'
+
 import Paper from '@mui/material/Paper'
 import { toParentURI, toOwnerURI } from '../../common/utils';
 import APIService from '../../services/APIService';
@@ -136,6 +138,17 @@ const CompareVersions = () => {
         {
           metric === 'mappings' &&
             <VersionResourcesComparison version1={version1} version2={version2} resource='mappings' />
+        }
+        {
+          metric === 'json' &&
+            <div style={{height: 'calc(100vh - 325px)', overflow: 'auto', display: 'inline-block', width: '100%'}}>
+              <ReactDiffViewer
+                oldValue={JSON.stringify(version1, undefined, 2)}
+                newValue={JSON.stringify(version2, undefined, 2)}
+                compareMethod='diffSentences'
+                splitView={true}
+              />
+            </div>
         }
       </Paper>
     </div>
