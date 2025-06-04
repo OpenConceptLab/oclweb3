@@ -1,7 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {omit, omitBy, isEmpty, isObject, has, map, startCase, includes, get, without, forEach, flatten, values} from 'lodash';
+import InfoIcon from '@mui/icons-material/InfoOutlined';
 import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 import ClearIcon from '@mui/icons-material/Clear';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import UpIcon from '@mui/icons-material/ArrowDropUp';
@@ -15,7 +17,7 @@ import Divider from '@mui/material/Divider';
 import { FACET_ORDER } from './ResultConstants';
 
 
-const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero}) => {
+const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions}) => {
   const { t } = useTranslation()
   const [applied, setApplied] = React.useState({});
   const [count, setCount] = React.useState(0);
@@ -63,7 +65,8 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
       name = name.trim()
       if(name === 'n/a')
         return name.toUpperCase()
-      return startCase(name)
+
+      return get(filterDefinitions, name)?.label || startCase(name)
     }
   }
 
@@ -169,7 +172,20 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                             disabled={(disabledZero && value[1] === 0)}
                           />
                         </ListItemIcon>
-                        <ListItemText id={labelId} primary={formattedName(field, value[0]) || 'None'} primaryTypographyProps={{style: {fontSize: '0.875rem'}}} style={{margin: 0}} />
+                        <ListItemText
+                          id={labelId}
+                          primary={
+                            <span style={{display: 'flex', alignItems: 'center'}}>
+                              {formattedName(field, value[0]) || 'None'}
+                            {
+                              get(filterDefinitions, value[0])?.tooltip &&
+                                <Tooltip title={filterDefinitions[value[0]].tooltip}>
+                                  <InfoIcon sx={{marginLeft: '4px', fontSize: '1rem'}} color='primary' />
+                              </Tooltip>
+                            }
+                            </span>
+                          }
+                          primaryTypographyProps={{style: {fontSize: '0.875rem'}}} style={{margin: 0}} />
                         <span style={{fontSize: '0.7rem'}}>{value[1].toLocaleString()}</span>
                       </ListItemButton>
                     );

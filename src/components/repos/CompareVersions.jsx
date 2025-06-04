@@ -132,7 +132,7 @@ const CompareVersions = () => {
             <VersionMeta version1={version1} version2={version2} />
         }
         {
-          metric === 'concepts' &&
+          metric === 'content' &&
             <VersionResourcesComparison version1={version1} version2={version2} resource='concepts' />
         }
         {

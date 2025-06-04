@@ -71,6 +71,7 @@
     "public": "Public",
     "private": "Private",
     "close": "Close",
+    "content": "Content",
     "short_code": "Short Code",
     "attribute": "Attribute",
     "attributes": "Attributes",
@@ -111,6 +112,7 @@
     "location": "Location",
     "hierarchy": "Hierarchy",
     "change": "Change",
+    "type_of_change": "Type of Change",
     "toggle_attributes": "Toggle Attributes",
     "delete": {
       "warning": "Unexpected bad things will happen if you don’t read this!",

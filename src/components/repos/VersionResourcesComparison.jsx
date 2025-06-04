@@ -13,9 +13,9 @@ import Collapse from '@mui/material/Collapse'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DownIcon from '@mui/icons-material/KeyboardArrowDown';
 import UpIcon from '@mui/icons-material/KeyboardArrowUp';
+import DiffIcon from '@mui/icons-material/Difference';
 
 import get from 'lodash/get'
 import forEach from 'lodash/forEach'
@@ -31,8 +31,16 @@ import { COLORS } from '../../common/colors'
 
 import SearchFilters from '../search/SearchFilters';
 import { Repo } from '../mappings/FromAndTargetSource'
+import ConceptIcon from '../concepts/ConceptIcon'
 
 const diffOrder = ['new', 'changed_retired', 'changed_major', 'changed_minor', 'removed']
+const sections = {
+  "new": {label: 'New', tooltip: 'Resources added in newer version'},
+  changed_retired: {label: 'Retired', tooltip: 'Resources retired in newer version'},
+  changed_major: {label: 'Major Change', tooltip: 'Resources with "smart checksum" change between versions'},
+  changed_minor: {label: 'Minor Change', tooltip: 'Resources with "standard checksum" change between versions'},
+  removed: {tooltip: 'Resource removed in newer version'},
+}
 
 const VersionResourcesComparison = ({version1, version2, resource}) => {
   const { t } = useTranslation()
@@ -77,14 +85,19 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
     return undefined
   }
 
-  const getChangeURL = (entity, section) => {
+  const getChangeURL = entity => {
     let resourceURI = resource + '/' + entity.id + '/'
-    if(section === 'new')
-      return version2.version_url + resourceURI
-    if(section === 'removed')
-      return version1.version_url + resourceURI
     return '/concepts/compare?lhs=' + (version1.version_url + resourceURI) + '&rhs=' + (version2.version_url + resourceURI)
   }
+
+  const getViewURL = (entity, section) => {
+    let resourceURI = resource + '/' + entity.id + '/'
+    if(['removed', 'changed_retired'].includes(section))
+      return version1.version_url + resourceURI
+
+    return version2.version_url + resourceURI
+  }
+
   const getApplied = () => {
     if(selected?.length) {
       let applied = {}
@@ -106,6 +119,7 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
             onChange={newApplied => setSelected(keys(newApplied))}
             fieldOrder={diffOrder}
             appliedFilters={getApplied()}
+            filterDefinitions={sections}
             noSubheader
             disabledZero
           />
@@ -128,8 +142,9 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
                       <b>{t('common.name')}</b>
                     </TableCell>
                     <TableCell>
-                      <b>{t('common.change')}</b>
+                      <b>{t('common.type_of_change')}</b>
                     </TableCell>
+                    <TableCell />
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -138,6 +153,7 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
                       return map(changelog[resource][section], (change, id) => {
                         const isExpanded = expanded?.includes(id)
                         const mappingChangesKeys = keys(change?.mappings || {})
+                        const sectionDefinition = sections[section]
                         return (
                           <>
                             <TableRow key={id}>
@@ -152,16 +168,26 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
                               <TableCell>{change.id}</TableCell>
                               <TableCell>{change.display_name}</TableCell>
                               <TableCell>
-                                <Button type='text' href={'#' + getChangeURL(change, section)} size='small' endIcon={<OpenInNewIcon fontSize='inherit' />} target='_blank' sx={{textTransform: 'none'}}>
-                                  {startCase(section)}
+                                  {sectionDefinition?.label || startCase(section)}
+                              </TableCell>
+                              <TableCell>
+                                <Button type='text' href={'#' + getViewURL(change, section)} size='small' startIcon={<ConceptIcon selected noTooltip fontSize='inherit' />} target='_blank' sx={{textTransform: 'none'}}>
+                                  View
                                 </Button>
+                                {
+                                  ['changed_retired', 'changed_major', 'changed_minor'].includes(section) &&
+                                    <Button color='warning' type='text' href={'#' + getChangeURL(change)} size='small' startIcon={<DiffIcon fontSize='inherit' />} target='_blank' sx={{textTransform: 'none', marginLeft: '12px'}}>
+                                      Compare
+                                    </Button>
+                                }
                               </TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={4}>
+                              <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
                                 <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                                   <Box sx={{ margin: 1 }}>
-                                    <Typography variant="h6" gutterBottom component="div">
+                                    <Typography variant="h6" gutterBottom component="div" sx={{display: 'flex', alignItems: 'center'}}>
+                                      <DiffIcon fontSize='inherit' sx={{marginRight: '8px'}} color='warning' />
                                       {t('mapping.mappings')}
                                     </Typography>
                                     <Table size="small" aria-label="purchases">
@@ -187,7 +213,8 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
                                                   <TableCell>{mapping.map_type}</TableCell>
                                                   <TableCell><Repo mapping={mapping} direction='to' present /></TableCell>
                                                   <TableCell>{mapping.to_concept}</TableCell>
-                                                  <TableCell>{startCase(key)}</TableCell>
+                                                  <TableCell>{sections[key]?.label || startCase(key)}</TableCell>
+
                                                 </TableRow>
                                               )
                                             })
