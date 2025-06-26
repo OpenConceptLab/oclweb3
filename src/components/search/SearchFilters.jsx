@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {omit, omitBy, isEmpty, isObject, has, map, startCase, includes, get, without, forEach, flatten, values} from 'lodash';
+import {omit, omitBy, isEmpty, isObject, has, map, startCase, includes, get, without, forEach, flatten, values, pickBy} from 'lodash';
 import InfoIcon from '@mui/icons-material/InfoOutlined';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
@@ -25,7 +25,9 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
 
   const filterOrder = fieldOrder || FACET_ORDER[resource]
   let blacklisted = ['is_active', 'is_latest_version', 'is_in_latest_source_version'];
-  const isSourceChild = ['concepts', 'mappings'].includes(resource)
+  const isConcept = resource === 'concepts'
+  const isMapping = resource === 'mappings'
+  const isSourceChild = isConcept || isMapping
   const hasValidKwargs = !isEmpty(kwargs) && isObject(kwargs);
   if(hasValidKwargs) {
     if(kwargs.user || kwargs.org)
@@ -55,6 +57,14 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     })
     uiFilters = orderedUIFilters
   }
+  if(isConcept){
+    const properties = pickBy(filters, (values, field) => field.startsWith('properties__') && !isEmpty(values))
+    if(!isEmpty(properties)) {
+      uiFilters = omit(uiFilters, ['conceptClass', 'datatype'])
+      uiFilters = {...properties, ...uiFilters}
+    }
+  }
+
 
   const formattedName = (field, name) => {
     if(includes(['locale', 'version', 'source_version', 'nameTypes', 'expansion'], field))
@@ -68,6 +78,14 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
 
       return get(filterDefinitions, name)?.label || startCase(name)
     }
+  }
+
+  const formattedListSubheader = field => {
+    if(field.startsWith('properties__')){
+      const fields = field.split('__')
+      return `Property: ${startCase(fields[1])}`
+    }
+    return startCase(field)
   }
 
   const handleToggle = (field, value) => () => {
@@ -151,7 +169,9 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
               >
                 {
                 !noSubheader &&
-                    <ListSubheader sx={{p: 0, fontWeight: 'bold', background: bgColor, lineHeight: '30px'}}>{startCase(field)}</ListSubheader>
+                    <ListSubheader sx={{p: 0, fontWeight: 'bold', background: bgColor, lineHeight: '30px'}}>
+                      {formattedListSubheader(field)}
+                    </ListSubheader>
                 }
                 {
                   getFieldFilters(field, fieldFilters).map(value => {
