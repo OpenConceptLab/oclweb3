@@ -10,7 +10,7 @@ import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
-import { map, get, keys, flatten, uniq } from 'lodash'
+import { map, get, keys, flatten, uniq, isBoolean } from 'lodash'
 import Link from '../common/Link'
 import { formatWebsiteLink, formatDate, formatDateTime } from '../../common/utils'
 
@@ -52,7 +52,7 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
                              columns.map(col => (
                                <TableCell key={col}>
                                  <span style={{display: 'inline-block', maxWidth: '200px', wordBreak: 'break-all'}}>
-                                   {val[col] || null}
+                                   {isBoolean(val[col]) ? val[col].toString() : val[col] || null}
                                  </span>
                                </TableCell>
                              ))
