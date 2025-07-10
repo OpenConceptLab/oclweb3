@@ -6,6 +6,7 @@ import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import FormControl from '@mui/material/FormControl'
 import DoneIcon from '@mui/icons-material/Done';
+import isEqual from 'lodash/isEqual'
 
 const StyledAutocompletePopper = styled('div')(({ theme }) => ({
   [`& .${autocompleteClasses.paper}`]: {
@@ -114,8 +115,8 @@ class DropDownChip extends React.Component {
 
   setDefault() {
     const { defaultValue } = this.props;
-    if(defaultValue)
-      this.setState({selected: defaultValue}, this.afterSelect);
+    if(!isEqual(defaultValue, this.state.selected))
+      this.setState({selected: defaultValue});
   }
 
   setAnchorEl = event => {
@@ -138,7 +139,7 @@ class DropDownChip extends React.Component {
 
   render() {
     const { selected, anchorEl } = this.state;
-    const { disabled, options, sx, label, color } = this.props;
+    const { disabled, options, sx, label, color, error } = this.props;
     const open = Boolean(anchorEl)
     return (
       <FormControl sx={{...sx}}>
@@ -150,7 +151,7 @@ class DropDownChip extends React.Component {
           clickable
           onDelete={this.setAnchorEl}
           onClick={this.setAnchorEl}
-          color={color || "primary"}
+          color={error ? 'error' : (color || "primary")}
           disabled={disabled}
           sx={{height: "40px"}}
         />

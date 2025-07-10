@@ -3,17 +3,24 @@ import { useTranslation } from 'react-i18next';
 import TextField from '@mui/material/TextField'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Switch from '@mui/material/Switch';
+import Divider from '@mui/material/Divider';
 import get from 'lodash/get'
 import IconButton from '@mui/material/IconButton'
 import DropDownChip from '../common/DropDownChip'
 import ExternalIdIcon from '../common/ExternalIdIcon'
 
 
-const LocaleForm = ({index, locales, idPrefix, localeType, field, localeTypes, onChange}) => {
+const LocaleForm = ({index, locales, idPrefix, localeType, field, localeTypes, onChange, divider}) => {
   const { t } = useTranslation()
   const [showExternalID, setShowExternalID] = React.useState(Boolean(field.external_id.value))
+
+  React.useEffect(() => {
+    if(!showExternalID && Boolean(field.external_id.value))
+      setShowExternalID(Boolean(field.external_id.value))
+  }, [field?.external_id?.value])
+
   return (
-    <React.Fragment key={index}>
+    <div className='col-xs-12 padding-0' key={index}>
       <div className='col-xs-12' style={{marginTop: '24px', padding: 0}}>
         <div className='col-xs-10 padding-0'>
           <DropDownChip
@@ -47,6 +54,7 @@ const LocaleForm = ({index, locales, idPrefix, localeType, field, localeTypes, o
             label={t('concept.form.type')}
             required
             freeSolo
+            error={get(field, `${localeType}_type.errors.0`)}
           />
         </div>
         <div className='col-xs-2 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
@@ -73,8 +81,8 @@ const LocaleForm = ({index, locales, idPrefix, localeType, field, localeTypes, o
         </div>
       </div>
       {
-      showExternalID &&
-          <div className='col-xs-5 padding-0' style={{marginTop: '24px'}}>
+        showExternalID &&
+          <div className='col-xs-8 padding-0' style={{marginTop: '24px'}}>
             <TextField
               fullWidth
               id={`${idPrefix}.external_id`}
@@ -86,8 +94,11 @@ const LocaleForm = ({index, locales, idPrefix, localeType, field, localeTypes, o
             />
           </div>
       }
-    </React.Fragment>
-
+      {
+        divider &&
+          <Divider sx={{width: '100%', marginTop: '24px', display: 'inline-block'}} />
+      }
+    </div>
   )
 }
 
