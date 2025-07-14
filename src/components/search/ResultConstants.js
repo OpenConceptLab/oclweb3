@@ -51,7 +51,7 @@ export const ALL_COLUMNS = {
   repos: [
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id', className: 'searchable'},
     {id: 'name', labelKey: 'common.name', value: 'name', sortOn: 'name', className: 'searchable'},
-    {id: 'type', labelKey: 'repo.repo_type', value: 'type', sortable: false},
+    {id: 'type', labelKey: 'repo.repo_type', value: 'repo_type', sortable: false},
     {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', renderer: item => (<span style={{display: 'flex', alignItems: 'center'}}><OwnerIcon noTooltip ownerType={item.owner_type} fontSize='small' sx={{marginRight: '4px'}}/>{item.owner}</span>)}
   ],
   orgs: [
