@@ -131,12 +131,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
                   className={isItemSelectedToShow ? 'show-item' : ''}
                   sx={{
                     cursor: 'pointer',
-                    '&:nth-of-type(odd)': {
-                      backgroundColor: 'surface.main'
-                    },
-                    '&:nth-of-type(even)': {
-                      backgroundColor: '#FFF'
-                    },
+                    backgroundColor: '#FFF',
                     '&.Mui-selected': {
                       backgroundColor: bgColor
                     },
