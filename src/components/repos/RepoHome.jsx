@@ -232,7 +232,7 @@ const RepoHome = () => {
                       onShowItem={onShowItem}
                       showItem={showItem}
                       filtersHeight='calc(100vh - 300px)'
-                      resultContainerStyle={{height: isSplitView ? 'calc(100vh - 440px)' : 'calc(100vh - 400px)', overflow: 'auto'}}
+                      resultContainerStyle={{height: 'calc(100vh - 400px)', overflow: 'auto'}}
                       containerStyle={{padding: 0}}
                     />
                 }
