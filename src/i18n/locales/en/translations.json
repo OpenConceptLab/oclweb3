@@ -1,6 +1,7 @@
 {
   "common": {
     "or": "or",
+    "of": "of",
     "language": "Language",
     "languages": "Languages",
     "preferred_language": "Preferred Language",
@@ -66,6 +67,7 @@
     "result": "Result",
     "settings": "Settings",
     "add": "Add",
+    "remove": "Remove",
     "cancel": "Cancel",
     "upload": "Upload",
     "custom_attributes": "Custom Attributes",
@@ -342,6 +344,8 @@
     "about_the_org": "About the Organization",
     "members": "Members",
     "member": "Member",
+    "edit_members": "Edit Members",
+    "updated_members": "Updated Members",
     "org_have_not_created_public_repos_suffix": "have not created any public repositories",
     "browse_members": "Browse members",
     "member_of": "Member of",

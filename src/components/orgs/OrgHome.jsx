@@ -96,7 +96,7 @@ const OrgHome = () => {
         {
           org?.id &&
             <React.Fragment>
-              <OrgHeader org={org} canDelete={canDelete} onDeleteClick={() => setDeleteOrg(true)} />
+              <OrgHeader org={org} members={members} canDelete={canDelete} onDeleteClick={() => setDeleteOrg(true)} fetchMembers={fetchMembers} />
               <div className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
                 <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
                 {
