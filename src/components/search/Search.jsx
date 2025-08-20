@@ -235,7 +235,7 @@ const Search = props => {
       }
       let total = parseInt(response?.headers?.num_found)
       const summaryCount = get(props.summary, `active_${__resource}`) || get(props.summary, `${__resource}.active`) || 0
-      if(!params.q && props?.summary && props.nested && total < summaryCount)
+      if(!params.q && props?.summary && props.nested && total < summaryCount && keys(params).every(el => ['includeSearchMeta', 'q', 'limit', 'page', 'pageSize', 'offset', 'sortAsc', 'sortDesc', 'display', 'type'].includes(el)))
         total = summaryCount
       const resourceResult = {total: total, pageSize: max([parseInt(response?.headers?.num_returned), params?.limit]), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || [], facets: result[__resource]?.facets || {}}
       setResult({[__resource]: resourceResult})
