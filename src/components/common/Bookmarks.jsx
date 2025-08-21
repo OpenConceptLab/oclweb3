@@ -16,9 +16,8 @@ const Bookmarks = ({ bookmarks }) => {
       </Typography>
       <div className='col-xs-12 padding-0' style={{width: '100%'}}>
         {
-          map(bookmarks, (bookmark, i) => (
-            <Bookmark
-              key={bookmark.id} bookmark={bookmark} isLast={i === (bookmarks.length - 1)} />
+          map(bookmarks, bookmark => (
+            <Bookmark key={bookmark.id} bookmark={bookmark} />
           ))
         }
       </div>
