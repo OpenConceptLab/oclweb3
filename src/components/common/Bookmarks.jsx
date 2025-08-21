@@ -14,7 +14,7 @@ const Bookmarks = ({ bookmarks }) => {
         <PinIcon sx={{mr: 1, color: 'surface.contrastText', transform: 'rotate(45deg)'}} />
         {t('bookmarks.pinned_repos')}
       </Typography>
-      <div className='col-xs-12 padding-0' style={{width: '100%', display: 'flex', overflow: 'auto'}}>
+      <div className='col-xs-12 padding-0' style={{width: '100%'}}>
         {
           map(bookmarks, (bookmark, i) => (
             <Bookmark

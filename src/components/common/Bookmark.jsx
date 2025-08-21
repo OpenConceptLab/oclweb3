@@ -38,9 +38,9 @@ const Bookmark = ({ bookmark, isLast }) => {
   }
 
   return (
-    <Card className='col-xs-4 padding-0' sx={{minWidth: '300px', backgroundColor: 'surface.main', mr: isLast ? 0 : 1, padding: 0, height: '97px', boxShadow: 'none', borderBottom: '1px solid', borderColor: 'surface.nv80', borderRadius: 0, display: 'flex', alignItems: 'center', cursor: 'pointer'}} onClick={onClick}>
+    <Card className='col-xs-3 padding-0' sx={{minWidth: '250px', backgroundColor: 'surface.main', margin: '4px', padding: 0, height: '97px', boxShadow: 'none', borderBottom: '1px solid', borderColor: 'surface.nv80', borderRadius: 0, display: 'flex', alignItems: 'center', cursor: 'pointer'}} onClick={onClick}>
       <CardHeader
-        sx={{padding: '8px 16px', paddingBottom: '8px !important', cursor: 'pointer'}}
+        sx={{padding: '4px 8px', cursor: 'pointer', '.MuiCardHeader-avatar': {marginRight: '8px'}}}
         avatar={getIcon(bookmark)}
         title={<Title bookmark={bookmark} />}
         subheader={
