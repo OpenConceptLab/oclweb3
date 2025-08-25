@@ -90,7 +90,7 @@ const RepoHome = () => {
         const releasedVersions = filter(_versions, {released: true})
         let version = orderBy(releasedVersions, 'created_on', ['desc'])[0] || orderBy(_versions, 'created_on', ['desc'])[0]
         if((version?.version_url || version?.url) != (repo?.version_url || repo?.url))
-          onVersionChange(version)
+          onVersionChange(version, false)
       }
     })
   }
@@ -106,8 +106,11 @@ const RepoHome = () => {
     fetchVersions()
   }, [location.pathname])
 
-  const onVersionChange = version => {
-    history.push(version.version_url + tab)
+  const onVersionChange = (version, reload=true) => {
+    let url = version.version_url
+    if(reload && version?.version === 'HEAD')
+      url += 'HEAD/'
+    history.push(url + tab)
   }
 
   const onTabChange = (event, newTab) => {
@@ -234,6 +237,7 @@ const RepoHome = () => {
                       filtersHeight='calc(100vh - 300px)'
                       resultContainerStyle={{height: 'calc(100vh - 400px)', overflow: 'auto'}}
                       containerStyle={{padding: 0}}
+                      properties={(!tab || tab === 'concepts') ? repo?.meta?.display?.concept_summary_properties : []}
                     />
                 }
                 {

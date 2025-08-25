@@ -111,6 +111,7 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
                 public_access: {label: t('common.access_level')},
                 properties: {label: t('repo.properties'), type: 'table'},
                 filters: {label: t('repo.filters'), type: 'table'},
+                meta: {label: t('repo.meta'), type: 'json'},
                 identifier: {label: t('repo.identifier'), type: 'json'},
                 contact: {label: t('repo.contact'), type: 'json'},
                 jurisdiction: {label: t('repo.jurisdiction'), type: 'json'},

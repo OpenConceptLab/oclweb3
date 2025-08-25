@@ -20,8 +20,8 @@ const getLocale = (concept, synonym) => {
 
 export const ALL_COLUMNS = {
   concepts: [
-    {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id_lowercase', className: 'searchable'},
-    {id: 'name', labelKey: 'concept.display_name', value: 'display_name', sortOn: '_name', className: 'searchable', sortBy: 'asc', renderer: item => (
+    {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id_lowercase', className: 'searchable', permanent: true},
+    {id: 'name', labelKey: 'concept.display_name', value: 'display_name', sortOn: '_name', className: 'searchable', sortBy: 'asc', permanent: true, renderer: item => (
       <span>
         <React.Fragment>
           {item.retired && <Retired style={{marginRight: '8px'}}/>} {item.display_name}

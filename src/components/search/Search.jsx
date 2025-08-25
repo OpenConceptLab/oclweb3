@@ -396,6 +396,7 @@ const Search = props => {
                   resultContainerStyle={props.resultContainerStyle}
                   resultSize={props.resultSize}
                   excludedColumns={props.excludedColumns}
+                  properties={props.properties}
                 />
               </div>
             </div>

@@ -10,7 +10,7 @@ import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { visuallyHidden } from '@mui/utils';
-import { filter, reject, get } from 'lodash'
+import { filter, reject, get, sortBy, without, startCase, find, keys, map } from 'lodash'
 import { SECONDARY_COLORS } from '../../common/colors';
 import { ALL_COLUMNS } from './ResultConstants';
 
@@ -38,36 +38,46 @@ const EnhancedTableHead = props => {
               />
             </TableCell>
         }
-        {columns.map((headCell) => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.align || 'left'}
-            padding='normal'
-            sortDirection={orderBy === headCell.id ? order : false}
-            sx={{background: 'inherit', ...headCell.sx}}
-          >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : 'asc'}
-              onClick={headCell?.sortable === false ? undefined : createSortHandler(headCell.id)}
-            >
-              <b>{t(headCell.labelKey)}</b>
-              {
-                orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
-                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                </Box>
-                ) : null
-              }
-            </TableSortLabel>
-          </TableCell>
-        ))}
+        {
+          map(columns, (headCell, idx) => {
+            let label = '';
+            if(headCell.isProperty)
+              label += `${t('repo.property')}: `
+            if(headCell.label)
+              label += headCell.label || ''
+            else if(headCell.labelKey)
+              label += t(headCell.labelKey)
+            return (
+              <TableCell
+                key={idx}
+                align={headCell.align || 'left'}
+                padding='normal'
+                sortDirection={orderBy === headCell.id ? order : false}
+                sx={{background: 'inherit', ...headCell.sx}}
+              >
+                <TableSortLabel
+                  active={orderBy === headCell.id}
+                  direction={orderBy === headCell.id ? order : 'asc'}
+                  onClick={headCell?.sortable === false ? undefined : createSortHandler(headCell.id)}
+                >
+                  <b>{label}</b>
+                  {
+                    orderBy === headCell.id ? (
+                      <Box component="span" sx={visuallyHidden}>
+                        {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                      </Box>
+                    ) : null
+                  }
+                </TableSortLabel>
+              </TableCell>
+            )
+          })}
       </TableRow>
     </TableHead>
   );
 }
 
-const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns, extraColumns}) => {
+const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns, extraColumns, properties}) => {
   const rows = results?.results || []
   const getValue = (row, column) => {
     let val = get(row, column.value)
@@ -78,6 +88,11 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
     return val
   }
 
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    onOrderByChange(property, isAsc ? 'desc' : 'asc')
+  };
+
   let columns = filter(
     ALL_COLUMNS[resource] || [],
     column => nested ? column.nested !== false : column.global !== false
@@ -87,10 +102,41 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
 
   columns = excludedColumns?.length ? reject(columns, column => excludedColumns?.includes(column.id)) : columns
 
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    onOrderByChange(property, isAsc ? 'desc' : 'asc')
-  };
+  if(properties?.length) {
+    const variableColumnIds = columns.map(col => col.id)
+    let customProperties = reject(properties, property => variableColumnIds.includes(property))
+    customProperties.forEach(property => {
+      columns.push({
+        id: property,
+        label: startCase(property),
+        sortable: false,
+        className: 'searchable',
+        renderer: item => {
+          let prop = find(item.property, {code: property})
+          if(prop) {
+            let k = get(without(keys(prop), 'code'), '0')
+            return get(prop, k)
+          }
+          return undefined
+        }
+      })
+    })
+
+    columns = sortBy(columns, column => {
+      const idx = properties.indexOf(column.id);
+      if(idx === -1)
+        return properties.length
+      column.isProperty = true
+      return idx
+    });
+    columns = [...filter(columns, {permanent: true}), ...reject(columns, {permanent: true})]
+  } else {
+    columns = columns.map(column => {
+      column.isProperty = false
+      return column
+    })
+  }
+
 
   return (
     <TableContainer style={style || {height: 'calc(100vh - 275px)'}} className={className}>
