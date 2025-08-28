@@ -58,7 +58,7 @@ const EnhancedTableHead = props => {
                 <TableSortLabel
                   active={orderBy === headCell.id}
                   direction={orderBy === headCell.id ? order : 'asc'}
-                  onClick={headCell?.sortable === false ? undefined : createSortHandler(headCell.id)}
+                  onClick={headCell?.sortable === false ? undefined : createSortHandler(headCell.sortBy ? headCell.sortBy : headCell.id)}
                 >
                   <b>{label}</b>
                   {
@@ -77,7 +77,7 @@ const EnhancedTableHead = props => {
   );
 }
 
-const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns, extraColumns, properties}) => {
+const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns, extraColumns, properties, propertyFilters}) => {
   const rows = results?.results || []
   const getValue = (row, column) => {
     let val = get(row, column.value)
@@ -109,8 +109,9 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
       columns.push({
         id: property,
         label: startCase(property),
-        sortable: false,
         className: 'searchable',
+        sortable: Boolean(find(propertyFilters, {code: property})),
+        sortBy: `properties.${property}.keyword`,
         renderer: item => {
           let prop = find(item.property, {code: property})
           if(prop) {

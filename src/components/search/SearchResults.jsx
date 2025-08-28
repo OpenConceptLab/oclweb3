@@ -196,7 +196,8 @@ const SearchResults = props => {
     size: props.resultSize,
     excludedColumns: props.excludedColumns,
     extraColumns: props.extraColumns,
-    properties: props.properties
+    properties: props.properties,
+    propertyFilters: props.propertyFilters
   }
   const noCardDisplay = props.resource !== 'concepts' || props.noCardDisplay
 

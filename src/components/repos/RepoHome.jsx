@@ -238,6 +238,7 @@ const RepoHome = () => {
                       resultContainerStyle={{height: 'calc(100vh - 400px)', overflow: 'auto'}}
                       containerStyle={{padding: 0}}
                       properties={(!tab || tab === 'concepts') ? repo?.meta?.display?.concept_summary_properties : []}
+                      propertyFilters={(!tab || tab === 'concepts') ? repo?.filters : []}
                     />
                 }
                 {
