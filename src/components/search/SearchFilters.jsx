@@ -1,8 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {omit, omitBy, isEmpty, isObject, has, map, startCase, includes, get, without, forEach, flatten, values, pickBy} from 'lodash';
+import {omit, omitBy, isEmpty, isObject, has, map, startCase, includes, get, without, forEach, flatten, values, pickBy, isEqual} from 'lodash';
 import InfoIcon from '@mui/icons-material/InfoOutlined';
 import Button from '@mui/material/Button';
+import Badge from '@mui/material/Badge';
 import Tooltip from '@mui/material/Tooltip';
 import ClearIcon from '@mui/icons-material/Clear';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
@@ -67,17 +68,21 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
 
 
   const formattedName = (field, name) => {
+    let label;
     if(includes(['locale', 'version', 'source_version', 'nameTypes', 'expansion'], field))
-      return name
-    if(includes(['owner', 'source', 'collection', 'collection_membership'], field))
-      return name.replaceAll('_', '-').toUpperCase()
-    if(name) {
+      label = name
+    else if(includes(['owner', 'source', 'collection', 'collection_membership'], field))
+      label = name.replaceAll('_', '-').toUpperCase()
+    else if(name) {
       name = name.trim()
       if(name === 'n/a')
-        return name.toUpperCase()
-
-      return get(filterDefinitions, name)?.label || startCase(name)
+        label = name.toUpperCase()
+      else
+        label = get(filterDefinitions, name)?.label || startCase(name)
     }
+    if(isUnApplied(field, [name]))
+      label += '*'
+    return label
   }
 
   const formattedListSubheader = field => {
@@ -105,7 +110,6 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
       newApplied = omit(newApplied, field)
     setCount(newCount)
     setApplied(newApplied)
-    onChange(newApplied)
   };
 
   const onClear = () => {
@@ -114,7 +118,12 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     onChange({})
   }
 
+  const onApply = () => {
+    onChange(applied)
+  }
+
   const isApplied = (field, value) => Boolean(get(applied[field], value[0]))
+  const isUnApplied = (field, value) => isApplied(field, value) && !Boolean(get(appliedFilters[field], value[0]))
 
   const getClearButtonText = () => {
     let text = t('common.clear')
@@ -141,15 +150,22 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
       setExpanded([...expanded, field])
   }
 
+  const unapplied = (!isEmpty(applied) || !isEmpty(appliedFilters)) && !isEqual(applied, appliedFilters)
+
   return (
     <div className='col-xs-12 padding-0'>
-      <div className='col-xs-12' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 2, padding: '14px 0 0 0'}}>
+      <div className='col-xs-12' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 2, padding: '0px'}}>
         <span>
-          <b>{t('search.filters')}</b>
+          <Badge badgeContent={count} color='primary' sx={{'.MuiBadge-badge': {top: '10px', left: '36px'}}}>
+            <b>{t('search.filters')}</b>
+          </Badge>
         </span>
         <span>
-          <Button variant='text' startIcon={<ClearIcon style={{color: 'inherit'}} fontSize='inherit' />} style={{textTransform: 'none'}} onClick={onClear} disabled={!count}>
-            {getClearButtonText()}
+            <Button variant='text' color='primary' style={{textTransform: 'none'}} onClick={onApply} disabled={!unapplied}>
+              {t('common.apply')}
+            </Button>
+          <Button variant='text' style={{textTransform: 'none'}} onClick={onClear} disabled={!count} color='error'>
+            {t('common.clear')}
           </Button>
         </span>
       </div>
