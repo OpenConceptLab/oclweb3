@@ -190,6 +190,13 @@ const RepoHome = () => {
     })
   }
 
+  const onSaveAsDefaultFilters = appliedFilters => {
+    let meta = {...repo?.meta, display: {...repo?.meta?.display, default_filter: appliedFilters}}
+    APIService.new().overrideURL(repo.version_url || repo.url).patch({meta: meta}).then(() => {
+        setAlert({severity: 'success', message: t('common.success_update')})
+    })
+  }
+
   const isConceptURL = tab === 'concepts'
   const isMappingURL = tab === 'mappings'
   const getConceptURLFromMainURL = () => (isConceptURL && params.resource) ? getURL() + 'concepts/' + params.resource + '/' : false
@@ -232,6 +239,8 @@ const RepoHome = () => {
                       defaultFiltersOpen={false}
                       nested
                       noTabs
+                      onSaveAsDefaultFilters={onSaveAsDefaultFilters}
+                      repoDefaultFilters={(!tab || tab === 'concepts') ? repo?.meta?.display?.default_filter : []}
                       onShowItem={onShowItem}
                       showItem={showItem}
                       filtersHeight='calc(100vh - 300px)'

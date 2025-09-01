@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {omit, omitBy, isEmpty, isObject, has, map, startCase, includes, get, without, forEach, flatten, values, pickBy, isEqual} from 'lodash';
+import {omit, omitBy, isEmpty, isObject, has, map, startCase, includes, get, without, forEach, flatten, values, pickBy, isEqual, orderBy, filter, reject, cloneDeep} from 'lodash';
 import InfoIcon from '@mui/icons-material/InfoOutlined';
 import Button from '@mui/material/Button';
 import Badge from '@mui/material/Badge';
@@ -15,10 +15,11 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Checkbox from '@mui/material/Checkbox';
 import Divider from '@mui/material/Divider';
+import CircularProgress from '@mui/material/CircularProgress';
 import { FACET_ORDER } from './ResultConstants';
 
 
-const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions}) => {
+const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions, nested, onSaveAsDefaultFilters, loading}) => {
   const { t } = useTranslation()
   const [applied, setApplied] = React.useState({});
   const [count, setCount] = React.useState(0);
@@ -78,8 +79,10 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
       if(name === 'n/a')
         label = name.toUpperCase()
       else
-        label = get(filterDefinitions, name)?.label || startCase(name)
+        label = get(filterDefinitions, name)?.label || name
     }
+    if(!label)
+      label = 'None'
     if(isUnApplied(field, [name]))
       label += '*'
     return label
@@ -95,7 +98,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
 
   const handleToggle = (field, value) => () => {
     const checked = !isApplied(field, value)
-    let newApplied = {...applied}
+    let newApplied = {...cloneDeep(applied)}
     let newCount = count
     if(checked) {
       newApplied[field] = newApplied[field] || {}
@@ -115,6 +118,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   const onClear = () => {
     setApplied({})
     setCount(0)
+    onSaveAsDefaultFilters({})
     onChange({})
   }
 
@@ -138,9 +142,13 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   }, [filters])
 
   const getFieldFilters = (field, fieldFilters) => {
+    let ordered = [
+      ...filter(fieldFilters, _filter => get(appliedFilters, `${field}.${_filter[0]}`)),
+      ...reject(fieldFilters, _filter => get(appliedFilters, `${field}.${_filter[0]}`)),
+    ]
     if(expanded.includes(field))
-      return fieldFilters
-    return fieldFilters.slice(0, 4)
+      return ordered
+    return ordered.slice(0, 4)
   }
 
   const toggleExpanded = field => {
@@ -152,10 +160,17 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
 
   const unapplied = (!isEmpty(applied) || !isEmpty(appliedFilters)) && !isEqual(applied, appliedFilters)
 
+  const onSetDefaultFilters = () => {
+    if(unapplied)
+      onChange(applied)
+    onSaveAsDefaultFilters(applied)
+  }
+
   return (
     <div className='col-xs-12 padding-0'>
-      <div className='col-xs-12' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 2, padding: '0px'}}>
-        <span>
+      <div className='col-xs-12' style={{zIndex: 2, padding: '0px'}}>
+        <div className='col-xs-12' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0px'}}>
+          <span>
           <Badge badgeContent={count} color='primary' sx={{'.MuiBadge-badge': {top: '10px', left: '36px'}}}>
             <b>{t('search.filters')}</b>
           </Badge>
@@ -168,9 +183,24 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
             {t('common.clear')}
           </Button>
         </span>
+        </div>
+        {
+          nested && onSaveAsDefaultFilters && !isEmpty(applied) &&
+            <div className='col-xs-12 padding-0' style={{textAlign: 'right'}}>
+              <Button size='small' sx={{textTransform: 'none'}} onClick={onSetDefaultFilters}>
+                {t('search.save_default_filters')}
+              </Button>
+            </div>
+        }
       </div>
       {
-        map(uiFilters, (fieldFilters, field) => {
+        loading &&
+          <div className='col-xs-12' style={{textAlign: 'center', padding: '16px'}}>
+        <CircularProgress />
+        </div>
+      }
+      {
+        !loading && map(uiFilters, (fieldFilters, field) => {
           const shouldShowExpand = fieldFilters.length > 4
           const isExpanded = expanded.includes(field)
           return (
@@ -212,7 +242,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                           id={labelId}
                           primary={
                             <span style={{display: 'flex', alignItems: 'center'}}>
-                              {formattedName(field, value[0]) || 'None'}
+                              {formattedName(field, value[0])}
                             {
                               get(filterDefinitions, value[0])?.tooltip &&
                                 <Tooltip title={filterDefinitions[value[0]].tooltip}>

@@ -68,6 +68,10 @@ class APIService {
     return this.sendRequest('PUT', data, token, headers, query, raw);
   }
 
+  patch(data, token, headers = {}, query, raw=false) {
+    return this.sendRequest('PATCH', data, token, headers, query, raw);
+  }
+
   delete(data, token, headers = {}, query, raw=false) {
     return this.sendRequest('DELETE', data, token, headers, query, raw);
   }

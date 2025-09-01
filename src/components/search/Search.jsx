@@ -28,6 +28,7 @@ const Search = props => {
   const history = useHistory();
   const location = useLocation();
   const [loading, setLoading] = React.useState(true)
+  const [loadingFacets, setLoadingFacets] = React.useState(true)
   const [openFilters, setOpenFilters] = React.useState(has(props, 'defaultFiltersOpen') ? props.defaultFiltersOpen : true)
   const [input, setInput] = React.useState('');
   const [page, setPage] = React.useState(0);
@@ -81,7 +82,7 @@ const Search = props => {
     if(page && page > 1)
       url += `&page=${page}`
     if(!isEmpty(filters)){
-      url += `&filters=${JSON.stringify(omit(filters, 'includeRetired'))}`
+      url += `&filters=${encodeURIComponent(JSON.stringify(omit(filters, 'includeRetired')))}`
     }
     if(sortDesc)
       url += `&sortDesc=${sortDesc}`
@@ -99,9 +100,13 @@ const Search = props => {
   const getFiltersFromQueryParams = () => {
     const queryParams = new URLSearchParams(window.location.hash.split('?')[1])
     let _filters = queryParams.get('filters') || false
+    if(_filters)
+      _filters = JSON.parse(_filters)
+    else if (props.repoDefaultFilters)
+      _filters = props.repoDefaultFilters || false
     if(_filters) {
       try {
-        _filters = getAppliedFacetFromQueryParam(JSON.parse(_filters))
+        _filters = getAppliedFacetFromQueryParam(_filters)
       } catch {
         _filters = {}
       }
@@ -235,7 +240,7 @@ const Search = props => {
       }
       let total = parseInt(response?.headers?.num_found)
       const summaryCount = get(props.summary, `active_${__resource}`) || get(props.summary, `${__resource}.active`) || 0
-      if(!params.q && props?.summary && props.nested && total < summaryCount && keys(params).every(el => ['includeSearchMeta', 'q', 'limit', 'page', 'pageSize', 'offset', 'sortAsc', 'sortDesc', 'display', 'type'].includes(el)))
+      if(!params.q && props?.summary && props.nested && (total < summaryCount && total === 10000) && keys(params).every(el => ['includeSearchMeta', 'q', 'limit', 'page', 'pageSize', 'offset', 'sortAsc', 'sortDesc', 'display', 'type'].includes(el)))
         total = summaryCount
       const resourceResult = {total: total, pageSize: max([parseInt(response?.headers?.num_returned), params?.limit]), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || [], facets: result[__resource]?.facets || {}}
       setResult({[__resource]: resourceResult})
@@ -246,9 +251,11 @@ const Search = props => {
   }
 
   const fetchFacets = (params, otherResults, _resource=undefined) => {
+    setLoadingFacets(true)
     const __resource = _resource || resource
     APIService.new().overrideURL(getURL(__resource)).get(null, null, {...params, facetsOnly: true}).then(response => {
       setResult({[__resource]: {...otherResults, facets: prepareFacets(response?.data?.facets?.fields || {}, __resource)}})
+      setLoadingFacets(false)
     })
   }
 
@@ -364,11 +371,14 @@ const Search = props => {
           <div className='col-xs-12 padding-0' style={{height: '100%'}}>
             <div className='col-xs-3 split' style={{width: showFilters ? `${FILTERS_WIDTH}px` : 0, padding: showFilters ? '0 8px' : 0, height: props.filtersHeight || 'calc(100vh - 175px)', overflow: 'auto', ...(showFilters ? {borderRight: '0.3px solid', borderColor: COLORS.surface.n90} : {})}}>
               <SearchFilters
+                loading={loadingFacets}
                 resource={resource}
                 filters={result[resource]?.facets || {}}
                 onChange={onFiltersChange}
                 bgColor={searchBgColor}
                 appliedFilters={filters}
+                nested={props.nested}
+                onSaveAsDefaultFilters={filters => props.onSaveAsDefaultFilters(getFacetQueryParam(filters))}
               />
             </div>
             <div className='col-xs-9 split' style={{width: getSearchResultsWidth(), paddingRight: 0, paddingLeft: 0, float: 'right', height: '100%'}}>
