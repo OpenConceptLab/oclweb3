@@ -18,7 +18,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { FACET_ORDER } from './ResultConstants';
 
 
-const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions, nested, onSaveAsDefaultFilters, loading}) => {
+const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions, nested, onSaveAsDefaultFilters, loading, repoDefaultFilters}) => {
   const { t } = useTranslation()
   const [applied, setApplied] = React.useState({});
   const [count, setCount] = React.useState(0);
@@ -127,6 +127,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
 
   const isApplied = (field, value) => Boolean(get(applied[field], value[0]))
   const isUnApplied = (field, value) => isApplied(field, value) && !get(appliedFilters[field], value[0])
+  const canResetToDefaultFilters = (!isEqual(applied, repoDefaultFilters) || !isEqual(appliedFilters, repoDefaultFilters)) && !isEmpty(repoDefaultFilters)
 
   React.useEffect(() => {
     setCount(flatten(values(appliedFilters).map(v => values(v))).length)
@@ -158,6 +159,11 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     onSaveAsDefaultFilters(applied)
   }
 
+  const onResetDefaultFilters = () => {
+    setApplied(repoDefaultFilters)
+    onChange(repoDefaultFilters)
+  }
+
   return (
     <div className='col-xs-12 padding-0'>
       <div className='col-xs-12' style={{zIndex: 2, padding: '0px'}}>
@@ -177,10 +183,13 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
         </span>
         </div>
         {
-          nested && onSaveAsDefaultFilters && !isEmpty(applied) &&
+          nested && onSaveAsDefaultFilters &&
             <div className='col-xs-12 padding-0' style={{textAlign: 'right'}}>
-              <Button size='small' sx={{textTransform: 'none'}} onClick={onSetDefaultFilters}>
+              <Button size='small' sx={{textTransform: 'none'}} onClick={onSetDefaultFilters} disabled={isEmpty(applied) || isEqual(applied, repoDefaultFilters)}>
                 {t('search.save_default_filters')}
+              </Button>
+              <Button size='small' color='error' sx={{textTransform: 'none'}} onClick={onResetDefaultFilters} disabled={!canResetToDefaultFilters}>
+                {t('common.reset')}
               </Button>
             </div>
         }

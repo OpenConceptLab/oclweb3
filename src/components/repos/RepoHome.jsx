@@ -193,7 +193,8 @@ const RepoHome = () => {
   const onSaveAsDefaultFilters = appliedFilters => {
     let meta = {...repo?.meta, display: {...repo?.meta?.display, default_filter: appliedFilters}}
     APIService.new().overrideURL(repo.version_url || repo.url).patch({meta: meta}).then(() => {
-        setAlert({severity: 'success', message: t('common.success_update')})
+      setRepo({...repo, meta: meta})
+      setAlert({severity: 'success', message: t('common.success_update')})
     })
   }
 
@@ -240,7 +241,7 @@ const RepoHome = () => {
                       nested
                       noTabs
                       onSaveAsDefaultFilters={onSaveAsDefaultFilters}
-                      repoDefaultFilters={(!tab || tab === 'concepts') ? repo?.meta?.display?.default_filter : []}
+                      repoDefaultFilters={(!tab || tab === 'concepts') ? repo?.meta?.display?.default_filter : {}}
                       onShowItem={onShowItem}
                       showItem={showItem}
                       filtersHeight='calc(100vh - 300px)'
