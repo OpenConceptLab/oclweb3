@@ -6,6 +6,7 @@ import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
 import Chip from '@mui/material/Chip';
 import map from 'lodash/map'
+import isBoolean from 'lodash/isBoolean'
 
 const ConceptProperties = ({ concept }) => {
   const { t } = useTranslation()
@@ -62,7 +63,7 @@ const ConceptProperties = ({ concept }) => {
                 />
               </TableCell>
             <TableCell sx={{ fontSize: '0.875rem' }}>
-                {value}
+              {isBoolean(value) ? value.toString() : value}
               </TableCell>
             </TableRow>
           ))
