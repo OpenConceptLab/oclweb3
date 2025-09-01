@@ -15,6 +15,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Checkbox from '@mui/material/Checkbox';
 import Divider from '@mui/material/Divider';
 import CircularProgress from '@mui/material/CircularProgress';
+import { URIToParentParams } from '../../common/utils'
 import { FACET_ORDER } from './ResultConstants';
 
 
@@ -73,6 +74,10 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
       label = name
     else if(includes(['owner', 'source', 'collection', 'collection_membership'], field))
       label = name.replaceAll('_', '-').toUpperCase()
+    else if (field === 'targetRepo') {
+      const params = URIToParentParams(name)
+      return `${params.owner}:${params.repo}`
+    }
     else if(name) {
       name = name.trim()
       if(name === 'n/a')
