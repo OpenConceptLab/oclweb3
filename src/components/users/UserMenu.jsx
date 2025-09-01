@@ -43,7 +43,7 @@ const UserMenu = ({ isOpen, onClose }) => {
             authenticated &&
               <React.Fragment>
                 <div className='col-xs-2 padding-0'>
-                  <UserProfileButton sx={{p: user.logo_url ? 0 : 1}} />
+                  <UserProfileButton sx={{p: user?.logo_url ? 0 : 1}} />
                 </div>
                 <div className='col-xs-9 padding-0'>
                   <div className='col-xs-12 padding-0'>
