@@ -1,11 +1,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {omit, omitBy, isEmpty, isObject, has, map, startCase, includes, get, without, forEach, flatten, values, pickBy, isEqual, orderBy, filter, reject, cloneDeep} from 'lodash';
+import {omit, omitBy, isEmpty, isObject, has, map, startCase, includes, get, without, forEach, flatten, values, pickBy, isEqual, filter, reject, cloneDeep} from 'lodash';
 import InfoIcon from '@mui/icons-material/InfoOutlined';
 import Button from '@mui/material/Button';
 import Badge from '@mui/material/Badge';
 import Tooltip from '@mui/material/Tooltip';
-import ClearIcon from '@mui/icons-material/Clear';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import UpIcon from '@mui/icons-material/ArrowDropUp';
 import List from '@mui/material/List';
@@ -127,14 +126,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   }
 
   const isApplied = (field, value) => Boolean(get(applied[field], value[0]))
-  const isUnApplied = (field, value) => isApplied(field, value) && !Boolean(get(appliedFilters[field], value[0]))
-
-  const getClearButtonText = () => {
-    let text = t('common.clear')
-    if(count)
-      text += ` ${count} ${t('search.filters').toLowerCase()}`
-    return text
-  }
+  const isUnApplied = (field, value) => isApplied(field, value) && !get(appliedFilters[field], value[0])
 
   React.useEffect(() => {
     setCount(flatten(values(appliedFilters).map(v => values(v))).length)

@@ -244,7 +244,8 @@
           "gzip",
           "tgz",
           "changelog",
-          "uid"
+          "uid",
+          "unapplied"
         ],
         "skipIfMatch": [
           "http://[^s]*",
