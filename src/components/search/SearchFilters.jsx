@@ -117,7 +117,8 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   const onClear = () => {
     setApplied({})
     setCount(0)
-    onSaveAsDefaultFilters({})
+    if(onSaveAsDefaultFilters)
+      onSaveAsDefaultFilters({})
     onChange({})
   }
 

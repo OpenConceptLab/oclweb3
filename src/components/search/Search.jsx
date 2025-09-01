@@ -378,7 +378,7 @@ const Search = props => {
                 bgColor={searchBgColor}
                 appliedFilters={filters}
                 nested={props.nested}
-                onSaveAsDefaultFilters={filters => props.onSaveAsDefaultFilters(getFacetQueryParam(filters))}
+                onSaveAsDefaultFilters={props.onSaveAsDefaultFilters ? filters => props.onSaveAsDefaultFilters(getFacetQueryParam(filters)) : false}
                 repoDefaultFilters={getAppliedFacetFromQueryParam(props.repoDefaultFilters || {})}
               />
             </div>
