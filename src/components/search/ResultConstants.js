@@ -87,7 +87,6 @@ export const HIGHLIGHT_ICON_WHITELISTED_FILEDS = {
 }
 
 export const FACET_ORDER = {
-  concepts: ['conceptClass', 'source', 'datatype', 'owner', 'locale', 'targetRepo', 'targetRepoMapType', 'nameTypes', 'ownerType', 'descriptionTypes', 'retired', 'collection_membership', 'updatedBy'],
   mappings: [
     'owner', 'ownerType', 'source', 'mapType',
     'fromConceptOwner', 'fromConceptOwnerType', 'fromConceptSource', 'fromConcept',
