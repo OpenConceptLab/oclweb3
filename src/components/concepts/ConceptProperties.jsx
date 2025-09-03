@@ -36,14 +36,14 @@ const ConceptProperties = ({ concept, repo }) => {
     <Table size='small'>
       <TableBody sx={{ '.MuiTableRow-root': {'&:last-child td': {border: 0, borderRadius: '10px'}} }}>
         {
-          map(definitions, (defintion, index) => {
+          map(definitions, (definition, index) => {
             return (
               <TableRow key={index}>
-                <TableCell style={{fontSize: '0.875rem', width: '150px', whiteSpace: defintion.custom ? 'pre': undefined}}>
-                  {defintion.label}
+                <TableCell style={{fontSize: '0.875rem', width: '150px', whiteSpace: definition.custom ? 'pre': undefined}}>
+                  {definition.label}
                 </TableCell>
                 <TableCell style={{fontSize: '0.875rem'}} className='searchable'>
-                  {defintion.value}
+                  {definition.value}
                 </TableCell>
               </TableRow>
             )
