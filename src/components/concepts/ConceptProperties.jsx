@@ -17,9 +17,8 @@ import compact from 'lodash/compact'
 
 const ConceptProperties = ({ concept, repo }) => {
   const { t } = useTranslation()
-  console.log(repo)
   const properties = repo?.meta?.display?.concept_summary_properties?.length > 0 ? repo?.meta?.display?.concept_summary_properties : ['concept_class', 'datatype']
-  let defintions = compact(properties.map(prop => {
+  let definitions = compact(properties.map(prop => {
     const isDirect = has(concept, prop)
     let isDefined = isDirect || has(concept, `extras.${prop}`)
     if(isDefined) {
@@ -37,7 +36,7 @@ const ConceptProperties = ({ concept, repo }) => {
     <Table size='small'>
       <TableBody sx={{ '.MuiTableRow-root': {'&:last-child td': {border: 0, borderRadius: '10px'}} }}>
         {
-          map(defintions, (defintion, index) => {
+          map(definitions, (defintion, index) => {
             return (
               <TableRow key={index}>
                 <TableCell style={{fontSize: '0.875rem', width: '150px', whiteSpace: defintion.custom ? 'pre': undefined}}>
