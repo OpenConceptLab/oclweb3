@@ -97,6 +97,8 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     if(field.startsWith('properties__')){
       const fields = field.split('__')
       return `Property: ${startCase(fields[1])}`
+    } else if (isFixedConceptField(field)) {
+      return `Property: ${startCase(field)}`
     }
     return startCase(field)
   }
@@ -171,6 +173,8 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     onChange(repoDefaultFilters)
   }
 
+  const isFixedConceptField = field => isConcept && ['conceptClass', 'datatype'].includes(field)
+
   return (
     <div className='col-xs-12 padding-0'>
       <div className='col-xs-12' style={{zIndex: 2, padding: '0px'}}>
@@ -211,7 +215,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
         !loading && map(uiFilters, (fieldFilters, field) => {
           const shouldShowExpand = fieldFilters.length > 4
           const isExpanded = expanded.includes(field)
-          const isProperty = field?.startsWith('properties__')
+          const isProperty = field?.startsWith('properties__') || isFixedConceptField(field)
           return (
             <div className='col-xs-12 padding-0' style={isProperty ? {border: `4px solid ${PRIMARY_COLORS['90']}`, borderTopWidth: 0, borderBottomWidth: 0} : {}} key={field}>
               <List

@@ -24,7 +24,7 @@ const ConceptDetails = ({ concept, repo, mappings, reverseMappings, loading, loa
             <Typography component='span' sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold'}}>
               {t('common.properties')}
             </Typography>
-            <ConceptProperties concept={concept} />
+            <ConceptProperties concept={concept} repo={repo} />
           </Paper> :
         <Skeleton variant="rounded" width='100%' height={120} sx={{borderRadius: '10px'}} />
 
