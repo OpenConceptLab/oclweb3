@@ -14,11 +14,16 @@ import sortBy from 'lodash/sortBy'
 import toPairs from 'lodash/toPairs'
 import isBoolean from 'lodash/isBoolean'
 import compact from 'lodash/compact'
+import indexOf from 'lodash/indexOf'
 
 const ConceptProperties = ({ concept, repo }) => {
   const { t } = useTranslation()
-  const properties = repo?.meta?.display?.concept_summary_properties?.length > 0 ? repo?.meta?.display?.concept_summary_properties : ['concept_class', 'datatype']
-  let definitions = compact(properties.map(prop => {
+  const summaryProperties = repo?.meta?.display?.concept_summary_properties?.length > 0 ? repo?.meta?.display?.concept_summary_properties : ['concept_class', 'datatype']
+  const sortedProperties = repo?.properties?.length > 0 ? map(sortBy((repo?.properties || []), prop => {
+    const idx = indexOf(summaryProperties, prop?.code);
+    return idx === -1 ? [1, prop.code] : [0, idx];
+  }), 'code') : summaryProperties;
+  let definitions = compact(sortedProperties.map(prop => {
     const isDirect = has(concept, prop)
     let isDefined = isDirect || has(concept, `extras.${prop}`)
     if(isDefined) {
@@ -30,7 +35,7 @@ const ConceptProperties = ({ concept, repo }) => {
       return {label: isDirect ? t(`concept.${prop}`) : prop, value: isDirect ? get(concept, prop) : customValue}
     }
   }))
-  let extras = omitBy(concept?.extras, (value, key) => properties.includes(key)) || {}
+  let extras = omitBy(concept?.extras, (value, key) => sortedProperties.includes(key)) || {}
   extras = fromPairs(sortBy(toPairs(extras), 0))
   return (
     <Table size='small'>
