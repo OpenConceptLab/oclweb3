@@ -7,33 +7,31 @@ import TableCell from '@mui/material/TableCell'
 import Chip from '@mui/material/Chip';
 import map from 'lodash/map'
 import get from 'lodash/get'
-import has from 'lodash/has'
 import omitBy from 'lodash/omitBy'
 import fromPairs from 'lodash/fromPairs'
 import sortBy from 'lodash/sortBy'
 import toPairs from 'lodash/toPairs'
 import isBoolean from 'lodash/isBoolean'
 import compact from 'lodash/compact'
-import indexOf from 'lodash/indexOf'
+import keys from 'lodash/keys'
+import find from 'lodash/find'
 
-const ConceptProperties = ({ concept, repo }) => {
+const ConceptProperties = ({ concept }) => {
   const { t } = useTranslation()
-  const summaryProperties = repo?.meta?.display?.concept_summary_properties?.length > 0 ? repo?.meta?.display?.concept_summary_properties : ['concept_class', 'datatype']
-  const sortedProperties = repo?.properties?.length > 0 ? map(sortBy((repo?.properties || []), prop => {
-    const idx = indexOf(summaryProperties, prop?.code);
-    return idx === -1 ? [1, prop.code] : [0, idx];
-  }), 'code') : summaryProperties;
+  const isPropertiesDefined = concept?.property?.length > 0
+  const sortedProperties = concept?.property?.length > 0 ? concept.property.map(prop => prop.code) : ['concept_class', 'datatype'];
   let definitions = compact(sortedProperties.map(prop => {
-    const isDirect = has(concept, prop)
-    let isDefined = isDirect || has(concept, `extras.${prop}`)
-    if(isDefined) {
-      let customValue = get(concept, `extras.${prop}`)
-
-      if(!isDirect && isBoolean(customValue))
-        customValue = customValue.toString()
-
-      return {label: isDirect ? t(`concept.${prop}`) : prop, value: isDirect ? get(concept, prop) : customValue}
+    if(isPropertiesDefined) {
+      let property = find(concept.property, {code: prop})
+      if(property?.code) {
+        let label = prop
+        if(['concept_class', 'datatype'].includes(prop)) {
+          label = t(`concept.${prop}`)
+        }
+        return {label: label, value: property[keys(property).filter(key => key!== 'code')[0]]}
+      }
     }
+    return {label: t(`concept.${prop}`), value: get(concept, prop)}
   }))
   let extras = omitBy(concept?.extras, (value, key) => sortedProperties.includes(key)) || {}
   extras = fromPairs(sortBy(toPairs(extras), 0))
