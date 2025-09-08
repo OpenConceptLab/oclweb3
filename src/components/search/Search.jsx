@@ -380,6 +380,7 @@ const Search = props => {
                 nested={props.nested}
                 onSaveAsDefaultFilters={props.onSaveAsDefaultFilters ? filters => props.onSaveAsDefaultFilters(getFacetQueryParam(filters)) : false}
                 repoDefaultFilters={getAppliedFacetFromQueryParam(props.repoDefaultFilters || {})}
+                propertyFilters={props.propertyFilters}
               />
             </div>
             <div className='col-xs-9 split' style={{width: getSearchResultsWidth(), paddingRight: 0, paddingLeft: 0, float: 'right', height: '100%'}}>

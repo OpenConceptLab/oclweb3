@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {omit, omitBy, isEmpty, isObject, has, map, startCase, includes, get, without, forEach, flatten, values, pickBy, isEqual, filter, reject, cloneDeep} from 'lodash';
+import {omit, omitBy, isEmpty, isObject, has, map, startCase, includes, get, without, forEach, flatten, values, pickBy, isEqual, filter, reject, cloneDeep, keys} from 'lodash';
 import InfoIcon from '@mui/icons-material/InfoOutlined';
 import Button from '@mui/material/Button';
 import Badge from '@mui/material/Badge';
@@ -20,7 +20,7 @@ import { PRIMARY_COLORS } from '../../common/colors'
 import { FACET_ORDER } from './ResultConstants';
 
 
-const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions, nested, onSaveAsDefaultFilters, loading, repoDefaultFilters}) => {
+const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions, nested, onSaveAsDefaultFilters, loading, repoDefaultFilters, propertyFilters}) => {
   const { t } = useTranslation()
   const [applied, setApplied] = React.useState({});
   const [count, setCount] = React.useState(0);
@@ -52,12 +52,19 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   if(has(uiFilters, 'experimental'))
     uiFilters.experimental = [[(uiFilters.experimental[0][0] === 1).toString(), uiFilters.experimental[0][1], uiFilters.experimental[0][2]]]
 
-  if(!isEmpty(filterOrder) && !isEmpty(uiFilters)) {
+  if((!isEmpty(filterOrder) || !isEmpty(propertyFilters)) && !isEmpty(uiFilters)) {
     const orderedUIFilters = {}
-    forEach(filterOrder, attr => {
+    let ordered = filterOrder?.length ? filterOrder : propertyFilters?.map(prop => prop?.code)
+    forEach(ordered, attr => {
       if(has(uiFilters, attr))
         orderedUIFilters[attr] = uiFilters[attr]
     })
+    if(isConcept) {
+      let orderedKeys = keys(uiFilters).sort()
+      orderedKeys.forEach(key => {
+        orderedUIFilters[key] = uiFilters[key]
+      })
+    }
     uiFilters = orderedUIFilters
   }
   if(isConcept){
@@ -67,7 +74,6 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
       uiFilters = {...properties, ...uiFilters}
     }
   }
-
 
   const formattedName = (field, name) => {
     let label;
