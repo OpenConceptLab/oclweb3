@@ -15,7 +15,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Checkbox from '@mui/material/Checkbox';
 import Divider from '@mui/material/Divider';
 import CircularProgress from '@mui/material/CircularProgress';
-import { URIToParentParams } from '../../common/utils'
+import { URIToParentParams, currentUserHasAccess } from '../../common/utils'
 import { PRIMARY_COLORS } from '../../common/colors'
 import { FACET_ORDER } from './ResultConstants';
 
@@ -194,7 +194,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
         </span>
         </div>
         {
-          nested && onSaveAsDefaultFilters &&
+          nested && onSaveAsDefaultFilters && currentUserHasAccess() &&
             <div className='col-xs-12 padding-0' style={{textAlign: 'right'}}>
               <Button size='small' sx={{textTransform: 'none'}} onClick={onSetDefaultFilters} disabled={isEmpty(applied) || isEqual(applied, repoDefaultFilters)}>
                 {t('search.save_default_filters')}
