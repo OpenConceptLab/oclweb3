@@ -73,11 +73,11 @@ const MappingCells = ({mapping, isIndirect}) => {
               <ConceptIcon selected={isDefinedInOCL} sx={{width: '10px', height: '10px', marginRight: '12px'}} />
             </span>
           </Tooltip>
-          { mapping[conceptCodeAttr] }
+          { has(mapping, conceptCodeAttr) ? mapping[conceptCodeAttr] : mapping?.id }
         </span>
       </TableCell>
       <TableCell>
-        { has(mapping, conceptCodeAttr) ? getConceptName(mapping, conceptCodeName) : mapping?.id }
+        { getConceptName(mapping, conceptCodeName) }
       </TableCell>
       <TableCell align='left'>
         {has(mapping, sourceAttr) ? get(mapping, sourceAttr) : URIToParentParams(mapping.url)?.repo}
