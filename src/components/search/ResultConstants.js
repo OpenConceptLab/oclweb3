@@ -56,8 +56,10 @@ export const ALL_COLUMNS = {
   ],
   orgs: [
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: '_mnemonic', className: 'searchable'},
-    {id: 'name', labelKey: 'common.name', value: 'name', sortOn: '_name', sortBy: 'asc', className: 'searchable'},
-    {id: 'createdOn', labelKey: 'common.created_on', value: 'created_on', formatter: formatDate, sortOn: 'created_on', sortable: false},
+    {id: 'name', labelKey: 'common.name', value: 'name', sortOn: '_name', className: 'searchable'},
+    {id: 'company', labelKey: 'common.company', value: 'company', className: 'searchable'},
+    {id: 'location', labelKey: 'common.location', value: 'location', className: 'searchable'},
+    {id: 'created_on', labelKey: 'common.created_on', value: 'created_on', formatter: formatDate, sortOn: 'created_on'},
   ],
   users: [
     {id: 'username', labelKey: 'user.username', value: 'username', sortOn: '_username', sortBy: 'asc', className: 'searchable'},
