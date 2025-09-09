@@ -17,7 +17,7 @@ import ButtonGroup from '@mui/material/ButtonGroup'
 import SelectedIcon from '@mui/icons-material/Done';
 import UpIcon from '@mui/icons-material/KeyboardArrowUp';
 import DownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { get, isEmpty, forEach, map, find, compact, flatten, values, filter, without } from 'lodash';
+import { get, isEmpty, forEach, map, find, compact, flatten, values, filter, without, has } from 'lodash';
 import ConceptIcon from './ConceptIcon'
 import { generateRandomString, dropVersion, URIToParentParams, toParentURI } from '../../common/utils'
 import TagCountLabel from '../common/TagCountLabel'
@@ -57,7 +57,7 @@ const MappingCells = ({mapping, isIndirect}) => {
     if(name) return name;
     return get(mapping, `${attr.split('_name')}.0.display_name`)
   }
-  const isDefinedInOCL = Boolean(mapping.cascade_target_concept_url)
+  const isDefinedInOCL = Boolean(mapping.cascade_target_concept_url || mapping.url)
   const getTitle = () => {
     return isDefinedInOCL ?
       (isIndirect ? t('mapping.from_concept_defined') : t('mapping.to_concept_defined')) :
@@ -77,10 +77,10 @@ const MappingCells = ({mapping, isIndirect}) => {
         </span>
       </TableCell>
       <TableCell>
-        { getConceptName(mapping, conceptCodeName) }
+        { has(mapping, conceptCodeAttr) ? getConceptName(mapping, conceptCodeName) : mapping?.id }
       </TableCell>
       <TableCell align='left'>
-        {get(mapping, sourceAttr)}
+        {has(mapping, sourceAttr) ? get(mapping, sourceAttr) : URIToParentParams(mapping.url)?.repo}
       </TableCell>
     </React.Fragment>
   )
