@@ -30,7 +30,7 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
       if(info.type === 'user')
         return <Link sx={{fontSize: '14px'}} label={value} href={`#/users/${value}/`} />
       if(info.type === 'json')
-        return <pre>{JSON.stringify(value, undefined, 2)}</pre>
+        return <pre style={{margin: 0}}>{JSON.stringify(value, undefined, 2)}</pre>
       if(info.type === 'table') {
         if(value?.length > 0) {
           let columns = uniq(flatten(value.map(val => keys(val))))
@@ -39,7 +39,7 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
                      <TableRow>
                        {
                          columns.map(
-                           col => <TableCell key={col} sx={{fontSize: '12px'}}><b>{col}</b></TableCell>
+                           col => <TableCell key={col} sx={{fontSize: '12px', verticalAlign: 'top'}}><b>{col}</b></TableCell>
                          )
                        }
                      </TableRow>
@@ -50,7 +50,7 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
                          <TableRow key={index}>
                            {
                              columns.map(col => (
-                               <TableCell key={col}>
+                               <TableCell key={col} sx={{verticalAlign: 'top'}}>
                                  <span style={{display: 'inline-block', maxWidth: '200px', wordBreak: 'break-all'}}>
                                    {isBoolean(val[col]) ? val[col].toString() : val[col] || null}
                                  </span>
@@ -104,7 +104,7 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
                     key={field}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   >
-                    <TableCell component="th" scope="row" sx={{fontSize: '12px', color: 'rgba(0, 0, 0, 0.7)'}}>
+                  <TableCell component="th" scope="row" sx={{fontSize: '12px', color: 'rgba(0, 0, 0, 0.7)', verticalAlign: 'top'}}>
                       <span style={{maxWidth: '125px', display: 'inline-block'}}>{info?.label}</span>
                     </TableCell>
                     <TableCell>{getValue(field, info)}</TableCell>
