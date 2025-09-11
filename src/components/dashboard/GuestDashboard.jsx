@@ -4,7 +4,6 @@ import Typography from '@mui/material/Typography'
 import APIService from '../../services/APIService'
 import DashboardEvents from './DashboardEvents';
 import EventsButtonGroup from './EventsButtonGroup';
-import LoaderDialog from '../common/LoaderDialog';
 import DashboardBanners from './DashboardBanners'
 import CommunityBlog from './CommunityBlog'
 import EmptyOverview from '../repos/RepoEmptyOverview'
@@ -60,7 +59,6 @@ const GuestDashboard = () => {
           </Typography>
           <EventsButtonGroup selected={scope} onClick={onScopeChange} />
         </div>
-        <LoaderDialog open={loading} />
         {
           ['all', 'highlights'].includes(scope) ?
             <DashboardEvents events={getScopeEvents()} sx={{marginTop: '16px'}} highlight isLoading={loading} />:
