@@ -15,7 +15,6 @@ import ConceptIcon from '../concepts/ConceptIcon';
 import ConceptHome from '../concepts/ConceptHome';
 import SearchResults from './SearchResults';
 import SearchFilters from './SearchFilters'
-import LoaderDialog from '../common/LoaderDialog';
 import { OperationsContext } from '../app/LayoutContext';
 
 const DEFAULT_LIMIT = 25;
