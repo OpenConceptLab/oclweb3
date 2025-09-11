@@ -354,7 +354,6 @@ const Search = props => {
 
   return (
     <div className='col-xs-12 padding-0'>
-      <LoaderDialog open={loading} message={t('search.loading')} />
       <div className={!props.nested && showItem?.id ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: '10px', height: '100%', ...(props.containerStyle || {})}}>
         {
           !props.noTabs &&
@@ -386,6 +385,7 @@ const Search = props => {
             <div className='col-xs-9 split' style={{width: getSearchResultsWidth(), paddingRight: 0, paddingLeft: 0, float: 'right', height: '100%'}}>
               <div className='col-xs-12 padding-0' style={{height: '100%'}}>
                 <SearchResults
+                  loading={loading}
                   noCardDisplay={props.noCardDisplay}
                   order={order}
                   orderBy={orderBy}

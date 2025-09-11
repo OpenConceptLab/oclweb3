@@ -9,8 +9,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Checkbox from '@mui/material/Checkbox';
+import Skeleton from '@mui/material/Skeleton'
 import { visuallyHidden } from '@mui/utils';
-import { filter, reject, get, sortBy, without, startCase, find, keys, map } from 'lodash'
+import { filter, reject, get, sortBy, without, startCase, find, keys, map, times } from 'lodash'
 import { SECONDARY_COLORS } from '../../common/colors';
 import { ALL_COLUMNS } from './ResultConstants';
 
@@ -77,7 +78,7 @@ const EnhancedTableHead = props => {
   );
 }
 
-const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns, extraColumns, properties, propertyFilters}) => {
+const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns, extraColumns, properties, propertyFilters, loading}) => {
   const rows = results?.results || []
   const getValue = (row, column) => {
     let val = get(row, column.value)
@@ -138,94 +139,117 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
     })
   }
 
-
   return (
     <TableContainer style={style || {height: 'calc(100vh - 275px)'}} className={className}>
-        <Table
-          stickyHeader
-          size={size || 'small'}
-        >
-          <EnhancedTableHead
-            size={size}
-            bgColor={bgColor}
-            numSelected={selected.length}
-            order={order}
-            orderBy={orderBy}
-            onSelectAllClick={handleSelectAllClick}
-            onRequestSort={handleRequestSort}
-            rowCount={rows.length || 0}
-            resource={resource}
-            columns={columns}
-          />
-          <TableBody>
-            {rows.map((row, index) => {
-              const id = row.version_url || row.url || row.id
-              const isItemSelected = isSelected(id);
-              const isItemSelectedToShow = isItemShown(id)
-              const labelId = `enhanced-table-checkbox-${index}`;
-              const color = row.retired ? SECONDARY_COLORS.main : 'none'
-              let bgColor = isItemSelectedToShow ? 'primary.90' : ''
-
-              return (
-                <TableRow
-                  hover
-                  role="checkbox"
-                  aria-checked={isItemSelectedToShow}
-                  tabIndex={-1}
-                  key={id}
-                  onClick={event => handleRowClick(event, id)}
-                  selected={isItemSelectedToShow}
-                  className={isItemSelectedToShow ? 'show-item' : ''}
-                  sx={{
-                    cursor: 'pointer',
-                    backgroundColor: '#FFF',
-                    '&.Mui-selected': {
-                      backgroundColor: bgColor
-                    },
-                    '&.MuiTableRow-hover:hover': {
-                      backgroundColor: isItemSelectedToShow ? bgColor : 'primary.95'
-                    },
-                  }}
-                >
+      <Table
+        stickyHeader
+        size={size || 'small'}
+      >
+        <EnhancedTableHead
+          size={size}
+          bgColor={bgColor}
+          numSelected={selected.length}
+          order={order}
+          orderBy={orderBy}
+          onSelectAllClick={handleSelectAllClick}
+          onRequestSort={handleRequestSort}
+          rowCount={rows.length || 0}
+          resource={resource}
+          columns={columns}
+        />
+        <TableBody>
+          {
+            loading ?
+              times(25, i => (
+                <TableRow key={i}>
                   {
-                  handleClick &&
-                      <TableCell padding="checkbox" onClick={event => handleClick(event, id)} style={{color: color}}>
-                        <Checkbox
-                          size={size || 'medium'}
-                          color="primary"
-                          checked={isItemSelected}
-                          inputProps={{
-                            'aria-labelledby': labelId,
-                          }}
-                        />
+                    handleClick &&
+                      <TableCell>
+                        <Skeleton height={33} sx={{'-webkit-transform': 'none', 'transform': 'none'}} />
                       </TableCell>
                   }
                   {
-                    columns.map((column, idx) => {
-                      const value = getValue(row, column)
-                      return idx === 0  ?
-                        <TableCell
-                          key={idx}
-                          component="th"
-                          id={labelId}
-                          scope="row"
-                          padding="normal"
-                          className={column.className}
-                          sx={{color: color, ...column.sx}}
-                        >
-                          {value}
-                        </TableCell>:
-                      <TableCell key={idx} align={column.align || "left"} className={column.className} sx={{color: color, ...column.sx}}>
-                        {value}
+                    columns.map((col, idx) => (
+                      <TableCell key={idx}>
+                        <Skeleton height={33} sx={{'-webkit-transform': 'none', 'transform': 'none'}} />
                       </TableCell>
-                    })
+                    ))
                   }
                 </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              )) :
+              (
+
+                rows.map((row, index) => {
+                  const id = row.version_url || row.url || row.id
+                  const isItemSelected = isSelected(id);
+                  const isItemSelectedToShow = isItemShown(id)
+                  const labelId = `enhanced-table-checkbox-${index}`;
+                  const color = row.retired ? SECONDARY_COLORS.main : 'none'
+                  let bgColor = isItemSelectedToShow ? 'primary.90' : ''
+
+                  return (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      aria-checked={isItemSelectedToShow}
+                      tabIndex={-1}
+                      key={id}
+                      onClick={event => handleRowClick(event, id)}
+                      selected={isItemSelectedToShow}
+                      className={isItemSelectedToShow ? 'show-item' : ''}
+                      sx={{
+                        cursor: 'pointer',
+                        backgroundColor: '#FFF',
+                        '&.Mui-selected': {
+                          backgroundColor: bgColor
+                        },
+                        '&.MuiTableRow-hover:hover': {
+                          backgroundColor: isItemSelectedToShow ? bgColor : 'primary.95'
+                        },
+                      }}
+                    >
+                      {
+                        handleClick &&
+                          <TableCell padding="checkbox" onClick={event => handleClick(event, id)} style={{color: color}}>
+                            <Checkbox
+                              size={size || 'medium'}
+                              color="primary"
+                              checked={isItemSelected}
+                              inputProps={{
+                                'aria-labelledby': labelId,
+                              }}
+                            />
+                          </TableCell>
+                      }
+                      {
+                        columns.map((column, idx) => {
+                          const value = getValue(row, column)
+                          return idx === 0  ?
+                            <TableCell
+                              key={idx}
+                              component="th"
+                              id={labelId}
+                              scope="row"
+                              padding="normal"
+                              className={column.className}
+                              sx={{color: color, ...column.sx}}
+                            >
+                              {value}
+                            </TableCell>:
+                          <TableCell key={idx} align={column.align || "left"} className={column.className} sx={{color: color, ...column.sx}}>
+                            {value}
+                          </TableCell>
+                        })
+                      }
+                    </TableRow>
+                  );
+                })
+
+              )
+          }
+        </TableBody>
+      </Table>
+    </TableContainer>
   )
 }
 

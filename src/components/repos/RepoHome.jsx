@@ -10,7 +10,6 @@ import { dropVersion, toParentURI, toOwnerURI } from '../../common/utils';
 import { WHITE } from '../../common/colors';
 
 import { OperationsContext } from '../app/LayoutContext';
-import LoaderDialog from '../common/LoaderDialog';
 import CommonTabs from '../common/CommonTabs';
 import Search from '../search/Search';
 import DeleteEntityDialog from '../common/DeleteEntityDialog'
@@ -211,7 +210,6 @@ const RepoHome = () => {
 
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
-      <LoaderDialog open={loading} />
       <Paper component="div" className={isSplitView ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: 'white', borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.nv80'}}>
         {
           (repo?.id || loading) &&
@@ -234,6 +232,7 @@ const RepoHome = () => {
                 {
                   repo?.id && ['concepts', 'mappings'].includes(tab) &&
                     <Search
+                      loading={loading}
                       summary={repoSummary || repo?.summary}
                       resource={tab}
                       url={getURL() + tab + '/'}
