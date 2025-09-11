@@ -245,7 +245,8 @@
           "tgz",
           "changelog",
           "uid",
-          "unapplied"
+          "unapplied",
+          "webkit"
         ],
         "skipIfMatch": [
           "http://[^s]*",

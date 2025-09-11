@@ -7,7 +7,6 @@ import { WHITE, SURFACE_COLORS } from '../../common/colors'
 import Events from '../common/Events'
 import DashboardEvents from './DashboardEvents';
 import EventsButtonGroup from './EventsButtonGroup';
-import LoaderDialog from '../common/LoaderDialog';
 import CommunityBlog from './CommunityBlog'
 
 
@@ -88,7 +87,6 @@ const UserDashboard = ({ user }) => {
           </Typography>
           <EventsButtonGroup selected={scope} onClick={onScopeChange} />
         </div>
-        <LoaderDialog open={loading} />
         <DashboardEvents isLoading={loading} events={getScopeEvents()} />
       </div>
       <div className='col-xs-3 padding-0' style={{minWidth: '360px', minHeight: '370px'}}>

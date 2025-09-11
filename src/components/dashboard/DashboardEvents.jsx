@@ -2,13 +2,17 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import moment from 'moment'
+
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent';
-import HighlightIcon from '@mui/icons-material/CampaignOutlined';
 import Avatar from '@mui/material/Avatar';
+import Skeleton from '@mui/material/Skeleton'
+import HighlightIcon from '@mui/icons-material/CampaignOutlined';
+
 import isEmpty from 'lodash/isEmpty'
+
 import { WHITE } from '../../common/colors'
 import { getSiteTitle } from '../../common/utils'
 import EntityIcon from '../common/EntityIcon';
@@ -95,19 +99,31 @@ const DashboardEvents = ({ events, highlight, sx, isLoading }) => {
   return (
     <div className='col-xs-12 padding-0' style={{maxHeight: '80vh', overflow: 'auto', ...sx}}>
       {
-        !isLoading && isEmpty(events) ?
-          (
+        isLoading ?
+          <>
+            <Skeleton height={174} sx={{margin: '16px 0', height: '174px', '-webkit-transform': 'none', 'transform': 'none'}} />
+            <Skeleton height={174} sx={{margin: '16px 0', height: '174px', '-webkit-transform': 'none', 'transform': 'none'}} />
+            <Skeleton height={174} sx={{margin: '16px 0', height: '174px', '-webkit-transform': 'none', 'transform': 'none'}} />
+            <Skeleton height={174} sx={{margin: '16px 0', height: '174px', '-webkit-transform': 'none', 'transform': 'none'}} />
+            <Skeleton height={174} sx={{margin: '16px 0', height: '174px', '-webkit-transform': 'none', 'transform': 'none'}} />
+            </>
+            :
+        (
+          isEmpty(events) ?
             <div className='col-xs-12 padding-0' style={{height: '40vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
               <EmptyOverview label={t('dashboard.no_events')} />
-            </div>
-          ):
-        (events.map(event => (
-          highlight ?
-            <HighlightCard key={event.id}>
-              <EventCard event={event} highlight={highlight} />
-            </HighlightCard> :
-          <EventCard key={event.id} event={event} highlight={highlight} />
-        )))
+            </div> :
+          (
+            events.map(event => (
+              highlight ?
+                <HighlightCard key={event.id}>
+                  <EventCard event={event} highlight={highlight} />
+                </HighlightCard> :
+              <EventCard key={event.id} event={event} highlight={highlight} />
+            ))
+
+          )
+        )
       }
     </div>
   )
