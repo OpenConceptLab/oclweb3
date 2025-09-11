@@ -17,10 +17,7 @@ const FollowIconButton = ({isFollowing, onClick, entity, size, sx}) => {
   const { t } = useTranslation()
 
   const getTitle = () => {
-    if(entity?.type?.includes('Version')) {
-      return `${entity.short_code}:${entity.id}`
-    }
-    return entity?.id || entity?.username || entity?.name
+    return entity?.short_code || entity?.id || entity?.username || entity?.name
   }
 
   return (
