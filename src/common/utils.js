@@ -820,13 +820,17 @@ export const isSSOEnabled = () => {
 }
 
 export const getLoginURL = returnTo => {
-  let redirectURL = returnTo || window.LOGIN_REDIRECT_URL || process.env.LOGIN_REDIRECT_URL
   const oidClientID = window.OIDC_RP_CLIENT_ID || process.env.OIDC_RP_CLIENT_ID
+  let redirectURL = returnTo || window.LOGIN_REDIRECT_URL || process.env.LOGIN_REDIRECT_URL
 
   redirectURL = redirectURL.replace(/([^:]\/)\/+/g, "$1");
 
-  if(isSSOEnabled())
+  if(isSSOEnabled()) {
+    if(returnTo && returnTo.includes('/#/') && returnTo.split('/#/')[1])
+      redirectURL = returnTo.replace('/#/', '/')
     return `${getAPIURL()}/users/login/?client_id=${oidClientID}&state=fj8o3n7bdy1op5&nonce=13sfaed52le09&redirect_uri=${redirectURL}`
+  }
+
   let url = '/#/accounts/login'
   if(returnTo)
     url += `?returnTo=${returnTo}`
