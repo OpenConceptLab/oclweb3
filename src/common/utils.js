@@ -821,7 +821,7 @@ export const isSSOEnabled = () => {
 
 export const getLoginURL = returnTo => {
   const oidClientID = window.OIDC_RP_CLIENT_ID || process.env.OIDC_RP_CLIENT_ID
-  let redirectURL = returnTo || window.LOGIN_REDIRECT_URL || process.env.LOGIN_REDIRECT_URL
+  let redirectURL = window.LOGIN_REDIRECT_URL || process.env.LOGIN_REDIRECT_URL
 
   redirectURL = redirectURL.replace(/([^:]\/)\/+/g, "$1");
 
@@ -1006,4 +1006,33 @@ export const pluralize = (count, singular, plural) => `${count?.toLocaleString()
 export const handleLookupValuesResponse = (data, callback, attr) => {
   const _attr = attr || 'id';
   callback(orderBy(uniqBy(map(data, cc => ({id: get(cc, _attr), name: get(cc, _attr)})), 'name')), 'name');
+}
+
+export const toMapperURL = path => {
+  let url = 'https://map.openconceptlab.org'
+  if(window.location.host?.includes('localhost'))
+    url = 'http://localhost:4004'
+  if(['app.v3.qa.openconceptlab.org', 'app.v3.demo.openconceptlab.org'].includes(window.location.host))
+    url = 'https://map.qa.openconceptlab.org'
+  if(window.location.host.match('app.v3.*.openconceptlab.org'))
+    url = window.location.origin.replace('//app.v3.', '//map.')
+
+  let referrerParams = `referrer=${window.location.href}`
+  if(isLoggedIn())
+    referrerParams += '?auth=true'
+
+
+  return `${url}/#${path || '/'}?${referrerParams}`
+}
+
+export const isMapperURL = url => {
+  if(!url)
+    return false
+  if(url.startsWith('http://localhost:4004'))
+    return true
+  if(!url.includes('.openconceptlab.org'))
+    return false
+  if(url.startsWith('https://map.'))
+    return true
+  return false
 }

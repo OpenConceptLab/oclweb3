@@ -11,9 +11,10 @@ import ListItemText from '@mui/material/ListItemText';
 import Button from '@mui/material/Button';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
+import MapperIcon from '@mui/icons-material/MotionPhotosAutoOutlined';
 import Divider from '@mui/material/Divider';
 import map from 'lodash/map'
-import { getCurrentUser, refreshCurrentUserCache, getCurrentUserOrgs } from '../../common/utils';
+import { getCurrentUser, refreshCurrentUserCache, getCurrentUserOrgs, toMapperURL } from '../../common/utils';
 import Drawer from '../common/Drawer';
 import OrgIcon from '../orgs/OrgIcon';
 import EntityIcon from '../common/EntityIcon'
@@ -108,6 +109,30 @@ const LeftMenu = ({ isOpen, onClose }) => {
             </ListItemIcon>
             <ListItemText primary={t('user.my_repositories')} />
             <span><b>{((user?.collections || 0) + (user?.sources + 0)).toLocaleString()}</b></span>
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding sx={{ display: 'block' }}>
+          <ListItemButton
+            onClick={onClose}
+            sx={{
+              minHeight: 56,
+              justifyContent: 'initial',
+              px: 2,
+              borderRadius: '100px'
+            }}
+            href={toMapperURL()}
+            className='no-anchor-styles'
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                mr: 1.75,
+                justifyContent: 'center',
+              }}
+            >
+              <MapperIcon />
+            </ListItemIcon>
+            <ListItemText primary={t('user.my_mapping_projects')} />
           </ListItemButton>
         </ListItem>
       </List>

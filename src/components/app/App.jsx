@@ -2,7 +2,7 @@
 import React from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import {
-  recordGAPageView, isLoggedIn, getCurrentUser
+  recordGAPageView, isLoggedIn, getCurrentUser, getLoginURL, isMapperURL
 } from '../../common/utils';
 import Error404 from '../errors/Error404';
 import Error403 from '../errors/Error403';
@@ -79,12 +79,30 @@ const App = props => {
       }
     });
 
+  const forceLoginUser = () => {
+    const { search, hash, pathname } = props.location
+    const queryParams = new URLSearchParams(search)
+    const referrer = queryParams.get('referrer')
+    if(isLoggedIn()) {
+      window.location.hash = '#'  + pathname
+    } else if(referrer && isMapperURL(referrer) && !isLoggedIn()) {
+      const parts = hash.split('?')
+      let params = new URLSearchParams(parts[1])
+      if(params.get('auth') === 'true') {
+        window.location.href = getLoginURL(window.location.origin + '/#' + pathname)
+      }
+    }
+  }
+
   React.useEffect(() => {
+    forceLoginUser()
     fetchToggles()
     addLogoutListenerForAllTabs()
     recordGAPageView()
     setupHotJar()
   }, [])
+
+
 
   const repoTabs = ['concepts', 'mappings', 'versions', 'summary', 'about']
   const orgTabs = ['repos']
