@@ -156,7 +156,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     ]
     if(expanded.includes(field))
       return ordered
-    return ordered.slice(0, 4)
+    return ordered.slice(0, 5)
   }
 
   const toggleExpanded = field => {
