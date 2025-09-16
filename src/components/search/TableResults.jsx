@@ -145,6 +145,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
       <Table
         stickyHeader
         size={size || 'small'}
+        sx={{'.MuiTableCell-head': {lineHeight: '1.2rem', padding: '3px 16px'}}}
       >
         <EnhancedTableHead
           size={size}
