@@ -229,7 +229,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                 sx={{
                   width: '100%',
                   position: 'relative',
-                  padding: '0px 0px 4px 0px',
+                  padding: 0,
                   display: 'inline-block',
                 }}
               >
@@ -240,12 +240,12 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                     </ListSubheader>
                 }
                 {
-                  getFieldFilters(field, fieldFilters).map(value => {
+                  map(getFieldFilters(field, fieldFilters), (value, index) => {
                     const labelId = `checkbox-list-label-${value[0]}`;
                     const key = `${field}-${value[0]}`
 
                     return (
-                      <ListItemButton key={key} onClick={handleToggle(field, value)} sx={{p: isProperty ? '0 12px 0 8px' : '0 12px'}} disabled={value[3] === true || (disabledZero && value[1] === 0)}>
+                      <ListItemButton key={key} onClick={handleToggle(field, value)} sx={{p: isProperty ? '0 12px 0 8px' : '0 12px', paddingTop: index === 0 ? '4px': undefined}} disabled={value[3] === true || (disabledZero && value[1] === 0)}>
                         <ListItemIcon sx={{minWidth: '25px'}}>
                           <Checkbox
                             size="small"
@@ -254,7 +254,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                             tabIndex={-1}
                             disableRipple
                             inputProps={{ 'aria-labelledby': labelId }}
-                            style={{padding: '4px 8px'}}
+                            sx={{padding: '0px 8px', '.MuiSvgIcon-root': {fontSize: '1.1rem'}}}
                             disabled={(disabledZero && value[1] === 0)}
                           />
                         </ListItemIcon>
@@ -279,7 +279,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
               </List>
               {
                 shouldShowExpand &&
-                  <Button size='small' onClick={() => toggleExpanded(field)} style={{textTransform: 'none'}} color='secondary' startIcon={isExpanded ? <UpIcon fontSize='inherit'/> : <DownIcon fontSize='inherit'/>}>
+                  <Button size='small' onClick={() => toggleExpanded(field)} sx={{textTransform: 'none', fontSize: '11px', padding: '0px 5px 2px 5px'}} color='secondary' startIcon={isExpanded ? <UpIcon fontSize='inherit'/> : <DownIcon fontSize='inherit'/>}>
                     {isExpanded ? t('common.hide') : `${t('common.show')} ${fieldFilters.length - 4} ${t('common.more').toLowerCase()}`}
                   </Button>
               }
