@@ -244,7 +244,7 @@ const RepoHome = () => {
                       onShowItem={onShowItem}
                       showItem={showItem}
                       filtersHeight='calc(100vh - 300px)'
-                      resultContainerStyle={{height: 'calc(100vh - 400px)', overflow: 'auto'}}
+                      resultContainerStyle={{height: 'calc(100vh - 400px)', overflow: 'auto', maxWidth: 'calc(100vw - 300px)'}}
                       containerStyle={{padding: 0}}
                       properties={(!tab || tab === 'concepts') ? repo?.meta?.display?.concept_summary_properties : []}
                       propertyFilters={(!tab || tab === 'concepts') ? repo?.filters : []}
