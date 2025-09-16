@@ -108,7 +108,7 @@ const OrgHome = () => {
                       nested
                       noTabs
                       filtersHeight='calc(100vh - 280px)'
-                      resultContainerStyle={{height: 'calc(100vh - 380px)', overflow: 'auto'}}
+                      resultContainerStyle={{height: 'calc(100vh - 368px)', overflow: 'auto'}}
                       containerStyle={{padding: 0}}
                     />
                 }

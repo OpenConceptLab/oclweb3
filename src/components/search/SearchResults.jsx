@@ -256,6 +256,10 @@ const SearchResults = props => {
                 labelDisplayedRows={defaultLabelDisplayedRows}
                 sx={{
                   width: '100%',
+                  '.MuiToolbar-root': {
+                    height: '40px',
+                    minHeight: '40px'
+                  },
                   '& .MuiTablePagination-actions svg': { color: 'surface.contrastText'},
                   '& .MuiTablePagination-actions .Mui-disabled.MuiIconButton-root svg': { color: 'rgba(0, 0, 0, 0.26)'}
                 }}

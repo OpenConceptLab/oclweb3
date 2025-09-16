@@ -122,7 +122,7 @@ const UserHome = () => {
                 nested
                 noTabs
                 filtersHeight={`calc(100vh - ${baseHeightToDeduct}px)`}
-                resultContainerStyle={{height: `calc(100vh - ${baseHeightToDeduct}px - 100px)`, overflow: 'auto'}}
+                resultContainerStyle={{height: `calc(100vh - ${baseHeightToDeduct}px - 88px)`, overflow: 'auto'}}
                 containerStyle={{padding: 0}}
                 defaultFiltersOpen={false}
                 resultSize='medium'

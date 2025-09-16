@@ -1411,7 +1411,7 @@ const Matching = () => {
                     noPagination
                     noSorting
                     noToolbar
-                    resultContainerStyle={{height: decisionTab === 'candidates' ? (showItem ? '200px' : 'calc(100vh - 200px)') : 'auto'}}
+                    resultContainerStyle={{height: decisionTab === 'candidates' ? (showItem ? '212px' : 'calc(100vh - 188px)') : 'auto'}}
                     onShowItemSelect={item => {
                       setShowItem(item)
                       setTimeout(() => {
