@@ -104,6 +104,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
   columns = excludedColumns?.length ? reject(columns, column => excludedColumns?.includes(column.id)) : columns
 
   if(properties?.length) {
+    columns = reject(columns, {property: true})
     const variableColumnIds = columns.map(col => col.id)
     let customProperties = reject(properties, property => variableColumnIds.includes(property))
     customProperties.forEach(property => {
