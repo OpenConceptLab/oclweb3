@@ -42,8 +42,6 @@ const EnhancedTableHead = props => {
         {
           map(columns, (headCell, idx) => {
             let label = '';
-            if(headCell.isProperty)
-              label += `${t('repo.property')}: `
             if(headCell.label)
               label += headCell.label || ''
             else if(headCell.labelKey)
