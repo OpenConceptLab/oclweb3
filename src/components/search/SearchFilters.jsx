@@ -16,7 +16,6 @@ import Checkbox from '@mui/material/Checkbox';
 import Divider from '@mui/material/Divider';
 import CircularProgress from '@mui/material/CircularProgress';
 import { URIToParentParams, currentUserHasAccess } from '../../common/utils'
-import { PRIMARY_COLORS } from '../../common/colors'
 import { FACET_ORDER } from './ResultConstants';
 
 
@@ -102,9 +101,9 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   const formattedListSubheader = field => {
     if(field.startsWith('properties__')){
       const fields = field.split('__')
-      return `Property: ${startCase(fields[1])}`
+      return startCase(fields[1])
     } else if (isFixedConceptField(field)) {
-      return `Property: ${startCase(field)}`
+      return startCase(field)
     }
     return startCase(field)
   }
@@ -212,18 +211,17 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
         }
       </div>
       {
-        loading &&
+        loading && isEmpty(uiFilters) &&
           <div className='col-xs-12' style={{textAlign: 'center', padding: '16px'}}>
         <CircularProgress />
         </div>
       }
       {
-        !loading && map(uiFilters, (fieldFilters, field) => {
+        map(uiFilters, (fieldFilters, field) => {
           const shouldShowExpand = fieldFilters.length > 4
           const isExpanded = expanded.includes(field)
-          const isProperty = field?.startsWith('properties__') || isFixedConceptField(field)
           return (
-            <div className='col-xs-12 padding-0' style={isProperty ? {border: `4px solid ${PRIMARY_COLORS['90']}`, borderTopWidth: 0, borderBottomWidth: 0} : {}} key={field}>
+            <div className='col-xs-12 padding-0' key={field}>
               <List
                 dense
                 sx={{
@@ -235,7 +233,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
               >
                 {
                 !noSubheader &&
-                    <ListSubheader sx={{padding: isProperty ? '0 4px 2px 4px' : '0 8px', fontWeight: 'bold', backgroundColor: isProperty ? 'primary.90' : bgColor, lineHeight: '30px'}}>
+                    <ListSubheader sx={{padding: '0 8px', fontWeight: 'bold', backgroundColor: bgColor, lineHeight: '30px'}}>
                       {formattedListSubheader(field)}
                     </ListSubheader>
                 }
@@ -245,7 +243,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                     const key = `${field}-${value[0]}`
 
                     return (
-                      <ListItemButton key={key} onClick={handleToggle(field, value)} sx={{p: isProperty ? '0 12px 0 8px' : '0 12px', paddingTop: index === 0 ? '4px': undefined}} disabled={value[3] === true || (disabledZero && value[1] === 0)}>
+                      <ListItemButton key={key} onClick={handleToggle(field, value)} sx={{p: '0 12px', paddingTop: index === 0 ? '4px': undefined}} disabled={value[3] === true || (disabledZero && value[1] === 0)}>
                         <ListItemIcon sx={{minWidth: '25px'}}>
                           <Checkbox
                             size="small"
@@ -285,7 +283,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
               }
             {
               !noSubheader &&
-                <Divider sx={isProperty ? {backgroundColor: 'primary.90', borderWidth: '2px', borderColor: 'primary.90'} : {}} />
+                <Divider />
             }
             </div>
           )
