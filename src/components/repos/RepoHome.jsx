@@ -243,8 +243,8 @@ const RepoHome = () => {
                       repoDefaultFilters={(!tab || tab === 'concepts') ? repo?.meta?.display?.default_filter : {}}
                       onShowItem={onShowItem}
                       showItem={showItem}
-                      filtersHeight='calc(100vh - 300px)'
-                      resultContainerStyle={{height: 'calc(100vh - 388px)', overflow: 'auto', maxWidth: 'calc(100vw - 300px)'}}
+                      filtersHeightToSubtract={268}
+                      resultContainerStyle={{height: 'calc(100vh - 356px)', overflow: 'auto', maxWidth: 'calc(100vw - 300px)'}}
                       containerStyle={{padding: 0}}
                       properties={(!tab || tab === 'concepts') ? repo?.meta?.display?.concept_summary_properties : []}
                       propertyFilters={(!tab || tab === 'concepts') ? repo?.filters : []}
@@ -257,7 +257,7 @@ const RepoHome = () => {
               </div>
               {
                 !isSplitView &&
-                  <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderLeft: 'solid 0.5px', borderTop: 'solid 0.5px', borderColor: 'surface.nv80', width: '272px !important', height: 'calc(100vh - 250px)', borderRadius: '0 0 10px 0'}}>
+                  <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderLeft: 'solid 0.5px', borderTop: 'solid 0.5px', borderColor: 'surface.nv80', width: '272px !important', height: 'calc(100vh - 218px)', borderRadius: '0 0 10px 0'}}>
                     <RepoSummary repo={repo} summary={repoSummary} />
                   </Paper>
               }
@@ -267,7 +267,7 @@ const RepoHome = () => {
           !loading && status && <Error40X status={status} />
         }
       </Paper>
-      <div className={'col-xs-5 padding-0' + (isSplitView ? ' split-appear' : '')} style={{marginLeft: '16px', width: isSplitView ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: isSplitView ? 'calc(100vh - 95px)' : 0, opacity: isSplitView ? 1 : 0, overflow: 'auto'}}>
+      <div className={'col-xs-5 padding-0' + (isSplitView ? ' split-appear' : '')} style={{marginLeft: '16px', width: isSplitView ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: isSplitView ? 'calc(100vh - 102px)' : 0, opacity: isSplitView ? 1 : 0, overflow: 'auto'}}>
         {
           Boolean(showConceptURL && !conceptForm) &&
             <ConceptHome repoSummary={repoSummary} source={repo} repo={repo} url={showConceptURL} concept={showItem} onClose={() => setShowItem(false)} nested />

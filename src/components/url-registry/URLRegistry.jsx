@@ -56,8 +56,8 @@ const URLRegistry = () => {
       </div>
       <div className='col-xs-12 padding-0' style={{backgroundColor: WHITE, borderRadius: '10px'}}>
         <Search
-          filtersHeight={`calc(100vh - 275px)`}
-          resultContainerStyle={{height: `calc(100vh - 363px)`, overflow: 'auto'}}
+          filtersHeightToSubtract={275}
+          resultContainerStyle={{height: `calc(100vh - 373px)`, overflow: 'auto'}}
           resource='url_registry'
           url={owner + 'url-registry/'}
           nested

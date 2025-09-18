@@ -10,16 +10,15 @@ import UpIcon from '@mui/icons-material/ArrowDropUp';
 import List from '@mui/material/List';
 import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
+import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Checkbox from '@mui/material/Checkbox';
-import Divider from '@mui/material/Divider';
 import CircularProgress from '@mui/material/CircularProgress';
 import { URIToParentParams, currentUserHasAccess } from '../../common/utils'
 import { FACET_ORDER } from './ResultConstants';
 
-
-const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions, nested, onSaveAsDefaultFilters, loading, repoDefaultFilters, propertyFilters}) => {
+const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions, nested, onSaveAsDefaultFilters, loading, repoDefaultFilters, propertyFilters, heightToSubtract, open}) => {
   const { t } = useTranslation()
   const [applied, setApplied] = React.useState({});
   const [count, setCount] = React.useState(0);
@@ -30,6 +29,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   const isConcept = resource === 'concepts'
   const isMapping = resource === 'mappings'
   const isSourceChild = isConcept || isMapping
+  let propertyFacets = {}
   const hasValidKwargs = !isEmpty(kwargs) && isObject(kwargs);
   if(hasValidKwargs) {
     if(kwargs.user || kwargs.org)
@@ -67,13 +67,11 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     uiFilters = orderedUIFilters
   }
   if(isConcept){
-    const properties = pickBy(filters, (values, field) => field.startsWith('properties__') && !isEmpty(values))
-    if(!isEmpty(properties)) {
-      uiFilters = omit(uiFilters, ['conceptClass', 'datatype'])
-      uiFilters = {...properties, ...uiFilters}
+    propertyFacets = pickBy(filters, (values, field) => field.startsWith('properties__') && !isEmpty(values))
+    if(!isEmpty(propertyFacets)) {
+      uiFilters = omit(uiFilters, ['conceptClass', 'datatype', ...keys(propertyFacets)])
     }
   }
-
   const formattedName = (field, name) => {
     let label;
     if(includes(['locale', 'version', 'source_version', 'nameTypes', 'expansion'], field))
@@ -178,28 +176,104 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     onChange(repoDefaultFilters)
   }
 
+
+  const getFilterList = (fieldFilters, field) => {
+    const shouldShowExpand = fieldFilters.length > 5
+    const isExpanded = expanded.includes(field)
+    return (
+      <ListItem key={field} sx={{padding: 0, flexDirection: 'column'}}>
+        <List
+          dense
+          sx={{
+            width: '100%',
+            position: 'relative',
+            padding: 0,
+            display: 'inline-block',
+          }}
+        >
+          {
+            !noSubheader &&
+              <ListSubheader sx={{padding: '0 8px', fontWeight: 'bold', backgroundColor: bgColor, lineHeight: '30px'}}>
+                {formattedListSubheader(field)}
+              </ListSubheader>
+          }
+          {
+            map(getFieldFilters(field, fieldFilters), value => {
+              const labelId = `checkbox-list-label-${value[0]}`;
+              const key = `${field}-${value[0]}`
+
+              return (
+                <ListItemButton key={key} onClick={handleToggle(field, value)} sx={{p: '0 12px'}} disabled={value[3] === true || (disabledZero && value[1] === 0)}>
+                  <ListItemIcon sx={{minWidth: '25px'}}>
+                    <Checkbox
+                      size="small"
+                      edge="start"
+                      checked={isApplied(field, value)}
+                      tabIndex={-1}
+                      disableRipple
+                      inputProps={{ 'aria-labelledby': labelId }}
+                      sx={{padding: '0px 8px', '.MuiSvgIcon-root': {fontSize: '1.1rem'}}}
+                      disabled={(disabledZero && value[1] === 0)}
+                    />
+                  </ListItemIcon>
+                  <ListItemText
+                    id={labelId}
+                    primary={
+                      <span style={{display: 'flex', alignItems: 'center'}}>
+                        {formattedName(field, value[0])}
+                        {
+                          get(filterDefinitions, value[0])?.tooltip &&
+                            <Tooltip title={filterDefinitions[value[0]].tooltip}>
+                              <InfoIcon sx={{marginLeft: '4px', fontSize: '1rem'}} color='primary' />
+                            </Tooltip>
+                        }
+                      </span>
+                    }
+                    primaryTypographyProps={{style: {fontSize: '0.875rem'}}} style={{margin: 0}} />
+                  <span style={{fontSize: '0.7rem'}}>{value[1].toLocaleString()}</span>
+                </ListItemButton>
+              );
+            })}
+
+        </List>
+        {
+          shouldShowExpand &&
+            <ListItem sx={{padding: '4px 4px 0px 4px'}}>
+              <Button size='small' onClick={() => toggleExpanded(field)} sx={{textTransform: 'none', fontSize: '11px', padding: '0px 5px 2px 5px'}} color='secondary' startIcon={isExpanded ? <UpIcon fontSize='inherit'/> : <DownIcon fontSize='inherit'/>}>
+                {isExpanded ? t('common.hide') : `${t('common.show')} ${fieldFilters.length - 5} ${t('common.more').toLowerCase()}`}
+              </Button>
+            </ListItem>
+        }
+      </ListItem>
+    )
+  }
+
+
   const isFixedConceptField = field => isConcept && ['conceptClass', 'datatype'].includes(field)
+  const canUpdateDefaultFilters = nested && onSaveAsDefaultFilters && currentUserHasAccess()
+  const topBarHeight = canUpdateDefaultFilters ? 60 : 30
+  let totalFilters = {...propertyFacets, ...uiFilters}
 
   return (
     <div className='col-xs-12 padding-0'>
-      <div className='col-xs-12' style={{zIndex: 2, padding: '0px'}}>
+      <div className='col-xs-12' style={{zIndex: 2, padding: '0px', position: open ? 'absolute' : undefined, top: 0, display: open ? undefined : 'none'}}>
         <div className='col-xs-12' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px'}}>
           <span>
-          <Badge badgeContent={count} color='primary' sx={{'.MuiBadge-badge': {top: '10px', left: '36px'}}}>
-            <b>{t('search.filters')}</b>
-          </Badge>
-        </span>
-        <span>
+            <Badge badgeContent={count} color='primary' sx={{'.MuiBadge-badge': {top: '10px', left: '36px'}}}>
+              <b>{t('search.filters')}</b>
+            </Badge>
+          </span>
+          <span>
             <Button variant='text' color='primary' style={{textTransform: 'none'}} onClick={onApply} disabled={!unapplied}>
               {t('common.apply')}
             </Button>
-          <Button variant='text' style={{textTransform: 'none'}} onClick={onClear} disabled={!count} color='error'>
-            {t('common.clear')}
-          </Button>
-        </span>
+            <Button variant='text' style={{textTransform: 'none'}} onClick={onClear} disabled={!count} color='error'>
+              {t('common.clear')}
+            </Button>
+          </span>
         </div>
         {
-          nested && onSaveAsDefaultFilters && currentUserHasAccess() &&
+          canUpdateDefaultFilters &&
             <div className='col-xs-12 padding-0' style={{textAlign: 'right'}}>
               <Button size='small' sx={{textTransform: 'none'}} onClick={onSetDefaultFilters} disabled={isEmpty(applied) || isEqual(applied, repoDefaultFilters)}>
                 {t('search.save_default_filters')}
@@ -210,85 +284,52 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
             </div>
         }
       </div>
-      {
-        loading && isEmpty(uiFilters) &&
-          <div className='col-xs-12' style={{textAlign: 'center', padding: '16px'}}>
-        <CircularProgress />
-        </div>
-      }
-      {
-        map(uiFilters, (fieldFilters, field) => {
-          const shouldShowExpand = fieldFilters.length > 4
-          const isExpanded = expanded.includes(field)
-          return (
-            <div className='col-xs-12 padding-0' key={field}>
-              <List
-                dense
-                sx={{
-                  width: '100%',
-                  position: 'relative',
-                  padding: 0,
-                  display: 'inline-block',
-                }}
-              >
-                {
-                !noSubheader &&
-                    <ListSubheader sx={{padding: '0 8px', fontWeight: 'bold', backgroundColor: bgColor, lineHeight: '30px'}}>
-                      {formattedListSubheader(field)}
-                    </ListSubheader>
-                }
-                {
-                  map(getFieldFilters(field, fieldFilters), (value, index) => {
-                    const labelId = `checkbox-list-label-${value[0]}`;
-                    const key = `${field}-${value[0]}`
-
-                    return (
-                      <ListItemButton key={key} onClick={handleToggle(field, value)} sx={{p: '0 12px', paddingTop: index === 0 ? '4px': undefined}} disabled={value[3] === true || (disabledZero && value[1] === 0)}>
-                        <ListItemIcon sx={{minWidth: '25px'}}>
-                          <Checkbox
-                            size="small"
-                            edge="start"
-                            checked={isApplied(field, value)}
-                            tabIndex={-1}
-                            disableRipple
-                            inputProps={{ 'aria-labelledby': labelId }}
-                            sx={{padding: '0px 8px', '.MuiSvgIcon-root': {fontSize: '1.1rem'}}}
-                            disabled={(disabledZero && value[1] === 0)}
-                          />
-                        </ListItemIcon>
-                        <ListItemText
-                          id={labelId}
-                          primary={
-                            <span style={{display: 'flex', alignItems: 'center'}}>
-                              {formattedName(field, value[0])}
-                            {
-                              get(filterDefinitions, value[0])?.tooltip &&
-                                <Tooltip title={filterDefinitions[value[0]].tooltip}>
-                                  <InfoIcon sx={{marginLeft: '4px', fontSize: '1rem'}} color='primary' />
-                              </Tooltip>
-                            }
-                            </span>
-                          }
-                          primaryTypographyProps={{style: {fontSize: '0.875rem'}}} style={{margin: 0}} />
-                        <span style={{fontSize: '0.7rem'}}>{value[1].toLocaleString()}</span>
-                      </ListItemButton>
-                    );
-                  })}
-              </List>
-              {
-                shouldShowExpand &&
-                  <Button size='small' onClick={() => toggleExpanded(field)} sx={{textTransform: 'none', fontSize: '11px', padding: '0px 5px 2px 5px'}} color='secondary' startIcon={isExpanded ? <UpIcon fontSize='inherit'/> : <DownIcon fontSize='inherit'/>}>
-                    {isExpanded ? t('common.hide') : `${t('common.show')} ${fieldFilters.length - 4} ${t('common.more').toLowerCase()}`}
-                  </Button>
-              }
-            {
-              !noSubheader &&
-                <Divider />
-            }
+      <div className='col-xs-12 padding-0' style={{marginTop: `${topBarHeight}px`, height: `calc(100vh - ${heightToSubtract || 0}px - ${topBarHeight}px)`, overflowY: 'auto'}}>
+        {
+          loading && isEmpty(totalFilters) &&
+            <div className='col-xs-12' style={{textAlign: 'center', padding: '16px'}}>
+              <CircularProgress />
             </div>
-          )
-        })
-      }
+        }
+        {
+          !isEmpty(propertyFacets) &&
+            <List
+              dense
+              sx={{
+                width: '100%',
+                position: 'relative',
+                padding: 0,
+                display: 'inline-block',
+                marginTop: '8px'
+              }}>
+              <ListSubheader sx={{padding: '0 8px', fontWeight: 'bold', backgroundColor: bgColor, lineHeight: 'normal', color: '#000'}}>
+                {t('repo.properties_filters_subheader')}
+              </ListSubheader>
+              {map(propertyFacets, getFilterList)}
+            </List>
+        }
+        {
+          !isEmpty(uiFilters) &&
+            <List
+              dense
+              sx={{
+                width: '100%',
+                position: 'relative',
+                padding: 0,
+                display: 'inline-block',
+                marginTop: isEmpty(propertyFacets) ? 0 : '14px'
+              }}
+            >
+              {
+                !isEmpty(propertyFacets) &&
+                  <ListSubheader sx={{padding: '0 8px', fontWeight: 'bold', backgroundColor: bgColor, lineHeight: 'normal', color: '#000'}}>
+                    {t('repo.additional_metadata_filters_subheader')}
+                  </ListSubheader>
+              }
+              {map(uiFilters, getFilterList)}
+            </List>
+        }
+      </div>
     </div>
   )
 }

@@ -338,7 +338,9 @@
     "properties": "Properties",
     "property": "Property",
     "filters": "Filters",
-    "version_changelog_request_accepted": "Versions compare request is accepted, please come back in few minutes."
+    "version_changelog_request_accepted": "Versions compare request is accepted, please come back in few minutes.",
+    "properties_filters_subheader": "Repository Properties",
+    "additional_metadata_filters_subheader": "Additional Metadata"
   },
   "org": {
     "my": "My Organizations",

@@ -121,7 +121,7 @@ const UserHome = () => {
                 url={user?.url + 'repos/'}
                 nested
                 noTabs
-                filtersHeight={`calc(100vh - ${baseHeightToDeduct}px)`}
+                filtersHeightToSubtract={baseHeightToDeduct}
                 resultContainerStyle={{height: `calc(100vh - ${baseHeightToDeduct}px - 88px)`, overflow: 'auto'}}
                 containerStyle={{padding: 0}}
                 defaultFiltersOpen={false}
