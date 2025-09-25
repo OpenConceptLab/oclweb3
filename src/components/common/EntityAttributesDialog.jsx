@@ -31,6 +31,21 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
         return <Link sx={{fontSize: '14px'}} label={value} href={`#/users/${value}/`} />
       if(info.type === 'json')
         return <pre style={{margin: 0}}>{JSON.stringify(value, undefined, 2)}</pre>
+      if(info.type === 'locales-list') {
+        return map(value, (val, index) => {
+          return (
+            <>
+              <span key={index} style={{fontWeight: index === 0 ? 'bold': 'normal'}}>
+                {val}
+              </span>
+              {
+                index < (value.length - 1) &&
+                  <>, </>
+              }
+            </>
+          )
+        })
+      }
       if(info.type === 'table') {
         if(value?.length > 0) {
           let columns = uniq(flatten(value.map(val => keys(val))))

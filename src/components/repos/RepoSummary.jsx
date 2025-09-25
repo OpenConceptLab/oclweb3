@@ -301,51 +301,51 @@ const RepoSummary = ({ repo, summary }) => {
             </Button>
         }
       </div>
-                  <EntityAttributesDialog
-              fields={{
-                name: {label: t('common.name')},
-                full_name: {label: t('common.full_name')},
-                external_id: {label: t('common.external_id')},
-                repo_type: {label: t('repo.repo_type')},
-                description: {label: t('common.description')},
-                canonical_url: {label: t('url_registry.canonical_url')},
-                locales: {label: t('repo.locales')},
-                custom_validation_schema: {label: t('repo.custom_validation_schema')},
-                public_access: {label: t('common.access_level')},
-                properties: {label: t('repo.properties'), type: 'table'},
-                filters: {label: t('repo.filters'), type: 'table'},
-                meta: {label: t('repo.meta'), type: 'json'},
-                identifier: {label: t('repo.identifier'), type: 'json'},
-                contact: {label: t('repo.contact'), type: 'json'},
-                jurisdiction: {label: t('repo.jurisdiction'), type: 'json'},
-                publisher: {label: t('repo.publisher')},
-                purpose: {label: t('repo.purpose')},
-                copyright: {label: t('repo.copyright')},
-                content_type: {label: t('repo.content_type')},
-                revision_date: {label: t('repo.revision_date'), type: 'date'},
-                experimental: {label: t('repo.experimental')},
-                case_sensitive: {label: t('repo.case_sensitive')},
-                hierarchy_meaning: {label: t('repo.hierarchy_meaning')},
-                compositional: {label: t('repo.compositional')},
-                version_needed: {label: t('repo.version_needed')},
-                autoid_concept_mnemonic: {label: t('repo.autoid_concept_mnemonic')},
-                autoid_concept_external_id: {label: t('repo.autoid_concept_external_id')},
-                autoid_concept_name_external_id: {label: t('repo.autoid_concept_name_external_id')},
-                autoid_concept_description_external_id: {label: t('repo.autoid_concept_description_external_id')},
-                autoid_mapping_mnemonic: {label: t('repo.autoid_mapping_mnemonic')},
-                autoid_mapping_external_id: {label: t('repo.autoid_mapping_external_id')},
-                'checksums.standard': {label: t('checksums.standard')},
-                'checksums.smart': {label: t('checksums.smart')},
-                extras: {label: t('custom_attributes.label'), type: 'json'},
-                created_on: {label: t('common.created_on'), type: 'datetime'},
-                updated_on: {label: t('common.updated_on'), type: 'datetime'},
-                created_by: {label: t('common.created_by'), type: 'user'},
-                updated_by: {label: t('common.updated_by'), type: 'user'},
-              }}
-              entity={getRepo()}
-              open={viewAll}
-              onClose={() => setViewAll(false)}
-            />
+      <EntityAttributesDialog
+        fields={{
+          name: {label: t('common.name')},
+          full_name: {label: t('common.full_name')},
+          external_id: {label: t('common.external_id')},
+          repo_type: {label: t('repo.repo_type')},
+          description: {label: t('common.description')},
+          canonical_url: {label: t('url_registry.canonical_url')},
+          locales: {label: t('repo.locales'), type: 'locales-list'},
+          custom_validation_schema: {label: t('repo.custom_validation_schema')},
+          public_access: {label: t('common.access_level')},
+          properties: {label: t('repo.properties'), type: 'table'},
+          filters: {label: t('repo.filters'), type: 'table'},
+          meta: {label: t('repo.meta'), type: 'json'},
+          identifier: {label: t('repo.identifier'), type: 'json'},
+          contact: {label: t('repo.contact'), type: 'json'},
+          jurisdiction: {label: t('repo.jurisdiction'), type: 'json'},
+          publisher: {label: t('repo.publisher')},
+          purpose: {label: t('repo.purpose')},
+          copyright: {label: t('repo.copyright')},
+          content_type: {label: t('repo.content_type')},
+          revision_date: {label: t('repo.revision_date'), type: 'date'},
+          experimental: {label: t('repo.experimental')},
+          case_sensitive: {label: t('repo.case_sensitive')},
+          hierarchy_meaning: {label: t('repo.hierarchy_meaning')},
+          compositional: {label: t('repo.compositional')},
+          version_needed: {label: t('repo.version_needed')},
+          autoid_concept_mnemonic: {label: t('repo.autoid_concept_mnemonic')},
+          autoid_concept_external_id: {label: t('repo.autoid_concept_external_id')},
+          autoid_concept_name_external_id: {label: t('repo.autoid_concept_name_external_id')},
+          autoid_concept_description_external_id: {label: t('repo.autoid_concept_description_external_id')},
+          autoid_mapping_mnemonic: {label: t('repo.autoid_mapping_mnemonic')},
+          autoid_mapping_external_id: {label: t('repo.autoid_mapping_external_id')},
+          'checksums.standard': {label: t('checksums.standard')},
+          'checksums.smart': {label: t('checksums.smart')},
+          extras: {label: t('custom_attributes.label'), type: 'json'},
+          created_on: {label: t('common.created_on'), type: 'datetime'},
+          updated_on: {label: t('common.updated_on'), type: 'datetime'},
+          created_by: {label: t('common.created_by'), type: 'user'},
+          updated_by: {label: t('common.updated_by'), type: 'user'},
+        }}
+        entity={getRepo()}
+        open={viewAll}
+        onClose={() => setViewAll(false)}
+      />
     </div>
   )
 }
