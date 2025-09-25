@@ -2,7 +2,7 @@
 import React from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import {
-  recordGAPageView, isLoggedIn, getCurrentUser, getLoginURL, isMapperURL, isRedirectingToLoginViaReferrer
+  recordGAPageView, isLoggedIn, getCurrentUser, getLoginURL, isMapperURL, isV2URL, isRedirectingToLoginViaReferrer
 } from '../../common/utils';
 import Error404 from '../errors/Error404';
 import Error403 from '../errors/Error403';
@@ -92,7 +92,7 @@ const App = props => {
     const referrer = queryParams.get('referrer')
     if(isLoggedIn()) {
       window.location.hash = '#'  + pathname
-    } else if(referrer && isMapperURL(referrer) && !isLoggedIn()) {
+    } else if(referrer && (isMapperURL(referrer) || isV2URL(referrer)) && !isLoggedIn()) {
       const parts = hash.split('?')
       let params = new URLSearchParams(parts[1])
       if(params.get('auth') === 'true') {

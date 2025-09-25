@@ -1037,11 +1037,23 @@ export const isMapperURL = url => {
   return false
 }
 
+export const isV2URL = url => {
+  if(!url)
+    return false
+  if(url.startsWith('http://localhost:4000'))
+    return true
+  if(!url.includes('.openconceptlab.org'))
+    return false
+  if(url.startsWith('https://app.'))
+    return true
+  return false
+}
+
 export const isRedirectingToLoginViaReferrer = location => {
   const { search, hash } = location
   const queryParams = new URLSearchParams(search)
   const referrer = queryParams.get('referrer')
   const parts = hash.split('?')
   let params = new URLSearchParams(parts[1])
-  return referrer && isMapperURL(referrer) && params.get('auth') === 'true'
+  return referrer && (isMapperURL(referrer) || isV2URL(referrer)) && params.get('auth') === 'true'
 }
