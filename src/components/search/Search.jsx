@@ -6,7 +6,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import OrgIcon from '@mui/icons-material/AccountBalance';
 import UserIcon from '@mui/icons-material/Person';
-import { forEach, keys, pickBy, isEmpty, find, uniq, has, orderBy as sortBy, uniqBy, omit, max, isEqual } from 'lodash';
+import { forEach, keys, pickBy, isEmpty, find, uniq, has, orderBy as sortBy, uniqBy, omit, max, isEqual, isBoolean } from 'lodash';
 import { COLORS } from '../../common/colors';
 import { highlightTexts } from '../../common/utils';
 import APIService from '../../services/APIService';
@@ -176,7 +176,10 @@ const Search = props => {
     const applied = {}
     forEach(filters, (value, field) => {
       applied[field] = {}
-      forEach(value.split(','), val => applied[field][val] = true)
+      if(isBoolean(value)) {
+        applied[field][value.toString()] = true
+      } else
+        forEach(value.split(','), val => applied[field][val] = true)
     })
     return applied
   }
