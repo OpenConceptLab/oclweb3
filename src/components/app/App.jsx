@@ -2,7 +2,7 @@
 import React from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import {
-  recordGAPageView, isLoggedIn, getCurrentUser, getLoginURL, isMapperURL
+  recordGAPageView, isLoggedIn, getCurrentUser, getLoginURL, isMapperURL, isRedirectingToLoginViaReferrer
 } from '../../common/utils';
 import Error404 from '../errors/Error404';
 import Error403 from '../errors/Error403';
@@ -35,11 +35,18 @@ import OrgCreate from '../orgs/OrgCreate'
 import ImportHome from '../imports/ImportHome'
 import ConceptsComparison from '../concepts/ConceptsComparison'
 import MappingsComparison from '../mappings/MappingsComparison'
+import CheckAuth from './CheckAuth'
 
 const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
   <Route
     {...rest}
-    render={props => isLoggedIn() ? <Component {...props} /> : <Error401 />}
+    render={
+      props => isLoggedIn() ?
+        <Component {...props} /> :
+      isRedirectingToLoginViaReferrer(props.location) ?
+        <CheckAuth /> :
+      <Error401 />
+    }
   />
 )
 

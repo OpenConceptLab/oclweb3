@@ -126,7 +126,8 @@
       "confirmation_title": "Are you sure you want to permanently delete this {{resourceType}}",
       "confirmation_message": "Please type <0>{{resourceId}}</0> to confirm.",
       "confirmation_button_label": "I understand the consequences, delete this {{resourceType}}"
-    }
+    },
+    "checking_auth": "Checking auth..."
   },
   "errors": {
     "404": "Sorry your page could not be found.",

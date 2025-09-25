@@ -1036,3 +1036,12 @@ export const isMapperURL = url => {
     return true
   return false
 }
+
+export const isRedirectingToLoginViaReferrer = location => {
+  const { search, hash } = location
+  const queryParams = new URLSearchParams(search)
+  const referrer = queryParams.get('referrer')
+  const parts = hash.split('?')
+  let params = new URLSearchParams(parts[1])
+  return referrer && isMapperURL(referrer) && params.get('auth') === 'true'
+}
