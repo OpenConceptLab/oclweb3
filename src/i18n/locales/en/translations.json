@@ -135,7 +135,8 @@
     "403": "Access to this page is not authorized",
     "mandatory_field": "This field cannot be blank",
     "already_queued": "Already queued",
-    "generic": "Something failed, please try again later."
+    "generic": "Something failed, please try again later.",
+    "network_error": "Network Error"
   },
   "success": {
     "queued": "Successfully Queued"

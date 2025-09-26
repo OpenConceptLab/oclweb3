@@ -7,6 +7,7 @@ import {
 import Error404 from '../errors/Error404';
 import Error403 from '../errors/Error403';
 import Error401 from '../errors/Error401';
+import NetworkError from '../errors/NetworkError'
 import ErrorBoundary from '../errors/ErrorBoundary';
 import Footer from './Footer';
 import DocumentTitle from "./DocumentTitle"
@@ -58,6 +59,7 @@ const SessionUserRoute = ({component: Component, ...rest}) => (
 )
 
 const App = props => {
+  const [networkError, setNetworkError] = React.useState(false)
   const { alert, setAlert, setToggles } = React.useContext(OperationsContext);
   const setupHotJar = () => {
     /*eslint no-undef: 0*/
@@ -69,8 +71,12 @@ const App = props => {
   const fetchToggles = async () => {
     return new Promise(resolve => {
       APIService.toggles().get().then(response => {
-        setToggles(response.data)
-        resolve();
+        if(response === 'Network Error')
+          setNetworkError(true)
+        else {
+          setToggles(response.data)
+          resolve();
+        }
       });
     });
   }
@@ -122,6 +128,7 @@ const App = props => {
       <Header>
         <ErrorBoundary>
           <main className='content'>
+            {networkError && <NetworkError />}
             <Switch>
               <Route exact path="/oidc/login" component={OIDLoginCallback} />
               <Route path="/signin" component={SigninRedirect} />
