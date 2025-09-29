@@ -49,6 +49,7 @@ const RepoHome = () => {
   const [versionForm, setVersionForm] = React.useState(false)
   const [deleteRepo, setDeleteRepo] = React.useState(false)
   const [releaseVersion, setReleaseVersion] = React.useState(false)
+  const [showSummary, setShowSummary] = React.useState(true)
 
   const { setAlert } = React.useContext(OperationsContext);
 
@@ -227,7 +228,7 @@ const RepoHome = () => {
                 onVersionEditClick={() => onVersionEditClick()}
                 onReleaseVersionClick={() => onReleaseVersionClick()}
               />
-              <div className='padding-0 col-xs-12' style={{width: isSplitView ? '100%' : 'calc(100% - 272px)'}}>
+              <div className='padding-0 col-xs-12' style={{width: isSplitView ? '100%' : (showSummary ? 'calc(100% - 272px)' : 'calc(100% - 12px)')}}>
                 <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
                 {
                   repo?.id && ['concepts', 'mappings'].includes(tab) &&
@@ -244,7 +245,7 @@ const RepoHome = () => {
                       onShowItem={onShowItem}
                       showItem={showItem}
                       filtersHeightToSubtract={268}
-                      resultContainerStyle={{height: 'calc(100vh - 356px)', overflow: 'auto', maxWidth: 'calc(100vw - 300px)'}}
+                      resultContainerStyle={{height: 'calc(100vh - 356px)', overflow: 'auto', maxWidth: showSummary ? 'calc(100vw - 300px)' : 'calc(100vw - 40px)'}}
                       containerStyle={{padding: 0}}
                       properties={(!tab || tab === 'concepts') ? repo?.meta?.display?.concept_summary_properties : []}
                       propertyFilters={(!tab || tab === 'concepts') ? repo?.filters : []}
@@ -257,8 +258,8 @@ const RepoHome = () => {
               </div>
               {
                 !isSplitView &&
-                  <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderLeft: 'solid 0.5px', borderTop: 'solid 0.5px', borderColor: 'surface.nv80', width: '272px !important', height: 'calc(100vh - 218px)', borderRadius: '0 0 10px 0'}}>
-                    <RepoSummary repo={repo} summary={repoSummary} />
+                  <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: showSummary ? '16px !important' : '0px !important', borderLeft: 'solid 0.5px', borderTop: 'solid 0.5px', borderColor: 'surface.nv80', width: showSummary ? '272px !important' : '12px !important', height: 'calc(100vh - 218px)', borderRadius: '0 0 10px 0'}}>
+                    <RepoSummary repo={repo} summary={repoSummary} show={showSummary} onShow={() => setShowSummary(!showSummary)} />
                   </Paper>
               }
             </React.Fragment>

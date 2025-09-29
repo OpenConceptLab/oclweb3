@@ -9,11 +9,13 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import ExperimentalIcon from '@mui/icons-material/ScienceOutlined';
 import LanguageIcon from '@mui/icons-material/TranslateOutlined';
 import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
 import ConceptClassIcon from '@mui/icons-material/CategoryOutlined';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import HideIcon from '@mui/icons-material/ArrowForwardIos';
 
 import { uniq, compact, isEmpty } from 'lodash'
 
@@ -41,7 +43,7 @@ const PropertyChip = ({label, icon, ...rest}) => {
   )
 }
 
-const RepoSummary = ({ repo, summary }) => {
+const RepoSummary = ({ repo, summary, show, onShow }) => {
   const { t } = useTranslation()
   const { setAlert } = React.useContext(OperationsContext);
   const [viewAll, setViewAll] = React.useState(false)
@@ -72,9 +74,21 @@ const RepoSummary = ({ repo, summary }) => {
     return repo
   }
 
+  const buttonSx = {
+    background: '#FFF',
+    border: '1px solid',
+    '&:hover': {
+      background: '#FFF',
+      border: '1px solid',
+    }
+  }
+
   return (
     <div className='col-xs-12 padding-0'>
-      <div>
+      <IconButton size='small' onClick={onShow} sx={show ? {marginLeft: '-28px', marginTop: '-4px', ...buttonSx} : {marginLeft: '-12px', marginTop: '12px', ...buttonSx}}>
+    {show ? <HideIcon sx={{fontSize: '12px'}} /> : <HideIcon sx={{fontSize: '12px', transform: 'rotate(180deg)'}} />}
+        </IconButton>
+      <div style={{display: show ? undefined : 'none'}}>
         {
           repoSubType ?
             <PropertyChip label={repoSubType} sx={{margin: '4px 8px 4px 0'}} /> :
@@ -90,7 +104,7 @@ const RepoSummary = ({ repo, summary }) => {
           null
         }
       </div>
-      <div style={{marginTop: '24px'}}>
+      <div style={{marginTop: '24px', display: show ? undefined : 'none'}}>
         <Typography sx={{color: '#000', fontSize: '16px', fontWeight: 'bold', marginBottom: '12px'}}>
           {t('repo.repo_version_summary')}
         </Typography>
