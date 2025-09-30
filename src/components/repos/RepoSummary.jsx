@@ -83,30 +83,36 @@ const RepoSummary = ({ repo, summary, show, onShow }) => {
     }
   }
 
+  const getRepoLabel = () => {
+    if(repo.version === 'HEAD' || !repo.version)
+      return repo.short_code || repo.id
+    return `${repo.short_code}:${repo.version}`
+  }
+
   return (
     <div className='col-xs-12 padding-0'>
       <IconButton size='small' onClick={onShow} sx={show ? {marginLeft: '-28px', marginTop: '-4px', ...buttonSx} : {marginLeft: '-12px', marginTop: '12px', ...buttonSx}}>
     {show ? <HideIcon sx={{fontSize: '12px'}} /> : <HideIcon sx={{fontSize: '12px', transform: 'rotate(180deg)'}} />}
         </IconButton>
-      <div style={{display: show ? undefined : 'none'}}>
+      <div style={{display: show ? undefined : 'none', marginTop: '-27px'}}>
         {
           repoSubType ?
-            <PropertyChip label={repoSubType} sx={{margin: '4px 8px 4px 0'}} /> :
+            <PropertyChip label={repoSubType} sx={{margin: '4px 4px 4px 0'}} /> :
           null
         }
         {
           repo?.id &&
-            <AccessChip sx={{margin: '4px 8px 4px 0'}} public_access={repo?.public_access} />
+            <AccessChip sx={{margin: '4px 4px 4px 0'}} public_access={repo?.public_access} />
         }
         {
           repo?.experimental ?
-            <PropertyChip sx={{margin: '4px 8px 4px 0'}} label={t('repo.experimental')} icon={<ExperimentalIcon fontSize='inherit' />} /> :
+            <PropertyChip sx={{margin: '4px 4px 4px 0'}} label={t('repo.experimental')} icon={<ExperimentalIcon fontSize='inherit' />} /> :
           null
         }
       </div>
-      <div style={{marginTop: '24px', display: show ? undefined : 'none'}}>
+      <div style={{marginTop: '16px', display: show ? undefined : 'none'}}>
         <Typography sx={{color: '#000', fontSize: '16px', fontWeight: 'bold', marginBottom: '12px'}}>
-          {t('repo.repo_version_summary')}
+          {getRepoLabel()} {t('common.summary')}
         </Typography>
         <List dense sx={{padding: 0}}>
           <ListItem sx={{padding: '4px 0', fontSize: '12px'}}>
