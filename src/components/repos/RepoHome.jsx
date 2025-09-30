@@ -107,6 +107,8 @@ const RepoHome = () => {
   }, [location.pathname])
 
   const onVersionChange = (version, reload=true) => {
+    if(reload)
+      setLoading(true)
     let url = version.version_url
     if(reload && version?.version === 'HEAD')
       url += 'HEAD/'
