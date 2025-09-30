@@ -3,13 +3,14 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
+import Badge from '@mui/material/Badge';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
-import { isNumber, isNaN } from 'lodash'
+import { isNumber, isNaN, flatten, values } from 'lodash'
 import SearchControls from './SearchControls';
 import NoResults from './NoResults';
 import TableResults from './TableResults';
@@ -17,7 +18,8 @@ import CardResults from './CardResults';
 import { SORT_ATTRS } from './ResultConstants'
 
 const ResultsToolbar = props => {
-  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, isFiltersApplied, toolbarControl } = props;
+  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, toolbarControl, appliedFilters, openFilters } = props;
+  const filtersCount = flatten(values(appliedFilters).map(v => values(v))).length
   return (
     <Toolbar
       sx={{
@@ -35,9 +37,11 @@ const ResultsToolbar = props => {
     >
       {
         isFilterable &&
-          <IconButton style={{marginRight: '4px', ...(isFiltersApplied ? {backgroundColor: 'rgba(73, 69, 79, 0.12)'} : {})}} onClick={onFiltersToggle} disabled={Boolean(disabled)}>
-            <FilterListIcon sx={{color: '#000'}} />
-          </IconButton>
+          <IconButton style={{marginRight: '4px', ...(filtersCount > 0 ? {backgroundColor: 'rgba(73, 69, 79, 0.12)'} : {})}} onClick={onFiltersToggle} disabled={Boolean(disabled)}>
+            <Badge badgeContent={openFilters ? undefined : filtersCount} color='primary'>
+              <FilterListIcon sx={{color: '#000'}} />
+            </Badge>
+        </IconButton>
       }
       {numSelected > 0 ? (
         <Typography
@@ -216,7 +220,6 @@ const SearchResults = props => {
       {
       !props.noToolbar &&
           <ResultsToolbar
-            isFiltersApplied={props.isFiltersApplied}
             numSelected={selected.length}
             title={getTitle()}
             onFiltersToggle={props.onFiltersToggle}
@@ -230,6 +233,8 @@ const SearchResults = props => {
             onOrderByChange={props.onOrderByChange}
             noCardDisplay={noCardDisplay}
             toolbarControl={props.toolbarControl}
+            appliedFilters={props.appliedFilters}
+            openFilters={props.openFilters}
           />
       }
       {

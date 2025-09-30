@@ -395,7 +395,8 @@ const Search = props => {
                   orderBy={orderBy}
                   onOrderByChange={onOrderByChange}
                   nested={props.nested}
-                  isFiltersApplied={Boolean(filters)}
+                  openFilters={showFilters}
+                  appliedFilters={filters}
                   isFilterable={isFilterable(resource)}
                   noResults={noResults}
                   searchedText={input}
