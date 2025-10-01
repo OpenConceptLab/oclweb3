@@ -1057,3 +1057,9 @@ export const isRedirectingToLoginViaReferrer = location => {
   let params = new URLSearchParams(parts[1])
   return referrer && (isMapperURL(referrer) || isV2URL(referrer)) && params.get('auth') === 'true'
 }
+
+export const toCamelCase = str => {
+  return str
+    .replace(/[-_\s]+(.)?/g, (_, c) => c ? c.toUpperCase() : '') // remove -, _, or space and capitalize next letter
+    .replace(/^(.)/, (m) => m.toLowerCase()); // make first letter lowercase
+}
