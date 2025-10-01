@@ -1060,6 +1060,6 @@ export const isRedirectingToLoginViaReferrer = location => {
 
 export const toCamelCase = str => {
   return str
-    .replace(/[-_\s]+(.)?/g, (_, c) => c ? c.toUpperCase() : '') // remove -, _, or space and capitalize next letter
-    .replace(/^(.)/, (m) => m.toLowerCase()); // make first letter lowercase
+    .replace(/[-_\s]+(.)?/g, (_, c) => c ? c.toUpperCase() : '')
+    .replace(/^(.)/, (m) => m.toLowerCase());
 }

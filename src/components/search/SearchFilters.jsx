@@ -57,15 +57,12 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     let ordered = filterOrder?.length ? filterOrder : propertyFilters?.map(prop => prop?.code)
     forEach(ordered, attr => {
       let key;
-      if(has(uiFilters, attr)){
+      if(has(uiFilters, attr))
         key = attr
-      }
-      if(has(uiFilters, toCamelCase(attr))) {
+      if(has(uiFilters, toCamelCase(attr)))
         key = toCamelCase(attr)
-      }
-      if(has(uiFilters, `properties__${attr}`)){
+      if(has(uiFilters, `properties__${attr}`))
         key = `properties__${attr}`
-      }
       if(key) {
         orderedUIFilters[key] = uiFilters[key]
         keysTraversed.push(attr)
