@@ -256,8 +256,6 @@ const Search = props => {
   const fetchFacets = (params, otherResults, _resource=undefined) => {
     setLoadingFacets(true)
     const __resource = _resource || resource
-    if(isEmpty(filters) && !isEmpty(params) && props.repoDefaultFilters)
-      forEach(props.repoDefaultFilters, (value, key) => delete params[key])
     APIService.new().overrideURL(getURL(__resource)).get(null, null, {...params, facetsOnly: true}).then(response => {
       setResult({[__resource]: {...otherResults, facets: prepareFacets(response?.data?.facets?.fields || {}, __resource)}})
       setLoadingFacets(false)
