@@ -6,7 +6,7 @@ import orderBy from 'lodash/orderBy'
 import filter from 'lodash/filter'
 
 import APIService from '../../services/APIService';
-import { dropVersion, toParentURI, toOwnerURI } from '../../common/utils';
+import { dropVersion, toParentURI, toOwnerURI, currentUserHasAccess } from '../../common/utils';
 import { WHITE } from '../../common/colors';
 
 import { OperationsContext } from '../app/LayoutContext';
@@ -193,6 +193,8 @@ const RepoHome = () => {
   }
 
   const onSaveAsDefaultFilters = appliedFilters => {
+    if(!currentUserHasAccess())
+      return
     let meta = {...repo?.meta, display: {...repo?.meta?.display, default_filter: appliedFilters}}
     APIService.new().overrideURL(repo.version_url || repo.url).patch({meta: meta}).then(() => {
       setRepo({...repo, meta: meta})
