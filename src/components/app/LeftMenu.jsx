@@ -11,7 +11,6 @@ import ListItemText from '@mui/material/ListItemText';
 import Button from '@mui/material/Button';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
-import MapperIcon from '@mui/icons-material/MotionPhotosAutoOutlined';
 import Divider from '@mui/material/Divider';
 import map from 'lodash/map'
 import { getCurrentUser, refreshCurrentUserCache, getCurrentUserOrgs, toMapperURL } from '../../common/utils';
@@ -130,7 +129,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
                 justifyContent: 'center',
               }}
             >
-              <MapperIcon />
+              <i style={{fontSize: '1.25rem'}} className="fa-solid fa-diagram-project"></i>
             </ListItemIcon>
             <ListItemText primary={t('user.my_mapping_projects')} />
           </ListItemButton>
