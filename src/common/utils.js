@@ -1063,3 +1063,5 @@ export const toCamelCase = str => {
     .replace(/[-_\s]+(.)?/g, (_, c) => c ? c.toUpperCase() : '')
     .replace(/^(.)/, (m) => m.toLowerCase());
 }
+
+export const isInWaitlist = () => getCurrentUser()?.extras?.__oidc_groups?.includes('mapper-waitlist')

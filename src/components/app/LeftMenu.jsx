@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom';
 import Typography from '@mui/material/Typography'
+import Chip from '@mui/material/Chip';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -13,7 +14,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
 import Divider from '@mui/material/Divider';
 import map from 'lodash/map'
-import { getCurrentUser, refreshCurrentUserCache, getCurrentUserOrgs, toMapperURL } from '../../common/utils';
+import { getCurrentUser, refreshCurrentUserCache, getCurrentUserOrgs, toMapperURL, isInWaitlist} from '../../common/utils';
 import Drawer from '../common/Drawer';
 import OrgIcon from '../orgs/OrgIcon';
 import EntityIcon from '../common/EntityIcon'
@@ -132,6 +133,10 @@ const LeftMenu = ({ isOpen, onClose }) => {
               <i style={{fontSize: '1.25rem'}} className="fa-solid fa-diagram-project"></i>
             </ListItemIcon>
             <ListItemText primary={t('user.my_mapping_projects')} />
+            {
+              isInWaitlist() &&
+                <Chip size='small' variant='contained' label='Waitlist' color='primary' />
+            }
           </ListItemButton>
         </ListItem>
       </List>
@@ -186,7 +191,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
           ))
         }
       </List>
-      <Divider style={{width: '100%', marginTop: '16px'}} />
+      <Divider style={{width: '100%'}} />
       <List sx={{maxHeight: '300px', overflow: 'auto', p: 0}} dense>
         <ListItem
           disablePadding
