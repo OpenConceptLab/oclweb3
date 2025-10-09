@@ -247,7 +247,8 @@
           "uid",
           "unapplied",
           "webkit",
-          "localhost"
+          "localhost",
+          "waitlist"
         ],
         "skipIfMatch": [
           "http://[^s]*",
