@@ -95,7 +95,7 @@ export const FACET_ORDER = {
     'toConceptOwner', 'toConceptOwnerType', 'toConceptSource', 'toConcept',
     'retired', 'collection_membership', 'updatedBy'
   ],
-  "repos": ["repoType", "sourceType", "collectionType", "owner", "ownerType", "customValidationSchema", "locale"]
+  "repos": ["repoType", "sourceType", "collectionType", "owner", "ownerType", "customValidationSchema", "locale", "retired"]
 }
 
 export const SORT_ATTRS = {
