@@ -232,7 +232,9 @@ const Search = props => {
     if(!__resource)
       return
     setLoading(true)
-    setResult({[__resource]: {...result[__resource], results: []}})
+    setResult(prev => {
+      return {...prev, [__resource]: {...result[__resource], results: []}}
+    })
     if(['users', 'orgs'].includes(__resource))
       params.verbose = true
     APIService.new().overrideURL(getURL(__resource)).get(null, null, params).then(response => {
@@ -246,7 +248,9 @@ const Search = props => {
       if(!params.q && props?.summary && props.nested && (total < summaryCount && total === 10000) && keys(params).every(el => ['includeSearchMeta', 'q', 'limit', 'page', 'pageSize', 'offset', 'sortAsc', 'sortDesc', 'display', 'type'].includes(el)))
         total = summaryCount
       const resourceResult = {total: total, pageSize: max([parseInt(response?.headers?.num_returned), params?.limit]), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || [], facets: result[__resource]?.facets || {}}
-      setResult({[__resource]: resourceResult})
+      setResult(prev => {
+        return {...result, [__resource]: resourceResult}
+      })
       setLoading(false)
       if(facets && isFilterable(__resource))
         fetchFacets(params, resourceResult, __resource)
@@ -257,7 +261,9 @@ const Search = props => {
     setLoadingFacets(true)
     const __resource = _resource || resource
     APIService.new().overrideURL(getURL(__resource)).get(null, null, {...params, facetsOnly: true}).then(response => {
-      setResult({[__resource]: {...otherResults, facets: prepareFacets(response?.data?.facets?.fields || {}, __resource)}})
+      setResult(prev => {
+        return {...prev, [__resource]: {...otherResults, facets: prepareFacets(response?.data?.facets?.fields || {}, __resource)}}
+      })
       setLoadingFacets(false)
     })
   }
