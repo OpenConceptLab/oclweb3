@@ -248,7 +248,8 @@
           "unapplied",
           "webkit",
           "localhost",
-          "waitlist"
+          "waitlist",
+          "vectorized"
         ],
         "skipIfMatch": [
           "http://[^s]*",

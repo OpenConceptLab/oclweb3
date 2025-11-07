@@ -322,6 +322,7 @@
     "ocl_repo_url": "OCL Repo URL",
     "create_version": "Create Version",
     "version": {
+      "vectorized_for_mapper": "Concepts vectorization is enabled in this version for mapper tool",
       "form": {
         "id": {
           "label": "ID",

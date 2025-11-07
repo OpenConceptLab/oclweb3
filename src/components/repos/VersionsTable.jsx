@@ -38,6 +38,12 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
         }
         <TableCell sx={{...bodyCellStyle, ...(checkbox ? {} : {borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px'})}} onClick={isDisabled ? undefined : () => onVersionChange(version)}>
           {version.id}
+          {
+            version?.match_algorithms?.includes('llm') &&
+              <Tooltip title={t('repo.version.vectorized_for_mapper')}>
+                <i style={{fontSize: '0.8rem', marginLeft: '8px'}} className="fa-solid fa-diagram-project"></i>
+              </Tooltip>
+          }
         </TableCell>
         <TableCell sx={{...bodyCellStyle}} onClick={isDisabled ? undefined : () => onVersionChange(version)}>
         {moment(version.created_on).fromNow()}
