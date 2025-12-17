@@ -235,7 +235,7 @@ const Search = props => {
     setResult(prev => {
       return {...prev, [__resource]: {...result[__resource], results: []}}
     })
-    if(['users', 'orgs'].includes(__resource))
+    if(['users', 'orgs', 'references'].includes(__resource))
       params.verbose = true
     APIService.new().overrideURL(getURL(__resource)).get(null, null, params).then(response => {
       if(response?.detail) {

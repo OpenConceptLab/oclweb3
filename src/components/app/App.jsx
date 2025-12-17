@@ -117,7 +117,7 @@ const App = props => {
 
 
 
-  const repoTabs = ['concepts', 'mappings', 'versions', 'summary', 'about']
+  const repoTabs = ['concepts', 'mappings', 'versions', 'summary', 'about', 'references']
   const orgTabs = ['repos']
   const repoTabsStr = repoTabs.join('|')
   const orgTabsStr = orgTabs.join('|')

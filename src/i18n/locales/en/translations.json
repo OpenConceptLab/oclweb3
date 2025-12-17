@@ -241,6 +241,10 @@
     "fromAndTargetSource": "From and target Source",
     "edit_mapping": "Edit Mapping"
   },
+  "reference": {
+    "references": "References",
+    "reference": "Reference"
+  },
   "checksums": {
     "standard": "Standard Checksum",
     "smart": "Smart Checksum"
@@ -403,6 +407,7 @@
     "filters": "Filters",
     "concepts": "Concepts",
     "mappings": "Mappings",
+    "references": "References",
     "repos": "Repositories",
     "orgs": "Organizations",
     "users": "Users",

@@ -9,6 +9,9 @@ import OwnerIcon from '../common/OwnerIcon';
 import RepoVersionButton from '../repos/RepoVersionButton';
 import FromAndTargetSource from '../mappings/FromAndTargetSource'
 import ConceptCell from '../mappings/ConceptCell'
+import ReferenceChip from '../common/ReferenceChip';
+import ReferenceTranslation from '../common/ReferenceTranslation';
+
 
 const getLocale = (concept, synonym) => {
   let cleaned = synonym.replaceAll('<em>', '').replaceAll('</em>', '')
@@ -47,6 +50,11 @@ export const ALL_COLUMNS = {
     {id: 'fromConcept', labelKey: 'mapping.fromConcept', value: 'fromConceptCode', className: 'searchable', sortable: false, renderer: item => <ConceptCell mapping={item} direction='from' />},
     {id: 'mapType', labelKey: 'mapping.map_type', value: 'map_type', sortable: true},
     {id: 'toConcept', labelKey: 'mapping.toConcept', value: 'toConceptCode', className: 'searchable', sortable: false, renderer: item => <ConceptCell mapping={item} direction='to' />},
+  ],
+  references: [
+    {id: 'expression', labelKey: 'reference.reference', value: 'expression', sortable: false, translation: true, renderer: (reference, translation) => translation ? <ReferenceTranslation {...reference} /> : <ReferenceChip {...reference} />},
+    {id: 'concepts', labelKey: 'concept.concepts', value: 'concepts', sortable: false, align: 'center', renderer: reference => reference.last_resolved_at ? <ReferenceChip uri={reference.uri + 'concepts/'} reference_type='concepts' last_resolved_at expression={reference.concepts} notReference /> : '-'},
+    {id: 'mappings', labelKey: 'mapping.mappings', value: 'mappings', sortable: false, align: 'center', renderer: reference => reference.last_resolved_at ? <ReferenceChip uri={reference.uri + 'mappings/'} reference_type='mappings' last_resolved_at expression={reference.mappings} notReference /> : '-'}
   ],
   repos: [
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id', className: 'searchable'},

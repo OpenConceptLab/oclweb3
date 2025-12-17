@@ -33,10 +33,9 @@ const RepoHome = () => {
     {key: 'concepts', label: t('concept.concepts')},
     {key: 'mappings', label: t('mapping.mappings')},
   ]
-  const TAB_KEYS = TABS.map(tab => tab.key)
-  const findTab = () => TAB_KEYS.includes(params?.tab || params?.repoVersion) ? params.tab || params.repoVersion : 'concepts'
-  const versionFromURL = (TAB_KEYS.includes(params?.repoVersion) ? '' : params.repoVersion) || ''
-  const [tab, setTab] = React.useState(findTab)
+  const isCollection = params.repoType === 'collections'
+
+  const [tabs, setTabs] = React.useState(isCollection ? [...TABS, {key: 'references', label: t('reference.references')}] : [...TABS])
   const [status, setStatus] = React.useState(false)
   const [repo, setRepo] = React.useState(false)
   const [owner, setOwner] = React.useState(false)
@@ -51,6 +50,11 @@ const RepoHome = () => {
   const [releaseVersion, setReleaseVersion] = React.useState(false)
   const [showSummary, setShowSummary] = React.useState(true)
 
+  const TAB_KEYS = tabs.map(tab => tab.key)
+  const findTab = () => TAB_KEYS.includes(params?.tab || params?.repoVersion) ? params.tab || params.repoVersion : 'concepts'
+  const versionFromURL = (TAB_KEYS.includes(params?.repoVersion) ? '' : params.repoVersion) || ''
+
+  const [tab, setTab] = React.useState(findTab)
   const { setAlert } = React.useContext(OperationsContext);
 
   const getURL = () => ((toParentURI(location.pathname) + '/').replace('//', '/') + versionFromURL + '/').replace('//', '/')
@@ -65,6 +69,11 @@ const RepoHome = () => {
       setRepo(_repo)
       fetchOwner()
       fetchRepoSummary()
+      if(isCollection)
+        setTabs([...TABS, {key: 'references', label: t('reference.references')}])
+      else
+        setTabs([...TABS])
+
       if(isConceptURL || isMappingURL)
         setShowItem(true)
     })
@@ -101,6 +110,8 @@ const RepoHome = () => {
               setTab('concepts')
           if(location.pathname.includes('/mappings'))
               setTab('mappings')
+        if(location.pathname.includes('/references'))
+          setTab('references')
       }
     fetchRepo()
     fetchVersions()
@@ -112,7 +123,7 @@ const RepoHome = () => {
     let url = version.version_url
     if(reload && version?.version === 'HEAD')
       url += 'HEAD/'
-    history.push(url + tab)
+    history.push(url + (tab || 'concepts'))
   }
 
   const onTabChange = (event, newTab) => {
@@ -204,11 +215,14 @@ const RepoHome = () => {
 
   const isConceptURL = tab === 'concepts'
   const isMappingURL = tab === 'mappings'
+  const isReferenceURL = tab === 'references'
   const getConceptURLFromMainURL = () => (isConceptURL && params.resource) ? getURL() + 'concepts/' + params.resource + '/' : false
   const getMappingURLFromMainURL = () => (isMappingURL && params.resource) ? getURL() + 'mappings/' + params.resource + '/' : false
+  const getReferenceURLFromMainURL = () => (isReferenceURL && params.resource) ? getURL() + 'references/' + params.resource + '/' : false
   const showConceptURL = ((showItem?.concept_class || params.resource) && isConceptURL) ? showItem?.version_url || showItem?.url || getConceptURLFromMainURL() : false
   const showMappingURL = ((showItem?.map_type || params.resource) && isMappingURL) ? showItem?.version_url || showItem?.url || getMappingURLFromMainURL() : false
-  const isSplitView = conceptForm || mappingForm || showConceptURL || showMappingURL || versionForm
+  const showReferenceURL = ((showItem?.expression || params.resource) && isReferenceURL) ? showItem?.version_url || showItem?.url || getReferenceURLFromMainURL() : false
+  const isSplitView = conceptForm || mappingForm || showConceptURL || showMappingURL || showReferenceURL || versionForm
 
   const onVersionEditClick = () => isVersion && setVersionForm(true)
   const onReleaseVersionClick = () => isVersion && setReleaseVersion(true)
@@ -233,9 +247,9 @@ const RepoHome = () => {
                 onReleaseVersionClick={() => onReleaseVersionClick()}
               />
               <div className='padding-0 col-xs-12' style={{width: isSplitView ? '100%' : (showSummary ? 'calc(100% - 272px)' : 'calc(100% - 12px)')}}>
-                <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
+                <CommonTabs TABS={tabs} value={tab} onChange={onTabChange} />
                 {
-                  repo?.id && ['concepts', 'mappings'].includes(tab) &&
+                  repo?.id && ['concepts', 'mappings', 'references'].includes(tab) &&
                     <Search
                       loading={loading}
                       summary={repoSummary || repo?.summary}
