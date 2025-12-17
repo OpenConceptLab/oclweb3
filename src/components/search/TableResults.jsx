@@ -83,7 +83,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
     if(column.formatter)
       return column.formatter(val)
     if(column.renderer)
-      return column.renderer(row, Boolean(selectedToShowItem))
+      return column.translation ? column.renderer(row, column.translation) : column.renderer(row, Boolean(selectedToShowItem))
     return val
   }
 
@@ -165,13 +165,13 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
                   {
                     handleClick &&
                       <TableCell>
-                        <Skeleton height={33} sx={{'-webkit-transform': 'none', 'transform': 'none'}} />
+                        <Skeleton height={33} sx={{'WebkitTransform': 'none', 'transform': 'none'}} />
                       </TableCell>
                   }
                   {
                     columns.map((col, idx) => (
                       <TableCell key={idx}>
-                        <Skeleton height={33} sx={{'-webkit-transform': 'none', 'transform': 'none'}} />
+                        <Skeleton height={33} sx={{'WebkitTransform': 'none', 'transform': 'none'}} />
                       </TableCell>
                     ))
                   }

@@ -149,6 +149,9 @@ const SearchResults = props => {
   };
 
   const handleRowClick = (event, id) => {
+    if(props.resource === 'references')
+      return
+
     event.preventDefault()
     event.stopPropagation()
     const item = rows.find(row => id == (row.version_url || row.url || row.id)) || false

@@ -34,15 +34,15 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
       if(info.type === 'locales-list') {
         return map(value, (val, index) => {
           return (
-            <>
-              <span key={index} style={{fontWeight: index === 0 ? 'bold': 'normal'}}>
+            <React.Fragment key={index}>
+              <span style={{fontWeight: index === 0 ? 'bold': 'normal'}}>
                 {val}
               </span>
               {
                 index < (value.length - 1) &&
                   <>, </>
               }
-            </>
+            </React.Fragment>
           )
         })
       }
