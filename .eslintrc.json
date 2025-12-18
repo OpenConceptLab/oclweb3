@@ -249,7 +249,9 @@
           "webkit",
           "localhost",
           "waitlist",
-          "vectorized"
+          "vectorized",
+          "intensional",
+          "nullable"
         ],
         "skipIfMatch": [
           "http://[^s]*",

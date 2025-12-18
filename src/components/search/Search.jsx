@@ -16,10 +16,11 @@ import ConceptHome from '../concepts/ConceptHome';
 import SearchResults from './SearchResults';
 import SearchFilters from './SearchFilters'
 import { OperationsContext } from '../app/LayoutContext';
+import ReferenceFilters from '../repos/ReferenceFilters'
 
 const DEFAULT_LIMIT = 25;
 const FILTERS_WIDTH = 250
-const FILTERABLE_RESOURCES = ['concepts', 'mappings', 'repos', 'sources', 'collections']
+const FILTERABLE_RESOURCES = ['concepts', 'mappings', 'repos', 'sources', 'collections', 'references']
 
 const Search = props => {
   const { setAlert } = React.useContext(OperationsContext);
@@ -81,7 +82,12 @@ const Search = props => {
     if(page && page > 1)
       url += `&page=${page}`
     if(!isEmpty(filters)){
-      url += `&filters=${encodeURIComponent(JSON.stringify(omit(filters, 'includeRetired')))}`
+      if(_resource === 'references')
+        url += Object.entries(filters)
+        .map(([key, value]) => `&${key}=${String(value)}`)
+        .join('');
+      else
+        url += `&filters=${encodeURIComponent(JSON.stringify(omit(filters, 'includeRetired')))}`
     }
     if(sortDesc)
       url += `&sortDesc=${sortDesc}`
@@ -98,14 +104,23 @@ const Search = props => {
 
   const getFiltersFromQueryParams = () => {
     const queryParams = new URLSearchParams(window.location.hash.split('?')[1])
-    let _filters = queryParams.get('filters') || false
-    if(_filters)
-      _filters = JSON.parse(_filters)
-    if(_filters) {
-      try {
-        _filters = getAppliedFacetFromQueryParam(_filters)
-      } catch {
-        _filters = {}
+    let _filters = false
+    if(resource === 'references') {
+      _filters = {};
+      ['cascade', 'exclude', 'include', 'transform', 'repo_versioned', 'resource_versioned', 'intensional', 'extensional'].forEach(param => {
+        if(queryParams.has(param))
+          _filters[param] = queryParams.get(param)
+      })
+    } else {
+      _filters = queryParams.get('filters') || false
+      if(_filters)
+        _filters = JSON.parse(_filters)
+      if(_filters) {
+        try {
+          _filters = getAppliedFacetFromQueryParam(_filters)
+        } catch {
+          _filters = {}
+        }
       }
     }
     return _filters
@@ -186,6 +201,8 @@ const Search = props => {
   }
 
   const getFacetQueryParam = filters => {
+    if(resource === 'references')
+      return filters
     const queryParam = {}
     forEach(
       filters, (value, field) => {
@@ -252,7 +269,7 @@ const Search = props => {
         return {...result, [__resource]: resourceResult}
       })
       setLoading(false)
-      if(facets && isFilterable(__resource))
+      if(facets && isFilterable(__resource) && __resource !== 'references')
         fetchFacets(params, resourceResult, __resource)
     })
   }
@@ -378,20 +395,32 @@ const Search = props => {
         <div className='col-xs-12 padding-0' style={{height: '100%'}}>
           <div className='col-xs-12 padding-0' style={{height: '100%'}}>
             <div className='col-xs-3 split padding-0' style={{width: showFilters ? `${FILTERS_WIDTH}px` : 0, padding: showFilters ? '0 8px' : 0, ...(showFilters ? {borderRight: '0.3px solid', borderColor: COLORS.surface.n90} : {})}}>
-              <SearchFilters
-                open={showFilters}
-                loading={loadingFacets}
-                resource={resource}
-                filters={result[resource]?.facets || {}}
-                onChange={onFiltersChange}
-                bgColor={searchBgColor}
-                appliedFilters={filters}
-                nested={props.nested}
-                onSaveAsDefaultFilters={props.onSaveAsDefaultFilters ? filters => props.onSaveAsDefaultFilters(getFacetQueryParam(filters)) : false}
-                repoDefaultFilters={getAppliedFacetFromQueryParam(props.repoDefaultFilters || {})}
-                propertyFilters={props.propertyFilters}
-                heightToSubtract={props.filtersHeightToSubtract || 175}
-              />
+              {
+                resource === 'references' ?
+                  <ReferenceFilters
+                    open={showFilters}
+                    filters={result[resource]?.facets || {}}
+                    onChange={onFiltersChange}
+                    bgColor={searchBgColor}
+                    appliedFilters={filters}
+                    nested={props.nested}
+                    heightToSubtract={props.filtersHeightToSubtract || 175}
+                  />:
+                  <SearchFilters
+                    open={showFilters}
+                    loading={loadingFacets}
+                    resource={resource}
+                    filters={result[resource]?.facets || {}}
+                    onChange={onFiltersChange}
+                    bgColor={searchBgColor}
+                    appliedFilters={filters}
+                    nested={props.nested}
+                    onSaveAsDefaultFilters={props.onSaveAsDefaultFilters ? filters => props.onSaveAsDefaultFilters(getFacetQueryParam(filters)) : false}
+                    repoDefaultFilters={getAppliedFacetFromQueryParam(props.repoDefaultFilters || {})}
+                    propertyFilters={props.propertyFilters}
+                    heightToSubtract={props.filtersHeightToSubtract || 175}
+                  />
+              }
             </div>
             <div className='col-xs-9 split' style={{width: getSearchResultsWidth(), paddingRight: 0, paddingLeft: 0, float: 'right', height: '100%'}}>
               <div className='col-xs-12 padding-0' style={{height: '100%'}}>
