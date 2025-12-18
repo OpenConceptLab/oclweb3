@@ -80,6 +80,8 @@ const ReferenceFilters = ({ onChange, heightToSubtract }) => {
         newParams[key] = true
       else if (value === 'false')
         newParams[key] = false
+      else if (key === 'cascade')
+        newParams[key] = value
       else if(key === 'transform') {
         if(value === 'intensional')
           newParams.intensional = true
