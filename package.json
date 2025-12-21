@@ -31,7 +31,7 @@
     "react-image-crop": "^8.6.12",
     "react-material-ui-carousel": "^3.4.2",
     "react-native-rss-parser": "^1.5.1",
-    "react-password-strength-bar": "^0.3.5",
+    "react-password-strength-bar": "^0.4.1",
     "react-quill": "^2.0.0",
     "react-router-dom": "^5.3.4",
     "react-virtuoso": "^4.17.0",
