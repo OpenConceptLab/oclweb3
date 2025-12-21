@@ -10,7 +10,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "5.14.1",
     "@mui/lab": "5.0.0-alpha.140",
-    "@mui/material": "5.14.5",
+    "@mui/material": "5.18.0",
     "@mui/styles": "5.14.5",
     "@mui/x-date-pickers": "^5.0.20",
     "axios": "^1.13.2",
