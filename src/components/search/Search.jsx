@@ -107,7 +107,7 @@ const Search = props => {
     let _filters = false
     if(resource === 'references') {
       _filters = {};
-      ['cascade', 'exclude', 'include', 'transform', 'repo_versioned', 'resource_versioned', 'intensional', 'extensional'].forEach(param => {
+      ['cascade', 'versioning', 'repo_version', 'definition_type', 'inclusion_type'].forEach(param => {
         if(queryParams.has(param))
           _filters[param] = queryParams.get(param)
       })
