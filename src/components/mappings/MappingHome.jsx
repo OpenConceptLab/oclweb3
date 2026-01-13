@@ -1,15 +1,20 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
 import { useLocation, useHistory } from 'react-router-dom'
+
 import Fade from '@mui/material/Fade';
+
 import APIService from '../../services/APIService';
 import { toParentURI } from '../../common/utils'
+
+import { OperationsContext } from '../app/LayoutContext';
+import RetireConfirmDialog from '../common/RetireConfirmDialog'
 import MappingHeader from './MappingHeader';
 import MappingTabs from './MappingTabs';
 import MappingDetails from './MappingDetails'
 import MappingForm from './MappingForm'
-import RetireConfirmDialog from '../common/RetireConfirmDialog'
-import { OperationsContext } from '../app/LayoutContext';
+import MappingIcon from './MappingIcon'
+import History from '../concepts/History'
 
 const MappingHome = props => {
   const { t } = useTranslation()
@@ -18,19 +23,27 @@ const MappingHome = props => {
   const isInitialMount = React.useRef(true);
 
   const [mapping, setMapping] = React.useState(props.mapping || {})
+  const [versions, setVersions] = React.useState([])
   const [repo, setRepo] = React.useState(props.repo || {})
   const [tab, setTab] = React.useState('metadata')
   const [edit, setEdit] = React.useState(false)
+  const [loading, setLoading] = React.useState(false)
 
   const [retireDialog, setRetireDialog] = React.useState(false)
   const { setAlert } = React.useContext(OperationsContext);
 
   React.useEffect(() => {
+    setLoading(true)
     setMapping(props.mapping || {})
+    setVersions([])
     getService().get().then(response => {
       const resource = response.data
       setMapping(resource)
       props.repo?.id ? setRepo(props.repo) : fetchRepo(resource)
+      if(tab === 'history')
+        fetchVersions(resource?.url)
+      else
+        setLoading(false)
     })
   }, [props.mapping?.id, props.url])
 
@@ -62,6 +75,26 @@ const MappingHome = props => {
       url = `${parentURL}mappings/${encodeURIComponent(_mapping.id)}/`
 
     return APIService.new().overrideURL(encodeURI(url))
+  }
+
+  const fetchVersions = url => {
+    if(versions?.length === 0 || url) {
+      let _url = url || (props.mapping?.id ? props.mapping : mapping)?.url
+      if(!_url)
+        return
+      setLoading(true)
+      const service = APIService.new().overrideURL(_url)
+      service.appendToUrl('versions/').get(null, null, {includeCollectionVersions: true, includeSourceVersions: true}).then(response => {
+        setVersions(response.data || [])
+        setLoading(false)
+      })
+    }
+  }
+
+  const onTabChange = newTab => {
+    setTab(newTab)
+    if(newTab === 'history')
+      fetchVersions()
   }
 
   const toggleRetire = reason => {
@@ -109,12 +142,21 @@ const MappingHome = props => {
           <div className='col-xs-12 padding-0' style={{marginBottom: '12px'}}>
             <MappingHeader mapping={mapping} onClose={props.onClose} repoURL={getRepoURL()} repo={repo} nested={props.nested} onEdit={() => setEdit(true)} onRetire={() => setRetireDialog(true)} />
           </div>
-          <MappingTabs tab={tab} onTabChange={(event, newTab) => setTab(newTab)} />
+          <MappingTabs tab={tab} onTabChange={(event, newTab) => onTabChange(newTab)} />
           {
             tab === 'metadata' &&
               <div className='col-xs-12' style={{padding: '16px 0', height: 'calc(100vh - 330px)', overflow: 'auto'}}>
                 <MappingDetails mapping={mapping} />
               </div>
+          }
+          {
+            tab === 'history' &&
+              <History
+                versions={versions}
+                loading={loading}
+                resource='mappings'
+                icon={<MappingIcon color='primary' fontSize='small' />}
+              />
           }
           <RetireConfirmDialog
             open={retireDialog}

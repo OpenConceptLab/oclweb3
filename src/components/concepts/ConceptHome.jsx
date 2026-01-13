@@ -3,14 +3,19 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useHistory } from 'react-router-dom'
 import Fade from '@mui/material/Fade';
 import Skeleton from '@mui/material/Skeleton';
+
 import APIService from '../../services/APIService';
 import { toParentURI } from '../../common/utils'
+
+import { OperationsContext } from '../app/LayoutContext';
+import RetireConfirmDialog from '../common/RetireConfirmDialog'
+
 import ConceptHeader from './ConceptHeader';
 import ConceptTabs from './ConceptTabs';
 import ConceptForm from './ConceptForm'
+import ConceptIcon from './ConceptIcon'
 import ConceptDetails from './ConceptDetails'
-import RetireConfirmDialog from '../common/RetireConfirmDialog'
-import { OperationsContext } from '../app/LayoutContext';
+import History from './History'
 
 const ConceptHome = props => {
   const { t } = useTranslation()
@@ -19,6 +24,7 @@ const ConceptHome = props => {
   const isInitialMount = React.useRef(true);
 
   const [concept, setConcept] = React.useState(props.concept || {})
+  const [versions, setVersions] = React.useState([])
 
   const [repo, setRepo] = React.useState(props.repo || {})
   const [tab, setTab] = React.useState('metadata')
@@ -37,11 +43,14 @@ const ConceptHome = props => {
   React.useEffect(() => {
     setLoading(true)
     setConcept(props.concept || {})
+    setVersions([])
     getService().get().then(response => {
       const resource = response.data
       setConcept(resource)
       props.repo?.id ? setRepo(repo) : fetchRepo(resource)
       getMappings(resource)
+      if(tab === 'history')
+        fetchVersions(resource?.url)
     })
   }, [props.concept?.id, props.url])
 
@@ -73,6 +82,26 @@ const ConceptHome = props => {
       url = `${parentURL}concepts/${encodeURIComponent(_concept.id)}/`
 
     return APIService.new().overrideURL(encodeURI(url))
+  }
+
+  const fetchVersions = conceptURL => {
+    if(versions?.length === 0 || conceptURL) {
+      let _conceptURL = conceptURL || (props.concept?.id ? props.concept : concept)?.url
+      if(!_conceptURL)
+        return
+      setLoading(true)
+      const service = APIService.new().overrideURL(_conceptURL)
+      service.appendToUrl('versions/').get(null, null, {includeCollectionVersions: true, includeSourceVersions: true}).then(response => {
+        setVersions(response.data || [])
+        setLoading(false)
+      })
+    }
+  }
+
+  const onTabChange = newTab => {
+    setTab(newTab)
+    if(newTab === 'history')
+      fetchVersions()
   }
 
   const getMappings = (concept, directOnly) => {
@@ -202,7 +231,7 @@ const ConceptHome = props => {
                 <div className='col-xs-12 padding-0'>
                   <ConceptHeader concept={concept} onClose={props.onClose} repoURL={getRepoURL()} onEdit={() => setEdit(true)} repo={repo} nested={props.nested} loading={loading} onRetire={() => setRetireDialog(true)} />
                 </div>
-                <ConceptTabs tab={tab} onTabChange={(event, newTab) => setTab(newTab)} loading={loading} />
+                <ConceptTabs tab={tab} onTabChange={(event, newTab) => onTabChange(newTab)} loading={loading} />
                 {
                   tab === 'metadata' &&
                     <ConceptDetails
@@ -216,6 +245,15 @@ const ConceptHome = props => {
                       reverseOwnerMappings={reverseOwnerMappings}
                       loadingOwnerMappings={loadingOwnerMappings}
                       onLoadOwnerMappings={() => getOwnerMappings(concept)}
+                    />
+                }
+                {
+                  tab === 'history' &&
+                    <History
+                      versions={versions}
+                      loading={loading}
+                      resource='concepts'
+                      icon={<ConceptIcon selected fontSize='small' />}
                     />
                 }
                 <RetireConfirmDialog

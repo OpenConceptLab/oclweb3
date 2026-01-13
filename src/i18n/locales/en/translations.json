@@ -58,6 +58,7 @@
     "navigate": "Navigate",
     "select": "Select",
     "search": "Search",
+    "match": "Match",
     "content_summary": "Content summary",
     "for": "for",
     "please": "Please",
@@ -97,7 +98,7 @@
     "submit": "Submit",
     "external_id": "External ID",
     "access_level": "Access Level",
-    "history": "History and comments",
+    "history": "History",
     "from": "From",
     "target": "Target",
     "properties": "Properties",
@@ -127,7 +128,9 @@
       "confirmation_message": "Please type <0>{{resourceId}}</0> to confirm.",
       "confirmation_button_label": "I understand the consequences, delete this {{resourceType}}"
     },
-    "checking_auth": "Checking auth..."
+    "checking_auth": "Checking auth...",
+    "using_ocl_semantic_search": "using OCL Semantic Search",
+    "run_match": "Run $match"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
