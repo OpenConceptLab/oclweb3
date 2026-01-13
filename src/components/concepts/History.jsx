@@ -18,6 +18,8 @@ import CopyIcon from '@mui/icons-material/ContentCopy';
 import compact from 'lodash/compact'
 import map from 'lodash/map'
 
+import { copyURL } from '../../common/utils';
+
 const History = ({ versions, loading, icon, resource }) => {
   const getRepoDetails = uri => {
     const parts = compact(uri.split('/'))
@@ -149,7 +151,9 @@ const History = ({ versions, loading, icon, resource }) => {
                                     {version.checksums?.standard?.slice(0, 8)}
                                   </Typography>
                               </Tooltip>
-                                  <IconButton size='small'><CopyIcon sx={{fontSize: '16px'}} /></IconButton>
+                              <IconButton size='small' onClick={() => copyURL(version.checksums?.standard)}>
+                                <CopyIcon sx={{fontSize: '16px'}} />
+                              </IconButton>
                             </div>
                             <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-end'}}>
                               <Tooltip title='Smart Checksum' placement='left'>
@@ -157,7 +161,9 @@ const History = ({ versions, loading, icon, resource }) => {
                                 {version.checksums?.smart?.slice(0, 8)}
                               </Typography>
                                 </Tooltip>
-                                  <IconButton size='small'><CopyIcon sx={{fontSize: '16px'}} /></IconButton>
+                              <IconButton size='small' onClick={() => copyURL(version.checksums?.smart)}>
+                                <CopyIcon sx={{fontSize: '16px'}} />
+                              </IconButton>
                             </div>
                           </div>
                         </div>
