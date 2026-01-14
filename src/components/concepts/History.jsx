@@ -1,4 +1,5 @@
 import React from 'react'
+import { useHistory } from 'react-router-dom';
 import moment from 'moment'
 import Skeleton from '@mui/material/Skeleton';
 import Timeline from '@mui/lab/Timeline';
@@ -19,16 +20,21 @@ import compact from 'lodash/compact'
 import map from 'lodash/map'
 
 import { copyURL } from '../../common/utils';
+import UserChip from '../users/UserChip'
+import RepoChip from '../repos/RepoChip'
 
 const History = ({ versions, loading, icon, resource }) => {
+  const history = useHistory()
   const getRepoDetails = uri => {
     const parts = compact(uri.split('/'))
     return {
       ownerType: parts[0],
       owner: parts[1],
+      type: parts[2] === 'sources' ? 'Source Version' : (parts[2] === 'collections' ? 'Collection Version' : parts[2]),
       id: parts[3],
       version: parts[4],
-      uri: uri
+      uri: uri,
+      version_url: uri
     }
   }
   return (
@@ -95,21 +101,21 @@ const History = ({ versions, loading, icon, resource }) => {
                     }
                   </TimelineSeparator>
                   <TimelineContent>
-                    <Card variant="outlined">
+                    <Card variant="outlined" sx={{cursor: 'pointer'}} onClick={event => {event.preventDefault(); event.stopPropagation(); history.push(url); return false;}}>
                       <CardContent sx={{padding: '4px 12px !important'}}>
                         <div className='col-xs-12 padding-0' style={{display: 'flex'}}>
                           <div className='col-xs-8 padding-left-0'>
-                            <Button variant='text' color='primary' href={`#${version.version_url}`} sx={{margin: 0, padding: 0, fontSize: '12px', textTransform: 'none', minWidth: 'auto'}}>
-                              <Typography sx={{fontSize: '16px'}} component="div">
-                                {
-                                  version.update_comment ?
-                                    version.update_comment :
-                                    <i>-</i>
-                                }
-                              </Typography>
-                            </Button>
-                            <Typography sx={{ fontSize: '12px' }} color="text.secondary">
-                              <Button variant='text' href={`#/users/${version.version_updated_by}`} sx={{margin: 0, padding: 0, fontSize: '12px', textTransform: 'none', minWidth: 'auto'}}>{version.version_updated_by}</Button> updated {moment(version.version_updated_on).fromNow()}
+                            {
+                              version.update_comment &&
+                                <Button variant='text' color='primary' href={`#${version.version_url}`} sx={{margin: 0, padding: 0, fontSize: '12px', textTransform: 'none', minWidth: 'auto'}}>
+                                  <Typography sx={{fontSize: '16px'}} component="div">
+                                    {version.update_comment}
+                                  </Typography>
+                                </Button>
+                            }
+                            <Typography sx={{ fontSize: '12px', display: 'inline-flex', alignItems: 'center' }} color="text.secondary" component='span'>
+                <UserChip size='small' hideType user={{username: version.version_updated_by, type: 'User', url: `/users/${version.version_updated_by}`}} sx={{'.MuiChip-label': {padding: 0}, marginRight: '4px', border: 0, padding: 0, minWidth: 'auto', '.MuiAvatar-root': {margin: '0 4px 0 0', width: '16px', height: '16px', background: 'transparent'}}} />
+                               updated {moment(version.version_updated_on).fromNow()}
                             </Typography>
                             {
                               version.source_versions?.length > 0 ?
@@ -121,7 +127,7 @@ const History = ({ versions, loading, icon, resource }) => {
                                     map(version.source_versions, repoVersion => {
                                       const repo = getRepoDetails(repoVersion)
                                       return (
-                                        <Button key={repoVersion} variant='text' href={`#${repoVersion}`} sx={{margin: '0 4px', padding: 0, fontSize: '12px', textTransform: 'none', minWidth: 'auto'}}>{repo.id}/{repo.version}</Button>
+                                        <RepoChip hideType key={repoVersion} repo={repo} size='small' sx={{padding: '4px', '.MuiChip-label': {padding: '0 2px 0 0'}, margin: '2px 0'}} />
                                       )
                                     })
                                   }
@@ -137,7 +143,7 @@ const History = ({ versions, loading, icon, resource }) => {
                                     map(version.collection_versions, repoVersion => {
                                       const repo = getRepoDetails(repoVersion)
                                       return (
-                                        <Button key={repoVersion} variant='text' href={`#${repoVersion}`} sx={{margin: '0 4px', padding: 0, fontSize: '12px', textTransform: 'none', minWidth: 'auto'}}>{repo.id}/{repo.version}</Button>
+                                        <RepoChip hideType key={repoVersion} repo={repo} size='small' sx={{padding: '4px', '.MuiChip-label': {padding: '0 2px 0 0'}, margin: '2px 0'}} />
                                       )
                                     })
                                   }
