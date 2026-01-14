@@ -55,9 +55,10 @@ const RepoHome = () => {
   const versionFromURL = (TAB_KEYS.includes(params?.repoVersion) ? '' : params.repoVersion) || ''
 
   const [tab, setTab] = React.useState(findTab)
-  const { setAlert } = React.useContext(OperationsContext);
+  const { setAlert, setContextRepo } = React.useContext(OperationsContext);
 
   const getURL = () => ((toParentURI(location.pathname) + '/').replace('//', '/') + versionFromURL + '/').replace('//', '/')
+
   const fetchRepo = () => {
     setLoading(true)
     setStatus(false)
@@ -67,6 +68,8 @@ const RepoHome = () => {
       setLoading(false)
       const _repo = response?.data || response?.response?.data || {}
       setRepo(_repo)
+      if(!isCollection)
+        setContextRepo(_repo)
       fetchOwner()
       fetchRepoSummary()
       if(isCollection)
@@ -116,6 +119,14 @@ const RepoHome = () => {
     fetchRepo()
     fetchVersions()
   }, [location.pathname])
+
+  React.useEffect(() => {
+    return () => {
+      // runs on unmount
+      setContextRepo(false);
+    };
+  }, []);
+
 
   const onVersionChange = (version, reload=true) => {
     if(reload)

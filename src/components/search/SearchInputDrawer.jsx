@@ -11,6 +11,9 @@ import EnterIcon from '@mui/icons-material/SubdirectoryArrowLeft';
 import UpIcon from '@mui/icons-material/ArrowUpward';
 import DownIcon from '@mui/icons-material/ArrowDownward';
 import SearchIcon from '@mui/icons-material/Search';
+import { PRIMARY_COLORS } from '../../common/colors'
+import { getCurrentUser, hasAuthGroup } from '../../common/utils'
+import { OperationsContext } from '../app/LayoutContext';
 import SearchInputText from './SearchInputText'
 
 const Icon = ({ icon, style }) => (
@@ -26,15 +29,19 @@ const Suggestion = ({ placeholder }) => (
 )
 
 
-const Option = ({ placeholder, selected, onClick, nested, onKeyDown }) => {
+const Option = ({ placeholder, selected, onClick, nested, onKeyDown, text, id, isMatchOp }) => {
   const { t } = useTranslation()
   return (
-    <ListItemButton sx={{padding: '12px'}} selected={selected} onClick={event => onClick(event, nested)} onKeyDown={onKeyDown}>
+    <ListItemButton id={id} sx={{padding: '12px'}} selected={selected} onClick={event => onClick(event, nested)} onKeyDown={onKeyDown}>
       <ListItemAvatar sx={{minWidth: '32px'}}>
-        <SearchIcon color={selected ? 'primary' : undefined } />
+        {
+          isMatchOp ?
+            <i className="fa-solid fa-diagram-project" style={selected ? {color: PRIMARY_COLORS.main} : {}}></i> :
+            <SearchIcon color={selected ? 'primary' : undefined } />
+        }
       </ListItemAvatar>
-      <ListItemText primary={placeholder} />
-      <span style={{display: 'flex', alignItems: 'center', color: '#47464f', fontSize: '12px'}}>
+      <ListItemText primary={placeholder} sx={{paddingRight: '4px'}} />
+      <span style={{display: 'flex', alignItems: 'center', color: '#47464f', fontSize: '12px', textAlign: 'right'}}>
         {
           selected &&
             <Icon
@@ -44,7 +51,11 @@ const Option = ({ placeholder, selected, onClick, nested, onKeyDown }) => {
         }
         <span style={{display: 'flex'}}>
           {
-            nested ? t('search.search_this_repository') : t('search.search_all_concepts')
+            text ?
+              text :
+              (
+                nested ? t('search.search_this_repository') : t('search.search_all_concepts')
+              )
           }
         </span>
       </span>
@@ -52,11 +63,12 @@ const Option = ({ placeholder, selected, onClick, nested, onKeyDown }) => {
   )
 }
 
-const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) => {
+const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, isMatchOp}) => {
   const { t } = useTranslation()
   const inputRef = React.createRef()
   const location = useLocation()
-  let [, ownerType, owner, repoType, repo,] = location.pathname.split('/');
+  const { contextRepo } = React.useContext(OperationsContext);
+  let [, ownerType, owner, repoType, repo, version, resource,] = location.pathname.split('/');
   if(repoType === 'edit')
     repoType = undefined
   if(repo === 'edit')
@@ -64,18 +76,27 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
   const isURLRegistry = location?.pathname?.endsWith('/url-registry') || location?.pathname?.endsWith('/settings')
   const isNested = Boolean(location.pathname !== '/search/' && location.pathname !== '/' && owner && ownerType) || isURLRegistry
   const [focus, setFocus] = React.useState(1);
-  const lastIndex = isNested ? 2 : 1
+
+  const user = getCurrentUser()
+  const canMatchSemantic = Boolean(isNested && (contextRepo?.version || version) !== 'HEAD' && contextRepo?.match_algorithms?.includes('llm') && user?.username && (!resource || resource === 'concepts')) && hasAuthGroup(user, 'mapper-approved') && hasAuthGroup(user, 'staff_user')
+
+  let lastIndex = isNested ? 2 : 1
+  if (canMatchSemantic)
+    lastIndex += 1
   const inputPlaceholder = input || '...'
   const onClickOption = (event, nested) => {
     event.persist()
-    initiateSearch(event, !nested)
+    initiateSearch(event, !nested, event?.currentTarget?.id === 'match_repo' && canMatchSemantic)
   }
   const onKeyPress = event => {
     event.persist()
     if(event.key === 'Enter') {
       inputRef.current.blur()
-      if(focus == 1)
+      if(focus === 1)
         inputProps.handleKeyPress(event)
+      else if(focus === 3 && canMatchSemantic) {
+        initiateSearch(event, false, true)
+      }
       else {
         setFocus(1)
         initiateSearch(event, true)
@@ -135,16 +156,17 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
       open={open}
       onClose={_onClose}
     >
-      <SearchInputText id='search-input-drawer' autoFocus {...inputProps} handleKeyPress={onKeyPress} ref={inputRef} />
+      <SearchInputText id='search-input-drawer' autoFocus {...inputProps} handleKeyPress={onKeyPress} ref={inputRef} isMatchOp={isMatchOp} />
       {
         input &&
           <React.Fragment>
             {
               isNested && repoType && repo && !isURLRegistry &&
                 <Option
+                  id='search_repo'
                   nested
                   index={1}
-                  placeholder={<span>{t('common.search')} <b>{repo}</b> {t('common.for')} <b>{inputPlaceholder}</b></span>}
+                  placeholder={<span>{t('common.search')} <b>{repo}</b> {t('common.for')} "<b>{inputPlaceholder}</b>"</span>}
                   icon
                   selected={focus == 1}
                   onClick={onClickOption}
@@ -154,9 +176,10 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
             {
               isNested && !repo && !isURLRegistry &&
                 <Option
+                  id='search_owner'
                   nested
                   index={1}
-                  placeholder={<span>{t('common.search')} <b>{owner}</b> {repoType} {t('common.for')} <b>{inputPlaceholder}</b></span>}
+                  placeholder={<span>{t('common.search')} <b>{owner}</b> {repoType} {t('common.for')} "<b>{inputPlaceholder}</b>"</span>}
                   icon
                   selected={focus == 1}
                   onClick={onClickOption}
@@ -166,9 +189,10 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
             {
               isURLRegistry &&
                 <Option
+                  id='search'
                   nested
                   index={1}
-                  placeholder={<span>{t('search.search_this_url_registry')}<b>{inputPlaceholder}</b></span>}
+                  placeholder={<span>{t('search.search_this_url_registry')}"<b>{inputPlaceholder}</b>"</span>}
                   icon
                   selected={focus == 1}
                   onClick={onClickOption}
@@ -176,13 +200,28 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps}) =
                 />
             }
             <Option
+              id='search_global'
               index={2}
-              placeholder={<span>{t('search.search_all_site')}<b>{inputPlaceholder}</b></span>}
+              placeholder={<span>{t('search.search_all_site')}"<b>{inputPlaceholder}</b>"</span>}
               selected={focus ===  (isNested ? 2 : 1)}
               icon
               onClick={onClickOption}
               onKeyDown={event => onItemKeyDown(event, isNested ? 2 :1)}
             />
+            {
+              isNested && repoType && repo && !isURLRegistry && canMatchSemantic &&
+                <Option
+                  id='match_repo'
+                  nested
+                  index={3}
+                  placeholder={<span>{t('common.match')} "<b>{inputPlaceholder}</b>" {t('common.to_concepts_in')} <b>{repo}</b></span>}
+                  selected={focus == 3}
+                  onClick={onClickOption}
+                  onKeyDown={event => onItemKeyDown(event, 3)}
+                  text={t('common.run_match')}
+                  isMatchOp
+                />
+            }
             <Divider />
           </React.Fragment>
 

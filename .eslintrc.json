@@ -253,7 +253,8 @@
           "intensional",
           "nullable",
           "versioning",
-          "unversioned"
+          "unversioned",
+          "reranker"
         ],
         "skipIfMatch": [
           "http://[^s]*",

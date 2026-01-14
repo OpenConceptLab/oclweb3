@@ -445,7 +445,7 @@ export const canSwitchServer = () => {
   );
 }
 
-const hasAuthGroup = (user, groupName) => Boolean(find(user?.auth_groups, group => group.includes(groupName)))
+export const hasAuthGroup = (user, groupName) => Boolean(find(user?.auth_groups, group => group.includes(groupName)))
 
 export const canViewOperationsPanel = () => {
   const user = getCurrentUser()

@@ -23,7 +23,7 @@ const FILTERS_WIDTH = 250
 const FILTERABLE_RESOURCES = ['concepts', 'mappings', 'repos', 'sources', 'collections', 'references']
 
 const Search = props => {
-  const { setAlert } = React.useContext(OperationsContext);
+  const { setAlert, contextRepo } = React.useContext(OperationsContext);
   const { t } = useTranslation()
   const history = useHistory();
   const location = useLocation();
@@ -40,6 +40,8 @@ const Search = props => {
   const [showItem, setShowItem] = React.useState(false)
   const [order, setOrder] = React.useState('desc');
   const [orderBy, setOrderBy] = React.useState('score');
+  const [isMatchOp, setIsMatchOp] = React.useState(false)
+
   const didMount = React.useRef(false);
   const isFilterable = _resource => FILTERABLE_RESOURCES.includes(_resource)
 
@@ -69,6 +71,8 @@ const Search = props => {
   const getCurrentLayoutURL = (params, _resource) => {
     /*eslint no-unused-vars: 0*/
     const { q, page, limit, includeSearchMeta, sortAsc, sortDesc, ...filters} = params
+    const isMatch = params['$match']
+    delete filters['$match']
     _resource = _resource || resource || 'concepts'
     if(_resource === 'organizations')
       _resource = 'orgs'
@@ -81,6 +85,8 @@ const Search = props => {
       url += `&limit=${limit}`
     if(page && page > 1)
       url += `&page=${page}`
+    if(isMatch)
+      url += '&$match=true'
     if(!isEmpty(filters)){
       if(_resource === 'references')
         url += Object.entries(filters)
@@ -129,6 +135,7 @@ const Search = props => {
   const setQueryParamsInState = (mustFetch, includeRepoDefaultFilters) => {
     const queryParams = new URLSearchParams(window.location.hash.split('?')[1])
     const value = queryParams.get('q') || ''
+    const isMatch = queryParams.get('$match') === 'true'
     const isDiffFromPrevInput = value !== input
     const _page = parseInt(queryParams.get('page') || 1)
     const _pageSize = parseInt(queryParams.get('limit') || 25)
@@ -155,6 +162,11 @@ const Search = props => {
     }
     if(includeRepoDefaultFilters && !_filters && props.repoDefaultFilters) {
       _filters = getAppliedFacetFromQueryParam(props.repoDefaultFilters)
+    }
+    if(!isEqual(isMatch, isMatchOp)) {
+      setIsMatchOp(isMatch)
+      _fetch = true
+      _fetchFacets = false
     }
     if(!isEqual(filters, _filters)) {
       setFilters(_filters)
@@ -184,8 +196,12 @@ const Search = props => {
       _fetch = true
     }
 
-    if(_fetch)
-      fetchResults(getQueryParams(value, _page, _pageSize, _filters, _orderBy, _order), _fetchFacets, _resource)
+    if(_fetch) {
+      if(isMatch)
+        fetchMatchResults(getQueryParams(value, _page, _pageSize, _filters, _orderBy, _order))
+      else
+        fetchResults(getQueryParams(value, _page, _pageSize, _filters, _orderBy, _order), _fetchFacets, _resource)
+    }
   }
 
   const getAppliedFacetFromQueryParam = filters => {
@@ -227,6 +243,8 @@ const Search = props => {
     } else if(!_input) {
       params.sortAsc = 'id'
     }
+    if(isMatchOp)
+      params['$match'] = true
     return params
   }
 
@@ -271,6 +289,31 @@ const Search = props => {
       setLoading(false)
       if(facets && isFilterable(__resource) && __resource !== 'references')
         fetchFacets(params, resourceResult, __resource)
+    })
+  }
+
+
+  const fetchMatchResults = (params) => {
+    let __resource = 'concepts'
+    setLoading(true)
+    setResult(prev => {
+      return {...prev, [__resource]: {...result[__resource], results: []}}
+    })
+    let _filters = omit(params, ['q', 'page', 'page_number', 'page_size', 'limit', 'offset', 'includeSearchMeta', 'verbose', 'order', 'orderBy', 'sortAsc', 'sortDesc', 'display', 'type'])
+    const payload = {rows: [{name: params.q}], target_repo_url: contextRepo?.version_url, filter: _filters || {}}
+    APIService.new().overrideURL('/concepts/$match/').post(payload, null, null, {verbose: true, includeSearchMeta: true, semantic: true, reranker: true, ...params}).then(response => {
+      if(response?.detail) {
+        setAlert({message: response.detail, severity: 'error', duration: 5000})
+        setLoading(false)
+        return
+      }
+      let __results = get(response, 'data.0.results') || []
+      let total = __results.length + 10
+      const resourceResult = {total: total, pageSize: params?.limit || 10, page: params?.page || params?.page_number || 1, pages: 2, results: __results || [], facets: result[__resource]?.facets || {}}
+      setResult(prev => {
+        return {...result, [__resource]: resourceResult}
+      })
+      setLoading(false)
     })
   }
 
@@ -451,6 +494,7 @@ const Search = props => {
                   excludedColumns={props.excludedColumns}
                   properties={props.properties}
                   propertyFilters={props.propertyFilters}
+                  isMatch={isMatchOp}
                 />
               </div>
             </div>

@@ -91,6 +91,7 @@
     "a": "a",
     "an": "an",
     "with": "with",
+    "to_concepts_in": "to concepts in",
     "json": "JSON",
     "draft": "Draft",
     "highlights": "Highlights",
@@ -130,7 +131,7 @@
     },
     "checking_auth": "Checking auth...",
     "using_ocl_semantic_search": "using OCL Semantic Search",
-    "run_match": "Run $match"
+    "run_match": "Run $match using OCL Semantic Search"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -329,7 +330,7 @@
     "ocl_repo_url": "OCL Repo URL",
     "create_version": "Create Version",
     "version": {
-      "vectorized_for_mapper": "Concepts vectorization is enabled in this version for mapper tool",
+      "vectorized_for_mapper": "Concepts vectorization is enabled for this repository version",
       "form": {
         "id": {
           "label": "ID",

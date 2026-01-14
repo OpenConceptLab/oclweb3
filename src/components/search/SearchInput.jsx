@@ -28,17 +28,17 @@ const SearchInput = props => {
     return false
   }
 
-  const initiateSearch = (event, global) => {
-    performSearch(event, input, global)
-      setOpen(false)
-      setTimeout(blurInput, 1000)
+  const initiateSearch = (event, global, isMatch) => {
+    performSearch(event, input, global, isMatch)
+    setOpen(false)
+    setTimeout(blurInput, 1000)
   }
 
-  const performSearch = (event, value, global) => {
+  const performSearch = (event, value, global, isMatch) => {
     event.preventDefault()
     event.stopPropagation()
 
-    props.onSearch ? props.onSearch(value) : moveToSearchPage(value, global)
+    props.onSearch ? props.onSearch(value) : moveToSearchPage(value, global, isMatch)
   }
 
   const blurInput = () => {
@@ -64,13 +64,17 @@ const SearchInput = props => {
     return URL
   }
 
-  const moveToSearchPage = (value, global) => {
+  const moveToSearchPage = (value, global, isMatch) => {
     if(!props.nested || global) {
       let _input = value || '';
       const queryParams = new URLSearchParams(location.search)
       const resourceType = queryParams.get('type') || 'concepts'
       const isGlobal = (location.pathname === '/' || global)
       let URL = applyURLRules(isGlobal ? '/search/' : location.pathname)
+      if(isMatch)
+        queryParams.set('$match', true)
+      else
+        queryParams.delete('$match')
       if(_input) {
         queryParams.set('q', _input)
         if(isGlobal)
@@ -79,6 +83,7 @@ const SearchInput = props => {
       } else if(isGlobal || queryParams.get('type')) {
         URL += `?type=${resourceType}`
       }
+
       history.push(URL.replace('?&', '?'));
     }
   }
@@ -107,11 +112,15 @@ const SearchInput = props => {
     setTimeout(blurInput, 50)
   }
 
+  const checkIsMatchOp = () => new URLSearchParams(location.search).get('$match') === 'true'
+  const isMatchOp = checkIsMatchOp()
+
   return (
     <React.Fragment>
       <SearchInputText
         id='search-input'
         onClick={() => setOpen(true)}
+        isMatchOp={isMatchOp}
         {...inputProps}
       />
       <SearchInputDrawer
@@ -120,6 +129,7 @@ const SearchInput = props => {
         input={input || ''}
         initiateSearch={initiateSearch}
         inputProps={inputProps}
+        isMatchOp={isMatchOp}
       />
     </React.Fragment>
   )
