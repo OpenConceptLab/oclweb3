@@ -123,7 +123,7 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
       versions.forEach(version => {
         if(!traversed.includes(version.uuid)) {
           const resourceVersionCreatedAt = moment(version.version_created_on)
-          if(resourceVersionCreatedAt.isBefore(versionCreatedAt)) {
+          if((version.source_versions.includes(repoVersion.version_url)) || (resourceVersionCreatedAt.isBefore(versionCreatedAt) && !version.source_versions.length)) {
             repoVersion.resourceVersions.push(version)
             traversed.push(version.uuid)
           }
