@@ -5,7 +5,7 @@ import { useLocation, useHistory } from 'react-router-dom'
 import Fade from '@mui/material/Fade';
 
 import APIService from '../../services/APIService';
-import { toParentURI } from '../../common/utils'
+import { toParentURI, dropVersion } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
@@ -25,6 +25,7 @@ const MappingHome = props => {
   const [mapping, setMapping] = React.useState(props.mapping || {})
   const [versions, setVersions] = React.useState([])
   const [repo, setRepo] = React.useState(props.repo || {})
+  const [repoVersions, setRepoVersions] = React.useState(props.repoVersions || [])
   const [tab, setTab] = React.useState('metadata')
   const [edit, setEdit] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
@@ -86,10 +87,23 @@ const MappingHome = props => {
       const service = APIService.new().overrideURL(_url)
       service.appendToUrl('versions/').get(null, null, {includeCollectionVersions: true, includeSourceVersions: true}).then(response => {
         setVersions(response.data || [])
-        setLoading(false)
+        if(!repoVersions?.length)
+          fetchRepoVersions(_url)
+        else
+          setLoading(false)
       })
     }
   }
+
+  const fetchRepoVersions = url => {
+    if(repoVersions.length === 0 && url) {
+      APIService.new().overrideURL(dropVersion(toParentURI(url))).appendToUrl('versions/').get().then(response => {
+        setRepoVersions(response.data || [])
+        setLoading(false)
+      })
+    } else setLoading(false)
+  }
+
 
   const onTabChange = newTab => {
     setTab(newTab)
@@ -156,6 +170,7 @@ const MappingHome = props => {
                 loading={loading}
                 resource='mappings'
                 icon={<MappingIcon color='primary' fontSize='small' />}
+                repoVersions={repoVersions}
               />
           }
           <RetireConfirmDialog

@@ -131,7 +131,12 @@
     },
     "checking_auth": "Checking auth...",
     "using_ocl_semantic_search": "using OCL Semantic Search",
-    "run_match": "Run $match using OCL Semantic Search"
+    "run_match": "Run $match using OCL Semantic Search",
+    "view_resource_version": "View Resource Version",
+    "copy_api_url": "Copy API URL",
+    "copy_standard_checksum": "Copy Standard Checksum",
+    "copy_smart_checksum": "Copy Smart Checksum",
+    "committed": "committed"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -262,6 +267,7 @@
     "collection_type": "Collection Type",
     "manage": "Manage Repository",
     "repo_id": "Repository ID",
+    "repo_version": "Repo Version",
     "add_concept": "Add Concept",
     "add_mapping": "Add Mapping",
     "source": "Source",

@@ -5,7 +5,7 @@ import Fade from '@mui/material/Fade';
 import Skeleton from '@mui/material/Skeleton';
 
 import APIService from '../../services/APIService';
-import { toParentURI } from '../../common/utils'
+import { toParentURI, dropVersion } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
@@ -27,6 +27,7 @@ const ConceptHome = props => {
   const [versions, setVersions] = React.useState([])
 
   const [repo, setRepo] = React.useState(props.repo || {})
+  const [repoVersions, setRepoVersions] = React.useState(props.repoVersions || [])
   const [tab, setTab] = React.useState('metadata')
   const [edit, setEdit] = React.useState(false)
 
@@ -93,9 +94,22 @@ const ConceptHome = props => {
       const service = APIService.new().overrideURL(_conceptURL)
       service.appendToUrl('versions/').get(null, null, {includeCollectionVersions: true, includeSourceVersions: true}).then(response => {
         setVersions(response.data || [])
-        setLoading(false)
+        if(!repoVersions?.length)
+          fetchRepoVersions(_conceptURL)
+        else
+          setLoading(false)
       })
     }
+  }
+
+  const fetchRepoVersions = conceptURL => {
+    if(repoVersions.length === 0 && conceptURL) {
+      let url = dropVersion(toParentURI(conceptURL))
+      APIService.new().overrideURL(url).appendToUrl('versions/').get().then(response => {
+        setRepoVersions(response.data || [])
+        setLoading(false)
+      })
+    } else setLoading(false)
   }
 
   const onTabChange = newTab => {
@@ -250,6 +264,7 @@ const ConceptHome = props => {
                 {
                   tab === 'history' &&
                     <History
+                      repoVersions={repoVersions}
                       versions={versions}
                       loading={loading}
                       resource='concepts'
