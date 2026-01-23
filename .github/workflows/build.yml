@@ -52,7 +52,7 @@ jobs:
     - name: Setup SSH for premium repos
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.PREMIUM_UI_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+        echo "${{ secrets.PRIVATE_GIT_PACKAGES_DEPLOY_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan github.com >> ~/.ssh/known_hosts
     - name: Build and push Docker image
@@ -64,7 +64,7 @@ jobs:
         tags: openconceptlab/oclweb3:nightly, openconceptlab/oclweb3:${{ steps.package-version.outputs.current-version}}-${{env.GITHUB_SHA_SHORT}}
         build-args: |
           SOURCE_COMMIT=${{env.GITHUB_SHA_SHORT}}
-          PRIVATE_PACKAGES_GIT=${{env.PRIVATE_PACKAGES_GIT}}
+          PRIVATE_PACKAGES_GIT=${{secrets.PRIVATE_PACKAGES_GIT}}
 
   release:
     needs: [build]
