@@ -37,6 +37,9 @@ import ImportHome from '../imports/ImportHome'
 import ConceptsComparison from '../concepts/ConceptsComparison'
 import MappingsComparison from '../mappings/MappingsComparison'
 import CheckAuth from './CheckAuth'
+import { loadUsageDashboard } from "../../common/loadRoutes";
+
+
 
 const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
   <Route
@@ -55,6 +58,13 @@ const SessionUserRoute = ({component: Component, ...rest}) => (
   <Route
     {...rest}
     render={props => getCurrentUser()?.username === rest?.computedMatch?.params?.user ? <Component {...props} /> : <Error403 />}
+  />
+)
+
+const StaffUserRoute = ({component: Component, ...rest}) => (
+  <Route
+    {...rest}
+    render={props => getCurrentUser()?.is_staff ? <Component {...props} /> : <Error404 />}
   />
 )
 
@@ -115,6 +125,13 @@ const App = props => {
     setupHotJar()
   }, [])
 
+  const [UsageDashboard, setUsageDashboard] = React.useState(null);
+
+  React.useEffect(() => {
+    loadUsageDashboard().then(setUsageDashboard);
+  }, []);
+  console.log("UsageDashboard:", UsageDashboard)
+
 
 
   const repoTabs = ['concepts', 'mappings', 'versions', 'summary', 'about', 'references']
@@ -136,6 +153,14 @@ const App = props => {
               <Route exact path="/search" component={Search} />
               <Route exact path="/" component={Dashboard} />
               <Route exact path="/imports" component={ImportHome} />
+              {
+                UsageDashboard &&
+                  <StaffUserRoute
+                    exact
+                    path='/admin'
+                    component={UsageDashboard}
+                  />
+              }
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/sources/:repo/:repoVersion/concepts/$match`} component={RepoConceptsMatch} />
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/repos/new/:step?`} component={RepoCreate} />
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/edit/:step?`} component={RepoCreate} />

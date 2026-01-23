@@ -1,4 +1,6 @@
 # Stage-1 Build and Development Environment
+# syntax=docker/dockerfile:1.4
+
 FROM node:14.11 as build
 ARG NODE_ENV=production
 ARG NODE_OPTIONS=--max_old_space_size=700
@@ -22,6 +24,17 @@ ADD package.json /app/
 ADD package-lock.json /app/
 
 RUN npm ci --production=false
+
+# OPTIONAL: install private premium UI package during image build
+# Example installs a package from a private repo/subdir
+ARG PRIVATE_PACKAGES_GIT
+RUN --mount=type=ssh \
+  mkdir -p /root/.ssh && \
+  ssh-keyscan github.com >> /root/.ssh/known_hosts && \
+  if [ -n "$PRIVATE_PACKAGES_GIT" ]; then \
+    echo "Installing premium UI packages:" $PRIVATE_PACKAGES_GIT && \
+    npm i $PRIVATE_PACKAGES_GIT; \
+  fi
 
 ADD webpack.config.js /app/
 ADD .babelrc /app/

@@ -7,6 +7,7 @@ services:
       context: .
       args:
         NODE_ENV: production
+        PRIVATE_PACKAGES_GIT:
     ports:
       - "4002:4002"
     restart: on-failure
@@ -16,7 +17,7 @@ services:
       - WEB_PORT=4002
       - RECAPTCHA_SITE_KEY=${RECAPTCHA_SITE_KEY-6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI}
       - GA_ACCOUNT_ID=${GA_ACCOUNT_ID-UA-000000-01}
-      - ANALYTICS_API
+      - ANALYTICS_API=${ANALYTICS_API-}
       - ERRBIT_URL
       - ERRBIT_KEY
       - HOTJAR_ID
