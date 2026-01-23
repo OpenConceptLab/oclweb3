@@ -37,7 +37,7 @@ import ImportHome from '../imports/ImportHome'
 import ConceptsComparison from '../concepts/ConceptsComparison'
 import MappingsComparison from '../mappings/MappingsComparison'
 import CheckAuth from './CheckAuth'
-import { loadUsageDashboard } from "../../common/loadRoutes";
+import { loadUsageDashboard } from "../../common/plugins/loader";
 import UserChip from '../users/UserChip'
 import UserTooltip from '../users/UserTooltip'
 
@@ -63,12 +63,14 @@ const SessionUserRoute = ({component: Component, ...rest}) => (
   />
 )
 
-const StaffUserRoute = ({component: Component, componentProps={}, ...rest}) => (
+const StaffUserRoute = ({component: Component, componentProps={}, ...rest}) => {
+  return (
   <Route
     {...rest}
     render={props => getCurrentUser()?.is_staff ? <Component {...props} {...componentProps} /> : <Error404 />}
   />
-)
+  )
+}
 
 const App = props => {
   const [networkError, setNetworkError] = React.useState(false)
@@ -133,7 +135,10 @@ const App = props => {
   const [UsageDashboard, setUsageDashboard] = React.useState(null);
 
   React.useEffect(() => {
-    ANALYTICS_URL ? loadUsageDashboard().then(setUsageDashboard) : null
+    if(ANALYTICS_URL)
+      loadUsageDashboard().then(comp => {
+        setUsageDashboard(() => comp)
+      })
   }, []);
 
   const repoTabs = ['concepts', 'mappings', 'versions', 'summary', 'about', 'references']
@@ -160,6 +165,21 @@ const App = props => {
                   <StaffUserRoute
                     exact
                     path='/admin'
+                    component={UsageDashboard}
+                    componentProps={{
+                      APIService: APIService,
+                      currentUser: getCurrentUser(),
+                      ANALYTICS_URL: ANALYTICS_URL,
+                      UserChip: UserChip,
+                      UserTooltip: UserTooltip
+                    }}
+                  />
+              }
+              {
+                UsageDashboard &&
+                  <StaffUserRoute
+                    exact
+                    path='/admin/users/:user'
                     component={UsageDashboard}
                     componentProps={{
                       APIService: APIService,
