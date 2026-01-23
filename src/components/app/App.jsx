@@ -130,6 +130,7 @@ const App = props => {
   React.useEffect(() => {
     loadUsageDashboard().then(setUsageDashboard);
   }, []);
+  /*eslint no-console: 0*/
   console.log("UsageDashboard:", UsageDashboard)
 
 
