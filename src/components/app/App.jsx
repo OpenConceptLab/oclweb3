@@ -38,6 +38,8 @@ import ConceptsComparison from '../concepts/ConceptsComparison'
 import MappingsComparison from '../mappings/MappingsComparison'
 import CheckAuth from './CheckAuth'
 import { loadUsageDashboard } from "../../common/loadRoutes";
+import UserChip from '../users/UserChip'
+import UserTooltip from '../users/UserTooltip'
 
 
 
@@ -61,10 +63,10 @@ const SessionUserRoute = ({component: Component, ...rest}) => (
   />
 )
 
-const StaffUserRoute = ({component: Component, ...rest}) => (
+const StaffUserRoute = ({component: Component, componentProps={}, ...rest}) => (
   <Route
     {...rest}
-    render={props => getCurrentUser()?.is_staff ? <Component {...props} /> : <Error404 />}
+    render={props => getCurrentUser()?.is_staff ? <Component {...props} {...componentProps} /> : <Error404 />}
   />
 )
 
@@ -77,6 +79,9 @@ const App = props => {
     if(HID)
       hotjar.initialize(HID, 6);
   }
+
+  /*eslint no-undef: 0*/
+  const ANALYTICS_URL = window.ANALYTICS_API || process.env.ANALYTICS_API
 
   const fetchToggles = async () => {
     return new Promise(resolve => {
@@ -128,12 +133,8 @@ const App = props => {
   const [UsageDashboard, setUsageDashboard] = React.useState(null);
 
   React.useEffect(() => {
-    loadUsageDashboard().then(setUsageDashboard);
+    ANALYTICS_URL ? loadUsageDashboard().then(setUsageDashboard) : null
   }, []);
-  /*eslint no-console: 0*/
-  console.log("UsageDashboard:", UsageDashboard)
-
-
 
   const repoTabs = ['concepts', 'mappings', 'versions', 'summary', 'about', 'references']
   const orgTabs = ['repos']
@@ -160,6 +161,13 @@ const App = props => {
                     exact
                     path='/admin'
                     component={UsageDashboard}
+                    componentProps={{
+                      APIService: APIService,
+                      currentUser: getCurrentUser(),
+                      ANALYTICS_URL: ANALYTICS_URL,
+                      UserChip: UserChip,
+                      UserTooltip: UserTooltip
+                    }}
                   />
               }
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/sources/:repo/:repoVersion/concepts/$match`} component={RepoConceptsMatch} />
