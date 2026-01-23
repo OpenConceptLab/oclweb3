@@ -55,6 +55,10 @@ jobs:
         echo "${{ secrets.PRIVATE_GIT_PACKAGES_DEPLOY_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan github.com >> ~/.ssh/known_hosts
+    - name: Setup SSH agent
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.PRIVATE_GIT_PACKAGES_DEPLOY_KEY }}
     - name: Build and push Docker image
       uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
       with:
