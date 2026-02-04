@@ -1064,4 +1064,4 @@ export const toCamelCase = str => {
     .replace(/^(.)/, (m) => m.toLowerCase());
 }
 
-export const isInWaitlist = () => getCurrentUser()?.extras?.__oidc_groups?.includes('mapper-waitlist')
+export const isInWaitlist = () => getCurrentUser()?.auth_groups?.includes('mapper-waitlist')
