@@ -56,6 +56,10 @@ const OrgHeader = ({ org, members, onDeleteClick, canDelete, fetchMembers }) => 
     history.push(org.url + 'repos/new')
   }
 
+  const extrasKeys = Object.keys(org.extras || {})
+  const hasCustomAttrs = extrasKeys.length > 0
+  const extrasFields = Object.fromEntries(extrasKeys.map(key => [`extras.${key}`, {label: key}]))
+
   return (
     <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderRadius: '8px 8px 0 0', display: 'inline-flex'}}>
       {
@@ -85,22 +89,18 @@ const OrgHeader = ({ org, members, onDeleteClick, canDelete, fetchMembers }) => 
           <Property icon={<LocationIcon sx={iconStyle} />} value={org.location} />
           <Property icon={<LinkIcon sx={iconStyle} />} value={org?.website} label={formatWebsiteLink(org?.website, {color: 'inherit'})} />
           <Property icon={<CompanyIcon sx={iconStyle} />} value={org?.company} />
-          <Property label={<Link sx={{fontSize: '14px'}} label={t('common.view_all_attributes')} onClick={() => setViewAll(true)} />} />
+          {hasCustomAttrs && <Property label={<Link sx={{fontSize: '14px'}} label={t('common.view_all_attributes')} onClick={() => setViewAll(true)} />} />}
         </div>
       </div>
-      <EntityAttributesDialog
-        fields={{
-          company: {label: t('user.company')},
-          extras: {label: t('custom_attributes.label'), type: 'json'},
-          created_on: {label: t('common.created_on'), type: 'datetime'},
-          updated_on: {label: t('common.updated_on'), type: 'datetime'},
-          created_by: {label: t('common.created_by'), type: 'user'},
-          updated_by: {label: t('common.updated_by'), type: 'user'},
-        }}
-        entity={org}
-        open={viewAll}
-        onClose={() => setViewAll(false)}
-      />
+      {
+        hasCustomAttrs &&
+          <EntityAttributesDialog
+            fields={extrasFields}
+            entity={org}
+            open={viewAll}
+            onClose={() => setViewAll(false)}
+          />
+      }
       <Menu
         sx={{'.MuiPaper-root': {backgroundColor: 'surface.n94'}}}
         anchorEl={anchorEl}
