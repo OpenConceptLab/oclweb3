@@ -8,6 +8,7 @@ services:
       target: build
       args:
         NODE_ENV: development
+        PRIVATE_PACKAGES_GIT:
     ports:
       - "4002:4002"
       - "4003:35729"

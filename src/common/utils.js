@@ -445,7 +445,7 @@ export const canSwitchServer = () => {
   );
 }
 
-const hasAuthGroup = (user, groupName) => Boolean(find(user?.auth_groups, group => group.includes(groupName)))
+export const hasAuthGroup = (user, groupName) => Boolean(find(user?.auth_groups, group => group.includes(groupName)))
 
 export const canViewOperationsPanel = () => {
   const user = getCurrentUser()
@@ -1064,4 +1064,4 @@ export const toCamelCase = str => {
     .replace(/^(.)/, (m) => m.toLowerCase());
 }
 
-export const isInWaitlist = () => getCurrentUser()?.extras?.__oidc_groups?.includes('mapper-waitlist')
+export const isInWaitlist = () => getCurrentUser()?.auth_groups?.includes('mapper-waitlist')

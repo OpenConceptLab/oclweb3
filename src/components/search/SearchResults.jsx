@@ -174,6 +174,8 @@ const SearchResults = props => {
     const { results, resource, title } = props
     if(title)
       return title
+    if(props.isMatch)
+      return 'Matched Candidates'
     const total = results?.total
     if(isNumber(total) && !isNaN(total)) {
       const isMore = total && total === 10000;
@@ -216,7 +218,7 @@ const SearchResults = props => {
   }, [props.selected])
 
 
-  const defaultLabelDisplayedRows = ({ from, to, count }) => `${from}–${to} of ${count !== -1 ? count?.toLocaleString() : `more than ${to?.toLocaleString()}`}`
+  const defaultLabelDisplayedRows = ({ from, to, count }) => `${from}–${to} of ${count !== -1 ? count?.toLocaleString() : (props.isMatch ? 'many' : `more than ${to?.toLocaleString()}`)}`
 
   return (
     <Box sx={{ width: '100%', background: 'inherit', height: '100%', ...props.sx }}>
@@ -237,7 +239,6 @@ const SearchResults = props => {
             noCardDisplay={noCardDisplay}
             toolbarControl={props.toolbarControl}
             appliedFilters={props.appliedFilters}
-            openFilters={props.openFilters}
           />
       }
       {
@@ -254,7 +255,7 @@ const SearchResults = props => {
               <TablePagination
                 rowsPerPageOptions={[10, 25, 50, 100]}
                 component="div"
-                count={props.results?.total || 0}
+                count={props.isMatch ? -1 : props.results?.total || 0}
                 rowsPerPage={rowsPerPage || 25}
                 page={(page || 1) - 1}
                 onPageChange={handleChangePage}

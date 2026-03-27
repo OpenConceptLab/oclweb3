@@ -108,7 +108,7 @@ const Avatar = ({ entity, icon }) => {
     </MuiAvatar>
 }
 
-const Label = ({ entity, hideType }) => {
+const Label = ({ entity, hideType, hideRepoVersion }) => {
   return (
     <span style={{display: 'flex', alignItems: 'center'}} className='entity-label'>
       <span className='entity-id'>
@@ -119,6 +119,16 @@ const Label = ({ entity, hideType }) => {
           <span className='entity-name' style={{marginLeft: '4px'}}>
             {entity.display_name}
           </span>
+      }
+      {
+        ['Source Version', 'Collection Version'].includes(entity?.type) && entity.version && !hideRepoVersion &&
+          <React.Fragment>
+            <span className='divider-span' />
+            <span className='entity-type'>
+              {entity.version}
+            </span>
+          </React.Fragment>
+
       }
       {
         !hideType &&
@@ -134,13 +144,13 @@ const Label = ({ entity, hideType }) => {
 }
 
 
-const BaseEntityChip = ({ entity, icon, hideType, primary, size, sx, noLink, ...rest }) => {
+const BaseEntityChip = ({ entity, icon, hideType, hideRepoVersion, primary, size, sx, noLink, ...rest }) => {
   const sizeStyle = ENTITY_CHIP_SIZE_MAP[size || 'medium'] || ENTITY_CHIP_SIZE_MAP.medium
   const baseStyle = primary ? PRIMARY_STYLE : SECONDARY_STYLE
   return (
     <Chip
       avatar={<Avatar entity={entity} icon={icon} />}
-      label={<Label entity={entity} hideType={hideType} />}
+      label={<Label entity={entity} hideType={hideType} hideRepoVersion={hideRepoVersion} />}
       variant='outlined'
       sx={{
         borderRadius: '4px',

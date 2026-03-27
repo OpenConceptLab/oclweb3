@@ -251,7 +251,10 @@
           "waitlist",
           "vectorized",
           "intensional",
-          "nullable"
+          "nullable",
+          "versioning",
+          "unversioned",
+          "reranker"
         ],
         "skipIfMatch": [
           "http://[^s]*",

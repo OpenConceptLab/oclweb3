@@ -37,6 +37,11 @@ import ImportHome from '../imports/ImportHome'
 import ConceptsComparison from '../concepts/ConceptsComparison'
 import MappingsComparison from '../mappings/MappingsComparison'
 import CheckAuth from './CheckAuth'
+import { loadUsageDashboard } from "../../common/plugins/loader";
+import UserChip from '../users/UserChip'
+import UserTooltip from '../users/UserTooltip'
+
+
 
 const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
   <Route
@@ -58,6 +63,15 @@ const SessionUserRoute = ({component: Component, ...rest}) => (
   />
 )
 
+const StaffUserRoute = ({component: Component, componentProps={}, ...rest}) => {
+  return (
+  <Route
+    {...rest}
+    render={props => getCurrentUser()?.is_staff ? <Component {...props} {...componentProps} /> : <Error404 />}
+  />
+  )
+}
+
 const App = props => {
   const [networkError, setNetworkError] = React.useState(false)
   const { alert, setAlert, setToggles } = React.useContext(OperationsContext);
@@ -67,6 +81,9 @@ const App = props => {
     if(HID)
       hotjar.initialize(HID, 6);
   }
+
+  /*eslint no-undef: 0*/
+  const ANALYTICS_URL = window.ANALYTICS_API || process.env.ANALYTICS_API
 
   const fetchToggles = async () => {
     return new Promise(resolve => {
@@ -115,7 +132,14 @@ const App = props => {
     setupHotJar()
   }, [])
 
+  const [UsageDashboard, setUsageDashboard] = React.useState(null);
 
+  React.useEffect(() => {
+    if(ANALYTICS_URL)
+      loadUsageDashboard().then(comp => {
+        setUsageDashboard(() => comp)
+      })
+  }, []);
 
   const repoTabs = ['concepts', 'mappings', 'versions', 'summary', 'about', 'references']
   const orgTabs = ['repos']
@@ -136,6 +160,36 @@ const App = props => {
               <Route exact path="/search" component={Search} />
               <Route exact path="/" component={Dashboard} />
               <Route exact path="/imports" component={ImportHome} />
+              {
+                UsageDashboard &&
+                  <StaffUserRoute
+                    exact
+                    path='/admin'
+                    component={UsageDashboard}
+                    componentProps={{
+                      APIService: APIService,
+                      currentUser: getCurrentUser(),
+                      ANALYTICS_URL: ANALYTICS_URL,
+                      UserChip: UserChip,
+                      UserTooltip: UserTooltip
+                    }}
+                  />
+              }
+              {
+                UsageDashboard &&
+                  <StaffUserRoute
+                    exact
+                    path='/admin/users/:user'
+                    component={UsageDashboard}
+                    componentProps={{
+                      APIService: APIService,
+                      currentUser: getCurrentUser(),
+                      ANALYTICS_URL: ANALYTICS_URL,
+                      UserChip: UserChip,
+                      UserTooltip: UserTooltip
+                    }}
+                  />
+              }
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/sources/:repo/:repoVersion/concepts/$match`} component={RepoConceptsMatch} />
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/repos/new/:step?`} component={RepoCreate} />
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/edit/:step?`} component={RepoCreate} />

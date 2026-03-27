@@ -55,9 +55,10 @@ const RepoHome = () => {
   const versionFromURL = (TAB_KEYS.includes(params?.repoVersion) ? '' : params.repoVersion) || ''
 
   const [tab, setTab] = React.useState(findTab)
-  const { setAlert } = React.useContext(OperationsContext);
+  const { setAlert, setContextRepo } = React.useContext(OperationsContext);
 
   const getURL = () => ((toParentURI(location.pathname) + '/').replace('//', '/') + versionFromURL + '/').replace('//', '/')
+
   const fetchRepo = () => {
     setLoading(true)
     setStatus(false)
@@ -67,6 +68,8 @@ const RepoHome = () => {
       setLoading(false)
       const _repo = response?.data || response?.response?.data || {}
       setRepo(_repo)
+      if(!isCollection)
+        setContextRepo(_repo)
       fetchOwner()
       fetchRepoSummary()
       if(isCollection)
@@ -116,6 +119,14 @@ const RepoHome = () => {
     fetchRepo()
     fetchVersions()
   }, [location.pathname])
+
+  React.useEffect(() => {
+    return () => {
+      // runs on unmount
+      setContextRepo(false);
+    };
+  }, []);
+
 
   const onVersionChange = (version, reload=true) => {
     if(reload)
@@ -289,11 +300,11 @@ const RepoHome = () => {
       <div className={'col-xs-5 padding-0' + (isSplitView ? ' split-appear' : '')} style={{marginLeft: '16px', width: isSplitView ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: isSplitView ? 'calc(100vh - 102px)' : 0, opacity: isSplitView ? 1 : 0, overflow: 'auto'}}>
         {
           Boolean(showConceptURL && !conceptForm) &&
-            <ConceptHome repoSummary={repoSummary} source={repo} repo={repo} url={showConceptURL} concept={showItem} onClose={() => setShowItem(false)} nested />
+            <ConceptHome repoSummary={repoSummary} repo={repo} url={showConceptURL} concept={showItem} onClose={() => setShowItem(false)} repoVersions={versions} nested />
         }
         {
           showMappingURL &&
-            <MappingHome repoSummary={repoSummary} source={repo} repo={repo} url={showMappingURL} mapping={showItem} onClose={() => setShowItem(false)} nested />
+            <MappingHome repoSummary={repoSummary} repo={repo} url={showMappingURL} mapping={showItem} onClose={() => setShowItem(false)} repoVersions={versions} nested />
         }
         {
           conceptForm &&

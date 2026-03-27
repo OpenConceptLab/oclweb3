@@ -16,7 +16,7 @@ const ConceptTabs = ({ tab, onTabChange }) => {
       sx={{width: '100%', borderBottom: '1px solid', borderColor: 'surface.n90'}}
     >
       <Tab value="metadata" label={t('common.details')} sx={TAB_STYLES} />
-      <Tab disabled value="history" label={t('common.history')} sx={TAB_STYLES} />
+      <Tab value="history" label={t('common.history')} sx={TAB_STYLES} />
     </Tabs>
   )
 }

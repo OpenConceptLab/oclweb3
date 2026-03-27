@@ -11,6 +11,7 @@ const LayoutContext = ({ subPages }) => {
   const [parentItem, setParentItem] = React.useState(null);
   const [toggles, setToggles] = React.useState({});
   const [alert, setAlert] = React.useState(false);
+  const [contextRepo, setContextRepo] = React.useState(false)
   return (
     <OperationsProvider
       value={{
@@ -27,7 +28,9 @@ const LayoutContext = ({ subPages }) => {
         setToggles: setToggles,
         toggles: toggles,
         alert: alert,
-        setAlert: setAlert
+        setAlert: setAlert,
+        contextRepo: contextRepo,
+        setContextRepo: setContextRepo
       }}>
       {subPages}
     </OperationsProvider>

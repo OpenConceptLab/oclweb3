@@ -12,22 +12,14 @@ import {
   Divider,
   Badge
 } from "@mui/material";
-import forEach from 'lodash/forEach'
+import pickBy from 'lodash/pickBy'
 
 const DEFAULT_FILTERS = {
-  // any | true | false
-  resource_versioned: "any",
-  repo_versioned: "any",
-
-  // any | none | source_to_concepts | source_mappings
-  cascade: "any",
-
-  // any | intensional | extensional
-  transform: "any",
-
-  // include/exclude: null | true
-  include: null,
-  exclude: null
+  versioning: "", // unversioned | repository | resource
+  repo_version: "", // version
+  cascade: "", // any | none | source_to_concepts | source_mappings
+  definition_type: "", // intensional | extensional
+  inclusion_type: "", // include | exclude
 };
 
 const ReferenceFilters = ({ onChange, heightToSubtract }) => {
@@ -37,59 +29,12 @@ const ReferenceFilters = ({ onChange, heightToSubtract }) => {
   const toggleGroupValue = (key, value) => {
     setFilters(prev => ({
       ...prev,
-      [key]: prev[key] === value ? "any" : value
-    }));
-  };
-
-  // Keep your include/exclude checkbox semantics:
-  // checked => true, unchecked => null (means "not filtering")
-  const toggleNullableTrue = (key, value) => () => {
-    const checked = value;
-    setFilters(prev => ({
-      ...prev,
-      [key]: checked ? true : null
+      [key]: prev[key] === value ? "" : value
     }));
   };
 
   const onApply = () => {
-    const params = {};
-
-    if (filters.resource_versioned !== "any") {
-      params.resource_versioned = filters.resource_versioned; // "true" / "false"
-    }
-
-    if (filters.repo_versioned !== "any") {
-      params.repo_versioned = filters.repo_versioned; // "true" / "false"
-    }
-
-    if (filters.cascade !== "any") {
-      params.cascade = filters.cascade === "none" ? "false" : filters.cascade;
-    }
-
-    if (filters.transform === "intensional") {
-      params.intensional = "true";
-    } else if (filters.transform === "extensional") {
-      params.extensional = "true";
-    }
-
-    if (filters.include !== null) params.include = "true";
-    if (filters.exclude !== null) params.exclude = "true";
-    let newParams = {}
-    forEach(params, (value, key) => {
-      if(value === 'true')
-        newParams[key] = true
-      else if (value === 'false')
-        newParams[key] = false
-      else if (key === 'cascade')
-        newParams[key] = value
-      else if(key === 'transform') {
-        if(value === 'intensional')
-          newParams.intensional = true
-        if(value === 'extensional')
-          newParams.extensional = true
-      }
-    })
-    onChange?.(newParams);
+    onChange?.({...pickBy(filters, value => value)});
   };
 
   const onClear = () => {
@@ -99,12 +44,11 @@ const ReferenceFilters = ({ onChange, heightToSubtract }) => {
 
   const count = React.useMemo(() => {
     let c = 0;
-    if (filters.resource_versioned !== "any") c += 1;
-    if (filters.repo_versioned !== "any") c += 1;
-    if (filters.cascade !== "any") c += 1;
-    if (filters.transform !== "any") c += 1;
-    if (filters.include !== null) c += 1;
-    if (filters.exclude !== null) c += 1;
+    if (filters.versioning) c += 1;
+    if (filters.repo_version) c += 1;
+    if (filters.cascade) c += 1;
+    if (filters.definition_type) c += 1;
+    if (filters.inclusion_type) c += 1;
     return c;
   }, [filters]);
 
@@ -178,71 +122,41 @@ const ReferenceFilters = ({ onChange, heightToSubtract }) => {
                   lineHeight: "32px"
                 }}
               >
-                Resource Versioned
+                Reference Versioning
               </ListSubheader>
 
               {/* Resource Versioned: true/false */}
-              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("resource_versioned", "true")}>
+              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("versioning", "unversioned")}>
                 <ListItemIcon sx={{ minWidth: "auto" }}>
                   <Checkbox
                     sx={{ padding: "0 8px" }}
                     size="small"
-                    checked={filters.resource_versioned === "true"}
+                    checked={filters.versioning === "unversioned"}
                   />
                 </ListItemIcon>
-                <ListItemText primary="True" />
+                <ListItemText primary="Unversioned" />
               </ListItemButton>
 
-              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("resource_versioned", "false")}>
+              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("versioning", "repository")}>
                 <ListItemIcon sx={{ minWidth: "auto" }}>
                   <Checkbox
                     sx={{ padding: "0 8px" }}
                     size="small"
-                    checked={filters.resource_versioned === "false"}
+                    checked={filters.versioning === "repository"}
                   />
                 </ListItemIcon>
-                <ListItemText primary="False" />
-              </ListItemButton>
-            </ul>
-          </li>
-
-          <Divider sx={{ marginTop: "8px" }} />
-
-          <li>
-            <ul style={{ paddingLeft: 0 }}>
-              <ListSubheader
-                sx={{
-                  bgcolor: "background.paper",
-                  position: "sticky",
-                  top: 0,
-                  paddingLeft: "12px",
-                  lineHeight: "32px"
-                }}
-              >
-                Repo Versioned
-              </ListSubheader>
-
-              {/* Repo Versioned: true/false */}
-              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("repo_versioned", "true")}>
-                <ListItemIcon sx={{ minWidth: "auto" }}>
-                  <Checkbox
-                    sx={{ padding: "0 8px" }}
-                    size="small"
-                    checked={filters.repo_versioned === "true"}
-                  />
-                </ListItemIcon>
-                <ListItemText primary="True" />
+                <ListItemText primary="Repository" />
               </ListItemButton>
 
-              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("repo_versioned", "false")}>
+              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("versioning", "resource")}>
                 <ListItemIcon sx={{ minWidth: "auto" }}>
                   <Checkbox
                     sx={{ padding: "0 8px" }}
                     size="small"
-                    checked={filters.repo_versioned === "false"}
+                    checked={filters.versioning === "resource"}
                   />
                 </ListItemIcon>
-                <ListItemText primary="False" />
+                <ListItemText primary="Resource" />
               </ListItemButton>
             </ul>
           </li>
@@ -261,29 +175,29 @@ const ReferenceFilters = ({ onChange, heightToSubtract }) => {
                   lineHeight: "32px"
                 }}
               >
-                Transform
+                Definition Type
               </ListSubheader>
 
-              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("transform", "intensional")}>
+              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("definition_type", "intensional")}>
                 <ListItemIcon sx={{ minWidth: "auto" }}>
                   <Checkbox
                     sx={{ padding: "0 8px" }}
                     size="small"
-                    checked={filters.transform === "intensional"}
+                    checked={filters.definition_type === "intensional"}
                   />
                 </ListItemIcon>
-                <ListItemText primary="Intensional" />
+                <ListItemText primary="Intensional / Rule-based" />
               </ListItemButton>
 
-              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("transform", "extensional")}>
+              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("definition_type", "extensional")}>
                 <ListItemIcon sx={{ minWidth: "auto" }}>
                   <Checkbox
                     sx={{ padding: "0 8px" }}
                     size="small"
-                    checked={filters.transform === "extensional"}
+                    checked={filters.definition_type === "extensional"}
                   />
                 </ListItemIcon>
-                <ListItemText primary="Extensional" />
+                <ListItemText primary="Extensional / Enumerated" />
               </ListItemButton>
             </ul>
           </li>
@@ -306,22 +220,22 @@ const ReferenceFilters = ({ onChange, heightToSubtract }) => {
               </ListSubheader>
 
               {/* None => cascade=false */}
-              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("cascade", "true")}>
+              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("cascade", "any")}>
                 <ListItemIcon sx={{ minWidth: "auto" }}>
                   <Checkbox
                     sx={{ padding: "0 8px" }}
                     size="small"
-                    checked={filters.cascade === "true"}
+                    checked={filters.cascade === "any"}
                   />
                 </ListItemIcon>
                 <ListItemText primary="Any" />
               </ListItemButton>
-              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("cascade", "false")}>
+              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("cascade", "none")}>
                 <ListItemIcon sx={{ minWidth: "auto" }}>
                   <Checkbox
                     sx={{ padding: "0 8px" }}
                     size="small"
-                    checked={filters.cascade === "false"}
+                    checked={filters.cascade === "none"}
                   />
                 </ListItemIcon>
                 <ListItemText primary="None" />
@@ -370,23 +284,23 @@ const ReferenceFilters = ({ onChange, heightToSubtract }) => {
                 Inclusion Type
               </ListSubheader>
 
-              <ListItemButton sx={{ padding: 0 }} onClick={toggleNullableTrue("include", !filters.include)}>
+              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("inclusion_type", 'include')}>
                 <ListItemIcon sx={{ minWidth: "auto" }}>
                   <Checkbox
                     sx={{ padding: "0 8px" }}
                     size="small"
-                    checked={filters.include === true}
+                    checked={filters.inclusion_type === 'include'}
                   />
                 </ListItemIcon>
                 <ListItemText primary="Include" />
               </ListItemButton>
 
-              <ListItemButton sx={{ padding: 0 }} onClick={toggleNullableTrue("exclude", !filters.exclude)}>
+              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("inclusion_type", 'exclude')}>
                 <ListItemIcon sx={{ minWidth: "auto" }}>
                   <Checkbox
                     sx={{ padding: "0 8px" }}
                     size="small"
-                    checked={filters.exclude === true}
+                    checked={filters.inclusion_type === 'exclude'}
                   />
                 </ListItemIcon>
                 <ListItemText primary="Exclude" />

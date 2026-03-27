@@ -58,6 +58,7 @@
     "navigate": "Navigate",
     "select": "Select",
     "search": "Search",
+    "match": "Match",
     "content_summary": "Content summary",
     "for": "for",
     "please": "Please",
@@ -90,6 +91,7 @@
     "a": "a",
     "an": "an",
     "with": "with",
+    "to_concepts_in": "to concepts in",
     "json": "JSON",
     "draft": "Draft",
     "highlights": "Highlights",
@@ -97,7 +99,7 @@
     "submit": "Submit",
     "external_id": "External ID",
     "access_level": "Access Level",
-    "history": "History and comments",
+    "history": "History",
     "from": "From",
     "target": "Target",
     "properties": "Properties",
@@ -127,7 +129,14 @@
       "confirmation_message": "Please type <0>{{resourceId}}</0> to confirm.",
       "confirmation_button_label": "I understand the consequences, delete this {{resourceType}}"
     },
-    "checking_auth": "Checking auth..."
+    "checking_auth": "Checking auth...",
+    "using_ocl_semantic_search": "using OCL Semantic Search",
+    "run_match": "Run $match using OCL Semantic Search",
+    "view_resource_version": "View Resource Version",
+    "copy_api_url": "Copy API URL",
+    "copy_standard_checksum": "Copy Standard Checksum",
+    "copy_smart_checksum": "Copy Smart Checksum",
+    "committed": "committed"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -258,6 +267,7 @@
     "collection_type": "Collection Type",
     "manage": "Manage Repository",
     "repo_id": "Repository ID",
+    "repo_version": "Repo Version",
     "add_concept": "Add Concept",
     "add_mapping": "Add Mapping",
     "source": "Source",
@@ -326,7 +336,7 @@
     "ocl_repo_url": "OCL Repo URL",
     "create_version": "Create Version",
     "version": {
-      "vectorized_for_mapper": "Concepts vectorization is enabled in this version for mapper tool",
+      "vectorized_for_mapper": "Concepts vectorization is enabled for this repository version",
       "form": {
         "id": {
           "label": "ID",

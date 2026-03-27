@@ -6,7 +6,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 
-const SearchInputText = React.forwardRef(({ id, input, clearSearch, onClick, handleInputChange, handleKeyPress, autoFocus, ...rest }, ref) => {
+const SearchInputText = React.forwardRef(({ id, input, clearSearch, onClick, handleInputChange, handleKeyPress, autoFocus, isMatchOp, ...rest }, ref) => {
   return (
     <TextField
       id={id}
@@ -17,7 +17,7 @@ const SearchInputText = React.forwardRef(({ id, input, clearSearch, onClick, han
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
-            <SearchIcon />
+            { isMatchOp ? <i className="fa-solid fa-diagram-project"></i> : <SearchIcon /> }
           </InputAdornment>
         ),
         endAdornment: (
