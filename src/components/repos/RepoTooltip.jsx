@@ -121,7 +121,7 @@ const TooltipTitle = ({ repo }) => {
   )
 }
 
-const RepoTooltip = ({ repo, basicTooltip, children, spanStyle }) => {
+const RepoTooltip = ({ repo, basicTooltip, children, spanStyle, enterDelay, enterNextDelay }) => {
   return basicTooltip ? (
     <MUIBasicTooltip title={basicTooltip}>
       <span style={{display: 'flex', ...spanStyle}}>
@@ -135,6 +135,8 @@ const RepoTooltip = ({ repo, basicTooltip, children, spanStyle }) => {
           maxWidth: 400
         }
       }}
+      enterDelay={enterDelay}
+      enterNextDelay={enterNextDelay}
       title={
         <React.Fragment>
           <TooltipTitle repo={repo} />

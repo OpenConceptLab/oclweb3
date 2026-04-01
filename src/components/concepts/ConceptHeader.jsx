@@ -5,16 +5,19 @@ import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton';
 import Button from '@mui/material/Button';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
+import AddIcon from '@mui/icons-material/PlaylistAddOutlined';
 import CloseIconButton from '../common/CloseIconButton';
 import { toOwnerURI, currentUserHasAccess } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
 import { BLACK } from '../../common/colors'
 import ConceptManagementList from './ConceptManagementList'
+import AddToCollectionDialog from '../common/AddToCollectionDialog'
 
 const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, nested, loading}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
+  const [addToCollectionOpen, setAddToCollectionOpen] = React.useState(false)
   const onMenuOpen = event => {
     setMenuAnchorEl(event.currentTarget)
     setMenu(true)
@@ -69,17 +72,36 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, neste
     }
     </div>
     {
-      currentUserHasAccess() && repo?.version === 'HEAD' && has(repo, 'source_type') && !loading &&
+      !loading &&
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-        <span style={{display: 'flex', alignItems: 'center'}} />
+        <span style={{display: 'flex', alignItems: 'center'}}>
+          {currentUserHasAccess() && (
+            <Button
+              startIcon={<AddIcon fontSize='inherit' />}
+              variant='text'
+              size='small'
+              sx={{textTransform: 'none', color: 'surface.contrastText'}}
+              onClick={() => setAddToCollectionOpen(true)}
+            >
+              Add to Collection
+            </Button>
+          )}
+        </span>
+        {currentUserHasAccess() && repo?.version === 'HEAD' && has(repo, 'source_type') && (
             <span>
               <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='concept-actions'>
                 {t('common.actions')}
               </Button>
               <ConceptManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='concept-actions' onClick={onManageOptionClick} concept={concept} />
             </span>
+          )}
       </div>
         }
+      <AddToCollectionDialog
+        open={addToCollectionOpen}
+        onClose={() => setAddToCollectionOpen(false)}
+        concept={concept}
+      />
     </React.Fragment>
   )
 }
