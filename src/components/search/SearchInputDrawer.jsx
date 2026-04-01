@@ -78,7 +78,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
   const [focus, setFocus] = React.useState(1);
 
   const user = getCurrentUser()
-  const canMatchSemantic = Boolean(isNested && (contextRepo?.version || version) !== 'HEAD' && contextRepo?.match_algorithms?.includes('llm') && user?.username && (!resource || resource === 'concepts')) && hasAuthGroup(user, 'mapper-approved') && hasAuthGroup(user, 'staff_user')
+  const canMatchSemantic = Boolean(isNested && (contextRepo?.version || version) !== 'HEAD' && contextRepo?.match_algorithms?.includes('llm') && user?.username && (!resource || resource === 'concepts')) && hasAuthGroup(user, 'mapper-approved') && hasAuthGroup(user, 'core_user')
 
   let lastIndex = isNested ? 2 : 1
   if (canMatchSemantic)
