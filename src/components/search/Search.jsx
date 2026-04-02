@@ -4,6 +4,9 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import OrgIcon from '@mui/icons-material/AccountBalance';
 import UserIcon from '@mui/icons-material/Person';
 import { forEach, keys, pickBy, isEmpty, find, uniq, has, orderBy as sortBy, uniqBy, omit, max, isEqual, isBoolean } from 'lodash';
@@ -17,6 +20,7 @@ import SearchResults from './SearchResults';
 import SearchFilters from './SearchFilters'
 import { OperationsContext } from '../app/LayoutContext';
 import ReferenceFilters from '../repos/ReferenceFilters'
+import DeleteReferencesDialog from '../collections/DeleteReferencesDialog'
 
 const DEFAULT_LIMIT = 25;
 const FILTERS_WIDTH = 250
@@ -38,6 +42,7 @@ const Search = props => {
   const [filters, setFilters] = React.useState({})
   const [selected, setSelected] = React.useState([])
   const [showItem, setShowItem] = React.useState(false)
+  const [deleteReferencesOpen, setDeleteReferencesOpen] = React.useState(false)
   const [order, setOrder] = React.useState('desc');
   const [orderBy, setOrderBy] = React.useState('score');
   const [isMatchOp, setIsMatchOp] = React.useState(false)
@@ -421,6 +426,35 @@ const Search = props => {
     setShowItem(props.showItem || false)
   }, [props.showItem])
 
+  const getSelectedReferenceItems = () => {
+    const referenceResults = result.references?.results || []
+    return selected.map(idOrUrl => referenceResults.find(r => r.id === idOrUrl || (r.version_url || r.url) === idOrUrl)).filter(Boolean)
+  }
+
+  const getSelectedReferenceCounts = () => {
+    const items = getSelectedReferenceItems()
+    return {
+      conceptCount: items.reduce((sum, r) => sum + (r.concepts || 0), 0),
+      mappingCount: items.reduce((sum, r) => sum + (r.mappings || 0), 0),
+    }
+  }
+
+  const onDeleteReferencesConfirm = () => {
+    const ids = getSelectedReferenceItems().map(r => r.id).filter(Boolean)
+    if(!ids.length) return
+    const referencesUrl = props.url.replace(/\/[^/]+\/(references\/)$/, '/$1')
+    APIService.new().overrideURL(referencesUrl).delete({ ids }).then(response => {
+      setDeleteReferencesOpen(false)
+      if(response?.status === 204) {
+        setSelected([])
+        setAlert({ severity: 'success', message: t('reference.delete_dialog.success') })
+        fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
+      } else {
+        setAlert({ severity: 'error', message: response?.data?.detail || t('common.generic_error') })
+      }
+    })
+  }
+
   return (
     <div className='col-xs-12 padding-0'>
       <div className={!props.nested && showItem?.id ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: '10px', height: '100%', ...(props.containerStyle || {})}}>
@@ -495,6 +529,22 @@ const Search = props => {
                   properties={props.properties}
                   propertyFilters={props.propertyFilters}
                   isMatch={isMatchOp}
+                  toolbarControl={
+                    resource === 'references' && selected.length > 0
+                      ? (() => {
+                          const isHead = props.url?.includes('/HEAD/')
+                          return (
+                            <Tooltip title={isHead ? '' : t('reference.delete_dialog.not_head')} placement='left'>
+                              <span>
+                                <IconButton size='small' style={{marginLeft: '8px'}} disabled={!isHead} onClick={() => setDeleteReferencesOpen(true)}>
+                                  <DeleteOutlineIcon fontSize='small' />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          )
+                        })()
+                      : undefined
+                  }
                 />
               </div>
             </div>
@@ -509,6 +559,16 @@ const Search = props => {
                 <ConceptHome concept={showItem} url={getLastSelectedURL()} onClose={() => setShowItem(false)} />
             }
           </div>
+      }
+      {
+        deleteReferencesOpen &&
+          <DeleteReferencesDialog
+            open={deleteReferencesOpen}
+            onClose={() => setDeleteReferencesOpen(false)}
+            onConfirm={onDeleteReferencesConfirm}
+            referenceCount={selected.length}
+            {...getSelectedReferenceCounts()}
+          />
       }
     </div>
   )

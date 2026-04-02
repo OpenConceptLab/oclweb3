@@ -252,7 +252,13 @@
   },
   "reference": {
     "references": "References",
-    "reference": "Reference"
+    "reference": "Reference",
+    "delete_dialog": {
+      "title": "Remove {{count}} reference(s)?",
+      "message": "This will remove {{concepts}} concepts and {{mappings}} mappings from the collection expansion.",
+      "success": "References removed successfully",
+      "not_head": "Not available in saved versions. Switch to HEAD to edit."
+    }
   },
   "checksums": {
     "standard": "Standard Checksum",
