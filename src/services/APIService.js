@@ -120,6 +120,7 @@ class APIService {
     const obj = defaults(headers, this.headers);
     if (token) obj['Authorization'] = `Token ${token}`;
     obj['INCLUDESEARCHLATEST'] = true
+    obj['X-OCL-CLIENT'] = 'oclweb3/3.0.0-alpha';
     return obj;
   }
 
