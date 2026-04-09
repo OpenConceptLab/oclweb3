@@ -72,6 +72,21 @@ const StaffUserRoute = ({component: Component, componentProps={}, ...rest}) => {
   )
 }
 
+const SelfOrStaffRoute = ({component: Component, componentProps={}, ...rest}) => {
+  return (
+  <Route
+    {...rest}
+    render={props => {
+      const currentUser = getCurrentUser()
+      const routeUser = props.match?.params?.user
+      if (currentUser?.is_staff || (currentUser?.username && currentUser.username === routeUser))
+        return <Component {...props} {...componentProps} />
+      return currentUser ? <Error403 /> : <Error404 />
+    }}
+  />
+  )
+}
+
 const App = props => {
   const [networkError, setNetworkError] = React.useState(false)
   const { alert, setAlert, setToggles } = React.useContext(OperationsContext);
@@ -180,6 +195,21 @@ const App = props => {
                   <StaffUserRoute
                     exact
                     path='/admin/users/:user'
+                    component={UsageDashboard}
+                    componentProps={{
+                      APIService: APIService,
+                      currentUser: getCurrentUser(),
+                      ANALYTICS_URL: ANALYTICS_URL,
+                      UserChip: UserChip,
+                      UserTooltip: UserTooltip
+                    }}
+                  />
+              }
+              {
+                UsageDashboard &&
+                  <SelfOrStaffRoute
+                    exact
+                    path='/users/:user/usage'
                     component={UsageDashboard}
                     componentProps={{
                       APIService: APIService,
