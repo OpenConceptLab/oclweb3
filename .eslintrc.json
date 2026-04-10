@@ -254,7 +254,9 @@
           "nullable",
           "versioning",
           "unversioned",
-          "reranker"
+          "reranker",
+          "lte",
+          "gte"
         ],
         "skipIfMatch": [
           "http://[^s]*",

@@ -1,3 +1,5 @@
+/*eslint no-process-env: 0*/
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import upperFirst from 'lodash/upperFirst'
@@ -16,6 +18,8 @@ import CommunityBlog from './CommunityBlog'
 
 
 const UsageWidget = ({ username }) => {
+
+  /*eslint no-undef: 0*/
   const analyticsUrl = window.ANALYTICS_API || process.env.ANALYTICS_API
   const [summary, setSummary] = React.useState(null)
   const [loading, setLoading] = React.useState(true)
