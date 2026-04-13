@@ -151,6 +151,8 @@ const AddToCollectionDialog = ({ open, onClose, concept }) => {
         setSubmitting(false)
         if (response && (response.status === 200 || response.status === 201)) {
           setResults(Array.isArray(response.data) ? response.data : [])
+        } else if (response && response.status === 202) {
+          setResults('pending')
         } else {
           const msg = (response && (response.detail || response.error)) || 'Something went wrong'
           setError(msg)
@@ -158,15 +160,17 @@ const AddToCollectionDialog = ({ open, onClose, concept }) => {
       })
   }
 
-  const addedCount = results ? results.filter(r => r.added).length : 0
-  const failedCount = results ? results.filter(r => !r.added).length : 0
+  const isPending = results === 'pending'
+  const resultList = Array.isArray(results) ? results : []
+  const addedCount = resultList.filter(r => r.added).length
+  const failedCount = resultList.filter(r => !r.added).length
   const done = results !== null
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>Add to Collection</DialogTitle>
 
-      <DialogContent sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+      <DialogContent sx={{ pt: 1, pb: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
         {/* Concept being added */}
         {concept && (
           <Typography variant="body2" color="text.secondary">
@@ -254,54 +258,62 @@ const AddToCollectionDialog = ({ open, onClose, concept }) => {
         {/* Results */}
         {done && (
           <Box>
-            <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
-              {addedCount > 0 && failedCount === 0 && `${addedCount} reference${addedCount !== 1 ? 's' : ''} added`}
-              {addedCount > 0 && failedCount > 0 && `${addedCount} added, ${failedCount} failed`}
-              {addedCount === 0 && failedCount > 0 && `${failedCount} reference${failedCount !== 1 ? 's' : ''} failed`}
-              {addedCount === 0 && failedCount === 0 && 'No references added'}
-            </Typography>
-
-            {/* Successes */}
-            {addedCount > 0 && (
-              <Box sx={{ mb: failedCount > 0 ? 2 : 0, border: '1px solid', borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
-                {results.filter(r => r.added).map((item, idx, arr) => (
-                  <React.Fragment key={item.expression || idx}>
-                    <Box sx={{ px: 1.5, py: 1, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
-                        {item.conceptId || extractConceptLabel(item.expression)}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-                        {typeof item.message === 'string' ? item.message : ''}
-                      </Typography>
-                    </Box>
-                    {idx < arr.length - 1 && <Divider />}
-                  </React.Fragment>
-                ))}
-              </Box>
+            {/* Pending / async job accepted */}
+            {isPending && (
+              <Alert severity="info">
+                Your request was accepted and references will be added shortly.
+              </Alert>
             )}
 
-            {/* Failures */}
-            {failedCount > 0 && (
-              <Table size="small" sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
-                <TableHead>
-                  <TableRow sx={{ bgcolor: 'grey.100' }}>
-                    <TableCell sx={{ fontWeight: 600, width: '40%' }}>Reference</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Error</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {results.filter(r => !r.added).map((item, idx) => (
-                    <TableRow key={item.expression || idx} sx={{ verticalAlign: 'top' }}>
-                      <TableCell sx={{ fontSize: '0.8rem' }}>
-                        {extractConceptLabel(item.expression)}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: '0.8rem', whiteSpace: 'pre-line' }}>
-                        {formatErrorMessage(item.message)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            {!isPending && (
+              <React.Fragment>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
+                  {addedCount > 0 && failedCount === 0 && `${addedCount} reference${addedCount !== 1 ? 's' : ''} added`}
+                  {addedCount > 0 && failedCount > 0 && `${addedCount} added, ${failedCount} failed`}
+                  {addedCount === 0 && failedCount > 0 && `${failedCount} reference${failedCount !== 1 ? 's' : ''} failed`}
+                  {addedCount === 0 && failedCount === 0 && 'No references added'}
+                </Typography>
+
+                {/* Successes */}
+                {addedCount > 0 && (
+                  <Box sx={{ mb: failedCount > 0 ? 2 : 0, border: '1px solid', borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
+                    {resultList.filter(r => r.added).map((item, idx, arr) => (
+                      <React.Fragment key={item.expression || idx}>
+                        <Box sx={{ px: 1.5, py: 1, bgcolor: 'primary.95', display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                            {typeof item.message === 'string' ? item.message : ''}
+                          </Typography>
+                        </Box>
+                        {idx < arr.length - 1 && <Divider />}
+                      </React.Fragment>
+                    ))}
+                  </Box>
+                )}
+
+                {/* Failures */}
+                {failedCount > 0 && (
+                  <Table size="small" sx={{ border: '1px solid', borderColor: 'error.main', borderRadius: 1, overflow: 'hidden' }}>
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: 'error.95' }}>
+                        <TableCell sx={{ fontWeight: 600, width: '40%', color: 'error.main' }}>Reference</TableCell>
+                        <TableCell sx={{ fontWeight: 600, color: 'error.main' }}>Error</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {resultList.filter(r => !r.added).map((item, idx) => (
+                        <TableRow key={item.expression || idx} sx={{ verticalAlign: 'top', bgcolor: 'error.95' }}>
+                          <TableCell sx={{ fontSize: '0.8rem', color: 'error.main' }}>
+                            {extractConceptLabel(item.expression)}
+                          </TableCell>
+                          <TableCell sx={{ fontSize: '0.8rem', whiteSpace: 'pre-line', color: 'error.main' }}>
+                            {formatErrorMessage(item.message)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </React.Fragment>
             )}
           </Box>
         )}

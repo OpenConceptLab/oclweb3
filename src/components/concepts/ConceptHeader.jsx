@@ -80,7 +80,8 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, neste
               startIcon={<AddIcon fontSize='inherit' />}
               variant='text'
               size='small'
-              sx={{textTransform: 'none', color: 'surface.contrastText'}}
+              color='primary'
+              sx={{textTransform: 'none'}}
               onClick={() => setAddToCollectionOpen(true)}
             >
               Add to Collection
