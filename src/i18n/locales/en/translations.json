@@ -94,6 +94,7 @@
     "to_concepts_in": "to concepts in",
     "json": "JSON",
     "draft": "Draft",
+    "released": "Released",
     "highlights": "Highlights",
     "click_to_copy": "Click to Copy",
     "submit": "Submit",
@@ -111,10 +112,14 @@
     "your_url_will_be": "Your URL will be",
     "proceed": "Proceed",
     "loading": "Loading...",
+    "none": "None",
+    "default": "Default",
+    "processing": "Processing",
     "release": "Release",
     "unrelease": "Un-Release",
     "reason": "Reason",
     "success_update": "Successfully Updated",
+    "generic_error": "Something went wrong.",
     "company": "Company",
     "location": "Location",
     "hierarchy": "Hierarchy",
@@ -331,10 +336,59 @@
     "success_create": "Successfuly created repo",
     "success_delete": "Successfuly deleted repo",
     "success_delete_version": "Successfuly deleted repo version",
+    "success_version_create": "Successfully created version",
+    "success_version_update": "Successfully updated version",
+    "error_version_create": "Could not create version",
+    "error_version_update": "Could not update version",
+    "versions_expansions": "Versions + Expansions",
+    "versions": "Versions",
+    "expansions": "Expansions",
+    "versions_expansions_subtitle": "HEAD, released versions, and their expansions",
+    "autoexpand": "Auto-expand",
+    "expansion_url": "Expansion URL",
+    "canonical_url": "Canonical URL",
     "autoexpand_head": "AutoExpand HEAD",
     "immutable": "Immutable",
     "ocl_repo_url": "OCL Repo URL",
     "create_version": "Create Version",
+    "new_version": "New Version",
+    "new_expansion": "New Expansion",
+    "show_expansions": "Show expansions ({{count}})",
+    "hide_expansions": "Hide expansions",
+    "default_expansion_label": "Default: {{expansion}}",
+    "edit_description": "Edit description",
+    "stale": "Stale",
+    "stale_count": "{{count}} stale",
+    "expansions_for_version": "For version {{version}}",
+    "no_description": "No description",
+    "no_expansions_yet": "No expansions yet",
+    "no_expansions_message": "This collection version does not have any expansions yet.",
+    "create_first_expansion": "Create First Expansion",
+    "set_as_default": "Set as default",
+    "update_metadata": "Update metadata",
+    "create_similar": "Create similar",
+    "rebuild": "Rebuild",
+    "rebuild_expansion": "Rebuild Expansion",
+    "rebuild_expansion_message": "This will re-evaluate all references in this collection version. This cannot be undone.",
+    "rebuild_expansion_compare_message": "You can also create a similar expansion first if you want to compare results side by side.",
+    "collection_version_updated": "Collection version updated.",
+    "unable_update_version_metadata": "Unable to update version metadata.",
+    "default_expansion_updated": "Default expansion updated.",
+    "unable_set_default_expansion": "Unable to set default expansion.",
+    "expansion_deleted": "Expansion deleted.",
+    "unable_delete_expansion": "Unable to delete expansion.",
+    "expansion_rebuild_accepted": "Expansion rebuild accepted.",
+    "unable_rebuild_expansion": "Unable to rebuild expansion.",
+    "opened_dependency_expansion": "Opened from a dependency notification. Showing {{expansion}} in version {{version}}.",
+    "opened_dependency_version": "Opened from a dependency notification. Showing version {{version}}.",
+    "created_by_at": "Created",
+    "updated_by_at": "Updated",
+    "last_built_by": "Last built",
+    "collection_expansion": "Collection Expansion",
+    "concepts_and_mappings": "concepts and mappings",
+    "expansion_details_title": "Expansion: {{mnemonic}}",
+    "explicit_repo_versions": "Explicit Repo Versions",
+    "evaluated_repo_versions": "Evaluated Repo Versions",
     "version": {
       "vectorized_for_mapper": "Concepts vectorization is enabled for this repository version",
       "form": {
@@ -346,6 +400,77 @@
       "update_dialog": {
         "title": "Update {{resourceType}}: {{resourceId}}",
         "message": "Are you sure you want to {{action}} this {{resourceType}} {{repoId}}?"
+      },
+      "expansion_form": {
+        "new_title": "New Expansion: {{version}}",
+        "edit_title": "Edit Expansion: {{mnemonic}}",
+        "select_version": "Select version",
+        "collection_version": "Collection Version",
+        "parameters": "Parameters",
+        "id_required": "ID is required",
+        "version_required": "Please select a collection version.",
+        "created": "Expansion created.",
+        "updated": "Expansion updated.",
+        "cleaned_values": "Cleaned values: {{values}}",
+        "format_hint": "Format: {{format}}",
+        "parameters_fields": {
+          "filter": {
+            "label": "filter",
+            "tooltip": "Add search criteria"
+          },
+          "activeOnly": {
+            "label": "activeOnly",
+            "tooltip": "Select this to include unretired concepts and mappings only"
+          },
+          "date": {
+            "label": "date",
+            "tooltip": "The revision date filter. Format: YYYY, YYYY-MM, YYYY-MM-DD, or full timestamp"
+          },
+          "count": {
+            "label": "count",
+            "tooltip": "This parameter is not yet supported."
+          },
+          "offset": {
+            "label": "offset",
+            "tooltip": "This parameter is not yet supported."
+          },
+          "includeDesignations": {
+            "label": "includeDesignations",
+            "tooltip": "This parameter is not yet supported."
+          },
+          "includeDefinition": {
+            "label": "includeDefinition",
+            "tooltip": "This parameter is not yet supported."
+          },
+          "excludeNested": {
+            "label": "excludeNested",
+            "tooltip": "This parameter is not yet supported."
+          },
+          "excludeNotForUI": {
+            "label": "excludeNotForUI",
+            "tooltip": "This parameter is not yet supported."
+          },
+          "excludePostCoordinated": {
+            "label": "excludePostCoordinated",
+            "tooltip": "This parameter is not yet supported."
+          },
+          "exclude-system": {
+            "label": "exclude-system",
+            "tooltip": "Canonical URL with optional version to exclude from the expansion"
+          },
+          "system-version": {
+            "label": "system-version",
+            "tooltip": "Canonical URL with optional version to force while resolving a system"
+          },
+          "check-system-version": {
+            "label": "check-system-version",
+            "tooltip": "This parameter is not yet supported."
+          },
+          "force-system-version": {
+            "label": "force-system-version",
+            "tooltip": "This parameter is not yet supported."
+          }
+        }
       }
     },
     "delete_repo": "Delete Repo",
