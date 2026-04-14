@@ -126,8 +126,7 @@ module.exports = (env) => {
         'process.env.OIDC_RP_CLIENT_SECRET': JSON.stringify(env.OIDC_RP_CLIENT_SECRET),
         'process.env.ANALYTICS_API': JSON.stringify(env.ANALYTICS_API) || '',
       }),
-      new IgnorePlugin({ resourceRegExp: /moment\/locale\// }),
-      new IgnorePlugin({ resourceRegExp: /^ocl-analytics-web$/ })
+      new IgnorePlugin({ resourceRegExp: /moment\/locale\// })
     ],
     resolve: {
       extensions: ['.js', '.jsx'],
