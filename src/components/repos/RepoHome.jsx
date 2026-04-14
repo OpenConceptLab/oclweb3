@@ -23,6 +23,7 @@ import RepoOverview from './RepoOverview'
 import VersionForm from './VersionForm'
 import ReleaseVersion from './ReleaseVersion'
 import RepoHeader from './RepoHeader';
+import CollectionVersionsTab from './CollectionVersionsTab';
 
 const RepoHome = () => {
   const { t } = useTranslation()
@@ -35,19 +36,21 @@ const RepoHome = () => {
   ]
   const isCollection = params.repoType === 'collections'
 
-  const [tabs, setTabs] = React.useState(isCollection ? [...TABS, {key: 'references', label: t('reference.references')}] : [...TABS])
+  const [tabs, setTabs] = React.useState(isCollection ? [...TABS, {key: 'references', label: t('reference.references')}, {key: 'versions', label: t('repo.versions_expansions')}] : [...TABS])
+
   const [status, setStatus] = React.useState(false)
   const [repo, setRepo] = React.useState(false)
   const [owner, setOwner] = React.useState(false)
   const [repoSummary, setRepoSummary] = React.useState(false)
   const [versions, setVersions] = React.useState(false)
+  const [versionsCount, setVersionsCount] = React.useState(false)
   const [loading, setLoading] = React.useState(true)
   const [showItem, setShowItem] = React.useState(false)
   const [conceptForm, setConceptForm] = React.useState(false)
   const [mappingForm, setMappingForm] = React.useState(false)
   const [versionForm, setVersionForm] = React.useState(false)
-  const [deleteRepo, setDeleteRepo] = React.useState(false)
-  const [releaseVersion, setReleaseVersion] = React.useState(false)
+  const [deleteTarget, setDeleteTarget] = React.useState(false)
+  const [releaseTarget, setReleaseTarget] = React.useState(false)
   const [showSummary, setShowSummary] = React.useState(true)
 
   const TAB_KEYS = tabs.map(tab => tab.key)
@@ -73,7 +76,7 @@ const RepoHome = () => {
       fetchOwner()
       fetchRepoSummary()
       if(isCollection)
-        setTabs([...TABS, {key: 'references', label: t('reference.references')}])
+        setTabs([...TABS, {key: 'references', label: t('reference.references')}, {key: 'versions', label: t('repo.versions_expansions')}])
       else
         setTabs([...TABS])
 
@@ -98,6 +101,7 @@ const RepoHome = () => {
     APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit: 100}).then(response => {
       const _versions = response?.data || []
       setVersions(_versions)
+      setVersionsCount(response.headers['num_found'] || 1)
       if(!repo.version_url && params.repoVersion !== 'HEAD' && !showConceptURL && !showMappingURL) {
         const releasedVersions = filter(_versions, {released: true})
         let version = orderBy(releasedVersions, 'created_on', ['desc'])[0] || orderBy(_versions, 'created_on', ['desc'])[0]
@@ -111,8 +115,10 @@ const RepoHome = () => {
       if(toParentURI(location.pathname) === (repo?.version_url || repo.url)) {
           if(location.pathname.includes('/concepts'))
               setTab('concepts')
-          if(location.pathname.includes('/mappings'))
-              setTab('mappings')
+        if(location.pathname.includes('/mappings'))
+            setTab('mappings')
+        if(location.pathname.includes('/versions'))
+          setTab('versions')
         if(location.pathname.includes('/references'))
           setTab('references')
       }
@@ -168,7 +174,7 @@ const RepoHome = () => {
     setShowItem(false)
     setConceptForm(false)
     setMappingForm(false)
-    setVersionForm(true)
+    setVersionForm({edit: false, version: repo, expansions: []})
   }
 
   const onVersionFormClose = postUpsert => {
@@ -178,21 +184,25 @@ const RepoHome = () => {
     setVersionForm(false)
   }
 
-  const isVersion = repo?.version && repo.version !== 'HEAD'
+  const getTargetVersion = target => target || repo
+  const isVersionObject = target => target?.version && target.version !== 'HEAD'
+  const isVersion = isVersionObject(repo)
 
   const onDeleteRepo = () => {
-    const url = isVersion ? repo.version_url : repo.url
+    const target = getTargetVersion(deleteTarget)
+    const deletingVersion = isVersionObject(target)
+    const url = deletingVersion ? target.version_url : target.url
     if(!url)
       return
     APIService.new().overrideURL(url).delete().then(response => {
       if(!response || response?.status === 204) {
-        setDeleteRepo(false)
-        setAlert({severity: 'success', message: isVersion ? t('repo.success_delete_version') : t('repo.success_delete')})
-        history.push(isVersion ? repo.url : (owner?.url || repo.owner_url))
+        setDeleteTarget(false)
+        setAlert({severity: 'success', message: deletingVersion ? t('repo.success_delete_version') : t('repo.success_delete')})
+        history.push(deletingVersion ? target.url : (owner?.url || repo.owner_url))
       }
       else if(response?.status === 202 || response?.detail === 'Already Queued') {
-        setDeleteRepo(false)
-        setAlert({severity: 'warning', message: isVersion ? t('repo.delete_accepted_version') : t('repo.delete_accepted')})
+        setDeleteTarget(false)
+        setAlert({severity: 'warning', message: deletingVersion ? t('repo.delete_accepted_version') : t('repo.delete_accepted')})
       }
       else
         setAlert({severity: 'error', message: response?.data?.detail || t('common.generic_error')})
@@ -200,10 +210,12 @@ const RepoHome = () => {
   }
 
   const onReleaseVersion = () => {
-    APIService.new().overrideURL(repo.version_url).put({released: !repo.released}).then(response => {
-      setReleaseVersion(false)
+    const target = getTargetVersion(releaseTarget)
+    APIService.new().overrideURL(target.version_url).put({released: !target.released}).then(response => {
+      setReleaseTarget(false)
       if(response?.status === 200) {
         fetchVersions()
+        fetchRepo()
         setAlert({severity: 'success', message: t('common.success_update')})
       }
       else if(response?.status === 202 || response?.detail === 'Already Queued' || response?.__all__ === 'Already Queued') {
@@ -227,6 +239,7 @@ const RepoHome = () => {
   const isConceptURL = tab === 'concepts'
   const isMappingURL = tab === 'mappings'
   const isReferenceURL = tab === 'references'
+  const isVersionsURL = tab === 'versions'
   const getConceptURLFromMainURL = () => (isConceptURL && params.resource) ? getURL() + 'concepts/' + params.resource + '/' : false
   const getMappingURLFromMainURL = () => (isMappingURL && params.resource) ? getURL() + 'mappings/' + params.resource + '/' : false
   const getReferenceURLFromMainURL = () => (isReferenceURL && params.resource) ? getURL() + 'references/' + params.resource + '/' : false
@@ -235,8 +248,8 @@ const RepoHome = () => {
   const showReferenceURL = ((showItem?.expression || params.resource) && isReferenceURL) ? showItem?.version_url || showItem?.url || getReferenceURLFromMainURL() : false
   const isSplitView = conceptForm || mappingForm || showConceptURL || showMappingURL || showReferenceURL || versionForm
 
-  const onVersionEditClick = () => isVersion && setVersionForm(true)
-  const onReleaseVersionClick = () => isVersion && setReleaseVersion(true)
+  const onVersionEditClick = () => isVersion && setVersionForm({edit: true, version: repo, expansions: []})
+  const onReleaseVersionClick = () => isVersion && setReleaseTarget(repo)
 
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
@@ -253,7 +266,7 @@ const RepoHome = () => {
                 onCreateConceptClick={onCreateConceptClick}
                 onCreateMappingClick={onCreateMappingClick}
                 onCreateVersionClick={onCreateVersionClick}
-                onDeleteRepoClick={() => setDeleteRepo(true)}
+                onDeleteRepoClick={() => setDeleteTarget(repo)}
                 onVersionEditClick={() => onVersionEditClick()}
                 onReleaseVersionClick={() => onReleaseVersionClick()}
               />
@@ -278,6 +291,21 @@ const RepoHome = () => {
                       containerStyle={{padding: 0}}
                       properties={(!tab || tab === 'concepts') ? repo?.meta?.display?.concept_summary_properties : []}
                       propertyFilters={(!tab || tab === 'concepts') ? repo?.filters : []}
+                    />
+                }
+                {
+                  tab === 'versions' && isCollection &&
+                    <CollectionVersionsTab
+                      repo={repo}
+                      versions={versions}
+                      count={versionsCount}
+                      onCreateVersion={onCreateVersionClick}
+                      onReleaseVersion={version => setReleaseTarget(version)}
+                      onDeleteVersion={version => setDeleteTarget(version)}
+                      onDataChange={() => {
+                        fetchRepo()
+                        fetchVersions()
+                      }}
                     />
                 }
                 {
@@ -316,24 +344,31 @@ const RepoHome = () => {
         }
         {
           versionForm &&
-            <VersionForm edit={isVersion && repo?.version} resourceType={repo?.type?.toLowerCase()} version={repo} onClose={(postUpsert) => onVersionFormClose(postUpsert)} />
+            <VersionForm
+              edit={Boolean(versionForm?.edit)}
+              resource={isCollection ? 'collection' : 'source'}
+              resourceType={isCollection ? 'collection' : 'source'}
+              version={versionForm?.version || repo}
+              expansions={versionForm?.expansions || []}
+              onClose={(postUpsert) => onVersionFormClose(postUpsert)}
+            />
         }
         {
         repo?.id &&
             <DeleteEntityDialog
-              open={deleteRepo}
-              onClose={() => setDeleteRepo(false)}
+              open={deleteTarget}
+              onClose={() => setDeleteTarget(false)}
               onSubmit={onDeleteRepo}
-              entityType={isVersion ? repo.type : repo.type.replace(' Version', '')}
-              entityId={isVersion ? `${repo.short_code} [${repo.version}]` : (repo.short_code || repo.id)}
-              relationship={isVersion ? '' :  'versions, '}
+              entityType={isVersionObject(getTargetVersion(deleteTarget)) ? getTargetVersion(deleteTarget).type : repo.type.replace(' Version', '')}
+              entityId={isVersionObject(getTargetVersion(deleteTarget)) ? `${getTargetVersion(deleteTarget).short_code} [${getTargetVersion(deleteTarget).version}]` : (repo.short_code || repo.id)}
+              relationship={isVersionObject(getTargetVersion(deleteTarget)) ? '' :  'versions, '}
               associationsLabel='concepts and mappings'
-              warning={!isVersion}
+              warning={!isVersionObject(getTargetVersion(deleteTarget))}
             />
         }
         {
-          isVersion &&
-            <ReleaseVersion open={releaseVersion} onClose={() => setReleaseVersion(false)} repo={repo} onSubmit={onReleaseVersion} />
+          Boolean(releaseTarget) &&
+            <ReleaseVersion open={releaseTarget} onClose={() => setReleaseTarget(false)} repo={getTargetVersion(releaseTarget)} onSubmit={onReleaseVersion} />
         }
       </div>
     </div>
