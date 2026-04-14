@@ -7,26 +7,32 @@ import {
   Chip,
   CircularProgress,
   Collapse,
-  Divider,
+  IconButton,
+  Menu,
+  MenuItem,
   Paper,
   Stack,
-  Typography
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Skeleton
 } from "@mui/material";
 import {
-  AccountTreeOutlined as VersionIcon,
   AspectRatio as ExpansionIcon,
   CheckCircleOutline as DefaultIcon,
-  EditOutlined as DraftIcon,
   ExpandLess as CollapseIcon,
   ExpandMore as ExpandIcon,
-  InfoOutlined as InfoIcon,
+  MoreVert as MoreVertIcon,
   NewReleases as ReleaseIcon,
   WarningAmberOutlined as WarningIcon
 } from "@mui/icons-material";
 import find from "lodash/find";
 import orderBy from "lodash/orderBy";
 import uniqBy from "lodash/uniqBy";
-import filter from "lodash/filter";
 import get from "lodash/get";
 import isNumber from "lodash/isNumber";
 import { useTranslation } from "react-i18next";
@@ -138,44 +144,67 @@ const getReferencesCount = entity => {
   return undefined;
 };
 
-const SummaryMetric = ({ label, value }) => (
-  <Box sx={{ display: "flex", flexDirection: "column", minWidth: "64px" }}>
-    <Typography sx={{ fontSize: "11px", color: "secondary.main" }}>
-      {label}
-    </Typography>
-    <Typography
-      sx={{
-        fontSize: "24px",
-        fontWeight: 600,
-        color: "surface.contrastText",
-        lineHeight: 1.2,
-        mt: 0.25
-      }}
-    >
-      {isNumber(value) ? value.toLocaleString() : "-"}
-    </Typography>
-  </Box>
-);
+const headerCellSx = {
+  color: "surface.contrastText",
+  fontSize: "12px",
+  fontWeight: 'bold',
+  borderBottom: "1px solid",
+  borderColor: "surface.nv80",
+  backgroundColor: "white",
+  padding: '3px 16px',
+  lineHeight: '1.2rem'
+};
 
-const StatusChip = ({
-  label,
-  color = "default",
-  icon = undefined,
-  variant = "filled"
-}) => (
+const bodyCellSx = {
+  borderBottom: "1px solid",
+  borderColor: "surface.nv80",
+  verticalAlign: "top",
+  py: 1.25
+};
+
+const compactButtonSx = {
+  minWidth: 0,
+  px: 0,
+  textTransform: "none",
+  justifyContent: "flex-start"
+};
+
+const MetaChip = ({ label, color = "default", icon, variant = "outlined" }) => (
   <Chip
     size="small"
-    icon={icon}
     label={label}
+    icon={icon}
     color={color}
     variant={variant}
-    sx={{ borderRadius: "6px", height: "24px", fontWeight: 600 }}
+    sx={{ height: "22px", fontWeight: 600 }}
   />
 );
+
+const CountCell = ({ value }) => (
+  <Typography
+    sx={{ fontSize: "16px", fontWeight: 600, color: "surface.contrastText" }}
+  >
+    {isNumber(value) ? value.toLocaleString() : "-"}
+  </Typography>
+);
+
+const getExplicitRepoVersions = expansion => [
+  ...(expansion?.explicit_source_versions || []),
+  ...(expansion?.explicit_collection_versions || [])
+];
+
+const getEvaluatedRepoVersions = expansion => [
+  ...(expansion?.evaluated_source_versions || []),
+  ...(expansion?.evaluated_collection_versions || [])
+];
+
+const renderRepoVersionLabel = version =>
+  `${version.owner} / ${version.short_code}:${version.version}`;
 
 const CollectionVersionsTab = ({
   repo,
   versions,
+  count,
   onCreateVersion,
   onReleaseVersion,
   onDeleteVersion,
@@ -200,6 +229,15 @@ const CollectionVersionsTab = ({
   const [deleteExpansion, setDeleteExpansion] = React.useState(null);
   const [detailsExpansion, setDetailsExpansion] = React.useState(null);
   const [rebuildExpansion, setRebuildExpansion] = React.useState(null);
+  const [versionMenu, setVersionMenu] = React.useState({
+    anchorEl: null,
+    version: null
+  });
+  const [expansionMenu, setExpansionMenu] = React.useState({
+    anchorEl: null,
+    version: null,
+    expansion: null
+  });
   const expansionRefs = React.useRef({});
   const hasAccess = currentUserHasAccess();
   const baseRepoURL = dropVersion(repo?.version_url || repo?.url || "");
@@ -248,6 +286,7 @@ const CollectionVersionsTab = ({
           version_url: headVersion.url || headVersion.version_url || baseRepoURL
         }
       : null;
+
     const versionList = uniqBy(
       [head, ...(versions || [])].filter(Boolean).map(version => ({
         ...version,
@@ -255,6 +294,7 @@ const CollectionVersionsTab = ({
       })),
       version => getVersionKey(version)
     );
+
     return headFirst(orderBy(versionList, ["created_on"], ["desc"]));
   }, [baseRepoURL, headVersion, versionOverrides, versions]);
 
@@ -302,8 +342,9 @@ const CollectionVersionsTab = ({
     if (
       querySelectedVersion &&
       getVersionKey(querySelectedVersion) !== expandedVersionKey
-    )
+    ) {
       setExpandedVersionKey(getVersionKey(querySelectedVersion));
+    }
   }, [displayVersions, expandedVersionKey, notificationVersion]);
 
   const expandedVersion =
@@ -322,11 +363,12 @@ const CollectionVersionsTab = ({
     if (
       highlightedExpansion?.url &&
       expansionRefs.current[highlightedExpansion.url]
-    )
+    ) {
       expansionRefs.current[highlightedExpansion.url].scrollIntoView({
         behavior: "smooth",
         block: "center"
       });
+    }
   }, [highlightedExpansion]);
 
   const getDefaultExpansionLabel = version => {
@@ -336,11 +378,12 @@ const CollectionVersionsTab = ({
       expansion => expansion.default || expansion.auto
     );
     if (defaultExpansion) return defaultExpansion.mnemonic;
-    if (version?.expansion_url)
+    if (version?.expansion_url) {
       return version.expansion_url
         .split("/")
         .filter(Boolean)
         .slice(-1)[0];
+    }
     if (version?.autoexpand) return t("repo.autoexpand");
     return t("common.none");
   };
@@ -463,477 +506,295 @@ const CollectionVersionsTab = ({
     if (!date) return null;
 
     return (
-      <Typography sx={{ mt: 0.5, fontSize: "12px", color: "secondary.main" }}>
+      <Typography sx={{ mt: 0.25, fontSize: "12px", color: "secondary.main" }}>
         {t(translationKey)} {formatDateTime(date)} {t("common.by")}{" "}
         {getUserLabel(user) || "-"}
       </Typography>
     );
   };
 
-  return (
-    <Box
-      sx={{
-        p: 2,
-        height: "calc(100vh - 300px)",
-        overflow: "auto"
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          gap: 1.5,
-          alignItems: "center",
-          mb: 2
-        }}
-      >
-        <Box>
-          <Typography
-            sx={{
-              fontSize: "20px",
-              fontWeight: 700,
-              color: "surface.contrastText"
-            }}
-          >
-            {t("repo.versions")}
-          </Typography>
-          <Typography sx={{ fontSize: "13px", color: "secondary.main" }}>
-            {t("repo.versions_expansions_subtitle")}
-          </Typography>
-        </Box>
-        {hasAccess && (
-          <MuiButton
-            variant="contained"
-            onClick={onCreateVersion}
-            sx={{ px: 2.5, textTransform: "none" }}
-          >
-            {t("repo.new_version")}
-          </MuiButton>
-        )}
-      </Box>
+  const openVersionMenu = (event, version) => {
+    setVersionMenu({ anchorEl: event.currentTarget, version });
+  };
 
-      {dependencyNotification && notificationMessage && (
-        <Alert severity="warning" sx={{ mb: 2, borderRadius: "8px" }}>
-          {notificationMessage}
-        </Alert>
-      )}
+  const closeVersionMenu = () => {
+    setVersionMenu({ anchorEl: null, version: null });
+  };
 
-      <Stack spacing={1.5}>
-        {headLoading && !displayVersions.length && (
-          <Box sx={{ py: 6, display: "flex", justifyContent: "center" }}>
-            <CircularProgress size={28} />
-          </Box>
-        )}
-        {displayVersions.map(version => {
-          const versionKey = getVersionKey(version);
-          const expanded = versionKey === expandedVersionKey;
-          const released = Boolean(version.released);
-          const staleCount = getStaleCount(version);
-          const canRelease = hasAccess && !isHeadVersion(version) && !released;
-          const canDelete =
-            hasAccess &&
-            !isHeadVersion(version) &&
-            !released &&
-            (expansionsByVersion[versionKey] || []).length === 0;
-          const versionExpansions = expansionsByVersion[versionKey] || [];
-          const versionLoading = loadingByVersion[versionKey];
-          let versionStatusChip;
-          if (!isHeadVersion(version))
-            versionStatusChip = released ? (
-              <StatusChip
-                label={t("common.released")}
-                color="primary"
-                icon={<ReleaseIcon />}
-              />
-            ) : (
-              <StatusChip
-                label={t("common.draft")}
-                color="warning"
-                icon={<DraftIcon />}
-              />
-            );
+  const openExpansionMenu = (event, version, expansion) => {
+    setExpansionMenu({ anchorEl: event.currentTarget, version, expansion });
+  };
 
-          return (
-            <Paper
-              key={versionKey}
-              component="section"
-              sx={{
-                p: 1.75,
-                borderRadius: "8px",
-                border: "1px solid",
-                borderColor: expanded ? "primary.main" : "surface.nv80",
-                backgroundColor: expanded ? "surface.n94" : "white",
-                boxShadow: "none"
-              }}
-            >
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns:
-                    "minmax(260px, 2.6fr) repeat(4, minmax(72px, 0.8fr))",
-                  gap: 2,
-                  alignItems: "start",
-                  "@media (max-width: 1024px)": {
-                    gridTemplateColumns:
-                      "minmax(240px, 2fr) repeat(2, minmax(72px, 1fr))"
-                  },
-                  "@media (max-width: 700px)": {
-                    gridTemplateColumns: "1fr 1fr"
-                  }
-                }}
-              >
-                <Box sx={{ minWidth: 0 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      flexWrap: "wrap"
-                    }}
-                  >
-                    <VersionIcon
-                      sx={{ fontSize: "18px", color: "secondary.main" }}
-                    />
-                    <Typography
-                      sx={{
-                        fontSize: "16px",
-                        fontWeight: 700,
-                        color: "surface.contrastText"
-                      }}
-                    >
-                      {version.version || version.id}
-                    </Typography>
-                    {versionStatusChip}
-                    {staleCount > 0 && (
-                      <StatusChip
-                        label={t("repo.stale_count", { count: staleCount })}
-                        color="error"
-                        icon={<WarningIcon />}
-                      />
-                    )}
-                  </Box>
+  const closeExpansionMenu = () => {
+    setExpansionMenu({ anchorEl: null, version: null, expansion: null });
+  };
 
-                  <React.Fragment>
-                    {version.description && (
-                      <Typography
-                        sx={{
-                          mt: 0.75,
-                          fontSize: "13px",
-                          color: "secondary.main"
-                        }}
-                      >
-                        {version.description}
-                      </Typography>
-                    )}
-                    {version.external_id && (
-                      <Typography
-                        sx={{
-                          mt: 0.5,
-                          fontSize: "12px",
-                          color: "secondary.main"
-                        }}
-                      >
-                        {t("common.external_id")}: {version.external_id}
-                      </Typography>
-                    )}
-                    {renderAudit(
-                      "repo.created_by_at",
-                      version.created_on,
-                      version.created_by
-                    )}
-                    {renderAudit(
-                      "repo.updated_by_at",
-                      version.updated_on,
-                      version.updated_by
-                    )}
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      sx={{ mt: 1, flexWrap: "wrap", rowGap: 1 }}
-                    >
-                      <StatusChip
-                        label={t("repo.default_expansion_label", {
-                          expansion: getDefaultExpansionLabel(version)
-                        })}
-                        variant="outlined"
-                        icon={<DefaultIcon />}
-                      />
-                      {version.autoexpand && (
-                        <StatusChip
-                          label={t("repo.autoexpand")}
-                          variant="outlined"
-                          icon={<ExpansionIcon />}
-                        />
-                      )}
-                    </Stack>
-                  </React.Fragment>
-                </Box>
-                <SummaryMetric
-                  label={t("search.concepts")}
-                  value={get(version, "summary.active_concepts")}
-                />
-                <SummaryMetric
-                  label={t("search.mappings")}
-                  value={get(version, "summary.active_mappings")}
-                />
-                <SummaryMetric
-                  label={t("reference.references")}
-                  value={getReferencesCount(version)}
-                />
-                <Box
-                  sx={{ display: "flex", flexDirection: "column", gap: 0.75 }}
-                >
-                  <SummaryMetric
-                    label={t("repo.expansions")}
-                    value={versionExpansions.length}
-                  />
-                  {versionLoading && (
-                    <CircularProgress size={16} sx={{ mt: 0.25 }} />
-                  )}
-                </Box>
-              </Box>
+  const renderVersionRow = version => {
+    const versionKey = getVersionKey(version);
+    const expanded = versionKey === expandedVersionKey;
+    const released = Boolean(version.released);
+    const staleCount = getStaleCount(version);
+    const canRelease = hasAccess && !isHeadVersion(version) && !released;
+    const canDelete =
+      hasAccess &&
+      !isHeadVersion(version) &&
+      !released &&
+      (expansionsByVersion[versionKey] || []).length === 0;
+    const versionExpansions = expansionsByVersion[versionKey] || [];
+    const versionLoading = loadingByVersion[versionKey];
 
-              {hasAccess && (
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  sx={{ mt: 1.5, flexWrap: "wrap", rowGap: 1 }}
-                >
-                  {canRelease && (
-                    <MuiButton
-                      size="small"
-                      variant="outlined"
-                      sx={{ textTransform: "none" }}
-                      onClick={() => onReleaseVersion(version)}
-                    >
-                      {t("common.release")}
-                    </MuiButton>
-                  )}
-                  {canDelete && (
-                    <MuiButton
-                      size="small"
-                      color="error"
-                      variant="contained"
-                      sx={{ textTransform: "none" }}
-                      onClick={() => onDeleteVersion(version)}
-                    >
-                      {t("common.delete_label")}
-                    </MuiButton>
-                  )}
-                </Stack>
-              )}
-
-              <MuiButton
+    return (
+      <React.Fragment key={versionKey}>
+        <TableRow hover>
+          <TableCell sx={{ ...bodyCellSx, width: "52%" }}>
+            <Box sx={{ position: "relative", pl: 5 }}>
+              <IconButton
                 size="small"
-                variant="text"
-                sx={{
-                  mt: 1.5,
-                  px: 0,
-                  textTransform: "none",
-                  justifyContent: "flex-start"
-                }}
-                startIcon={expanded ? <CollapseIcon /> : <ExpandIcon />}
+                sx={{ position: "absolute", left: 0, top: -4 }}
                 onClick={() =>
                   setExpandedVersionKey(expanded ? null : versionKey)
                 }
               >
-                {expanded
-                  ? t("repo.hide_expansions")
-                  : t("repo.show_expansions", {
-                      count: versionExpansions.length
-                    })}
-              </MuiButton>
-
-              <Collapse in={expanded} timeout="auto" unmountOnExit>
-                <Box sx={{ pt: 1.5 }}>
-                  <Divider sx={{ mb: 1.5 }} />
-
-                  <Box
+                {expanded ? <CollapseIcon /> : <ExpandIcon />}
+              </IconButton>
+              <Box sx={{ minWidth: 0, flex: 1 }}>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ flexWrap: "wrap", rowGap: 0.75 }}
+                >
+                  <Typography
                     sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      gap: 1,
-                      alignItems: "flex-start",
-                      mb: 2
+                      fontSize: "15px",
+                      fontWeight: 700,
+                      color: "surface.contrastText"
                     }}
                   >
-                    <Box>
-                      <Typography
-                        sx={{
-                          fontSize: "18px",
-                          fontWeight: 700,
-                          color: "surface.contrastText"
-                        }}
-                      >
+                    {version.version || version.id}
+                  </Typography>
+                  {isHeadVersion(version) && <MetaChip label="HEAD" />}
+                  {!isHeadVersion(version) && released && (
+                    <MetaChip
+                      label={t("common.released")}
+                      color="primary"
+                      icon={<ReleaseIcon />}
+                    />
+                  )}
+                  {!isHeadVersion(version) && !released && (
+                    <MetaChip
+                      label={t("common.draft")}
+                      color="warning"
+                      icon={<DraftIcon />}
+                    />
+                  )}
+                  {staleCount > 0 && (
+                    <MetaChip
+                      label={t("repo.stale_count", { count: staleCount })}
+                      color="error"
+                      icon={<WarningIcon />}
+                    />
+                  )}
+                  <MetaChip
+                    label={t("repo.default_expansion_label", {
+                      expansion: getDefaultExpansionLabel(version)
+                    })}
+                    icon={<DefaultIcon />}
+                  />
+                  {version.autoexpand && (
+                    <MetaChip
+                      label={t("repo.autoexpand")}
+                      icon={<ExpansionIcon />}
+                    />
+                  )}
+                </Stack>
+
+                {version.description && (
+                  <Typography
+                    sx={{ mt: 0.75, fontSize: "13px", color: "secondary.main" }}
+                  >
+                    {version.description}
+                  </Typography>
+                )}
+
+                {renderAudit(
+                  "repo.created_by_at",
+                  version.created_on,
+                  version.created_by
+                )}
+                {renderAudit(
+                  "repo.updated_by_at",
+                  version.updated_on,
+                  version.updated_by
+                )}
+              </Box>
+            </Box>
+          </TableCell>
+          <TableCell sx={{ ...bodyCellSx, width: "16%" }}>
+            <CountCell value={get(version, "summary.active_concepts")} />
+          </TableCell>
+          <TableCell sx={{ ...bodyCellSx, width: "16%" }}>
+            <CountCell value={get(version, "summary.active_mappings")} />
+          </TableCell>
+          <TableCell sx={{ ...bodyCellSx, width: "16%" }}>
+            {versionLoading ? (
+              <CircularProgress size={18} />
+            ) : (
+              <CountCell value={getReferencesCount(version)} />
+            )}
+          </TableCell>
+          <TableCell sx={{ ...bodyCellSx, width: "1%", whiteSpace: "nowrap" }}>
+            {hasAccess && (
+              <IconButton
+                size="small"
+                onClick={event => openVersionMenu(event, version)}
+              >
+                <MoreVertIcon fontSize="small" />
+              </IconButton>
+            )}
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell
+            colSpan={5}
+            sx={{
+              p: 0,
+              borderBottom: expanded ? "1px solid" : 0,
+              borderColor: "surface.nv80"
+            }}
+          >
+            <Collapse in={expanded} timeout="auto" unmountOnExit>
+              <Box sx={{ px: 2, py: 1 }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={headerCellSx}>
                         {t("repo.expansions")}
-                      </Typography>
-                      <Typography
-                        sx={{ fontSize: "13px", color: "secondary.main" }}
-                      >
-                        {t("repo.expansions_for_version", {
-                          version: version.version || version.id
-                        })}
-                      </Typography>
-                    </Box>
-                    {hasAccess && (
-                      <MuiButton
-                        variant="contained"
-                        sx={{ textTransform: "none" }}
-                        onClick={() =>
-                          setExpansionFormState({
-                            open: true,
-                            version,
-                            copyFrom: null
-                          })
-                        }
-                      >
-                        {t("repo.new_expansion")}
-                      </MuiButton>
-                    )}
-                  </Box>
-
-                  {versionLoading && (
-                    <Box
-                      sx={{ py: 6, display: "flex", justifyContent: "center" }}
-                    >
-                      <CircularProgress size={28} />
-                    </Box>
-                  )}
-
-                  {!versionLoading && versionExpansions.length === 0 && (
-                    <Paper
-                      sx={{
-                        p: 3,
-                        borderRadius: "8px",
-                        border: "1px dashed",
-                        borderColor: "surface.nv80",
-                        boxShadow: "none",
-                        textAlign: "center"
-                      }}
-                    >
-                      <Typography
-                        sx={{ fontWeight: 600, color: "surface.contrastText" }}
-                      >
-                        {t("repo.no_expansions_yet")}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          mt: 0.5,
-                          fontSize: "13px",
-                          color: "secondary.main"
-                        }}
-                      >
-                        {t("repo.no_expansions_message")}
-                      </Typography>
-                      {hasAccess && (
-                        <MuiButton
-                          variant="outlined"
-                          sx={{ mt: 1.5, textTransform: "none" }}
-                          onClick={() =>
-                            setExpansionFormState({
-                              open: true,
-                              version,
-                              copyFrom: null
-                            })
-                          }
+                      </TableCell>
+                      <TableCell sx={headerCellSx}>
+                        {t("search.concepts")}
+                      </TableCell>
+                      <TableCell sx={headerCellSx}>
+                        {t("search.mappings")}
+                      </TableCell>
+                      <TableCell sx={headerCellSx}>
+                        {t("repo.resolved_repo_versions")}
+                      </TableCell>
+                      <TableCell sx={headerCellSx} />
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {versionLoading && (
+                      <TableRow>
+                        <TableCell
+                          colSpan={5}
+                          sx={{ ...bodyCellSx, textAlign: "center", py: 3 }}
                         >
-                          {t("repo.create_first_expansion")}
-                        </MuiButton>
-                      )}
-                    </Paper>
-                  )}
-
-                  <Stack spacing={1.5}>
+                          <CircularProgress size={22} />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {!versionLoading && versionExpansions.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={5} sx={{ ...bodyCellSx, py: 2 }}>
+                          <Stack
+                            direction="row"
+                            spacing={1.5}
+                            alignItems="center"
+                            justifyContent="space-between"
+                          >
+                            <Typography
+                              sx={{ fontSize: "13px", color: "secondary.main" }}
+                            >
+                              {t("repo.no_expansions_message")}
+                            </Typography>
+                            {hasAccess && (
+                              <MuiButton
+                                size="small"
+                                variant="text"
+                                sx={compactButtonSx}
+                                onClick={() =>
+                                  setExpansionFormState({
+                                    open: true,
+                                    version,
+                                    copyFrom: null
+                                  })
+                                }
+                              >
+                                {t("repo.create_first_expansion")}
+                              </MuiButton>
+                            )}
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    )}
                     {!versionLoading &&
                       versionExpansions.map(expansion => {
                         const highlighted =
                           highlightedExpansion?.url === expansion.url;
-
+                        const explicitRepoVersions = getExplicitRepoVersions(
+                          expansion
+                        );
+                        const evaluatedRepoVersions = getEvaluatedRepoVersions(
+                          expansion
+                        );
                         return (
-                          <Paper
+                          <TableRow
                             key={expansion.url}
                             ref={element => {
                               expansionRefs.current[expansion.url] = element;
                             }}
                             sx={{
-                              p: 1.5,
-                              borderRadius: "8px",
-                              border: "1px solid",
-                              borderColor: highlighted
-                                ? "warning.main"
-                                : "surface.nv80",
                               backgroundColor: highlighted
                                 ? "rgba(237, 108, 2, 0.06)"
-                                : "white",
-                              boxShadow: "none"
+                                : "transparent"
                             }}
                           >
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                gap: 2,
-                                alignItems: "flex-start",
-                                flexWrap: "wrap"
-                              }}
-                            >
-                              <Box sx={{ minWidth: 0 }}>
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 1,
-                                    flexWrap: "wrap"
-                                  }}
+                            <TableCell sx={bodyCellSx}>
+                              <Box sx={{ minWidth: 0, pl: 5 }}>
+                                <Stack
+                                  direction="row"
+                                  spacing={1}
+                                  sx={{ flexWrap: "wrap", rowGap: 0.75 }}
                                 >
-                                  <ExpansionIcon
-                                    sx={{
-                                      fontSize: "18px",
-                                      color: "secondary.main"
-                                    }}
-                                  />
                                   <Typography
                                     sx={{
-                                      fontSize: "16px",
+                                      fontSize: "14px",
                                       fontWeight: 700,
-                                      color: "surface.contrastText"
+                                      color: "primary.main",
+                                      cursor: "pointer"
                                     }}
+                                    onClick={() =>
+                                      setDetailsExpansion(expansion)
+                                    }
                                   >
                                     {expansion.mnemonic}
                                   </Typography>
                                   {expansion.default && (
-                                    <StatusChip
+                                    <MetaChip
                                       label={t("common.default")}
                                       color="success"
                                       icon={<DefaultIcon />}
                                     />
                                   )}
                                   {expansion.auto && !expansion.default && (
-                                    <StatusChip
+                                    <MetaChip
                                       label={t("repo.autoexpand")}
-                                      variant="outlined"
                                       icon={<ExpansionIcon />}
                                     />
                                   )}
                                   {isStaleExpansion(expansion) && (
-                                    <StatusChip
+                                    <MetaChip
                                       label={t("repo.stale")}
                                       color="error"
                                       icon={<WarningIcon />}
                                     />
                                   )}
-                                  {expansion.is_processing && (
-                                    <StatusChip
-                                      label={t("common.processing")}
-                                      color="warning"
-                                    />
-                                  )}
-                                </Box>
+                                </Stack>
                                 {expansion.canonical_url && (
                                   <Typography
                                     sx={{
-                                      mt: 0.75,
-                                      fontSize: "13px",
+                                      mt: 0.5,
+                                      fontSize: "12px",
                                       color: "secondary.main",
                                       wordBreak: "break-all"
                                     }}
@@ -947,109 +808,181 @@ const CollectionVersionsTab = ({
                                   expansion.updated_by || expansion.created_by
                                 )}
                               </Box>
-                            </Box>
+                            </TableCell>
+                            <TableCell sx={bodyCellSx}>
+                              <CountCell value={expansion.active_concepts} />
+                            </TableCell>
+                            <TableCell sx={bodyCellSx}>
+                              <CountCell value={expansion.active_mappings} />
+                            </TableCell>
+                            <TableCell sx={bodyCellSx}>
+                              <Box sx={{ minWidth: 0 }}>
+                                <Typography
+                                  sx={{
+                                    fontSize: "12px",
+                                    fontWeight: 600,
+                                    color: "secondary.main"
+                                  }}
+                                >
+                                  {t("repo.explicit_repo_versions")}
+                                </Typography>
+                                {explicitRepoVersions.length ? (
+                                  <Box sx={{ mt: 0.25 }}>
+                                    {explicitRepoVersions.map(repoVersion => (
+                                      <Typography
+                                        key={
+                                          repoVersion.version_url ||
+                                          `${repoVersion.owner}-${repoVersion.short_code}-${repoVersion.version}`
+                                        }
+                                        sx={{
+                                          fontSize: "12px",
+                                          color: "primary.main",
+                                          lineHeight: 1.45,
+                                          wordBreak: "break-word"
+                                        }}
+                                      >
+                                        {renderRepoVersionLabel(repoVersion)}
+                                      </Typography>
+                                    ))}
+                                  </Box>
+                                ) : (
+                                  <Typography
+                                    sx={{
+                                      mt: 0.25,
+                                      fontSize: "12px",
+                                      color: "secondary.main"
+                                    }}
+                                  >
+                                    {t("common.none")}
+                                  </Typography>
+                                )}
 
-                            <Divider sx={{ my: 1.5 }} />
-
-                            <Stack
-                              direction="row"
-                              spacing={2}
-                              sx={{ flexWrap: "wrap", rowGap: 1 }}
+                                <Typography
+                                  sx={{
+                                    mt: 1,
+                                    fontSize: "12px",
+                                    fontWeight: 600,
+                                    color: "secondary.main"
+                                  }}
+                                >
+                                  {t("repo.evaluated_repo_versions")}
+                                </Typography>
+                                {evaluatedRepoVersions.length ? (
+                                  <Box sx={{ mt: 0.25 }}>
+                                    {evaluatedRepoVersions.map(repoVersion => (
+                                      <Typography
+                                        key={
+                                          repoVersion.version_url ||
+                                          `${repoVersion.owner}-${repoVersion.short_code}-${repoVersion.version}-evaluated`
+                                        }
+                                        sx={{
+                                          fontSize: "12px",
+                                          color: "primary.main",
+                                          lineHeight: 1.45,
+                                          wordBreak: "break-word"
+                                        }}
+                                      >
+                                        {renderRepoVersionLabel(repoVersion)}
+                                      </Typography>
+                                    ))}
+                                  </Box>
+                                ) : (
+                                  <Typography
+                                    sx={{
+                                      mt: 0.25,
+                                      fontSize: "12px",
+                                      color: "secondary.main"
+                                    }}
+                                  >
+                                    {t("common.none")}
+                                  </Typography>
+                                )}
+                              </Box>
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                ...bodyCellSx,
+                                width: "1%",
+                                whiteSpace: "nowrap"
+                              }}
                             >
-                              <SummaryMetric
-                                label={t("search.concepts")}
-                                value={expansion.active_concepts}
-                              />
-                              <SummaryMetric
-                                label={t("search.mappings")}
-                                value={expansion.active_mappings}
-                              />
-                              <SummaryMetric
-                                label={t("reference.references")}
-                                value={getReferencesCount(expansion)}
-                              />
-                            </Stack>
-
-                            <Stack
-                              direction="row"
-                              spacing={1}
-                              sx={{ mt: 1.5, flexWrap: "wrap", rowGap: 1 }}
-                            >
-                              {!expansion.default && (
-                                <MuiButton
+                              {hasAccess && (
+                                <IconButton
                                   size="small"
-                                  variant="outlined"
-                                  sx={{ textTransform: "none" }}
-                                  onClick={() =>
-                                    onMarkExpansionDefault(version, expansion)
+                                  onClick={event =>
+                                    openExpansionMenu(event, version, expansion)
                                   }
                                 >
-                                  {t("repo.set_as_default")}
-                                </MuiButton>
+                                  <MoreVertIcon fontSize="small" />
+                                </IconButton>
                               )}
-                              <MuiButton
-                                size="small"
-                                variant="outlined"
-                                sx={{ textTransform: "none" }}
-                                onClick={() =>
-                                  setExpansionFormState({
-                                    open: true,
-                                    version,
-                                    copyFrom: expansion
-                                  })
-                                }
-                              >
-                                {t("repo.create_similar")}
-                              </MuiButton>
-                              <MuiButton
-                                size="small"
-                                variant="outlined"
-                                sx={{ textTransform: "none" }}
-                                onClick={() =>
-                                  setRebuildExpansion({
-                                    ...expansion,
-                                    __version: version
-                                  })
-                                }
-                                disabled={Boolean(expansion.is_processing)}
-                              >
-                                {t("repo.rebuild")}
-                              </MuiButton>
-                              <MuiButton
-                                size="small"
-                                variant="outlined"
-                                sx={{ textTransform: "none" }}
-                                startIcon={<InfoIcon />}
-                                onClick={() => setDetailsExpansion(expansion)}
-                              >
-                                {t("common.details")}
-                              </MuiButton>
-                              <MuiButton
-                                size="small"
-                                color="error"
-                                variant="outlined"
-                                sx={{ textTransform: "none" }}
-                                onClick={() =>
-                                  setDeleteExpansion({
-                                    ...expansion,
-                                    __version: version
-                                  })
-                                }
-                                disabled={Boolean(expansion.default)}
-                              >
-                                {t("common.delete_label")}
-                              </MuiButton>
-                            </Stack>
-                          </Paper>
+                            </TableCell>
+                          </TableRow>
                         );
                       })}
-                  </Stack>
-                </Box>
-              </Collapse>
-            </Paper>
-          );
-        })}
-      </Stack>
+                  </TableBody>
+                </Table>
+              </Box>
+            </Collapse>
+          </TableCell>
+        </TableRow>
+      </React.Fragment>
+    );
+  };
+
+  return (
+    <Box sx={{height: "calc(100vh - 300px)", overflow: "auto", display: 'flex', flexDirection: 'column' }}>
+      <Paper
+        sx={{
+          boxShadow: "none",
+          overflow: "hidden",
+          height: '48px',
+          borderBottom: '1px solid',
+          borderColor: 'surface.nv80',
+          borderRadius: 0,
+          fontSize: '14px',
+          padding: '12px 12px 12px 24px',
+          color: 'rgba(0, 0, 0, 0.87)'
+        }}
+      >
+        {count !== false ? `${count} versions` : <Skeleton variant='text' />}
+    </Paper>
+
+      <Paper
+        sx={{
+          boxShadow: "none",
+          overflow: "hidden"
+        }}
+      >
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{...headerCellSx, paddingLeft: '54px'}}>{t("common.id")}</TableCell>
+                <TableCell sx={headerCellSx}>{t("search.concepts")}</TableCell>
+                <TableCell sx={headerCellSx}>{t("search.mappings")}</TableCell>
+                <TableCell sx={headerCellSx}>
+                  {t("reference.references")}
+                </TableCell>
+                <TableCell sx={headerCellSx} />
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {headLoading && !displayVersions.length && (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    sx={{ ...bodyCellSx, textAlign: "center", py: 4 }}
+                  >
+                    <CircularProgress size={26} />
+                  </TableCell>
+                </TableRow>
+              )}
+              {displayVersions.map(renderVersionRow)}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
 
       <ExpansionForm
         open={expansionFormState.open}
@@ -1098,6 +1031,128 @@ const CollectionVersionsTab = ({
         associationsLabel={t("repo.concepts_and_mappings")}
         warning={false}
       />
+
+      <Menu
+        anchorEl={versionMenu.anchorEl}
+        open={Boolean(versionMenu.anchorEl)}
+        onClose={closeVersionMenu}
+      >
+        <MenuItem
+          onClick={() => {
+            const version = versionMenu.version;
+            closeVersionMenu();
+            if (version) {
+              setExpansionFormState({ open: true, version, copyFrom: null });
+            }
+          }}
+        >
+          {t("repo.new_expansion")}
+        </MenuItem>
+        {Boolean(
+          versionMenu.version &&
+            hasAccess &&
+            !isHeadVersion(versionMenu.version) &&
+            !versionMenu.version.released
+        ) && (
+          <MenuItem
+            onClick={() => {
+              const version = versionMenu.version;
+              closeVersionMenu();
+              if (version) onReleaseVersion(version);
+            }}
+          >
+            {t("common.release")}
+          </MenuItem>
+        )}
+        {Boolean(
+          versionMenu.version &&
+            hasAccess &&
+            !isHeadVersion(versionMenu.version) &&
+            !versionMenu.version.released &&
+            (expansionsByVersion[getVersionKey(versionMenu.version)] || [])
+              .length === 0
+        ) && (
+          <MenuItem
+            onClick={() => {
+              const version = versionMenu.version;
+              closeVersionMenu();
+              if (version) onDeleteVersion(version);
+            }}
+            sx={{ color: "error.main" }}
+          >
+            {t("common.delete_label")}
+          </MenuItem>
+        )}
+      </Menu>
+
+      <Menu
+        anchorEl={expansionMenu.anchorEl}
+        open={Boolean(expansionMenu.anchorEl)}
+        onClose={closeExpansionMenu}
+      >
+        {Boolean(
+          expansionMenu.expansion && !expansionMenu.expansion.default
+        ) && (
+          <MenuItem
+            onClick={() => {
+              const { version, expansion } = expansionMenu;
+              closeExpansionMenu();
+              if (version && expansion)
+                onMarkExpansionDefault(version, expansion);
+            }}
+          >
+            {t("repo.set_as_default")}
+          </MenuItem>
+        )}
+        <MenuItem
+          onClick={() => {
+            const { version, expansion } = expansionMenu;
+            closeExpansionMenu();
+            if (version && expansion) {
+              setExpansionFormState({
+                open: true,
+                version,
+                copyFrom: expansion
+              });
+            }
+          }}
+        >
+          {t("repo.create_similar")}
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            const { version, expansion } = expansionMenu;
+            closeExpansionMenu();
+            if (version && expansion) {
+              setRebuildExpansion({ ...expansion, __version: version });
+            }
+          }}
+        >
+          {t("repo.rebuild")}
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            const expansion = expansionMenu.expansion;
+            closeExpansionMenu();
+            if (expansion) setDetailsExpansion(expansion);
+          }}
+        >
+          {t("common.details")}
+        </MenuItem>
+        <MenuItem
+          disabled={Boolean(expansionMenu.expansion?.default)}
+          onClick={() => {
+            const { version, expansion } = expansionMenu;
+            closeExpansionMenu();
+            if (version && expansion) {
+              setDeleteExpansion({ ...expansion, __version: version });
+            }
+          }}
+          sx={{ color: "error.main" }}
+        >
+          {t("common.delete_label")}
+        </MenuItem>
+      </Menu>
     </Box>
   );
 };

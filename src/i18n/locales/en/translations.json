@@ -389,6 +389,7 @@
     "expansion_details_title": "Expansion: {{mnemonic}}",
     "explicit_repo_versions": "Explicit Repo Versions",
     "evaluated_repo_versions": "Evaluated Repo Versions",
+    "resolved_repo_versions": "Resolved Repo Versions",
     "version": {
       "vectorized_for_mapper": "Concepts vectorization is enabled for this repository version",
       "form": {

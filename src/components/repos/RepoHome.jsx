@@ -43,6 +43,7 @@ const RepoHome = () => {
   const [owner, setOwner] = React.useState(false)
   const [repoSummary, setRepoSummary] = React.useState(false)
   const [versions, setVersions] = React.useState(false)
+  const [versionsCount, setVersionsCount] = React.useState(false)
   const [loading, setLoading] = React.useState(true)
   const [showItem, setShowItem] = React.useState(false)
   const [conceptForm, setConceptForm] = React.useState(false)
@@ -100,6 +101,7 @@ const RepoHome = () => {
     APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit: 100}).then(response => {
       const _versions = response?.data || []
       setVersions(_versions)
+      setVersionsCount(response.headers['num_found'] || 1)
       if(!repo.version_url && params.repoVersion !== 'HEAD' && !showConceptURL && !showMappingURL) {
         const releasedVersions = filter(_versions, {released: true})
         let version = orderBy(releasedVersions, 'created_on', ['desc'])[0] || orderBy(_versions, 'created_on', ['desc'])[0]
@@ -296,6 +298,7 @@ const RepoHome = () => {
                     <CollectionVersionsTab
                       repo={repo}
                       versions={versions}
+                      count={versionsCount}
                       onCreateVersion={onCreateVersionClick}
                       onReleaseVersion={version => setReleaseTarget(version)}
                       onDeleteVersion={version => setDeleteTarget(version)}
