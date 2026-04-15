@@ -72,7 +72,7 @@ const EnhancedTableHead = props => {
                                         }
                                         label={
                                           <span style={{fontSize: '12px', marginLeft: '5px'}}>
-                                            {refTranslation ? 'Show Expression' : 'Show Translation'}
+                                            {refTranslation ? t('reference.raw') : t('reference.translation')}
                                           </span>
                                         }
                                       />

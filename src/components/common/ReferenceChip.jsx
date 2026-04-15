@@ -3,10 +3,9 @@ import { Chip } from '@mui/material';
 import {
   LocalOffer as LocalOfferIcon, Link as LinkIcon,
 } from '@mui/icons-material';
-import { toFullAPIURL, copyURL } from '../../common/utils';
+import { toFullAPIURL } from '../../common/utils';
 
 const ReferenceChip = props => {
-  const isReference = !props.notReference
   const isResolved = Boolean(props.last_resolved_at)
   const type = props.reference_type;
   const expression = isResolved ? props.expression : `${props.expression} (unresolved)`;
@@ -29,18 +28,6 @@ const ReferenceChip = props => {
       <a href={toFullAPIURL(props.uri)} target='_blank' rel='noopener noreferrer'>
         {chip}
       </a>
-      {
-        isReference && (
-          props.include ?
-            <Chip size='small' variant='outlined' color='success' label='include' /> :
-            <Chip size='small' variant='outlined' color='error' label='exclude' />
-        )
-      }
-      {
-        isReference &&
-          <Chip size='small' color='primary' variant='outlined' label='copy expression' onClick={() => copyURL(toFullAPIURL(props.expression))} style={{marginLeft: '5px'}} />
-
-      }
     </span>
   )
 }
