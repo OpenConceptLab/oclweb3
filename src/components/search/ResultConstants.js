@@ -1,5 +1,7 @@
 import React from 'react';
 import find from 'lodash/find'
+import map from 'lodash/map'
+import isNumber from 'lodash/isNumber'
 import {
   formatDate,
   formatWebsiteLink,
@@ -7,10 +9,12 @@ import {
 import Retired from '../common/Retired';
 import OwnerIcon from '../common/OwnerIcon';
 import RepoVersionButton from '../repos/RepoVersionButton';
+import RepoChip from '../repos/RepoChip';
 import FromAndTargetSource from '../mappings/FromAndTargetSource'
 import ConceptCell from '../mappings/ConceptCell'
 import ReferenceChip from '../common/ReferenceChip';
 import ReferenceTranslation from '../common/ReferenceTranslation';
+import ReferenceTypeChips from '../common/ReferenceTypeChips'
 
 
 const getLocale = (concept, synonym) => {
@@ -18,6 +22,26 @@ const getLocale = (concept, synonym) => {
   let locale = find(concept?.names, name => name?.name.toLowerCase() === cleaned.toLowerCase())
 
   return <div>{locale?.locale ? `[${locale.locale}] ${[locale.name]}` : cleaned}</div>
+}
+
+const getReferenceSummary = (reference) => {
+  let label = '';
+  if(reference.last_resolved_at && reference.concepts === 0 && reference.mappings === 0) {
+    if(reference.reference_type === 'mappings')
+      return '0 mappings'
+    if(reference.reference_type === 'concepts')
+      return '0 concepts'
+    return '0 concepts, 0 mappings'
+  }
+  if(isNumber(reference.concepts) && reference.concepts > 0)
+    label += `${reference.concepts.toLocaleString()} concepts`
+  if(isNumber(reference.mappings) && reference.mappings > 0) {
+    if(label?.length)
+      label += ', '
+    label += `${reference.mappings.toLocaleString()} mappings`
+  }
+
+  return label
 }
 
 
@@ -52,9 +76,26 @@ export const ALL_COLUMNS = {
     {id: 'toConcept', labelKey: 'mapping.toConcept', value: 'toConceptCode', className: 'searchable', sortable: false, renderer: item => <ConceptCell mapping={item} direction='to' />},
   ],
   references: [
-    {id: 'expression', labelKey: 'reference.reference', value: 'expression', sortable: false, translation: true, renderer: (reference, translation) => translation ? <ReferenceTranslation {...reference} /> : <ReferenceChip {...reference} />},
-    {id: 'concepts', labelKey: 'concept.concepts', value: 'concepts', sortable: false, align: 'center', renderer: reference => reference.last_resolved_at ? <ReferenceChip uri={reference.uri + 'concepts/'} reference_type='concepts' last_resolved_at expression={reference.concepts} notReference /> : '-'},
-    {id: 'mappings', labelKey: 'mapping.mappings', value: 'mappings', sortable: false, align: 'center', renderer: reference => reference.last_resolved_at ? <ReferenceChip uri={reference.uri + 'mappings/'} reference_type='mappings' last_resolved_at expression={reference.mappings} notReference /> : '-'}
+    {
+      id: 'expression',
+      labelKey: 'reference.expression',
+      value: 'expression',
+      sortable: false,
+      translation: true,
+      renderer: (reference, translation) => translation ?
+        <ReferenceTranslation
+          {...reference}
+          style={{maxWidth: '400px', flexWrap: 'wrap'}}
+        /> :
+      <ReferenceChip {...reference} />
+    },
+    {id: 'ref_types', labelKey: 'reference.reference_type', value: 'ref_type', sortable: false, renderer: (reference) => <ReferenceTypeChips reference={reference} />},
+    {id: 'resolved_repo_versions', labelKey: 'reference.resolved_repo', value: 'resolved_repo_versions', sortable: false, renderer: (reference) => {
+      return map(reference?.resolved_repo_versions, (version, index) => {
+        return <RepoChip hideType size='small' key={index} repo={version} sx={{margin: '2px'}} />
+      })
+    }},
+    {id: 'summary', labelKey: 'common.results', value: 'summary', sortable: false, renderer: reference => reference.last_resolved_at ? getReferenceSummary(reference) : '-'},
   ],
   repos: [
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id', className: 'searchable'},

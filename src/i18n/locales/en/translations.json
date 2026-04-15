@@ -136,7 +136,8 @@
     "copy_api_url": "Copy API URL",
     "copy_standard_checksum": "Copy Standard Checksum",
     "copy_smart_checksum": "Copy Smart Checksum",
-    "committed": "committed"
+    "committed": "committed",
+    "results": "Results"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -251,8 +252,17 @@
     "edit_mapping": "Edit Mapping"
   },
   "reference": {
+    "expression": "Expression",
     "references": "References",
-    "reference": "Reference"
+    "reference": "Reference",
+    "reference_type": "Ref Type",
+    "exclude": "Exclude",
+    "intensional": "Intensional",
+    "extensional": "Extensional",
+    "cascade": "Cascade",
+    "resolved_repo": "Resolved Repo",
+    "raw": "Raw",
+    "translation": "Translation"
   },
   "checksums": {
     "standard": "Standard Checksum",
