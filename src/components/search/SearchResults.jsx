@@ -7,7 +7,9 @@ import Badge from '@mui/material/Badge';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import AddIcon from '@mui/icons-material/PlaylistAddOutlined';
 import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
 import { isNumber, isNaN, flatten, values } from 'lodash'
@@ -15,10 +17,12 @@ import SearchControls from './SearchControls';
 import NoResults from './NoResults';
 import TableResults from './TableResults';
 import CardResults from './CardResults';
+import AddToCollectionDialog from '../common/AddToCollectionDialog';
 import { SORT_ATTRS } from './ResultConstants'
+import { isLoggedIn } from '../../common/utils';
 
 const ResultsToolbar = props => {
-  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, toolbarControl, appliedFilters, openFilters } = props;
+  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, toolbarControl, appliedFilters, openFilters, bulkActions } = props;
   const filtersCount = flatten(values(appliedFilters).map(v => values(v))).length
   return (
     <Toolbar
@@ -45,7 +49,7 @@ const ResultsToolbar = props => {
       }
       {numSelected > 0 ? (
         <Typography
-          sx={{ flex: '1 1 100%', marginLeft: isFilterable ? '8px' : 0 }}
+          sx={{ marginLeft: isFilterable ? '8px' : 0, whiteSpace: 'nowrap' }}
           color="inherit"
           variant="subtitle1"
           component="div"
@@ -65,6 +69,11 @@ const ResultsToolbar = props => {
         <div style={{flex: '1 1 100%', marginLeft: isFilterable ? '8px' : 0}}>
           <Skeleton variant="text" sx={{ fontSize: '1rem', width: '15%' }} />
         </div>
+      )}
+      {numSelected > 0 && bulkActions && (
+        <Box sx={{ display: 'flex', alignItems: 'center', ml: 1, flex: '1 1 100%' }}>
+          {bulkActions}
+        </Box>
       )}
       <SearchControls
         disabled={disabled}
@@ -88,6 +97,7 @@ const SearchResults = props => {
   const [cardDisplayAnimation, setCardDisplayAnimation] = React.useState('animation-disappear')
   const [tableDisplayAnimation, setTableDisplayAnimation] = React.useState('animation-appear')
   const [selected, setSelected] = React.useState(props.selected || []);
+  const [addToCollectionOpen, setAddToCollectionOpen] = React.useState(false);
   const page = props.results?.page;
   const rowsPerPage = props.results?.pageSize;
 
@@ -213,6 +223,21 @@ const SearchResults = props => {
 
   const isCardDisplay = !noCardDisplay && display === 'card'
 
+  const selectedRows = rows.filter(row => selected.includes(row.version_url || row.url || row.id))
+
+  const addToCollectionBulkAction = props.resource === 'concepts' && isLoggedIn() && selected.length > 0
+    ? (
+      <Button
+        startIcon={<AddIcon fontSize='inherit' />}
+        variant='contained'
+        size='small'
+        sx={{textTransform: 'none', whiteSpace: 'nowrap', borderRadius: '8px', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}}}
+        onClick={() => setAddToCollectionOpen(true)}
+      >
+        {t('addToCollection.add_to_collection')}
+      </Button>
+    ) : null
+
   React.useEffect(() => {
     setSelected(props.selected || [])
   }, [props.selected])
@@ -239,6 +264,7 @@ const SearchResults = props => {
             noCardDisplay={noCardDisplay}
             toolbarControl={props.toolbarControl}
             appliedFilters={props.appliedFilters}
+            bulkActions={addToCollectionBulkAction}
           />
       }
       {
@@ -276,6 +302,11 @@ const SearchResults = props => {
           }
         </React.Fragment>
       }
+      <AddToCollectionDialog
+        open={addToCollectionOpen}
+        onClose={() => setAddToCollectionOpen(false)}
+        concepts={selectedRows}
+      />
     </Box>
   );
 }

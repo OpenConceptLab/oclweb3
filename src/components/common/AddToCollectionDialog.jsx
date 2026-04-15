@@ -11,10 +11,12 @@ import TableBody from '@mui/material/TableBody'
 import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
 import { includes, toLower } from 'lodash'
+import { useTranslation } from 'react-i18next'
 import APIService from '../../services/APIService'
 import { getCurrentUserCollections, dropVersion } from '../../common/utils'
 import Dialog from './Dialog'
 import DialogTitle from './DialogTitle'
+import CloseIconButton from './CloseIconButton'
 import GroupHeader from './GroupHeader'
 import GroupItems from './GroupItems'
 import AutocompleteLoading from './AutocompleteLoading'
@@ -73,7 +75,9 @@ const formatErrorMessage = message => {
   return allErrors.length ? allErrors.join('\n') : JSON.stringify(message)
 }
 
-const AddToCollectionDialog = ({ open, onClose, concept }) => {
+const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp }) => {
+  const { t } = useTranslation()
+  const concepts = conceptsProp || (concept ? [concept] : [])
   const [collections, setCollections] = React.useState([])
   const [selected, setSelected] = React.useState(null)
   const [input, setInput] = React.useState('')
@@ -123,12 +127,10 @@ const AddToCollectionDialog = ({ open, onClose, concept }) => {
     )
   }
 
-  const conceptUrl = concept
-    ? dropVersion(concept.url) || concept.url
-    : null
+  const conceptUrls = concepts.map(c => dropVersion(c.url) || c.url).filter(Boolean)
 
   const handleSubmit = () => {
-    if (!selected || !conceptUrl) return
+    if (!selected || !conceptUrls.length) return
     setSubmitting(true)
     setError(null)
     setResults(null)
@@ -142,7 +144,7 @@ const AddToCollectionDialog = ({ open, onClose, concept }) => {
       .collections(selected.short_code || selected.id)
       .appendToUrl('references/')
       .put(
-        { data: { expressions: [conceptUrl] }, cascade: cascadeParams.method || '' },
+        { data: { expressions: conceptUrls }, cascade: cascadeParams.method || '' },
         null,
         {},
         queryParams
@@ -168,14 +170,24 @@ const AddToCollectionDialog = ({ open, onClose, concept }) => {
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Add to Collection</DialogTitle>
+      <DialogTitle>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {t('addToCollection.title')}
+          <CloseIconButton onClick={onClose} disabled={submitting} size="small" />
+        </Box>
+      </DialogTitle>
 
-      <DialogContent sx={{ pt: 1, pb: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {/* Concept being added */}
-        {concept && (
+      <DialogContent sx={{ padding: '16px 0 0 0 !important', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        {/* Concept(s) being added */}
+        {concepts.length === 1 && (
           <Typography variant="body2" color="text.secondary">
-            Adding: <strong>{concept.display_name || concept.id}</strong>
-            {concept.source && <React.Fragment> from <strong>{concept.source}</strong></React.Fragment>}
+            Adding: <strong>{concepts[0].display_name || concepts[0].id}</strong>
+            {concepts[0].source && <React.Fragment> from <strong>{concepts[0].source}</strong></React.Fragment>}
+          </Typography>
+        )}
+        {concepts.length > 1 && (
+          <Typography variant="body2" color="text.secondary">
+            {t('addToCollection.adding_multiple', { count: concepts.length })}
           </Typography>
         )}
 
@@ -197,7 +209,7 @@ const AddToCollectionDialog = ({ open, onClose, concept }) => {
           renderInput={params => (
             <TextField
               {...params}
-              label="Target Collection"
+              label={t('addToCollection.target_collection')}
               variant="outlined"
               fullWidth
               size="small"
@@ -213,7 +225,7 @@ const AddToCollectionDialog = ({ open, onClose, concept }) => {
             />
           )}
           loadingText={<AutocompleteLoading text={input} />}
-          noOptionsText="No editable collections found"
+          noOptionsText={t('addToCollection.no_editable_collections')}
           renderGroup={params => (
             <li style={{ listStyle: 'none' }} key={params.group}>
               <GroupHeader>{params.group}</GroupHeader>
@@ -240,7 +252,7 @@ const AddToCollectionDialog = ({ open, onClose, concept }) => {
         {/* Cascade selector */}
         <CascadeSelector
           onChange={setCascadeParams}
-          conceptUrl={conceptUrl}
+          conceptUrl={conceptUrls.length === 1 ? conceptUrls[0] : null}
           collectionUrl={selected ? selected.url : null}
         />
 
@@ -248,7 +260,7 @@ const AddToCollectionDialog = ({ open, onClose, concept }) => {
         {submitting && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
             <CircularProgress size={20} />
-            <Typography variant="body2" color="text.secondary">Adding reference…</Typography>
+            <Typography variant="body2" color="text.secondary">{t('addToCollection.adding_reference')}</Typography>
           </Box>
         )}
 
@@ -261,17 +273,17 @@ const AddToCollectionDialog = ({ open, onClose, concept }) => {
             {/* Pending / async job accepted */}
             {isPending && (
               <Alert severity="info">
-                Your request was accepted and references will be added shortly.
+                {t('addToCollection.request_accepted')}
               </Alert>
             )}
 
             {!isPending && (
               <React.Fragment>
                 <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
-                  {addedCount > 0 && failedCount === 0 && `${addedCount} reference${addedCount !== 1 ? 's' : ''} added`}
+                  {addedCount > 0 && failedCount === 0 && `${addedCount} ${t('addToCollection.reference_header').toLowerCase()}${addedCount !== 1 ? 's' : ''} added`}
                   {addedCount > 0 && failedCount > 0 && `${addedCount} added, ${failedCount} failed`}
-                  {addedCount === 0 && failedCount > 0 && `${failedCount} reference${failedCount !== 1 ? 's' : ''} failed`}
-                  {addedCount === 0 && failedCount === 0 && 'No references added'}
+                  {addedCount === 0 && failedCount > 0 && `${failedCount} ${t('addToCollection.reference_header').toLowerCase()}${failedCount !== 1 ? 's' : ''} failed`}
+                  {addedCount === 0 && failedCount === 0 && t('addToCollection.no_references_added')}
                 </Typography>
 
                 {/* Successes */}
@@ -295,8 +307,8 @@ const AddToCollectionDialog = ({ open, onClose, concept }) => {
                   <Table size="small" sx={{ border: '1px solid', borderColor: 'error.main', borderRadius: 1, overflow: 'hidden' }}>
                     <TableHead>
                       <TableRow sx={{ bgcolor: 'error.95' }}>
-                        <TableCell sx={{ fontWeight: 600, width: '40%', color: 'error.main' }}>Reference</TableCell>
-                        <TableCell sx={{ fontWeight: 600, color: 'error.main' }}>Error</TableCell>
+                        <TableCell sx={{ fontWeight: 600, width: '40%', color: 'error.main' }}>{t('addToCollection.reference_header')}</TableCell>
+                        <TableCell sx={{ fontWeight: 600, color: 'error.main' }}>{t('addToCollection.error_header')}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -319,10 +331,7 @@ const AddToCollectionDialog = ({ open, onClose, concept }) => {
         )}
       </DialogContent>
 
-      <DialogActions sx={{ pt: 2 }}>
-        <Button onClick={onClose} disabled={submitting} sx={{ textTransform: 'none' }}>
-          {done ? 'Close' : 'Cancel'}
-        </Button>
+      <DialogActions sx={{ pt: 2, px: 0 }}>
         {!done && (
           <Button
             variant="contained"
@@ -330,7 +339,7 @@ const AddToCollectionDialog = ({ open, onClose, concept }) => {
             disabled={!selected || submitting}
             sx={{ textTransform: 'none' }}
           >
-            Add Reference
+            {t('addToCollection.add_button')}
           </Button>
         )}
       </DialogActions>

@@ -10,14 +10,10 @@ import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Skeleton from '@mui/material/Skeleton'
-import Button from '@mui/material/Button'
-import AddIcon from '@mui/icons-material/PlaylistAddOutlined'
 import { visuallyHidden } from '@mui/utils';
 import { filter, reject, get, sortBy, without, startCase, find, keys, map, times } from 'lodash'
 import { SECONDARY_COLORS } from '../../common/colors';
-import { isLoggedIn } from '../../common/utils';
 import { ALL_COLUMNS } from './ResultConstants';
-import AddToCollectionDialog from '../common/AddToCollectionDialog';
 
 const EnhancedTableHead = props => {
   const { t } = useTranslation()
@@ -81,7 +77,6 @@ const EnhancedTableHead = props => {
 }
 
 const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns, extraColumns, properties, propertyFilters, loading}) => {
-  const [addToCollectionConcept, setAddToCollectionConcept] = React.useState(null)
   const rows = results?.results || []
   const getValue = (row, column) => {
     let val = get(row, column.value)
@@ -161,7 +156,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
           onRequestSort={handleRequestSort}
           rowCount={rows.length || 0}
           resource={resource}
-          columns={resource === 'concepts' && isLoggedIn() ? [...columns, {id: '__actions', label: '', sortable: false, sx: {width: '160px'}}] : columns}
+          columns={columns}
         />
         <TableBody>
           {
@@ -247,22 +242,6 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
                           </TableCell>
                         })
                       }
-                      {resource === 'concepts' && isLoggedIn() && (
-                        <TableCell padding="none" sx={{textAlign: 'right', pr: 1}}>
-                          {isItemSelected && (
-                            <Button
-                              startIcon={<AddIcon fontSize='inherit' />}
-                              variant='text'
-                              size='small'
-                              color='primary'
-                              sx={{textTransform: 'none', whiteSpace: 'nowrap'}}
-                              onClick={event => { event.stopPropagation(); setAddToCollectionConcept(row) }}
-                            >
-                              Add to Collection
-                            </Button>
-                          )}
-                        </TableCell>
-                      )}
                     </TableRow>
                   );
                 })
@@ -272,11 +251,6 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
         </TableBody>
       </Table>
     </TableContainer>
-    <AddToCollectionDialog
-      open={Boolean(addToCollectionConcept)}
-      onClose={() => setAddToCollectionConcept(null)}
-      concept={addToCollectionConcept}
-    />
     </React.Fragment>
   )
 }
