@@ -252,7 +252,16 @@
   },
   "reference": {
     "references": "References",
-    "reference": "Reference"
+    "reference": "Reference",
+    "type": "Reference Type",
+    "translation": "Translation",
+    "last_resolved_at": "Last resolved at",
+    "unresolved": "unresolved",
+    "details": "Reference Details",
+    "expansion_results": "Expansion Results",
+    "concepts_and_mappings": "Concepts and Mappings",
+    "copy_expression": "Copy Reference Expression",
+    "copy_url": "Copy Reference URL"
   },
   "checksums": {
     "standard": "Standard Checksum",

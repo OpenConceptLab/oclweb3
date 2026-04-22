@@ -31,7 +31,7 @@ const groupMappings = (orderedMappings, concept, mappings, forward) => {
       if(!mapType)
         mapType = forward ? 'children' : 'parent';
       orderedMappings[mapType] = orderedMappings[mapType] || {order: null, direct: [], indirect: [], unknown: [], hierarchy: [], reverseHierarchy: [], self: []}
-      const isSelfMapping = isMapping && dropVersion(concept.url) === dropVersion(resource.cascade_target_concept_url) && toParentURI(concept.url) === dropVersion(resource.cascade_target_concept_url)
+      const isSelfMapping = isMapping && dropVersion(concept?.url) === dropVersion(resource.cascade_target_concept_url) && concept?.url && toParentURI(concept.url) === dropVersion(resource.cascade_target_concept_url)
       let _resource = isMapping ? {...resource, isSelf: isSelfMapping, cascade_target_concept_name: resource.cascade_target_concept_name || get(find(mappings, m => dropVersion(m.url) === dropVersion(resource.cascade_target_concept_url)), 'display_name')} : {...resource, cascade_target_concept_name: resource.display_name}
       if(isSelfMapping) {
         if(!map(orderedMappings[mapType].self, 'id').includes(resource.id))
@@ -131,7 +131,7 @@ const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect, hide}) => {
 
 
 const borderColor = 'rgba(0, 0, 0, 0.12)'
-const Associations = ({concept, mappings, reverseMappings, ownerMappings, reverseOwnerMappings, onLoadOwnerMappings, loadingOwnerMappings}) => {
+const Associations = ({concept, mappings, reverseMappings, ownerMappings, reverseOwnerMappings, onLoadOwnerMappings, loadingOwnerMappings, nested}) => {
   const [scope, setScope] = React.useState('repo')
   const [orderedMappings, setOrderedMappings] = React.useState({});
   const [orderedOwnerMappings, setOrderedOwnerMappings] = React.useState({});
@@ -190,7 +190,9 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
   const toggleSection = repoURI => setCollapsedSections(collapsedSections?.includes(repoURI) ? without(collapsedSections, repoURI) : [...collapsedSections, repoURI])
 
   return (
-    <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor, borderRadius: '10px'}}>
+    <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: nested ? 'none' : '1px solid', borderColor: borderColor, borderRadius: '10px'}}>
+      {
+      !nested &&
       <Typography component="span" sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between'}}>
         <TagCountLabel label={t('concept.associations')} count={scope === 'all' ? count : (scope === 'namespace' ? countOwnerMappings : count - countOwnerMappings)}/>
         <ButtonGroup size='small' color='secondary'>
@@ -205,6 +207,7 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
           </Button>
         </ButtonGroup>
       </Typography>
+      }
       <TableContainer sx={{ maxHeight: 400, borderRadius: '10px' }}>
         <Table stickyHeader size='small'>
           <TableHead>

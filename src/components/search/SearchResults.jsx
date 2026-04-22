@@ -149,13 +149,10 @@ const SearchResults = props => {
   };
 
   const handleRowClick = (event, id) => {
-    if(props.resource === 'references')
-      return
-
     event.preventDefault()
     event.stopPropagation()
     const item = rows.find(row => id == (row.version_url || row.url || row.id)) || false
-    if(['concepts', 'mappings'].includes(props.resource)) {
+    if(['concepts', 'mappings', 'references'].includes(props.resource)) {
       props.onShowItemSelect(item)
     } else if (props.resource === 'repos') {
       history.push(item.url)
