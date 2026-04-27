@@ -8,6 +8,8 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 import Checkbox from '@mui/material/Checkbox';
 import Skeleton from '@mui/material/Skeleton'
 import { visuallyHidden } from '@mui/utils';
@@ -17,7 +19,7 @@ import { ALL_COLUMNS } from './ResultConstants';
 
 const EnhancedTableHead = props => {
   const { t } = useTranslation()
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, columns } = props;
+  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, columns, refTranslation, setRefTranslation } = props;
   const createSortHandler = property => event => {
     onRequestSort(event, property);
   };
@@ -54,20 +56,43 @@ const EnhancedTableHead = props => {
                 sortDirection={orderBy === headCell.id ? order : false}
                 sx={{background: 'inherit', ...headCell.sx}}
               >
-                <TableSortLabel
-                  active={orderBy === headCell.id}
-                  direction={orderBy === headCell.id ? order : 'asc'}
-                  onClick={headCell?.sortable === false ? undefined : createSortHandler(headCell.sortBy ? headCell.sortBy : headCell.id)}
-                >
-                  <b>{label}</b>
-                  {
-                    orderBy === headCell.id ? (
-                      <Box component="span" sx={visuallyHidden}>
-                        {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                      </Box>
-                    ) : null
-                  }
-                </TableSortLabel>
+                {
+                  headCell?.translation ?
+                    <span>
+                                    <span><b>{label}</b></span>
+                                    <span style={{marginLeft: '16px'}}>
+                                      <FormControlLabel
+                                        size='small'
+                                        control={
+                                          <Switch
+                                            color="primary"
+                                            size='small'
+                                            checked={refTranslation}
+                                            onChange={event => setRefTranslation(event.target.checked)} />
+                                        }
+                                        label={
+                                          <span style={{fontSize: '12px', marginLeft: '5px'}}>
+                                            {refTranslation ? t('reference.raw') : t('reference.translation')}
+                                          </span>
+                                        }
+                                      />
+                                    </span>
+                    </span> :
+                  <TableSortLabel
+                    active={orderBy === headCell.id}
+                    direction={orderBy === headCell.id ? order : 'asc'}
+                    onClick={headCell?.sortable === false ? undefined : createSortHandler(headCell.sortBy ? headCell.sortBy : headCell.id)}
+                  >
+                    <b>{label}</b>
+                    {
+                      orderBy === headCell.id ? (
+                        <Box component="span" sx={visuallyHidden}>
+                          {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                        </Box>
+                      ) : null
+                    }
+                  </TableSortLabel>
+                }
               </TableCell>
             )
           })}
@@ -77,13 +102,14 @@ const EnhancedTableHead = props => {
 }
 
 const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns, extraColumns, properties, propertyFilters, loading}) => {
+  const [refTranslation, setRefTranslation] = React.useState(true)
   const rows = results?.results || []
   const getValue = (row, column) => {
     let val = get(row, column.value)
     if(column.formatter)
       return column.formatter(val)
     if(column.renderer)
-      return column.translation ? column.renderer(row, column.translation) : column.renderer(row, Boolean(selectedToShowItem))
+      return column.translation ? column.renderer(row, refTranslation) : column.renderer(row, Boolean(selectedToShowItem))
     return val
   }
 
@@ -156,6 +182,8 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
           rowCount={rows.length || 0}
           resource={resource}
           columns={columns}
+          refTranslation={refTranslation}
+          setRefTranslation={setRefTranslation}
         />
         <TableBody>
           {
