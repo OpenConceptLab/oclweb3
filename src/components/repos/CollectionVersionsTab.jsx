@@ -24,6 +24,7 @@ import {
 import {
   AspectRatio as ExpansionIcon,
   CheckCircleOutline as DefaultIcon,
+  EditOutlined as DraftIcon,
   ExpandLess as CollapseIcon,
   ExpandMore as ExpandIcon,
   MoreVert as MoreVertIcon,
@@ -128,6 +129,10 @@ const getUserLabel = user =>
   (typeof user === "string" ? user : "");
 
 const getReferencesCount = entity => {
+  const activeReferences =
+    get(entity, "summary.active_references") ?? get(entity, "active_references");
+  if (isNumber(activeReferences)) return activeReferences;
+
   const explicitTotal =
     get(entity, "summary.references.total") ?? get(entity, "references.total");
   if (isNumber(explicitTotal)) return explicitTotal;
@@ -810,10 +815,10 @@ const CollectionVersionsTab = ({
                               </Box>
                             </TableCell>
                             <TableCell sx={bodyCellSx}>
-                              <CountCell value={expansion.active_concepts} />
+                              <CountCell value={get(expansion, "summary.active_concepts")} />
                             </TableCell>
                             <TableCell sx={bodyCellSx}>
-                              <CountCell value={expansion.active_mappings} />
+                              <CountCell value={get(expansion, "summary.active_mappings")} />
                             </TableCell>
                             <TableCell sx={bodyCellSx}>
                               <Box sx={{ minWidth: 0 }}>
@@ -937,6 +942,7 @@ const CollectionVersionsTab = ({
           boxShadow: "none",
           overflow: "hidden",
           height: '48px',
+          flexShrink: 0,
           borderBottom: '1px solid',
           borderColor: 'surface.nv80',
           borderRadius: 0,
@@ -951,7 +957,8 @@ const CollectionVersionsTab = ({
       <Paper
         sx={{
           boxShadow: "none",
-          overflow: "hidden"
+          overflow: "hidden",
+          flexShrink: 0
         }}
       >
         <TableContainer>
