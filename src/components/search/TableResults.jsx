@@ -139,6 +139,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
   }
 
   return (
+    <React.Fragment>
     <TableContainer style={style || {height: 'calc(100vh - 263px)'}} className={className}>
       <Table
         stickyHeader
@@ -250,6 +251,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
         </TableBody>
       </Table>
     </TableContainer>
+    </React.Fragment>
   )
 }
 

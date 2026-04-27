@@ -3,11 +3,14 @@ import Card from '@mui/material/Card';
 import Checkbox from '@mui/material/Checkbox';
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
+import Button from '@mui/material/Button'
+import AddIcon from '@mui/icons-material/PlaylistAddOutlined'
 
 import { COLORS } from '../../common/colors';
-import { isAtGlobalSearch } from '../../common/utils';
+import { isAtGlobalSearch, isLoggedIn } from '../../common/utils';
 import Retired from '../common/Retired';
 import ConceptSummaryProperties from './ConceptSummaryProperties'
+import AddToCollectionDialog from '../common/AddToCollectionDialog'
 
 const getBestSynonym = synonyms => {
   return synonyms
@@ -28,6 +31,7 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
   const id = concept.version_url || concept.url || concept.id
   const isChecked = isSelected(id)
   const isSelectedToShow = isShown(id)
+  const [addToCollectionOpen, setAddToCollectionOpen] = React.useState(false)
   const border = (isChecked || isSelectedToShow) ? `1px solid ${COLORS.primary.main}` : '0.3px solid rgba(0, 0, 0, 0.12)'
 
   let synonymPrefix = ''
@@ -96,7 +100,24 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
             sx={{margin: '2px 0', '.MuiListItemText-primary': {fontSize: '14px'}, '.MuiListItemText-secondary': {fontSize: '12px', overflow: 'scroll'}}}
           />
         </ListItem>
+        {isChecked && isLoggedIn() && (
+          <Button
+            startIcon={<AddIcon fontSize='inherit' />}
+            variant='text'
+            size='small'
+            color='primary'
+            sx={{textTransform: 'none', whiteSpace: 'nowrap', flexShrink: 0}}
+            onClick={event => { event.stopPropagation(); setAddToCollectionOpen(true) }}
+          >
+            Add to Collection
+          </Button>
+        )}
       </div>
+      <AddToCollectionDialog
+        open={addToCollectionOpen}
+        onClose={() => setAddToCollectionOpen(false)}
+        concept={concept}
+      />
     </Card>
   )
 }

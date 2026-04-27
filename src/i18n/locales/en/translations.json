@@ -456,6 +456,20 @@
     "target_owner": "Target Owner",
     "view_canonical_url_registry": "View Canonical URL registry"
   },
+  "addToCollection": {
+    "title": "Add to Collection",
+    "adding_single": "Adding: {{name}} from {{source}}",
+    "adding_multiple": "Adding {{count}} concepts",
+    "target_collection": "Target Collection",
+    "no_editable_collections": "No editable collections found",
+    "adding_reference": "Adding reference…",
+    "request_accepted": "Your request was accepted and references will be added shortly.",
+    "add_button": "Add Reference",
+    "reference_header": "Reference",
+    "error_header": "Error",
+    "no_references_added": "No references added",
+    "add_to_collection": "Add to Collection"
+  },
   "import": {
     "upload_file_tooltip": "Upload JSON/CSV/ZIP File",
     "json_data_tooltip": "Submit JSON Data",
