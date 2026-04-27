@@ -13,7 +13,6 @@ import RepoChip from '../repos/RepoChip';
 import FromAndTargetSource from '../mappings/FromAndTargetSource'
 import ConceptCell from '../mappings/ConceptCell'
 import ReferenceChip from '../common/ReferenceChip';
-import ReferenceTranslation from '../common/ReferenceTranslation';
 import ReferenceTypeChips from '../common/ReferenceTypeChips'
 
 
@@ -82,12 +81,7 @@ export const ALL_COLUMNS = {
       value: 'expression',
       sortable: false,
       translation: true,
-      renderer: (reference, translation) => translation ?
-        <ReferenceTranslation
-          {...reference}
-          style={{maxWidth: '400px', flexWrap: 'wrap'}}
-        /> :
-      <ReferenceChip {...reference} />
+      renderer: (reference, translation) => <ReferenceChip {...reference} showTranslation={translation} />
     },
     {id: 'ref_types', labelKey: 'reference.reference_type', value: 'ref_type', sortable: false, renderer: (reference) => <ReferenceTypeChips reference={reference} />},
     {id: 'resolved_repo_versions', labelKey: 'reference.resolved_repo', value: 'resolved_repo_versions', sortable: false, renderer: (reference) => {
