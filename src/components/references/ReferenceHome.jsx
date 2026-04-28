@@ -12,13 +12,17 @@ const ReferenceHome = props => {
   const [loading, setLoading] = React.useState(false)
   const [tab, setTab] = React.useState('metadata')
   const [concepts, setConcepts] = React.useState(false)
+  const [conceptHeaders, setConceptHeaders] = React.useState(false)
   const [mappings, setMappings] = React.useState(false)
+  const [mappingHeaders, setMappingHeaders] = React.useState(false)
 
   const repoURL = props?.repo?.version_url || props?.repo?.url
 
   React.useEffect(() => {
     setConcepts(false)
     setMappings(false)
+    setConceptHeaders(false)
+    setMappingHeaders(false)
     if(tab === 'expansion')
       setTimeout(() => getResults(true), 100)
   }, [reference?.id])
@@ -38,24 +42,47 @@ const ReferenceHome = props => {
   }
   const getRefService = () => APIService.new().overrideURL(repoURL).appendToUrl(`references/${reference.id}/`)
 
-  const fetchConcepts = (page=1) => {
-    let limit = 10
-    let offset = limit * (page -1)
+  const fetchConcepts = () => {
+    const { limit, page } = getLimits(conceptHeaders)
+    if(limit === 0)
+      return
+
     setLoading(true)
-    getRefService().appendToUrl('concepts/').get(null, null, {limit: limit, offset: offset, includeMappings: true, mappingBrief: true}).then(response => {
+    getRefService().appendToUrl('concepts/').get(null, null, {limit: limit, page: page, includeMappings: true, mappingBrief: true}).then(response => {
       setConcepts(page === 1 ? response.data : [...(concepts || []), ...response.data])
+      setConceptHeaders(response.headers)
       setLoading(false)
     })
   }
 
-  const fetchMappings = (page=1) => {
-    let limit = 10
-    let offset = limit * (page -1)
+  const fetchMappings = () => {
+    const { limit, page } = getLimits(mappingHeaders)
+    if(limit === 0)
+      return
+
     setLoading(true)
-    getRefService().appendToUrl('mappings/').get(null, null, {limit: limit, offset: offset}).then(response => {
+    getRefService().appendToUrl('mappings/').get(null, null, {limit: limit, page: page}).then(response => {
       setMappings(page === 1 ? response.data : [...(mappings || []), ...response.data])
+      setMappingHeaders(response.headers)
       setLoading(false)
     })
+  }
+
+  const getLimits = headers => {
+    if(headers?.page_number && !headers?.next)
+      return { limit: 0, page: 0 }
+
+    return {
+      limit: 10,
+      page: (parseInt(headers?.page_number || 0, 10)) + 1
+    }
+  }
+
+  const onLoadMore = (resource) => {
+    if(resource === 'concepts')
+      fetchConcepts()
+    else if (resource === 'mappings')
+      fetchMappings()
   }
 
 
@@ -70,7 +97,7 @@ const ReferenceHome = props => {
       }
       {
         tab === 'expansion' &&
-          <ReferenceExpansionResults reference={reference} loading={loading} concepts={concepts} mappings={mappings} />
+          <ReferenceExpansionResults reference={reference} loading={loading} concepts={concepts} mappings={mappings} conceptHeaders={conceptHeaders} mappingHeaders={mappingHeaders} onLoadMore={onLoadMore} />
       }
     </div>
   )
