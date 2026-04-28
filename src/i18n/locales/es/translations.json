@@ -29,7 +29,8 @@
     "navigate": "Navegar",
     "select": "Seleccionar",
     "search": "Buscar",
-    "for": "para"
+    "for": "para",
+    "load_more": "Cargar más"
   },
   "errors": {
     "404": "Lo siento, no se pudo encontrar tu página."
