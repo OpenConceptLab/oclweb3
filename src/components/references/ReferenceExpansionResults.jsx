@@ -133,7 +133,7 @@ const ConceptsAndMappingsTable = ({reference, concepts, loading, t, hasMore, onL
                           }
                         } : undefined}
                       >
-                        <TableCell style={{ padding: '0 8px' }} colSpan={4}>
+                        <TableCell sx={{ padding: '0 8px', borderBottom: 0 }} colSpan={4}>
                           <Collapse in={isOpen} timeout="auto" unmountOnExit>
                             <Box sx={{ margin: '8px 0', display: 'inline-block' }}>
                               <Associations concept={concept} mappings={concept.mappings} reverseMappings={[]} ownerMappings={[]} reverseOwnerMappings={[]} nested />
