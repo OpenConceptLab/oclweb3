@@ -272,6 +272,8 @@ const Search = props => {
     })
     if(['users', 'orgs', 'references'].includes(__resource))
       params.verbose = true
+    if(__resource === 'references')
+      params.includeResolvedRepoVersions = true
     APIService.new().overrideURL(getURL(__resource)).get(null, null, params).then(response => {
       if(response?.detail) {
         setAlert({message: response.detail, severity: 'error', duration: 5000})
