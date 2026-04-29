@@ -24,8 +24,16 @@ const ReferenceTypeChips = ({ reference }) => {
           <Chip color='success' size='small' label={t('reference.cascade')} />
       }
       {
+        reference.version && reference.version !== 'HEAD' &&
+          <Chip color='warning' size='small' label={t('reference.versioned_repo')} />
+      }
+      {
+        reference.resource_version &&
+          <Chip color='info' size='small' label={t('reference.versioned_resource')} />
+      }
+      {
         !reference.last_resolved_at && !reference.concepts && !reference.mappings &&
-          <Chip color='gray' size='small' label={t('reference.unresolved')} />
+          <Chip color='default' size='small' label={t('reference.unresolved')} />
       }
     </span>
   )

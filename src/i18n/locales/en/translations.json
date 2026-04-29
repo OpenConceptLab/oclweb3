@@ -260,6 +260,9 @@
     "intensional": "Intensional",
     "extensional": "Extensional",
     "cascade": "Cascade",
+    "unresolved": "Unresolved",
+    "versioned_repo": "Versioned (Repo)",
+    "versioned_resource": "Versioned (Resource)",
     "resolved_repo": "Resolved Repo",
     "raw": "Raw",
     "translation": "Translation"
