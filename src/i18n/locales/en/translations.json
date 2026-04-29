@@ -137,7 +137,8 @@
     "copy_api_url": "Copy API URL",
     "copy_standard_checksum": "Copy Standard Checksum",
     "copy_smart_checksum": "Copy Smart Checksum",
-    "committed": "committed"
+    "committed": "committed",
+    "results": "Results"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -252,17 +253,28 @@
     "edit_mapping": "Edit Mapping"
   },
   "reference": {
+    "expression": "Expression",
     "references": "References",
     "reference": "Reference",
     "type": "Reference Type",
-    "translation": "Translation",
     "last_resolved_at": "Last resolved at",
     "unresolved": "unresolved",
     "details": "Reference Details",
     "expansion_results": "Expansion Results",
     "concepts_and_mappings": "Concepts and Mappings",
     "copy_expression": "Copy Reference Expression",
-    "copy_url": "Copy Reference URL"
+    "copy_url": "Copy Reference URL",
+    "reference_type": "Ref Type",
+    "exclude": "Exclude",
+    "intensional": "Intensional",
+    "extensional": "Extensional",
+    "cascade": "Cascade",
+    "unresolved": "Unresolved",
+    "versioned_repo": "Versioned (Repo)",
+    "versioned_resource": "Versioned (Resource)",
+    "resolved_repo": "Resolved Repo",
+    "raw": "Raw",
+    "translation": "Translation"
   },
   "checksums": {
     "standard": "Standard Checksum",
@@ -465,6 +477,20 @@
     "resolve_failed_without_entry_global": "{{url}} did not match an entry in the Global Registry",
     "target_owner": "Target Owner",
     "view_canonical_url_registry": "View Canonical URL registry"
+  },
+  "addToCollection": {
+    "title": "Add to Collection",
+    "adding_single": "Adding: {{name}} from {{source}}",
+    "adding_multiple": "Adding {{count}} concepts",
+    "target_collection": "Target Collection",
+    "no_editable_collections": "No editable collections found",
+    "adding_reference": "Adding reference…",
+    "request_accepted": "Your request was accepted and references will be added shortly.",
+    "add_button": "Add Reference",
+    "reference_header": "Reference",
+    "error_header": "Error",
+    "no_references_added": "No references added",
+    "add_to_collection": "Add to Collection"
   },
   "import": {
     "upload_file_tooltip": "Upload JSON/CSV/ZIP File",
