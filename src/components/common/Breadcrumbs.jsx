@@ -2,15 +2,16 @@ import React from 'react';
 import RepoIcon from '../repos/RepoIcon';
 import ConceptIcon from '../concepts/ConceptIcon';
 import MappingIcon from '../mappings/MappingIcon';
+import ReferenceIcon from '@mui/icons-material/PentagonRounded';
 import DotSeparator from './DotSeparator'
 import RepoVersionButton from '../repos/RepoVersionButton'
 import RepoTooltip from '../repos/RepoTooltip'
 import Box from '@mui/material/Box';
 import OwnerButton from './OwnerButton'
 
-const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, concept, mapping, noIcons, color, fontSize, size, ownerURL, nested}) => {
+const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, concept, mapping, reference, noIcons, color, fontSize, size, ownerURL, nested}) => {
   const iconProps = {color: 'secondary', style: {marginRight: '8px', width: '0.8em'}}
-  const hideParents = Boolean((concept?.id || mapping?.id) && nested)
+  const hideParents = Boolean((concept?.id || mapping?.id || reference.id) && nested)
   return (
     <Box className='col-xs-12 padding-0' sx={{display: 'flex', alignItems: 'center', color: color, fontSize: fontSize}}>
       {
@@ -122,6 +123,28 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, concept, map
               whiteSpace: 'nowrap',
             }}>
               {mapping.id}
+            </span>
+          </React.Fragment>
+      }
+      {
+        reference?.id &&
+          <React.Fragment>
+            {!hideParents && <DotSeparator />}
+            {
+              !noIcons &&
+                <ReferenceIcon
+                  {...iconProps}
+                  color={reference.include ? 'primary' : 'error'}
+                />
+            }
+            <span className='searchable' style={{
+              maxWidth: hideParents ? 'calc(100% - 125px)' : '125px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              fontSize: '14px',
+              whiteSpace: 'nowrap',
+            }}>
+              {reference.id}
             </span>
           </React.Fragment>
       }

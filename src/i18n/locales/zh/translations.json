@@ -87,7 +87,8 @@
     "from": "始于",
     "target": "目标",
     "properties": "特性",
-    "custom": "自定义"
+    "custom": "自定义",
+    "load_more": "加载更多"
   },
   "errors": {
     "404": "很抱歉，未能找到您的页面。",
