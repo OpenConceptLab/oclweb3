@@ -1,14 +1,13 @@
 {
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
-    "prettier",
-    "prettier/react"
+    "prettier"
   ],
   "settings": {
     "react": {
-      "version": "16.4.2"
+      "version": "detect"
     }
   },
   "env": {
@@ -30,10 +29,14 @@
   },
   "plugins": ["mocha", "react", "prettier", "spellcheck"],
   "parserOptions": {
-    "ecmaVersion": 6,
+    "requireConfigFile": false,
+    "ecmaVersion": 2022,
     "sourceType": "module",
     "ecmaFeatures": {
       "jsx": true
+    },
+    "babelOptions": {
+      "presets": ["@babel/preset-react"]
     }
   },
   "rules": {
@@ -41,6 +44,9 @@
     "import/prefer-default-export": 0,
     "import/no-named-as-default": 0,
     "react/prefer-stateless-function": 0,
+    "react/jsx-no-target-blank": "off",
+    "react/no-direct-mutation-state": "off",
+    "react/require-render-return": "off",
     "no-process-env": "error",
     "react/no-unescaped-entities": 0,
     "react/jsx-filename-extension": [
