@@ -85,6 +85,7 @@ const RepoCreate = () => {
   const [fromOCLURLError, setFromOCLURLError] = React.useState(false)
   const [isFetchingFromOCLURL, setIsFetchingFromOCLURL] = React.useState(false)
   const isEdit = Boolean(params.repo)
+  const canonicalURLEdited = React.useRef(false)
 
   const { setAlert } = React.useContext(OperationsContext);
 
@@ -165,6 +166,20 @@ const RepoCreate = () => {
 
   const onChange = (id, value) => setModel({...model, [id]: value?.id ? value?.id : value})
 
+  const onCanonicalURLChange = value => {
+    canonicalURLEdited.current = true
+    onChange('canonicalURL', value)
+  }
+
+  React.useEffect(() => {
+    if(!isEdit && !canonicalURLEdited.current && ownerURL) {
+      const typeIds = ['source', 'collection', 'code_system', 'value_set', 'concept_map']
+      const typeId = typeIds[tab]
+      const repoURL = model?.id ? `${ownerURL}${typeId}s/${model.id}/` : ''
+      setModel(prev => ({...prev, canonicalURL: repoURL ? `${window.location.origin}${repoURL}` : ''}))
+    }
+  }, [model.id, ownerURL, tab]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const onAddExtras = () => setModel({...model, extras: [...model.extras, {key: '', value: ''}]})
 
   const onChangeExtras = (index, field, value) => {
@@ -175,7 +190,7 @@ const RepoCreate = () => {
 
   const extrasToAPIExtras = () => fromPairs(model.extras.filter(ex => ex?.key).map(({ key, value }) => [key, value]))
 
-  const apiExtrasToExtras = extras => map(extras, (value, key) => ({ key, value }))
+  const apiExtrasToExtras = extras => isArray(extras) ? extras : map(extras, (value, key) => ({ key, value }))
 
   const objToValue = val => isObject(val) && !isEmpty(val) ? JSON.stringify(val) : ''
 
@@ -251,8 +266,9 @@ const RepoCreate = () => {
       setIsFetchingFromOCLURL(false)
       setFromOCLURLError(false)
       setRepo({})
-      setModelForEdit({...baseModel})
+      setModel({...baseModel})
       setIsCreatingFromOCLURL(false)
+      canonicalURLEdited.current = false
     }
     const isOnStep1 = location.pathname.endsWith('/1/') || location.pathname.endsWith('/1')
     if(newStep == 1){
@@ -392,7 +408,7 @@ const RepoCreate = () => {
                             value={fromOCLURL || ''}
                             onChange={event => setFromOCLURL(event.target.value)}
                             error={Boolean(fromOCLURLError)}
-                            helperText={fromOCLURLError}
+                            helperText={fromOCLURLError || `e.g. https://app.openconceptlab.org/#/orgs/MyOrg/${selectedTab.id}s/MyRepo/`}
                           />
                           </div>
                         <div className='col-xs-3' style={{padding: '0 0 0 10px'}}>
@@ -409,7 +425,7 @@ const RepoCreate = () => {
         step === 1 &&
           <>
             <FormSection>
-              <RepoCreateNameDescription isEdit={isEdit} url={getRepoURL()} ownerURL={ownerURL} onOwnerChange={onOwnerChange} onChange={onChange} config={selectedTab.content} {...model} />
+              <RepoCreateNameDescription isEdit={isEdit} url={getRepoURL()} ownerURL={ownerURL} onOwnerChange={onOwnerChange} onChange={onChange} onCanonicalURLChange={onCanonicalURLChange} config={selectedTab.content} {...model} />
             </FormSection>
             <FormSection sx={{marginTop: '16px'}}>
               <RepoCreateLanguages isEdit={isEdit} locales={locales} onChange={onChange} config={selectedTab.content} {...model} />
