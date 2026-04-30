@@ -27,7 +27,7 @@ const PRESETS = [
   },
   {
     id: 'sourcetoconcepts',
-    label: 'OpenMRS',
+    label: 'All Source Concepts & Mappings',
     params: { method: 'sourcetoconcepts', mapTypes: 'Q-AND-A,CONCEPT-SET', cascadeLevels: '*', returnMapTypes: '*' },
   },
   {
@@ -62,6 +62,7 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
   const [transform, setTransform] = React.useState(false)
   const [customParams, setCustomParams] = React.useState(DEFAULT_CUSTOM_PARAMS)
   const [showPreview, setShowPreview] = React.useState(showPreviewDefault)
+  const [showAdvanced, setShowAdvanced] = React.useState(false)
 
   const selectedPreset = PRESETS.find(p => p.id === selectedPresetId)
   const baseParams = selectedPresetId === 'custom' ? customParams : (selectedPreset.params || {})
@@ -85,9 +86,8 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
 
   return (
     <Box>
-      {/* Cascade dropdown + Transform checkbox on same row */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-        <FormControl size="small" sx={{ minWidth: 180 }}>
+        <FormControl size="small" sx={{ minWidth: 220 }}>
           <InputLabel>Cascade</InputLabel>
           <Select
             value={selectedPresetId}
@@ -99,29 +99,6 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
             ))}
           </Select>
         </FormControl>
-
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                size="small"
-                checked={transform}
-                onChange={e => setTransform(e.target.checked)}
-              />
-            }
-            label="Transform"
-            sx={{ mr: 0, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
-          />
-          <Tooltip
-            title="Applies the OpenMRS transform to restructure cascade results into OpenMRS-compatible format. Only relevant when using OpenMRS or a custom sourcetoconcepts cascade."
-            placement="top"
-            arrow
-          >
-            <IconButton size="small" tabIndex={-1} sx={{ p: 0.25, color: 'text.secondary' }}>
-              <HelpOutlineIcon sx={{ fontSize: '1rem' }} />
-            </IconButton>
-          </Tooltip>
-        </Box>
       </Box>
 
       {/* Custom params form */}
@@ -188,6 +165,45 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
             helperText="Which map types to include in results"
             fullWidth
           />
+        </Box>
+      </Collapse>
+
+      {/* Advanced options */}
+      <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Chip
+          size="small"
+          label={showAdvanced ? 'Hide advanced' : 'Advanced'}
+          variant="outlined"
+          clickable
+          onClick={() => setShowAdvanced(v => !v)}
+          sx={{ fontSize: '0.7rem' }}
+        />
+      </Box>
+
+      <Collapse in={showAdvanced} unmountOnExit>
+        <Box sx={{ mt: 1.5, pl: 1.5, borderLeft: '2px solid', borderColor: 'divider' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  size="small"
+                  checked={transform}
+                  onChange={e => setTransform(e.target.checked)}
+                />
+              }
+              label="Transform"
+              sx={{ mr: 0, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
+            />
+            <Tooltip
+              title="Converts the reference to extensional reference(s). References for resolved concepts or mappings will be stored as individual extensional references instead of intensional reference(s)."
+              placement="top"
+              arrow
+            >
+              <IconButton size="small" tabIndex={-1} sx={{ p: 0.25, color: 'text.secondary' }}>
+                <HelpOutlineIcon sx={{ fontSize: '1rem' }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
       </Collapse>
 
