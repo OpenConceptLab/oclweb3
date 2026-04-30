@@ -176,7 +176,7 @@ const RepoCreate = () => {
       const typeIds = ['source', 'collection', 'code_system', 'value_set', 'concept_map']
       const typeId = typeIds[tab]
       const repoURL = model?.id ? `${ownerURL}${typeId}s/${model.id}/` : ''
-      setModel(prev => ({...prev, canonicalURL: repoURL ? `${window.location.origin}${repoURL}` : ''}))
+      setModel(prev => ({...prev, canonicalURL: repoURL ? `https://urn.openconceptlab.org${repoURL}` : ''}))
     }
   }, [model.id, ownerURL, tab]) // eslint-disable-line react-hooks/exhaustive-deps
 
