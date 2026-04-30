@@ -1,0 +1,350 @@
+import React from 'react'
+import { TextField, CircularProgress, Divider, DialogContent, DialogActions } from '@mui/material'
+import Autocomplete from '@mui/material/Autocomplete'
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
+import Alert from '@mui/material/Alert'
+import Table from '@mui/material/Table'
+import TableHead from '@mui/material/TableHead'
+import TableBody from '@mui/material/TableBody'
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
+import { includes, toLower } from 'lodash'
+import { useTranslation } from 'react-i18next'
+import APIService from '../../services/APIService'
+import { getCurrentUserCollections, dropVersion } from '../../common/utils'
+import Dialog from './Dialog'
+import DialogTitle from './DialogTitle'
+import CloseIconButton from './CloseIconButton'
+import GroupHeader from './GroupHeader'
+import GroupItems from './GroupItems'
+import AutocompleteLoading from './AutocompleteLoading'
+import CascadeSelector from './CascadeSelector'
+import RepoChip from '../repos/RepoChip'
+import RepoTooltip from '../repos/RepoTooltip'
+
+// Extract "[id] [name]" from an expression URL like /orgs/CIEL/sources/CIEL/concepts/1234/
+const extractConceptLabel = expression => {
+  if (!expression) return expression
+  const parts = expression.replace(/\/$/, '').split('/')
+  const conceptsIdx = parts.lastIndexOf('concepts')
+  if (conceptsIdx !== -1 && parts[conceptsIdx + 1]) {
+    return parts[conceptsIdx + 1]
+  }
+  return expression
+}
+
+// Format one error entry object { description, conflicting_references, conflicting_concept_id, ... }
+const formatErrorEntry = entry => {
+  if (!entry || typeof entry !== 'object') return String(entry)
+  const lines = []
+  if (entry.description) lines.push(entry.description)
+  if (entry.conflicting_references && entry.conflicting_references.length) {
+    const refs = entry.conflicting_references.map(r => {
+      // extract the reference ID from the URI e.g. /users/.../references/14957106/
+      const m = r.match(/\/references\/([^/]+)\/?$/)
+      return m ? `Reference #${m[1]}` : r
+    })
+    lines.push(`Conflicting: ${refs.join(', ')}`)
+  }
+  if (entry.conflicting_concept_id) {
+    const label = entry.conflicting_concept_name
+      ? `${entry.conflicting_concept_id} ${entry.conflicting_concept_name}`
+      : entry.conflicting_concept_id
+    lines.push(`Conflicting concept: ${label}`)
+  }
+  if (entry.conflicting_name) lines.push(`Conflicting name: "${entry.conflicting_name}"`)
+  return lines.join(' — ') || JSON.stringify(entry)
+}
+
+// The API returns message as { expressionUrl: { errors: [...] } }
+const formatErrorMessage = message => {
+  if (!message) return '—'
+  if (typeof message === 'string') return message
+
+  // Unwrap the expression-keyed envelope
+  const allErrors = []
+  Object.values(message).forEach(val => {
+    if (val && Array.isArray(val.errors)) {
+      val.errors.forEach(e => allErrors.push(formatErrorEntry(e)))
+    } else if (val && typeof val === 'object') {
+      allErrors.push(formatErrorEntry(val))
+    }
+  })
+  return allErrors.length ? allErrors.join('\n') : JSON.stringify(message)
+}
+
+const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp }) => {
+  const { t } = useTranslation()
+  const concepts = conceptsProp || (concept ? [concept] : [])
+  const [collections, setCollections] = React.useState([])
+  const [selected, setSelected] = React.useState(null)
+  const [input, setInput] = React.useState('')
+  const [loadingCollections, setLoadingCollections] = React.useState(false)
+  const [cascadeParams, setCascadeParams] = React.useState({})
+  const [submitting, setSubmitting] = React.useState(false)
+  const [results, setResults] = React.useState(null) // array of { added, expression, message }
+  const [error, setError] = React.useState(null)
+
+  React.useEffect(() => {
+    if (open) {
+      setLoadingCollections(true)
+      setSelected(null)
+      setResults(null)
+      setError(null)
+      setCascadeParams({})
+      const seen = new Set()
+      getCurrentUserCollections(batch => {
+        setCollections(prev => {
+          const merged = [
+            ...prev,
+            ...batch.filter(c => {
+              if (seen.has(c.url)) return false
+              seen.add(c.url)
+              return true
+            })
+          ]
+          return merged
+        })
+        setLoadingCollections(false)
+      })
+    } else {
+      setCollections([])
+    }
+  }, [open])
+
+  const handleInputChange = (_, value) => setInput(value || '')
+
+  const filterCollectionOptions = (options, { inputValue }) => {
+    if (!inputValue) return options
+    const q = toLower(inputValue)
+    return options.filter(o =>
+      includes(toLower(o.name), q) ||
+      includes(toLower(o.id), q) ||
+      includes(toLower(o.short_code), q) ||
+      includes(toLower(o.owner), q)
+    )
+  }
+
+  const conceptUrls = concepts.map(c => dropVersion(c.url) || c.url).filter(Boolean)
+
+  const handleSubmit = () => {
+    if (!selected || !conceptUrls.length) return
+    setSubmitting(true)
+    setError(null)
+    setResults(null)
+
+    const collectionOwnerType = selected.owner_type && selected.owner_type.toLowerCase() === 'organization' ? 'orgs' : 'users'
+    const queryParams = Object.keys(cascadeParams).length
+      ? cascadeParams
+      : undefined
+
+    APIService[collectionOwnerType](selected.owner)
+      .collections(selected.short_code || selected.id)
+      .appendToUrl('references/')
+      .put(
+        { data: { expressions: conceptUrls }, cascade: cascadeParams.method || '' },
+        null,
+        {},
+        queryParams
+      )
+      .then(response => {
+        setSubmitting(false)
+        if (response && (response.status === 200 || response.status === 201)) {
+          setResults(Array.isArray(response.data) ? response.data : [])
+        } else if (response && response.status === 202) {
+          setResults('pending')
+        } else {
+          const msg = (response && (response.detail || response.error)) || 'Something went wrong'
+          setError(msg)
+        }
+      })
+  }
+
+  const isPending = results === 'pending'
+  const resultList = Array.isArray(results) ? results : []
+  const addedCount = resultList.filter(r => r.added).length
+  const failedCount = resultList.filter(r => !r.added).length
+  const done = results !== null
+
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {t('addToCollection.title')}
+          <CloseIconButton onClick={onClose} disabled={submitting} size="small" />
+        </Box>
+      </DialogTitle>
+
+      <DialogContent sx={{ padding: '16px 0 0 0 !important', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        {/* Concept(s) being added */}
+        {concepts.length === 1 && (
+          <Typography variant="body2" color="text.secondary">
+            Adding: <strong>{concepts[0].display_name || concepts[0].id}</strong>
+            {concepts[0].source && <React.Fragment> from <strong>{concepts[0].source}</strong></React.Fragment>}
+          </Typography>
+        )}
+        {concepts.length > 1 && (
+          <Typography variant="body2" color="text.secondary">
+            {t('addToCollection.adding_multiple', { count: concepts.length })}
+          </Typography>
+        )}
+
+        {/* Collection selector */}
+        <Autocomplete
+          filterOptions={filterCollectionOptions}
+          openOnFocus
+          blurOnSelect
+          options={collections}
+          loading={loadingCollections}
+          value={selected}
+          inputValue={input}
+          isOptionEqualToValue={(option, value) => option.url === value.url}
+          getOptionLabel={option => option ? `${option.name || option.id} (${option.owner})` : ''}
+          groupBy={option => option.owner}
+          onInputChange={handleInputChange}
+          onChange={(_, item) => setSelected(item)}
+          disabled={submitting || done}
+          renderInput={params => (
+            <TextField
+              {...params}
+              label={t('addToCollection.target_collection')}
+              variant="outlined"
+              fullWidth
+              size="small"
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <React.Fragment>
+                    {loadingCollections ? <CircularProgress color="inherit" size={16} /> : null}
+                    {params.InputProps.endAdornment}
+                  </React.Fragment>
+                ),
+              }}
+            />
+          )}
+          loadingText={<AutocompleteLoading text={input} />}
+          noOptionsText={t('addToCollection.no_editable_collections')}
+          renderGroup={params => (
+            <li style={{ listStyle: 'none' }} key={params.group}>
+              <GroupHeader>{params.group}</GroupHeader>
+              <GroupItems>{params.children}</GroupItems>
+            </li>
+          )}
+          renderOption={(props, option) => (
+            <React.Fragment key={option.url}>
+              <li {...props} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 12px' }}>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '8px' }}>
+                  {option.name || option.id}
+                </span>
+                <RepoTooltip repo={option} enterDelay={1000} enterNextDelay={1000}>
+                  <span>
+                    <RepoChip noTooltip noLink size="small" repo={option} />
+                  </span>
+                </RepoTooltip>
+              </li>
+              <Divider component="li" style={{ listStyle: 'none' }} />
+            </React.Fragment>
+          )}
+        />
+
+        {/* Cascade selector */}
+        <CascadeSelector
+          onChange={setCascadeParams}
+          conceptUrl={conceptUrls.length === 1 ? conceptUrls[0] : null}
+          collectionUrl={selected ? selected.url : null}
+        />
+
+        {/* Submitting spinner */}
+        {submitting && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
+            <CircularProgress size={20} />
+            <Typography variant="body2" color="text.secondary">{t('addToCollection.adding_reference')}</Typography>
+          </Box>
+        )}
+
+        {/* Request error */}
+        {error && <Alert severity="error">{error}</Alert>}
+
+        {/* Results */}
+        {done && (
+          <Box>
+            {/* Pending / async job accepted */}
+            {isPending && (
+              <Alert severity="info">
+                {t('addToCollection.request_accepted')}
+              </Alert>
+            )}
+
+            {!isPending && (
+              <React.Fragment>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
+                  {addedCount > 0 && failedCount === 0 && `${addedCount} ${t('addToCollection.reference_header').toLowerCase()}${addedCount !== 1 ? 's' : ''} added`}
+                  {addedCount > 0 && failedCount > 0 && `${addedCount} added, ${failedCount} failed`}
+                  {addedCount === 0 && failedCount > 0 && `${failedCount} ${t('addToCollection.reference_header').toLowerCase()}${failedCount !== 1 ? 's' : ''} failed`}
+                  {addedCount === 0 && failedCount === 0 && t('addToCollection.no_references_added')}
+                </Typography>
+
+                {/* Successes */}
+                {addedCount > 0 && (
+                  <Box sx={{ mb: failedCount > 0 ? 2 : 0, border: '1px solid', borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
+                    {resultList.filter(r => r.added).map((item, idx, arr) => (
+                      <React.Fragment key={item.expression || idx}>
+                        <Box sx={{ px: 1.5, py: 1, bgcolor: 'primary.95', display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                            {typeof item.message === 'string' ? item.message : ''}
+                          </Typography>
+                        </Box>
+                        {idx < arr.length - 1 && <Divider />}
+                      </React.Fragment>
+                    ))}
+                  </Box>
+                )}
+
+                {/* Failures */}
+                {failedCount > 0 && (
+                  <Table size="small" sx={{ border: '1px solid', borderColor: 'error.main', borderRadius: 1, overflow: 'hidden' }}>
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: 'error.95' }}>
+                        <TableCell sx={{ fontWeight: 600, width: '40%', color: 'error.main' }}>{t('addToCollection.reference_header')}</TableCell>
+                        <TableCell sx={{ fontWeight: 600, color: 'error.main' }}>{t('addToCollection.error_header')}</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {resultList.filter(r => !r.added).map((item, idx) => (
+                        <TableRow key={item.expression || idx} sx={{ verticalAlign: 'top', bgcolor: 'error.95' }}>
+                          <TableCell sx={{ fontSize: '0.8rem', color: 'error.main' }}>
+                            {extractConceptLabel(item.expression)}
+                          </TableCell>
+                          <TableCell sx={{ fontSize: '0.8rem', whiteSpace: 'pre-line', color: 'error.main' }}>
+                            {formatErrorMessage(item.message)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </React.Fragment>
+            )}
+          </Box>
+        )}
+      </DialogContent>
+
+      <DialogActions sx={{ pt: 2, px: 0 }}>
+        {!done && (
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            disabled={!selected || submitting}
+            sx={{ textTransform: 'none' }}
+          >
+            {t('addToCollection.add_button')}
+          </Button>
+        )}
+      </DialogActions>
+    </Dialog>
+  )
+}
+
+export default AddToCollectionDialog

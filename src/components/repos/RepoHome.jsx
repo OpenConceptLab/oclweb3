@@ -24,6 +24,7 @@ import VersionForm from './VersionForm'
 import ReleaseVersion from './ReleaseVersion'
 import RepoHeader from './RepoHeader';
 import CollectionVersionsTab from './CollectionVersionsTab';
+import ReferenceHome from '../references/ReferenceHome'
 
 const RepoHome = () => {
   const { t } = useTranslation()
@@ -80,7 +81,7 @@ const RepoHome = () => {
       else
         setTabs([...TABS])
 
-      if(isConceptURL || isMappingURL)
+      if(isConceptURL || isMappingURL || isReferenceURL)
         setShowItem(true)
     })
   }
@@ -245,7 +246,7 @@ const RepoHome = () => {
   const getReferenceURLFromMainURL = () => (isReferenceURL && params.resource) ? getURL() + 'references/' + params.resource + '/' : false
   const showConceptURL = ((showItem?.concept_class || params.resource) && isConceptURL) ? showItem?.version_url || showItem?.url || getConceptURLFromMainURL() : false
   const showMappingURL = ((showItem?.map_type || params.resource) && isMappingURL) ? showItem?.version_url || showItem?.url || getMappingURLFromMainURL() : false
-  const showReferenceURL = ((showItem?.expression || params.resource) && isReferenceURL) ? showItem?.version_url || showItem?.url || getReferenceURLFromMainURL() : false
+  const showReferenceURL = ((showItem?.expression || params.resource) && isReferenceURL) ? showItem?.uri || getReferenceURLFromMainURL() : false
   const isSplitView = conceptForm || mappingForm || showConceptURL || showMappingURL || showReferenceURL || versionForm
 
   const onVersionEditClick = () => isVersion && setVersionForm({edit: true, version: repo, expansions: []})
@@ -331,8 +332,12 @@ const RepoHome = () => {
             <ConceptHome repoSummary={repoSummary} repo={repo} url={showConceptURL} concept={showItem} onClose={() => setShowItem(false)} repoVersions={versions} nested />
         }
         {
-          showMappingURL &&
+          Boolean(showMappingURL && !mappingForm) &&
             <MappingHome repoSummary={repoSummary} repo={repo} url={showMappingURL} mapping={showItem} onClose={() => setShowItem(false)} repoVersions={versions} nested />
+        }
+        {
+          showReferenceURL &&
+            <ReferenceHome repoSummary={repoSummary} repo={repo} url={showReferenceURL} reference={showItem} onClose={() => setShowItem(false)} repoVersions={versions} nested />
         }
         {
           conceptForm &&

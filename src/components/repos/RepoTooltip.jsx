@@ -102,7 +102,7 @@ const TooltipTitle = ({ repo }) => {
               </span>
           }
           {
-            isNumber(repo?.summary?.active_mappings) &&
+            isNumber(entity?.summary?.active_mappings) &&
               <span style={{marginLeft: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center'}} onClick={() => history.push(url + 'mappings/')}>
                 <MappingIcon fontSize='small' color='secondary' sx={{marginRight: '4px', width: '15px', height: '15px'}} />
                 {entity.summary.active_mappings.toLocaleString()}
@@ -121,7 +121,7 @@ const TooltipTitle = ({ repo }) => {
   )
 }
 
-const RepoTooltip = ({ repo, basicTooltip, children, spanStyle }) => {
+const RepoTooltip = ({ repo, basicTooltip, children, spanStyle, enterDelay, enterNextDelay }) => {
   return basicTooltip ? (
     <MUIBasicTooltip title={basicTooltip}>
       <span style={{display: 'flex', ...spanStyle}}>
@@ -135,6 +135,8 @@ const RepoTooltip = ({ repo, basicTooltip, children, spanStyle }) => {
           maxWidth: 400
         }
       }}
+      enterDelay={enterDelay}
+      enterNextDelay={enterNextDelay}
       title={
         <React.Fragment>
           <TooltipTitle repo={repo} />

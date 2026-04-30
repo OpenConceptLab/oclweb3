@@ -256,7 +256,8 @@
           "unversioned",
           "reranker",
           "lte",
-          "gte"
+          "gte",
+          "resourceversions"
         ],
         "skipIfMatch": [
           "http://[^s]*",
