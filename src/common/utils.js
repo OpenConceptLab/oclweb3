@@ -300,7 +300,7 @@ export const memorySizeOf = (obj, format=true) => {
           var objClass = Object.prototype.toString.call(obj).slice(8, -1);
           if(objClass === 'Object' || objClass === 'Array') {
             for(var key in obj) {
-              if(!obj.hasOwnProperty(key)) continue;
+              if(!Object.prototype.hasOwnProperty.call(obj, key)) continue;
               sizeOf(obj[key]);
             }
           } else bytes += obj.toString().length * 2;

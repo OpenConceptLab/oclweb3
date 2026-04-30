@@ -71,7 +71,7 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
 
   React.useEffect(() => {
     if (onChange) onChange(currentParams)
-  }, [selectedPresetId, customParams, transform]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [onChange, selectedPresetId, customParams, transform])
 
   const handleCustomParamChange = field => event => {
     setCustomParams(prev => ({ ...prev, [field]: event.target.value }))
