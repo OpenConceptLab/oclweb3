@@ -240,7 +240,6 @@ const RepoHome = () => {
   const isConceptURL = tab === 'concepts'
   const isMappingURL = tab === 'mappings'
   const isReferenceURL = tab === 'references'
-  const isVersionsURL = tab === 'versions'
   const getConceptURLFromMainURL = () => (isConceptURL && params.resource) ? getURL() + 'concepts/' + params.resource + '/' : false
   const getMappingURLFromMainURL = () => (isMappingURL && params.resource) ? getURL() + 'mappings/' + params.resource + '/' : false
   const getReferenceURLFromMainURL = () => (isReferenceURL && params.resource) ? getURL() + 'references/' + params.resource + '/' : false

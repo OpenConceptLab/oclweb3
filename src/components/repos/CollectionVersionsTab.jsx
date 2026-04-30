@@ -1,7 +1,6 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import {
-  Alert,
   Box,
   Button as MuiButton,
   Chip,
@@ -210,7 +209,6 @@ const CollectionVersionsTab = ({
   repo,
   versions,
   count,
-  onCreateVersion,
   onReleaseVersion,
   onDeleteVersion,
   onDataChange
@@ -258,14 +256,6 @@ const CollectionVersionsTab = ({
     searchParams.get("expansion_url") ||
     searchParams.get("expansion") ||
     searchParams.get("expansion_id");
-  const dependencyNotification = Boolean(
-    notificationVersion ||
-      notificationExpansion ||
-      ["dependency", "stale"].includes(
-        (searchParams.get("notification") || "").toLowerCase()
-      )
-  );
-
   React.useEffect(() => {
     if (!baseRepoURL || isHeadVersion(repo)) {
       setHeadVersion(repo);
@@ -495,18 +485,6 @@ const CollectionVersionsTab = ({
       });
   };
 
-  let notificationMessage = "";
-  if (highlightedExpansion) {
-    notificationMessage = t("repo.opened_dependency_expansion", {
-      expansion: highlightedExpansion.mnemonic,
-      version: expandedVersion?.version || expandedVersion?.id
-    });
-  } else if (dependencyNotification && expandedVersion) {
-    notificationMessage = t("repo.opened_dependency_version", {
-      version: expandedVersion.version || expandedVersion.id
-    });
-  }
-
   const renderAudit = (translationKey, date, user) => {
     if (!date) return null;
 
@@ -539,12 +517,6 @@ const CollectionVersionsTab = ({
     const expanded = versionKey === expandedVersionKey;
     const released = Boolean(version.released);
     const staleCount = getStaleCount(version);
-    const canRelease = hasAccess && !isHeadVersion(version) && !released;
-    const canDelete =
-      hasAccess &&
-      !isHeadVersion(version) &&
-      !released &&
-      (expansionsByVersion[versionKey] || []).length === 0;
     const versionExpansions = expansionsByVersion[versionKey] || [];
     const versionLoading = loadingByVersion[versionKey];
 
