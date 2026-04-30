@@ -64,11 +64,11 @@ const defaultFields = () => ({
     count: 0,
     offset: 0,
     activeOnly: false,
-    includeDesignations: true,
+    includeDesignations: false,
     includeDefinition: false,
-    excludeNested: true,
-    excludeNotForUI: true,
-    excludePostCoordinated: true,
+    excludeNested: false,
+    excludeNotForUI: false,
+    excludePostCoordinated: false,
     "check-system-version": "",
     "force-system-version": ""
   }
@@ -192,7 +192,11 @@ const ExpansionForm = ({
     canonical_url: fields.canonical_url || undefined,
     parameters: pickBy(
       fields.parameters,
-      value => value !== "" && value !== null && value !== undefined
+      (value, key) =>
+        PARAMETER_CONFIG[key]?.supported &&
+        value !== "" &&
+        value !== null &&
+        value !== undefined
     )
   });
 
@@ -357,6 +361,7 @@ const ExpansionForm = ({
                 return (
                   <FormControlLabel
                     key={attr}
+                    disabled={!parameter.supported}
                     sx={{
                       m: 0,
                       minHeight: "42px",
@@ -410,6 +415,7 @@ const ExpansionForm = ({
                 return (
                   <TextField
                     key={attr}
+                    disabled={!parameter.supported}
                     error={Boolean(fieldErrors[attr])}
                     id={`fields.parameters.${attr}`}
                     label={t(
