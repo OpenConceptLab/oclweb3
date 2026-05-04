@@ -11,7 +11,7 @@ import OwnerButton from './OwnerButton'
 
 const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, concept, mapping, reference, noIcons, color, fontSize, size, ownerURL, nested}) => {
   const iconProps = {color: 'secondary', style: {marginRight: '8px', width: '0.8em'}}
-  const hideParents = Boolean((concept?.id || mapping?.id || reference.id) && nested)
+  const hideParents = Boolean((concept?.id || mapping?.id || reference?.id) && nested)
   return (
     <Box className='col-xs-12 padding-0' sx={{display: 'flex', alignItems: 'center', color: color, fontSize: fontSize}}>
       {
