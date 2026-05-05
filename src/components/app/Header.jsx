@@ -43,7 +43,7 @@ const Header = props => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" open={open} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} style={{backgroundColor: COLORS.surface.n96, color: COLORS.surface.contrastText, boxShadow: 'none', borderBottom: '3px solid #e44'}}>
+      <AppBar position="fixed" open={open} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} style={{backgroundColor: COLORS.surface.n96, color: COLORS.surface.contrastText, boxShadow: 'none'}}>
         <Toolbar style={{paddingRight: '16px'}}>
           <div className='col-xs-12 padding-0 flex-vertical-center'>
             <div className='col-xs-1 padding-0 flex-vertical-center'>

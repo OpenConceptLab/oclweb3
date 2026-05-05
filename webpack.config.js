@@ -86,6 +86,10 @@ module.exports = (env) => {
         }
       }
     } : {},
+    watchOptions: {
+      poll: 500,
+      ignored: /node_modules/,
+    },
     devServer: {
       contentBase: path.resolve(__dirname, 'public'),
       disableHostCheck: true,

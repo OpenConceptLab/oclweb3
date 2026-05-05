@@ -13,6 +13,7 @@ services:
     restart: on-failure
     volumes:
       - .:/app:z
+      - /app/node_modules
     environment:
       - API_URL=https://api.openconceptlab.org
       - NODE_ENV=development
@@ -23,3 +24,5 @@ services:
       - ERRBIT_URL=
       - ERRBIT_KEY=
       - HOTJAR_ID=
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=500
