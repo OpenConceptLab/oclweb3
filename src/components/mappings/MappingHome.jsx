@@ -136,7 +136,7 @@ const MappingHome = props => {
   }
 
   const onRemoveFromCollection = deleteBody => {
-    const collectionUrl = props.repo?.version_url || props.repo?.url
+    const collectionUrl = dropVersion(props.repo?.version_url || props.repo?.url)
     const body = deleteBody || { ids: (mapping.references || []).map(r => r.id).filter(Boolean) }
     setRemovingFromCollection(true)
     APIService.new().overrideURL(collectionUrl).appendToUrl('references/').delete(body).then(response => {
@@ -206,7 +206,7 @@ const MappingHome = props => {
             onClose={() => setRemoveFromCollectionDialog(false)}
             onConfirm={onRemoveFromCollection}
             resources={[mapping]}
-            collectionUrl={props.repo?.version_url || props.repo?.url}
+            collectionUrl={dropVersion(props.repo?.version_url || props.repo?.url)}
             loading={removingFromCollection}
           />
         </div>

@@ -11,7 +11,7 @@ import UserIcon from '@mui/icons-material/Person';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { forEach, keys, pickBy, isEmpty, find, uniq, has, orderBy as sortBy, uniqBy, omit, max, isEqual, isBoolean } from 'lodash';
 import { COLORS } from '../../common/colors';
-import { highlightTexts, isLoggedIn } from '../../common/utils';
+import { dropVersion, highlightTexts, isLoggedIn } from '../../common/utils';
 import APIService from '../../services/APIService';
 import RepoIcon from '../repos/RepoIcon';
 import ConceptIcon from '../concepts/ConceptIcon';
@@ -27,6 +27,11 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline'
 const DEFAULT_LIMIT = 25;
 const FILTERS_WIDTH = 250
 const FILTERABLE_RESOURCES = ['concepts', 'mappings', 'repos', 'sources', 'collections', 'references']
+
+const getBaseCollectionUrl = url => {
+  const match = (url || '').match(/^(.*\/collections\/[^/]+\/)(?:[^/]+\/)?(?:concepts|mappings|references)\/?$/)
+  return match ? match[1] : dropVersion(url)
+}
 
 const Search = props => {
   const { setAlert, contextRepo } = React.useContext(OperationsContext);
@@ -429,6 +434,8 @@ const Search = props => {
   }
 
   const isHead = props.url?.includes('/HEAD/')
+  const isInCollection = props.url?.includes('/collections/')
+  const collectionUrl = isInCollection ? getBaseCollectionUrl(props.url) : null
 
   const selectedReferenceObjects = resource === 'references' && selected.length > 0
     ? (result['references']?.results || []).filter(r => selected.includes(r.version_url || r.url || r.id))
@@ -436,8 +443,9 @@ const Search = props => {
 
   const onDeleteReferences = deleteBody => {
     const body = deleteBody || { ids: selectedReferenceObjects.map(r => r.id).filter(Boolean) }
+    const deleteUrl = isInCollection ? `${collectionUrl}references/` : props.url
     setDeletingReferences(true)
-    APIService.new().overrideURL(props.url).delete(body).then(response => {
+    APIService.new().overrideURL(deleteUrl).delete(body).then(response => {
       setDeletingReferences(false)
       if(response?.status === 204 || response?.status === 200) {
         setDeleteReferencesOpen(false)
@@ -449,9 +457,6 @@ const Search = props => {
       }
     })
   }
-
-  const isInCollection = props.url?.includes('/collections/')
-  const collectionUrl = isInCollection ? props.url?.replace(/\/(concepts|mappings)\/$/, '/') : null
 
   const selectedRows = (result[resource]?.results || []).filter(r => selected.includes(r.version_url || r.url || r.id))
 
