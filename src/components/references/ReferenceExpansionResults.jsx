@@ -24,7 +24,7 @@ import RepoChip from '../repos/RepoChip'
 import ConceptIcon from '../concepts/ConceptIcon'
 import Associations from '../concepts/Associations'
 
-import { map, times, without } from 'lodash'
+import { map, times, without, find } from 'lodash'
 
 import { BLACK } from '../../common/colors'
 
@@ -52,6 +52,11 @@ const ConceptsAndMappingsTable = ({reference, concepts, loading, t, hasMore, onL
   const [open, setOpen] = React.useState([])
   const toggleRow = conceptURL => {
     setOpen(open.includes(conceptURL) ? without(open, conceptURL) : [...open, conceptURL])
+  }
+
+  const getRepoVersion = (concept) => {
+    let repoURL = `${concept.owner_url}sources/${concept.source}/`
+    return find(reference?.resolved_repo_versions, version => version?.version_url?.startsWith(repoURL) && ['Source Version', 'Source'].includes(version?.type))
   }
   return (
     <React.Fragment>
@@ -89,6 +94,7 @@ const ConceptsAndMappingsTable = ({reference, concepts, loading, t, hasMore, onL
                   const hasMappings = concept.mappings?.length > 0
                   const isOpen = open.includes(key)
                   const isLastConcept = index === (concepts?.length || 0) - 1
+                  const repoVersion = getRepoVersion(concept)
                   return (
                     <React.Fragment key={key}>
                       <TableRow
@@ -121,7 +127,7 @@ const ConceptsAndMappingsTable = ({reference, concepts, loading, t, hasMore, onL
                           }
                         </TableCell>
                         <TableCell>
-                          <RepoChip filled primary size='small' hideType repo={{id: concept.source, url: `${concept.owner_url}sources/${concept.source}/`, owner: concept.owner, owner_type: concept.owner_type, owner_url: concept.owner_url}}/>
+                          <RepoChip filled primary size='small' hideType repo={{id: concept.source, url: `${concept.owner_url}sources/${concept.source}/`, owner: concept.owner, owner_type: concept.owner_type, owner_url: concept.owner_url, ...(repoVersion || {})}}/>
                         </TableCell>
                       </TableRow>
                       <TableRow
