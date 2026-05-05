@@ -279,7 +279,10 @@
     "versioned_resource": "Versioned (Resource)",
     "resolved_repo": "Resolved Repo",
     "raw": "Raw",
-    "translation": "Translation"
+    "translation": "Translation",
+    "advanced": "Advanced",
+    "hide_advanced": "Hide advanced",
+    "transform_tooltip": "Converts the reference to extensional reference(s). References for resolved concepts or mappings will be stored as individual extensional references instead of intensional reference(s)."
   },
   "checksums": {
     "standard": "Standard Checksum",

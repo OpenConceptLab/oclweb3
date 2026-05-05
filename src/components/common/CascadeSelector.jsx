@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
 import Collapse from '@mui/material/Collapse'
@@ -58,6 +59,7 @@ const buildQueryString = (params, transform) => {
 }
 
 const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefault = false }) => {
+  const { t } = useTranslation()
   const [selectedPresetId, setSelectedPresetId] = React.useState('none')
   const [transform, setTransform] = React.useState(false)
   const [customParams, setCustomParams] = React.useState(DEFAULT_CUSTOM_PARAMS)
@@ -172,7 +174,7 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
       <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
         <Chip
           size="small"
-          label={showAdvanced ? 'Hide advanced' : 'Advanced'}
+          label={showAdvanced ? t('reference.hide_advanced') : t('reference.advanced')}
           variant="outlined"
           clickable
           onClick={() => setShowAdvanced(v => !v)}
@@ -195,7 +197,7 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
               sx={{ mr: 0, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
             />
             <Tooltip
-              title="Converts the reference to extensional reference(s). References for resolved concepts or mappings will be stored as individual extensional references instead of intensional reference(s)."
+              title={t('reference.transform_tooltip')}
               placement="top"
               arrow
             >
