@@ -73,10 +73,19 @@ const getMappingInlineSyntax = mapping => {
 const getResourcePath = resource => resource.concept_class !== undefined ? 'concepts' : 'mappings'
 
 const getResourceUrl = (resource, collectionUrl) => {
+  if(collectionUrl)
+    return `${collectionUrl}${getResourcePath(resource)}/${encodeURIComponent(resource.id)}/`
   if(resource.version_url || resource.url)
     return resource.version_url || resource.url
 
-  return `${collectionUrl}${getResourcePath(resource)}/${encodeURIComponent(resource.id)}/`
+  return ''
+}
+
+const hasReferenceIds = references => Array.isArray(references) && references.some(ref => ref?.id)
+
+const getReferenceLabel = reference => {
+  if(typeof reference === 'string') return reference
+  return reference?.expression || reference?.url || reference?.uri || ''
 }
 
 const ResourceLabel = ({ resource }) => {
@@ -112,15 +121,16 @@ const ResourceLabel = ({ resource }) => {
   )
 }
 
-const RemoveFromCollectionDialog = ({ open, onClose, onConfirm, resources, collectionUrl, loading }) => {
+const RemoveFromCollectionDialog = ({ open, onClose, onConfirm, resources, collectionUrl, lookupCollectionUrl, loading }) => {
   const { t } = useTranslation()
   const [fetchingRefs, setFetchingRefs] = React.useState(false)
   const [resourcesWithRefs, setResourcesWithRefs] = React.useState([])
   const [checkedRefIds, setCheckedRefIds] = React.useState(new Set())
   const baseCollectionUrl = dropVersion(collectionUrl)
+  const resourceLookupUrl = lookupCollectionUrl || baseCollectionUrl
 
   React.useEffect(() => {
-    if(!open || !resources?.length || !baseCollectionUrl) {
+    if(!open || !resources?.length || !resourceLookupUrl) {
       setFetchingRefs(false)
       setResourcesWithRefs([])
       setCheckedRefIds(new Set())
@@ -134,11 +144,11 @@ const RemoveFromCollectionDialog = ({ open, onClose, onConfirm, resources, colle
 
     Promise.all(
       resources.map(resource => {
-        if(Array.isArray(resource.references))
+        if(hasReferenceIds(resource.references))
           return Promise.resolve({ resource, references: resource.references })
 
         return APIService.new()
-          .overrideURL(getResourceUrl(resource, baseCollectionUrl))
+          .overrideURL(getResourceUrl(resource, resourceLookupUrl))
           .get(null, null, { includeReferences: true })
           .then(response => ({ resource, references: response?.data?.references || [] }))
           .catch(() => ({ resource, references: [] }))
@@ -155,7 +165,7 @@ const RemoveFromCollectionDialog = ({ open, onClose, onConfirm, resources, colle
     return () => {
       active = false
     }
-  }, [open, resources, baseCollectionUrl])
+  }, [open, resources, resourceLookupUrl])
 
   const onToggleRef = refId => {
     setCheckedRefIds(prev => {
@@ -200,7 +210,7 @@ const RemoveFromCollectionDialog = ({ open, onClose, onConfirm, resources, colle
                     const isLastGroup = groupIndex === resourcesWithRefs.length - 1
                     return (
                       <ListItem
-                        key={`${ref.id || ref.expression || 'reference'}-${groupIndex}-${refIndex}`}
+                        key={`${ref.id || getReferenceLabel(ref) || 'reference'}-${groupIndex}-${refIndex}`}
                         divider={!(isLastInGroup && isLastGroup)}
                         sx={{padding: '2px 12px 2px 4px', pl: showGroupHeaders ? 2 : 0.5}}
                       >
@@ -210,10 +220,10 @@ const RemoveFromCollectionDialog = ({ open, onClose, onConfirm, resources, colle
                           disabled={loading || !ref.id}
                           onChange={() => onToggleRef(ref.id)}
                           size='small'
-                          inputProps={{'aria-label': ref.expression}}
+                          inputProps={{'aria-label': getReferenceLabel(ref)}}
                         />
                         <ListItemText
-                          primary={ref.expression}
+                          primary={getReferenceLabel(ref)}
                           primaryTypographyProps={{sx: {fontSize: '13px', fontFamily: 'monospace', wordBreak: 'break-all'}}}
                         />
                       </ListItem>

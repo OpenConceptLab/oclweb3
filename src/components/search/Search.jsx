@@ -33,6 +33,8 @@ const getBaseCollectionUrl = url => {
   return match ? match[1] : dropVersion(url)
 }
 
+const getCollectionLookupUrl = url => (url || '').replace(/\/(concepts|mappings|references)\/?$/, '/')
+
 const Search = props => {
   const { setAlert, contextRepo } = React.useContext(OperationsContext);
   const { t } = useTranslation()
@@ -436,6 +438,7 @@ const Search = props => {
   const isHead = props.url?.includes('/HEAD/')
   const isInCollection = props.url?.includes('/collections/')
   const collectionUrl = isInCollection ? getBaseCollectionUrl(props.url) : null
+  const collectionLookupUrl = isInCollection ? getCollectionLookupUrl(props.url) : null
 
   const selectedReferenceObjects = resource === 'references' && selected.length > 0
     ? (result['references']?.results || []).filter(r => selected.includes(r.version_url || r.url || r.id))
@@ -615,6 +618,7 @@ const Search = props => {
         onConfirm={onBulkRemoveFromCollection}
         resources={selectedRows}
         collectionUrl={collectionUrl}
+        lookupCollectionUrl={collectionLookupUrl}
         loading={bulkRemoving}
       />
     </div>

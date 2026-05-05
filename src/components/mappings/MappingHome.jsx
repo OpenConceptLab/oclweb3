@@ -207,6 +207,7 @@ const MappingHome = props => {
             onConfirm={onRemoveFromCollection}
             resources={[mapping]}
             collectionUrl={dropVersion(props.repo?.version_url || props.repo?.url)}
+            lookupCollectionUrl={props.repo?.version_url || props.repo?.url}
             loading={removingFromCollection}
           />
         </div>
