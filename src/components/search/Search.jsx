@@ -6,9 +6,15 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 import OrgIcon from '@mui/icons-material/AccountBalance';
 import UserIcon from '@mui/icons-material/Person';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import TransformIcon from '@mui/icons-material/Transform';
+import DownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { forEach, keys, pickBy, isEmpty, find, uniq, has, orderBy as sortBy, uniqBy, omit, max, isEqual, isBoolean } from 'lodash';
 import { COLORS } from '../../common/colors';
 import { dropVersion, highlightTexts, isLoggedIn } from '../../common/utils';
@@ -22,6 +28,8 @@ import { OperationsContext } from '../app/LayoutContext';
 import ReferenceFilters from '../repos/ReferenceFilters'
 import DeleteReferencesDialog from '../collections/DeleteReferencesDialog'
 import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
+import TransformReferencesDialog from '../collections/TransformReferencesDialog'
+import { getTransformAddGroups } from '../collections/referenceTransformUtils'
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline'
 
 const DEFAULT_LIMIT = 25;
@@ -56,6 +64,9 @@ const Search = props => {
   const [isMatchOp, setIsMatchOp] = React.useState(false)
   const [deleteReferencesOpen, setDeleteReferencesOpen] = React.useState(false)
   const [deletingReferences, setDeletingReferences] = React.useState(false)
+  const [referenceActionsAnchor, setReferenceActionsAnchor] = React.useState(null)
+  const [transformReferencesOpen, setTransformReferencesOpen] = React.useState(false)
+  const [transformingReferences, setTransformingReferences] = React.useState(false)
   const [bulkRemoveOpen, setBulkRemoveOpen] = React.useState(false)
   const [bulkRemoving, setBulkRemoving] = React.useState(false)
 
@@ -461,6 +472,71 @@ const Search = props => {
     })
   }
 
+  const addTransformedReferences = group => {
+    const data = {
+      expressions: group.items.map(item => item.proposedExpression),
+      include: group.include,
+    }
+    const body = { data }
+    if(group.cascade) {
+      data.cascade = group.cascade
+      body.cascade = typeof group.cascade === 'string' ? group.cascade : group.cascade?.method || ''
+    }
+
+    return APIService.new().overrideURL(collectionUrl).appendToUrl('references/').put(body)
+  }
+
+  const getAddedTransformItems = (response, group) => {
+    if(![200, 201].includes(response?.status))
+      return []
+    if(!Array.isArray(response?.data))
+      return group.items
+
+    const addedExpressions = response.data.filter(item => item.added).map(item => item.expression)
+    return group.items.filter(item => addedExpressions.includes(item.proposedExpression))
+  }
+
+  const onTransformReferences = async transformItems => {
+    const groups = getTransformAddGroups(transformItems)
+    setTransformingReferences(true)
+
+    const addResults = await Promise.all(groups.map(group => addTransformedReferences(group).then(response => ({ group, response }))))
+    const addedItems = addResults.reduce((items, { group, response }) => [...items, ...getAddedTransformItems(response, group)], [])
+    const addFailures = addResults.reduce((count, { group, response }) => count + group.items.length - getAddedTransformItems(response, group).length, 0)
+
+    if(!addedItems.length) {
+      setTransformingReferences(false)
+      setAlert({ severity: 'error', message: t('reference.transform_no_references_changed') })
+      return
+    }
+
+    const deleteResponse = await APIService.new()
+      .overrideURL(collectionUrl)
+      .appendToUrl('references/')
+      .delete({ ids: addedItems.map(item => item.reference.id).filter(Boolean) })
+
+    setTransformingReferences(false)
+    const deleteSucceeded = [200, 204].includes(deleteResponse?.status)
+    if(deleteSucceeded) {
+      setTransformReferencesOpen(false)
+      setSelected([])
+      const transformedCount = addedItems.length
+      setAlert({
+        severity: addFailures ? 'warning' : 'success',
+        message: addFailures ?
+          t('reference.transform_partial_success', { transformed: transformedCount, failed: addFailures }) :
+          t('reference.transform_success', { count: transformedCount }),
+      })
+      fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
+    } else {
+      setAlert({
+        severity: 'warning',
+        message: t('reference.transform_delete_failed', { count: addedItems.length }),
+      })
+      fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
+    }
+  }
+
   const selectedRows = (result[resource]?.results || []).filter(r => selected.includes(r.version_url || r.url || r.id))
 
   const onBulkRemoveFromCollection = deleteBody => {
@@ -492,19 +568,20 @@ const Search = props => {
     </Button>
   ) : null
 
-  const deleteReferencesControl = resource === 'references' && isLoggedIn() && selected.length > 0 ? (
+  const closeReferenceActions = () => setReferenceActionsAnchor(null)
+
+  const referenceActionsControl = resource === 'references' && isLoggedIn() && selected.length > 0 ? (
     <Tooltip title={!isHead ? t('reference.not_available_in_version') : ''}>
       <span>
         <Button
-          startIcon={<DeleteForeverIcon fontSize='inherit' />}
+          endIcon={<DownIcon fontSize='inherit' />}
           variant='contained'
           size='small'
-          color='error'
           disabled={!isHead}
           sx={{textTransform: 'none', whiteSpace: 'nowrap', borderRadius: '8px', marginLeft: '8px'}}
-          onClick={() => setDeleteReferencesOpen(true)}
+          onClick={event => setReferenceActionsAnchor(event.currentTarget)}
         >
-          {t('reference.remove_selected')}
+          {t('reference.actions')}
         </Button>
       </span>
     </Tooltip>
@@ -588,7 +665,7 @@ const Search = props => {
                   properties={props.properties}
                   propertyFilters={props.propertyFilters}
                   isMatch={isMatchOp}
-                  toolbarControl={deleteReferencesControl}
+                  toolbarControl={referenceActionsControl}
                   extraBulkActions={bulkRemoveFromCollectionAction}
                 />
               </div>
@@ -605,6 +682,41 @@ const Search = props => {
             }
           </div>
       }
+      <Menu
+        anchorEl={referenceActionsAnchor}
+        open={Boolean(referenceActionsAnchor)}
+        onClose={closeReferenceActions}
+      >
+        <MenuItem
+          onClick={() => {
+            closeReferenceActions()
+            setTransformReferencesOpen(true)
+          }}
+        >
+          <ListItemIcon>
+            <TransformIcon fontSize='small' />
+          </ListItemIcon>
+          <ListItemText>{t('reference.transform_to_non_versioned')}</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            closeReferenceActions()
+            setDeleteReferencesOpen(true)
+          }}
+        >
+          <ListItemIcon>
+            <DeleteForeverIcon fontSize='small' color='error' />
+          </ListItemIcon>
+          <ListItemText>{t('common.remove')}</ListItemText>
+        </MenuItem>
+      </Menu>
+      <TransformReferencesDialog
+        open={transformReferencesOpen}
+        onClose={() => setTransformReferencesOpen(false)}
+        onConfirm={onTransformReferences}
+        references={selectedReferenceObjects}
+        loading={transformingReferences}
+      />
       <DeleteReferencesDialog
         open={deleteReferencesOpen}
         onClose={() => setDeleteReferencesOpen(false)}
