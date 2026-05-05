@@ -1,0 +1,25 @@
+services:
+  web:
+    image: openconceptlab/oclweb3:dev-test
+    build:
+      context: .
+      target: build
+      args:
+        NODE_ENV: development
+        PRIVATE_PACKAGES_GIT:
+    ports:
+      - "4004:4002"
+      - "4005:35729"
+    restart: on-failure
+    volumes:
+      - .:/app:z
+    environment:
+      - API_URL=https://api.openconceptlab.org
+      - NODE_ENV=development
+      - WEB_PORT=4002
+      - RECAPTCHA_SITE_KEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
+      - GA_ACCOUNT_ID=UA-000000-01
+      - ANALYTICS_API=
+      - ERRBIT_URL=
+      - ERRBIT_KEY=
+      - HOTJAR_ID=
