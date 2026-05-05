@@ -178,7 +178,7 @@ const RepoCreate = () => {
       const repoURL = model?.id ? `${ownerURL}${typeId}s/${model.id}/` : ''
       setModel(prev => ({...prev, canonicalURL: repoURL ? `https://ns.openconceptlab.org${repoURL}` : ''}))
     }
-  }, [model.id, ownerURL, tab]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [model.id, ownerURL, tab])
 
   const onAddExtras = () => setModel({...model, extras: [...model.extras, {key: '', value: ''}]})
 
