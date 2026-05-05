@@ -1,6 +1,6 @@
 services:
   web:
-    image: openconceptlab/oclweb3:dev-test
+    image: openconceptlab/oclweb3:dev
     build:
       context: .
       target: build
@@ -8,8 +8,8 @@ services:
         NODE_ENV: development
         PRIVATE_PACKAGES_GIT:
     ports:
-      - "4004:4002"
-      - "4005:35729"
+      - "4002:4002"
+      - "4003:35729"
     restart: on-failure
     volumes:
       - .:/app:z
