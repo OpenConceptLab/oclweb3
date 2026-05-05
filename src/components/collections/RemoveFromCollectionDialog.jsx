@@ -40,23 +40,44 @@ const getRepoFromConcept = concept => {
   }
 }
 
-const getMappingSourceToken = mapping => {
-  const source = mapping.to_source || mapping.to_source_name || getUrlPart(mapping.to_source_url || mapping.to_concept_url, 'sources') || mapping.source
-  const version = mapping.to_source_version || mapping.latest_source_version
-  return source && version ? `${source}(v${version})` : source
+const getVersionToken = version => {
+  if(!version) return null
+  if(String(version).toUpperCase() === 'HEAD') return version
+  return String(version).match(/^v/i) ? version : `v${version}`
+}
+
+const getMappingSourceToken = (mapping, direction) => {
+  const source = mapping[`${direction}_source`] ||
+    mapping[`${direction}_source_name`] ||
+    getUrlPart(mapping[`${direction}_source_url`] || mapping[`${direction}_concept_url`], 'sources') ||
+    (direction === 'from' ? mapping.source : null)
+  const version = getVersionToken(mapping[`${direction}_source_version`] || (source === mapping.source ? mapping.latest_source_version : null))
+
+  return source && version ? `${source}(${version})` : source
+}
+
+const getMappingConceptSyntax = (mapping, direction) => {
+  const source = getMappingSourceToken(mapping, direction)
+  const code = mapping[`${direction}_concept_code`] || mapping[`${direction}_concept`] || mapping.id
+  const name = mapping[`${direction}_concept_name_resolved`] || mapping[`${direction}_concept_name`]
+  const escapedName = name ? name.replace(/"/g, '\\"') : ''
+
+  return `${source ? `${source}:` : ''}${code || ''}${escapedName ? ` "${escapedName}"` : ''}`
 }
 
 const getMappingInlineSyntax = mapping => {
-  const mapType = mapping.map_type ? `[${mapping.map_type}] ` : ''
-  const source = getMappingSourceToken(mapping)
-  const code = mapping.to_concept_code || mapping.to_concept || mapping.id
-  const name = mapping.to_concept_name_resolved || mapping.to_concept_name
-  const escapedName = name ? name.replace(/"/g, '\\"') : ''
-
-  return `${mapType}${source ? `${source}:` : ''}${code || ''}${escapedName ? ` "${escapedName}"` : ''}`
+  const mapType = mapping.map_type ? `[${mapping.map_type}]` : '[SAME-AS]'
+  return `${getMappingConceptSyntax(mapping, 'from')} ${mapType} ${getMappingConceptSyntax(mapping, 'to')}`
 }
 
 const getResourcePath = resource => resource.concept_class !== undefined ? 'concepts' : 'mappings'
+
+const getResourceUrl = (resource, collectionUrl) => {
+  if(resource.version_url || resource.url)
+    return resource.version_url || resource.url
+
+  return `${collectionUrl}${getResourcePath(resource)}/${encodeURIComponent(resource.id)}/`
+}
 
 const ResourceLabel = ({ resource }) => {
   if(resource.concept_class !== undefined) {
@@ -85,7 +106,7 @@ const ResourceLabel = ({ resource }) => {
   }
 
   return (
-    <Typography sx={{fontSize: '13px', fontWeight: 'bold', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+    <Typography sx={{fontSize: '12px', fontWeight: 'bold', fontFamily: 'monospace', overflowWrap: 'anywhere'}}>
       {getMappingInlineSyntax(resource)}
     </Typography>
   )
@@ -112,13 +133,16 @@ const RemoveFromCollectionDialog = ({ open, onClose, onConfirm, resources, colle
     setCheckedRefIds(new Set())
 
     Promise.all(
-      resources.map(resource =>
-        APIService.new()
-          .overrideURL(`${baseCollectionUrl}${getResourcePath(resource)}/${encodeURIComponent(resource.id)}/`)
+      resources.map(resource => {
+        if(Array.isArray(resource.references))
+          return Promise.resolve({ resource, references: resource.references })
+
+        return APIService.new()
+          .overrideURL(getResourceUrl(resource, baseCollectionUrl))
           .get(null, null, { includeReferences: true })
           .then(response => ({ resource, references: response?.data?.references || [] }))
           .catch(() => ({ resource, references: [] }))
-      )
+      })
     ).then(results => {
       if(!active) return
       setResourcesWithRefs(results)
