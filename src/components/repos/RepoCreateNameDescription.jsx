@@ -8,7 +8,7 @@ import TextField from '@mui/material/TextField'
 import NamespaceDropdown from '../url-registry/NamespaceDropdown'
 
 
-const RepoCreateNameDescription = ({url, ownerURL, onOwnerChange, onChange, isEdit, ...rest}) => {
+const RepoCreateNameDescription = ({url, ownerURL, onOwnerChange, onChange, onCanonicalURLChange, isEdit, ...rest}) => {
   const { t } = useTranslation()
   return (
     <>
@@ -67,7 +67,7 @@ const RepoCreateNameDescription = ({url, ownerURL, onOwnerChange, onChange, isEd
         </div>
       </div>
       <div className='col-xs-12 padding-0' style={{marginTop: '24px', textAlign: 'left'}}>
-        <TextField type='url' label={t('url_registry.canonical_url')} fullWidth value={rest.canonicalURL || ''} onChange={event => onChange('canonicalURL', event.target.value)} />
+        <TextField type='url' label={t('url_registry.canonical_url')} fullWidth value={rest.canonicalURL || ''} onChange={event => onCanonicalURLChange ? onCanonicalURLChange(event.target.value) : onChange('canonicalURL', event.target.value)} />
       </div>
       <div className='col-xs-12 padding-0' style={{marginTop: '24px', textAlign: 'left'}}>
         <TextField label={t('common.description')} fullWidth multiline rows={3} maxRows={10} value={rest.description || ''} onChange={event => onChange('description', event.target.value)} />
