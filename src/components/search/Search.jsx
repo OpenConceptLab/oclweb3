@@ -4,11 +4,14 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 import OrgIcon from '@mui/icons-material/AccountBalance';
 import UserIcon from '@mui/icons-material/Person';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { forEach, keys, pickBy, isEmpty, find, uniq, has, orderBy as sortBy, uniqBy, omit, max, isEqual, isBoolean } from 'lodash';
 import { COLORS } from '../../common/colors';
-import { highlightTexts } from '../../common/utils';
+import { highlightTexts, isLoggedIn } from '../../common/utils';
 import APIService from '../../services/APIService';
 import RepoIcon from '../repos/RepoIcon';
 import ConceptIcon from '../concepts/ConceptIcon';
@@ -17,6 +20,9 @@ import SearchResults from './SearchResults';
 import SearchFilters from './SearchFilters'
 import { OperationsContext } from '../app/LayoutContext';
 import ReferenceFilters from '../repos/ReferenceFilters'
+import DeleteReferencesDialog from '../collections/DeleteReferencesDialog'
+import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline'
 
 const DEFAULT_LIMIT = 25;
 const FILTERS_WIDTH = 250
@@ -41,6 +47,10 @@ const Search = props => {
   const [order, setOrder] = React.useState('desc');
   const [orderBy, setOrderBy] = React.useState('score');
   const [isMatchOp, setIsMatchOp] = React.useState(false)
+  const [deleteReferencesOpen, setDeleteReferencesOpen] = React.useState(false)
+  const [deletingReferences, setDeletingReferences] = React.useState(false)
+  const [bulkRemoveOpen, setBulkRemoveOpen] = React.useState(false)
+  const [bulkRemoving, setBulkRemoving] = React.useState(false)
 
   const didMount = React.useRef(false);
   const isFilterable = _resource => FILTERABLE_RESOURCES.includes(_resource)
@@ -418,6 +428,79 @@ const Search = props => {
     history.push(getCurrentLayoutURL(getQueryParams(input, page, pageSize, filters, newOrderByField, newOrder)))
   }
 
+  const isHead = props.url?.includes('/HEAD/')
+
+  const selectedReferenceObjects = resource === 'references' && selected.length > 0
+    ? (result['references']?.results || []).filter(r => selected.includes(r.version_url || r.url || r.id))
+    : []
+
+  const onDeleteReferences = deleteBody => {
+    const body = deleteBody || { ids: selectedReferenceObjects.map(r => r.id).filter(Boolean) }
+    setDeletingReferences(true)
+    APIService.new().overrideURL(props.url).delete(body).then(response => {
+      setDeletingReferences(false)
+      if(response?.status === 204 || response?.status === 200) {
+        setDeleteReferencesOpen(false)
+        setSelected([])
+        setAlert({ severity: 'success', message: t('reference.remove_success') })
+        fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
+      } else {
+        setAlert({ severity: 'error', message: response?.data?.detail || t('common.generic_error') })
+      }
+    })
+  }
+
+  const isInCollection = props.url?.includes('/collections/')
+  const collectionUrl = isInCollection ? props.url?.replace(/\/(concepts|mappings)\/$/, '/') : null
+
+  const selectedRows = (result[resource]?.results || []).filter(r => selected.includes(r.version_url || r.url || r.id))
+
+  const onBulkRemoveFromCollection = deleteBody => {
+    const body = deleteBody || { ids: [] }
+    setBulkRemoving(true)
+    APIService.new().overrideURL(collectionUrl).appendToUrl('references/').delete(body).then(response => {
+      setBulkRemoving(false)
+      if(response?.status === 204 || response?.status === 200) {
+        setBulkRemoveOpen(false)
+        setSelected([])
+        setAlert({ severity: 'success', message: t('reference.remove_success') })
+        fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
+      } else {
+        setAlert({ severity: 'error', message: response?.data?.detail || t('common.generic_error') })
+      }
+    })
+  }
+
+  const bulkRemoveFromCollectionAction = isInCollection && isHead && ['concepts', 'mappings'].includes(resource) && isLoggedIn() && selected.length > 0 ? (
+    <Button
+      startIcon={<RemoveCircleOutlineIcon fontSize='inherit' />}
+      variant='contained'
+      size='small'
+      color='error'
+      sx={{textTransform: 'none', whiteSpace: 'nowrap', borderRadius: '8px', marginLeft: '8px'}}
+      onClick={() => setBulkRemoveOpen(true)}
+    >
+      {t('reference.remove_from_collection')}
+    </Button>
+  ) : null
+
+  const deleteReferencesControl = resource === 'references' && isLoggedIn() && selected.length > 0 ? (
+    <Tooltip title={!isHead ? t('reference.not_available_in_version') : ''}>
+      <span>
+        <Button
+          startIcon={<DeleteForeverIcon fontSize='inherit' />}
+          variant='contained'
+          size='small'
+          color='error'
+          disabled={!isHead}
+          sx={{textTransform: 'none', whiteSpace: 'nowrap', borderRadius: '8px', marginLeft: '8px'}}
+          onClick={() => setDeleteReferencesOpen(true)}
+        >
+          {t('reference.remove_selected')}
+        </Button>
+      </span>
+    </Tooltip>
+  ) : null
 
   React.useEffect(() => {
     setShowItem(props.showItem || false)
@@ -497,6 +580,8 @@ const Search = props => {
                   properties={props.properties}
                   propertyFilters={props.propertyFilters}
                   isMatch={isMatchOp}
+                  toolbarControl={deleteReferencesControl}
+                  extraBulkActions={bulkRemoveFromCollectionAction}
                 />
               </div>
             </div>
@@ -512,6 +597,21 @@ const Search = props => {
             }
           </div>
       }
+      <DeleteReferencesDialog
+        open={deleteReferencesOpen}
+        onClose={() => setDeleteReferencesOpen(false)}
+        onConfirm={onDeleteReferences}
+        references={selectedReferenceObjects}
+        loading={deletingReferences}
+      />
+      <RemoveFromCollectionDialog
+        open={bulkRemoveOpen}
+        onClose={() => setBulkRemoveOpen(false)}
+        onConfirm={onBulkRemoveFromCollection}
+        resources={selectedRows}
+        collectionUrl={collectionUrl}
+        loading={bulkRemoving}
+      />
     </div>
   )
 }

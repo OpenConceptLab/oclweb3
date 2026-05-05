@@ -10,6 +10,7 @@ import Locales from './Locales'
 import Associations from './Associations'
 import ConceptProperties from './ConceptProperties'
 import ExternalIdLabel from '../common/ExternalIdLabel'
+import ResourceReferences from '../common/ResourceReferences'
 
 const borderColor = 'rgba(0, 0, 0, 0.12)'
 
@@ -48,6 +49,7 @@ const ConceptDetails = ({ concept, repo, mappings, reverseMappings, loading, loa
           <Associations concept={concept} mappings={mappings} reverseMappings={reverseMappings} ownerMappings={ownerMappings} reverseOwnerMappings={reverseOwnerMappings} onLoadOwnerMappings={onLoadOwnerMappings} loadingOwnerMappings={loadingOwnerMappings} />
         }
       </div>
+      <ResourceReferences references={concept?.references} resourceType='concept' />
       <div className='col-xs-12 padding-0' style={{marginTop: '32px'}}>
         {
           concept?.external_id &&

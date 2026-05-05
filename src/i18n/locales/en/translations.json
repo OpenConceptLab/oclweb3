@@ -278,7 +278,20 @@
     "versioned_resource": "Versioned (Resource)",
     "resolved_repo": "Resolved Repo",
     "raw": "Raw",
-    "translation": "Translation"
+    "translation": "Translation",
+    "remove_selected": "Remove selected",
+    "remove_confirm_title": "Remove {{count}} reference(s)?",
+    "remove_confirm_body": "This will remove {{concepts}} concepts and {{mappings}} mappings from the collection expansion.",
+    "not_available_in_version": "Not available in saved versions. Switch to HEAD to edit.",
+    "remove_success": "References removed successfully.",
+    "brought_in_by": "Brought into collection by",
+    "brought_in_by_tooltip": "This {{resource}} appears in this collection expansion as a result of these references.",
+    "no_references_found": "No references found.",
+    "remove_from_collection": "Remove from collection",
+    "remove_concept_confirm_title": "Remove concept from collection?",
+    "remove_concept_confirm_body": "This concept is brought in by the following reference(s). Removing it will delete those references from the collection.",
+    "remove_mapping_confirm_title": "Remove mapping from collection?",
+    "remove_mapping_confirm_body": "This mapping is brought in by the following reference(s). Removing it will delete those references from the collection."
   },
   "checksums": {
     "standard": "Standard Checksum",

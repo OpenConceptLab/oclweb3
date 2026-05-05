@@ -12,6 +12,7 @@ import FromConceptCard from './FromConceptCard'
 import ToConceptCard from './ToConceptCard'
 import MappingIcon from './MappingIcon'
 import MappingProperties from './MappingProperties'
+import ResourceReferences from '../common/ResourceReferences'
 
 const borderColor = 'rgba(0, 0, 0, 0.12)'
 
@@ -37,6 +38,7 @@ const MappingDetails = ({ mapping }) => {
             <MappingProperties mapping={mapping} />
           </Paper>
       }
+      <ResourceReferences references={mapping?.references} resourceType='mapping' />
       <Typography component='span' sx={{display: 'inline-flex', alignItems: 'center', marginTop: '24px', padding: 0, fontSize: '12px', color: 'surface.contrastText', width: '100%'}}>
         {t('common.last_updated')} {formatDateTime(mapping.versioned_updated_on || mapping.updated_on)} {t('common.by')} <Link sx={{fontSize: '12px', justifyContent: 'flex-start', padding: '0 0 0 2px', lineHeight: 'normal'}} href={`#/users/${updatedBy}`} label={updatedBy} />
       </Typography>
