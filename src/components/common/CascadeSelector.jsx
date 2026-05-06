@@ -18,22 +18,22 @@ import CodeIcon from '@mui/icons-material/CodeOutlined'
 const PRESETS = [
   {
     id: 'none',
-    label: 'None',
+    labelKey: 'common.none',
     params: {},
   },
   {
     id: 'sourcemappings',
-    label: 'Source Mappings',
+    labelKey: 'reference.source_mappings',
     params: { method: 'sourcemappings' },
   },
   {
     id: 'sourcetoconcepts',
-    label: 'All Source Concepts & Mappings',
+    labelKey: 'reference.all_source_concepts_and_mappings',
     params: { method: 'sourcetoconcepts', mapTypes: 'Q-AND-A,CONCEPT-SET', cascadeLevels: '*', returnMapTypes: '*' },
   },
   {
     id: 'custom',
-    label: 'Custom',
+    labelKey: 'common.custom',
     params: null,
   },
 ]
@@ -97,7 +97,7 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
             onChange={e => setSelectedPresetId(e.target.value)}
           >
             {PRESETS.map(preset => (
-              <MenuItem key={preset.id} value={preset.id}>{preset.label}</MenuItem>
+              <MenuItem key={preset.id} value={preset.id}>{t(preset.labelKey)}</MenuItem>
             ))}
           </Select>
         </FormControl>
