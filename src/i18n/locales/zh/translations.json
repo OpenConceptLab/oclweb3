@@ -88,6 +88,7 @@
     "target": "目标",
     "properties": "特性",
     "custom": "自定义",
+    "none": "无",
     "load_more": "加载更多"
   },
   "errors": {
@@ -274,7 +275,6 @@
     "last_name": "姓氏",
     "company": "公司",
     "email_address": "电子邮件地址",
-    "location": "位置",
     "profile_update_success": "已成功更新个人资料",
     "profile_update_failure": "更新个人资料时出现错误。",
     "copy_api_token": "复制 API 令牌",
@@ -287,6 +287,14 @@
     "about_me_description": "创建用于他人访问您的个人资料时阅读的简介（200 个字符）。",
     "user_has_not_created_public_repos_suffix": "尚未创建任何公开的存储库",
     "recent_activity": "最近的活动"
+  },
+  "reference": {
+    "cascade": "级联",
+    "source_mappings": "源映射",
+    "all_source_concepts_and_mappings": "所有源概念和映射",
+    "advanced": "高级",
+    "hide_advanced": "隐藏高级",
+    "transform_tooltip": "将引用转换为外延引用。已解析概念或映射的引用将作为单独的外延引用存储，而不是作为内涵引用存储。"
   },
   "search": {
     "filters": "筛选项",
