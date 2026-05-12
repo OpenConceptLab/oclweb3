@@ -666,7 +666,7 @@ const Search = props => {
                   properties={props.properties}
                   propertyFilters={props.propertyFilters}
                   isMatch={isMatchOp}
-                  toolbarControl={referenceActionsControl}
+                  toolbarControl={<>{props.toolbarControl}{referenceActionsControl}</>}
                   extraBulkActions={bulkRemoveFromCollectionAction}
                 />
               </div>
