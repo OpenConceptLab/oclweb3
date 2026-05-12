@@ -53,7 +53,9 @@
     "register": "Registrar",
     "signing_in": "Iniciando sesión...",
     "sign_in_success": "Ingreso exitoso.",
-    "sign_in_error": "No se pudo iniciar sesión en este momento."
+    "sign_in_error": "No se pudo iniciar sesión en este momento.",
+    "something_went_wrong": "Algo salió mal",
+    "no_results": "Sin resultados"
   },
   "concept": {
     "concepts": "Conceptos",
@@ -75,7 +77,28 @@
     "all_source_concepts_and_mappings": "Todos los conceptos y mapeos de la fuente",
     "advanced": "Avanzado",
     "hide_advanced": "Ocultar avanzado",
-    "transform_tooltip": "Convierte la referencia en referencia(s) extensional(es). Las referencias para conceptos o mapeos resueltos se almacenaran como referencias extensionales individuales en lugar de referencia(s) intensional(es)."
+    "transform_tooltip": "Convierte la referencia en referencia(s) extensional(es). Las referencias para conceptos o mapeos resueltos se almacenaran como referencias extensionales individuales en lugar de referencia(s) intensional(es).",
+    "add_references": "Agregar referencias",
+    "add_reference": "Agregar referencia",
+    "source_or_collection": "Fuente / Colección",
+    "search_sources_collections": "Buscar fuentes y colecciones...",
+    "group_collections": "Colecciones",
+    "group_sources": "Fuentes",
+    "type_to_search": "Escribe al menos 2 caracteres para buscar",
+    "open_repo": "Abrir {{name}}",
+    "resolves_to": "Resuelve en {{version}}.",
+    "latest_released": "última versión publicada",
+    "pin_to_version": "Fijar a una versión específica",
+    "include_exclude": "Incluir / Excluir",
+    "include": "Incluir",
+    "add_by_ids": "Agregar por ID(s)",
+    "concept_ids": "IDs de conceptos",
+    "mapping_ids": "IDs de mapeos",
+    "select_source_first": "Selecciona una fuente o colección para usar Agregar por ID(s)",
+    "id_helper": "Cada ID se convierte en {{path}}{id}/",
+    "expression_hint": "Expresión de referencia completa. Precargada desde el selector de fuente / colección; edita según sea necesario.",
+    "adding_references": "Agregando referencias…",
+    "request_failed": "La solicitud falló — verifica tu conexión de red e inténtalo de nuevo."
   },
   "repo": {
     "repos": "Repositorios",
