@@ -89,7 +89,9 @@
     "properties": "特性",
     "custom": "自定义",
     "none": "无",
-    "load_more": "加载更多"
+    "load_more": "加载更多",
+    "something_went_wrong": "出了些问题",
+    "no_results": "无结果"
   },
   "errors": {
     "404": "很抱歉，未能找到您的页面。",
@@ -294,7 +296,28 @@
     "all_source_concepts_and_mappings": "所有源概念和映射",
     "advanced": "高级",
     "hide_advanced": "隐藏高级",
-    "transform_tooltip": "将引用转换为外延引用。已解析概念或映射的引用将作为单独的外延引用存储，而不是作为内涵引用存储。"
+    "transform_tooltip": "将引用转换为外延引用。已解析概念或映射的引用将作为单独的外延引用存储，而不是作为内涵引用存储。",
+    "add_references": "添加参考",
+    "add_reference": "添加参考",
+    "source_or_collection": "来源 / 集合",
+    "search_sources_collections": "搜索来源和集合...",
+    "group_collections": "集合",
+    "group_sources": "来源",
+    "type_to_search": "请输入至少 2 个字符进行搜索",
+    "open_repo": "打开 {{name}}",
+    "resolves_to": "解析为 {{version}}。",
+    "latest_released": "最新发布版本",
+    "pin_to_version": "固定到特定版本",
+    "include_exclude": "包含 / 排除",
+    "include": "包含",
+    "add_by_ids": "按 ID 添加",
+    "concept_ids": "概念 ID",
+    "mapping_ids": "映射 ID",
+    "select_source_first": "请在上方选择来源或集合以使用按 ID 添加",
+    "id_helper": "每个 ID 变为 {{path}}{id}/",
+    "expression_hint": "完整的参考表达式。由上方来源/集合选择器预填充；根据需要编辑。",
+    "adding_references": "正在添加参考…",
+    "request_failed": "请求失败 — 请检查您的网络连接并重试。"
   },
   "search": {
     "filters": "筛选项",

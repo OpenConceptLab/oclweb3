@@ -497,6 +497,7 @@ const Search = props => {
                   properties={props.properties}
                   propertyFilters={props.propertyFilters}
                   isMatch={isMatchOp}
+                  toolbarControl={props.toolbarControl}
                 />
               </div>
             </div>
