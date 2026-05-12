@@ -31,6 +31,7 @@
     "search": "Buscar",
     "for": "para",
     "none": "Ninguno",
+    "results": "Resultados",
     "custom": "Personalizado",
     "load_more": "Cargar más"
   },
@@ -70,9 +71,19 @@
     "mappings": "Mapeos"
   },
   "reference": {
+    "references": "Referencias",
+    "reference": "Referencia",
+    "source": "Fuente",
+    "sources": "Fuentes",
+    "exclude": "Excluir",
     "cascade": "Cascada",
     "source_mappings": "Mapeos de la fuente",
     "all_source_concepts_and_mappings": "Todos los conceptos y mapeos de la fuente",
+    "group_by_source": "Agrupar por fuente",
+    "ungrouped": "Sin agrupar",
+    "mixed": "Mixto",
+    "source_to_concepts": "Fuente a conceptos",
+    "source_to_mappings": "Fuente a mapeos",
     "advanced": "Avanzado",
     "hide_advanced": "Ocultar avanzado",
     "transform_tooltip": "Convierte la referencia en referencia(s) extensional(es). Las referencias para conceptos o mapeos resueltos se almacenaran como referencias extensionales individuales en lugar de referencia(s) intensional(es)."
@@ -105,6 +116,7 @@
   "search": {
     "filters": "Filtros",
     "concepts": "Conceptos",
+    "references": "Referencias",
     "repos": "Repositorios",
     "orgs": "Organizaciones",
     "users": "Usuarios",

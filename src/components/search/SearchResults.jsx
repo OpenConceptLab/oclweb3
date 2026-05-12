@@ -17,12 +17,13 @@ import SearchControls from './SearchControls';
 import NoResults from './NoResults';
 import TableResults from './TableResults';
 import CardResults from './CardResults';
+import ReferenceSourceGroupedResults, { getReferenceSourceGroups } from './ReferenceSourceGroupedResults';
 import AddToCollectionDialog from '../common/AddToCollectionDialog';
 import { SORT_ATTRS } from './ResultConstants'
 import { isLoggedIn } from '../../common/utils';
 
 const ResultsToolbar = props => {
-  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, toolbarControl, appliedFilters, openFilters, bulkActions } = props;
+  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, toolbarControl, appliedFilters, openFilters, bulkActions, displayOptions } = props;
   const filtersCount = flatten(values(appliedFilters).map(v => values(v))).length
   return (
     <Toolbar
@@ -85,6 +86,7 @@ const ResultsToolbar = props => {
         sortableFields={sortableFields}
         noCardDisplay={noCardDisplay}
         extraControls={toolbarControl}
+        displayOptions={displayOptions}
       />
     </Toolbar>
   );
@@ -93,7 +95,7 @@ const ResultsToolbar = props => {
 const SearchResults = props => {
   const { t } = useTranslation()
   const history = useHistory()
-  const [display, setDisplay] = React.useState(props.display || 'table')
+  const [display, setDisplay] = React.useState(props.display || (props.resource === 'references' ? 'source' : 'table'))
   const [cardDisplayAnimation, setCardDisplayAnimation] = React.useState('animation-disappear')
   const [tableDisplayAnimation, setTableDisplayAnimation] = React.useState('animation-appear')
   const [selected, setSelected] = React.useState(props.selected || []);
@@ -102,8 +104,10 @@ const SearchResults = props => {
   const rowsPerPage = props.results?.pageSize;
 
   const rows = props.results?.results || []
+  const referenceSourceGroups = React.useMemo(() => getReferenceSourceGroups(rows), [rows])
+  const isReferenceSourceGrouped = props.resource === 'references' && display === 'source'
   const onDisplayChange = async (newDisplay, ms) => {
-    if(newDisplay === 'table') {
+    if(['table', 'source'].includes(newDisplay)) {
       setCardDisplayAnimation('animation-disappear')
       setTableDisplayAnimation('animation-appear')
     } else {
@@ -158,6 +162,11 @@ const SearchResults = props => {
     props.onSelect(newSelected)
   };
 
+  const handleSelectedChange = newSelected => {
+    setSelected(newSelected)
+    props.onSelect && props.onSelect(newSelected)
+  }
+
   const handleRowClick = (event, id) => {
     event.preventDefault()
     event.stopPropagation()
@@ -186,6 +195,8 @@ const SearchResults = props => {
     const total = results?.total
     if(isNumber(total) && !isNaN(total)) {
       const isMore = total && total === 10000;
+      if(isReferenceSourceGrouped)
+        return `${total.toLocaleString()}${isMore ? '+' : ''} ${t('search.references').toLowerCase()} · ${referenceSourceGroups.length.toLocaleString()} ${t(referenceSourceGroups.length === 1 ? 'reference.source' : 'reference.sources').toLowerCase()}`
       return total.toLocaleString() + (isMore ? '+' : '') + ' ' + t(`search.${resource}`).toLowerCase()
     }
   }
@@ -235,9 +246,19 @@ const SearchResults = props => {
       </Button>
     ) : null
 
+  const displayOptions = props.resource === 'references' ? [
+    {id: 'source', labelKey: 'reference.group_by_source'},
+    {id: 'table', labelKey: 'reference.ungrouped'},
+  ] : undefined
+  const toolbarControl = props.toolbarControl
+
   React.useEffect(() => {
     setSelected(props.selected || [])
   }, [props.selected])
+
+  React.useEffect(() => {
+    setDisplay(props.display || (props.resource === 'references' ? 'source' : 'table'))
+  }, [props.resource, props.display])
 
 
   const defaultLabelDisplayedRows = ({ from, to, count }) => `${from}–${to} of ${count !== -1 ? count?.toLocaleString() : (props.isMatch ? 'many' : `more than ${to?.toLocaleString()}`)}`
@@ -259,9 +280,10 @@ const SearchResults = props => {
             orderBy={props.orderBy}
             onOrderByChange={props.onOrderByChange}
             noCardDisplay={noCardDisplay}
-            toolbarControl={props.toolbarControl}
+            toolbarControl={toolbarControl}
             appliedFilters={props.appliedFilters}
             bulkActions={addToCollectionBulkAction}
+            displayOptions={displayOptions}
           />
       }
       {
@@ -269,6 +291,11 @@ const SearchResults = props => {
           <NoResults searchedText={props.searchedText} height={props.height} /> :
         <React.Fragment>
           {
+            isReferenceSourceGrouped ?
+              <ReferenceSourceGroupedResults
+                {...resultsProps}
+                onSelectedChange={handleSelectedChange}
+              /> :
             isCardDisplay ?
               <CardResults {...resultsProps} className={cardDisplayAnimation} /> :
             <TableResults {...resultsProps} className={tableDisplayAnimation} />
