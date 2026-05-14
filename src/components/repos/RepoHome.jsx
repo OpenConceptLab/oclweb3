@@ -283,6 +283,7 @@ const RepoHome = () => {
                       url={getURL() + tab + '/'}
                       defaultFiltersOpen={false}
                       nested
+                      repo={repo}
                       noTabs
                       onSaveAsDefaultFilters={onSaveAsDefaultFilters}
                       repoDefaultFilters={(!tab || tab === 'concepts') ? repo?.meta?.display?.default_filter : {}}
