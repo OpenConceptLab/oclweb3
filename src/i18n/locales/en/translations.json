@@ -273,7 +273,8 @@
     "intensional": "Intensional",
     "extensional": "Extensional",
     "cascade": "Cascade",
-    "unresolved": "Unresolved",
+    "source_mappings": "Source Mappings",
+    "all_source_concepts_and_mappings": "All Source Concepts & Mappings",
     "versioned_repo": "Versioned (Repo)",
     "versioned_resource": "Versioned (Resource)",
     "resolved_repo": "Resolved Repo",
@@ -292,7 +293,10 @@
     "remove_concept_confirm_title": "Remove concept from collection?",
     "remove_concept_confirm_body": "This concept is brought in by the following reference(s). Removing it will delete those references from the collection.",
     "remove_mapping_confirm_title": "Remove mapping from collection?",
-    "remove_mapping_confirm_body": "This mapping is brought in by the following reference(s). Removing it will delete those references from the collection."
+    "remove_mapping_confirm_body": "This mapping is brought in by the following reference(s). Removing it will delete those references from the collection.",
+    "advanced": "Advanced",
+    "hide_advanced": "Hide advanced",
+    "transform_tooltip": "Converts the reference to extensional reference(s). References for resolved concepts or mappings will be stored as individual extensional references instead of intensional reference(s)."
   },
   "checksums": {
     "standard": "Standard Checksum",

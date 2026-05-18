@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
 import Collapse from '@mui/material/Collapse'
@@ -17,22 +18,22 @@ import CodeIcon from '@mui/icons-material/CodeOutlined'
 const PRESETS = [
   {
     id: 'none',
-    label: 'None',
+    labelKey: 'common.none',
     params: {},
   },
   {
     id: 'sourcemappings',
-    label: 'Source Mappings',
+    labelKey: 'reference.source_mappings',
     params: { method: 'sourcemappings' },
   },
   {
     id: 'sourcetoconcepts',
-    label: 'OpenMRS',
+    labelKey: 'reference.all_source_concepts_and_mappings',
     params: { method: 'sourcetoconcepts', mapTypes: 'Q-AND-A,CONCEPT-SET', cascadeLevels: '*', returnMapTypes: '*' },
   },
   {
     id: 'custom',
-    label: 'Custom',
+    labelKey: 'common.custom',
     params: null,
   },
 ]
@@ -58,10 +59,12 @@ const buildQueryString = (params, transform) => {
 }
 
 const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefault = false }) => {
+  const { t } = useTranslation()
   const [selectedPresetId, setSelectedPresetId] = React.useState('none')
   const [transform, setTransform] = React.useState(false)
   const [customParams, setCustomParams] = React.useState(DEFAULT_CUSTOM_PARAMS)
   const [showPreview, setShowPreview] = React.useState(showPreviewDefault)
+  const [showAdvanced, setShowAdvanced] = React.useState(false)
 
   const selectedPreset = PRESETS.find(p => p.id === selectedPresetId)
   const baseParams = selectedPresetId === 'custom' ? customParams : (selectedPreset.params || {})
@@ -85,9 +88,8 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
 
   return (
     <Box>
-      {/* Cascade dropdown + Transform checkbox on same row */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-        <FormControl size="small" sx={{ minWidth: 180 }}>
+        <FormControl size="small" sx={{ minWidth: 220 }}>
           <InputLabel>Cascade</InputLabel>
           <Select
             value={selectedPresetId}
@@ -95,33 +97,10 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
             onChange={e => setSelectedPresetId(e.target.value)}
           >
             {PRESETS.map(preset => (
-              <MenuItem key={preset.id} value={preset.id}>{preset.label}</MenuItem>
+              <MenuItem key={preset.id} value={preset.id}>{t(preset.labelKey)}</MenuItem>
             ))}
           </Select>
         </FormControl>
-
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                size="small"
-                checked={transform}
-                onChange={e => setTransform(e.target.checked)}
-              />
-            }
-            label="Transform"
-            sx={{ mr: 0, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
-          />
-          <Tooltip
-            title="Applies the OpenMRS transform to restructure cascade results into OpenMRS-compatible format. Only relevant when using OpenMRS or a custom sourcetoconcepts cascade."
-            placement="top"
-            arrow
-          >
-            <IconButton size="small" tabIndex={-1} sx={{ p: 0.25, color: 'text.secondary' }}>
-              <HelpOutlineIcon sx={{ fontSize: '1rem' }} />
-            </IconButton>
-          </Tooltip>
-        </Box>
       </Box>
 
       {/* Custom params form */}
@@ -188,6 +167,45 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
             helperText="Which map types to include in results"
             fullWidth
           />
+        </Box>
+      </Collapse>
+
+      {/* Advanced options */}
+      <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Chip
+          size="small"
+          label={showAdvanced ? t('reference.hide_advanced') : t('reference.advanced')}
+          variant="outlined"
+          clickable
+          onClick={() => setShowAdvanced(v => !v)}
+          sx={{ fontSize: '0.7rem' }}
+        />
+      </Box>
+
+      <Collapse in={showAdvanced} unmountOnExit>
+        <Box sx={{ mt: 1.5, pl: 1.5, borderLeft: '2px solid', borderColor: 'divider' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  size="small"
+                  checked={transform}
+                  onChange={e => setTransform(e.target.checked)}
+                />
+              }
+              label="Transform"
+              sx={{ mr: 0, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
+            />
+            <Tooltip
+              title={t('reference.transform_tooltip')}
+              placement="top"
+              arrow
+            >
+              <IconButton size="small" tabIndex={-1} sx={{ p: 0.25, color: 'text.secondary' }}>
+                <HelpOutlineIcon sx={{ fontSize: '1rem' }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
       </Collapse>
 
