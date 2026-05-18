@@ -1,10 +1,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
-import { Menu, ListItem, ListItemButton, ListItemText, ListItemIcon, Divider} from '@mui/material'
+import { Menu, ListItem, ListItemButton, ListItemText, ListItemIcon, Divider, Tooltip} from '@mui/material'
 import CopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
-const ReferenceManagementList = ({ anchorEl, open, onClose, id, onClick }) => {
+const ReferenceManagementList = ({ anchorEl, open, onClose, id, onClick, canDelete=true, deleteDisabledReason='' }) => {
   const { t } = useTranslation()
   return (
     <Menu
@@ -35,12 +35,16 @@ const ReferenceManagementList = ({ anchorEl, open, onClose, id, onClick }) => {
       </ListItem>
       <Divider />
       <ListItem disablePadding>
-        <ListItemButton disabled id='delete' onClick={() => onClick('delete')} sx={{padding: '8px 12px', color: 'error.main'}}>
-          <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px', color: 'error.main'}}>
-            <DeleteForeverIcon />
-          </ListItemIcon>
-          <ListItemText primary={t('common.delete_label')} />
-        </ListItemButton>
+        <Tooltip title={deleteDisabledReason}>
+          <span style={{width: '100%'}}>
+            <ListItemButton disabled={!canDelete} id='delete' onClick={() => onClick('delete')} sx={{padding: '8px 12px', color: 'error.main'}}>
+              <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px', color: 'error.main'}}>
+                <DeleteForeverIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('common.delete_label')} />
+            </ListItemButton>
+          </span>
+        </Tooltip>
       </ListItem>
     </Menu>
   )

@@ -235,6 +235,9 @@ const SearchResults = props => {
       </Button>
     ) : null
 
+  const allBulkActions = [addToCollectionBulkAction, props.extraBulkActions].filter(Boolean)
+  const bulkActionsElement = allBulkActions.length > 0 ? <>{allBulkActions}</> : null
+
   React.useEffect(() => {
     setSelected(props.selected || [])
   }, [props.selected])
@@ -261,7 +264,7 @@ const SearchResults = props => {
             noCardDisplay={noCardDisplay}
             toolbarControl={props.toolbarControl}
             appliedFilters={props.appliedFilters}
-            bulkActions={addToCollectionBulkAction}
+            bulkActions={bulkActionsElement}
           />
       }
       {

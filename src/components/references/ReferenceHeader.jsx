@@ -11,7 +11,7 @@ import Breadcrumbs from '../common/Breadcrumbs'
 import CloseIconButton from '../common/CloseIconButton';
 import ReferenceManagementList from './ReferenceManagementList'
 
-const ReferenceHeader = ({ reference, onClose }) => {
+const ReferenceHeader = ({ reference, onClose, onDelete, canDelete, deleteDisabledReason }) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -29,6 +29,8 @@ const ReferenceHeader = ({ reference, onClose }) => {
       copyURL(toFullAPIURL(reference.expression))
     else if(option === 'copyURL')
       copyURL(toFullAPIURL(reference.uri))
+    else if(option === 'delete')
+      onDelete && onDelete()
     onMenuClose()
   }
 
@@ -53,7 +55,7 @@ const ReferenceHeader = ({ reference, onClose }) => {
           <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='reference-actions'>
             {t('common.actions')}
           </Button>
-          <ReferenceManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='reference-actions' onClick={onClick} reference={reference} />
+          <ReferenceManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='reference-actions' onClick={onClick} reference={reference} canDelete={canDelete} deleteDisabledReason={deleteDisabledReason} />
         </span>
       </div>
     </div>
