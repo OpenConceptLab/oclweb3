@@ -263,7 +263,8 @@
           "reranker",
           "lte",
           "gte",
-          "resourceversions"
+          "resourceversions",
+          "monospace"
         ],
         "skipIfMatch": [
           "http://[^s]*",
