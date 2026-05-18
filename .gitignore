@@ -5,3 +5,5 @@ dist/
 .idea/
 .DS_Store
 CLAUDE.md
+# Added by code-review-graph
+.code-review-graph/
