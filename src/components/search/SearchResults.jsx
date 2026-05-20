@@ -17,7 +17,7 @@ import SearchControls from './SearchControls';
 import NoResults from './NoResults';
 import TableResults from './TableResults';
 import CardResults from './CardResults';
-import ReferenceSourceGroupedResults, { getReferenceSourceGroups } from './ReferenceSourceGroupedResults';
+import ReferenceSourceGroupedResults, { getReferenceSourceGroups } from '../references/ReferenceSourceGroupedResults';
 import AddToCollectionDialog from '../common/AddToCollectionDialog';
 import { SORT_ATTRS } from './ResultConstants'
 import { isLoggedIn } from '../../common/utils';

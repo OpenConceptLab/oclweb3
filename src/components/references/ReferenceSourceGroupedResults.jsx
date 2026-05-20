@@ -21,16 +21,9 @@ import Typography from '@mui/material/Typography'
 import CollapseIcon from '@mui/icons-material/KeyboardArrowDown'
 import ExpandIcon from '@mui/icons-material/KeyboardArrowRight'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
+import { SOURCE_COLORS } from '../../common/colors'
+import { hashString, URIToParentParams } from '../../common/utils'
 import RepoChip from '../repos/RepoChip'
-
-const SOURCE_COLORS = [
-  {bg: '#e8f1ff', border: '#7da7ff'},
-  {bg: '#e6f7f2', border: '#66bfa5'},
-  {bg: '#eef7df', border: '#8cbf4a'},
-  {bg: '#fff1df', border: '#d9963d'},
-  {bg: '#ffecf3', border: '#d27aa4'},
-  {bg: '#edf0ff', border: '#8b94d6'},
-]
 
 const getReferenceId = reference => reference.version_url || reference.url || reference.id
 
@@ -49,23 +42,27 @@ const getReferenceSummary = reference => {
   return label || '-'
 }
 
-const hashString = value => {
-  return (value || '').split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
-}
-
 const getSourceColorKey = source => [source?.owner, source?.id || source?.short_code].filter(Boolean).join('/')
 
 const parseSourceFromExpression = expression => {
-  const match = (expression || '').match(/\/(?:orgs|users)\/([^/]+)\/sources\/([^/]+)\/(?:([^/]+)\/)?/)
-  if(!match)
+  if(!expression || !/\/sources\//.test(expression))
     return false
 
+  const parent = URIToParentParams(expression)
+  if(!parent.repo)
+    return false
+
+  const parts = expression.split('/').filter(Boolean)
+  const sourceIndex = parts.indexOf('sources')
+  const afterSourceId = parts[sourceIndex + 2]
+  const isVersion = afterSourceId && !['concepts', 'mappings'].includes(afterSourceId)
+
   return {
-    id: match[2],
-    short_code: match[2],
-    owner: match[1],
-    type: match[3] && !['concepts', 'mappings'].includes(match[3]) ? 'Source Version' : 'Source',
-    version: match[3] && !['concepts', 'mappings'].includes(match[3]) ? match[3] : undefined,
+    id: parent.repo,
+    short_code: parent.repo,
+    owner: parent.owner,
+    type: isVersion ? 'Source Version' : 'Source',
+    version: isVersion ? afterSourceId : undefined,
   }
 }
 
