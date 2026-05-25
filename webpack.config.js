@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -6,6 +7,10 @@ const { ProvidePlugin, DefinePlugin, IgnorePlugin } = require('webpack');
 
 module.exports = (env) => {
   const isProduction = env.NODE_ENV === 'production';
+  const analyticsPluginModulePath = path.resolve(__dirname, 'node_modules', 'ocl-analytics-web');
+  const analyticsPluginAlias = fs.existsSync(analyticsPluginModulePath) ?
+    analyticsPluginModulePath :
+    path.resolve(__dirname, 'src/common/plugins/usage-dashboard.stub.js');
   return {
     mode: env.NODE_ENV,
     module: {
@@ -130,6 +135,9 @@ module.exports = (env) => {
     ],
     resolve: {
       extensions: ['.js', '.jsx'],
+      alias: {
+        'ocl-analytics-web$': analyticsPluginAlias,
+      },
     },
   };
 };
