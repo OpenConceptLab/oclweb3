@@ -75,7 +75,7 @@ const ConceptsComparison = () => {
     updated_on: {...cloneDeep(attributeState), type: 'date', position: 13},
   }
 
-  const fetcher = (uri, attr, loadingAttr, state) => {
+  const fetcher = (uri, attr, loadingAttr, state, callback) => {
     if(uri && attr && loadingAttr) {
       const { isVersion } = state;
       const isAnyVersion = isVersion || uri.match(/\//g).length === 8;
@@ -94,6 +94,8 @@ const ConceptsComparison = () => {
               newState.attributes['is_latest_version'] = {...cloneDeep(attributeState), type: 'bool', position: 14}
               newState.attributes['update_comment'] = {...cloneDeep(attributeState), position: 15}
             }
+            if(callback)
+              callback(newState)
             return newState
           }
         })

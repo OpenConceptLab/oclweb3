@@ -75,7 +75,7 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
 
   const isAccepted = res => [202, 409].includes(res?.status_code) || res?.data?.task || res?.detail === 'Already Queued'
 
-  React.useState(() => {
+  React.useEffect(() => {
     fetchChangelog()
   }, [version1?.version_url, version2?.version_url])
 
