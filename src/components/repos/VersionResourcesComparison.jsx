@@ -64,7 +64,7 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
         setChangelog(res.data)
         const diffFields = get(res?.data?.meta?.diff, resource)
         let _filters = {}
-        forEach(diffFields, (count, field) => _filters[field] = [[field, count, false]])
+        forEach(diffFields, (count, field) => field !== 'changed_total' ? _filters[field] = [[field, count, false]] : null)
         setFilters(_filters)
         let defaultSelected = getDefaultSelected(_filters)
         setSelected(defaultSelected ? [defaultSelected] : [])
