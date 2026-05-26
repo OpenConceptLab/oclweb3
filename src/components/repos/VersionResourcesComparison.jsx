@@ -39,7 +39,7 @@ const sections = {
   changed_retired: {label: 'Retired', tooltip: 'Resources retired in newer version'},
   changed_major: {label: 'Major Change', tooltip: 'Resources with "smart checksum" change between versions'},
   changed_minor: {label: 'Minor Change', tooltip: 'Resources with "standard checksum" change between versions'},
-  removed: {tooltip: 'Resource removed in newer version'},
+  removed: {label: "Removed", tooltip: 'Resource removed in newer version'},
 }
 
 const VersionResourcesComparison = ({version1, version2, resource}) => {
