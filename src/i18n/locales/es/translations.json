@@ -34,6 +34,8 @@
     "select": "Seleccionar",
     "search": "Buscar",
     "for": "para",
+    "none": "Ninguno",
+    "custom": "Personalizado",
     "load_more": "Cargar más"
   },
   "errors": {
@@ -70,6 +72,14 @@
   },
   "mapping": {
     "mappings": "Mapeos"
+  },
+  "reference": {
+    "cascade": "Cascada",
+    "source_mappings": "Mapeos de la fuente",
+    "all_source_concepts_and_mappings": "Todos los conceptos y mapeos de la fuente",
+    "advanced": "Avanzado",
+    "hide_advanced": "Ocultar avanzado",
+    "transform_tooltip": "Convierte la referencia en referencia(s) extensional(es). Las referencias para conceptos o mapeos resueltos se almacenaran como referencias extensionales individuales en lugar de referencia(s) intensional(es)."
   },
   "repo": {
     "repos": "Repositorios",

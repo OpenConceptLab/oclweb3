@@ -23,6 +23,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   const [applied, setApplied] = React.useState({});
   const [count, setCount] = React.useState(0);
   const [expanded, setExpanded] = React.useState([])
+  const shouldShowActionBar = open !== undefined
 
   const filterOrder = fieldOrder || FACET_ORDER[resource]
   let blacklisted = ['is_active', 'is_latest_version', 'is_in_latest_source_version'];
@@ -157,6 +158,11 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     setApplied(appliedFilters)
   }, [filters])
 
+  React.useEffect(() => {
+    if(!shouldShowActionBar && !isEqual(applied, appliedFilters))
+      onChange(applied)
+  }, [applied, appliedFilters, onChange, shouldShowActionBar])
+
   const getFieldFilters = (field, fieldFilters) => {
     let ordered = [
       ...filter(fieldFilters, _filter => get(appliedFilters, `${field}.${_filter[0]}`)),
@@ -261,39 +267,42 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
 
   const isFixedConceptField = field => isConcept && ['conceptClass', 'datatype'].includes(field)
   const canUpdateDefaultFilters = nested && onSaveAsDefaultFilters && currentUserHasAccess()
-  const topBarHeight = canUpdateDefaultFilters ? 60 : 30
+  const topBarHeight = shouldShowActionBar ? (canUpdateDefaultFilters ? 60 : 30) : 0
   let totalFilters = {...propertyFacets, ...uiFilters}
 
   return (
     <div className='col-xs-12 padding-0'>
-      <div className='col-xs-12' style={{zIndex: 2, padding: '0px', position: open ? 'absolute' : undefined, top: 0, display: open ? undefined : 'none'}}>
-        <div className='col-xs-12' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px'}}>
-          <span>
-            <Badge badgeContent={count} color='primary' sx={{'.MuiBadge-badge': {top: '10px', left: '36px'}}}>
-              <b>{t('search.filters')}</b>
-            </Badge>
-          </span>
-          <span>
-            <Button variant='text' color='primary' style={{textTransform: 'none'}} onClick={onApply} disabled={!unapplied}>
-              {t('common.apply')}
-            </Button>
-            <Button variant='text' style={{textTransform: 'none'}} onClick={onClear} disabled={!count} color='error'>
-              {t('common.clear')}
-            </Button>
-          </span>
-        </div>
-        {
-          canUpdateDefaultFilters &&
-            <div className='col-xs-12 padding-0' style={{textAlign: 'right'}}>
-              <Button size='small' sx={{textTransform: 'none'}} onClick={onSetDefaultFilters} disabled={isEmpty(applied) || isEqual(applied, repoDefaultFilters)}>
-                {t('search.save_default_filters')}
-              </Button>
-              <Button size='small' color='error' sx={{textTransform: 'none'}} onClick={onResetDefaultFilters} disabled={!canResetToDefaultFilters}>
-                {t('common.reset')}
-              </Button>
+      {
+        shouldShowActionBar &&
+          <div className='col-xs-12' style={{zIndex: 2, padding: '0px', position: open ? 'absolute' : undefined, top: 0, display: open ? undefined : 'none'}}>
+            <div className='col-xs-12' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px'}}>
+              <span>
+                <Badge badgeContent={count} color='primary' sx={{'.MuiBadge-badge': {top: '10px', left: '36px'}}}>
+                  <b>{t('search.filters')}</b>
+                </Badge>
+              </span>
+              <span>
+                <Button variant='text' color='primary' style={{textTransform: 'none'}} onClick={onApply} disabled={!unapplied}>
+                  {t('common.apply')}
+                </Button>
+                <Button variant='text' style={{textTransform: 'none'}} onClick={onClear} disabled={!count} color='error'>
+                  {t('common.clear')}
+                </Button>
+              </span>
             </div>
-        }
-      </div>
+            {
+              canUpdateDefaultFilters &&
+                <div className='col-xs-12 padding-0' style={{textAlign: 'right'}}>
+                  <Button size='small' sx={{textTransform: 'none'}} onClick={onSetDefaultFilters} disabled={isEmpty(applied) || isEqual(applied, repoDefaultFilters)}>
+                    {t('search.save_default_filters')}
+                  </Button>
+                  <Button size='small' color='error' sx={{textTransform: 'none'}} onClick={onResetDefaultFilters} disabled={!canResetToDefaultFilters}>
+                    {t('common.reset')}
+                  </Button>
+                </div>
+            }
+          </div>
+      }
       <div className='col-xs-12 padding-0' style={{marginTop: `${topBarHeight}px`, height: `calc(100vh - ${heightToSubtract || 0}px - ${topBarHeight}px)`, overflowY: 'auto'}}>
         {
           loading && isEmpty(totalFilters) &&

@@ -39,7 +39,7 @@ const sections = {
   changed_retired: {label: 'Retired', tooltip: 'Resources retired in newer version'},
   changed_major: {label: 'Major Change', tooltip: 'Resources with "smart checksum" change between versions'},
   changed_minor: {label: 'Minor Change', tooltip: 'Resources with "standard checksum" change between versions'},
-  removed: {tooltip: 'Resource removed in newer version'},
+  removed: {label: "Removed", tooltip: 'Resource removed in newer version'},
 }
 
 const VersionResourcesComparison = ({version1, version2, resource}) => {
@@ -64,7 +64,7 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
         setChangelog(res.data)
         const diffFields = get(res?.data?.meta?.diff, resource)
         let _filters = {}
-        forEach(diffFields, (count, field) => _filters[field] = [[field, count, false]])
+        forEach(diffFields, (count, field) => field !== 'changed_total' ? _filters[field] = [[field, count, false]] : null)
         setFilters(_filters)
         let defaultSelected = getDefaultSelected(_filters)
         setSelected(defaultSelected ? [defaultSelected] : [])
@@ -75,7 +75,7 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
 
   const isAccepted = res => [202, 409].includes(res?.status_code) || res?.data?.task || res?.detail === 'Already Queued'
 
-  React.useState(() => {
+  React.useEffect(() => {
     fetchChangelog()
   }, [version1?.version_url, version2?.version_url])
 

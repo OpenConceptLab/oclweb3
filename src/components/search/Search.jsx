@@ -43,6 +43,7 @@ const getBaseCollectionUrl = url => {
 
 const getCollectionLookupUrl = url => (url || '').replace(/\/(concepts|mappings|references)\/?$/, '/')
 
+
 const Search = props => {
   const { setAlert, contextRepo } = React.useContext(OperationsContext);
   const { t } = useTranslation()
@@ -446,7 +447,7 @@ const Search = props => {
     history.push(getCurrentLayoutURL(getQueryParams(input, page, pageSize, filters, newOrderByField, newOrder)))
   }
 
-  const isHead = props.url?.includes('/HEAD/')
+  const isHead = props.nested ? props.repo?.version === 'HEAD' : false
   const isInCollection = props.url?.includes('/collections/')
   const collectionUrl = isInCollection ? getBaseCollectionUrl(props.url) : null
   const collectionLookupUrl = isInCollection ? getCollectionLookupUrl(props.url) : null

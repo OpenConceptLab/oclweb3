@@ -109,11 +109,11 @@ class Comparison extends React.Component {
 
   setObjectsForComparison() {
     const queryParams = new URLSearchParams(this.props.search)
-    this.props.fetcher(queryParams.get('lhs'), 'lhs', 'isLoadingLHS', this.state).then((lhsData) => {
-      this.props.fetcher(queryParams.get('rhs'), 'rhs', 'isLoadingRHS', lhsData).then((data) => {
-        this.setState(data, ()=>{
+    this.props.fetcher(queryParams.get('lhs'), 'lhs', 'isLoadingLHS', this.state, (newState) => {
+      this.props.fetcher(queryParams.get('rhs'), 'rhs', 'isLoadingRHS', newState, (_newState) => {
+        this.setState(_newState, () => {
           if(!this.props.postFetch) return
-          const formatted = this.props.postFetch(data)
+          const formatted = this.props.postFetch(_newState)
           this.setState(formatted)
         })
       })
