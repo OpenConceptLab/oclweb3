@@ -98,3 +98,9 @@ export const COLORS = {
   error: {...ERROR_COLORS},
   neutral: {...NEUTRAL_COLORS}
 }
+
+export const SOURCE_COLORS = [
+  {bg: PRIMARY_COLORS['90'], border: PRIMARY_COLORS['70']},
+  {bg: SECONDARY_COLORS['90'], border: SECONDARY_COLORS['70']},
+  {bg: TERTIARY_COLORS['90'], border: TERTIARY_COLORS['70']},
+]

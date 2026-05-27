@@ -5,10 +5,11 @@ import DownIcon from '@mui/icons-material/ArrowDropDown';
 import DisplayMenu from './DisplayMenu';
 import SortMenu from './SortMenu';
 
-const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, extraControls}) => {
+const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, extraControls, displayOptions}) => {
   const { t } = useTranslation()
   const [displayAnchorEl, setDisplayAnchorEl] = React.useState(null);
   const [sortAnchorEl, setSortAnchorEl] = React.useState(null);
+  const showDisplayControl = !noCardDisplay || displayOptions?.length > 0
   const onDisplayClick = event => setDisplayAnchorEl(event.currentTarget)
   const onDisplayMenuClose = () => setDisplayAnchorEl(null);
   const onSortClick = event => setSortAnchorEl(event.currentTarget)
@@ -23,19 +24,20 @@ const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, on
           </Button>
       }
       {
-      !noCardDisplay &&
+      showDisplayControl &&
           <Button id="display-menu" disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none', marginLeft: '8px'}} endIcon={<DownIcon fontSize='inherit' />} onClick={onDisplayClick}>
             {t('search.display')}
           </Button>
       }
       {
-      !noCardDisplay &&
+      showDisplayControl &&
           <DisplayMenu
             labelId="display-menu"
             anchorEl={displayAnchorEl}
             onClose={onDisplayMenuClose}
             onSelect={onDisplayChange}
             selected={display}
+            options={displayOptions}
           />
       }
       <SortMenu
@@ -47,7 +49,12 @@ const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, on
         orderBy={orderBy}
         fields={sortableFields}
       />
-      {extraControls}
+      {
+        extraControls &&
+          <span style={{display: 'inline-flex', alignItems: 'center', gap: '8px', marginLeft: '8px'}}>
+            {extraControls}
+          </span>
+      }
     </div>
   )
 }

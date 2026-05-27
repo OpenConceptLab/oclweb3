@@ -3,8 +3,14 @@ import { useTranslation } from 'react-i18next';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
-const DisplayMenu = ({anchorEl, labelId, onClose, onSelect, selected}) => {
+const DEFAULT_OPTIONS = [
+  {id: 'table', labelKey: 'search.table'},
+  {id: 'card', labelKey: 'search.card'},
+]
+
+const DisplayMenu = ({anchorEl, labelId, onClose, onSelect, selected, options}) => {
   const { t } = useTranslation();
+  const displayOptions = options || DEFAULT_OPTIONS
   const onChange = newDisplay => {
     onSelect(newDisplay)
     onClose()
@@ -19,8 +25,13 @@ const DisplayMenu = ({anchorEl, labelId, onClose, onSelect, selected}) => {
         'aria-labelledby': labelId,
       }}
     >
-      <MenuItem selected={selected === 'table'} onClick={() => onChange('table')}>{t('search.table')}</MenuItem>
-      <MenuItem selected={selected === 'card'} onClick={() => onChange('card')}>{t('search.card')}</MenuItem>
+      {
+        displayOptions.map(option => (
+          <MenuItem key={option.id} selected={selected === option.id} onClick={() => onChange(option.id)}>
+            {option.label || t(option.labelKey)}
+          </MenuItem>
+        ))
+      }
     </Menu>
   )
 }
