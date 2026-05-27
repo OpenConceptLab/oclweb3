@@ -24,6 +24,10 @@
     "about": "Acerca de",
     "view_all_attributes": "Ver todos los atributos",
     "actions": "Acciones",
+    "selected": "seleccionados",
+    "eligible": "elegibles",
+    "skipped": "omitidos",
+    "status": "Estado",
     "metadata": "Metadatos",
     "copied_to_clipboard": "Copiado al portapapeles",
     "navigate": "Navegar",
@@ -101,6 +105,22 @@
     "location": "Ubicación",
     "website": "Sitio web",
     "last_login": "Último inicio de sesión"
+  },
+  "reference": {
+    "actions": "Acciones",
+    "expression": "Expresión",
+    "new_expression": "Nueva expresión",
+    "transform_to_non_versioned": "Transformar a referencia sin versión",
+    "transform_confirm_title": "¿Transformar {{count}} referencia(s)?",
+    "transform_confirm_body": "Esto agregará primero referencias de reemplazo sin versión y luego eliminará las referencias fijadas anteriores cuando la adición se complete correctamente.",
+    "transform_references": "Transformar referencias",
+    "transform_success": "{{count}} referencia(s) transformada(s) correctamente.",
+    "transform_partial_success": "{{transformed}} referencia(s) transformada(s). {{failed}} referencia(s) no pudieron transformarse y se dejaron sin cambios.",
+    "transform_no_eligible": "Ninguna de las referencias seleccionadas puede transformarse en una referencia sin versión.",
+    "transform_no_references_changed": "No se transformó ninguna referencia.",
+    "transform_delete_failed": "Se agregaron {{count}} referencia(s) sin versión, pero no se pudieron eliminar las referencias fijadas anteriores. Actualiza y revisa la lista de referencias para detectar duplicados.",
+    "already_non_versioned": "Ya está sin versión",
+    "unsupported_transform": "No compatible"
   },
   "search": {
     "filters": "Filtros",
