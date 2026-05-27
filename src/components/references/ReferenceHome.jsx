@@ -1,23 +1,36 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import APIService from '../../services/APIService';
+import { dropVersion } from '../../common/utils'
 
+import { OperationsContext } from '../app/LayoutContext';
 import ReferenceHeader from './ReferenceHeader'
 import ReferenceDetails from './ReferenceDetails'
 import ReferenceTabs from './ReferenceTabs'
 import ReferenceExpansionResults from './ReferenceExpansionResults'
+import DeleteReferencesDialog from '../collections/DeleteReferencesDialog'
 
 const ReferenceHome = props => {
+  const { t } = useTranslation()
   const { reference } = props
   const [loading, setLoading] = React.useState(false)
+  const [deleteDialog, setDeleteDialog] = React.useState(false)
+  const [deleting, setDeleting] = React.useState(false)
   const [tab, setTab] = React.useState('metadata')
   const [concepts, setConcepts] = React.useState(false)
   const [conceptHeaders, setConceptHeaders] = React.useState(false)
   const [mappings, setMappings] = React.useState(false)
   const [mappingHeaders, setMappingHeaders] = React.useState(false)
   const activeReferenceIdRef = React.useRef(reference?.id)
+  const { setAlert } = React.useContext(OperationsContext);
 
   const repoURL = props?.repo?.version_url || props?.repo?.url
+  const isHeadReferenceUrl = url => {
+    const normalizedUrl = (url || '').replace(/\/$/, '')
+    return normalizedUrl.includes('/HEAD/') || Boolean(normalizedUrl.match(/\/collections\/[^/]+\/references\/[^/]+$/))
+  }
+  const isHead = isHeadReferenceUrl(props.url) || isHeadReferenceUrl(repoURL)
 
   const resetExpansionState = () => {
     setLoading(false)
@@ -50,6 +63,7 @@ const ReferenceHome = props => {
     }
   }
   const getRefService = () => APIService.new().overrideURL(repoURL).appendToUrl(`references/${reference.id}/`)
+  const getReferenceId = () => reference?.id || decodeURIComponent((props.url || '').replace(/\/$/, '').split('/').pop())
 
   const fetchConcepts = ({ reset=false, currentReferenceId=reference?.id } = {}) => {
     const { limit, page } = getLimits(reset ? false : conceptHeaders)
@@ -100,11 +114,27 @@ const ReferenceHome = props => {
       fetchMappings()
   }
 
+  const onDeleteReference = deleteBody => {
+    const body = deleteBody || { ids: [getReferenceId()].filter(Boolean) }
+    setDeleting(true)
+    APIService.new().overrideURL(dropVersion(repoURL)).appendToUrl('references/').delete(body).then(response => {
+      setDeleting(false)
+      if(response?.status === 204 || response?.status === 200) {
+        setDeleteDialog(false)
+        setAlert({ severity: 'success', message: t('reference.remove_success') })
+        props.onDelete && props.onDelete()
+        props.onClose && props.onClose()
+      } else {
+        setAlert({ severity: 'error', message: response?.data?.detail || t('common.generic_error') })
+      }
+    })
+  }
+
 
 
   return (
     <div className='col-xs-12' style={{padding: '8px 16px 12px 16px'}}>
-      <ReferenceHeader reference={reference} onClose={props.onClose} />
+      <ReferenceHeader reference={reference} onClose={props.onClose} onDelete={() => setDeleteDialog(true)} canDelete={isHead} deleteDisabledReason={isHead ? '' : t('reference.not_available_in_version')} />
       <ReferenceTabs tab={tab} onTabChange={(event, newTab) => onTabChange(newTab)} loading={loading} />
       {
         tab === 'metadata' &&
@@ -114,6 +144,13 @@ const ReferenceHome = props => {
         tab === 'expansion' &&
           <ReferenceExpansionResults reference={reference} loading={loading} concepts={concepts} mappings={mappings} conceptHeaders={conceptHeaders} mappingHeaders={mappingHeaders} onLoadMore={onLoadMore} />
       }
+      <DeleteReferencesDialog
+        open={deleteDialog}
+        onClose={() => setDeleteDialog(false)}
+        onConfirm={onDeleteReference}
+        references={[{...reference, id: getReferenceId()}]}
+        loading={deleting}
+      />
     </div>
   )
 }

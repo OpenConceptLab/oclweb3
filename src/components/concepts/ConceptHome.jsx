@@ -9,6 +9,7 @@ import { toParentURI, dropVersion } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
+import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
 
 import ConceptHeader from './ConceptHeader';
 import ConceptTabs from './ConceptTabs';
@@ -39,13 +40,18 @@ const ConceptHome = props => {
   const [reverseOwnerMappings, setReverseOwnerMappings] = React.useState([])
 
   const [retireDialog, setRetireDialog] = React.useState(false)
+  const [removeFromCollectionDialog, setRemoveFromCollectionDialog] = React.useState(false)
+  const [removingFromCollection, setRemovingFromCollection] = React.useState(false)
   const { setAlert } = React.useContext(OperationsContext);
+
+  const isInCollection = Boolean(props.repo?.type?.includes('Collection') || props.url?.includes('/collections/'))
 
   React.useEffect(() => {
     setLoading(true)
     setConcept(props.concept || {})
     setVersions([])
-    getService().get().then(response => {
+    const queryParams = isInCollection ? { includeReferences: true } : {}
+    getService().get(null, null, queryParams).then(response => {
       const resource = response.data
       setConcept(resource)
       props.repo?.id ? setRepo(repo) : fetchRepo(resource)
@@ -215,6 +221,22 @@ const ConceptHome = props => {
     })
   }
 
+  const onRemoveFromCollection = deleteBody => {
+    const collectionUrl = dropVersion(props.repo?.version_url || props.repo?.url)
+    const body = deleteBody || { ids: (concept.references || []).map(r => r.id).filter(Boolean) }
+    setRemovingFromCollection(true)
+    APIService.new().overrideURL(collectionUrl).appendToUrl('references/').delete(body).then(response => {
+      setRemovingFromCollection(false)
+      if(response?.status === 204 || response?.status === 200) {
+        setRemoveFromCollectionDialog(false)
+        setAlert({ severity: 'success', message: t('reference.remove_success') })
+        props.onClose && props.onClose()
+      } else {
+        setAlert({ severity: 'error', message: response?.data?.detail || t('common.generic_error') })
+      }
+    })
+  }
+
   return (concept?.id && repo?.id) ? (
     <>
       <Fade in={edit}>
@@ -243,7 +265,7 @@ const ConceptHome = props => {
             !edit &&
               <>
                 <div className='col-xs-12 padding-0'>
-                  <ConceptHeader concept={concept} onClose={props.onClose} repoURL={getRepoURL()} onEdit={() => setEdit(true)} repo={repo} nested={props.nested} loading={loading} onRetire={() => setRetireDialog(true)} />
+                  <ConceptHeader concept={concept} onClose={props.onClose} repoURL={getRepoURL()} onEdit={() => setEdit(true)} repo={repo} nested={props.nested} loading={loading} onRetire={() => setRetireDialog(true)} isInCollection={isInCollection} onRemoveFromCollection={() => setRemoveFromCollectionDialog(true)} />
                 </div>
                 <ConceptTabs tab={tab} onTabChange={(event, newTab) => onTabChange(newTab)} loading={loading} />
                 {
@@ -276,6 +298,15 @@ const ConceptHome = props => {
                   onClose={() => setRetireDialog(false)}
                   title={`${t('common.retire')} ${t('concept.concept')}`}
                   onSubmit={toggleRetire}
+                />
+                <RemoveFromCollectionDialog
+                  open={removeFromCollectionDialog}
+                  onClose={() => setRemoveFromCollectionDialog(false)}
+                  onConfirm={onRemoveFromCollection}
+                  resources={[concept]}
+                  collectionUrl={dropVersion(props.repo?.version_url || props.repo?.url)}
+                  lookupCollectionUrl={props.repo?.version_url || props.repo?.url}
+                  loading={removingFromCollection}
                 />
               </>
           }

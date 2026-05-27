@@ -129,7 +129,7 @@ const App = props => {
     const queryParams = new URLSearchParams(search)
     const referrer = queryParams.get('referrer')
     if(isLoggedIn()) {
-      window.location.hash = '#'  + pathname
+      window.location.hash = '#'  + pathname + search
     } else if(referrer && (isMapperURL(referrer) || isV2URL(referrer)) && !isLoggedIn()) {
       const parts = hash.split('?')
       let params = new URLSearchParams(parts[1])
@@ -220,6 +220,8 @@ const App = props => {
                     }}
                   />
               }
+              <Route exact path="/concepts/compare" component={ConceptsComparison} />
+              <Route exact path="/mappings/compare" component={MappingsComparison} />
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/sources/:repo/:repoVersion/concepts/$match`} component={RepoConceptsMatch} />
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/repos/new/:step?`} component={RepoCreate} />
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/edit/:step?`} component={RepoCreate} />
@@ -239,8 +241,6 @@ const App = props => {
               <AuthenticationRequiredRoute exact path='/orgs/new' component={OrgCreate} />
               <AuthenticationRequiredRoute exact path='/orgs/:org/edit' component={OrgCreate} />
               <Route path={`/orgs/:org/:tab(${orgTabsStr})?`} component={OrgHome} />
-              <Route exact path="/concepts/compare" component={ConceptsComparison} />
-              <Route exact path="/mappings/compare" component={MappingsComparison} />
               <Route exact path='/403' component={Error403} />
               <Route component={Error404} />
             </Switch>

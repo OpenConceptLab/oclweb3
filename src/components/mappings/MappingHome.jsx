@@ -9,6 +9,7 @@ import { toParentURI, dropVersion } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
+import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
 import MappingHeader from './MappingHeader';
 import MappingTabs from './MappingTabs';
 import MappingDetails from './MappingDetails'
@@ -31,13 +32,18 @@ const MappingHome = props => {
   const [loading, setLoading] = React.useState(false)
 
   const [retireDialog, setRetireDialog] = React.useState(false)
+  const [removeFromCollectionDialog, setRemoveFromCollectionDialog] = React.useState(false)
+  const [removingFromCollection, setRemovingFromCollection] = React.useState(false)
   const { setAlert } = React.useContext(OperationsContext);
+
+  const isInCollection = Boolean(props.repo?.type?.includes('Collection') || props.url?.includes('/collections/'))
 
   React.useEffect(() => {
     setLoading(true)
     setMapping(props.mapping || {})
     setVersions([])
-    getService().get().then(response => {
+    const queryParams = isInCollection ? { includeReferences: true } : {}
+    getService().get(null, null, queryParams).then(response => {
       const resource = response.data
       setMapping(resource)
       props.repo?.id ? setRepo(props.repo) : fetchRepo(resource)
@@ -129,6 +135,22 @@ const MappingHome = props => {
     })
   }
 
+  const onRemoveFromCollection = deleteBody => {
+    const collectionUrl = dropVersion(props.repo?.version_url || props.repo?.url)
+    const body = deleteBody || { ids: (mapping.references || []).map(r => r.id).filter(Boolean) }
+    setRemovingFromCollection(true)
+    APIService.new().overrideURL(collectionUrl).appendToUrl('references/').delete(body).then(response => {
+      setRemovingFromCollection(false)
+      if(response?.status === 204 || response?.status === 200) {
+        setRemoveFromCollectionDialog(false)
+        setAlert({ severity: 'success', message: t('reference.remove_success') })
+        props.onClose && props.onClose()
+      } else {
+        setAlert({ severity: 'error', message: response?.data?.detail || t('common.generic_error') })
+      }
+    })
+  }
+
   return (mapping?.id && repo?.id) ? (
     <>
       <Fade in={edit}>
@@ -154,7 +176,7 @@ const MappingHome = props => {
       <Fade in={!edit}>
         <div className='col-xs-12' style={{padding: '8px 16px 12px 16px'}}>
           <div className='col-xs-12 padding-0' style={{marginBottom: '12px'}}>
-            <MappingHeader mapping={mapping} onClose={props.onClose} repoURL={getRepoURL()} repo={repo} nested={props.nested} onEdit={() => setEdit(true)} onRetire={() => setRetireDialog(true)} />
+            <MappingHeader mapping={mapping} onClose={props.onClose} repoURL={getRepoURL()} repo={repo} nested={props.nested} onEdit={() => setEdit(true)} onRetire={() => setRetireDialog(true)} isInCollection={isInCollection} onRemoveFromCollection={() => setRemoveFromCollectionDialog(true)} />
           </div>
           <MappingTabs tab={tab} onTabChange={(event, newTab) => onTabChange(newTab)} />
           {
@@ -178,6 +200,15 @@ const MappingHome = props => {
             onClose={() => setRetireDialog(false)}
             title={`${t('common.retire')} ${t('mapping.mapping')}`}
             onSubmit={toggleRetire}
+          />
+          <RemoveFromCollectionDialog
+            open={removeFromCollectionDialog}
+            onClose={() => setRemoveFromCollectionDialog(false)}
+            onConfirm={onRemoveFromCollection}
+            resources={[mapping]}
+            collectionUrl={dropVersion(props.repo?.version_url || props.repo?.url)}
+            lookupCollectionUrl={props.repo?.version_url || props.repo?.url}
+            loading={removingFromCollection}
           />
         </div>
       </Fade>

@@ -246,11 +246,14 @@ const SearchResults = props => {
       </Button>
     ) : null
 
+
   const displayOptions = props.resource === 'references' ? [
     {id: 'source', labelKey: 'reference.group_by_source'},
     {id: 'table', labelKey: 'reference.ungrouped'},
   ] : undefined
   const toolbarControl = props.toolbarControl
+  const allBulkActions = [addToCollectionBulkAction, props.extraBulkActions].filter(Boolean)
+  const bulkActionsElement = allBulkActions.length > 0 ? <>{allBulkActions}</> : null
 
   React.useEffect(() => {
     setSelected(props.selected || [])
@@ -282,8 +285,8 @@ const SearchResults = props => {
             noCardDisplay={noCardDisplay}
             toolbarControl={toolbarControl}
             appliedFilters={props.appliedFilters}
-            bulkActions={addToCollectionBulkAction}
             displayOptions={displayOptions}
+            bulkActions={bulkActionsElement}
           />
       }
       {

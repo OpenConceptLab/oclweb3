@@ -53,6 +53,7 @@ const RepoHome = () => {
   const [deleteTarget, setDeleteTarget] = React.useState(false)
   const [releaseTarget, setReleaseTarget] = React.useState(false)
   const [showSummary, setShowSummary] = React.useState(true)
+  const [searchReloadKey, setSearchReloadKey] = React.useState(0)
 
   const TAB_KEYS = tabs.map(tab => tab.key)
   const findTab = () => TAB_KEYS.includes(params?.tab || params?.repoVersion) ? params.tab || params.repoVersion : 'concepts'
@@ -275,12 +276,14 @@ const RepoHome = () => {
                 {
                   repo?.id && ['concepts', 'mappings', 'references'].includes(tab) &&
                     <Search
+                      key={`${tab}-${searchReloadKey}`}
                       loading={loading}
                       summary={repoSummary || repo?.summary}
                       resource={tab}
                       url={getURL() + tab + '/'}
                       defaultFiltersOpen={false}
                       nested
+                      repo={repo}
                       noTabs
                       onSaveAsDefaultFilters={onSaveAsDefaultFilters}
                       repoDefaultFilters={(!tab || tab === 'concepts') ? repo?.meta?.display?.default_filter : {}}
@@ -336,7 +339,7 @@ const RepoHome = () => {
         }
         {
           showReferenceURL &&
-            <ReferenceHome repoSummary={repoSummary} repo={repo} url={showReferenceURL} reference={showItem} onClose={() => setShowItem(false)} repoVersions={versions} nested />
+            <ReferenceHome repoSummary={repoSummary} repo={repo} url={showReferenceURL} reference={showItem} onClose={() => setShowItem(false)} onDelete={() => setSearchReloadKey(key => key + 1)} repoVersions={versions} nested />
         }
         {
           conceptForm &&

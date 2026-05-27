@@ -25,13 +25,8 @@ const getLocale = (concept, synonym) => {
 
 const getReferenceSummary = (reference) => {
   let label = '';
-  if(reference.last_resolved_at && reference.concepts === 0 && reference.mappings === 0) {
-    if(reference.reference_type === 'mappings')
-      return '0 mappings'
-    if(reference.reference_type === 'concepts')
-      return '0 concepts'
-    return '0 concepts, 0 mappings'
-  }
+  if(reference.last_resolved_at && reference.concepts === 0 && reference.mappings === 0)
+    return '-'
   if(isNumber(reference.concepts) && reference.concepts > 0)
     label += `${reference.concepts.toLocaleString()} concepts`
   if(isNumber(reference.mappings) && reference.mappings > 0) {
