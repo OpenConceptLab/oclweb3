@@ -407,7 +407,7 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
             onChange={e => { clearResultsOnEdit(); setIds(e.target.value) }}
             disabled={!seed || submitting || formLocked}
             placeholder={seed ? '1234, 5678, 9012' : t('reference.select_source_first')}
-            helperText={seed ? t('reference.id_helper', { path: buildBasePath() }) : t('reference.select_source_first')}
+            helperText={seed ? t('reference.id_helper', { path: buildBasePath(), interpolation: { escapeValue: false } }) : t('reference.select_source_first')}
             fullWidth
             size="small"
             InputProps={{ sx: { fontFamily: 'monospace', fontSize: '0.85rem' } }}
