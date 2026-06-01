@@ -46,7 +46,7 @@ const ConceptProperties = ({ concept }) => {
                   {definition.label}
                 </TableCell>
                 <TableCell style={{fontSize: '0.875rem'}} className='searchable'>
-                  {definition.value}
+                  {isBoolean(definition.value) ? definition.value.toString() : definition.value}
                 </TableCell>
               </TableRow>
             )
