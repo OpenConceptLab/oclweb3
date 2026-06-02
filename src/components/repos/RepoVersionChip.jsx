@@ -8,6 +8,13 @@ import { find, reject, orderBy, merge, compact } from 'lodash'
 import { SURFACE_COLORS } from '../../common/colors'
 import VersionsTable from './VersionsTable'
 
+const normalizeVersions = versions => {
+  if (Array.isArray(versions))
+    return versions
+
+  return []
+}
+
 const RepoVersionChip = ({ version, versions, sx, onChange, size, disabledFrom, disabledUntil, compare, originVersion, checkbox }) => {
   const { t } = useTranslation()
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -19,10 +26,11 @@ const RepoVersionChip = ({ version, versions, sx, onChange, size, disabledFrom, 
   }
 
   const getVersions = () => {
-    if(!versions?.length)
-      return versions
-    const head = find(versions, {version: 'HEAD'})
-    return compact([head, ...orderBy(reject(versions, {version: 'HEAD'}), 'created_at', 'desc')])
+    const versionList = normalizeVersions(versions)
+    if(!versionList.length)
+      return versionList
+    const head = find(versionList, {version: 'HEAD'})
+    return compact([head, ...orderBy(reject(versionList, {version: 'HEAD'}), 'created_at', 'desc')])
   }
 
   const allVersions = getVersions()

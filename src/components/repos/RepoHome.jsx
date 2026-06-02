@@ -101,9 +101,9 @@ const RepoHome = () => {
 
   const fetchVersions = () => {
     APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit: 100}).then(response => {
-      const _versions = response?.data || []
+      const _versions = Array.isArray(response?.data) ? response.data : []
       setVersions(_versions)
-      setVersionsCount(response.headers['num_found'] || 1)
+      setVersionsCount(response?.headers?.['num_found'] || 1)
       if(!repo.version_url && params.repoVersion !== 'HEAD' && !showConceptURL && !showMappingURL) {
         const releasedVersions = filter(_versions, {released: true})
         let version = orderBy(releasedVersions, 'created_on', ['desc'])[0] || orderBy(_versions, 'created_on', ['desc'])[0]

@@ -69,7 +69,7 @@ const CompareVersions = () => {
 
   const fetchVersions = () => {
     APIService.new().overrideURL(getURL()).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true}).then(response => {
-      const repoVersions = response?.data || []
+      const repoVersions = Array.isArray(response?.data) ? response.data : []
       setVersions(repoVersions)
       setVersionsFromURL(repoVersions)
     })
