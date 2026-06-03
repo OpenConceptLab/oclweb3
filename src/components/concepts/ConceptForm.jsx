@@ -14,7 +14,7 @@ import { sortValuesBySourceSummary } from '../repos/utils';
 import {
   fetchDatatypes, fetchNameTypes, fetchDescriptionTypes, fetchConceptClasses, fetchLocales
 } from './utils';
-import { toParentURI } from '../../common/utils'
+import { toParentURI, isSuperuser, hasAuthGroup, getCurrentUser } from '../../common/utils'
 import { OperationsContext } from '../app/LayoutContext';
 import Button from '../common/Button'
 import AutocompleteGroupByRepoSummary from '../common/AutocompleteGroupByRepoSummary'
@@ -167,10 +167,11 @@ class ConceptForm extends FormComponent  {
 
   generateChangeComment = async () => {
     const { setAlert } = this.context;
+    const { t } = this.props
     const aiAssistantURL = this.getAIAssistantURL()
 
     if (!aiAssistantURL) {
-      setAlert({duration: 8000, message: 'AI assistant is not configured for this environment.', severity: 'error'})
+      setAlert({duration: 8000, message: t('concept.ai_assistant_not_configured'), severity: 'error'})
       return
     }
 
@@ -189,16 +190,10 @@ class ConceptForm extends FormComponent  {
           }
         },
         null,
-        { url: `${aiAssistantURL}/prompts/change-comment/invoke/` }
+        { url: `${aiAssistantURL}/prompts/concept-generate-change-comment/$invoke/` }
       )
 
-      const output = (
-        get(response, 'data.output') ||
-        get(response, 'data.data.output') ||
-        get(response, 'data.result.output') ||
-        get(response, 'data.response.output') ||
-        ''
-      ).trim()
+      const output = (get(response, 'data.output') || '').trim()
 
       if (!output)
         throw new Error('No generated comment was returned.')
@@ -207,8 +202,8 @@ class ConceptForm extends FormComponent  {
     } catch (error) {
       const status = error?.response?.status
       const message = status === 429 ?
-        'Try again in a moment.' :
-        (error?.response?.data?.detail || error?.response?.data?.error || error?.message || this.props.t('common.generic_error'))
+        t('concept.try_again_in_a_moment') :
+        (error?.response?.data?.detail || error?.response?.data?.error || error?.message || t('common.generic_error'))
 
       setAlert({duration: 10000, message, severity: 'error'})
     } finally {
@@ -353,10 +348,14 @@ class ConceptForm extends FormComponent  {
   handleSubmit = event => {
     event.preventDefault()
     event.stopPropagation()
+    const { edit } = this.props
+    const { fields } = this.state
     const isValid = this.setAllFieldsErrors()
     if(isValid) {
       const { setAlert } = this.context;
       const payload = this.getValues()
+      if(edit)
+        payload.update_comment = fields.comment.value
       let service = APIService.new().overrideURL(this.props.source.url).appendToUrl('concepts/')
       service = this.props.edit ? service.appendToUrl(this.state.fields.id.value + '/').put(payload) : service.post(payload)
       service.then(response => {
@@ -383,10 +382,12 @@ class ConceptForm extends FormComponent  {
     const { t, edit, repoSummary, repo, concept, onClose } = this.props
     const { conceptClasses, datatypes, locales, nameTypes, descriptionTypes, fields, generatingChangeComment } = this.state
     const aiAssistantConfigured = Boolean(this.getAIAssistantURL())
-    const canGenerateComment = edit && aiAssistantConfigured && this.hasConceptChanges() && !generatingChangeComment
+    const canSeeGenerateComment = edit && (isSuperuser() || hasAuthGroup(getCurrentUser(), 'core_user'))
+    const hasConceptChanges = canSeeGenerateComment && this.hasConceptChanges()
+    const canGenerateComment = canSeeGenerateComment && aiAssistantConfigured && hasConceptChanges && !generatingChangeComment
     const generateCommentTooltip = !aiAssistantConfigured ?
-      'AI assistant is not configured for this environment.' :
-      (!this.hasConceptChanges() ? 'Make a change to the concept before generating a comment.' : 'Generate with AI')
+      t('concept.ai_assistant_not_configured') :
+      (!hasConceptChanges ? t('concept.make_change_before_generating') : t('common.generate_with_ai'))
 
     return (
       <div className='col-xs-12' style={{padding: '8px 16px 12px 16px', height: '100%', overflow: 'auto'}}>
@@ -521,25 +522,28 @@ class ConceptForm extends FormComponent  {
           edit &&
             <CardSection title={t('common.update_comment')}>
               <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>
-                  <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '8px'}}>
-                    <Tooltip arrow title={generateCommentTooltip}>
-                      <span>
-                        <IconButton
-                          color='secondary'
-                          size='small'
-                          onClick={this.generateChangeComment}
-                          disabled={!canGenerateComment}
-                          aria-label='Generate comment with AI'
-                        >
-                          {
-                            generatingChangeComment ?
-                              <CircularProgress size={18} color='inherit' /> :
-                              <AutoAwesomeIcon fontSize='small' />
-                          }
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                  </div>
+                  {
+                    canSeeGenerateComment &&
+                      <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '8px'}}>
+                        <Tooltip arrow title={generateCommentTooltip}>
+                          <span>
+                            <IconButton
+                              color='secondary'
+                              size='small'
+                              onClick={this.generateChangeComment}
+                              disabled={!canGenerateComment}
+                              aria-label={t('concept.generate_comment_aria')}
+                            >
+                              {
+                                generatingChangeComment ?
+                                  <CircularProgress size={18} color='inherit' /> :
+                                  <AutoAwesomeIcon fontSize='small' />
+                              }
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                      </div>
+                  }
                   <TextField
                     id="comment"
                     label={t('common.comment')}

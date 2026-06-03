@@ -93,7 +93,8 @@
     "properties": "特性",
     "custom": "自定义",
     "none": "无",
-    "load_more": "加载更多"
+    "load_more": "加载更多",
+    "generate_with_ai": "使用 AI 生成"
   },
   "errors": {
     "404": "很抱歉，未能找到您的页面。",
@@ -169,7 +170,11 @@
         "header": "描述"
       }
     },
-    "edit_concept": "编辑概念"
+    "edit_concept": "编辑概念",
+    "ai_assistant_not_configured": "此环境尚未配置 AI 助手。",
+    "try_again_in_a_moment": "请稍后再试。",
+    "make_change_before_generating": "请先更改概念，再生成评论。",
+    "generate_comment_aria": "使用 AI 生成评论"
   },
   "mapping": {
     "mappings": "映射关系",
