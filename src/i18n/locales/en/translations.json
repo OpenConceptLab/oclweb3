@@ -122,6 +122,7 @@
     "default": "Default",
     "processing": "Processing",
     "load_more": "Load more",
+    "generate_with_ai": "Generate with AI",
     "release": "Release",
     "unrelease": "Un-Release",
     "reason": "Reason",
@@ -233,7 +234,11 @@
         "header": "Descriptions"
       }
     },
-    "edit_concept": "Edit Concept"
+    "edit_concept": "Edit Concept",
+    "ai_assistant_not_configured": "AI assistant is not configured for this environment.",
+    "try_again_in_a_moment": "Try again in a moment.",
+    "make_change_before_generating": "Make a change to the concept before generating a comment.",
+    "generate_comment_aria": "Generate comment with AI"
   },
   "mapping": {
     "mapping": "Mapping",
