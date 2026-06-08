@@ -5,6 +5,8 @@ import Paper from '@mui/material/Paper'
 import orderBy from 'lodash/orderBy'
 import filter from 'lodash/filter'
 
+import Button from '@mui/material/Button'
+import AddIcon from '@mui/icons-material/Add'
 import APIService from '../../services/APIService';
 import { dropVersion, toParentURI, toOwnerURI, currentUserHasAccess } from '../../common/utils';
 import { WHITE } from '../../common/colors';
@@ -25,6 +27,7 @@ import ReleaseVersion from './ReleaseVersion'
 import RepoHeader from './RepoHeader';
 import CollectionVersionsTab from './CollectionVersionsTab';
 import ReferenceHome from '../references/ReferenceHome'
+import AddReferencesDialog from '../collections/AddReferencesDialog'
 
 const RepoHome = () => {
   const { t } = useTranslation()
@@ -53,6 +56,7 @@ const RepoHome = () => {
   const [deleteTarget, setDeleteTarget] = React.useState(false)
   const [releaseTarget, setReleaseTarget] = React.useState(false)
   const [showSummary, setShowSummary] = React.useState(true)
+  const [addReferencesOpen, setAddReferencesOpen] = React.useState(false)
   const [searchReloadKey, setSearchReloadKey] = React.useState(0)
 
   const TAB_KEYS = tabs.map(tab => tab.key)
@@ -294,6 +298,21 @@ const RepoHome = () => {
                       containerStyle={{padding: 0}}
                       properties={(!tab || tab === 'concepts') ? repo?.meta?.display?.concept_summary_properties : []}
                       propertyFilters={(!tab || tab === 'concepts') ? repo?.filters : []}
+                      toolbarControl={
+                        isCollection && !isVersion && tab === 'references'
+                          ? (
+                            <Button
+                              variant="contained"
+                              size="small"
+                              startIcon={<AddIcon />}
+                              onClick={() => setAddReferencesOpen(true)}
+                              sx={{ textTransform: 'none' }}
+                            >
+                              {t('reference.add_references')}
+                            </Button>
+                          )
+                          : undefined
+                      }
                     />
                 }
                 {
@@ -358,6 +377,15 @@ const RepoHome = () => {
               version={versionForm?.version || repo}
               expansions={versionForm?.expansions || []}
               onClose={(postUpsert) => onVersionFormClose(postUpsert)}
+            />
+        }
+        {
+          isCollection &&
+            <AddReferencesDialog
+              open={addReferencesOpen}
+              onClose={() => setAddReferencesOpen(false)}
+              collectionUrl={getURL()}
+              onSuccess={() => setSearchReloadKey(k => k + 1)}
             />
         }
         {

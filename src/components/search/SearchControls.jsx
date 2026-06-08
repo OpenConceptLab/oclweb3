@@ -16,7 +16,7 @@ const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, on
   const onSortMenuClose = () => setSortAnchorEl(null);
 
   return (
-    <div className='col-xs-12 padding-0' style={{float: 'right', textAlign: 'right'}}>
+    <div className='col-xs-12 padding-0' style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center'}}>
       {
       sortableFields?.length > 0 &&
           <Button disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none'}} endIcon={<DownIcon fontSize='inherit' />} onClick={onSortClick}>
