@@ -295,7 +295,7 @@ const RepoConceptsMatch = () => {
 
   const fetchVersions = () => {
     APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit: 100}).then(response => {
-      const _versions = response?.data || []
+      const _versions = Array.isArray(response?.data) ? response.data : []
       setVersions(_versions)
       if(!repo.version_url && params.repoVersion !== 'HEAD') {
         const releasedVersions = filter(_versions, {released: true})

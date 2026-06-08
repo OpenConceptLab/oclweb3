@@ -21,6 +21,13 @@ import { formatDate, hasAccessToURL } from '../../common/utils'
 import { SURFACE_COLORS, BLACK } from '../../common/colors'
 import Button from '../common/Button';
 
+const normalizeVersions = versions => {
+  if (Array.isArray(versions))
+    return versions
+
+  return []
+}
+
 const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onVersionChange, originVersion }) => {
   const { t } = useTranslation()
   const isPublic = ['view', 'edit'].includes(version.public_access.toLowerCase())
@@ -97,6 +104,7 @@ const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabl
   const { t } = useTranslation()
   const history = useHistory()
   const [checked, setChecked] = React.useState([])
+  const versionList = normalizeVersions(versions)
   const selectedColor = SURFACE_COLORS.s90
   const getBodyCellStyle = (isSelected, disabled) =>  {
     let backgroundColor = isSelected ? selectedColor : bgColor
@@ -160,7 +168,7 @@ const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabl
           </TableHead>
           <TableBody>
             {
-              versions?.map(version => {
+              versionList.map(version => {
                 const isSelected = version?.version_url == (selected?.version_url || selected?.url)
                 const disabled = isDisabled(version)
                 const bodyCellStyle = getBodyCellStyle(isSelected, disabled)
