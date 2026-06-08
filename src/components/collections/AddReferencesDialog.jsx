@@ -126,7 +126,6 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
     }
   }, [open])
 
-  // Debounced global repo search
   const seedSearchTimer = React.useRef(null)
   const handleSeedInputChange = (_, value) => {
     setSeedInput(value || '')
@@ -161,7 +160,7 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
   React.useEffect(() => {
     if (mode !== 'expression') return
     setExpression(buildBasePath())
-  }, [seed, pinVersion, selectedVersion, resourceType, mode]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [seed, pinVersion, selectedVersion, resourceType, mode])
 
   const buildBasePath = () => {
     if (!seed?.url) return ''
