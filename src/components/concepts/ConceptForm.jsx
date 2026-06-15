@@ -354,8 +354,10 @@ class ConceptForm extends FormComponent  {
     if(isValid) {
       const { setAlert } = this.context;
       const payload = this.getValues()
-      if(edit)
+      if(edit) {
         payload.update_comment = fields.comment.value
+        delete payload.comment
+      }
       let service = APIService.new().overrideURL(this.props.source.url).appendToUrl('concepts/')
       service = this.props.edit ? service.appendToUrl(this.state.fields.id.value + '/').put(payload) : service.post(payload)
       service.then(response => {

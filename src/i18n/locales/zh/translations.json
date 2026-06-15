@@ -95,6 +95,7 @@
     "none": "无",
     "load_more": "加载更多",
     "generate_with_ai": "使用 AI 生成",
+    "generic_error": "出了些问题。",
     "something_went_wrong": "出了些问题",
     "no_results": "无结果"
   },

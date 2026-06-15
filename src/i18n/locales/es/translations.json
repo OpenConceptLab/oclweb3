@@ -38,7 +38,8 @@
     "results": "Resultados",
     "custom": "Personalizado",
     "load_more": "Cargar más",
-    "generate_with_ai": "Generar con IA"
+    "generate_with_ai": "Generar con IA",
+    "generic_error": "Algo salió mal."
   },
   "errors": {
     "404": "Lo siento, no se pudo encontrar tu página."
