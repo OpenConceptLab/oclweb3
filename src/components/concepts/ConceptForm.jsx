@@ -75,7 +75,7 @@ class ConceptForm extends FormComponent  {
     }
   }
 
-  /*eslint no-undef: 0*/
+  // eslint-disable-next-line no-undef
   getAIAssistantURL = () => window.AI_ASSISTANT_API_URL || process.env.AI_ASSISTANT_API_URL
 
   sanitizeNameForPrompt = name => omit(name || {}, NAME_PROMPT_EXCLUSIONS)
