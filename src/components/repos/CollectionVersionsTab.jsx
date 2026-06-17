@@ -1,6 +1,7 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import {
+  Alert,
   Box,
   Button as MuiButton,
   Chip,
@@ -28,6 +29,7 @@ import {
   ExpandMore as ExpandIcon,
   MoreVert as MoreVertIcon,
   NewReleases as ReleaseIcon,
+  OpenInNew as OpenInNewIcon,
   WarningAmberOutlined as WarningIcon
 } from "@mui/icons-material";
 import find from "lodash/find";
@@ -205,6 +207,13 @@ const getEvaluatedRepoVersions = expansion => [
 const renderRepoVersionLabel = version =>
   `${version.owner} / ${version.short_code}:${version.version}`;
 
+const labelFromVersionUrl = url => {
+  const parts = url.split("/").filter(Boolean);
+  // URL form: /<orgs|users>/<owner>/<sources|collections>/<short_code>/<version>/
+  if (parts.length >= 5) return `${parts[1]} / ${parts[3]}:${parts[4]}`;
+  return url;
+};
+
 const CollectionVersionsTab = ({
   repo,
   versions,
@@ -219,7 +228,7 @@ const CollectionVersionsTab = ({
   const [headVersion, setHeadVersion] = React.useState(
     isHeadVersion(repo) ? repo : null
   );
-  const [expandedVersionKey, setExpandedVersionKey] = React.useState(null);
+  const [expandedVersionKeys, setExpandedVersionKeys] = React.useState(new Set());
   const [expansionsByVersion, setExpansionsByVersion] = React.useState({});
   const [loadingByVersion, setLoadingByVersion] = React.useState({});
   const [headLoading, setHeadLoading] = React.useState(false);
@@ -241,7 +250,10 @@ const CollectionVersionsTab = ({
     version: null,
     expansion: null
   });
+  const [repoUpdatesByExpansion, setRepoUpdatesByExpansion] = React.useState({});
+  const [dismissedUpdates, setDismissedUpdates] = React.useState(new Set());
   const expansionRefs = React.useRef({});
+  const fetchedRepoUpdatesRef = React.useRef(new Set());
   const hasAccess = currentUserHasAccess();
   const baseRepoURL = dropVersion(repo?.version_url || repo?.url || "");
   const searchParams = React.useMemo(
@@ -327,6 +339,80 @@ const CollectionVersionsTab = ({
     displayVersions.forEach(version => fetchExpansions(version));
   }, [displayVersions, fetchExpansions]);
 
+  const latestReleasedVersion = React.useMemo(() => {
+    const released = displayVersions.filter(v => !isHeadVersion(v) && v.released);
+    return released.length ? released[0] : null;
+  }, [displayVersions]);
+
+  const fetchResolvedRepoUpdates = React.useCallback((version, expansion) => {
+    if (!hasAccess) return;
+    if (!expansion?.url || !expansion?.mnemonic) return;
+    if (fetchedRepoUpdatesRef.current.has(expansion.url)) return;
+    fetchedRepoUpdatesRef.current.add(expansion.url);
+
+    const versionURL = getVersionEndpoint(version);
+    APIService.new()
+      .overrideURL(`${versionURL}expansions/${expansion.mnemonic}/resolved-repo-updates/`)
+      .get()
+      .then(response => {
+        const data = response?.data || {};
+        setRepoUpdatesByExpansion(prev => ({ ...prev, [expansion.url]: data }));
+      });
+  }, []);
+
+  // Eagerly fetch resolved-repo-updates for HEAD and latest released as their expansions load
+  React.useEffect(() => {
+    const currentHead = find(displayVersions, isHeadVersion);
+    if (currentHead) {
+      (expansionsByVersion[getVersionKey(currentHead)] || []).forEach(exp =>
+        fetchResolvedRepoUpdates(currentHead, exp)
+      );
+    }
+    if (latestReleasedVersion) {
+      (expansionsByVersion[getVersionKey(latestReleasedVersion)] || []).forEach(exp =>
+        fetchResolvedRepoUpdates(latestReleasedVersion, exp)
+      );
+    }
+  }, [expansionsByVersion]); // intentionally omitting stable callbacks from deps
+
+  // Auto-expand HEAD and latest-released if any of their expansions have updates
+  React.useEffect(() => {
+    const toExpand = [];
+    const currentHead = find(displayVersions, isHeadVersion);
+    if (currentHead) {
+      const versionExpansions = expansionsByVersion[getVersionKey(currentHead)] || [];
+      const hasUpdates = versionExpansions.some(
+        exp => exp.url in repoUpdatesByExpansion && Object.keys(repoUpdatesByExpansion[exp.url]).length > 0
+      );
+      if (hasUpdates) toExpand.push(getVersionKey(currentHead));
+    }
+    if (latestReleasedVersion) {
+      const versionExpansions = expansionsByVersion[getVersionKey(latestReleasedVersion)] || [];
+      const hasUpdates = versionExpansions.some(
+        exp => exp.url in repoUpdatesByExpansion && Object.keys(repoUpdatesByExpansion[exp.url]).length > 0
+      );
+      if (hasUpdates) toExpand.push(getVersionKey(latestReleasedVersion));
+    }
+    if (toExpand.length > 0) {
+      setExpandedVersionKeys(prev => {
+        const next = new Set([...prev, ...toExpand]);
+        if (next.size === prev.size) return prev;
+        return next;
+      });
+    }
+  }, [repoUpdatesByExpansion]); // intentionally omitting stable callbacks from deps
+
+  // Fetch resolved-repo-updates for any expansion not yet fetched when a version is expanded
+  React.useEffect(() => {
+    expandedVersionKeys.forEach(versionKey => {
+      const version = find(displayVersions, v => getVersionKey(v) === versionKey);
+      if (!version) return;
+      (expansionsByVersion[versionKey] || []).forEach(exp =>
+        fetchResolvedRepoUpdates(version, exp)
+      );
+    });
+  }, [expandedVersionKeys, expansionsByVersion]); // intentionally omitting stable callbacks from deps
+
   React.useEffect(() => {
     if (!displayVersions.length) return;
 
@@ -334,22 +420,22 @@ const CollectionVersionsTab = ({
       displayVersions,
       notificationVersion
     );
-    if (
-      querySelectedVersion &&
-      getVersionKey(querySelectedVersion) !== expandedVersionKey
-    ) {
-      setExpandedVersionKey(getVersionKey(querySelectedVersion));
+    if (querySelectedVersion) {
+      const key = getVersionKey(querySelectedVersion);
+      setExpandedVersionKeys(prev => {
+        if (prev.has(key)) return prev;
+        return new Set([...prev, key]);
+      });
     }
-  }, [displayVersions, expandedVersionKey, notificationVersion]);
+  }, [displayVersions, notificationVersion]);
 
-  const expandedVersion =
-    find(
-      displayVersions,
-      version => getVersionKey(version) === expandedVersionKey
-    ) || null;
-  const expandedExpansions = expandedVersion
-    ? expansionsByVersion[getVersionKey(expandedVersion)] || []
-    : [];
+  const expandedExpansions = React.useMemo(
+    () =>
+      [...expandedVersionKeys].flatMap(
+        key => expansionsByVersion[key] || []
+      ),
+    [expandedVersionKeys, expansionsByVersion]
+  );
   const highlightedExpansion = notificationExpansion
     ? findExpansionFromQuery(expandedExpansions, notificationExpansion)
     : null;
@@ -514,7 +600,7 @@ const CollectionVersionsTab = ({
 
   const renderVersionRow = version => {
     const versionKey = getVersionKey(version);
-    const expanded = versionKey === expandedVersionKey;
+    const expanded = expandedVersionKeys.has(versionKey);
     const released = Boolean(version.released);
     const staleCount = getStaleCount(version);
     const versionExpansions = expansionsByVersion[versionKey] || [];
@@ -529,7 +615,12 @@ const CollectionVersionsTab = ({
                 size="small"
                 sx={{ position: "absolute", left: 0, top: -4 }}
                 onClick={() =>
-                  setExpandedVersionKey(expanded ? null : versionKey)
+                  setExpandedVersionKeys(prev => {
+                    const next = new Set(prev);
+                    if (next.has(versionKey)) next.delete(versionKey);
+                    else next.add(versionKey);
+                    return next;
+                  })
                 }
               >
                 {expanded ? <CollapseIcon /> : <ExpandIcon />}
@@ -714,9 +805,15 @@ const CollectionVersionsTab = ({
                         const evaluatedRepoVersions = getEvaluatedRepoVersions(
                           expansion
                         );
+                        const expansionUpdates = repoUpdatesByExpansion[expansion.url];
+                        const hasRepoUpdates =
+                          hasAccess &&
+                          expansionUpdates &&
+                          Object.keys(expansionUpdates).length > 0 &&
+                          !dismissedUpdates.has(expansion.url);
                         return (
+                          <React.Fragment key={expansion.url}>
                           <TableRow
-                            key={expansion.url}
                             ref={element => {
                               expansionRefs.current[expansion.url] = element;
                             }}
@@ -784,6 +881,34 @@ const CollectionVersionsTab = ({
                                   expansion.updated_on || expansion.created_on,
                                   expansion.updated_by || expansion.created_by
                                 )}
+                                {hasRepoUpdates && (
+                                  <Alert
+                                    severity="warning"
+                                    sx={{ mt: 1 }}
+                                    onClose={() =>
+                                      setDismissedUpdates(
+                                        prev => new Set([...prev, expansion.url])
+                                      )
+                                    }
+                                  >
+                                    <Typography sx={{ fontSize: "13px", fontWeight: 600, mb: 0.5 }}>
+                                      {t("repo.resolved_repo_updates_available")}
+                                    </Typography>
+                                    {Object.entries(expansionUpdates).map(([oldUrl, newUrl]) => {
+                                      const compareUrl = `#${dropVersion(newUrl)}compare-versions?version1=${newUrl}&version2=${oldUrl}`;
+                                      return (
+                                        <Typography key={oldUrl} sx={{ fontSize: "12px", color: "primary.main", display: "flex", alignItems: "center", gap: 0.5 }}>
+                                          <a href={`#${oldUrl}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>{labelFromVersionUrl(oldUrl)}</a>
+                                          {" → "}
+                                          <a href={`#${newUrl}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>{labelFromVersionUrl(newUrl)}</a>
+                                          <a href={compareUrl} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "2px" }}>
+                                            ({t("common.compare")} <OpenInNewIcon sx={{ fontSize: "12px" }} />)
+                                          </a>
+                                        </Typography>
+                                      );
+                                    })}
+                                  </Alert>
+                                )}
                               </Box>
                             </TableCell>
                             <TableCell sx={bodyCellSx}>
@@ -818,7 +943,9 @@ const CollectionVersionsTab = ({
                                           wordBreak: "break-word"
                                         }}
                                       >
-                                        {renderRepoVersionLabel(repoVersion)}
+                                        <a href={`#${repoVersion.version_url}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>
+                                          {renderRepoVersionLabel(repoVersion)}
+                                        </a>
                                       </Typography>
                                     ))}
                                   </Box>
@@ -859,7 +986,9 @@ const CollectionVersionsTab = ({
                                           wordBreak: "break-word"
                                         }}
                                       >
-                                        {renderRepoVersionLabel(repoVersion)}
+                                        <a href={`#${repoVersion.version_url}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>
+                                          {renderRepoVersionLabel(repoVersion)}
+                                        </a>
                                       </Typography>
                                     ))}
                                   </Box>
@@ -895,6 +1024,7 @@ const CollectionVersionsTab = ({
                               )}
                             </TableCell>
                           </TableRow>
+                          </React.Fragment>
                         );
                       })}
                   </TableBody>
