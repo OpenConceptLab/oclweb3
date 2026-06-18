@@ -1,7 +1,12 @@
+/*eslint no-process-env: 0*/
+/*global process*/
 import React from 'react';
-import { compact, map, isEmpty } from 'lodash';
+import { compact, map, isEmpty, flatten, values, keys, get, isArray, cloneDeep, isEqual, omit } from 'lodash';
 import TextField from '@mui/material/TextField'
-import { flatten, values, keys, get, isArray } from 'lodash'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import CircularProgress from '@mui/material/CircularProgress'
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CloseIconButton from '../common/CloseIconButton';
 import APIService from '../../services/APIService'
 import FormComponent, { CardSection } from '../common/FormComponent'
@@ -9,7 +14,7 @@ import { sortValuesBySourceSummary } from '../repos/utils';
 import {
   fetchDatatypes, fetchNameTypes, fetchDescriptionTypes, fetchConceptClasses, fetchLocales
 } from './utils';
-import { toParentURI } from '../../common/utils'
+import { toParentURI, isSuperuser, hasAuthGroup, getCurrentUser } from '../../common/utils'
 import { OperationsContext } from '../app/LayoutContext';
 import Button from '../common/Button'
 import AutocompleteGroupByRepoSummary from '../common/AutocompleteGroupByRepoSummary'
@@ -17,6 +22,21 @@ import LocaleForm from './LocaleForm'
 import Breadcrumbs from '../common/Breadcrumbs'
 import CustomAttributesForm from '../common/CustomAttributesForm'
 
+const TOP_LEVEL_PROMPT_EXCLUSIONS = [
+  'uuid', 'type', 'url', 'version', 'version_url', 'versions_url', 'versioned_object_id', 'created_on',
+  'updated_on', 'created_by', 'updated_by', 'update_comment', 'comment', 'checksums', 'public_can_view',
+  'latest_source_version', 'owner_url', 'owner_type'
+];
+
+const NAME_PROMPT_EXCLUSIONS = ['uuid', 'checksum', 'type'];
+const DESCRIPTION_PROMPT_EXCLUSIONS = ['uuid', 'checksum', 'type'];
+const MAPPING_PROMPT_EXCLUSIONS = [
+  'uuid', 'checksums', 'type', 'url', 'version', 'version_url', 'versioned_object_id', 'versioned_object_url',
+  'created_on', 'updated_on', 'created_by', 'updated_by', 'update_comment', 'is_latest_version',
+  'version_created_on', 'version_updated_on', 'version_updated_by', 'public_can_view', 'latest_source_version',
+  'sort_weight', 'owner_type', 'from_source_owner_type', 'to_source_owner_type', 'from_source_version',
+  'to_source_version', 'from_concept_url', 'from_source_url', 'from_source_owner', 'to_source_url', 'to_source_owner'
+];
 
 class ConceptForm extends FormComponent  {
   static contextType = OperationsContext;
@@ -37,6 +57,7 @@ class ConceptForm extends FormComponent  {
       selected_datatype: null,
       manualMnemonic: false,
       manualExternalId: false,
+      generatingChangeComment: false,
       fields: {
         id: {...mandatoryFieldStruct},
         concept_class: {...mandatoryFieldStruct},
@@ -51,6 +72,142 @@ class ConceptForm extends FormComponent  {
         descriptions: [
         ]
       }
+    }
+  }
+
+  // eslint-disable-next-line no-undef
+  getAIAssistantURL = () => window.AI_ASSISTANT_API_URL || process.env.AI_ASSISTANT_API_URL
+
+  sanitizeNameForPrompt = name => omit(name || {}, NAME_PROMPT_EXCLUSIONS)
+
+  sanitizeDescriptionForPrompt = description => omit(description || {}, DESCRIPTION_PROMPT_EXCLUSIONS)
+
+  sanitizeMappingForPrompt = mapping => omit(mapping || {}, MAPPING_PROMPT_EXCLUSIONS)
+
+  sanitizeConceptForPrompt = concept => {
+    const sanitized = omit(cloneDeep(concept || {}), TOP_LEVEL_PROMPT_EXCLUSIONS)
+
+    if (isArray(sanitized.names))
+      sanitized.names = sanitized.names.map(this.sanitizeNameForPrompt)
+
+    if (isArray(sanitized.descriptions))
+      sanitized.descriptions = sanitized.descriptions.map(this.sanitizeDescriptionForPrompt)
+
+    if (isArray(sanitized.mappings))
+      sanitized.mappings = sanitized.mappings.map(this.sanitizeMappingForPrompt)
+
+    return sanitized
+  }
+
+  normalizeNamesForComparison = names => (names || []).map(name => ({
+    locale: name?.locale || '',
+    name_type: name?.name_type || '',
+    locale_preferred: Boolean(name?.locale_preferred),
+    name: name?.name || '',
+    external_id: name?.external_id || '',
+  }))
+
+  normalizeDescriptionsForComparison = descriptions => (descriptions || []).map(description => ({
+    locale: description?.locale || '',
+    description_type: description?.description_type || '',
+    locale_preferred: Boolean(description?.locale_preferred),
+    description: description?.description || '',
+    external_id: description?.external_id || '',
+  }))
+
+  getComparableOriginalConcept = () => {
+    const concept = this.props.concept || {}
+
+    return {
+      id: concept.id || '',
+      concept_class: concept.concept_class || '',
+      datatype: concept.datatype || '',
+      external_id: concept.external_id || '',
+      extras: concept.extras || {},
+      parent_concept_urls: concept.parent_concept_urls || [],
+      names: this.normalizeNamesForComparison(concept.names),
+      descriptions: this.normalizeDescriptionsForComparison(concept.descriptions),
+    }
+  }
+
+  getComparableCurrentConcept = () => {
+    const valuesMap = this.getValues()
+
+    return {
+      id: valuesMap.id || '',
+      concept_class: valuesMap.concept_class || '',
+      datatype: valuesMap.datatype || '',
+      external_id: valuesMap.external_id || '',
+      extras: valuesMap.extras || {},
+      parent_concept_urls: valuesMap.parent_concept_urls || [],
+      names: this.normalizeNamesForComparison(valuesMap.names),
+      descriptions: this.normalizeDescriptionsForComparison(valuesMap.descriptions),
+    }
+  }
+
+  hasConceptChanges = () => !isEqual(this.getComparableOriginalConcept(), this.getComparableCurrentConcept())
+
+  getPromptConceptA = () => this.sanitizeConceptForPrompt(this.props.concept)
+
+  getPromptConceptB = () => {
+    const baseConcept = this.sanitizeConceptForPrompt(this.props.concept)
+    const formValues = this.getValues()
+    delete formValues.comment
+
+    return this.sanitizeConceptForPrompt({
+      ...baseConcept,
+      ...formValues,
+      names: formValues.names || [],
+      descriptions: formValues.descriptions || [],
+      extras: formValues.extras || {},
+      parent_concept_urls: formValues.parent_concept_urls || [],
+      mappings: baseConcept.mappings,
+    })
+  }
+
+  generateChangeComment = async () => {
+    const { setAlert } = this.context;
+    const { t } = this.props
+    const aiAssistantURL = this.getAIAssistantURL()
+
+    if (!aiAssistantURL) {
+      setAlert({duration: 8000, message: t('concept.ai_assistant_not_configured'), severity: 'error'})
+      return
+    }
+
+    if (!this.hasConceptChanges())
+      return
+
+    this.setState({generatingChangeComment: true})
+
+    try {
+      const response = await APIService.new().request(
+        'POST',
+        {
+          variables: {
+            concept_a: this.getPromptConceptA(),
+            concept_b: this.getPromptConceptB(),
+          }
+        },
+        null,
+        { url: `${aiAssistantURL}/prompts/concept-generate-change-comment/$invoke/` }
+      )
+
+      const output = (get(response, 'data.output') || '').trim()
+
+      if (!output)
+        throw new Error('No generated comment was returned.')
+
+      this.setFieldValue('comment', output)
+    } catch (error) {
+      const status = error?.response?.status
+      const message = status === 429 ?
+        t('concept.try_again_in_a_moment') :
+        (error?.response?.data?.detail || error?.response?.data?.error || error?.message || t('common.generic_error'))
+
+      setAlert({duration: 10000, message, severity: 'error'})
+    } finally {
+      this.setState({generatingChangeComment: false})
     }
   }
 
@@ -191,10 +348,16 @@ class ConceptForm extends FormComponent  {
   handleSubmit = event => {
     event.preventDefault()
     event.stopPropagation()
+    const { edit } = this.props
+    const { fields } = this.state
     const isValid = this.setAllFieldsErrors()
     if(isValid) {
       const { setAlert } = this.context;
       const payload = this.getValues()
+      if(edit) {
+        payload.update_comment = fields.comment.value
+        delete payload.comment
+      }
       let service = APIService.new().overrideURL(this.props.source.url).appendToUrl('concepts/')
       service = this.props.edit ? service.appendToUrl(this.state.fields.id.value + '/').put(payload) : service.post(payload)
       service.then(response => {
@@ -219,7 +382,15 @@ class ConceptForm extends FormComponent  {
 
   render() {
     const { t, edit, repoSummary, repo, concept, onClose } = this.props
-    const { conceptClasses, datatypes, locales, nameTypes, descriptionTypes, fields } = this.state
+    const { conceptClasses, datatypes, locales, nameTypes, descriptionTypes, fields, generatingChangeComment } = this.state
+    const aiAssistantConfigured = Boolean(this.getAIAssistantURL())
+    const canSeeGenerateComment = edit && (isSuperuser() || hasAuthGroup(getCurrentUser(), 'core_user'))
+    const hasConceptChanges = canSeeGenerateComment && this.hasConceptChanges()
+    const canGenerateComment = canSeeGenerateComment && aiAssistantConfigured && hasConceptChanges && !generatingChangeComment
+    const generateCommentTooltip = !aiAssistantConfigured ?
+      t('concept.ai_assistant_not_configured') :
+      (!hasConceptChanges ? t('concept.make_change_before_generating') : t('common.generate_with_ai'))
+
     return (
       <div className='col-xs-12' style={{padding: '8px 16px 12px 16px', height: '100%', overflow: 'auto'}}>
         <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px'}}>
@@ -353,6 +524,28 @@ class ConceptForm extends FormComponent  {
           edit &&
             <CardSection title={t('common.update_comment')}>
               <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>
+                  {
+                    canSeeGenerateComment &&
+                      <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '8px'}}>
+                        <Tooltip arrow title={generateCommentTooltip}>
+                          <span>
+                            <IconButton
+                              color='secondary'
+                              size='small'
+                              onClick={this.generateChangeComment}
+                              disabled={!canGenerateComment}
+                              aria-label={t('concept.generate_comment_aria')}
+                            >
+                              {
+                                generatingChangeComment ?
+                                  <CircularProgress size={18} color='inherit' /> :
+                                  <AutoAwesomeIcon fontSize='small' />
+                              }
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                      </div>
+                  }
                   <TextField
                     id="comment"
                     label={t('common.comment')}

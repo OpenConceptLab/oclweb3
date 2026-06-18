@@ -130,6 +130,7 @@ module.exports = (env) => {
         'process.env.OIDC_RP_CLIENT_ID': JSON.stringify(env.OIDC_RP_CLIENT_ID),
         'process.env.OIDC_RP_CLIENT_SECRET': JSON.stringify(env.OIDC_RP_CLIENT_SECRET),
         'process.env.ANALYTICS_API': JSON.stringify(env.ANALYTICS_API) || '',
+        'process.env.AI_ASSISTANT_API_URL': JSON.stringify(env.AI_ASSISTANT_API_URL),
       }),
       new IgnorePlugin({ resourceRegExp: /moment\/locale\// })
     ],
