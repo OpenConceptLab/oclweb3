@@ -81,6 +81,7 @@
     "public": "Public",
     "private": "Private",
     "close": "Close",
+    "compare": "Compare",
     "something_went_wrong": "Something went wrong",
     "no_results": "No results",
     "content": "Content",
@@ -492,6 +493,7 @@
     "explicit_repo_versions": "Explicit Repo Versions",
     "evaluated_repo_versions": "Evaluated Repo Versions",
     "resolved_repo_versions": "Resolved Repo Versions",
+    "resolved_repo_updates_available": "Latest versions are available for some resolved repo versions in this expansion:",
     "version": {
       "vectorized_for_mapper": "Concepts vectorization is enabled for this repository version",
       "form": {
