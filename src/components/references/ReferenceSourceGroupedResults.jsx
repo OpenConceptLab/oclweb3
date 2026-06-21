@@ -17,29 +17,56 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
+import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import CollapseIcon from '@mui/icons-material/KeyboardArrowDown'
 import ExpandIcon from '@mui/icons-material/KeyboardArrowRight'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { SOURCE_COLORS } from '../../common/colors'
 import { hashString, URIToParentParams } from '../../common/utils'
+import ConceptIcon from '../concepts/ConceptIcon'
+import MappingIcon from '../mappings/MappingIcon'
 import RepoChip from '../repos/RepoChip'
 
 const getReferenceId = reference => reference.version_url || reference.url || reference.id
 
-const getReferenceSummary = reference => {
-  let label = ''
+const ReferenceResultCount = ({ count, icon, label }) => (
+  isNumber(count) && count > 0 ?
+    <Tooltip title={`${count.toLocaleString()} ${label}`}>
+      <Box component='span' sx={{display: 'inline-flex', alignItems: 'center', gap: 0.5, mr: 1}}>
+        {icon}
+        <Typography component='span' sx={{fontSize: '13px'}}>
+          {count.toLocaleString()}
+        </Typography>
+      </Box>
+    </Tooltip> :
+    null
+)
+
+const ReferenceResultsCell = ({ reference, t }) => {
   if(reference.last_resolved_at && reference.concepts === 0 && reference.mappings === 0)
     return '-'
-  if(isNumber(reference.concepts) && reference.concepts > 0)
-    label += `${reference.concepts.toLocaleString()} concepts`
-  if(isNumber(reference.mappings) && reference.mappings > 0) {
-    if(label?.length)
-      label += ', '
-    label += `${reference.mappings.toLocaleString()} mappings`
-  }
 
-  return label || '-'
+  const hasConcepts = isNumber(reference.concepts) && reference.concepts > 0
+  const hasMappings = isNumber(reference.mappings) && reference.mappings > 0
+
+  if(!hasConcepts && !hasMappings)
+    return '-'
+
+  return (
+    <Box sx={{display: 'flex', alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5}}>
+      <ReferenceResultCount
+        count={reference.concepts}
+        icon={<ConceptIcon selected color='secondary' sx={{width: '9px', height: '9px'}} />}
+        label={t(reference.concepts === 1 ? 'concept.concept' : 'concept.concepts').toLowerCase()}
+      />
+      <ReferenceResultCount
+        count={reference.mappings}
+        icon={<MappingIcon color='secondary' sx={{width: '15px', height: '13px'}} />}
+        label={t(reference.mappings === 1 ? 'mapping.mapping' : 'mapping.mappings').toLowerCase()}
+      />
+    </Box>
+  )
 }
 
 const getSourceColorKey = source => [source?.owner, source?.id || source?.short_code].filter(Boolean).join('/')
@@ -144,17 +171,17 @@ const SourceGroup = ({ group, selected, onSelectedChange, onReferenceClick, isIt
     <React.Fragment>
       <TableRow sx={{backgroundColor: '#f8f7ff'}}>
         <TableCell padding='checkbox'>
+          <IconButton size='small' onClick={() => setExpanded(!expanded)}>
+            {expanded ? <CollapseIcon fontSize='small' /> : <ExpandIcon fontSize='small' />}
+          </IconButton>
+        </TableCell>
+        <TableCell padding='checkbox'>
           <Checkbox
             size={size || 'medium'}
             checked={allSelected}
             indeterminate={!allSelected && someSelected}
             onChange={onGroupSelect}
           />
-        </TableCell>
-        <TableCell padding='checkbox'>
-          <IconButton size='small' onClick={() => setExpanded(!expanded)}>
-            {expanded ? <CollapseIcon fontSize='small' /> : <ExpandIcon fontSize='small' />}
-          </IconButton>
         </TableCell>
         <TableCell colSpan={3}>
           <Box sx={{display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap'}}>
@@ -199,10 +226,10 @@ const SourceGroup = ({ group, selected, onSelectedChange, onReferenceClick, isIt
                 },
               }}
             >
+              <TableCell padding='checkbox' />
               <TableCell padding='checkbox' onClick={event => onRowSelect(event, id)}>
                 <Checkbox size={size || 'medium'} checked={isSelected} />
               </TableCell>
-              <TableCell padding='checkbox' />
               <TableCell className='searchable' sx={{pl: 3}}>
                 <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
                   {
@@ -212,7 +239,7 @@ const SourceGroup = ({ group, selected, onSelectedChange, onReferenceClick, isIt
                   <Typography sx={{fontSize: '13px'}}>{getConceptLabel(reference)}</Typography>
                 </Box>
               </TableCell>
-              <TableCell>{reference.last_resolved_at ? getReferenceSummary(reference) : '-'}</TableCell>
+              <TableCell>{reference.last_resolved_at ? <ReferenceResultsCell reference={reference} t={t} /> : '-'}</TableCell>
               <TableCell align='right'>
                 <IconButton size='small' onClick={event => onReferenceClick(event, id)}>
                   <MoreVertIcon fontSize='small' />
