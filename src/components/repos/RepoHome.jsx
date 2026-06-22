@@ -26,6 +26,7 @@ import VersionForm from './VersionForm'
 import ReleaseVersion from './ReleaseVersion'
 import RepoHeader from './RepoHeader';
 import CollectionVersionsTab from './CollectionVersionsTab';
+import SourceVersionsTab from './SourceVersionsTab';
 import ReferenceHome from '../references/ReferenceHome'
 import AddReferencesDialog from '../collections/AddReferencesDialog'
 
@@ -39,8 +40,14 @@ const RepoHome = () => {
     {key: 'mappings', label: t('mapping.mappings')},
   ]
   const isCollection = params.repoType === 'collections'
+  const getRepoTabs = React.useCallback(() => {
+    if(isCollection)
+      return [...TABS, {key: 'references', label: t('reference.references')}, {key: 'versions', label: t('repo.versions_expansions')}]
 
-  const [tabs, setTabs] = React.useState(isCollection ? [...TABS, {key: 'references', label: t('reference.references')}, {key: 'versions', label: t('repo.versions_expansions')}] : [...TABS])
+    return [...TABS, {key: 'versions', label: t('repo.versions')}]
+  }, [isCollection, t])
+
+  const [tabs, setTabs] = React.useState(getRepoTabs)
 
   const [status, setStatus] = React.useState(false)
   const [repo, setRepo] = React.useState(false)
@@ -81,10 +88,7 @@ const RepoHome = () => {
         setContextRepo(_repo)
       fetchOwner()
       fetchRepoSummary()
-      if(isCollection)
-        setTabs([...TABS, {key: 'references', label: t('reference.references')}, {key: 'versions', label: t('repo.versions_expansions')}])
-      else
-        setTabs([...TABS])
+      setTabs(getRepoTabs())
 
       if(isConceptURL || isMappingURL || isReferenceURL)
         setShowItem(true)
@@ -322,6 +326,23 @@ const RepoHome = () => {
                       versions={versions}
                       count={versionsCount}
                       onCreateVersion={onCreateVersionClick}
+                      onReleaseVersion={version => setReleaseTarget(version)}
+                      onDeleteVersion={version => setDeleteTarget(version)}
+                      onDataChange={() => {
+                        fetchRepo()
+                        fetchVersions()
+                      }}
+                    />
+                }
+                {
+                  tab === 'versions' && !isCollection &&
+                    <SourceVersionsTab
+                      repo={repo}
+                      versions={versions}
+                      count={versionsCount}
+                      loading={loading}
+                      onVersionChange={onVersionChange}
+                      onEditVersion={version => setVersionForm({edit: true, version, expansions: []})}
                       onReleaseVersion={version => setReleaseTarget(version)}
                       onDeleteVersion={version => setDeleteTarget(version)}
                       onDataChange={() => {
