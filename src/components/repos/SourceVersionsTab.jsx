@@ -519,17 +519,20 @@ const SourceVersionsTab = ({
         {hasAccess && <MenuItem onClick={() => withClose(onEditVersion)} disabled={isHeadVersion(menuState.version)}><EditIcon fontSize="small" sx={{ mr: 1 }} />{t('common.edit')}</MenuItem>}
         {hasAccess && <MenuItem onClick={() => withClose(onReleaseVersion)} disabled={isHeadVersion(menuState.version)}><ReleaseIcon fontSize="small" sx={{ mr: 1 }} />{menuState.version?.released ? t('repo.unrelease_version') : t('repo.release_version')}</MenuItem>}
         {hasAccess && <MenuItem onClick={() => withClose(computeSummary)}><SummaryIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.recompute_summary')}</MenuItem>}
-        {hasAccess && <Divider />}
-        {hasAccess && (
-          <MenuItem
-            onClick={() => withClose(onDeleteVersion)}
-            disabled={menuState.version?.retired}
-            sx={{ color: 'error.main', '& .MuiSvgIcon-root': { color: 'error.main' } }}
-          >
-            <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
-            {t('repo.delete_repo_version')}
-          </MenuItem>
-        )}
+        {
+          hasAccess && !isHeadVersion(menuState.version) &&
+            <>
+              <Divider />
+              <MenuItem
+                onClick={() => withClose(onDeleteVersion)}
+                disabled={menuState.version?.retired}
+                sx={{ color: 'error.main', '& .MuiSvgIcon-root': { color: 'error.main' } }}
+              >
+                <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
+                {t('repo.delete_repo_version')}
+              </MenuItem>
+            </>
+        }
       </Menu>
       {Boolean(exportVersion) && <VersionExportDialog version={exportVersion} open={Boolean(exportVersion)} onClose={() => setExportVersion(null)} />}
       {Boolean(externalExportsVersion) && <ExternalExportsDialog version={externalExportsVersion} canEdit={hasAccess} open={Boolean(externalExportsVersion)} onClose={() => setExternalExportsVersion(null)} onChange={onExternalExportsChange} />}
