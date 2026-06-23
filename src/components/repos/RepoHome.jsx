@@ -145,12 +145,15 @@ const RepoHome = () => {
 
 
   const onVersionChange = (version, reload=true) => {
-    if(reload)
-      setLoading(true)
     let url = version.version_url
     if(reload && version?.version === 'HEAD')
       url += 'HEAD/'
-    history.push(url + (tab || 'concepts'))
+    const nextPath = url + (tab || 'concepts')
+    if(nextPath === location.pathname)
+      return
+    if(reload)
+      setLoading(true)
+    history.push(nextPath)
   }
 
   const onTabChange = (event, newTab) => {

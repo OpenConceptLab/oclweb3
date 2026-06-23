@@ -58,7 +58,7 @@ import APIService from '../../services/APIService';
 import {
   copyToClipboard,
   currentUserHasAccess,
-  formatDateTime,
+  formatDate,
   headFirst,
   isLoggedIn,
   toFullAPIURL
@@ -490,7 +490,7 @@ const SourceVersionsTab = ({
                     {version.retired && <Typography variant="caption" color="error" sx={{ display: 'block' }}>{t('common.retired')}</Typography>}
                   </TableCell>
                   <TableCell sx={bodyCellSx}>
-                    <Typography variant="body2">{version.created_on ? formatDateTime(version.created_on) : '-'}</Typography>
+                    <Typography variant="body2">{version.created_on ? formatDate(version.created_on) : '-'}</Typography>
                     <Typography variant="caption" color="text.secondary">{version.created_by || ''}</Typography>
                   </TableCell>
                   <TableCell align="right" sx={bodyCellSx}>
