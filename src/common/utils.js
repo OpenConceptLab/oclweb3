@@ -660,27 +660,25 @@ export const logoutUser = (redirectToLogin, forced) => {
     localStorage.removeItem('user');
     localStorage.removeItem('visits');
   }
-  const callback = () => {
-    clearTokens()
 
-    if(redirectToLogin)
-      window.location.hash = '#/accounts/login';
-    else {
-      window.location.hash = '#/';
-      window.location.reload();
-    }
-  }
-  let redirectURL;
-  if(forced) {
-    redirectURL = window.location.origin + '/#/accounts/login?next=' + (window.location.origin + '/'+ window.location.hash)
-  }
+  const returnTo = window.location.origin + '/' + window.location.hash
+  if(forced)
+    sessionStorage.setItem('session_expired', 'true')
+
+  const redirectURL = forced ?
+    window.location.origin + '/#/signin?returnTo=' + encodeURIComponent(returnTo) :
+    undefined
   const logoutURL = getSSOLogoutURL(redirectURL)
-  if(logoutURL) {
-    clearTokens()
+
+  clearTokens()
+  if(logoutURL)
     window.location = logoutURL
+  else if(redirectToLogin)
+    window.location.href = getLoginURL(forced ? returnTo : undefined)
+  else {
+    window.location.hash = '#/';
+    window.location.reload();
   }
-  else
-    callback()
 }
 
 
@@ -811,31 +809,16 @@ export const isOpera = () => (!!window.opr && !!opr.addons) || !!window.opera ||
 
 export const isDeprecatedBrowser = () => isIE() || isOpera();
 
-export const isSSOEnabled = () => {
-  const redirectURL = window.LOGIN_REDIRECT_URL || process.env.LOGIN_REDIRECT_URL
-  const oidClientID = window.OIDC_RP_CLIENT_ID || process.env.OIDC_RP_CLIENT_ID
-  const oidClientSecret = window.OIDC_RP_CLIENT_SECRET || process.env.OIDC_RP_CLIENT_SECRET
-
-  return Boolean(redirectURL && oidClientID && oidClientSecret)
-}
-
 export const getLoginURL = returnTo => {
   const oidClientID = window.OIDC_RP_CLIENT_ID || process.env.OIDC_RP_CLIENT_ID
   let redirectURL = window.LOGIN_REDIRECT_URL || process.env.LOGIN_REDIRECT_URL
 
   redirectURL = redirectURL.replace(/([^:]\/)\/+/g, "$1");
 
-  if(isSSOEnabled()) {
-    if(returnTo && returnTo.includes('/#/') && returnTo.split('/#/')[1])
-      redirectURL = returnTo.replace('/#/', '/')
-    return `${getAPIURL()}/users/login/?client_id=${oidClientID}&state=fj8o3n7bdy1op5&nonce=13sfaed52le09&redirect_uri=${redirectURL}`
-  }
+  if(returnTo && returnTo.includes('/#/') && returnTo.split('/#/')[1])
+    redirectURL = returnTo.replace('/#/', '/')
 
-  let url = '/#/accounts/login'
-  if(returnTo)
-    url += `?returnTo=${returnTo}`
-
-  return url
+  return `${getAPIURL()}/users/login/?client_id=${oidClientID}&state=fj8o3n7bdy1op5&nonce=13sfaed52le09&redirect_uri=${redirectURL}`
 }
 
 export const getResetPasswordURL = returnTo => {
@@ -844,13 +827,7 @@ export const getResetPasswordURL = returnTo => {
 
   redirectURL = redirectURL.replace(/([^:]\/)\/+/g, "$1");
 
-  if(isSSOEnabled())
-    return `${getAPIURL()}/users/password/reset/?client_id=${oidClientID}&redirect_uri=${redirectURL}`
-  let url = '/#/accounts/login'
-  if(returnTo)
-    url += `?returnTo=${returnTo}`
-
-  return url
+  return `${getAPIURL()}/users/password/reset/?client_id=${oidClientID}&redirect_uri=${redirectURL}`
 }
 
 export const getRegisterURL = returnTo => {
@@ -859,13 +836,7 @@ export const getRegisterURL = returnTo => {
 
   redirectURL = redirectURL.replace(/([^:]\/)\/+/g, "$1");
 
-  if(isSSOEnabled())
-    return `${getAPIURL()}/users/signup/?client_id=${oidClientID}&state=fj8o3n7bdy1op5&nonce=13sfaed52le09&redirect_uri=${redirectURL}`
-  let url = '/#/accounts/signup'
-  if(returnTo)
-    url += `?returnTo=${returnTo}`
-
-  return url
+  return `${getAPIURL()}/users/signup/?client_id=${oidClientID}&state=fj8o3n7bdy1op5&nonce=13sfaed52le09&redirect_uri=${redirectURL}`
 }
 
 
