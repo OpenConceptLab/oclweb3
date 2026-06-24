@@ -30,6 +30,8 @@ import SourceVersionsTab from './SourceVersionsTab';
 import ReferenceHome from '../references/ReferenceHome'
 import AddReferencesDialog from '../collections/AddReferencesDialog'
 
+const DEFAULT_VERSIONS_PAGE_SIZE = 25
+
 const RepoHome = () => {
   const { t } = useTranslation()
   const location = useLocation()
@@ -55,6 +57,8 @@ const RepoHome = () => {
   const [repoSummary, setRepoSummary] = React.useState(false)
   const [versions, setVersions] = React.useState(false)
   const [versionsCount, setVersionsCount] = React.useState(false)
+  const [versionsPage, setVersionsPage] = React.useState(1)
+  const [versionsPageSize, setVersionsPageSize] = React.useState(DEFAULT_VERSIONS_PAGE_SIZE)
   const [loading, setLoading] = React.useState(true)
   const [showItem, setShowItem] = React.useState(false)
   const [conceptForm, setConceptForm] = React.useState(false)
@@ -107,11 +111,11 @@ const RepoHome = () => {
     })
   }
 
-  const fetchVersions = () => {
-    APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit: 100}).then(response => {
+  const fetchVersions = (page=versionsPage, limit=versionsPageSize) => {
+    APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit, page}).then(response => {
       const _versions = Array.isArray(response?.data) ? response.data : []
       setVersions(_versions)
-      setVersionsCount(response?.headers?.['num_found'] || 1)
+      setVersionsCount(parseInt(response?.headers?.['num_found'] || _versions.length || 0))
       if(!repo.version_url && params.repoVersion !== 'HEAD' && !showConceptURL && !showMappingURL) {
         const releasedVersions = filter(_versions, {released: true})
         let version = orderBy(releasedVersions, 'created_on', ['desc'])[0] || orderBy(_versions, 'created_on', ['desc'])[0]
@@ -154,6 +158,12 @@ const RepoHome = () => {
     if(reload)
       setLoading(true)
     history.push(nextPath)
+  }
+
+  const onVersionsPageChange = (page, pageSize=versionsPageSize) => {
+    setVersionsPage(page)
+    setVersionsPageSize(pageSize)
+    fetchVersions(page, pageSize)
   }
 
   const onTabChange = (event, newTab) => {
@@ -328,6 +338,9 @@ const RepoHome = () => {
                       repo={repo}
                       versions={versions}
                       count={versionsCount}
+                      page={versionsPage}
+                      pageSize={versionsPageSize}
+                      onPageChange={onVersionsPageChange}
                       onCreateVersion={onCreateVersionClick}
                       onReleaseVersion={version => setReleaseTarget(version)}
                       onDeleteVersion={version => setDeleteTarget(version)}
@@ -343,7 +356,10 @@ const RepoHome = () => {
                       repo={repo}
                       versions={versions}
                       count={versionsCount}
+                      page={versionsPage}
+                      pageSize={versionsPageSize}
                       loading={loading}
+                      onPageChange={onVersionsPageChange}
                       onVersionChange={onVersionChange}
                       onEditVersion={version => setVersionForm({edit: true, version, expansions: []})}
                       onReleaseVersion={version => setReleaseTarget(version)}

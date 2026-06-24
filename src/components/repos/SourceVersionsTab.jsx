@@ -27,6 +27,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   TextField,
   Tooltip,
@@ -58,6 +59,7 @@ import APIService from '../../services/APIService';
 import {
   copyToClipboard,
   currentUserHasAccess,
+  dropVersion,
   formatDate,
   headFirst,
   isLoggedIn,
@@ -76,7 +78,7 @@ const bodyCellSx = {
 };
 
 const headerCellSx = {
-  backgroundColor: 'white',
+  backgroundColor: 'background.paper',
   borderBottom: '1px solid',
   borderColor: 'surface.nv80',
   color: 'surface.contrastText',
@@ -346,7 +348,10 @@ const SourceVersionsTab = ({
   repo,
   versions,
   count,
+  page,
+  pageSize,
   loading,
+  onPageChange,
   onVersionChange,
   onEditVersion,
   onReleaseVersion,
@@ -360,7 +365,39 @@ const SourceVersionsTab = ({
   const [exportVersion, setExportVersion] = React.useState(null);
   const [externalExportsVersion, setExternalExportsVersion] = React.useState(null);
   const [changelogVersion, setChangelogVersion] = React.useState(null);
-  const sortedVersions = React.useMemo(() => headFirst(Array.isArray(versions) ? versions : []), [versions]);
+  const [headVersion, setHeadVersion] = React.useState(isHeadVersion(repo) ? repo : null);
+  const baseRepoURL = dropVersion(repo?.version_url || repo?.url || '');
+  React.useEffect(() => {
+    if(!baseRepoURL) {
+      setHeadVersion(null);
+      return;
+    }
+
+    if(isHeadVersion(repo)) {
+      setHeadVersion(repo);
+      return;
+    }
+
+    APIService.new()
+      .overrideURL(baseRepoURL)
+      .get(null, null, { includeSummary: true }, true)
+      .then(response => {
+        setHeadVersion(response?.data || response?.response?.data || null);
+      });
+  }, [baseRepoURL, repo]);
+  const sortedVersions = React.useMemo(() => {
+    const versionList = Array.isArray(versions) ? versions : [];
+    const normalizedHeadVersion = headVersion ? {
+      ...headVersion,
+      id: 'HEAD',
+      version: 'HEAD',
+      version_url: headVersion.url || headVersion.version_url || baseRepoURL
+    } : null;
+    const pagedVersions = page === 1
+      ? [normalizedHeadVersion, ...versionList].filter(Boolean)
+      : versionList.filter(version => !isHeadVersion(version));
+    return headFirst(pagedVersions);
+  }, [baseRepoURL, headVersion, page, versions]);
   const hasAccess = currentUserHasAccess();
 
   const closeMenu = () => setMenuState({ anchorEl: null, version: null });
@@ -395,13 +432,16 @@ const SourceVersionsTab = ({
   const countLabel = versionsCount === 1
     ? t('repo.source_version_count', { count: versionsCount.toLocaleString() })
     : t('repo.source_versions_count', { count: versionsCount.toLocaleString() });
+  const handleChangePage = (event, nextPage) => onPageChange?.(nextPage + 1, pageSize);
+  const handleChangeRowsPerPage = event => onPageChange?.(1, parseInt(event.target.value, 10));
 
   return (
-    <Box sx={{ height: 'calc(100vh - 285px)', overflow: 'hidden', backgroundColor: '#FFF' }}>
+    <Box sx={{ height: 'calc(100vh - 285px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', backgroundColor: 'background.paper' }}>
       <Toolbar
         sx={{
-          bgcolor: '#FFF',
-          borderBottom: '1px solid rgba(224, 224, 224, 1)',
+          bgcolor: 'background.paper',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
           minHeight: '48px !important',
           pl: { sm: 1 },
           pr: { xs: 1, sm: 1 }
@@ -409,13 +449,13 @@ const SourceVersionsTab = ({
       >
         <Typography
           sx={{ flex: '1 1 100%', whiteSpace: 'nowrap' }}
-          variant="h7"
+          variant="h6"
           component="div"
         >
           {countLabel}
         </Typography>
       </Toolbar>
-      <TableContainer sx={{ height: 'calc(100% - 49px)' }}>
+      <TableContainer sx={{ flex: 1, minHeight: 0 }}>
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
@@ -513,6 +553,28 @@ const SourceVersionsTab = ({
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 50, 100]}
+        component="div"
+        count={versionsCount}
+        rowsPerPage={pageSize || 25}
+        page={Math.max((page || 1) - 1, 0)}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        showFirstButton
+        showLastButton
+        sx={{
+          width: '100%',
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          '.MuiToolbar-root': {
+            height: '40px',
+            minHeight: '40px'
+          },
+          '& .MuiTablePagination-actions svg': { color: 'surface.contrastText' },
+          '& .MuiTablePagination-actions .Mui-disabled.MuiIconButton-root svg': { color: 'rgba(0, 0, 0, 0.26)' }
+        }}
+      />
       <Menu anchorEl={menuState.anchorEl} open={Boolean(menuState.anchorEl)} onClose={closeMenu}>
         <MenuItem onClick={() => withClose(version => onVersionChange(version))}><VisibilityIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.explore_version')}</MenuItem>
         <MenuItem onClick={() => withClose(version => copyVersionURL(version))}><CopyIcon fontSize="small" sx={{ mr: 1 }} />{t('common.copy_api_url')}</MenuItem>
