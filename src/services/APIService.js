@@ -82,7 +82,7 @@ class APIService {
       .then(response => response || null)
       .catch(error => {
         if(error?.response?.status === 401) {
-          logoutUser(true)
+          logoutUser(true, true)
         } else {
           if(raw)
             return error;
