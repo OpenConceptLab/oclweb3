@@ -448,7 +448,7 @@ const SourceVersionsTab = ({
         }}
       >
         <Typography
-          sx={{ flex: '1 1 100%', whiteSpace: 'nowrap' }}
+          sx={{ flex: '1 1 100%', whiteSpace: 'nowrap', fontSize: 'inherit', marginLeft: '8px'}}
           variant="h6"
           component="div"
         >
