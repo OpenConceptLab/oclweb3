@@ -138,12 +138,12 @@ const LocaleList = ({url, lang, locales}) => {
 const Locales = ({ concept, locales, title, repo }) => {
   const [retired, setRetried] = React.useState(false)
   const hasRetired = Boolean(find(locales, {retired: true}))
+  const visibleLocales = retired ? locales : reject(locales, {retired: true})
 
   const url = concept?.version_url || concept?.url
   const groupLocales = (locales, repo) => {
     const groupedByRepo = {defaultLocales: {}, supportedLocales: {}, rest: {}}
-    let _locales = retired ? locales : reject(locales, {retired: true})
-    const grouped = groupBy(_locales, 'locale')
+    const grouped = groupBy(locales, 'locale')
     const supportedLocales = repo?.supported_locales || []
 
     if(grouped[repo.default_locale])
@@ -165,13 +165,13 @@ const Locales = ({ concept, locales, title, repo }) => {
     return groupedByRepo
   }
 
-  const grouped = groupLocales(locales, repo)
+  const grouped = groupLocales(visibleLocales, repo)
   const getOrdered = _locales => orderBy(_locales, ['locale_preferred', 'name_type', 'description_type', 'name'], ['desc', 'asc', 'asc'])
 
   return (
     <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor, borderRadius: '10px'}}>
       <Typography component='span' sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between'}}>
-        <TagCountLabel label={title} count={locales?.length}/>
+        <TagCountLabel label={title} count={visibleLocales?.length}/>
         {
           hasRetired ?
             <Button size='small' variant='outlined' color='secondary' selected={retired} startIcon={retired ? <SelectedIcon /> : undefined } sx={{borderRadius: '20px', backgroundColor: retired ? 'primary.90' : undefined, textTransform: 'none'}} onClick={() => setRetried(!retired)}>
