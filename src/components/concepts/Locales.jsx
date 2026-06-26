@@ -4,14 +4,18 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
+import Tooltip from '@mui/material/Tooltip';
 import Paper from '@mui/material/Paper';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
+import Button from '@mui/material/Button'
 import CopyIcon from '@mui/icons-material/ContentCopy';
 import PreferredIcon from '@mui/icons-material/FlagOutlined';
-import { groupBy, forEach, has, compact, without, keys, orderBy, map } from 'lodash'
+import InfoIcon from '@mui/icons-material/InfoOutlined';
+import SelectedIcon from '@mui/icons-material/Done';
+import { groupBy, forEach, has, compact, without, keys, orderBy, map, reject, find } from 'lodash'
 import { toFullAPIURL, copyURL } from '../../common/utils';
 import TagCountLabel from '../common/TagCountLabel';
 import { OperationsContext } from '../app/LayoutContext';
@@ -23,8 +27,18 @@ const LocalePrimary = ({ locale }) => {
   const locale_type = locale.name_type || locale.description_type
   return (
     <React.Fragment>
-      <Typography component="span" sx={{fontSize: '0.875rem', color: '#000000de'}} className={locale?.name ? 'searchable' : undefined}>
+      <Typography component="span" sx={{fontSize: '0.875rem', color: locale?.retired ? 'error.main' : '#000000de', display: 'inline-flex', alignItems: 'center'}} className={locale?.name ? 'searchable' : undefined}>
         {locale.name || locale.description}
+
+        {
+          locale?.retired && locale?.retire_reason &&
+            <span className='flex-vertical-center' style={{margin: '0 4px'}}>
+              <Tooltip arrow title={<><strong>Retire reason</strong>: {locale.retire_reason}</>} placement='top-start'>
+                <InfoIcon sx={{color: '#000000de'}} fontSize='inherit' />
+              </Tooltip>
+            </span>
+        }
+
       </Typography>
       {
         Boolean(locale_type) &&
@@ -122,10 +136,14 @@ const LocaleList = ({url, lang, locales}) => {
 }
 
 const Locales = ({ concept, locales, title, repo }) => {
+  const [retired, setRetried] = React.useState(false)
+  const hasRetired = Boolean(find(locales, {retired: true}))
+
   const url = concept?.version_url || concept?.url
   const groupLocales = (locales, repo) => {
     const groupedByRepo = {defaultLocales: {}, supportedLocales: {}, rest: {}}
-    const grouped = groupBy(locales, 'locale')
+    let _locales = retired ? locales : reject(locales, {retired: true})
+    const grouped = groupBy(_locales, 'locale')
     const supportedLocales = repo?.supported_locales || []
 
     if(grouped[repo.default_locale])
@@ -154,6 +172,13 @@ const Locales = ({ concept, locales, title, repo }) => {
     <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor, borderRadius: '10px'}}>
       <Typography component='span' sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between'}}>
         <TagCountLabel label={title} count={locales?.length}/>
+        {
+          hasRetired ?
+            <Button size='small' variant='outlined' color='secondary' selected={retired} startIcon={retired ? <SelectedIcon /> : undefined } sx={{borderRadius: '20px', backgroundColor: retired ? 'primary.90' : undefined, textTransform: 'none'}} onClick={() => setRetried(!retired)}>
+              <b>Show Retired</b>
+            </Button> :
+          null
+        }
       </Typography>
       <List
         dense
