@@ -23,7 +23,7 @@ import { SORT_ATTRS } from './ResultConstants'
 import { isLoggedIn } from '../../common/utils';
 
 const ResultsToolbar = props => {
-  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, toolbarControl, appliedFilters, openFilters, bulkActions, displayOptions } = props;
+  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, toolbarControl, appliedFilters, openFilters, bulkActions, leftControls, displayOptions } = props;
   const filtersCount = flatten(values(appliedFilters).map(v => values(v))).length
   return (
     <Toolbar
@@ -48,6 +48,12 @@ const ResultsToolbar = props => {
             </Badge>
         </IconButton>
       }
+      {
+        leftControls &&
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {leftControls}
+          </Box>
+      }
       {numSelected > 0 ? (
         <Typography
           sx={{ marginLeft: isFilterable ? '8px' : 0, whiteSpace: 'nowrap' }}
@@ -60,7 +66,7 @@ const ResultsToolbar = props => {
       ) : (
         title ?
           <Typography
-            sx={{ flex: '1 1 100%', marginLeft: isFilterable ? '8px' : 0 }}
+            sx={{ flex: '1 1 100%', marginLeft: isFilterable ? '8px' : 0, color: 'rgba(0, 0, 0, 0.7)' }}
             variant="h7"
             id="tableTitle"
             component="div"
@@ -239,7 +245,7 @@ const SearchResults = props => {
         startIcon={<AddIcon fontSize='inherit' />}
         variant='contained'
         size='small'
-        sx={{textTransform: 'none', whiteSpace: 'nowrap', borderRadius: '8px', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}}}
+        sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}}}
         onClick={() => setAddToCollectionOpen(true)}
       >
         {t('addToCollection.add_to_collection')}
@@ -254,6 +260,7 @@ const SearchResults = props => {
   const toolbarControl = props.toolbarControl
   const allBulkActions = [addToCollectionBulkAction, props.extraBulkActions].filter(Boolean)
   const bulkActionsElement = allBulkActions.length > 0 ? <>{allBulkActions}</> : null
+  const leftControls = (props.fixedLeftControls || []).filter(Boolean)
 
   React.useEffect(() => {
     setSelected(props.selected || [])
@@ -287,6 +294,7 @@ const SearchResults = props => {
             appliedFilters={props.appliedFilters}
             displayOptions={displayOptions}
             bulkActions={bulkActionsElement}
+            leftControls={leftControls}
           />
       }
       {
