@@ -320,6 +320,8 @@ const RepoHome = () => {
   const isConceptURL = tab === 'concepts'
   const isMappingURL = tab === 'mappings'
   const isReferenceURL = tab === 'references'
+  const requiresExpansionSelection = isCollection && ['concepts', 'mappings'].includes(tab)
+  const canRenderSearch = !requiresExpansionSelection || (!expansionsLoading && Boolean(selectedExpansion))
   const getConceptURLFromMainURL = () => (isConceptURL && params.resource) ? getURL() + 'concepts/' + params.resource + '/' : false
   const getMappingURLFromMainURL = () => (isMappingURL && params.resource) ? getURL() + 'mappings/' + params.resource + '/' : false
   const getReferenceURLFromMainURL = () => (isReferenceURL && params.resource) ? getURL() + 'references/' + params.resource + '/' : false
@@ -352,7 +354,18 @@ const RepoHome = () => {
               <div className='padding-0 col-xs-12' style={{width: isSplitView ? '100%' : (showSummary ? 'calc(100% - 272px)' : 'calc(100% - 12px)')}}>
                 <CommonTabs TABS={tabs} value={tab} onChange={onTabChange} />
                 {
-                  repo?.id && ['concepts', 'mappings', 'references'].includes(tab) &&
+                  repo?.id && requiresExpansionSelection && !canRenderSearch &&
+                    <div style={{padding: '12px 16px', borderBottom: '1px solid rgba(224, 224, 224, 1)', minHeight: '56px', display: 'flex', alignItems: 'center'}}>
+                      <ExpansionDropDown
+                        expansions={expansions}
+                        loading={expansionsLoading}
+                        selectedExpansion={selectedExpansion}
+                        onChange={setSelectedExpansion}
+                      />
+                    </div>
+                }
+                {
+                  repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && canRenderSearch &&
                     <Search
                       key={`${tab}-${searchReloadKey}`}
                       loading={loading}
