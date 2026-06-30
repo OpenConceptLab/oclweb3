@@ -1,5 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { TableVirtuoso } from 'react-virtuoso'
 import TableContainer from '@mui/material/TableContainer'
 import Table from '@mui/material/Table'
 import TableHead from '@mui/material/TableHead'
@@ -9,7 +10,6 @@ import TableCell from '@mui/material/TableCell'
 import Button from '@mui/material/Button'
 import Skeleton from '@mui/material/Skeleton'
 import IconButton from '@mui/material/IconButton'
-import Collapse from '@mui/material/Collapse'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 
@@ -40,6 +40,18 @@ const sections = {
   changed_major: {label: 'Major Change', tooltip: 'Resources with "smart checksum" change between versions'},
   changed_minor: {label: 'Minor Change', tooltip: 'Resources with "standard checksum" change between versions'},
   removed: {label: "Removed", tooltip: 'Resource removed in newer version'},
+}
+
+const VirtuosoTableComponents = {
+  Scroller: React.forwardRef((props, ref) => (
+    <TableContainer {...props} ref={ref} sx={{overflow: 'auto'}} />
+  )),
+  Table: props => (
+    <Table {...props} size='small' stickyHeader sx={{borderCollapse: 'separate'}} />
+  ),
+  TableHead: React.forwardRef((props, ref) => <TableHead {...props} ref={ref} />),
+  TableRow,
+  TableBody: React.forwardRef((props, ref) => <TableBody {...props} ref={ref} />),
 }
 
 const VersionResourcesComparison = ({version1, version2, resource}) => {
@@ -109,6 +121,116 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
     return {}
   }
 
+  const flatItems = React.useMemo(() => {
+    if(!changelog || !resource)
+      return []
+    let items = []
+    map(selected, section => {
+      map(changelog[resource]?.[section], (change, id) => {
+        const mappingChangesKeys = keys(change?.mappings || {})
+        items.push({type: 'main', id, section, change, mappingChangesKeys})
+        if(expanded?.includes(id) && mappingChangesKeys.length > 0)
+          items.push({type: 'detail', id, section, change, mappingChangesKeys})
+      })
+    })
+    return items
+  }, [selected, changelog, expanded, resource])
+
+  const fixedHeaderContent = () => (
+    <TableRow>
+      <TableCell />
+      <TableCell>
+        <b>{t('common.id')}</b>
+      </TableCell>
+      <TableCell>
+        <b>{t('common.name')}</b>
+      </TableCell>
+      <TableCell>
+        <b>{t('common.type_of_change')}</b>
+      </TableCell>
+      <TableCell />
+    </TableRow>
+  )
+
+  const itemContent = (_index, item) => {
+    const { type, id, section, change, mappingChangesKeys } = item
+    const sectionDefinition = sections[section]
+
+    if(type === 'detail') {
+      return (
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
+          <Box sx={{ margin: 1 }}>
+            <Typography variant="h6" gutterBottom component="div" sx={{display: 'flex', alignItems: 'center'}}>
+              <DiffIcon fontSize='inherit' sx={{marginRight: '8px'}} color='warning' />
+              {t('mapping.mappings')}
+            </Typography>
+            <Table size="small" aria-label="purchases">
+              <TableHead>
+                <TableRow>
+                  <TableCell>{t('common.id')}</TableCell>
+                  <TableCell>{t('mapping.map_type')}</TableCell>
+                  <TableCell>{t('mapping.target_source')}</TableCell>
+                  <TableCell>{t('mapping.toConcept')}</TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {
+                  mappingChangesKeys.map(key => {
+                    let mappings = change.mappings[key]
+                    return map(mappings, mapping => {
+                      return (
+                        <TableRow key={mapping.id}>
+                          <TableCell component="th" scope="row">
+                            {mapping.id}
+                          </TableCell>
+                          <TableCell>{mapping.map_type}</TableCell>
+                          <TableCell><Repo mapping={mapping} direction='to' present /></TableCell>
+                          <TableCell>{mapping.to_concept}</TableCell>
+                          <TableCell>{sections[key]?.label || startCase(key)}</TableCell>
+                        </TableRow>
+                      )
+                    })
+                  })
+                }
+              </TableBody>
+            </Table>
+          </Box>
+        </TableCell>
+      )
+    }
+
+    const isExpanded = expanded?.includes(id)
+    return (
+      <React.Fragment>
+        <TableCell>
+          {
+            mappingChangesKeys.length > 0 &&
+              <IconButton size='small' onClick={() => setExpanded(isExpanded ? without(expanded, id) : [...expanded, id])}>
+                {isExpanded ? <UpIcon fontSize='inherit' /> : <DownIcon fontSize='inherit' />}
+              </IconButton>
+          }
+        </TableCell>
+        <TableCell>{change.id}</TableCell>
+        <TableCell>{change.display_name}</TableCell>
+        <TableCell>
+            {sectionDefinition?.label || startCase(section)}
+        </TableCell>
+        <TableCell>
+          <Button type='text' href={'#' + getViewURL(change, section)} size='small' startIcon={<ConceptIcon selected noTooltip fontSize='inherit' />} target='_blank' sx={{textTransform: 'none'}}>
+            View
+          </Button>
+          {
+            ['changed_retired', 'changed_major', 'changed_minor'].includes(section) &&
+              <Button color='warning' type='text' href={'#' + getChangeURL(change)} size='small' startIcon={<DiffIcon fontSize='inherit' />} target='_blank' sx={{textTransform: 'none', marginLeft: '12px'}}>
+                Compare
+              </Button>
+          }
+        </TableCell>
+      </React.Fragment>
+    )
+  }
+
   return (
     <div className='col-xs-12 padding-0' style={{height: '100%'}}>
       <>
@@ -130,111 +252,14 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
               <div className='col-xs-12' style={{padding: '16px'}}>
                 <Skeleton variant="rectangular" width='100%' height={600} />
               </div> :
-            <TableContainer sx={{height: 'calc(100vh - 320px)', overflow: 'auto'}}>
-              <Table size='small' stickyHeader>
-                <TableHead>
-                  <TableRow>
-                    <TableCell />
-                    <TableCell>
-                      <b>{t('common.id')}</b>
-                    </TableCell>
-                    <TableCell>
-                      <b>{t('common.name')}</b>
-                    </TableCell>
-                    <TableCell>
-                      <b>{t('common.type_of_change')}</b>
-                    </TableCell>
-                    <TableCell />
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {
-                    map(selected, section => {
-                      return map(changelog[resource][section], (change, id) => {
-                        const isExpanded = expanded?.includes(id)
-                        const mappingChangesKeys = keys(change?.mappings || {})
-                        const sectionDefinition = sections[section]
-                        return (
-                          <>
-                            <TableRow key={id}>
-                              <TableCell>
-                                {
-                                  mappingChangesKeys.length > 0 &&
-                                    <IconButton size='small' onClick={() => setExpanded(isExpanded ? without(expanded, id) : [...expanded, id])}>
-                                      {isExpanded ? <UpIcon fontSize='inherit' /> : <DownIcon fontSize='inherit' />}
-                                    </IconButton>
-                                }
-                              </TableCell>
-                              <TableCell>{change.id}</TableCell>
-                              <TableCell>{change.display_name}</TableCell>
-                              <TableCell>
-                                  {sectionDefinition?.label || startCase(section)}
-                              </TableCell>
-                              <TableCell>
-                                <Button type='text' href={'#' + getViewURL(change, section)} size='small' startIcon={<ConceptIcon selected noTooltip fontSize='inherit' />} target='_blank' sx={{textTransform: 'none'}}>
-                                  View
-                                </Button>
-                                {
-                                  ['changed_retired', 'changed_major', 'changed_minor'].includes(section) &&
-                                    <Button color='warning' type='text' href={'#' + getChangeURL(change)} size='small' startIcon={<DiffIcon fontSize='inherit' />} target='_blank' sx={{textTransform: 'none', marginLeft: '12px'}}>
-                                      Compare
-                                    </Button>
-                                }
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
-                                <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-                                  <Box sx={{ margin: 1 }}>
-                                    <Typography variant="h6" gutterBottom component="div" sx={{display: 'flex', alignItems: 'center'}}>
-                                      <DiffIcon fontSize='inherit' sx={{marginRight: '8px'}} color='warning' />
-                                      {t('mapping.mappings')}
-                                    </Typography>
-                                    <Table size="small" aria-label="purchases">
-                                      <TableHead>
-                                        <TableRow>
-                                          <TableCell>{t('common.id')}</TableCell>
-                                          <TableCell>{t('mapping.map_type')}</TableCell>
-                                          <TableCell>{t('mapping.target_source')}</TableCell>
-                                          <TableCell>{t('mapping.toConcept')}</TableCell>
-                                          <TableCell />
-                                        </TableRow>
-                                      </TableHead>
-                                      <TableBody>
-                                        {
-                                          mappingChangesKeys.map(key => {
-                                            let mappings = change.mappings[key]
-                                            return map(mappings, mapping => {
-                                              return (
-                                                <TableRow key={mapping.id}>
-                                                  <TableCell component="th" scope="row">
-                                                    {mapping.id}
-                                                  </TableCell>
-                                                  <TableCell>{mapping.map_type}</TableCell>
-                                                  <TableCell><Repo mapping={mapping} direction='to' present /></TableCell>
-                                                  <TableCell>{mapping.to_concept}</TableCell>
-                                                  <TableCell>{sections[key]?.label || startCase(key)}</TableCell>
-
-                                                </TableRow>
-                                              )
-                                            })
-                                          })
-                                        }
-                                      </TableBody>
-                                    </Table>
-                                  </Box>
-                                </Collapse>
-                              </TableCell>
-                            </TableRow>
-                          </>
-                        )
-                      })
-
-                    })
-                  }
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <TableVirtuoso
+              style={{height: 'calc(100vh - 320px)'}}
+              data={flatItems}
+              components={VirtuosoTableComponents}
+              fixedHeaderContent={fixedHeaderContent}
+              itemContent={itemContent}
+              computeItemKey={(_index, item) => `${item.section}-${item.id}-${item.type}`}
+            />
           }
         </div>
       </>
