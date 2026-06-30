@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import Paper from '@mui/material/Paper'
 import orderBy from 'lodash/orderBy'
 import filter from 'lodash/filter'
+import find from 'lodash/find'
 
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add'
@@ -29,6 +30,7 @@ import CollectionVersionsTab from './CollectionVersionsTab';
 import SourceVersionsTab from './SourceVersionsTab';
 import ReferenceHome from '../references/ReferenceHome'
 import AddReferencesDialog from '../collections/AddReferencesDialog'
+import ExpansionDropDown from './ExpansionDropDown';
 
 const DEFAULT_VERSIONS_PAGE_SIZE = 25
 
@@ -61,6 +63,7 @@ const RepoHome = () => {
   const [versionsPageSize, setVersionsPageSize] = React.useState(DEFAULT_VERSIONS_PAGE_SIZE)
   const [loading, setLoading] = React.useState(true)
   const [showItem, setShowItem] = React.useState(false)
+  const [selectedItem, setSelectedItem] = React.useState([])
   const [conceptForm, setConceptForm] = React.useState(false)
   const [mappingForm, setMappingForm] = React.useState(false)
   const [versionForm, setVersionForm] = React.useState(false)
@@ -69,6 +72,9 @@ const RepoHome = () => {
   const [showSummary, setShowSummary] = React.useState(true)
   const [addReferencesOpen, setAddReferencesOpen] = React.useState(false)
   const [searchReloadKey, setSearchReloadKey] = React.useState(0)
+  const [expansions, setExpansions] = React.useState([])
+  const [expansionsLoading, setExpansionsLoading] = React.useState(false)
+  const [selectedExpansion, setSelectedExpansion] = React.useState(false)
 
   const TAB_KEYS = tabs.map(tab => tab.key)
   const findTab = () => TAB_KEYS.includes(params?.tab || params?.repoVersion) ? params.tab || params.repoVersion : 'concepts'
@@ -78,10 +84,50 @@ const RepoHome = () => {
   const { setAlert, setContextRepo } = React.useContext(OperationsContext);
 
   const getURL = () => ((toParentURI(location.pathname) + '/').replace('//', '/') + versionFromURL + '/').replace('//', '/')
+  const getSearchURL = () => {
+    let url = getURL()
+    if(isCollection && selectedExpansion?.mnemonic && ['concepts', 'mappings'].includes(tab)) {
+      if(repo.version === 'HEAD' && !url.includes('/HEAD/')) {
+        url += 'HEAD/'
+      }
+      return `${url}expansions/${selectedExpansion.mnemonic}/${tab}/`
+    }
+    return getURL() + tab + '/'
+  }
+
+  const fetchExpansions = React.useCallback((url, version = repo) => {
+    setExpansions([])
+    setSelectedExpansion(false)
+
+    if (!isCollection || !url) {
+      setExpansionsLoading(false)
+      return Promise.resolve([])
+    }
+
+    setExpansionsLoading(true)
+    return APIService.new().overrideURL(url).get(null, null, {includeSummary: true, verbose: true}, true).then(response => {
+      let versionExpansions = Array.isArray(response?.data) ? response.data : []
+      versionExpansions = orderBy(versionExpansions, ['created_on', 'id'], ['desc', 'desc']).map(expansion => ({...expansion, default: expansion.url === version?.expansion_url}))
+      setExpansions(versionExpansions)
+      setSelectedExpansion(() =>
+        find(versionExpansions, {url: version?.expansion_url}) ||
+        false
+      )
+      setExpansionsLoading(false)
+      return versionExpansions
+    }).catch(() => {
+      setExpansions([])
+      setExpansionsLoading(false)
+      setSelectedExpansion(false)
+      return []
+    })
+  }, [getURL, isCollection, repo])
 
   const fetchRepo = () => {
     setLoading(true)
     setStatus(false)
+    setExpansions([])
+    setSelectedExpansion(false)
     APIService.new().overrideURL(getURL()).get(null, null, {includeSummary: true}, true).then(response => {
       const newStatus = response?.status || response?.response.status
       setStatus(newStatus)
@@ -93,6 +139,16 @@ const RepoHome = () => {
       fetchOwner()
       fetchRepoSummary()
       setTabs(getRepoTabs())
+      if(isCollection) {
+        let expansionURL = _repo?.expansions_url
+        if(_repo?.version === 'HEAD') {
+          expansionURL = _repo?.version_url || _repo.url
+          if(!expansionURL.includes('/HEAD/'))
+            expansionURL += 'HEAD/'
+          expansionURL += 'expansions/'
+        }
+        fetchExpansions(expansionURL, _repo)
+      }
 
       if(isConceptURL || isMappingURL || isReferenceURL)
         setShowItem(true)
@@ -155,6 +211,8 @@ const RepoHome = () => {
     const nextPath = url + (tab || 'concepts')
     if(nextPath === location.pathname)
       return
+    setExpansions([])
+    setSelectedExpansion(false)
     if(reload)
       setLoading(true)
     history.push(nextPath)
@@ -262,6 +320,8 @@ const RepoHome = () => {
   const isConceptURL = tab === 'concepts'
   const isMappingURL = tab === 'mappings'
   const isReferenceURL = tab === 'references'
+  const requiresExpansionSelection = isCollection && ['concepts', 'mappings'].includes(tab)
+  const canRenderSearch = !requiresExpansionSelection || (!expansionsLoading && Boolean(selectedExpansion))
   const getConceptURLFromMainURL = () => (isConceptURL && params.resource) ? getURL() + 'concepts/' + params.resource + '/' : false
   const getMappingURLFromMainURL = () => (isMappingURL && params.resource) ? getURL() + 'mappings/' + params.resource + '/' : false
   const getReferenceURLFromMainURL = () => (isReferenceURL && params.resource) ? getURL() + 'references/' + params.resource + '/' : false
@@ -272,7 +332,6 @@ const RepoHome = () => {
 
   const onVersionEditClick = () => isVersion && setVersionForm({edit: true, version: repo, expansions: []})
   const onReleaseVersionClick = () => isVersion && setReleaseTarget(repo)
-
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
       <Paper component="div" className={isSplitView ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: 'white', borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.nv80'}}>
@@ -295,13 +354,24 @@ const RepoHome = () => {
               <div className='padding-0 col-xs-12' style={{width: isSplitView ? '100%' : (showSummary ? 'calc(100% - 272px)' : 'calc(100% - 12px)')}}>
                 <CommonTabs TABS={tabs} value={tab} onChange={onTabChange} />
                 {
-                  repo?.id && ['concepts', 'mappings', 'references'].includes(tab) &&
+                  repo?.id && requiresExpansionSelection && !canRenderSearch &&
+                    <div style={{padding: '12px 16px', borderBottom: '1px solid rgba(224, 224, 224, 1)', minHeight: '56px', display: 'flex', alignItems: 'center'}}>
+                      <ExpansionDropDown
+                        expansions={expansions}
+                        loading={expansionsLoading}
+                        selectedExpansion={selectedExpansion}
+                        onChange={setSelectedExpansion}
+                      />
+                    </div>
+                }
+                {
+                  repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && canRenderSearch &&
                     <Search
                       key={`${tab}-${searchReloadKey}`}
                       loading={loading}
                       summary={repoSummary || repo?.summary}
                       resource={tab}
-                      url={getURL() + tab + '/'}
+                      url={getSearchURL()}
                       defaultFiltersOpen={false}
                       nested
                       repo={repo}
@@ -310,25 +380,38 @@ const RepoHome = () => {
                       repoDefaultFilters={(!tab || tab === 'concepts') ? repo?.meta?.display?.default_filter : {}}
                       onShowItem={onShowItem}
                       showItem={showItem}
+                      onSelectItem={setSelectedItem}
                       filtersHeightToSubtract={268}
                       resultContainerStyle={{height: 'calc(100vh - 356px)', overflow: 'auto', maxWidth: showSummary ? 'calc(100vw - 300px)' : 'calc(100vw - 40px)'}}
                       containerStyle={{padding: 0}}
                       properties={(!tab || tab === 'concepts') ? repo?.meta?.display?.concept_summary_properties : []}
                       propertyFilters={(!tab || tab === 'concepts') ? repo?.filters : []}
-                      toolbarControl={
-                        isCollection && !isVersion && tab === 'references'
-                          ? (
-                            <Button
-                              variant="contained"
-                              size="small"
-                              startIcon={<AddIcon />}
-                              onClick={() => setAddReferencesOpen(true)}
-                              sx={{ textTransform: 'none' }}
-                            >
-                              {t('reference.add_references')}
-                            </Button>
-                          )
-                          : undefined
+                      fixedLeftControls={
+                        Boolean(isCollection && !selectedItem?.length && ['concepts', 'mappings'].includes(tab)) &&
+                          <ExpansionDropDown
+                            expansions={expansions}
+                            loading={expansionsLoading}
+                            selectedExpansion={selectedExpansion}
+                            onChange={setSelectedExpansion}
+                          />
+                      }
+                      extraBulkActions={
+                        isCollection ?
+                          <>
+                            {
+                              Boolean(!isVersion && tab === 'references') &&
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  startIcon={<AddIcon />}
+                                  onClick={() => setAddReferencesOpen(true)}
+                                  sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}}}
+                                >
+                                  {t('reference.add_references')}
+                                </Button>
+                            }
+                          </> :
+                        undefined
                       }
                     />
                 }

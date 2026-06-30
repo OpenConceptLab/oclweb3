@@ -498,6 +498,7 @@
     "show_expansions": "Show expansions ({{count}})",
     "hide_expansions": "Hide expansions",
     "default_expansion_label": "Default: {{expansion}}",
+    "expansion_dropdown_label": "Expansion: {{mnemonic}}",
     "edit_description": "Edit description",
     "stale": "Stale",
     "stale_count": "{{count}} stale",

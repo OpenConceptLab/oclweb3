@@ -437,8 +437,13 @@ const Search = props => {
     return toSubtract ? `calc(100% - ${toSubtract}px)` : '100%'
   }
 
+  const onSelectItem = value => {
+    setSelected(value)
+    props.onSelectItem ? props.onSelectItem(value) : null
+  }
+
   const onShowItemSelect = item => {
-    setSelected([])
+    onSelectItem([])
     setShowItem(item || false)
     props.onShowItem && props.onShowItem(item || false)
   }
@@ -464,7 +469,7 @@ const Search = props => {
       setDeletingReferences(false)
       if(response?.status === 204 || response?.status === 200) {
         setDeleteReferencesOpen(false)
-        setSelected([])
+        onSelectItem([])
         setAlert({ severity: 'success', message: t('reference.remove_success') })
         fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
       } else {
@@ -520,7 +525,7 @@ const Search = props => {
     const deleteSucceeded = [200, 204].includes(deleteResponse?.status)
     if(deleteSucceeded) {
       setTransformReferencesOpen(false)
-      setSelected([])
+      onSelectItem([])
       const transformedCount = addedItems.length
       setAlert({
         severity: addFailures ? 'warning' : 'success',
@@ -547,7 +552,7 @@ const Search = props => {
       setBulkRemoving(false)
       if(response?.status === 204 || response?.status === 200) {
         setBulkRemoveOpen(false)
-        setSelected([])
+        onSelectItem([])
         setAlert({ severity: 'success', message: t('reference.remove_success') })
         fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
       } else {
@@ -562,7 +567,7 @@ const Search = props => {
       variant='contained'
       size='small'
       color='error'
-      sx={{textTransform: 'none', whiteSpace: 'nowrap', borderRadius: '8px', marginLeft: '8px'}}
+      sx={{textTransform: 'none', whiteSpace: 'nowrap', marginLeft: '8px'}}
       onClick={() => setBulkRemoveOpen(true)}
     >
       {t('reference.remove_from_collection')}
@@ -579,7 +584,7 @@ const Search = props => {
           variant='contained'
           size='small'
           disabled={!isHead}
-          sx={{textTransform: 'none', whiteSpace: 'nowrap', borderRadius: '8px', marginLeft: '8px'}}
+          sx={{textTransform: 'none', whiteSpace: 'nowrap'}}
           onClick={event => setReferenceActionsAnchor(event.currentTarget)}
         >
           {t('reference.actions')}
@@ -655,7 +660,7 @@ const Search = props => {
                   resource={resource}
                   onPageChange={onPageChange}
                   selected={selected}
-                  onSelect={newSelected => setSelected(newSelected)}
+                  onSelect={newSelected => onSelectItem(newSelected)}
                   selectedToShow={showItem}
                   onShowItemSelect={onShowItemSelect}
                   onFiltersToggle={() => setOpenFilters(!openFilters)}
@@ -667,7 +672,8 @@ const Search = props => {
                   propertyFilters={props.propertyFilters}
                   isMatch={isMatchOp}
                   toolbarControl={<>{props.toolbarControl}{referenceActionsControl}</>}
-                  extraBulkActions={bulkRemoveFromCollectionAction}
+                  extraBulkActions={[bulkRemoveFromCollectionAction, props.extraBulkActions]}
+                  fixedLeftControls={[props.fixedLeftControls]}
                 />
               </div>
             </div>

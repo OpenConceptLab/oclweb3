@@ -40,10 +40,12 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     if(kwargs.collection)
       blacklisted = [...blacklisted, 'collection']
     if(isSourceChild)
-      blacklisted = [...blacklisted, 'concept', 'conceptOwner', 'conceptOwnerType', 'conceptSource']
+      blacklisted = [...blacklisted, 'concept', 'conceptOwner', 'conceptOwnerType', 'conceptSource', 'expansion']
   }
 
   let uiFilters = omit(omitBy(filters, isEmpty), blacklisted)
+  if(isSourceChild)
+    uiFilters = omit(uiFilters, ['expansion'])
   if(isObject(kwargs) && !kwargs.collection && isSourceChild && !isEmpty(uiFilters) && !isEmpty(uiFilters.collection)){
     uiFilters['collection_membership'] = uiFilters.collection
     delete uiFilters.collection
