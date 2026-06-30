@@ -302,7 +302,7 @@ class Comparison extends React.Component {
             <CircularProgress color='primary' />
           </div> :
           <div className='col-md-12' style={{paddingTop: '10px', paddingBottom: '10px'}}>
-            <TableContainer  style={{borderRadius: '4px', border: '1px solid lightgray'}}>
+          <TableContainer  style={{borderRadius: '4px', border: '1px solid lightgray', maxHeight: 'calc(100vh - 110px)'}}>
               <Table size='small'>
                 <TableHead>
                   <TableRow colSpan="12">
