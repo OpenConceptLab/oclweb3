@@ -168,6 +168,38 @@ const bodyCellSx = {
   py: 1.25
 };
 
+const countHeaderCellSx = {
+  ...headerCellSx,
+  width: "16%"
+};
+
+const countBodyCellSx = {
+  ...bodyCellSx,
+  width: "16%"
+};
+
+const actionHeaderCellSx = {
+  ...headerCellSx,
+  width: "1%",
+  whiteSpace: "nowrap"
+};
+
+const resolvedHeaderCellSx = {
+  ...headerCellSx,
+  width: "16%"
+};
+
+const actionBodyCellSx = {
+  ...bodyCellSx,
+  width: "1%",
+  whiteSpace: "nowrap"
+};
+
+const resolvedBodyCellSx = {
+  ...bodyCellSx,
+  width: "16%"
+};
+
 const compactButtonSx = {
   minWidth: 0,
   px: 0,
@@ -697,20 +729,20 @@ const CollectionVersionsTab = ({
               </Box>
             </Box>
           </TableCell>
-          <TableCell sx={{ ...bodyCellSx, width: "16%" }}>
+          <TableCell sx={countBodyCellSx}>
             <CountCell value={get(version, "summary.active_concepts")} />
           </TableCell>
-          <TableCell sx={{ ...bodyCellSx, width: "16%" }}>
+          <TableCell sx={countBodyCellSx}>
             <CountCell value={get(version, "summary.active_mappings")} />
           </TableCell>
-          <TableCell sx={{ ...bodyCellSx, width: "16%" }}>
+          <TableCell sx={countBodyCellSx}>
             {versionLoading ? (
               <CircularProgress size={18} />
             ) : (
               <CountCell value={getReferencesCount(version)} />
             )}
           </TableCell>
-          <TableCell sx={{ ...bodyCellSx, width: "1%", whiteSpace: "nowrap" }}>
+          <TableCell sx={actionBodyCellSx}>
             {hasAccess && (
               <IconButton
                 size="small"
@@ -731,23 +763,23 @@ const CollectionVersionsTab = ({
             }}
           >
             <Collapse in={expanded} timeout="auto" unmountOnExit>
-              <Box sx={{ px: 2, py: 1 }}>
+              <Box sx={{ px: 0, py: 1 }}>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
                       <TableCell sx={headerCellSx}>
                         {t("repo.expansions")}
                       </TableCell>
-                      <TableCell sx={headerCellSx}>
+                      <TableCell sx={countHeaderCellSx}>
                         {t("search.concepts")}
                       </TableCell>
-                      <TableCell sx={headerCellSx}>
+                      <TableCell sx={countHeaderCellSx}>
                         {t("search.mappings")}
                       </TableCell>
-                      <TableCell sx={headerCellSx}>
+                      <TableCell sx={resolvedHeaderCellSx}>
                         {t("repo.resolved_repo_versions")}
                       </TableCell>
-                      <TableCell sx={headerCellSx} />
+                      <TableCell sx={actionHeaderCellSx} />
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -911,13 +943,13 @@ const CollectionVersionsTab = ({
                                 )}
                               </Box>
                             </TableCell>
-                            <TableCell sx={bodyCellSx}>
+                            <TableCell sx={countBodyCellSx}>
                               <CountCell value={get(expansion, "summary.active_concepts")} />
                             </TableCell>
-                            <TableCell sx={bodyCellSx}>
+                            <TableCell sx={countBodyCellSx}>
                               <CountCell value={get(expansion, "summary.active_mappings")} />
                             </TableCell>
-                            <TableCell sx={bodyCellSx}>
+                            <TableCell sx={resolvedBodyCellSx}>
                               <Box sx={{ minWidth: 0 }}>
                                 <Typography
                                   sx={{
@@ -1005,13 +1037,7 @@ const CollectionVersionsTab = ({
                                 )}
                               </Box>
                             </TableCell>
-                            <TableCell
-                              sx={{
-                                ...bodyCellSx,
-                                width: "1%",
-                                whiteSpace: "nowrap"
-                              }}
-                            >
+                            <TableCell sx={actionBodyCellSx}>
                               {hasAccess && (
                                 <IconButton
                                   size="small"
