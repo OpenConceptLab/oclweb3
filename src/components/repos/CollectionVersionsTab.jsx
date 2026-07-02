@@ -48,9 +48,13 @@ import {
 } from "../../common/utils";
 import { OperationsContext } from "../app/LayoutContext";
 import DeleteEntityDialog from "../common/DeleteEntityDialog";
+import ProcessingChip from "../common/ProcessingChip";
 import ExpansionForm from "./ExpansionForm";
 import ExpansionDetailsDialog from "./ExpansionDetailsDialog";
 import RebuildExpansionDialog from "./RebuildExpansionDialog";
+
+const PROCESSING_POLL_INTERVAL_MS = 10000;
+const PROCESSED_CHIP_FADE_MS = 6000;
 
 const isHeadVersion = version => (version?.version || version?.id) === "HEAD";
 
@@ -61,6 +65,8 @@ const isStaleExpansion = expansion =>
       expansion?.extras?.__stale_expansion ||
       expansion?.extras?.stale
   );
+
+const isExpansionProcessing = expansion => Boolean(expansion?.is_processing);
 
 const getVersionKey = version =>
   version?.version_url || version?.url || version?.id;
@@ -214,6 +220,12 @@ const labelFromVersionUrl = url => {
   return url;
 };
 
+const parseProcessingValue = value => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") return value.toLowerCase() === "true";
+  return Boolean(value);
+};
+
 const CollectionVersionsTab = ({
   repo,
   versions,
@@ -252,8 +264,13 @@ const CollectionVersionsTab = ({
   });
   const [repoUpdatesByExpansion, setRepoUpdatesByExpansion] = React.useState({});
   const [dismissedUpdates, setDismissedUpdates] = React.useState(new Set());
+  const [processingStatusByExpansion, setProcessingStatusByExpansion] =
+    React.useState({});
   const expansionRefs = React.useRef({});
   const fetchedRepoUpdatesRef = React.useRef(new Set());
+  const processingStatusRef = React.useRef({});
+  const processingPollsRef = React.useRef({});
+  const processedCleanupRef = React.useRef({});
   const hasAccess = currentUserHasAccess();
   const baseRepoURL = dropVersion(repo?.version_url || repo?.url || "");
   const searchParams = React.useMemo(
@@ -268,6 +285,76 @@ const CollectionVersionsTab = ({
     searchParams.get("expansion_url") ||
     searchParams.get("expansion") ||
     searchParams.get("expansion_id");
+
+  React.useEffect(() => {
+    processingStatusRef.current = processingStatusByExpansion;
+  }, [processingStatusByExpansion]);
+
+  const clearProcessingPoll = React.useCallback(url => {
+    if (!processingPollsRef.current[url]) return;
+    window.clearInterval(processingPollsRef.current[url]);
+    delete processingPollsRef.current[url];
+  }, []);
+
+  const clearProcessedCleanup = React.useCallback(url => {
+    if (!processedCleanupRef.current[url]) return;
+    window.clearTimeout(processedCleanupRef.current[url]);
+    delete processedCleanupRef.current[url];
+  }, []);
+
+  const markExpansionProcessing = React.useCallback(
+    url => {
+      if (!url) return;
+
+      clearProcessedCleanup(url);
+      setProcessingStatusByExpansion(prev => {
+        if (prev[url]?.state === "processing") return prev;
+        return {
+          ...prev,
+          [url]: { state: "processing" }
+        };
+      });
+    },
+    [clearProcessedCleanup]
+  );
+
+  const markExpansionProcessed = React.useCallback(
+    (url, onlyIfTracked = false) => {
+      if (!url) return;
+
+      const currentState = processingStatusRef.current[url]?.state;
+      if (onlyIfTracked && currentState !== "processing") {
+        clearProcessingPoll(url);
+        return;
+      }
+
+      clearProcessingPoll(url);
+      clearProcessedCleanup(url);
+      setProcessingStatusByExpansion(prev => ({
+        ...prev,
+        [url]: { state: "processed", processedAt: Date.now() }
+      }));
+      processedCleanupRef.current[url] = window.setTimeout(() => {
+        setProcessingStatusByExpansion(prev => {
+          if (!prev[url]) return prev;
+          const next = { ...prev };
+          delete next[url];
+          return next;
+        });
+        delete processedCleanupRef.current[url];
+      }, PROCESSED_CHIP_FADE_MS);
+    },
+    [clearProcessedCleanup, clearProcessingPoll]
+  );
+
+  React.useEffect(
+    () => () => {
+      Object.keys(processingPollsRef.current).forEach(clearProcessingPoll);
+      Object.keys(processedCleanupRef.current).forEach(clearProcessedCleanup);
+    },
+    [clearProcessedCleanup, clearProcessingPoll]
+  );
+
   React.useEffect(() => {
     if (!baseRepoURL || isHeadVersion(repo)) {
       setHeadVersion(repo);
@@ -474,9 +561,80 @@ const CollectionVersionsTab = ({
     return versionExpansions.filter(isStaleExpansion).length;
   };
 
-  const refreshSelectedExpansions = version => {
-    if (version) fetchExpansions(version, true);
-  };
+  const refreshSelectedExpansions = React.useCallback(
+    version => {
+      if (version) fetchExpansions(version, true);
+    },
+    [fetchExpansions]
+  );
+
+  const pollExpansionProcessing = React.useCallback(
+    (version, expansion) => {
+      if (!expansion?.url) return;
+
+      APIService.new()
+        .overrideURL(expansion.url + "processing/")
+        .get(null, null, null, true)
+        .then(response => {
+          if (response?.status !== 200) return;
+
+          const isProcessing = parseProcessingValue(response?.data);
+          if (isProcessing) {
+            markExpansionProcessing(expansion.url);
+            return;
+          }
+
+          markExpansionProcessed(expansion.url, true);
+          refreshSelectedExpansions(version);
+        });
+    },
+    [markExpansionProcessed, markExpansionProcessing, refreshSelectedExpansions]
+  );
+
+  const ensureProcessingPoll = React.useCallback(
+    (version, expansion) => {
+      if (!expansion?.url || processingPollsRef.current[expansion.url]) return;
+
+      processingPollsRef.current[expansion.url] = window.setInterval(() => {
+        pollExpansionProcessing(version, expansion);
+      }, PROCESSING_POLL_INTERVAL_MS);
+    },
+    [pollExpansionProcessing]
+  );
+
+  React.useEffect(() => {
+    const activeProcessingUrls = new Set();
+
+    Object.entries(expansionsByVersion).forEach(([versionKey, versionExpansions]) => {
+      const version = find(displayVersions, item => getVersionKey(item) === versionKey);
+      if (!version) return;
+
+      versionExpansions.forEach(expansion => {
+        if (!expansion?.url) return;
+
+        if (isExpansionProcessing(expansion)) {
+          activeProcessingUrls.add(expansion.url);
+          markExpansionProcessing(expansion.url);
+          ensureProcessingPoll(version, expansion);
+          return;
+        }
+
+        clearProcessingPoll(expansion.url);
+        markExpansionProcessed(expansion.url, true);
+      });
+    });
+
+    Object.keys(processingPollsRef.current).forEach(url => {
+      if (!activeProcessingUrls.has(url)) clearProcessingPoll(url);
+    });
+  }, [
+    clearProcessingPoll,
+    displayVersions,
+    ensureProcessingPoll,
+    expansionsByVersion,
+    markExpansionProcessed,
+    markExpansionProcessing
+  ]);
 
   const onMarkExpansionDefault = (version, expansion) => {
     APIService.new()
@@ -799,6 +957,13 @@ const CollectionVersionsTab = ({
                       versionExpansions.map(expansion => {
                         const highlighted =
                           highlightedExpansion?.url === expansion.url;
+                        const processingStatus =
+                          processingStatusByExpansion[expansion.url];
+                        const processingState =
+                          processingStatus?.state ||
+                          (isExpansionProcessing(expansion)
+                            ? "processing"
+                            : null);
                         const explicitRepoVersions = getExplicitRepoVersions(
                           expansion
                         );
@@ -861,6 +1026,13 @@ const CollectionVersionsTab = ({
                                       label={t("repo.stale")}
                                       color="error"
                                       icon={<WarningIcon />}
+                                    />
+                                  )}
+                                  {processingState && (
+                                    <ProcessingChip
+                                      processed={processingState === "processed"}
+                                      fading={processingState === "processed"}
+                                      fadeDurationMs={PROCESSED_CHIP_FADE_MS}
                                     />
                                   )}
                                 </Stack>

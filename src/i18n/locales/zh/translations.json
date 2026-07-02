@@ -296,6 +296,8 @@
     "could_not_load_changelog": "Could not load changelog.",
     "large_sources_take_a_while": "Large sources can take a while to process.",
     "copied_version_url": "Copied version URL.",
+    "processing": "处理中",
+    "processed": "已处理",
     "expansions": "扩展",
     "expansion_dropdown_label": "扩展：{{mnemonic}}",
     "delete_repo_version": "Delete Repo Version",

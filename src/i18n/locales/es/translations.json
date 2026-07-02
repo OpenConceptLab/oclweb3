@@ -182,6 +182,8 @@
     "could_not_load_changelog": "No se pudo cargar el registro de cambios.",
     "large_sources_take_a_while": "Las fuentes grandes pueden tardar un poco en procesarse.",
     "copied_version_url": "URL de versión copiada.",
+    "processing": "Procesando",
+    "processed": "Procesado",
     "expansions": "Expansiones",
     "expansion_dropdown_label": "Expansión: {{mnemonic}}"
   },

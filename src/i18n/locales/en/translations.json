@@ -122,6 +122,7 @@
     "none": "None",
     "default": "Default",
     "processing": "Processing",
+    "processed": "Processed",
     "load_more": "Load more",
     "generate_with_ai": "Generate with AI",
     "release": "Release",
