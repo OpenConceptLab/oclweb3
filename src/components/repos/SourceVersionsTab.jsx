@@ -580,7 +580,10 @@ const SourceVersionsTab = ({
         <MenuItem onClick={() => withClose(version => copyVersionURL(version))}><CopyIcon fontSize="small" sx={{ mr: 1 }} />{t('common.copy_api_url')}</MenuItem>
         <MenuItem onClick={() => withClose(version => setExportVersion(version))} disabled={!isLoggedIn()}><ExportIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.export_version')}</MenuItem>
         <MenuItem onClick={() => withClose(version => setExternalExportsVersion(version))} disabled={!isLoggedIn() || isHeadVersion(menuState.version)}><ExternalExportIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.external_exports')}</MenuItem>
-        <MenuItem onClick={() => withClose(version => setChangelogVersion(version))} disabled={!getPreviousVersionURL(menuState.version)}><ChangelogIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.changelog')}</MenuItem>
+        {
+          Boolean(getPreviousVersionURL(menuState.version)) &&
+            <MenuItem onClick={() => withClose(version => setChangelogVersion(version))}><ChangelogIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.changelog')}</MenuItem>
+        }
         <MenuItem onClick={() => withClose(compareVersion)} disabled={!getPreviousVersionURL(menuState.version)}><OpenInNewIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.compare_with_previous')}</MenuItem>
         {hasAccess && <Divider />}
         {hasAccess && <MenuItem onClick={() => withClose(onEditVersion)} disabled={isHeadVersion(menuState.version)}><EditIcon fontSize="small" sx={{ mr: 1 }} />{t('common.edit')}</MenuItem>}
