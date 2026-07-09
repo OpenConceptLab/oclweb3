@@ -12,6 +12,7 @@ import Breadcrumbs from '../common/Breadcrumbs'
 import { BLACK } from '../../common/colors'
 import ConceptManagementList from './ConceptManagementList'
 import AddToCollectionDialog from '../common/AddToCollectionDialog'
+import Retired from '../common/Retired'
 
 const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, nested, loading}) => {
   const { t } = useTranslation()
@@ -62,13 +63,18 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, neste
           <CloseIconButton color='secondary' onClick={onClose} />
         </span>
       </div>
-    <div className='col-xs-12' style={{padding: '0px'}}>
+      <div className='col-xs-12' style={{padding: '0px', display: 'flex', alignItems: 'center'}}>
     {
       !concept?.id ?
         <Skeleton variant='text' sx={{fontSize: '22px', width: '150px'}} />:
+      <>
       <Typography sx={{fontSize: '22px', color: BLACK}} className='searchable'>
-      {concept.display_name}
+        {concept.display_name}
       </Typography>
+        {
+          concept.retired ? <Retired size='small' style={{marginLeft: '12px'}} /> : null
+        }
+      </>
     }
     </div>
     {
