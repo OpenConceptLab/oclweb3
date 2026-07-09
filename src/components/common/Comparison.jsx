@@ -169,7 +169,7 @@ class Comparison extends React.Component {
            if(attribute.url) {
              return (
                <span style={{marginLeft: i ? '10px': ''}} key={i}>
-                 <span className='gray-italics'>{attribute.name}</span>
+                 <span className='gray-italics' style={{marginRight: '2px'}}>{attribute.name}</span>
                  <Link to={toParentURI(attribute.url)}>
                    <span>{attribute.value}</span>
                  </Link>
@@ -179,7 +179,7 @@ class Comparison extends React.Component {
            else{
              return (
                <span style={{marginLeft: i ? '10px': ''}} key={i}>
-                 <span className='gray-italics'>{attribute.name}</span>
+                 <span className='gray-italics' style={{marginRight: '2px'}}>{attribute.name}</span>
                  <span>{attribute.value}</span>
                </span>
              )
@@ -206,11 +206,41 @@ class Comparison extends React.Component {
     return maxBy([v1, v2], size)
   }
 
-  getAttributeDOM(attr, type, lhsValue, rhsValue, isDiff) {
+  getResolvedAttributeValue(resource, attr, type, formatted=false) {
+    return this.props.getAttributeValue
+      ? this.props.getAttributeValue(resource, attr, type, formatted)
+      : this.getAttributeValue(resource, attr, type, formatted)
+  }
+
+  getAttributeLabel(attr, config={}) {
+    return config.label || startCase(attr)
+  }
+
+  isAttributeDiff(attr, type) {
+    const { lhs, rhs } = this.state;
+    const lhsValue = this.getResolvedAttributeValue(lhs, attr, type);
+    const rhsValue = this.getResolvedAttributeValue(rhs, attr, type);
+    return !isEqual(lhsValue, rhsValue);
+  }
+
+  isGroupDiff(config={}) {
+    return (config.children || []).some(child => this.isAttributeDiff(child.attr, child.type));
+  }
+
+  isSectionExpanded(config={}, hasKids, isDiff) {
+    if(!hasKids)
+      return true;
+    if(config.expandOnDiff && isDiff)
+      return true;
+    return !config.collapsed;
+  }
+
+  getAttributeDOM(attr, type, lhsValue, rhsValue, isDiff, config={}) {
     const { lhs, rhs } = this.state;
     const maxLengthAttr = type === 'list' ? this.maxArrayElement(get(lhs, attr), get(rhs, attr)) : [];
     const rowSpan = size(maxLengthAttr);
     const isExtras = attr === 'extras';
+    const label = this.getAttributeLabel(attr, config);
     return (
       <React.Fragment key={attr}>
         {
@@ -229,7 +259,7 @@ class Comparison extends React.Component {
                   {
                     index === 0 &&
                     <TableCell colSpan='2' rowSpan={rowSpan} style={{width: '10%', fontWeight: 'bold', verticalAlign: 'top'}}>
-                      {type !== 'list' && startCase(attr)}
+                      {type !== 'list' && label}
                     </TableCell>
                   }
                   {
@@ -259,7 +289,7 @@ class Comparison extends React.Component {
             }) :
             <TableRow key={attr} colSpan='12'>
               <TableCell colSpan='2' style={{width: '10%', fontWeight: 'bold', verticalAlign: 'top'}}>
-                {startCase(attr)}
+                {label}
               </TableCell>
               {
                 isDiff ?
@@ -285,6 +315,34 @@ class Comparison extends React.Component {
               }
             </TableRow>
           )
+        }
+      </React.Fragment>
+    )
+  }
+
+  renderGroupAttribute(attr, config) {
+    const isDiff = this.isGroupDiff(config);
+    const styles = isDiff ? {background: DIFF_BG_HIGHLIGHT} : {};
+    const isExpanded = this.isSectionExpanded(config, true, isDiff);
+
+    return (
+      <React.Fragment key={attr}>
+        <TableRow colSpan='12' onClick={() => this.onCollapseIconClick(attr)} style={{cursor: 'pointer'}}>
+          <TableCell colSpan='12' style={{fontWeight: 'bold', fontSize: '0.875rem', ...styles}}>
+            <span className='flex-vertical-center'>
+              <span style={{marginRight: '5px'}}>{this.getAttributeLabel(attr, config)}</span>
+              {isExpanded ? <ArrowUpIcon fontSize='inherit' /> : <ArrowDownIcon fontSize='inherit' />}
+            </span>
+          </TableCell>
+        </TableRow>
+        {
+          isExpanded &&
+          map(config.children || [], child => {
+            const lhsValue = this.getResolvedAttributeValue(this.state.lhs, child.attr, child.type);
+            const rhsValue = this.getResolvedAttributeValue(this.state.rhs, child.attr, child.type);
+            const childDiff = !isEqual(lhsValue, rhsValue);
+            return this.getAttributeDOM(child.attr, child.type, lhsValue, rhsValue, childDiff, child);
+          })
         }
       </React.Fragment>
     )
@@ -321,11 +379,14 @@ class Comparison extends React.Component {
                 <TableBody>
                   {
                     map(visibleAttributes, (config, attr) => {
+                      if(config.type === 'group')
+                        return this.renderGroupAttribute(attr, config);
+
                       const type = config.type;
-                      const lhsValue = this.props.getAttributeValue ? this.props.getAttributeValue(lhs, attr, type): this.getAttributeValue(lhs, attr, type)
-                      const rhsValue = this.props.getAttributeValue ? this.props.getAttributeValue(rhs, attr, type): this.getAttributeValue(rhs, attr, type)
+                      const lhsValue = this.getResolvedAttributeValue(lhs, attr, type);
+                      const rhsValue = this.getResolvedAttributeValue(rhs, attr, type);
                       const isDiff = !isEqual(lhsValue, rhsValue);
-                      const children = this.getAttributeDOM(attr, type, lhsValue, rhsValue, isDiff);
+                      const children = this.getAttributeDOM(attr, type, lhsValue, rhsValue, isDiff, config);
                       if(type === 'list') {
                         const lhsRawValue = lhs[attr];
                         const rhsRawValue = rhs[attr];
@@ -333,7 +394,7 @@ class Comparison extends React.Component {
                         const rhsCount = rhsRawValue.length;
                         const hasKids = Boolean(lhsCount || rhsCount);
                         const styles = isDiff ? {background: DIFF_BG_HIGHLIGHT} : {};
-                        const isExpanded = !config.collapsed || !hasKids;
+                        const isExpanded = this.isSectionExpanded(config, hasKids, isDiff);
                         const isExtras = attr === 'extras';
                         let lhsSize, rhsSize;
                         let size = '';
@@ -350,7 +411,13 @@ class Comparison extends React.Component {
                             <TableRow colSpan='12' onClick={() => this.onCollapseIconClick(attr)} style={{cursor: 'pointer'}}>
                               <TableCell colSpan='12' style={{ fontWeight: 'bold', fontSize: '0.875rem', ...styles }}>
                                 <span className='flex-vertical-center'>
-                                  <span style={{marginRight: '5px'}}>{`${startCase(attr)} (${lhsCount}/${rhsCount})`}</span>
+                                  <span style={{marginRight: '5px'}}>
+                                    {
+                                      config.hideCounts
+                                        ? this.getAttributeLabel(attr, config)
+                                        : `${this.getAttributeLabel(attr, config)} (${lhsCount}/${rhsCount})`
+                                    }
+                                  </span>
                                   { size && <span className='byte-size'>{size}</span> }
                                   {
                                     isExpanded ? <ArrowUpIcon fontSize='inherit' /> : <ArrowDownIcon fontSize='inherit' />
