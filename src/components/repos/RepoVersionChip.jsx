@@ -7,6 +7,7 @@ import Menu from '@mui/material/Menu';
 import { find, reject, orderBy, merge, compact } from 'lodash'
 import { SURFACE_COLORS } from '../../common/colors'
 import VersionsTable from './VersionsTable'
+import RepoTooltip from './RepoTooltip'
 
 const normalizeVersions = versions => {
   if (Array.isArray(versions))
@@ -15,7 +16,7 @@ const normalizeVersions = versions => {
   return []
 }
 
-const RepoVersionChip = ({ version, versions, sx, onChange, size, disabledFrom, disabledUntil, compare, originVersion, checkbox }) => {
+const RepoVersionChip = ({ version, versions, sx, onChange, size, disabledFrom, disabledUntil, compare, originVersion, checkbox, tooltip }) => {
   const { t } = useTranslation()
   const [anchorEl, setAnchorEl] = React.useState(null);
   const onOpen = event => setAnchorEl(event.currentTarget);
@@ -37,17 +38,33 @@ const RepoVersionChip = ({ version, versions, sx, onChange, size, disabledFrom, 
 
   return (
     <React.Fragment>
-      <HeaderChip
-        id='versions-dropdown'
-        labelPrefix={`${t('common.version')}: `}
-        label={version?.version}
-        icon={<VersionIcon color='surface.contrastText' fontSize='inherit' />}
-        sx={merge({backgroundColor: 'surface.main'}, (sx || {}))}
-        deleteIcon={<DownIcon color='surface.contrastText' fontSize='inherit' />}
-        onDelete={onOpen}
-        onClick={onOpen}
-        size={size}
-      />
+      {
+        tooltip ?
+          <RepoTooltip repo={version}>
+            <HeaderChip
+              id='versions-dropdown'
+              labelPrefix={`${t('common.version')}: `}
+              label={version?.version}
+              icon={<VersionIcon color='surface.contrastText' fontSize='inherit' />}
+              sx={merge({backgroundColor: 'surface.main'}, (sx || {}))}
+              deleteIcon={<DownIcon color='surface.contrastText' fontSize='inherit' />}
+              onDelete={onOpen}
+              onClick={onOpen}
+              size={size}
+            />
+          </RepoTooltip>:
+        <HeaderChip
+          id='versions-dropdown'
+          labelPrefix={`${t('common.version')}: `}
+          label={version?.version}
+          icon={<VersionIcon color='surface.contrastText' fontSize='inherit' />}
+          sx={merge({backgroundColor: 'surface.main'}, (sx || {}))}
+          deleteIcon={<DownIcon color='surface.contrastText' fontSize='inherit' />}
+          onDelete={onOpen}
+          onClick={onOpen}
+          size={size}
+        />
+      }
       <Menu
         id="basic-menu"
         anchorEl={anchorEl}

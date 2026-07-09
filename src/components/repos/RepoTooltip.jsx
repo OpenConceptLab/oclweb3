@@ -1,20 +1,23 @@
 import React from 'react'
 import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import RepoIcon from '@mui/icons-material/FolderOutlined';
 import isNumber from 'lodash/isNumber';
 import has from 'lodash/has'
+import startCase from 'lodash/startCase'
 import MUIBasicTooltip from '@mui/material/Tooltip'
 import HTMLTooltip from '../common/HTMLTooltip'
 import FollowActionButton from '../common/FollowActionButton'
 import OwnerButton from '../common/OwnerButton'
 import RepoVersionButton from './RepoVersionButton'
-import { URIToOwnerParams } from '../../common/utils'
+import { URIToOwnerParams, formatDate } from '../../common/utils'
 import DotSeparator from '../common/DotSeparator'
 import ConceptIcon from '../concepts/ConceptIcon'
 import MappingIcon from '../mappings/MappingIcon'
 import APIService from '../../services/APIService'
 
 const TooltipTitle = ({ repo }) => {
+  const { t } = useTranslation()
   // only need --> repo = {url: '/orgs/MyOrg/sources/MySource/', id: 'MyOrg'}
   const url = repo?.version_url || repo?.url
   const owner = URIToOwnerParams(url)
@@ -117,6 +120,12 @@ const TooltipTitle = ({ repo }) => {
           }
         </span>
       </div>
+      {
+        entity?.created_on &&
+          <div style={{width: '100%', fontSize: '12px', marginTop: '6px'}}>
+            {`${startCase(t('common.created_on'))} ${formatDate(entity?.created_on)}`}
+          </div>
+      }
     </React.Fragment>
   )
 }

@@ -28,6 +28,7 @@ const CompareToolbar = ({version1, version2, versions, metric, onMetricChange, o
         <span style={{display: 'flex', alignItems: 'center'}}>
           {t('repo.compare')}
           <RepoVersionChip
+            tooltip
             compare
             originVersion
             size='small'
@@ -39,6 +40,7 @@ const CompareToolbar = ({version1, version2, versions, metric, onMetricChange, o
           />
           {t('common.with')}
           <RepoVersionChip
+            tooltip
             compare
             size='small'
             version={version2}
