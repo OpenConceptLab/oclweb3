@@ -23,8 +23,8 @@ import { SORT_ATTRS } from './ResultConstants'
 import { isLoggedIn } from '../../common/utils';
 
 const ResultsToolbar = props => {
-  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, toolbarControl, appliedFilters, openFilters, bulkActions, leftControls, displayOptions } = props;
-  const filtersCount = flatten(values(appliedFilters).map(v => values(v))).length
+  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, toolbarControl, appliedFilters, openFilters, bulkActions, leftControls, displayOptions, resource } = props;
+  const filtersCount = resource === 'references' ? flatten(values(appliedFilters))?.length : flatten(values(appliedFilters).map(v => values(v))).length
   return (
     <Toolbar
       sx={{
@@ -309,6 +309,7 @@ const SearchResults = props => {
             displayOptions={displayOptions}
             bulkActions={bulkActionsElement}
             leftControls={leftControls}
+            resource={props.resource}
           />
       }
       {
