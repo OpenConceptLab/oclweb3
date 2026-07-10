@@ -70,9 +70,11 @@ const Search = props => {
   const [transformingReferences, setTransformingReferences] = React.useState(false)
   const [bulkRemoveOpen, setBulkRemoveOpen] = React.useState(false)
   const [bulkRemoving, setBulkRemoving] = React.useState(false)
+  const [hierarchy, setHierarchy] = React.useState(false)
 
   const didMount = React.useRef(false);
   const isFilterable = _resource => FILTERABLE_RESOURCES.includes(_resource)
+  const isHierarchySupported = Boolean(props.nested && props.repo?.hierarchy_root_url && (resource || props.resource) === 'concepts')
 
   React.useEffect(() => {
     if(!props.url)
@@ -95,11 +97,21 @@ const Search = props => {
     highlight()
   }, [result])
 
-  const onDisplayChange = () => input && setTimeout(highlight, 100)
+  const onDisplayChange = newDisplay => {
+    if(isHierarchySupported) {
+      const newHierarchy = newDisplay === 'hierarchy'
+      if(newHierarchy !== hierarchy) {
+        setHierarchy(newHierarchy)
+        setPage(1)
+        fetchResults(getQueryParams(input, 1, pageSize, filters, orderBy, order, newHierarchy), true)
+      }
+    }
+    input && setTimeout(highlight, 100)
+  }
 
   const getCurrentLayoutURL = (params, _resource) => {
     /*eslint no-unused-vars: 0*/
-    const { q, page, limit, includeSearchMeta, sortAsc, sortDesc, ...filters} = params
+    const { q, page, limit, includeSearchMeta, sortAsc, sortDesc, onlyHierarchyRoot, ...filters} = params
     const isMatch = params['$match']
     delete filters['$match']
     _resource = _resource || resource || 'concepts'
@@ -262,7 +274,7 @@ const Search = props => {
   }
 
 
-  const getQueryParams = (_input, _page, _pageSize, _filters, _orderBy, _order) => {
+  const getQueryParams = (_input, _page, _pageSize, _filters, _orderBy, _order, _hierarchy) => {
     let params = {q: _input, page: _page || 1, limit: _pageSize, includeSearchMeta: true, ...getFacetQueryParam(_filters || {})}
     if(_orderBy) {
       if(_order === 'desc')
@@ -274,6 +286,13 @@ const Search = props => {
     }
     if(isMatchOp)
       params['$match'] = true
+    if(isHierarchySupported && (_hierarchy === undefined ? hierarchy : _hierarchy)) {
+      params.onlyHierarchyRoot = true
+      // sort params force the API onto the search-index path, which ignores
+      // onlyHierarchyRoot and doesn't return has_children
+      delete params.sortAsc
+      delete params.sortDesc
+    }
     return params
   }
 
@@ -330,7 +349,7 @@ const Search = props => {
     setResult(prev => {
       return {...prev, [__resource]: {...result[__resource], results: []}}
     })
-    let _filters = omit(params, ['q', 'page', 'page_number', 'page_size', 'limit', 'offset', 'includeSearchMeta', 'verbose', 'order', 'orderBy', 'sortAsc', 'sortDesc', 'display', 'type'])
+    let _filters = omit(params, ['q', 'page', 'page_number', 'page_size', 'limit', 'offset', 'includeSearchMeta', 'verbose', 'order', 'orderBy', 'sortAsc', 'sortDesc', 'display', 'type', 'onlyHierarchyRoot'])
     const payload = {rows: [{name: params.q}], target_repo_url: contextRepo?.version_url, filter: _filters || {}}
     APIService.new().overrideURL('/concepts/$match/').post(payload, null, null, {verbose: true, includeSearchMeta: true, semantic: true, reranker: true, ...params}).then(response => {
       if(response?.detail) {
@@ -353,7 +372,7 @@ const Search = props => {
     const __resource = _resource || resource
     APIService.new().overrideURL(getURL(__resource)).get(null, null, {...params, facetsOnly: true}).then(response => {
       setResult(prev => {
-        return {...prev, [__resource]: {...otherResults, facets: prepareFacets(response?.data?.facets?.fields || {}, __resource)}}
+        return {...prev, [__resource]: {...(prev[__resource] || otherResults), facets: prepareFacets(response?.data?.facets?.fields || {}, __resource)}}
       })
       setLoadingFacets(false)
     })
@@ -671,6 +690,8 @@ const Search = props => {
                   properties={props.properties}
                   propertyFilters={props.propertyFilters}
                   isMatch={isMatchOp}
+                  hierarchySupported={isHierarchySupported}
+                  baseURL={props.url}
                   toolbarControl={<>{props.toolbarControl}{referenceActionsControl}</>}
                   extraBulkActions={[bulkRemoveFromCollectionAction, props.extraBulkActions]}
                   fixedLeftControls={[props.fixedLeftControls]}

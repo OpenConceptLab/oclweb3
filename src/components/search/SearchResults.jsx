@@ -12,7 +12,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import AddIcon from '@mui/icons-material/PlaylistAddOutlined';
 import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
-import { isNumber, isNaN, flatten, values } from 'lodash'
+import { isNumber, isNaN, flatten, values, uniqBy } from 'lodash'
 import SearchControls from './SearchControls';
 import NoResults from './NoResults';
 import TableResults from './TableResults';
@@ -106,14 +106,17 @@ const SearchResults = props => {
   const [tableDisplayAnimation, setTableDisplayAnimation] = React.useState('animation-appear')
   const [selected, setSelected] = React.useState(props.selected || []);
   const [addToCollectionOpen, setAddToCollectionOpen] = React.useState(false);
+  const [loadedChildRows, setLoadedChildRows] = React.useState([]);
   const page = props.results?.page;
   const rowsPerPage = props.results?.pageSize;
 
   const rows = props.results?.results || []
+  const allRows = loadedChildRows.length ? [...rows, ...loadedChildRows] : rows
   const referenceSourceGroups = React.useMemo(() => getReferenceSourceGroups(rows), [rows])
   const isReferenceSourceGrouped = props.resource === 'references' && display === 'source'
+  const isHierarchyDisplay = props.resource === 'concepts' && props.hierarchySupported && display === 'hierarchy'
   const onDisplayChange = async (newDisplay, ms) => {
-    if(['table', 'source'].includes(newDisplay)) {
+    if(['table', 'source', 'hierarchy'].includes(newDisplay)) {
       setCardDisplayAnimation('animation-disappear')
       setTableDisplayAnimation('animation-appear')
     } else {
@@ -121,9 +124,16 @@ const SearchResults = props => {
       setTableDisplayAnimation('animation-disappear')
     }
     await new Promise(r => setTimeout(r, ms))
+    if(newDisplay !== display) {
+      setSelected([])
+      props.onSelect && props.onSelect([])
+      setLoadedChildRows([])
+    }
     setDisplay(newDisplay)
-    props.onDisplayChange()
+    props.onDisplayChange(newDisplay)
   }
+
+  const onChildRowsLoaded = children => setLoadedChildRows(prev => uniqBy([...prev, ...children], child => child.version_url || child.url || child.id))
 
   const handleChangePage = (event, newPage) => {
     props.onPageChange(newPage + 1, rowsPerPage)
@@ -176,7 +186,7 @@ const SearchResults = props => {
   const handleRowClick = (event, id) => {
     event.preventDefault()
     event.stopPropagation()
-    const item = rows.find(row => id == (row.version_url || row.url || row.id)) || false
+    const item = allRows.find(row => id == (row.version_url || row.url || row.id)) || false
     if(['concepts', 'mappings', 'references'].includes(props.resource)) {
       props.onShowItemSelect(item)
     } else if (props.resource === 'repos') {
@@ -237,7 +247,7 @@ const SearchResults = props => {
 
   const isCardDisplay = !noCardDisplay && display === 'card'
 
-  const selectedRows = rows.filter(row => selected.includes(row.version_url || row.url || row.id))
+  const selectedRows = allRows.filter(row => selected.includes(row.version_url || row.url || row.id))
 
   const addToCollectionBulkAction = props.resource === 'concepts' && isLoggedIn() && selected.length > 0
     ? (
@@ -256,6 +266,10 @@ const SearchResults = props => {
   const displayOptions = props.resource === 'references' ? [
     {id: 'source', labelKey: 'reference.group_by_source'},
     {id: 'table', labelKey: 'reference.ungrouped'},
+  ] : (props.resource === 'concepts' && props.hierarchySupported) ? [
+    {id: 'table', labelKey: 'search.table'},
+    ...(noCardDisplay ? [] : [{id: 'card', labelKey: 'search.card'}]),
+    {id: 'hierarchy', labelKey: 'search.hierarchy'},
   ] : undefined
   const toolbarControl = props.toolbarControl
   const allBulkActions = [addToCollectionBulkAction, props.extraBulkActions].filter(Boolean)
@@ -285,7 +299,7 @@ const SearchResults = props => {
             isFilterable={props.isFilterable}
             onDisplayChange={onDisplayChange}
             display={display}
-            sortableFields={props.noSorting ? false : sortableFields}
+            sortableFields={(props.noSorting || isHierarchyDisplay) ? false : sortableFields}
             order={props.order}
             orderBy={props.orderBy}
             onOrderByChange={props.onOrderByChange}
@@ -309,7 +323,13 @@ const SearchResults = props => {
               /> :
             isCardDisplay ?
               <CardResults {...resultsProps} className={cardDisplayAnimation} /> :
-            <TableResults {...resultsProps} className={tableDisplayAnimation} />
+            <TableResults
+              {...resultsProps}
+              className={tableDisplayAnimation}
+              hierarchical={isHierarchyDisplay}
+              baseURL={props.baseURL}
+              onRowsLoaded={onChildRowsLoaded}
+            />
           }
           {
           !props.noPagination &&

@@ -699,6 +699,7 @@
     "input_placeholder": "Search OCL...",
     "table": "Table",
     "card": "Card",
+    "hierarchy": "Hierarchy",
     "search_all_site": "Search all of OCL for ",
     "search_this_repository": "Search this repository",
     "search_this_url_registry": "Search this URL registry for ",

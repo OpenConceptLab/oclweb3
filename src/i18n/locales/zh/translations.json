@@ -409,6 +409,7 @@
     "input_placeholder": "搜索 OCL...",
     "table": "表格",
     "card": "卡片",
+    "hierarchy": "层级",
     "search_all_site": "搜索全部符合搜索条件的 OCL 内容： ",
     "search_this_repository": "搜索该存储库",
     "search_this_url_registry": "搜索该 URL 注册库： ",
