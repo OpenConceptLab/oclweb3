@@ -255,7 +255,7 @@ class Comparison extends React.Component {
               const _rhsValCleaned = this.props.getListAttributeValue ? this.props.getListAttributeValue(attr, _rhsVal): this.getListAttributeValue(attr, _rhsVal)
               const _isDiff = !isEqual(_lhsValCleaned, _rhsValCleaned);
               return (
-                <TableRow key={_attr.uuid || index} colSpan='12'>
+                <TableRow key={_attr?.uuid || index} colSpan='12'>
                   {
                     index === 0 &&
                     <TableCell colSpan='2' rowSpan={rowSpan} style={{width: '10%', fontWeight: 'bold', verticalAlign: 'top'}}>
