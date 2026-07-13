@@ -175,9 +175,19 @@ const ReferenceFilters = ({ onChange, heightToSubtract }) => {
                   lineHeight: "32px"
                 }}
               >
-                Definition Type
+                Transform Method
               </ListSubheader>
 
+              <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("definition_type", "none")}>
+                <ListItemIcon sx={{ minWidth: "auto" }}>
+                  <Checkbox
+                    sx={{ padding: "0 8px" }}
+                    size="small"
+                    checked={filters.definition_type === "none"}
+                  />
+                </ListItemIcon>
+                <ListItemText primary="None" />
+              </ListItemButton>
               <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("definition_type", "intensional")}>
                 <ListItemIcon sx={{ minWidth: "auto" }}>
                   <Checkbox
@@ -186,7 +196,7 @@ const ReferenceFilters = ({ onChange, heightToSubtract }) => {
                     checked={filters.definition_type === "intensional"}
                   />
                 </ListItemIcon>
-                <ListItemText primary="Intensional / Rule-based" />
+                <ListItemText primary="Resource Versions" />
               </ListItemButton>
 
               <ListItemButton sx={{ padding: 0 }} onClick={() => toggleGroupValue("definition_type", "extensional")}>
