@@ -28,8 +28,6 @@ const v5Theme = createTheme(theme, {
       ...COLORS.neutral
     },
     "default": {
-      main: COLORS.surface.n96,
-      dark: COLORS.surface.n96,
       light: COLORS.secondary['40']
     },
   },
@@ -100,6 +98,16 @@ const v5Theme = createTheme(theme, {
             color: theme.palette.text.primary,
             "&:hover": {
               backgroundColor: theme.alpha(theme.palette.text.primary, theme.palette.action.hoverOpacity)
+            }
+          }
+        },
+        {
+          props: { variant: "contained", color: "default" },
+          style: {
+            backgroundColor: COLORS.surface.n96,
+            color: theme.palette.getContrastText(COLORS.surface.n96),
+            "&:hover": {
+              backgroundColor: COLORS.surface.n96
             }
           }
         }

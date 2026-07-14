@@ -40,7 +40,6 @@ import UserChip from '../users/UserChip'
 import UserTooltip from '../users/UserTooltip'
 
 
-
 const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
   <Route
     {...rest}

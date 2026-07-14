@@ -604,7 +604,7 @@ const Search = props => {
           size='small'
           disabled={!isHead}
           sx={{textTransform: 'none', whiteSpace: 'nowrap'}}
-          onClick={event => setReferenceActionsAnchor(event.currentTarget)}
+          onClick={event => {setReferenceActionsAnchor(event.currentTarget)}}
         >
           {t('reference.actions')}
         </Button>

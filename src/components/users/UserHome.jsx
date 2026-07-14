@@ -135,7 +135,7 @@ const UserHome = () => {
           }
         </div>
 
-        <Paper component='div' className='col-xs-12' sx={{height: 'calc(100vh - 96px)', width: '272px !important', borderLeft: '0.5px solid', borderTop: '0.5px solid', borderColor: 'surface.nv80', borderRadius: '0 10px 10px 0', boxShadow: 'none', padding: '16px', overflow: 'auto', backgroundColor: 'default.main'}}>
+        <Paper component='div' className='col-xs-12' sx={{height: 'calc(100vh - 96px)', width: '272px !important', borderLeft: '0.5px solid', borderTop: '0.5px solid', borderColor: 'surface.nv80', borderRadius: '0 10px 10px 0', boxShadow: 'none', padding: '16px', overflow: 'auto', backgroundColor: 'surface.n96'}}>
           <UserSummary user={user} />
         </Paper>
       </div>

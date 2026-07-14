@@ -115,7 +115,7 @@ const ReferenceFilters = ({ onChange, heightToSubtract }) => {
             <ul style={{ paddingLeft: 0 }}>
               <ListSubheader
                 sx={{
-                  bgcolor: "background.paper",
+                  bgcolor: "surface.main",
                   position: "sticky",
                   top: 0,
                   paddingLeft: "12px",
@@ -168,7 +168,7 @@ const ReferenceFilters = ({ onChange, heightToSubtract }) => {
             <ul style={{ paddingLeft: 0 }}>
               <ListSubheader
                 sx={{
-                  bgcolor: "background.paper",
+                  bgcolor: "surface.main",
                   position: "sticky",
                   top: 0,
                   paddingLeft: "12px",
@@ -219,7 +219,7 @@ const ReferenceFilters = ({ onChange, heightToSubtract }) => {
             <ul style={{ paddingLeft: 0 }}>
               <ListSubheader
                 sx={{
-                  bgcolor: "background.paper",
+                  bgcolor: "surface.main",
                   position: "sticky",
                   top: 0,
                   paddingLeft: "12px",
@@ -284,7 +284,7 @@ const ReferenceFilters = ({ onChange, heightToSubtract }) => {
             <ul style={{ paddingLeft: 0 }}>
               <ListSubheader
                 sx={{
-                  bgcolor: "background.paper",
+                  bgcolor: "surface.main",
                   position: "sticky",
                   top: 0,
                   paddingLeft: "12px",

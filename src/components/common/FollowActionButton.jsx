@@ -33,36 +33,19 @@ const FollowIconButton = ({isFollowing, onClick, entity, size, sx}) => {
 const FollowButton = ({ entity, isFollowing, onClick, sx, size }) => {
   const { t } = useTranslation()
 
+  const styles = isFollowing ? {backgroundColor: 'surface.s90', border: 'none', borderColor: 'none', '.MuiChip-icon': {color: 'primary.main'}} : {backgroundColor: 'transparent', border: '1px solid', '.MuiChip-icon': {color: 'initial'}}
+
   return (
     <Button
       size={size}
       icon={<Icon isFollowing={isFollowing} sx={{fontSize: 'large'}} />}
       label={`${isFollowing ? t('common.following') : t('common.follow')} ${entity.name || entity.id}`}
       onClick={onClick}
-      sx={[{
+      sx={{
         fontWeight: 'bold',
-        ...sx
-      }, isFollowing ? {
-        backgroundColor: 'surface.s90'
-      } : {
-        backgroundColor: 'transparent'
-      }, isFollowing ? {
-        borderColor: 'none'
-      } : {
-        borderColor: 'surface.s90'
-      }, isFollowing ? {
-        border: 'none'
-      } : {
-        border: '1px solid'
-      }, isFollowing ? {
-        '.MuiChip-icon': {
-          color: 'primary.main'
-        }
-      } : {
-        '.MuiChip-icon': {
-          color: 'initial'
-        }
-      }]}
+        ...sx,
+        ...styles
+      }}
     />
   );
 }

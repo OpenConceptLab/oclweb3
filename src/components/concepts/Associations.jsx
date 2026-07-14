@@ -186,12 +186,12 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
   return (
     <Paper className='col-xs-12 padding-0' sx={[{
       boxShadow: 'none',
-      borderColor: borderColor,
       borderRadius: '10px'
     }, nested ? {
       border: 'none'
     } : {
-      border: '1px solid'
+      border: '1px solid',
+      borderColor: borderColor
     }]}>
       {
       !nested &&
