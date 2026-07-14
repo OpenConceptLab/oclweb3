@@ -36,14 +36,20 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
   const isDisabled = disabled || isPrivateAndHasNoAccess
   return (
     <Tooltip title={disabled ? tooltip : undefined} placement='right'>
-      <TableRow key={version.id} id={version.id} sx={{cursor: isDisabled ? 'not-allowed' : 'pointer'}} disabled={isDisabled}>
+      <TableRow key={version.id} id={version.id} sx={[isDisabled ? {
+        cursor: 'not-allowed'
+      } : {
+        cursor: 'pointer'
+      }]} disabled={isDisabled}>
         {
           checkbox &&
             <TableCell padding="checkbox" sx={{...bodyCellStyle, borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px'}} onClick={() => !isDisabled && onCheck(version)}>
               <Checkbox color="primary" size='small' checked={!isDisabled && checked.includes(version.version_url)} onChange={() => onCheck(version)} disabled={isDisabled} />
             </TableCell>
         }
-        <TableCell sx={{...bodyCellStyle, ...(checkbox ? {} : {borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px'})}} onClick={isDisabled ? undefined : () => onVersionChange(version)}>
+        <TableCell sx={[{
+          ...bodyCellStyle
+        }, (checkbox ? {} : {borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px'})]} onClick={isDisabled ? undefined : () => onVersionChange(version)}>
           {version.id}
           {
             version?.match_algorithms?.includes('llm') &&
@@ -96,8 +102,8 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
         }
       </TableCell>
     </TableRow>
-      </Tooltip>
-  )
+    </Tooltip>
+  );
 }
 
 const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabledFrom, disabledUntil, originVersion }) => {

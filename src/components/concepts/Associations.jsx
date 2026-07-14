@@ -128,8 +128,6 @@ const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect, hide}) => {
     </React.Fragment>
   )
 }
-
-
 const borderColor = 'rgba(0, 0, 0, 0.12)'
 const Associations = ({concept, mappings, reverseMappings, ownerMappings, reverseOwnerMappings, onLoadOwnerMappings, loadingOwnerMappings, nested}) => {
   const [scope, setScope] = React.useState('repo')
@@ -174,13 +172,10 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
     })
     return groupedMappings
   }
-
   const countOwnerMappings = ownerMappings?.length + reverseOwnerMappings?.length
   const count = flatten(compact(flatten(map(values(orderedMappings), mapping => values(mapping))))).length + countOwnerMappings
-
   React.useEffect(() => setOrderedMappings(getMappings()), [mappings, reverseMappings])
   React.useEffect(() => setOrderedOwnerMappings(getOwnerMappings()), [ownerMappings, reverseOwnerMappings])
-
   const onScopeClick = newScope => {
     setScope(newScope)
     if(['all', 'namespace'].includes(newScope)) {
@@ -188,21 +183,50 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
     }
   }
   const toggleSection = repoURI => setCollapsedSections(collapsedSections?.includes(repoURI) ? without(collapsedSections, repoURI) : [...collapsedSections, repoURI])
-
   return (
-    <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: nested ? 'none' : '1px solid', borderColor: borderColor, borderRadius: '10px'}}>
+    <Paper className='col-xs-12 padding-0' sx={[{
+      boxShadow: 'none',
+      borderColor: borderColor,
+      borderRadius: '10px'
+    }, nested ? {
+      border: 'none'
+    } : {
+      border: '1px solid'
+    }]}>
       {
       !nested &&
       <Typography component="span" sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between'}}>
         <TagCountLabel label={t('concept.associations')} count={scope === 'all' ? count : (scope === 'namespace' ? countOwnerMappings : count - countOwnerMappings)}/>
         <ButtonGroup size='small' color='secondary'>
-          <Button selected={scope === 'repo'} startIcon={scope === 'repo' ? <SelectedIcon /> : undefined } sx={{textTransform: 'none', borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px', backgroundColor: scope === 'repo' ? 'primary.90' : undefined}} onClick={() => onScopeClick('repo')}>
+          <Button selected={scope === 'repo'} startIcon={scope === 'repo' ? <SelectedIcon /> : undefined } sx={[{
+            textTransform: 'none',
+            borderTopLeftRadius: '50px',
+            borderBottomLeftRadius: '50px'
+          }, scope === 'repo' ? {
+            backgroundColor: 'primary.90'
+          } : {
+            backgroundColor: null
+          }]} onClick={() => onScopeClick('repo')}>
             <b>{t('repo.repo')}</b>
           </Button>
-          <Button selected={scope === 'namespace'} startIcon={scope === 'namespace' ? <SelectedIcon /> : undefined } sx={{backgroundColor: scope === 'namespace' ? 'primary.90' : undefined, textTransform: 'none'}} onClick={() => onScopeClick('namespace')}>
+          <Button selected={scope === 'namespace'} startIcon={scope === 'namespace' ? <SelectedIcon /> : undefined } sx={[{
+            textTransform: 'none'
+          }, scope === 'namespace' ? {
+            backgroundColor: 'primary.90'
+          } : {
+            backgroundColor: null
+          }]} onClick={() => onScopeClick('namespace')}>
             <b>{t('concept.namespace')}</b>
           </Button>
-          <Button selected={scope === 'all'} startIcon={scope === 'all' ? <SelectedIcon /> : undefined } sx={{backgroundColor: scope==='all' ? 'primary.90' : undefined, textTransform: 'none', borderTopRightRadius: '50px', borderBottomRightRadius: '50px'}} onClick={() => onScopeClick('all')}>
+          <Button selected={scope === 'all'} startIcon={scope === 'all' ? <SelectedIcon /> : undefined } sx={[{
+            textTransform: 'none',
+            borderTopRightRadius: '50px',
+            borderBottomRightRadius: '50px'
+          }, scope==='all' ? {
+            backgroundColor: 'primary.90'
+          } : {
+            backgroundColor: null
+          }]} onClick={() => onScopeClick('all')}>
             <b>{t('common.all')}</b>
           </Button>
         </ButtonGroup>
@@ -392,7 +416,7 @@ const Associations = ({concept, mappings, reverseMappings, ownerMappings, revers
         </Table>
       </TableContainer>
     </Paper>
-  )
+  );
 }
 
 export default Associations;

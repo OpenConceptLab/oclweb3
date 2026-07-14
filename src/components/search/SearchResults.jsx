@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom';
-import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Badge from '@mui/material/Badge';
 import Toolbar from '@mui/material/Toolbar';
@@ -27,18 +26,17 @@ const ResultsToolbar = props => {
   const filtersCount = resource === 'references' ? flatten(values(appliedFilters))?.length : flatten(values(appliedFilters).map(v => values(v))).length
   return (
     <Toolbar
-      sx={{
+      sx={[{
         bgcolor: '#FFF',
         borderRadius: 0,
         pl: { sm: 1 },
         pr: { xs: 1, sm: 1 },
-        ...(numSelected > 0 && {
-          bgcolor: (theme) =>
-          alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
-        }),
         borderBottom: (disabled || display === 'card') ? 'none': '1px solid rgba(224, 224, 224, 1)',
-        minHeight: '48px !important',
-      }}
+        minHeight: '48px !important'
+      }, numSelected > 0 && {
+        bgcolor: (theme) =>
+        theme.alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
+      }]}
     >
       {
         isFilterable &&
@@ -56,7 +54,13 @@ const ResultsToolbar = props => {
       }
       {numSelected > 0 ? (
         <Typography
-          sx={{ marginLeft: isFilterable ? '8px' : 0, whiteSpace: 'nowrap' }}
+          sx={[{
+            whiteSpace: 'nowrap'
+          }, isFilterable ? {
+            marginLeft: '8px'
+          } : {
+            marginLeft: 0
+          }]}
           color="inherit"
           variant="subtitle1"
           component="div"
@@ -66,7 +70,14 @@ const ResultsToolbar = props => {
       ) : (
         title ?
           <Typography
-            sx={{ flex: '1 1 100%', marginLeft: isFilterable ? '8px' : 0, color: 'rgba(0, 0, 0, 0.7)' }}
+            sx={[{
+              flex: '1 1 100%',
+              color: 'rgba(0, 0, 0, 0.7)'
+            }, isFilterable ? {
+              marginLeft: '8px'
+            } : {
+              marginLeft: 0
+            }]}
             variant="h7"
             id="tableTitle"
             component="div"

@@ -356,7 +356,7 @@ const RepoCreate = () => {
               {
                 TABS.map(_tab => {
                   const isSelected = _tab.index === tab
-                  return(
+                  return (
                     <Tab
                       disabled={_tab.disabled}
                       key={_tab.index}
@@ -373,17 +373,26 @@ const RepoCreate = () => {
                       }
                       id={`vertical-tab-${_tab.index}`}
                       aria-controls={`vertical-tab-panel-${_tab.index}`}
-                      sx={{
+                      sx={[{
                         width: '320px',
                         alignItems: 'flex-start',
-                        borderBottom: _tab.index === 4 ? '0' : '1px solid',
-                        borderRight: isSelected ? '0' : '1px solid',
                         borderColor: 'surface.nv80',
-                        textTransform: 'none',
-                        color: isSelected ? `${BLACK} !important` : 'secondary.light'
-                      }}
+                        textTransform: 'none'
+                      }, _tab.index === 4 ? {
+                        borderBottom: '0'
+                      } : {
+                        borderBottom: '1px solid'
+                      }, isSelected ? {
+                        borderRight: '0'
+                      } : {
+                        borderRight: '1px solid'
+                      }, isSelected ? {
+                        color: `${BLACK} !important`
+                      } : {
+                        color: 'secondary.light'
+                      }]}
                     />
-                  )
+                  );
                 })
               }
             </Tabs>
@@ -463,7 +472,7 @@ const RepoCreate = () => {
           </>
       }
     </Paper>
-  )
+  );
 }
 
 

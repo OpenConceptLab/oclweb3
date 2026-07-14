@@ -8,12 +8,11 @@
     "@airbrake/browser": "^2.1.9",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "5.18.0",
-    "@mui/lab": "5.0.0-alpha.140",
-    "@mui/material": "5.18.0",
-    "@mui/styles": "5.18.0",
+    "@mui/icons-material": "^7.3.11",
+    "@mui/lab": "^7.0.0",
+    "@mui/material": "^7.3.11",
     "@mui/x-charts": "^7.29.1",
-    "@mui/x-date-pickers": "^5.0.20",
+    "@mui/x-date-pickers": "^9.9.0",
     "axios": "^1.18.1",
     "core-js": "^3.49.0",
     "i18next": "^22.4.9",
@@ -31,7 +30,6 @@
     "react-i18next": "^12.1.5",
     "react-image-crop": "^8.6.12",
     "react-markdown": "^10.1.0",
-    "react-material-ui-carousel": "^3.4.2",
     "react-native-rss-parser": "^1.5.1",
     "react-quill": "^2.0.0",
     "react-router-dom": "^5.3.4",
@@ -41,9 +39,12 @@
     "stacktrace-js": "^2.0.2",
     "xlsx": "^0.18.5"
   },
+  "overrides": {
+    "react-is": "^18.3.1"
+  },
   "scripts": {
-    "start": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js --progress --host 0.0.0.0 --port ${WEB_PORT} --env.API_URL=${API_URL} --env.NODE_ENV=${NODE_ENV} --env.RECAPTCHA_SITE_KEY=${RECAPTCHA_SITE_KEY} --env.GA_ACCOUNT_ID=${GA_ACCOUNT_ID} --env.HOTJAR_ID=${HOTJAR_ID} --env.ERRBIT_URL=${ERRBIT_URL} --env.ERRBIT_KEY=${ERRBIT_KEY} --env.LOGIN_REDIRECT_URL=${LOGIN_REDIRECT_URL} --env.OIDC_RP_CLIENT_ID=${OIDC_RP_CLIENT_ID} --env.OIDC_RP_CLIENT_SECRET=${OIDC_RP_CLIENT_SECRET} --env.ANALYTICS_API=${ANALYTICS_API} --env.AI_ASSISTANT_API_URL=${AI_ASSISTANT_API_URL} --mode ${NODE_ENV} --hot",
-    "build": "node --max-old-space-size=1536 ./node_modules/webpack/bin/webpack.js --progress --host 0.0.0.0 --port 443 --env.API_URL=${API_URL} --env.NODE_ENV=${NODE_ENV} --env.RECAPTCHA_SITE_KEY=${RECAPTCHA_SITE_KEY} --env.GA_ACCOUNT_ID=${GA_ACCOUNT_ID} --env.HOTJAR_ID=${HOTJAR_ID} --env.ERRBIT_URL=${ERRBIT_URL} --env.ERRBIT_KEY=${ERRBIT_KEY} --env.LOGIN_REDIRECT_URL=${LOGIN_REDIRECT_URL} --env.OIDC_RP_CLIENT_ID=${OIDC_RP_CLIENT_ID} --env.OIDC_RP_CLIENT_SECRET=${OIDC_RP_CLIENT_SECRET} --env.ANALYTICS_API=${ANALYTICS_API} --env.AI_ASSISTANT_API_URL=${AI_ASSISTANT_API_URL} --mode ${NODE_ENV}",
+    "start": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js --progress --host 0.0.0.0 --port ${WEB_PORT} --env API_URL=${API_URL} --env NODE_ENV=${NODE_ENV} --env RECAPTCHA_SITE_KEY=${RECAPTCHA_SITE_KEY} --env GA_ACCOUNT_ID=${GA_ACCOUNT_ID} --env HOTJAR_ID=${HOTJAR_ID} --env ERRBIT_URL=${ERRBIT_URL} --env ERRBIT_KEY=${ERRBIT_KEY} --env LOGIN_REDIRECT_URL=${LOGIN_REDIRECT_URL} --env OIDC_RP_CLIENT_ID=${OIDC_RP_CLIENT_ID} --env OIDC_RP_CLIENT_SECRET=${OIDC_RP_CLIENT_SECRET} --env ANALYTICS_API=${ANALYTICS_API} --env AI_ASSISTANT_API_URL=${AI_ASSISTANT_API_URL} --mode ${NODE_ENV} --hot",
+    "build": "node --max-old-space-size=1536 ./node_modules/webpack/bin/webpack.js --progress --env API_URL=${API_URL} --env NODE_ENV=${NODE_ENV} --env RECAPTCHA_SITE_KEY=${RECAPTCHA_SITE_KEY} --env GA_ACCOUNT_ID=${GA_ACCOUNT_ID} --env HOTJAR_ID=${HOTJAR_ID} --env ERRBIT_URL=${ERRBIT_URL} --env ERRBIT_KEY=${ERRBIT_KEY} --env LOGIN_REDIRECT_URL=${LOGIN_REDIRECT_URL} --env OIDC_RP_CLIENT_ID=${OIDC_RP_CLIENT_ID} --env OIDC_RP_CLIENT_SECRET=${OIDC_RP_CLIENT_SECRET} --env ANALYTICS_API=${ANALYTICS_API} --env AI_ASSISTANT_API_URL=${AI_ASSISTANT_API_URL} --mode ${NODE_ENV}",
     "eslint": "./node_modules/.bin/eslint ./src"
   },
   "devDependencies": {
@@ -70,13 +71,13 @@
     "eslint-plugin-spellcheck": "0.0.20",
     "html-webpack-plugin": "^5.6.7",
     "mini-css-extract-plugin": "1.6.0",
-    "node-sass": "^4.14.1",
     "prettier": "^1.19.1",
-    "react-is": "^16.13.1",
-    "sass-loader": "^6.0.6",
+    "react-is": "^18.3.1",
+    "sass": "^1.86.0",
+    "sass-loader": "^16.0.5",
     "style-loader": "^0.19.1",
     "webpack": "5.100.2",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.3"
+    "webpack-cli": "^5.0.0",
+    "webpack-dev-server": "^5.0.0"
   }
 }

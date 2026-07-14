@@ -12,13 +12,23 @@ import JSONIcon from '../common/JSONIcon';
 
 const ButtonControl = ({ label, icon, selected, terminal, onClick, disabled }) => {
   return (
-    <Button id={label} sx={{textTransform: 'none', fontWeight: 'bold', backgroundColor: selected ? 'surface.s90' : '', borderRadius: terminal ? '25px' : undefined, '.MuiButton-startIcon': {marginTop: '-2px', marginLeft: 0, marginRight: '6px'}}} color='secondary' startIcon={selected ? <DoneIcon fontSize='inherit' /> : icon} onClick={onClick} disabled={disabled}>
+    <Button id={label} sx={[{
+      textTransform: 'none',
+      fontWeight: 'bold',
+      '.MuiButton-startIcon': {marginTop: '-2px', marginLeft: 0, marginRight: '6px'}
+    }, selected ? {
+      backgroundColor: 'surface.s90'
+    } : {
+      backgroundColor: ''
+    }, terminal ? {
+      borderRadius: '25px'
+    } : {
+      borderRadius: null
+    }]} color='secondary' startIcon={selected ? <DoneIcon fontSize='inherit' /> : icon} onClick={onClick} disabled={disabled}>
       {label}
     </Button>
-  )
+  );
 }
-
-
 const CompareToolbar = ({version1, version2, versions, metric, onMetricChange, onVersionChange}) => {
   const { t } = useTranslation()
   const isSource = version1?.version_url?.includes('/sources/') && version2?.version_url?.includes('/sources/')
@@ -65,5 +75,4 @@ const CompareToolbar = ({version1, version2, versions, metric, onMetricChange, o
     </div>
   )
 }
-
 export default CompareToolbar

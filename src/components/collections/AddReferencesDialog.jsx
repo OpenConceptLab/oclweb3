@@ -248,7 +248,6 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
           <CloseIconButton onClick={onClose} disabled={submitting} size="small" />
         </Box>
       </DialogTitle>
-
       <DialogContent sx={{ padding: '16px 0 0 0 !important', display: 'flex', flexDirection: 'column', gap: 2 }}>
 
         {/* Source / Collection seed + inline open-in-new-tab link */}
@@ -310,7 +309,12 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
 
         {/* Resolve hint: visible when seed is selected */}
         {seed && (
-          <Typography variant="caption" color="text.secondary" sx={{ mt: -1 }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+              mt: -1
+            }}>
             {t('reference.resolves_to', { version: resolvedVersionLabel })}
           </Typography>
         )}
@@ -440,13 +444,13 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
         {submitting && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
             <CircularProgress size={20} />
-            <Typography variant="body2" color="text.secondary">{t('reference.adding_references')}</Typography>
+            <Typography variant="body2" sx={{
+              color: "text.secondary"
+            }}>{t('reference.adding_references')}</Typography>
           </Box>
         )}
-
         {/* Request error */}
         {error && <Alert severity="error">{error}</Alert>}
-
         {/* Results */}
         {hasResults && (
           <Box>
@@ -461,15 +465,27 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
                 </Typography>
 
                 {addedCount > 0 && (
-                  <Box sx={{ mb: failedCount > 0 ? 2 : 0, border: '1px solid', borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
+                  <Box sx={[{
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                    overflow: 'hidden'
+                  }, failedCount > 0 ? {
+                    mb: 2
+                  } : {
+                    mb: 0
+                  }]}>
                     {resultList.filter(r => r.added).map((item, idx, arr) => (
                       <React.Fragment key={item.expression || idx}>
                         <Box sx={{ px: 1.5, py: 1, bgcolor: 'primary.95', display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Typography
                             variant="body2"
-                            color="text.secondary"
-                            sx={{ fontSize: '0.8rem', fontFamily: 'monospace', wordBreak: 'break-all' }}
-                          >
+                            sx={{
+                              color: "text.secondary",
+                              fontSize: '0.8rem',
+                              fontFamily: 'monospace',
+                              wordBreak: 'break-all'
+                            }}>
                             {item.expression}
                           </Typography>
                         </Box>
@@ -510,11 +526,12 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
           </Box>
         )}
       </DialogContent>
-
       <DialogActions sx={{ pt: 2, px: 0, justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {expressionList.length > 0 && !formLocked && (
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="caption" sx={{
+              color: "text.secondary"
+            }}>
               {expressionList.length} expression{expressionList.length !== 1 ? 's' : ''} · {includeExclude}
             </Typography>
           )}
@@ -543,7 +560,6 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
         </Box>
       </DialogActions>
     </Dialog>
-  )
+  );
 }
-
 export default AddReferencesDialog

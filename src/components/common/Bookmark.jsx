@@ -28,10 +28,8 @@ const Title = ({ bookmark }) => {
 export const getIcon = (bookmark, style) => {
   return <EntityIcon noLink strict entity={bookmark.resource} sx={style || {width: '56px', height: '56px', color: 'secondary.main'}}/>
 }
-
 const Bookmark = ({ bookmark }) => {
   const history = useHistory()
-
   const onClick = () => {
     if(bookmark.resource?.url)
       history.push(bookmark.resource.url)

@@ -76,32 +76,25 @@ const VersionMenu = ({version, repoVersion, onClose, anchorEl, resource, icon}) 
     </Menu>
   )
 }
-
-
 const History = ({ versions, repoVersions, loading, icon, resource }) => {
   const { t } = useTranslation()
   const history = useHistory()
-
   const [selectedVersion, setSelectedVersion] = React.useState(false)
   const [selectedRepoVersion, setSelectedRepoVersion] = React.useState(false)
   const [anchorEl, setAnchorEl] = React.useState(false)
-
   const onMenuClick = (event, version, repoVersion) => {
     event.preventDefault()
     event.stopPropagation()
-
     setSelectedVersion(version)
     setSelectedRepoVersion(repoVersion)
     setAnchorEl(event.currentTarget)
     return false
   }
-
   const onMenuClose = () => {
     setAnchorEl(false)
     setSelectedVersion(false)
     setSelectedRepoVersion(false)
   }
-
   const getRepoDetails = uri => {
     const parts = compact(uri.split('/'))
     return {
@@ -228,14 +221,26 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
                                           </Typography>
                                         </Button>
                                     }
-                                    <Typography sx={{ fontSize: '12px', display: 'inline-flex', alignItems: 'center' }} color="text.secondary" component='span'>
+                                    <Typography
+                                      component='span'
+                                      sx={{
+                                        color: "text.secondary",
+                                        fontSize: '12px',
+                                        display: 'inline-flex',
+                                        alignItems: 'center'
+                                      }}>
                                       <UserChip size='small' hideType user={{username: version.version_updated_by, type: 'User', url: `/users/${version.version_updated_by}`}} sx={{'.MuiChip-label': {padding: 0}, marginRight: '4px', border: 0, padding: 0, minWidth: 'auto', '.MuiAvatar-root': {margin: '0 4px 0 0', width: '16px', height: '16px', background: 'transparent'}}} />
                                       {t('common.committed')} {moment(version.version_updated_on).fromNow()}
                                     </Typography>
                                     {
                                       version.source_versions?.length > 0 ?
                                         <div className='col-xs-12 padding-0'>
-                                          <Typography sx={{ fontSize: '12px' }} color="text.secondary" component='span'>
+                                          <Typography
+                                            component='span'
+                                            sx={{
+                                              color: "text.secondary",
+                                              fontSize: '12px'
+                                            }}>
                                             Source Versions:
                                           </Typography>
                                           {
@@ -251,7 +256,12 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
                                     {
                                       version.collection_versions?.length > 0 ?
                                         <div className='col-xs-12 padding-0'>
-                                          <Typography sx={{ fontSize: '12px' }} color="text.secondary" component='span'>
+                                          <Typography
+                                            component='span'
+                                            sx={{
+                                              color: "text.secondary",
+                                              fontSize: '12px'
+                                            }}>
                                             Collection Versions:
                                           </Typography>
                                           {
@@ -271,20 +281,19 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
                                 </div>
                               </CardContent>
                             </Card>
-                          )
+                          );
                         })
                       }
                     </div>
                   </TimelineContent>
                 </TimelineItem>
-              )
+              );
             })
           }
         </>
       }
       <VersionMenu version={selectedVersion} anchorEl={anchorEl} onClose={onMenuClose} resource={resource} repoVersion={selectedRepoVersion} icon={icon} />
     </Timeline>
-  )
+  );
 }
-
 export default History

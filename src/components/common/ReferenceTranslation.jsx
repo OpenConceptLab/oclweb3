@@ -11,10 +11,11 @@ const ReferenceTranslation = props => {
   const expression = isResolved ? props.translation : `${props.translation} (unresolved)`;
   let icon = <span />;
   if(type && type.toLowerCase() === 'mappings')
-    icon = <LinkIcon fontSize="small" />;
+    icon = <LinkIcon sx={{
+      fontSize: "small"
+    }} />;
   else if(type && type.toLowerCase() === 'concepts')
     icon = <LocalOfferIcon fontSize='small' color='primary' />;
-
   const chip = <Chip
                  className='clickable'
                  icon={icon}
@@ -32,5 +33,4 @@ const ReferenceTranslation = props => {
     </span>
   )
 }
-
 export default ReferenceTranslation;

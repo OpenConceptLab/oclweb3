@@ -460,7 +460,23 @@ const RepoHome = () => {
               </div>
               {
                 !isSplitView &&
-                  <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: showSummary ? '16px !important' : '0px !important', borderLeft: 'solid 0.5px', borderTop: 'solid 0.5px', borderColor: 'surface.nv80', width: showSummary ? '272px !important' : '12px !important', height: 'calc(100vh - 218px)', borderRadius: '0 0 10px 0'}}>
+                  <Paper component="div" className='col-xs-12' sx={[{
+                    backgroundColor: 'surface.main',
+                    boxShadow: 'none',
+                    borderLeft: 'solid 0.5px',
+                    borderTop: 'solid 0.5px',
+                    borderColor: 'surface.nv80',
+                    height: 'calc(100vh - 218px)',
+                    borderRadius: '0 0 10px 0'
+                  }, showSummary ? {
+                    padding: '16px !important'
+                  } : {
+                    padding: '0px !important'
+                  }, showSummary ? {
+                    width: '272px !important'
+                  } : {
+                    width: '12px !important'
+                  }]}>
                     <RepoSummary repo={repo} summary={repoSummary} show={showSummary} onShow={() => setShowSummary(!showSummary)} />
                   </Paper>
               }
@@ -530,7 +546,6 @@ const RepoHome = () => {
         }
       </div>
     </div>
-  )
+  );
 }
-
 export default RepoHome;

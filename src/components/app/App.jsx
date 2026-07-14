@@ -165,7 +165,9 @@ const App = props => {
       <Header>
         <ErrorBoundary>
           <main className='content'>
-            {networkError && <NetworkError />}
+            {
+              networkError ?
+                <NetworkError /> :
             <Switch>
               <Route exact path="/oidc/login" component={OIDLoginCallback} />
               <Route path="/signin" component={SigninRedirect} />
@@ -240,6 +242,7 @@ const App = props => {
               <Route exact path='/403' component={Error403} />
               <Route component={Error404} />
             </Switch>
+            }
             <Alert message={alert?.message} onClose={() => setAlert(false)} severity={alert?.severity} duration={alert?.duration} />
           </main>
         </ErrorBoundary>

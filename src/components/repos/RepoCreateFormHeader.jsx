@@ -29,13 +29,25 @@ const RepoCreateFormHeader = ({repoTypeLabel, repoTypeDescriptionNode, onBack, i
             }
             {
               header ?
-              <Typography component='span' sx={{color: repoTypeLabel ? 'secondary.light' : 'surface.dark', fontSize: '22px'}}>
+              <Typography component='span' sx={[{
+                fontSize: '22px'
+              }, repoTypeLabel ? {
+                color: 'secondary.light'
+              } : {
+                color: 'surface.dark'
+              }]}>
                 {header}
               </Typography> :
               <>
                 {
                   !isEdit &&
-                    <Typography component='span' sx={{color: repoTypeLabel ? 'secondary.light' : 'surface.dark', fontSize: '22px'}}>
+                    <Typography component='span' sx={[{
+                      fontSize: '22px'
+                    }, repoTypeLabel ? {
+                      color: 'secondary.light'
+                    } : {
+                      color: 'surface.dark'
+                    }]}>
                       {t('repo.create_a_repo')} {repoTypeLabel ? '/' : ''}
                     </Typography>
                 }
@@ -58,8 +70,6 @@ const RepoCreateFormHeader = ({repoTypeLabel, repoTypeDescriptionNode, onBack, i
         </div>
       </div>
     </>
-  )
+  );
 }
-
-
 export default RepoCreateFormHeader

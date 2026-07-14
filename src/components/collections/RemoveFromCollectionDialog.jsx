@@ -43,7 +43,7 @@ const getRepoFromConcept = concept => {
 const getVersionToken = version => {
   if(!version) return null
   if(String(version).toUpperCase() === 'HEAD') return version
-  return String(version).match(/^v/i) ? version : `v${version}`
+  return String(version).match(/^v/i) ? version : `v${version}`;
 }
 
 const getMappingSourceToken = (mapping, direction) => {
@@ -189,19 +189,35 @@ const RemoveFromCollectionDialog = ({ open, onClose, onConfirm, resources, colle
         {fetchingRefs ? (
           <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', py: 3, gap: 1}}>
             <CircularProgress size={20} />
-            <Typography variant='body2' color='text.secondary'>{t('common.loading')}</Typography>
+            <Typography variant='body2' sx={{
+              color: 'text.secondary'
+            }}>{t('common.loading')}</Typography>
           </Box>
         ) : (
           <List dense disablePadding sx={{border: '1px solid rgba(0,0,0,0.12)', borderRadius: '4px'}}>
             {resourcesWithRefs.map(({ resource, references }, groupIndex) => (
               <React.Fragment key={resource.id}>
                 {showGroupHeaders && (
-                  <ListItem sx={{bgcolor: 'rgba(0,0,0,0.04)', px: 1.5, py: 0.5, borderTop: groupIndex > 0 ? '1px solid rgba(0,0,0,0.12)' : 'none'}}>
+                  <ListItem sx={[{
+                    bgcolor: 'rgba(0,0,0,0.04)',
+                    px: 1.5,
+                    py: 0.5
+                  }, groupIndex > 0 ? {
+                    borderTop: '1px solid rgba(0,0,0,0.12)'
+                  } : {
+                    borderTop: 'none'
+                  }]}>
                     <ResourceLabel resource={resource} />
                   </ListItem>
                 )}
                 {references.length === 0 ? (
-                  <ListItem sx={{pl: showGroupHeaders ? 3 : 1.5, py: 0.5}}>
+                  <ListItem sx={[{
+                    py: 0.5
+                  }, showGroupHeaders ? {
+                    pl: 3
+                  } : {
+                    pl: 1.5
+                  }]}>
                     <Typography sx={{fontSize: '12px', color: 'text.secondary', fontStyle: 'italic'}}>{t('reference.no_references_found')}</Typography>
                   </ListItem>
                 ) : (
@@ -212,7 +228,13 @@ const RemoveFromCollectionDialog = ({ open, onClose, onConfirm, resources, colle
                       <ListItem
                         key={`${ref.id || getReferenceLabel(ref) || 'reference'}-${groupIndex}-${refIndex}`}
                         divider={!(isLastInGroup && isLastGroup)}
-                        sx={{padding: '2px 12px 2px 4px', pl: showGroupHeaders ? 2 : 0.5}}
+                        sx={[{
+                          padding: '2px 12px 2px 4px'
+                        }, showGroupHeaders ? {
+                          pl: 2
+                        } : {
+                          pl: 0.5
+                        }]}
                       >
                         <Checkbox
                           edge='start'
@@ -227,7 +249,7 @@ const RemoveFromCollectionDialog = ({ open, onClose, onConfirm, resources, colle
                           primaryTypographyProps={{sx: {fontSize: '13px', fontFamily: 'monospace', wordBreak: 'break-all'}}}
                         />
                       </ListItem>
-                    )
+                    );
                   })
                 )}
               </React.Fragment>
@@ -250,7 +272,7 @@ const RemoveFromCollectionDialog = ({ open, onClose, onConfirm, resources, colle
         </Button>
       </DialogActions>
     </Dialog>
-  )
+  );
 }
 
 export default RemoveFromCollectionDialog

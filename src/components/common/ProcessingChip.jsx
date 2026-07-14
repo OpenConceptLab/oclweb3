@@ -26,13 +26,15 @@ const ProcessingChip = ({
         )
       }
       label={processed ? t("common.processed") : t("common.processing")}
-      sx={[
-        {
-          opacity: fading ? 0 : 1,
-          transition: fading ? `opacity ${fadeDurationMs}ms linear` : undefined
-        },
-        ...(Array.isArray(sx) ? sx : sx ? [sx] : [])
-      ]}
+      sx={[fading ? {
+        opacity: 0
+      } : {
+        opacity: 1
+      }, fading ? {
+        transition: `opacity ${fadeDurationMs}ms linear`
+      } : {
+        transition: null
+      }, ...(Array.isArray(sx) ? sx : sx ? [sx] : [])]}
       {...rest}
     />
   );

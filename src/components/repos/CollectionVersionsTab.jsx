@@ -914,11 +914,14 @@ const CollectionVersionsTab = ({
         <TableRow>
           <TableCell
             colSpan={5}
-            sx={{
+            sx={[{
               p: 0,
-              borderBottom: expanded ? "1px solid" : 0,
               borderColor: "surface.nv80"
-            }}
+            }, expanded ? {
+              borderBottom: "1px solid"
+            } : {
+              borderBottom: 0
+            }]}
           >
             <Collapse in={expanded} timeout="auto" unmountOnExit>
               <Box sx={{ px: 0, py: 1 }}>
@@ -957,9 +960,10 @@ const CollectionVersionsTab = ({
                           <Stack
                             direction="row"
                             spacing={1.5}
-                            alignItems="center"
-                            justifyContent="space-between"
-                          >
+                            sx={{
+                              alignItems: "center",
+                              justifyContent: "space-between"
+                            }}>
                             <Typography
                               sx={{ fontSize: "13px", color: "secondary.main" }}
                             >
@@ -1010,218 +1014,218 @@ const CollectionVersionsTab = ({
                           !dismissedUpdates.has(expansion.url);
                         return (
                           <React.Fragment key={expansion.url}>
-                          <TableRow
-                            ref={element => {
-                              expansionRefs.current[expansion.url] = element;
-                            }}
-                            sx={{
-                              backgroundColor: highlighted
-                                ? "rgba(237, 108, 2, 0.06)"
-                                : "transparent"
-                            }}
-                          >
-                            <TableCell sx={bodyCellSx}>
-                              <Box sx={{ minWidth: 0, pl: 5 }}>
-                                <Stack
-                                  direction="row"
-                                  spacing={1}
-                                  sx={{ flexWrap: "wrap", rowGap: 0.75 }}
-                                >
-                                  <Typography
-                                    sx={{
-                                      fontSize: "14px",
-                                      fontWeight: 700,
-                                      color: "primary.main",
-                                      cursor: "pointer"
-                                    }}
-                                    onClick={() =>
-                                      setDetailsExpansion(expansion)
-                                    }
+                            <TableRow
+                              ref={element => {
+                                expansionRefs.current[expansion.url] = element;
+                              }}
+                              sx={[highlighted ? {
+                                backgroundColor: "rgba(237, 108, 2, 0.06)"
+                              } : {
+                                backgroundColor: "transparent"
+                              }]}
+                            >
+                              <TableCell sx={bodyCellSx}>
+                                <Box sx={{ minWidth: 0, pl: 5 }}>
+                                  <Stack
+                                    direction="row"
+                                    spacing={1}
+                                    sx={{ flexWrap: "wrap", rowGap: 0.75 }}
                                   >
-                                    {expansion.mnemonic}
-                                  </Typography>
-                                  {expansion.default && (
-                                    <MetaChip
-                                      label={t("common.default")}
-                                      color="success"
-                                      icon={<DefaultIcon />}
-                                    />
-                                  )}
-                                  {expansion.auto && !expansion.default && (
-                                    <MetaChip
-                                      label={t("repo.autoexpand")}
-                                      icon={<ExpansionIcon />}
-                                    />
-                                  )}
-                                  {isStaleExpansion(expansion) && (
-                                    <MetaChip
-                                      label={t("repo.stale")}
-                                      color="error"
-                                      icon={<WarningIcon />}
-                                    />
-                                  )}
-                                  {processingState && (
-                                    <ProcessingChip
-                                      processed={processingState === "processed"}
-                                      fading={processingState === "processed"}
-                                      fadeDurationMs={PROCESSED_CHIP_FADE_MS}
-                                    />
-                                  )}
-                                </Stack>
-                                {expansion.canonical_url && (
-                                  <Typography
-                                    sx={{
-                                      mt: 0.5,
-                                      fontSize: "12px",
-                                      color: "secondary.main",
-                                      wordBreak: "break-all"
-                                    }}
-                                  >
-                                    {expansion.canonical_url}
-                                  </Typography>
-                                )}
-                                {renderAudit(
-                                  "repo.last_built_by",
-                                  expansion.updated_on || expansion.created_on,
-                                  expansion.updated_by || expansion.created_by
-                                )}
-                                {hasRepoUpdates && (
-                                  <Alert
-                                    severity="warning"
-                                    sx={{ mt: 1 }}
-                                    onClose={() =>
-                                      setDismissedUpdates(
-                                        prev => new Set([...prev, expansion.url])
-                                      )
-                                    }
-                                  >
-                                    <Typography sx={{ fontSize: "13px", fontWeight: 600, mb: 0.5 }}>
-                                      {t("repo.resolved_repo_updates_available")}
+                                    <Typography
+                                      sx={{
+                                        fontSize: "14px",
+                                        fontWeight: 700,
+                                        color: "primary.main",
+                                        cursor: "pointer"
+                                      }}
+                                      onClick={() =>
+                                        setDetailsExpansion(expansion)
+                                      }
+                                    >
+                                      {expansion.mnemonic}
                                     </Typography>
-                                    {Object.entries(expansionUpdates).map(([oldUrl, newUrl]) => {
-                                      const compareUrl = `#${dropVersion(newUrl)}compare-versions?version1=${newUrl}&version2=${oldUrl}`;
-                                      return (
-                                        <Typography key={oldUrl} sx={{ fontSize: "12px", color: "primary.main", display: "flex", alignItems: "center", gap: 0.5 }}>
-                                          <a href={`#${oldUrl}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>{labelFromVersionUrl(oldUrl)}</a>
-                                          {" → "}
-                                          <a href={`#${newUrl}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>{labelFromVersionUrl(newUrl)}</a>
-                                          <a href={compareUrl} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "2px" }}>
-                                            ({t("common.compare")} <OpenInNewIcon sx={{ fontSize: "12px" }} />)
+                                    {expansion.default && (
+                                      <MetaChip
+                                        label={t("common.default")}
+                                        color="success"
+                                        icon={<DefaultIcon />}
+                                      />
+                                    )}
+                                    {expansion.auto && !expansion.default && (
+                                      <MetaChip
+                                        label={t("repo.autoexpand")}
+                                        icon={<ExpansionIcon />}
+                                      />
+                                    )}
+                                    {isStaleExpansion(expansion) && (
+                                      <MetaChip
+                                        label={t("repo.stale")}
+                                        color="error"
+                                        icon={<WarningIcon />}
+                                      />
+                                    )}
+                                    {processingState && (
+                                      <ProcessingChip
+                                        processed={processingState === "processed"}
+                                        fading={processingState === "processed"}
+                                        fadeDurationMs={PROCESSED_CHIP_FADE_MS}
+                                      />
+                                    )}
+                                  </Stack>
+                                  {expansion.canonical_url && (
+                                    <Typography
+                                      sx={{
+                                        mt: 0.5,
+                                        fontSize: "12px",
+                                        color: "secondary.main",
+                                        wordBreak: "break-all"
+                                      }}
+                                    >
+                                      {expansion.canonical_url}
+                                    </Typography>
+                                  )}
+                                  {renderAudit(
+                                    "repo.last_built_by",
+                                    expansion.updated_on || expansion.created_on,
+                                    expansion.updated_by || expansion.created_by
+                                  )}
+                                  {hasRepoUpdates && (
+                                    <Alert
+                                      severity="warning"
+                                      sx={{ mt: 1 }}
+                                      onClose={() =>
+                                        setDismissedUpdates(
+                                          prev => new Set([...prev, expansion.url])
+                                        )
+                                      }
+                                    >
+                                      <Typography sx={{ fontSize: "13px", fontWeight: 600, mb: 0.5 }}>
+                                        {t("repo.resolved_repo_updates_available")}
+                                      </Typography>
+                                      {Object.entries(expansionUpdates).map(([oldUrl, newUrl]) => {
+                                        const compareUrl = `#${dropVersion(newUrl)}compare-versions?version1=${newUrl}&version2=${oldUrl}`;
+                                        return (
+                                          <Typography key={oldUrl} sx={{ fontSize: "12px", color: "primary.main", display: "flex", alignItems: "center", gap: 0.5 }}>
+                                            <a href={`#${oldUrl}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>{labelFromVersionUrl(oldUrl)}</a>
+                                            {" → "}
+                                            <a href={`#${newUrl}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>{labelFromVersionUrl(newUrl)}</a>
+                                            <a href={compareUrl} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "2px" }}>
+                                              ({t("common.compare")} <OpenInNewIcon sx={{ fontSize: "12px" }} />)
+                                            </a>
+                                          </Typography>
+                                        );
+                                      })}
+                                    </Alert>
+                                  )}
+                                </Box>
+                              </TableCell>
+                              <TableCell sx={countBodyCellSx}>
+                                <CountCell value={get(expansion, "summary.active_concepts")} />
+                              </TableCell>
+                              <TableCell sx={countBodyCellSx}>
+                                <CountCell value={get(expansion, "summary.active_mappings")} />
+                              </TableCell>
+                              <TableCell sx={resolvedBodyCellSx}>
+                                <Box sx={{ minWidth: 0 }}>
+                                  <Typography
+                                    sx={{
+                                      fontSize: "12px",
+                                      fontWeight: 600,
+                                      color: "secondary.main"
+                                    }}
+                                  >
+                                    {t("repo.explicit_repo_versions")}
+                                  </Typography>
+                                  {explicitRepoVersions.length ? (
+                                    <Box sx={{ mt: 0.25 }}>
+                                      {explicitRepoVersions.map(repoVersion => (
+                                        <Typography
+                                          key={
+                                            repoVersion.version_url ||
+                                            `${repoVersion.owner}-${repoVersion.short_code}-${repoVersion.version}`
+                                          }
+                                          sx={{
+                                            fontSize: "12px",
+                                            color: "primary.main",
+                                            lineHeight: 1.45,
+                                            wordBreak: "break-word"
+                                          }}
+                                        >
+                                          <a href={`#${repoVersion.version_url}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>
+                                            {renderRepoVersionLabel(repoVersion)}
                                           </a>
                                         </Typography>
-                                      );
-                                    })}
-                                  </Alert>
-                                )}
-                              </Box>
-                            </TableCell>
-                            <TableCell sx={countBodyCellSx}>
-                              <CountCell value={get(expansion, "summary.active_concepts")} />
-                            </TableCell>
-                            <TableCell sx={countBodyCellSx}>
-                              <CountCell value={get(expansion, "summary.active_mappings")} />
-                            </TableCell>
-                            <TableCell sx={resolvedBodyCellSx}>
-                              <Box sx={{ minWidth: 0 }}>
-                                <Typography
-                                  sx={{
-                                    fontSize: "12px",
-                                    fontWeight: 600,
-                                    color: "secondary.main"
-                                  }}
-                                >
-                                  {t("repo.explicit_repo_versions")}
-                                </Typography>
-                                {explicitRepoVersions.length ? (
-                                  <Box sx={{ mt: 0.25 }}>
-                                    {explicitRepoVersions.map(repoVersion => (
-                                      <Typography
-                                        key={
-                                          repoVersion.version_url ||
-                                          `${repoVersion.owner}-${repoVersion.short_code}-${repoVersion.version}`
-                                        }
-                                        sx={{
-                                          fontSize: "12px",
-                                          color: "primary.main",
-                                          lineHeight: 1.45,
-                                          wordBreak: "break-word"
-                                        }}
-                                      >
-                                        <a href={`#${repoVersion.version_url}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>
-                                          {renderRepoVersionLabel(repoVersion)}
-                                        </a>
-                                      </Typography>
-                                    ))}
-                                  </Box>
-                                ) : (
-                                  <Typography
-                                    sx={{
-                                      mt: 0.25,
-                                      fontSize: "12px",
-                                      color: "secondary.main"
-                                    }}
-                                  >
-                                    {t("common.none")}
-                                  </Typography>
-                                )}
+                                      ))}
+                                    </Box>
+                                  ) : (
+                                    <Typography
+                                      sx={{
+                                        mt: 0.25,
+                                        fontSize: "12px",
+                                        color: "secondary.main"
+                                      }}
+                                    >
+                                      {t("common.none")}
+                                    </Typography>
+                                  )}
 
-                                <Typography
-                                  sx={{
-                                    mt: 1,
-                                    fontSize: "12px",
-                                    fontWeight: 600,
-                                    color: "secondary.main"
-                                  }}
-                                >
-                                  {t("repo.evaluated_repo_versions")}
-                                </Typography>
-                                {evaluatedRepoVersions.length ? (
-                                  <Box sx={{ mt: 0.25 }}>
-                                    {evaluatedRepoVersions.map(repoVersion => (
-                                      <Typography
-                                        key={
-                                          repoVersion.version_url ||
-                                          `${repoVersion.owner}-${repoVersion.short_code}-${repoVersion.version}-evaluated`
-                                        }
-                                        sx={{
-                                          fontSize: "12px",
-                                          color: "primary.main",
-                                          lineHeight: 1.45,
-                                          wordBreak: "break-word"
-                                        }}
-                                      >
-                                        <a href={`#${repoVersion.version_url}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>
-                                          {renderRepoVersionLabel(repoVersion)}
-                                        </a>
-                                      </Typography>
-                                    ))}
-                                  </Box>
-                                ) : (
                                   <Typography
                                     sx={{
-                                      mt: 0.25,
+                                      mt: 1,
                                       fontSize: "12px",
+                                      fontWeight: 600,
                                       color: "secondary.main"
                                     }}
                                   >
-                                    {t("common.none")}
+                                    {t("repo.evaluated_repo_versions")}
                                   </Typography>
+                                  {evaluatedRepoVersions.length ? (
+                                    <Box sx={{ mt: 0.25 }}>
+                                      {evaluatedRepoVersions.map(repoVersion => (
+                                        <Typography
+                                          key={
+                                            repoVersion.version_url ||
+                                            `${repoVersion.owner}-${repoVersion.short_code}-${repoVersion.version}-evaluated`
+                                          }
+                                          sx={{
+                                            fontSize: "12px",
+                                            color: "primary.main",
+                                            lineHeight: 1.45,
+                                            wordBreak: "break-word"
+                                          }}
+                                        >
+                                          <a href={`#${repoVersion.version_url}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>
+                                            {renderRepoVersionLabel(repoVersion)}
+                                          </a>
+                                        </Typography>
+                                      ))}
+                                    </Box>
+                                  ) : (
+                                    <Typography
+                                      sx={{
+                                        mt: 0.25,
+                                        fontSize: "12px",
+                                        color: "secondary.main"
+                                      }}
+                                    >
+                                      {t("common.none")}
+                                    </Typography>
+                                  )}
+                                </Box>
+                              </TableCell>
+                              <TableCell sx={actionBodyCellSx}>
+                                {hasAccess && (
+                                  <IconButton
+                                    size="small"
+                                    onClick={event =>
+                                      openExpansionMenu(event, version, expansion)
+                                    }
+                                  >
+                                    <MoreVertIcon fontSize="small" />
+                                  </IconButton>
                                 )}
-                              </Box>
-                            </TableCell>
-                            <TableCell sx={actionBodyCellSx}>
-                              {hasAccess && (
-                                <IconButton
-                                  size="small"
-                                  onClick={event =>
-                                    openExpansionMenu(event, version, expansion)
-                                  }
-                                >
-                                  <MoreVertIcon fontSize="small" />
-                                </IconButton>
-                              )}
-                            </TableCell>
-                          </TableRow>
+                              </TableCell>
+                            </TableRow>
                           </React.Fragment>
                         );
                       })}
@@ -1234,7 +1238,6 @@ const CollectionVersionsTab = ({
       </React.Fragment>
     );
   };
-
   return (
     <Box sx={{height: "calc(100vh - 300px)", overflow: "auto", display: 'flex', flexDirection: 'column' }}>
       <Paper
@@ -1290,7 +1293,6 @@ const CollectionVersionsTab = ({
           </Table>
         </TableContainer>
       </Paper>
-
       <ExpansionForm
         open={expansionFormState.open}
         onClose={() =>
@@ -1308,12 +1310,10 @@ const CollectionVersionsTab = ({
           onDataChange?.();
         }}
       />
-
       <ExpansionDetailsDialog
         expansion={detailsExpansion}
         onClose={() => setDetailsExpansion(false)}
       />
-
       <RebuildExpansionDialog
         expansion={rebuildExpansion}
         onClose={() => setRebuildExpansion(false)}
@@ -1327,7 +1327,6 @@ const CollectionVersionsTab = ({
           });
         }}
       />
-
       <DeleteEntityDialog
         open={deleteExpansion}
         onClose={() => setDeleteExpansion(false)}
@@ -1338,7 +1337,6 @@ const CollectionVersionsTab = ({
         associationsLabel={t("repo.concepts_and_mappings")}
         warning={false}
       />
-
       <Menu
         anchorEl={versionMenu.anchorEl}
         open={Boolean(versionMenu.anchorEl)}
@@ -1391,7 +1389,6 @@ const CollectionVersionsTab = ({
           </MenuItem>
         )}
       </Menu>
-
       <Menu
         anchorEl={expansionMenu.anchorEl}
         open={Boolean(expansionMenu.anchorEl)}
@@ -1463,5 +1460,4 @@ const CollectionVersionsTab = ({
     </Box>
   );
 };
-
 export default CollectionVersionsTab;

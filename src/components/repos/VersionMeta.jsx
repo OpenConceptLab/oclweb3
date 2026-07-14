@@ -42,14 +42,12 @@ const StatRow = ({icon, label, version1, version2, statKey, statFunc}) => {
     </TableRow>
   )
 }
-
 const VersionMeta = ({version1, version2}) => {
   const { t } = useTranslation()
   const lastCellStyle = {borderBottom: '1px solid', borderColor: 'surface.nv80'}
   const cellStyle = {borderRight: '1px solid', ...lastCellStyle}
   const lastHeadCellStyle = {...lastCellStyle, backgroundColor: 'surface.main'}
   const headCellStyle = {...cellStyle, backgroundColor: 'surface.main'}
-
   return (
     <TableContainer sx={{ maxHeight: 'calc(100vh - 300px)' }}>
       <Table size='small' stickyHeader aria-label="sticky table">
@@ -196,5 +194,4 @@ const VersionMeta = ({version1, version2}) => {
     </TableContainer>
   )
 }
-
 export default VersionMeta;

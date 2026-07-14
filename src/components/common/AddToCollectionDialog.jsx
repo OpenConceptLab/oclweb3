@@ -176,21 +176,23 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
           <CloseIconButton onClick={onClose} disabled={submitting} size="small" />
         </Box>
       </DialogTitle>
-
       <DialogContent sx={{ padding: '16px 0 0 0 !important', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         {/* Concept(s) being added */}
         {concepts.length === 1 && (
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{
+            color: "text.secondary"
+          }}>
             Adding: <strong>{concepts[0].display_name || concepts[0].id}</strong>
             {concepts[0].source && <React.Fragment> from <strong>{concepts[0].source}</strong></React.Fragment>}
           </Typography>
         )}
         {concepts.length > 1 && (
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{
+            color: "text.secondary"
+          }}>
             {t('addToCollection.adding_multiple', { count: concepts.length })}
           </Typography>
         )}
-
         {/* Collection selector */}
         <Autocomplete
           filterOptions={filterCollectionOptions}
@@ -260,13 +262,13 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
         {submitting && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
             <CircularProgress size={20} />
-            <Typography variant="body2" color="text.secondary">{t('addToCollection.adding_reference')}</Typography>
+            <Typography variant="body2" sx={{
+              color: "text.secondary"
+            }}>{t('addToCollection.adding_reference')}</Typography>
           </Box>
         )}
-
         {/* Request error */}
         {error && <Alert severity="error">{error}</Alert>}
-
         {/* Results */}
         {done && (
           <Box>
@@ -288,11 +290,25 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
 
                 {/* Successes */}
                 {addedCount > 0 && (
-                  <Box sx={{ mb: failedCount > 0 ? 2 : 0, border: '1px solid', borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
+                  <Box sx={[{
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                    overflow: 'hidden'
+                  }, failedCount > 0 ? {
+                    mb: 2
+                  } : {
+                    mb: 0
+                  }]}>
                     {resultList.filter(r => r.added).map((item, idx, arr) => (
                       <React.Fragment key={item.expression || idx}>
                         <Box sx={{ px: 1.5, py: 1, bgcolor: 'primary.95', display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: "text.secondary",
+                              fontSize: '0.8rem'
+                            }}>
                             {typeof item.message === 'string' ? item.message : ''}
                           </Typography>
                         </Box>
@@ -330,7 +346,6 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
           </Box>
         )}
       </DialogContent>
-
       <DialogActions sx={{ pt: 2, px: 0 }}>
         {!done && (
           <Button
@@ -344,7 +359,7 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
         )}
       </DialogActions>
     </Dialog>
-  )
+  );
 }
 
 export default AddToCollectionDialog

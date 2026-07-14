@@ -7,12 +7,22 @@ import Button from '@mui/material/Button'
 
 const EventButton = ({ label, selected, terminal, onClick }) => {
   return (
-    <Button id={label} sx={{textTransform: 'none', fontWeight: 'bold', backgroundColor: selected ? 'surface.s90' : '', borderRadius: terminal ? '25px' : undefined}} color='secondary' startIcon={selected ? <DoneIcon fontSize='inherit' /> : undefined} onClick={onClick}>
+    <Button id={label} sx={[{
+      textTransform: 'none',
+      fontWeight: 'bold'
+    }, selected ? {
+      backgroundColor: 'surface.s90'
+    } : {
+      backgroundColor: ''
+    }, terminal ? {
+      borderRadius: '25px'
+    } : {
+      borderRadius: null
+    }]} color='secondary' startIcon={selected ? <DoneIcon fontSize='inherit' /> : undefined} onClick={onClick}>
       {label}
     </Button>
-  )
+  );
 }
-
 const EventsButtonGroup = ({ onClick, selected }) => {
   const { t } = useTranslation()
   return (
@@ -23,5 +33,4 @@ const EventsButtonGroup = ({ onClick, selected }) => {
     </ButtonGroup>
   )
 }
-
 export default EventsButtonGroup;

@@ -231,7 +231,11 @@ const LeftMenu = ({ isOpen, onClose }) => {
                     justifyContent: 'center',
                   }}
                 >
-                  <EntityIcon noLink strict entity={followed} isVersion={(followed?.short_code && followed?.version_url)} sx={{color: location.pathname === followed?.url ? 'primary.main' : 'secondary.main'}} />
+                  <EntityIcon noLink strict entity={followed} isVersion={(followed?.short_code && followed?.version_url)} sx={[location.pathname === followed?.url ? {
+                    color: 'primary.main'
+                  } : {
+                    color: 'secondary.main'
+                  }]} />
                 </ListItemIcon>
                 <ListItemText primary={followed.name || followed.id} />
               </ListItemButton>
@@ -240,7 +244,6 @@ const LeftMenu = ({ isOpen, onClose }) => {
         }
       </List>
     </Drawer>
-  )
+  );
 }
-
 export default LeftMenu;

@@ -20,5 +20,4 @@ const ConceptTabs = ({ tab, onTabChange }) => {
     </Tabs>
   )
 }
-
 export default ConceptTabs

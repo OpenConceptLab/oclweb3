@@ -41,8 +41,6 @@ const UserProperty = ({icon, value, label}) => {
     </ListItem>
   ) : null
 }
-
-
 const UserProfile = ({ user }) => {
   const { t } = useTranslation()
   const params = useParams()
@@ -55,19 +53,15 @@ const UserProfile = ({ user }) => {
     setAlert({message: t('user.copy_token_success'), severity: 'success', duration: 2000})
   }
   const canEdit = canEditUser(params?.user)
-
   const fetchAPIToken = () => {
     if(canEdit && !apiToken)
       APIService.users().appendToUrl('api-token/').get().then(response => setApiToken(response?.data?.token))
   }
-
   React.useEffect(() => {
     fetchAPIToken()
   }, [params.user])
-
   const currentUser = getCurrentUser()
   const isCurrentUser = Boolean(currentUser?.username && currentUser?.username == params.user)
-
   return (
     <React.Fragment>
       <UserIcon noTooltip user={user} color='primary' sx={{color: 'primary', fontSize: '100px'}} logoClassName='user-img-medium' />
@@ -88,7 +82,6 @@ const UserProfile = ({ user }) => {
           <div style={{marginTop: '8px', marginBottom: '16px'}}>
             <FollowActionButton entity={user} />
           </div>
-
       }
       <Divider sx={{marginTop: '8px'}} />
       {

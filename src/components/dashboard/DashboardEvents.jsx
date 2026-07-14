@@ -47,7 +47,16 @@ const EventCard = ({ event, highlight }) => {
     )
   }
   return (
-    <Card sx={{boxShadow: 'none', border: '1px solid', borderColor: 'surface.nv80', margin: highlight ? '0 0 16px 0' : '16px 0', borderRadius: '10px'}}>
+    <Card sx={[{
+      boxShadow: 'none',
+      border: '1px solid',
+      borderColor: 'surface.nv80',
+      borderRadius: '10px'
+    }, highlight ? {
+      margin: '0 0 16px 0'
+    } : {
+      margin: '16px 0'
+    }]}>
       <CardHeader
         avatar={
           <Avatar sx={{width: '45px', height: '45px', backgroundColor: event.object?.logo_url ? 'transparent' : 'primary.60', cursor: 'pointer'}} onClick={() => history.push(event.object?.version_url || event.object?.url)}>
@@ -64,9 +73,8 @@ const EventCard = ({ event, highlight }) => {
           </CardContent>
       }
     </Card>
-  )
+  );
 }
-
 const HighlightCard = props => {
   const { t } = useTranslation()
   return (

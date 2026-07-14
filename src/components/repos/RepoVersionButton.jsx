@@ -7,7 +7,7 @@ const RepoVersionButton = ({icon, repo, repoType, version, repoLabelStyle, versi
   const verticalStyle = version && vertical ? {flexDirection: 'column', alignItems: 'baseline', textAlign: 'left'} : {}
   return (
     <Button
-      sx={{
+      sx={[{
         textTransform: 'none',
         color: 'inherit',
         '&:hover': {
@@ -21,11 +21,14 @@ const RepoVersionButton = ({icon, repo, repoType, version, repoLabelStyle, versi
           background: 'transparent',
           outline: 'none'
         },
-        padding: href ? '4px' : 0,
         minWidth: 'auto',
         ...verticalStyle,
         ...sx
-      }}
+      }, href ? {
+        padding: '4px'
+      } : {
+        padding: 0
+      }]}
       startIcon={icon}
       href={href ? '#' + href : undefined}
       component="button"
@@ -50,13 +53,20 @@ const RepoVersionButton = ({icon, repo, repoType, version, repoLabelStyle, versi
         </span>
         {
           version &&
-            <Typography className='repo-version-label' component='span' sx={{marginLeft: '4px', color: 'secondary.50', fontFamily: '"Roboto Mono","Helvetica","Arial",sans-serif', display: 'flex', fontSize: '0.8125rem', lineHeight: 1.75, marginTop: '1px', ...(versionStyle || {})}}>
+            <Typography className='repo-version-label' component='span' sx={[{
+              marginLeft: '4px',
+              color: 'secondary.50',
+              fontFamily: '"Roboto Mono","Helvetica","Arial",sans-serif',
+              display: 'flex',
+              fontSize: '0.8125rem',
+              lineHeight: 1.75,
+              marginTop: '1px'
+            }, versionStyle || {}]}>
               {version}
             </Typography>
         }
       </span>
     </Button>
-  )
+  );
 }
-
 export default RepoVersionButton;

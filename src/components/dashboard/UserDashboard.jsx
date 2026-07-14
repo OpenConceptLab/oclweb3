@@ -47,21 +47,38 @@ const UsageWidget = ({ username }) => {
   const topOp = summary?.top_operations?.[0]
 
   return (
-    <Card sx={{ borderRadius: '10px', border: `1px solid ${SURFACE_COLORS.nv80}`, mb: 1 }}>
+    <Card
+      sx={{ borderRadius: '10px', border: `1px solid ${"var(--SURFACE_COLORS-nv80)"}`, mb: 1 }}
+      style={{
+        "--SURFACE_COLORS-nv80": SURFACE_COLORS.nv80
+      }}>
       <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+        <Typography
+          variant="subtitle2"
+          sx={{
+            color: "text.secondary",
+            mb: 1
+          }}>
           Your Activity This Month
         </Typography>
         {loading ? (
-          <Stack alignItems="center" sx={{ py: 1 }}><CircularProgress size={20} /></Stack>
+          <Stack
+            sx={{
+              alignItems: "center",
+              py: 1
+            }}><CircularProgress size={20} /></Stack>
         ) : summary ? (
           <Stack spacing={0.5}>
-            <Stack direction="row" justifyContent="space-between">
+            <Stack direction="row" sx={{
+              justifyContent: "space-between"
+            }}>
               <Typography variant="body2">API Requests</Typography>
               <Typography variant="body2" sx={{ fontWeight: 700 }}>{(summary.total_requests || 0).toLocaleString()}</Typography>
             </Stack>
             {topOp && (
-              <Stack direction="row" justifyContent="space-between">
+              <Stack direction="row" sx={{
+                justifyContent: "space-between"
+              }}>
                 <Typography variant="body2">Top Operation</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 600 }}>{topOp.operation_type}</Typography>
               </Stack>
@@ -75,13 +92,14 @@ const UsageWidget = ({ username }) => {
             </Button>
           </Stack>
         ) : (
-          <Typography variant="body2" color="text.secondary">No usage data yet.</Typography>
+          <Typography variant="body2" sx={{
+            color: "text.secondary"
+          }}>No usage data yet.</Typography>
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
-
 const UserDashboard = ({ user }) => {
   const { t } = useTranslation()
   const [selfEvents, setSelfEvents] = React.useState({events: [], headers: {}})
@@ -90,15 +108,12 @@ const UserDashboard = ({ user }) => {
   const [orgsEvents, setOrgsEvents] = React.useState({events: [], headers: {}})
   const [scope, setScope] = React.useState('all')
   const [loading, setLoading] = React.useState(true)
-
   const getService = (scope, page, limit=10) => APIService.users(user.username).appendToUrl('events/').get(null, null, {scopes: scope, limit: limit, page: page})
-
   const fetchEventsForSelf = () => {
     getService('self', parseInt(selfEvents.headers.page_number || '0') + 1, 5).then(response => {
       setSelfEvents({events: [...selfEvents.events, ...response.data], headers: response.headers})
     })
   }
-
   const fetchEventsForAll = () => {
     setLoading(true)
     getService('following,orgs', parseInt(allEvents.headers.page_number || '0') + 1).then(response => {
@@ -106,7 +121,6 @@ const UserDashboard = ({ user }) => {
       setLoading(false)
     })
   }
-
   const fetchEventsForFollowing = () => {
     setLoading(true)
     getService('following', parseInt(followingEvents.headers.page_number || '0') + 1).then(response => {
@@ -114,7 +128,6 @@ const UserDashboard = ({ user }) => {
       setLoading(false)
     })
   }
-
   const fetchEventsForOrgs = () => {
     setLoading(true)
     getService('orgs', parseInt(orgsEvents.headers.page_number || '0') + 1).then(response => {
@@ -122,7 +135,6 @@ const UserDashboard = ({ user }) => {
       setLoading(false)
     })
   }
-
   const onScopeChange = newScope => {
     if(newScope === scope)
       return
@@ -134,13 +146,10 @@ const UserDashboard = ({ user }) => {
     if(newScope === 'orgs')
       !orgsEvents.events.length && fetchEventsForOrgs()
   }
-
-
   React.useEffect(() => {
     fetchEventsForAll()
     fetchEventsForSelf()
   }, [])
-
   const getScopeEvents = () => {
     if(scope === 'orgs')
       return orgsEvents.events
@@ -148,8 +157,6 @@ const UserDashboard = ({ user }) => {
       return followingEvents.events
     return allEvents.events
   }
-
-
   return (
     <div className='col-xs-12 padding-0'>
       <div className='col-xs-9' style={{maxWidth: 'calc(100% - 360px)', minWidth: '500px'}}>
@@ -173,5 +180,4 @@ const UserDashboard = ({ user }) => {
     </div>
   )
 }
-
 export default UserDashboard

@@ -28,7 +28,7 @@ const ReferenceHome = props => {
   const repoURL = props?.repo?.version_url || props?.repo?.url
   const isHeadReferenceUrl = url => {
     const normalizedUrl = (url || '').replace(/\/$/, '')
-    return normalizedUrl.includes('/HEAD/') || Boolean(normalizedUrl.match(/\/collections\/[^/]+\/references\/[^/]+$/))
+    return normalizedUrl.includes('/HEAD/') || Boolean(normalizedUrl.match(/\/collections\/[^/]+\/references\/[^/]+$/));
   }
   const isHead = isHeadReferenceUrl(props.url) || isHeadReferenceUrl(repoURL)
 

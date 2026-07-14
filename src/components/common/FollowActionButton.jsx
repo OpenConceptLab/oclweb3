@@ -39,18 +39,32 @@ const FollowButton = ({ entity, isFollowing, onClick, sx, size }) => {
       icon={<Icon isFollowing={isFollowing} sx={{fontSize: 'large'}} />}
       label={`${isFollowing ? t('common.following') : t('common.follow')} ${entity.name || entity.id}`}
       onClick={onClick}
-      sx={{
-        backgroundColor: isFollowing ? 'surface.s90' : 'transparent',
+      sx={[{
         fontWeight: 'bold',
-        borderColor: isFollowing ? 'none' : 'surface.s90',
-        border: isFollowing ? 'none' : '1px solid',
-        '.MuiChip-icon': {
-          color: isFollowing ? 'primary.main' : 'initial'
-        },
         ...sx
-      }}
+      }, isFollowing ? {
+        backgroundColor: 'surface.s90'
+      } : {
+        backgroundColor: 'transparent'
+      }, isFollowing ? {
+        borderColor: 'none'
+      } : {
+        borderColor: 'surface.s90'
+      }, isFollowing ? {
+        border: 'none'
+      } : {
+        border: '1px solid'
+      }, isFollowing ? {
+        '.MuiChip-icon': {
+          color: 'primary.main'
+        }
+      } : {
+        '.MuiChip-icon': {
+          color: 'initial'
+        }
+      }]}
     />
-  )
+  );
 }
 
 const FollowActionButton = ({ entity, iconButton, sx, size}) => {
@@ -73,5 +87,4 @@ const FollowActionButton = ({ entity, iconButton, sx, size}) => {
     <FollowButton isFollowing={isFollowing} onClick={onFollowToggle} entity={entity} sx={sx} size={size} />
   ) : null
 }
-
 export default FollowActionButton;

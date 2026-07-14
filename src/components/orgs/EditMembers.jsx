@@ -164,7 +164,6 @@ const EditMembers = ({onClose, org, members, fetchMembers}) => {
               }
             </div>
         }
-
       </DialogContent>
       <DialogActions>
         <Link sx={{fontSize: '14px'}} label={t('common.submit')} onClick={onSubmit} />
@@ -172,5 +171,4 @@ const EditMembers = ({onClose, org, members, fetchMembers}) => {
     </Dialog>
   )
 }
-
 export default EditMembers

@@ -70,10 +70,8 @@ const CommunityBlog = ({ sx }) => {
               }
             </List>
         }
-
       </CardContent>
     </Card>
   )
 }
-
 export default CommunityBlog

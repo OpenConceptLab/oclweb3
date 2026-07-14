@@ -4,8 +4,7 @@ import Fade from '@mui/material/Fade';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { HashRouter } from 'react-router-dom';
-import { ThemeProvider, StyledEngineProvider, createTheme, alpha } from '@mui/material/styles';
-import StylesProvider from '@mui/styles/StylesProvider';
+import { ThemeProvider, StyledEngineProvider, createTheme } from '@mui/material/styles';
 import App from './components/app/App';
 import LayoutContext from './components/app/LayoutContext';
 import './index.scss';
@@ -91,10 +90,7 @@ const v5Theme = createTheme(theme, {
                       theme.palette.mode === "light"
                       ? "rgba(0, 0, 0, 0.23)"
                       : "rgba(255, 255, 255, 0.23)",
-              backgroundColor: alpha(
-                theme.palette.text.primary,
-                theme.palette.action.hoverOpacity
-              )
+              backgroundColor: theme.alpha(theme.palette.text.primary, theme.palette.action.hoverOpacity)
             }
           }
         },
@@ -103,10 +99,7 @@ const v5Theme = createTheme(theme, {
           style: {
             color: theme.palette.text.primary,
             "&:hover": {
-              backgroundColor: alpha(
-                theme.palette.text.primary,
-                theme.palette.action.hoverOpacity
-              )
+              backgroundColor: theme.alpha(theme.palette.text.primary, theme.palette.action.hoverOpacity)
             }
           }
         }
@@ -120,14 +113,12 @@ const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(
   <HashRouter>
-    <StylesProvider injectFirst>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={v5Theme}>
-          <LocalizationProvider dateAdapter={AdapterMoment}>
-            <LayoutContext subPages ={(<App />)} />
-          </LocalizationProvider>
-        </ThemeProvider>
-      </StyledEngineProvider>
-    </StylesProvider>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={v5Theme}>
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+          <LayoutContext subPages ={(<App />)} />
+        </LocalizationProvider>
+      </ThemeProvider>
+    </StyledEngineProvider>
   </HashRouter>
 );

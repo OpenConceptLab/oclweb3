@@ -45,8 +45,6 @@ const StatRow = ({icon, label, version1, version2, statKey, statFunc}) => {
   </TableRow>
   )
 }
-
-
 const VersionStats = ({version1, version2}) => {
   const { t } = useTranslation()
   const lastCellStyle = {borderBottom: '1px solid', borderColor: 'surface.nv80'}
@@ -150,5 +148,4 @@ const VersionStats = ({version1, version2}) => {
     </TableContainer>
   )
 }
-
 export default VersionStats;

@@ -122,7 +122,11 @@ const ConceptsAndMappingsTable = ({reference, concepts, loading, t, hasMore, onL
                         <TableCell align='center'>
                           {
                             hasMappings ?
-                              <Button onClick={() => toggleRow(key)} sx={{color: isOpen ? 'primary' : 'rgba(0, 0, 0, 0.87)'}} startIcon={isOpen ? <RemoveIcon /> : <AddIcon />} variant='text'>{concept.mappings.length}</Button> :
+                              <Button onClick={() => toggleRow(key)} sx={[isOpen ? {
+                                color: 'primary'
+                              } : {
+                                color: 'rgba(0, 0, 0, 0.87)'
+                              }]} startIcon={isOpen ? <RemoveIcon /> : <AddIcon />} variant='text'>{concept.mappings.length}</Button> :
                             '0'
                           }
                         </TableCell>
@@ -148,7 +152,7 @@ const ConceptsAndMappingsTable = ({reference, concepts, loading, t, hasMore, onL
                         </TableCell>
                       </TableRow>
                     </React.Fragment>
-                  )
+                  );
                 })
               }
             </>
@@ -164,7 +168,7 @@ const ConceptsAndMappingsTable = ({reference, concepts, loading, t, hasMore, onL
         null
       }
     </React.Fragment>
-  )
+  );
 }
 
 const ReferenceExpansionResults = ({ reference, concepts, mappings, conceptHeaders, mappingHeaders, loading, onLoadMore }) => {
@@ -203,5 +207,4 @@ const ReferenceExpansionResults = ({ reference, concepts, mappings, conceptHeade
     </div>
   )
 }
-
 export default ReferenceExpansionResults;

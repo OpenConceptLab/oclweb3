@@ -1,7 +1,7 @@
 # Stage-1 Build and Development Environment
 # syntax=docker/dockerfile:1.4
 
-FROM node:14.11 as build
+FROM node:22 as build
 ARG NODE_ENV=production
 ARG NODE_OPTIONS=--max_old_space_size=700
 ENV NPM_CONFIG_LOGLEVEL warn
@@ -23,6 +23,7 @@ ENV PATH /app/node_modules/.bin:$PATH
 
 ADD package.json /app/
 ADD package-lock.json /app/
+ADD .npmrc /app/
 
 RUN npm ci --production=false
 

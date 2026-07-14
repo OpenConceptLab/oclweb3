@@ -174,7 +174,14 @@ const Locales = ({ concept, locales, title, repo }) => {
         <TagCountLabel label={title} count={visibleLocales?.length}/>
         {
           hasRetired ?
-            <Button size='small' variant='outlined' color='secondary' selected={retired} startIcon={retired ? <SelectedIcon /> : undefined } sx={{borderRadius: '20px', backgroundColor: retired ? 'primary.90' : undefined, textTransform: 'none'}} onClick={() => setRetried(!retired)}>
+            <Button size='small' variant='outlined' color='secondary' selected={retired} startIcon={retired ? <SelectedIcon /> : undefined } sx={[{
+              borderRadius: '20px',
+              textTransform: 'none'
+            }, retired ? {
+              backgroundColor: 'primary.90'
+            } : {
+              backgroundColor: null
+            }]} onClick={() => setRetried(!retired)}>
               <b>Show Retired</b>
             </Button> :
           null
@@ -208,7 +215,7 @@ const Locales = ({ concept, locales, title, repo }) => {
         }
       </List>
     </Paper>
-  )
+  );
 }
 
 export default Locales;

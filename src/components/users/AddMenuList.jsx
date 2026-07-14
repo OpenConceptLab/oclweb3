@@ -31,5 +31,4 @@ const AddMenuList = ({ anchorEl, open, onClose }) => {
     </Menu>
   )
 }
-
 export default AddMenuList;

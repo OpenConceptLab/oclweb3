@@ -110,22 +110,19 @@ const EnhancedTableHead = props => {
     </TableHead>
   );
 }
-
 // baseURL is the (possibly version-scoped) concepts listing URL, e.g. /orgs/Foo/sources/Bar/v1.0/concepts/
 // row.url is always version-less, e.g. /orgs/Foo/sources/Bar/concepts/123/
 const getChildrenURL = (row, baseURL) => {
   if(!baseURL)
     return row.url + 'children/'
   const conceptSuffix = row.url.replace(/^.*\/concepts\//, 'concepts/').replace(/\/$/, '')
-  return baseURL.replace(/concepts\/.*$/, '') + conceptSuffix + '/children/'
+  return baseURL.replace(/concepts\/.*$/, '') + conceptSuffix + '/children/';
 }
-
 const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, isSelected, isItemShown, size, hierarchical, level, baseURL, onRowsLoaded}) => {
   const [open, setOpen] = React.useState(false)
   const [children, setChildren] = React.useState([])
   const [fetched, setFetched] = React.useState(false)
   const [loadingChildren, setLoadingChildren] = React.useState(false)
-
   const id = row.version_url || row.url || row.id
   const isItemSelected = isSelected(id)
   const isItemSelectedToShow = isItemShown(id)
@@ -133,7 +130,6 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
   const color = row.retired ? SECONDARY_COLORS.main : 'none'
   let bgColor = isItemSelectedToShow ? 'primary.90' : ''
   const colSpan = columns.length + (handleClick ? 1 : 0) + 1
-
   const fetchChildren = () => {
     if(fetched)
       return
@@ -148,7 +144,6 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
       }
     })
   }
-
   const onExpandClick = event => {
     event.preventDefault()
     event.stopPropagation()
@@ -157,7 +152,6 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
       fetchChildren()
     setOpen(newOpen)
   }
-
   return (
     <React.Fragment>
       <TableRow
@@ -168,16 +162,21 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
         onClick={event => handleRowClick(event, id)}
         selected={isItemSelectedToShow}
         className={isItemSelectedToShow ? 'show-item' : ''}
-        sx={{
+        sx={[{
           cursor: 'pointer',
           backgroundColor: '#FFF',
           '&.Mui-selected': {
             backgroundColor: bgColor
-          },
+          }
+        }, isItemSelectedToShow ? {
           '&.MuiTableRow-hover:hover': {
-            backgroundColor: isItemSelectedToShow ? bgColor : 'primary.95'
-          },
-        }}
+            backgroundColor: bgColor
+          }
+        } : {
+          '&.MuiTableRow-hover:hover': {
+            backgroundColor: 'primary.95'
+          }
+        }]}
       >
         {
           handleClick &&
@@ -255,9 +254,8 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
           ))
       }
     </React.Fragment>
-  )
+  );
 }
-
 const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns, extraColumns, properties, propertyFilters, loading, hierarchical, baseURL, onRowsLoaded}) => {
   const [refTranslation, setRefTranslation] = React.useState(true)
   const rows = results?.results || []
@@ -269,21 +267,17 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
       return column.translation ? column.renderer(row, refTranslation) : column.renderer(row, Boolean(selectedToShowItem))
     return val
   }
-
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     onOrderByChange(property, isAsc ? 'desc' : 'asc')
   };
-
   let columns = filter(
     ALL_COLUMNS[resource] || [],
     column => nested ? column.nested !== false : column.global !== false
   );
   if(extraColumns?.length)
     columns = [...columns, ...extraColumns]
-
   columns = excludedColumns?.length ? reject(columns, column => excludedColumns?.includes(column.id)) : columns
-
   if(properties?.length) {
     columns = reject(columns, {property: true})
     const variableColumnIds = columns.map(col => col.id)
@@ -305,7 +299,6 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
         }
       })
     })
-
     columns = sortBy(columns, column => {
       const idx = properties.indexOf(column.id);
       if(idx === -1)
@@ -320,7 +313,6 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
       return column
     })
   }
-
   return (
     <React.Fragment>
     <TableContainer style={style || {height: 'calc(100vh - 263px)'}} className={className}>
@@ -371,7 +363,6 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
                 </TableRow>
               )) :
               (
-
                 rows.map((row, index) => (
                   <ResultRow
                     key={row.version_url || row.url || row.id}
@@ -390,7 +381,6 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
                     onRowsLoaded={onRowsLoaded}
                   />
                 ))
-
               )
           }
         </TableBody>
@@ -399,5 +389,4 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
     </React.Fragment>
   )
 }
-
 export default TableResults;

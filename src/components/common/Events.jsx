@@ -36,7 +36,15 @@ const EventDescription = ({ event, isFirst, isLast, isJoined }) => {
   const {eventDescription, rel} = getDescription()
   return (
     <React.Fragment>
-      <Typography sx={{fontSize: '14px', alignItems: 'center', marginTop: isFirst ? 0 :  (isLast ? (isJoined ? 0 : '10px') : '6px'), display: 'block'}}>
+      <Typography sx={[{
+        fontSize: '14px',
+        alignItems: 'center',
+        display: 'block'
+      }, isFirst ? {
+        marginTop: 0
+      } : {
+        marginTop: (isLast ? (isJoined ? 0 : '10px') : '6px')
+      }]}>
         {eventDescription}
         {
           rel ?
@@ -48,10 +56,8 @@ const EventDescription = ({ event, isFirst, isLast, isJoined }) => {
         {moment(event.created_at).fromNow()}
       </Typography>
     </React.Fragment>
-  )
+  );
 }
-
-
 const Event = ({ event, isFirst, isLast }) => {
   const isJoined = event?.event_type?.toLowerCase() === 'joined' && !event?.referenced_object
   const hasReferencedObjectLogo = Boolean(event?.referenced_object?.logo_url || (isJoined && event?.object?.logo_url))
@@ -60,7 +66,13 @@ const Event = ({ event, isFirst, isLast }) => {
     <TimelineItem sx={isJoined ? {display: 'flex', alignItems: 'center'} : {}}>
       <TimelineSeparator>
         { !isFirst && <TimelineConnector /> }
-        <TimelineDot sx={{backgroundColor: hasReferencedObjectLogo ? 'transparent' : (isJoined ? 'primary.main' : 'primary.60'), ...dotStyle}}>
+        <TimelineDot sx={[{
+          ...dotStyle
+        }, hasReferencedObjectLogo ? {
+          backgroundColor: 'transparent'
+        } : {
+          backgroundColor: (isJoined ? 'primary.main' : 'primary.60')
+        }]}>
           {
             isJoined ?
               <EntityIcon entity={event.object} sx={{color: '#FFF'}} logoClassName='user-img-xsmall' /> :
@@ -69,18 +81,23 @@ const Event = ({ event, isFirst, isLast }) => {
         </TimelineDot>
         { !isLast && <TimelineConnector /> }
       </TimelineSeparator>
-      <TimelineContent sx={{ padding: '8px 16px 0px 16px', paddingTop: isJoined ? '0' : '8px', color: 'rgba(0, 0, 0, 0.87)'}}>
+      <TimelineContent sx={[{
+        padding: '8px 16px 0px 16px',
+        color: 'rgba(0, 0, 0, 0.87)'
+      }, isJoined ? {
+        paddingTop: '0'
+      } : {
+        paddingTop: '8px'
+      }]}>
         <EventDescription event={event} isFirst={isFirst} isLast={isLast} isJoined={isJoined} />
       </TimelineContent>
     </TimelineItem>
-  )
+  );
 }
-
 const Events = ({ user, events, onLoadMore, showAvatar, maxHeight, dashboard }) => {
   const { t } = useTranslation()
   const currentUser = getCurrentUser()
   const isSelf = Boolean(currentUser?.username && currentUser?.username === user.username)
-
   return (
     <div className='col-xs-12 padding-0'>
       <Typography component='h3' sx={{margin: '16px 0', fontWeight: 'bold', display: 'flex', alignItems: 'center'}}>
@@ -125,5 +142,4 @@ const Events = ({ user, events, onLoadMore, showAvatar, maxHeight, dashboard }) 
     </div>
   );
 }
-
 export default Events

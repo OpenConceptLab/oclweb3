@@ -9,7 +9,10 @@ import {
 
 export const CardSection = ({title, sx, children}) => {
   return (
-    <Card variant="outlined" sx={{p: 2, marginTop: '8px', ...(sx || {})}}>
+    <Card variant="outlined" sx={[{
+      p: 2,
+      marginTop: '8px'
+    }, sx || {}]}>
       <Typography sx={{fontWeight: 'bold', color: 'surface.contrastText' }}>
         {title}
       </Typography>
@@ -17,10 +20,8 @@ export const CardSection = ({title, sx, children}) => {
         {children}
       </React.Fragment>
     </Card>
-  )
+  );
 }
-
-
 class FormComponent extends React.Component {
   getFieldStruct = (defaultValue, validators, errors) => {
     return {

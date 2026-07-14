@@ -191,11 +191,13 @@ const SourceGroup = ({ group, selected, onSelectedChange, onReferenceClick, isIt
               size='small'
               repo={group.source}
               sx={{
-                backgroundColor: `${sourceColor.bg} !important`,
+                backgroundColor: `${"var(--sourceColor-bg)"} !important`,
                 borderColor: sourceColor.border,
                 minWidth: 'auto'
               }}
-            />
+              style={{
+                "--sourceColor-bg": sourceColor.bg
+              }} />
             <Chip size='small' label={`${group.references.length.toLocaleString()} ${t(group.references.length === 1 ? 'reference.reference' : 'reference.references').toLowerCase()}`} />
             <Typography sx={{fontSize: '13px', color: 'text.secondary'}}>
               {t('reference.cascade')}: {cascade.label}
@@ -215,16 +217,21 @@ const SourceGroup = ({ group, selected, onSelectedChange, onReferenceClick, isIt
               selected={isShown}
               className={isShown ? 'show-item' : ''}
               onClick={event => onReferenceClick(event, id)}
-              sx={{
+              sx={[{
                 cursor: 'pointer',
                 backgroundColor: '#FFF',
                 '&.Mui-selected': {
                   backgroundColor: 'primary.90'
-                },
+                }
+              }, isShown ? {
                 '&.MuiTableRow-hover:hover': {
-                  backgroundColor: isShown ? 'primary.90' : 'primary.95'
-                },
-              }}
+                  backgroundColor: 'primary.90'
+                }
+              } : {
+                '&.MuiTableRow-hover:hover': {
+                  backgroundColor: 'primary.95'
+                }
+              }]}
             >
               <TableCell padding='checkbox' />
               <TableCell padding='checkbox' onClick={event => onRowSelect(event, id)}>
@@ -246,11 +253,11 @@ const SourceGroup = ({ group, selected, onSelectedChange, onReferenceClick, isIt
                 </IconButton>
               </TableCell>
             </TableRow>
-          )
+          );
         })
       }
     </React.Fragment>
-  )
+  );
 }
 
 const ReferenceSourceGroupedResults = ({ selected, results, loading, selectedToShowItem, handleRowClick, onSelectedChange, className, style, size }) => {

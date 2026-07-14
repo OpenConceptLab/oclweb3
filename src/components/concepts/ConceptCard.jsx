@@ -49,18 +49,30 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
     <Card
       variant='outlined'
       className={'col-xs-12' + (isSelectedToShow ? ' show-item' : '')}
-      sx={{
+      sx={[{
         padding: '4px 16px',
-        border: border, borderRadius: '10px',
+        border: border,
+        borderRadius: '10px',
         display: 'flex',
         alignItems: 'center',
-        margin: firstChild ? '0 0 4px 0' : '4px 0',
-        cursor: 'pointer',
-        backgroundColor: isSelectedToShow ? 'primary.90' : bgColor,
+        cursor: 'pointer'
+      }, firstChild ? {
+        margin: '0 0 4px 0'
+      } : {
+        margin: '4px 0'
+      }, isSelectedToShow ? {
+        backgroundColor: 'primary.90'
+      } : {
+        backgroundColor: bgColor
+      }, isSelectedToShow ? {
         '&:hover': {
-          backgroundColor: isSelectedToShow ? 'primary.90' : 'primary.95'
+          backgroundColor: 'primary.90'
         }
-      }}
+      } : {
+        '&:hover': {
+          backgroundColor: 'primary.95'
+        }
+      }]}
       onClick={event => onCardClick(event, id)}
     >
       <div className='col-xs-1 padding-0' style={{maxWidth: '24px'}}>
@@ -119,7 +131,7 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
         concept={concept}
       />
     </Card>
-  )
+  );
 }
 
 export default ConceptCard;

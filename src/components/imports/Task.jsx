@@ -12,11 +12,16 @@ import { WHITE, ERROR_COLORS } from '../../common/colors';
 import TaskIcon from './TaskIcon';
 
 const ExpiredResult = ({label}) => (
-  <Chip variant='outlined' label={label} sx={{border: `1px solid ${ERROR_COLORS.main}`, color: ERROR_COLORS.main}} size='small' />
+  <Chip
+    variant='outlined'
+    label={label}
+    sx={{border: `1px solid ${"var(--ERROR_COLORS-main)"}`, color: ERROR_COLORS.main}}
+    size='small'
+    style={{
+      "--ERROR_COLORS-main": ERROR_COLORS.main
+    }} />
 );
-
 const TASK_RESULT_EXPIRY_HOURS = 72;
-
 const Task = ({task, open, onOpen, onClose, onRevoke, onDownload}) => {
   const { t } = useTranslation()
   const { state, result } = task
@@ -32,7 +37,6 @@ const Task = ({task, open, onOpen, onClose, onRevoke, onDownload}) => {
       formattedValue = formatDateTime(value*1000)
     if(type === 'datetime' && value)
       formattedValue = formatDateTime(value)
-
     return (
       <React.Fragment>
         <div className='col-xs-3 padding-left-0' style={{margin: '5px 0'}}>
@@ -58,21 +62,18 @@ const Task = ({task, open, onOpen, onClose, onRevoke, onDownload}) => {
       </React.Fragment>
     )
   }
-
   const onCancelTaskClick = event => {
     event.stopPropagation()
     event.preventDefault()
     onRevoke(id)
     return false
   }
-
   const onDownloadTaskClick = event => {
     event.stopPropagation()
     event.preventDefault()
     onDownload(id)
     return false
   }
-
   return (
     <Accordion expanded={open} onChange={onChange} sx={open ? {} : {margin: '6px 0'}}>
       <AccordionSummary expandIcon={<ExpandIcon />} id={id} className={status}>
@@ -156,5 +157,4 @@ const Task = ({task, open, onOpen, onClose, onRevoke, onDownload}) => {
     </Accordion>
   )
 }
-
 export default Task;

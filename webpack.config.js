@@ -92,20 +92,23 @@ module.exports = (env) => {
       }
     } : {},
     devServer: {
-      contentBase: path.resolve(__dirname, 'public'),
-      disableHostCheck: true,
+      static: {
+        directory: path.resolve(__dirname, 'public'),
+      },
+      allowedHosts: 'all',
       historyApiFallback: {
         index: 'index.html',
       },
-      proxy: {
-        '/api': {
+      proxy: [
+        {
+          context: ['/api'],
           target: 'https://openconceptlab.org',
           changeOrigin: true,
           pathRewrite: { '^/api': '' },
         },
-      },
+      ],
     },
-    devtool: env.NODE_ENV == 'production' ? "source-map" : undefined,
+    devtool: env.NODE_ENV == 'production' ? "source-map" : "cheap-module-source-map",
     plugins: [
       new HtmlWebpackPlugin({
         template: './public/index.html',
@@ -119,18 +122,18 @@ module.exports = (env) => {
         Popper: ['popper.js', 'default'],
       }),
       new DefinePlugin({
-        'process.env.API_URL': JSON.stringify(env.API_URL),
-        'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV) || 'development',
-        'process.env.RECAPTCHA_SITE_KEY': JSON.stringify(env.RECAPTCHA_SITE_KEY),
-        'process.env.GA_ACCOUNT_ID': JSON.stringify(env.GA_ACCOUNT_ID),
-        'process.env.HOTJAR_ID': JSON.stringify(env.HOTJAR_ID),
-        'process.env.ERRBIT_URL': JSON.stringify(env.ERRBIT_URL),
-        'process.env.ERRBIT_KEY': JSON.stringify(env.ERRBIT_KEY),
-        'process.env.LOGIN_REDIRECT_URL': JSON.stringify(env.LOGIN_REDIRECT_URL),
-        'process.env.OIDC_RP_CLIENT_ID': JSON.stringify(env.OIDC_RP_CLIENT_ID),
-        'process.env.OIDC_RP_CLIENT_SECRET': JSON.stringify(env.OIDC_RP_CLIENT_SECRET),
-        'process.env.ANALYTICS_API': JSON.stringify(env.ANALYTICS_API) || '',
-        'process.env.AI_ASSISTANT_API_URL': JSON.stringify(env.AI_ASSISTANT_API_URL),
+        'process.env.API_URL': JSON.stringify(env.API_URL || ''),
+        'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV || 'development'),
+        'process.env.RECAPTCHA_SITE_KEY': JSON.stringify(env.RECAPTCHA_SITE_KEY || ''),
+        'process.env.GA_ACCOUNT_ID': JSON.stringify(env.GA_ACCOUNT_ID || ''),
+        'process.env.HOTJAR_ID': JSON.stringify(env.HOTJAR_ID || ''),
+        'process.env.ERRBIT_URL': JSON.stringify(env.ERRBIT_URL || ''),
+        'process.env.ERRBIT_KEY': JSON.stringify(env.ERRBIT_KEY || ''),
+        'process.env.LOGIN_REDIRECT_URL': JSON.stringify(env.LOGIN_REDIRECT_URL || ''),
+        'process.env.OIDC_RP_CLIENT_ID': JSON.stringify(env.OIDC_RP_CLIENT_ID || ''),
+        'process.env.OIDC_RP_CLIENT_SECRET': JSON.stringify(env.OIDC_RP_CLIENT_SECRET || ''),
+        'process.env.ANALYTICS_API': JSON.stringify(env.ANALYTICS_API || ''),
+        'process.env.AI_ASSISTANT_API_URL': JSON.stringify(env.AI_ASSISTANT_API_URL || ''),
       }),
       new IgnorePlugin({ resourceRegExp: /moment\/locale\// })
     ],

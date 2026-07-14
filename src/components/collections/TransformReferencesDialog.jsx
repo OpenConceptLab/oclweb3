@@ -38,16 +38,16 @@ const TransformReferencesDialog = ({ open, onClose, onConfirm, references, loadi
         {t('reference.transform_confirm_title', { count: selectedCount })}
       </DialogTitle>
       <DialogContent sx={{display: 'flex', flexDirection: 'column', gap: 1.5}}>
-        <Typography variant='body2' color='text.secondary'>
+        <Typography variant='body2' sx={{
+          color: 'text.secondary'
+        }}>
           {t('reference.transform_confirm_body')}
         </Typography>
-
         <Box sx={{display: 'flex', gap: 1, flexWrap: 'wrap'}}>
           <Chip size='small' color='primary' label={`${selectedCount} ${t('common.selected')}`} />
           <Chip size='small' color='success' label={`${eligibleItems.length} ${t('common.eligible')}`} />
           <Chip size='small' color={skippedItems.length ? 'warning' : 'default'} label={`${skippedItems.length} ${t('common.skipped')}`} />
         </Box>
-
         {eligibleItems.length === 0 && (
           <Alert severity='warning'>
             {t('reference.transform_no_eligible')}
@@ -95,7 +95,6 @@ const TransformReferencesDialog = ({ open, onClose, onConfirm, references, loadi
         </Button>
       </DialogActions>
     </Dialog>
-  )
+  );
 }
-
 export default TransformReferencesDialog

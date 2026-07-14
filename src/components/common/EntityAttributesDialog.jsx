@@ -90,15 +90,22 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
       onClose={onClose}
       scroll='paper'
       maxWidth="lg"
-      sx={{
+      sx={[{
         '& .MuiDialog-paper': {
           backgroundColor: 'surface.n92',
           borderRadius: '28px',
-          minWidth: entity?.properties?.length > 0 ? '812px' : '312px',
           minHeight: '262px',
           padding: 0
         }
-      }}
+      }, entity?.properties?.length > 0 ? {
+        '& .MuiDialog-paper': {
+          minWidth: '812px'
+        }
+      } : {
+        '& .MuiDialog-paper': {
+          minWidth: '312px'
+        }
+      }]}
     >
       <DialogTitle sx={{p: 3, color: 'surface.dark', fontSize: '22px', textAlign: 'left'}}>
         {entity.type} {t('common.attributes')}
@@ -134,7 +141,6 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
         <Link sx={{fontSize: '14px'}} label={t('common.close')} onClick={onClose} />
       </DialogActions>
     </Dialog>
-  )
+  );
 }
-
 export default EntityAttributesDialog;

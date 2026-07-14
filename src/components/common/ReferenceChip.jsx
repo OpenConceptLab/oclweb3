@@ -8,10 +8,11 @@ const ReferenceChip = (props) => {
   const type = props.reference_type;
   let icon = <span />;
   if(type && type.toLowerCase() === 'mappings')
-    icon = <LinkIcon fontSize="small" color={isResolved ? 'primary' : 'secondary'} />;
+    icon = <LinkIcon color={isResolved ? 'primary' : 'secondary'} sx={{
+      fontSize: "small"
+    }} />;
   else if(type && type.toLowerCase() === 'concepts')
     icon = <LocalOfferIcon fontSize='small' color={isResolved ? 'primary' : 'secondary'} />;
-
   return (
     <span style={{display: 'flex', alignItems: 'center'}}>
       <span style={{marginRight: '6px'}}>{icon}</span>
@@ -19,5 +20,4 @@ const ReferenceChip = (props) => {
     </span>
   )
 }
-
 export default ReferenceChip;

@@ -295,7 +295,6 @@ const ExpansionForm = ({
             inputProps={{ pattern: "[a-zA-Z0-9-._@]+" }}
             sx={fieldSx}
           />
-
           <Autocomplete
             openOnFocus
             disableClearable
@@ -319,7 +318,6 @@ const ExpansionForm = ({
               />
             )}
           />
-
           <TextField
             error={Boolean(fieldErrors.canonical_url)}
             id="fields.canonical_url"
@@ -331,7 +329,6 @@ const ExpansionForm = ({
             fullWidth
             sx={fieldSx}
           />
-
           <Box>
             <Typography
               sx={{
@@ -449,8 +446,9 @@ const ExpansionForm = ({
               })}
             </Stack>
           </Box>
-
-          <Stack direction="row" justifyContent="flex-end">
+          <Stack direction="row" sx={{
+            justifyContent: "flex-end"
+          }}>
             <MuiButton
               type="submit"
               variant="contained"
@@ -465,5 +463,4 @@ const ExpansionForm = ({
     </Dialog>
   );
 };
-
 export default ExpansionForm;

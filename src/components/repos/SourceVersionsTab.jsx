@@ -269,12 +269,16 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>{t('repo.upload_external_export')}</Typography>
               <TextField fullWidth size="small" label={t('common.name')} value={name} onChange={event => setName(event.target.value)} sx={{ mb: 1 }} />
               <TextField fullWidth size="small" label={t('common.description')} value={description} onChange={event => setDescription(event.target.value)} sx={{ mb: 1 }} />
-              <Stack direction="row" spacing={1} alignItems="center">
+              <Stack direction="row" spacing={1} sx={{
+                alignItems: "center"
+              }}>
                 <Button component="label" variant="outlined" size="small" startIcon={<UploadIcon />}>
                   {t('repo.choose_file')}
                   <input hidden type="file" accept=".sql,.zip,.pdf,.csv" onChange={event => setFile(get(event, 'target.files.0') || null)} />
                 </Button>
-                <Typography variant="body2" color="text.secondary">{file ? file.name : t('repo.external_export_file_types')}</Typography>
+                <Typography variant="body2" sx={{
+                  color: "text.secondary"
+                }}>{file ? file.name : t('repo.external_export_file_types')}</Typography>
               </Stack>
             </Box>
           )
@@ -287,7 +291,6 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
     </Dialog>
   );
 };
-
 const ChangelogDialog = ({ version, open, onClose }) => {
   const { t } = useTranslation();
   const [loading, setLoading] = React.useState(false);
@@ -296,7 +299,6 @@ const ChangelogDialog = ({ version, open, onClose }) => {
   const [showLongMessage, setShowLongMessage] = React.useState(false);
   const timerRef = React.useRef(null);
   const previousVersionURL = getPreviousVersionURL(version);
-
   React.useEffect(() => {
     if(!open || !version || !previousVersionURL) return undefined;
     setLoading(true);
@@ -321,7 +323,6 @@ const ChangelogDialog = ({ version, open, onClose }) => {
       if(timerRef.current) clearTimeout(timerRef.current);
     };
   }, [open, previousVersionURL, t, version]);
-
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle>{`Changelog: ${previousVersionURL?.split('/').filter(Boolean).pop()} -> ${getVersionLabel(version)}`}</DialogTitle>
@@ -343,7 +344,6 @@ const ChangelogDialog = ({ version, open, onClose }) => {
     </Dialog>
   );
 };
-
 const SourceVersionsTab = ({
   repo,
   versions,
@@ -372,12 +372,10 @@ const SourceVersionsTab = ({
       setHeadVersion(null);
       return;
     }
-
     if(isHeadVersion(repo)) {
       setHeadVersion(repo);
       return;
     }
-
     APIService.new()
       .overrideURL(baseRepoURL)
       .get(null, null, { includeSummary: true }, true)
@@ -399,7 +397,6 @@ const SourceVersionsTab = ({
     return headFirst(pagedVersions);
   }, [baseRepoURL, headVersion, page, versions]);
   const hasAccess = currentUserHasAccess();
-
   const closeMenu = () => setMenuState({ anchorEl: null, version: null });
   const withClose = callback => {
     const version = menuState.version;
@@ -434,7 +431,6 @@ const SourceVersionsTab = ({
     : t('repo.source_versions_count', { count: versionsCount.toLocaleString() });
   const handleChangePage = (event, nextPage) => onPageChange?.(nextPage + 1, pageSize);
   const handleChangeRowsPerPage = event => onPageChange?.(1, parseInt(event.target.value, 10));
-
   return (
     <Box sx={{ height: 'calc(100vh - 285px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', backgroundColor: 'background.paper' }}>
       <Toolbar
@@ -488,38 +484,54 @@ const SourceVersionsTab = ({
                     </Button>
                     {version?.match_algorithms?.includes('llm') && <Chip size="small" label={t('repo.mapper')} variant="outlined" sx={{ ml: 1, height: 20 }} />}
                     {version.description && (
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.25 }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "text.secondary",
+                          display: 'block',
+                          mt: 0.25
+                        }}>
                         {version.description}
                       </Typography>
                     )}
                   </TableCell>
                   <TableCell sx={bodyCellSx}>
                     <Stack direction="row" spacing={1.5}>
-                      <Stack direction="row" spacing={0.5} alignItems="center">
+                      <Stack direction="row" spacing={0.5} sx={{
+                        alignItems: "center"
+                      }}>
                         <ConceptIcon selected color="secondary" sx={{ width: 12, height: 12 }} />
                         <Typography variant="body2">{formatCount(getContentCount(version, 'active_concepts'))}</Typography>
                       </Stack>
-                      <Stack direction="row" spacing={0.5} alignItems="center">
+                      <Stack direction="row" spacing={0.5} sx={{
+                        alignItems: "center"
+                      }}>
                         <MappingIcon width="15px" height="13px" fill="secondary.main" color="secondary" />
                         <Typography variant="body2">{formatCount(getContentCount(version, 'active_mappings'))}</Typography>
                       </Stack>
                     </Stack>
                   </TableCell>
                   <TableCell sx={bodyCellSx}>
-                    <Stack direction="row" spacing={0.5} alignItems="center">
+                    <Stack direction="row" spacing={0.5} sx={{
+                      alignItems: "center"
+                    }}>
                       <AccessIcon sx={{ width: 17, height: 17 }} public_access={version.public_access} />
                       <Typography variant="body2">{isPublic ? t('common.public') : t('common.private')}</Typography>
                     </Stack>
                   </TableCell>
                   <TableCell sx={bodyCellSx}>
                     {isHEAD && (
-                      <Stack direction="row" spacing={0.5} alignItems="center">
+                      <Stack direction="row" spacing={0.5} sx={{
+                        alignItems: "center"
+                      }}>
                         <DraftIcon sx={{ width: 17, height: 17 }} />
                         <Typography variant="body2">{t('common.draft')}</Typography>
                       </Stack>
                     )}
                     {!isHEAD && version.released && (
-                      <Stack direction="row" spacing={0.5} alignItems="center">
+                      <Stack direction="row" spacing={0.5} sx={{
+                        alignItems: "center"
+                      }}>
                         <ReleasedIcon color="primary" sx={{ width: 17, height: 17 }} />
                         <Typography variant="body2" color="primary">{t('common.released')}</Typography>
                       </Stack>
@@ -531,7 +543,9 @@ const SourceVersionsTab = ({
                   </TableCell>
                   <TableCell sx={bodyCellSx}>
                     <Typography variant="body2">{version.created_on ? formatDate(version.created_on) : '-'}</Typography>
-                    <Typography variant="caption" color="text.secondary">{version.created_by || ''}</Typography>
+                    <Typography variant="caption" sx={{
+                      color: "text.secondary"
+                    }}>{version.created_by || ''}</Typography>
                   </TableCell>
                   <TableCell align="right" sx={bodyCellSx}>
                     <Tooltip title={t('common.actions')}>

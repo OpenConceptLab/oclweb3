@@ -1,12 +1,13 @@
 import React from 'react';
-import { DatePicker, PickersDay } from "@mui/x-date-pickers";
-import { Tooltip, Badge, TextField } from '@mui/material';
+import moment from 'moment';
+import { DatePicker, PickerDay } from "@mui/x-date-pickers";
+import { Tooltip, Badge } from '@mui/material';
 import { isEmpty, get } from 'lodash';
 
 
 const ChipDatePicker = props => {
   const ref = React.useRef(null);
-  const [value, setValue] = React.useState('')
+  const [value, setValue] = React.useState(null)
   const { date, defaultValue, badgedDates } = props;
   const onChange = mDate => {
     let date = null;
@@ -17,30 +18,32 @@ const ChipDatePicker = props => {
       props.onChange(date);
   }
 
-  const renderDay = (date, selectedDate, DayComponentProps) => {
-    if(!badgedDates || isEmpty(badgedDates))
-      return <PickersDay {...DayComponentProps} />;
-    const fSelectedDate = selectedDate.format('DD-MM-YYYY')
-    const fDate = date.format('DD-MM-YYYY')
+  const CustomPickerDay = dayProps => {
+    const { day, selected } = dayProps;
+    if(!badgedDates || isEmpty(badgedDates) || selected)
+      return <PickerDay {...dayProps} />;
+    const fDate = day.format('DD-MM-YYYY')
     const count = get(badgedDates, fDate)
-    if(count && fDate !== fSelectedDate) {
+    if(count) {
       return (
         <Tooltip title={`${count} imports`} arrow>
           <Badge badgeContent={count} color="primary" variant="dot" overlap="circular">
-            <PickersDay {...DayComponentProps} />
+            <PickerDay {...dayProps} />
           </Badge>
         </Tooltip>
       );
     }
-    return <PickersDay {...DayComponentProps} />;
+    return <PickerDay {...dayProps} />;
   }
 
+  const toMomentValue = val => val ? moment(val) : null
+
   React.useEffect(
-    () => setValue(defaultValue || date || ''), [defaultValue]
+    () => setValue(toMomentValue(defaultValue || date)), [defaultValue]
   )
 
   React.useEffect(
-    () => setValue(defaultValue || date || ''), [date]
+    () => setValue(toMomentValue(defaultValue || date)), [date]
   )
 
 
@@ -48,21 +51,19 @@ const ChipDatePicker = props => {
     return (
       <span id='chip-date-picker'>
           <DatePicker
-            autoOk
             disableFuture
             openTo='day'
             views={['year', 'month', 'day']}
-            variant="inline"
-            renderInput={
-              params => <TextField size='small' {...params} error={false} />
-            }
+            slotProps={{
+              textField: { size: 'small', error: false },
+              popper: { anchorEl: ref.current }
+            }}
             value={value}
             onChange={onChange}
-            inputFormat="MM/DD/YYYY"
-            PopoverProps={{
-              anchorEl: ref.current
+            format="MM/DD/YYYY"
+            slots={{
+              day: CustomPickerDay
             }}
-            renderDay={renderDay}
           />
       </span>
     )

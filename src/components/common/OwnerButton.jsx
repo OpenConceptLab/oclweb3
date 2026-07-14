@@ -7,7 +7,7 @@ const Owner = ({owner, ownerType, ownerURL, noIcons, sx, ...rest}) => {
   const iconProps = {color: 'secondary', style: {marginRight: '8px', width: '0.8em'}}
   return (
     <Button
-      sx={{
+      sx={[{
         textTransform: 'none',
         color: 'inherit',
         '&:hover': {
@@ -21,10 +21,13 @@ const Owner = ({owner, ownerType, ownerURL, noIcons, sx, ...rest}) => {
           background: 'transparent',
           outline: 'none'
         },
-        padding: ownerURL ? '4px' : '0 8px',
         minWidth: 'auto',
         ...sx
-      }}
+      }, ownerURL ? {
+        padding: '4px'
+      } : {
+        padding: '0 8px'
+      }]}
       startIcon={!noIcons && <OwnerIcon noTooltip ownerType={ownerType} {...iconProps} />}
       href={ownerURL ? '#' + ownerURL : undefined}
       component="button"
@@ -32,8 +35,7 @@ const Owner = ({owner, ownerType, ownerURL, noIcons, sx, ...rest}) => {
     >
       <span className='owner-button-label'>{owner}</span>
     </Button>
-
-  )
+  );
 }
 
 const OwnerButton = ({owner, ownerType, ownerURL, noIcons, noTooltip, sx, ...rest}) => {
@@ -43,5 +45,4 @@ const OwnerButton = ({owner, ownerType, ownerURL, noIcons, noTooltip, sx, ...res
     <Owner owner={owner} ownerType={ownerType} ownerURL={ownerURL} noIcons={noIcons} sx={sx} {...rest} />
     </OwnerTooltip>
 }
-
 export default OwnerButton;

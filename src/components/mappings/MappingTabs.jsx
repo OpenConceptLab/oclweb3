@@ -20,5 +20,4 @@ const MappingTabs = ({ tab, onTabChange }) => {
     </Tabs>
   )
 }
-
 export default MappingTabs

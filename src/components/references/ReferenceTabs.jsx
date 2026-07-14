@@ -20,5 +20,4 @@ const ReferenceTabs = ({ tab, onTabChange }) => {
     </Tabs>
   )
 }
-
 export default ReferenceTabs
