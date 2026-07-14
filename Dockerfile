@@ -35,7 +35,7 @@ RUN --mount=type=ssh \
   ssh-keyscan github.com >> /root/.ssh/known_hosts && \
   if [ -n "$PRIVATE_PACKAGES_GIT" ]; then \
     echo "Installing premium UI packages:" $PRIVATE_PACKAGES_GIT && \
-    npm i $PRIVATE_PACKAGES_GIT --no-save; \
+    npm i $PRIVATE_PACKAGES_GIT --no-save --production=false; \
   fi
 
 ADD webpack.config.js /app/
