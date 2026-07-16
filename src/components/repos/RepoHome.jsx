@@ -32,7 +32,7 @@ import ReferenceHome from '../references/ReferenceHome'
 import AddReferencesDialog from '../collections/AddReferencesDialog'
 import ExpansionDropDown from './ExpansionDropDown';
 
-const DEFAULT_VERSIONS_PAGE_SIZE = 25
+const DEFAULT_VERSIONS_PAGE_SIZE = 100
 
 const RepoHome = () => {
   const { t } = useTranslation()
