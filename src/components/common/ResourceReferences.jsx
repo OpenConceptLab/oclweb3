@@ -27,7 +27,7 @@ const ResourceReferences = ({ references, resourceType }) => {
           <ListItem key={reference.id} divider sx={{padding: '4px 16px'}}>
             <ListItemText
               primary={reference.expression}
-              primaryTypographyProps={{sx: {fontSize: '13px', fontFamily: 'monospace', wordBreak: 'break-all'}}}
+              slotProps={{primary: {sx: {fontSize: '13px', fontFamily: 'monospace', wordBreak: 'break-all'}}}}
             />
           </ListItem>
         ))}

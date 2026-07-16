@@ -215,14 +215,17 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
               variant="outlined"
               fullWidth
               size="small"
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <React.Fragment>
-                    {loadingCollections ? <CircularProgress color="inherit" size={16} /> : null}
-                    {params.InputProps.endAdornment}
-                  </React.Fragment>
-                ),
+              slotProps={{
+                ...params.slotProps,
+                input: {
+                  ...params.slotProps?.input,
+                  endAdornment: (
+                    <React.Fragment>
+                      {loadingCollections ? <CircularProgress color="inherit" size={16} /> : null}
+                      {params.slotProps?.input?.endAdornment}
+                    </React.Fragment>
+                  ),
+                },
               }}
             />
           )}

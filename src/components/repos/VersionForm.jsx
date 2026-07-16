@@ -180,7 +180,7 @@ class VersionForm extends FormComponent {
                 onChange={this.onTextFieldChange}
                 value={fields.revision_date.value || ''}
                 type='datetime-local'
-                InputLabelProps={{ shrink: true }}
+                slotProps={{ inputLabel: { shrink: true } }}
               />
             </div>
             {

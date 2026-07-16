@@ -36,9 +36,9 @@ import {
 } from '@mui/material';
 import {
   AttachFile as ExternalExportIcon,
-  CheckCircleOutline as ReleasedIcon,
+  CheckCircleOutlined as ReleasedIcon,
   ContentCopy as CopyIcon,
-  DeleteOutline as DeleteIcon,
+  DeleteOutlined as DeleteIcon,
   Download as ExportIcon,
   EditOutlined as EditIcon,
   MoreVert as MoreVertIcon,

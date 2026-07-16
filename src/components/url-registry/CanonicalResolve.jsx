@@ -72,8 +72,10 @@ const CanonicalResolve = ({open, onClose, defaultOwner}) => {
               label={t('url_registry.canonical_url')}
               fullWidth
               sx={{backgroundColor: 'surface.n92'}}
-              inputProps={{
-                onKeyDown: onKeyDown
+              slotProps={{
+                htmlInput: {
+                  onKeyDown: onKeyDown
+                }
               }}
             />
           </div>

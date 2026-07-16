@@ -111,8 +111,12 @@ const Events = ({ user, events, onLoadMore, showAvatar, maxHeight, dashboard }) 
         id="events-timeline"
         sx={{
           '.MuiTimelineItem-root:before': {
-            flex: 0,
-            p: 0
+            flex: '0 !important',
+            p: '0 !important'
+          },
+          '.MuiTimelineItem-missingOppositeContent::before': {
+            flex: '0 !important',
+            p: '0 !important'
           },
           p: 0,
           marginTop: 0,

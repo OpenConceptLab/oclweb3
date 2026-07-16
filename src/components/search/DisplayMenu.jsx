@@ -21,8 +21,10 @@ const DisplayMenu = ({anchorEl, labelId, onClose, onSelect, selected, options}) 
       anchorEl={anchorEl}
       open={Boolean(anchorEl)}
       onClose={onClose}
-      MenuListProps={{
-        'aria-labelledby': labelId,
+      slotProps={{
+        list: {
+          'aria-labelledby': labelId,
+        },
       }}
     >
       {

@@ -292,7 +292,7 @@ const ExpansionForm = ({
             fullWidth
             required
             helperText={t("repo.version.form.id.helper_text")}
-            inputProps={{ pattern: "[a-zA-Z0-9-._@]+" }}
+            slotProps={{ htmlInput: { pattern: "[a-zA-Z0-9-._@]+" } }}
             sx={fieldSx}
           />
           <Autocomplete

@@ -70,24 +70,26 @@ const RepoVersionChip = ({ version, versions, sx, onChange, size, disabledFrom, 
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={onClose}
-        MenuListProps={{
-          'aria-labelledby': 'versions-dropdown',
-          style: {
-            padding: 0,
-            maxHeight: '320px',
-            minWidth: '650px',
-          }
-        }}
-        PaperProps={{
-          style: {
-            padding: '12px',
-            maxHeight: '320px',
-            minWidth: '650px',
-            borderRadius: '16px',
-            boxShadow: 'none',
-            border: '1px solid',
-            borderColor: SURFACE_COLORS.nv80,
-            background: SURFACE_COLORS.main
+        slotProps={{
+          list: {
+            'aria-labelledby': 'versions-dropdown',
+            style: {
+              padding: 0,
+              maxHeight: '320px',
+              minWidth: '650px',
+            }
+          },
+          paper: {
+            style: {
+              padding: '12px',
+              maxHeight: '320px',
+              minWidth: '650px',
+              borderRadius: '16px',
+              boxShadow: 'none',
+              border: '1px solid',
+              borderColor: SURFACE_COLORS.nv80,
+              background: SURFACE_COLORS.main
+            },
           },
         }}
       >

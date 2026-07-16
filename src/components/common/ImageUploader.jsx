@@ -122,9 +122,11 @@ const ImageUploader = props => {
       <div className='flex-vertical-center'>
         <TextField
           variant="outlined"
-          inputProps={{
-            type: "file",
-            accept: "image/*"
+          slotProps={{
+            htmlInput: {
+              type: "file",
+              accept: "image/*"
+            }
           }}
           onChange={onSelectFile}
         />

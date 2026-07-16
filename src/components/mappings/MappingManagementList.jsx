@@ -12,9 +12,11 @@ const MappingManagementList = ({ anchorEl, open, onClose, id, onClick, mapping }
       anchorEl={anchorEl}
       open={open}
       onClose={onClose}
-      MenuListProps={{
-        'aria-labelledby': id,
-        role: 'listbox',
+      slotProps={{
+        list: {
+          'aria-labelledby': id,
+          role: 'listbox',
+        },
       }}
       sx={{'.MuiMenu-list': {padding: 0, minWidth: '200px'}}}
     >

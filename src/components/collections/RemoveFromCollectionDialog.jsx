@@ -242,11 +242,11 @@ const RemoveFromCollectionDialog = ({ open, onClose, onConfirm, resources, colle
                           disabled={loading || !ref.id}
                           onChange={() => onToggleRef(ref.id)}
                           size='small'
-                          inputProps={{'aria-label': getReferenceLabel(ref)}}
+                          slotProps={{input: {'aria-label': getReferenceLabel(ref)}}}
                         />
                         <ListItemText
                           primary={getReferenceLabel(ref)}
-                          primaryTypographyProps={{sx: {fontSize: '13px', fontFamily: 'monospace', wordBreak: 'break-all'}}}
+                          slotProps={{primary: {sx: {fontSize: '13px', fontFamily: 'monospace', wordBreak: 'break-all'}}}}
                         />
                       </ListItem>
                     );

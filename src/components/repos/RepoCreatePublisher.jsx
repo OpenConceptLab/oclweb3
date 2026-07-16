@@ -53,7 +53,7 @@ const RepoCreatePublisher = ({ onChange, config, ...rest }) => {
             <TextField label={t('repo.meta')} fullWidth value={rest.meta || ''} onChange={event => onChange('meta', event.target.value)} />
           </div>
           <div className='col-xs-6' style={{padding: '0 0 0 10px'}}>
-            <TextField label={t('repo.revision_date')} fullWidth type='date' value={rest.revisionDate || ''} onChange={event => onChange('revisionDate', event.target.value)} InputLabelProps={{shrink: true}} />
+            <TextField label={t('repo.revision_date')} fullWidth type='date' value={rest.revisionDate || ''} onChange={event => onChange('revisionDate', event.target.value)} slotProps={{inputLabel: {shrink: true}}} />
           </div>
         </div>
         <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>

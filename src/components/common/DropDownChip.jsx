@@ -234,8 +234,8 @@ class DropDownChip extends React.Component {
               getOptionLabel={(option) => option}
               renderInput={(params) => (
                 <StyledInput
-                  ref={params.InputProps.ref}
-                  inputProps={params.inputProps}
+                  ref={params.slotProps.input.ref}
+                  inputProps={params.slotProps.htmlInput}
                   autoFocus
                 />
               )}

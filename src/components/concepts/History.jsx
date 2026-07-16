@@ -139,8 +139,12 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
     <Timeline
       sx={{
         [`& .${timelineItemClasses.root}:before`]: {
-          flex: 0,
-          padding: 0,
+          flex: '0 !important',
+          padding: '0 !important',
+        },
+        [`& .${timelineItemClasses.missingOppositeContent}::before`]: {
+          flex: '0 !important',
+          padding: '0 !important',
         },
       }}
     >

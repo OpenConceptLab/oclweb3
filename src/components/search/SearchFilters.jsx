@@ -229,7 +229,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                       checked={isApplied(field, value)}
                       tabIndex={-1}
                       disableRipple
-                      inputProps={{ 'aria-labelledby': labelId }}
+                      slotProps={{ input: { 'aria-labelledby': labelId } }}
                       sx={{padding: '0px 8px', '.MuiSvgIcon-root': {fontSize: '1.1rem'}}}
                       disabled={(disabledZero && value[1] === 0)}
                     />
@@ -247,7 +247,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                         }
                       </span>
                     }
-                    primaryTypographyProps={{style: {fontSize: '0.875rem'}}} style={{margin: 0}} />
+                    slotProps={{primary: {style: {fontSize: '0.875rem'}}}} style={{margin: 0}} />
                   <span style={{fontSize: '0.7rem'}}>{value[1].toLocaleString()}</span>
                 </ListItemButton>
               );

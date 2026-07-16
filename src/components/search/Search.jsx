@@ -30,7 +30,7 @@ import DeleteReferencesDialog from '../collections/DeleteReferencesDialog'
 import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
 import TransformReferencesDialog from '../collections/TransformReferencesDialog'
 import { getTransformAddGroups } from '../collections/referenceTransformUtils'
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline'
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutlined'
 
 const DEFAULT_LIMIT = 25;
 const FILTERS_WIDTH = 250

@@ -96,14 +96,17 @@ const MixedOwnersAutocomplete = ({onChange, label, id, required, minCharactersFo
                   label={label || "Organization/User"}
                   variant="outlined"
                   fullWidth
-                  InputProps={{
-                    ...params.InputProps,
-                    endAdornment: (
-                      <React.Fragment>
-                        {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                        {params.InputProps.endAdornment}
-                      </React.Fragment>
-                    ),
+                  slotProps={{
+                    ...params.slotProps,
+                    input: {
+                      ...params.slotProps?.input,
+                      endAdornment: (
+                        <React.Fragment>
+                          {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                          {params.slotProps?.input?.endAdornment}
+                        </React.Fragment>
+                      ),
+                    },
                   }}
           />
         )

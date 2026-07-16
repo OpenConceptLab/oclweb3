@@ -61,13 +61,13 @@ const CustomLocaleDialog = ({ open, onClose, onSave, isMultiple }) => {
             label={config.label}
             fullWidth
             variant="outlined"
-            InputLabelProps={{
-              shrink: true,
+            slotProps={{
+              inputLabel: { shrink: true },
+              htmlInput: { pattern: pattern },
             }}
             value={input}
             onChange={onChange}
             helperText={config.helperText}
-            inputProps={{ pattern: pattern }}
             error={error}
           />
         </div>
@@ -176,16 +176,16 @@ const LocaleAutoComplete = ({ cachedLocales, id, multiple, required, onChange, l
   }
 
   const selectedLocales = getSelectedLocales()
-  const getInputProps = params => {
-    const InputProps = {
-      ...params.InputProps,
+  const getInputSlotProps = params => {
+    const inputSlotProps = {
+      ...params.slotProps?.input,
       endAdornment: (
-        <React.Fragment>{params.InputProps.endAdornment}</React.Fragment>
+        <React.Fragment>{params.slotProps?.input?.endAdornment}</React.Fragment>
       )
     }
     if(!multiple && value)
-      InputProps.startAdornment = (<InputAdornment sx={{color: 'primary.main'}} position="start"> {value} </InputAdornment>)
-    return InputProps
+      inputSlotProps.startAdornment = (<InputAdornment sx={{color: 'primary.main'}} position="start"> {value} </InputAdornment>)
+    return inputSlotProps
   }
 
   return (
@@ -261,9 +261,9 @@ const LocaleAutoComplete = ({ cachedLocales, id, multiple, required, onChange, l
                   fullWidth={_fullWidth}
                   value={input}
                   onChange={event => setInput(event.target.value || '')}
-                  InputProps={
-                    getInputProps(params)
-                  }
+                  slotProps={{
+                    input: getInputSlotProps(params)
+                  }}
                 />
               )
             }

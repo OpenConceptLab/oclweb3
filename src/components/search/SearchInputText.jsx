@@ -14,20 +14,22 @@ const SearchInputText = React.forwardRef(({ id, input, clearSearch, onClick, han
       className='rounded-input'
       value={input || ''}
       autoComplete="off"
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            { isMatchOp ? <i className="fa-solid fa-diagram-project"></i> : <SearchIcon /> }
-          </InputAdornment>
-        ),
-        endAdornment: (
-          input &&
-            <InputAdornment position="end">
-              <IconButton size='small' onClick={clearSearch}>
-                {autoFocus ? <CloseIcon style={{color: '#000'}} /> : <ClearIcon />}
-              </IconButton>
+      slotProps={{
+        input: {
+          startAdornment: (
+            <InputAdornment position="start">
+              { isMatchOp ? <i className="fa-solid fa-diagram-project"></i> : <SearchIcon /> }
             </InputAdornment>
-        )
+          ),
+          endAdornment: (
+            input &&
+              <InputAdornment position="end">
+                <IconButton size='small' onClick={clearSearch}>
+                  {autoFocus ? <CloseIcon style={{color: '#000'}} /> : <ClearIcon />}
+                </IconButton>
+              </InputAdornment>
+          )
+        }
       }}
       {...rest}
       onClick={onClick}

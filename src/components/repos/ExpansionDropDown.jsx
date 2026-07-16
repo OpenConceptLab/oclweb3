@@ -39,7 +39,7 @@ const ExpansionDropDown = ({ expansions = [], loading = false, selectedExpansion
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={onClose}
-        MenuListProps={{ sx: { minWidth: '240px', py: 0.5 } }}
+        slotProps={{ list: { sx: { minWidth: '240px', py: 0.5 } } }}
       >
         {expansions.map(expansion => {
           const isSelected = selectedExpansion?.url === expansion.url;

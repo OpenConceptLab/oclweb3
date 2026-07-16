@@ -149,7 +149,7 @@ const UserForm = ({ user }) => {
               value={website}
               onChange={event => setWebsite(event.target.value || '')}
               sx={{width: '35%', marginLeft: '10px'}}
-              InputProps={{startAdornment: <InputAdornment position="start">{'https://'}</InputAdornment>}}
+              slotProps={{input: {startAdornment: <InputAdornment position="start">{'https://'}</InputAdornment>}}}
             />
           </div>
           <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>

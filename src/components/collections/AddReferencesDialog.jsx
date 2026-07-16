@@ -274,14 +274,17 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
                 fullWidth
                 size="small"
                 placeholder={t('reference.search_sources_collections')}
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <React.Fragment>
-                      {seedLoading ? <CircularProgress color="inherit" size={16} /> : null}
-                      {params.InputProps.endAdornment}
-                    </React.Fragment>
-                  ),
+                slotProps={{
+                  ...params.slotProps,
+                  input: {
+                    ...params.slotProps?.input,
+                    endAdornment: (
+                      <React.Fragment>
+                        {seedLoading ? <CircularProgress color="inherit" size={16} /> : null}
+                        {params.slotProps?.input?.endAdornment}
+                      </React.Fragment>
+                    ),
+                  },
                 }}
               />
             )}
@@ -413,7 +416,7 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
             helperText={seed ? t('reference.id_helper', { path: buildBasePath(), interpolation: { escapeValue: false } }) : t('reference.select_source_first')}
             fullWidth
             size="small"
-            InputProps={{ sx: { fontFamily: 'monospace', fontSize: '0.85rem' } }}
+            slotProps={{ input: { sx: { fontFamily: 'monospace', fontSize: '0.85rem' } } }}
           />
         )}
 
@@ -430,7 +433,7 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
             helperText={t('reference.expression_hint')}
             fullWidth
             size="small"
-            InputProps={{ sx: { fontFamily: 'monospace', fontSize: '0.85rem' } }}
+            slotProps={{ input: { sx: { fontFamily: 'monospace', fontSize: '0.85rem' } } }}
           />
         )}
 

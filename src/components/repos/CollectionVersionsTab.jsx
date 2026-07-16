@@ -23,7 +23,7 @@ import {
 } from "@mui/material";
 import {
   AspectRatio as ExpansionIcon,
-  CheckCircleOutline as DefaultIcon,
+  CheckCircleOutlined as DefaultIcon,
   EditOutlined as DraftIcon,
   ExpandLess as CollapseIcon,
   ExpandMore as ExpandIcon,

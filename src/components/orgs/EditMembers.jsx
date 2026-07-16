@@ -126,14 +126,17 @@ const EditMembers = ({onClose, org, members, fetchMembers}) => {
                         variant="outlined"
                         id='org-members-input'
                         fullWidth
-                        InputProps={{
-                          ...params.InputProps,
-                          endAdornment: (
-                            <React.Fragment>
-                              {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                              {params.InputProps.endAdornment}
-                            </React.Fragment>
-                          ),
+                        slotProps={{
+                          ...params.slotProps,
+                          input: {
+                            ...params.slotProps?.input,
+                            endAdornment: (
+                              <React.Fragment>
+                                {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                                {params.slotProps?.input?.endAdornment}
+                              </React.Fragment>
+                            ),
+                          },
                         }}
 
                       />
