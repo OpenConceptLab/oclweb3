@@ -1,7 +1,7 @@
 import React from 'react';
 import './FileUploader.scss'
 import { useDropzone } from 'react-dropzone';
-import { isEmpty, last, uniq } from 'lodash';
+import { isEmpty, isString, last, uniq, flatten, values } from 'lodash';
 import { Button } from '@mui/material';
 import { CloudUpload as UploadIcon } from '@mui/icons-material'
 import { humanFileSize, arrayToSentence } from '../../common/utils';
@@ -47,7 +47,11 @@ const FileUploader = ({ maxFiles, accept, uploadButton, onUpload, onLoading, max
     onDrop: onDrop,
   })
 
-  const acceptedExtensions = accept ? uniq(accept.split(',').map(ext => last(ext.split('/')).toLowerCase())) : ['json']
+  const acceptedExtensions = accept ? (
+    isString(accept) ?
+      uniq(accept.split(',').map(ext => last(ext.split('/')).toLowerCase())) :
+      uniq(flatten(values(accept)).map(ext => ext.replace(/^\./, '').toLowerCase()))
+  ) : ['json']
   const acceptedExtensionFormatsLabel = arrayToSentence(acceptedExtensions, ', ', ' or ');
 
   const files = acceptedFiles.map(file => (
