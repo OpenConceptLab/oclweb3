@@ -123,7 +123,7 @@ class ImportHome extends React.Component {
     return (
       <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
         <Paper component="div" className='col-xs-6 split' sx={{backgroundColor: 'white', borderRadius: '10px', boxShadow: 'none', padding: '0 16px 16px', border: 'solid 0.3px', borderColor: 'surface.nv80'}}>
-          <NewImport onUploadSuccess={this.fetchImports} />
+          <NewImport onUploadSuccess={() => this.fetchImports()} />
         </Paper>
         <Paper className='col-xs-6 split-appear' style={{marginLeft: '16px', width: 'calc(50% - 16px)', padding: '0 16px 16px', backgroundColor: WHITE, borderRadius: '10px', height: 'calc(100vh - 100px)', overflow: 'auto'}}>
           <ExistingImports
