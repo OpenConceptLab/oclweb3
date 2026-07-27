@@ -240,7 +240,12 @@ class NewImport extends React.Component {
                     uploadButton={false}
                     onUpload={uploadedFile => this.setFieldValue('file', uploadedFile)}
                     onLoading={() => this.setFieldValue('file', null)}
-                    accept='application/json, application/JSON, .csv, text/comma-separated-values, text/csv, application/csv, application/zip, text/zip, .zip'
+                    accept={{
+                      'application/json': ['.json'],
+                      'application/x-ndjson': ['.ndjson', '.jsonl'],
+                      'text/csv': ['.csv'],
+                      'application/zip': ['.zip'],
+                    }}
                   />
               }
               {
@@ -312,7 +317,10 @@ class NewImport extends React.Component {
                                uploadButton={false}
                                onUpload={uploadedFile => this.setFieldValue('file', uploadedFile)}
                                onLoading={() => this.setFieldValue('file', null)}
-                               accept='application/zip, text/zip, .zip, application/gzip, application/tar+gzip, .tar.gz, .tgz'
+                               accept={{
+                                 'application/zip': ['.zip'],
+                                 'application/gzip': ['.gz', '.tgz', '.tar.gz'],
+                               }}
                              />
                            </div>
                          </div>
