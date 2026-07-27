@@ -240,6 +240,14 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
       .finally(() => setBusyKey(''));
   };
 
+  const onFileChange = event => {
+    const file = get(event, 'target.files.0') || null
+    setFile(file)
+    if(file?.name && !name)
+      setName(file?.name)
+  };
+
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{t('repo.external_exports_title', { repo: version?.short_code || version?.id, version: getVersionLabel(version) })}</DialogTitle>
@@ -274,7 +282,7 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
               }}>
                 <Button component="label" variant="outlined" size="small" startIcon={<UploadIcon />}>
                   {t('repo.choose_file')}
-                  <input hidden type="file" accept=".sql,.zip,.pdf,.csv" onChange={event => setFile(get(event, 'target.files.0') || null)} />
+                  <input hidden type="file" accept=".sql,.zip,.pdf,.csv" onChange={onFileChange} />
                 </Button>
                 <Typography variant="body2" sx={{
                   color: "text.secondary"
