@@ -264,7 +264,9 @@
           "lte",
           "gte",
           "resourceversions",
-          "monospace"
+          "monospace",
+          "jsonl",
+          "ndjson"
         ],
         "skipIfMatch": [
           "http://[^s]*",
