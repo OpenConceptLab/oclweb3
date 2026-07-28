@@ -17,7 +17,10 @@
     "retired": "Retirado",
     "id": "ID",
     "name": "Nombre",
+    "full_name": "Nombre completo",
     "description": "Descripción",
+    "update": "Actualizar",
+    "create": "Crear",
     "created": "Creado",
     "created_on": "Creado en",
     "version": "Versión",
@@ -41,6 +44,7 @@
     "results": "Resultados",
     "custom": "Personalizado",
     "upload": "Subir",
+    "custom_attributes": "Atributos personalizados",
     "public": "Público",
     "private": "Privado",
     "close": "Cerrar",
@@ -50,10 +54,17 @@
     "copy_api_url": "Copiar URL de API",
     "load_more": "Cargar más",
     "generate_with_ai": "Generar con IA",
+    "logo": "Logo",
+    "about_page": "Página Acerca de",
+    "website": "Sitio web",
+    "your_url_will_be": "Tu URL será",
+    "company": "Empresa",
+    "location": "Ubicación",
     "generic_error": "Algo salió mal."
   },
   "errors": {
-    "404": "Lo siento, no se pudo encontrar tu página."
+    "404": "Lo siento, no se pudo encontrar tu página.",
+    "mandatory_field": "Este campo no puede estar en blanco"
   },
   "dashboard": {
     "name": "Tablero",
@@ -189,7 +200,14 @@
   },
   "org": {
     "orgs": "Organizaciones",
-    "org": "Organización"
+    "org": "Organización",
+    "create_an_org": "Crear una organización",
+    "create_an_org_description": "Organiza tu contenido y colaboradores. <0> Obtén más información sobre las organizaciones en OCL.</0>",
+    "edit_org": "Editar organización",
+    "error_update": "No se pudo actualizar la organización",
+    "error_create": "No se pudo crear la organización",
+    "success_update": "Organización actualizada correctamente",
+    "success_create": "Organización creada correctamente"
   },
   "user": {
     "users": "Usuarios",
@@ -204,7 +222,8 @@
     "company": "Empresa",
     "location": "Ubicación",
     "website": "Sitio web",
-    "last_login": "Último inicio de sesión"
+    "last_login": "Último inicio de sesión",
+    "name_and_description": "Nombre y descripción"
   },
   "reference": {
     "actions": "Acciones",

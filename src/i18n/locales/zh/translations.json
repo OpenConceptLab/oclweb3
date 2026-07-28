@@ -30,6 +30,7 @@
     "name": "名称",
     "full_name": "全称",
     "description": "描述",
+    "update": "更新",
     "create": "创建",
     "created": "已创建",
     "created_on": "创建于",
@@ -64,6 +65,8 @@
     "cancel": "取消",
     "upload": "上传",
     "custom_attributes": "自定义属性",
+    "logo": "徽标",
+    "about_page": "关于页面",
     "public": "公开",
     "private": "私有",
     "close": "关闭",
@@ -84,6 +87,10 @@
     "draft": "草案",
     "released": "Released",
     "edit": "编辑",
+    "website": "网站",
+    "your_url_will_be": "您的 URL 将是",
+    "company": "公司",
+    "location": "位置",
     "copy_api_url": "复制 API URL",
     "highlights": "亮点",
     "click_to_copy": "单击复制",
@@ -105,7 +112,8 @@
   "errors": {
     "404": "很抱歉，未能找到您的页面。",
     "401": "需要登录",
-    "403": "尚未获得访问该页面的权限"
+    "403": "尚未获得访问该页面的权限",
+    "mandatory_field": "此字段不能为空"
   },
   "dashboard": {
     "name": "仪表盘",
@@ -312,9 +320,17 @@
     "about_the_org": "关于该组织机构",
     "members": "成员",
     "member": "成员",
+    "edit_members": "编辑成员",
     "org_have_not_created_public_repos_suffix": "尚未创建任何公开的存储库",
     "browse_members": "浏览成员",
-    "member_of": "作为成员隶属于"
+    "member_of": "作为成员隶属于",
+    "create_an_org": "创建组织机构",
+    "create_an_org_description": "组织您的内容和贡献者。<0>了解有关 OCL 中组织机构的更多信息。</0>",
+    "edit_org": "编辑组织机构",
+    "error_update": "无法更新组织机构",
+    "error_create": "无法创建组织机构",
+    "success_update": "组织机构更新成功",
+    "success_create": "组织机构创建成功"
   },
   "user": {
     "users": "用户",

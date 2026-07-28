@@ -77,6 +77,7 @@
     "remove": "Remove",
     "cancel": "Cancel",
     "upload": "Upload",
+    "logo": "Logo",
     "custom_attributes": "Custom Attributes",
     "public": "Public",
     "private": "Private",
@@ -645,6 +646,10 @@
     "create_an_org": "Create an Organization",
     "create_an_org_description": "Organize your content and contributors. <0> Learn more about Organizations in OCL.</0>",
     "edit_org": "Edit Organization",
+    "error_update": "Couldn't update organization",
+    "error_create": "Couldn't create organization",
+    "success_update": "Successfully updated organization",
+    "success_create": "Successfully created organization",
     "delete_org": "Delete Organization",
     "delete_accepted": "Organization Delete Accepted. This may take few minutes."
   },
