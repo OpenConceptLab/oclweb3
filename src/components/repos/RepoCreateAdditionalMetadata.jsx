@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField'
 import VisibilityField from '../common/VisibilityField'
 import CustomValidationSchemaField from './CustomValidationSchemaField'
 
-const RepoCreateAdditionalMetadata = ({ types, onChange, typeLabel, publicAccess, type, customValidationSchema, website, externalID }) => {
+const RepoCreateAdditionalMetadata = ({ types, onChange, typeLabel, publicAccess, type, customValidationSchema, website, externalID, validationErrors }) => {
   const { t } = useTranslation()
 
   return (
@@ -36,6 +36,8 @@ const RepoCreateAdditionalMetadata = ({ types, onChange, typeLabel, publicAccess
                               label={typeLabel}
                               variant="outlined"
                               fullWidth
+                              error={Boolean(validationErrors?.type)}
+                              helperText={validationErrors?.type || ''}
                             />
                 }
               />

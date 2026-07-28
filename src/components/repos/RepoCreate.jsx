@@ -84,6 +84,7 @@ const RepoCreate = () => {
   const [fromOCLURL, setFromOCLURL] = React.useState('')
   const [fromOCLURLError, setFromOCLURLError] = React.useState(false)
   const [isFetchingFromOCLURL, setIsFetchingFromOCLURL] = React.useState(false)
+  const [validationErrors, setValidationErrors] = React.useState({})
   const isEdit = Boolean(params.repo)
   const canonicalURLEdited = React.useRef(false)
 
@@ -164,7 +165,12 @@ const RepoCreate = () => {
 
   const onOwnerChange = (event, item) => setOwnerURL(prev => item?.url || prev)
 
-  const onChange = (id, value) => setModel({...model, [id]: value?.id ? value?.id : value})
+  const valueToId = value => value?.id || value?.locale || value
+
+  const onChange = (id, value) => {
+    setValidationErrors(prev => ({...prev, [id]: false}))
+    setModel({...model, [id]: valueToId(value)})
+  }
 
   const onCanonicalURLChange = value => {
     canonicalURLEdited.current = true
@@ -194,7 +200,29 @@ const RepoCreate = () => {
 
   const objToValue = val => isObject(val) && !isEmpty(val) ? JSON.stringify(val) : ''
 
+  const isBlank = value => value === undefined || value === null || value === '' || (typeof value === 'string' && !value.trim()) || (isArray(value) && !value.length)
+
+  const validateRequiredFields = () => {
+    const errors = {}
+    const requiredFields = [
+      ...(!isEdit ? ['id'] : []),
+      'name',
+      'defaultLocale',
+      ...(selectedTab?.types?.length ? ['type'] : [])
+    ]
+    requiredFields.forEach(field => {
+      if(isBlank(model[field]))
+        errors[field] = t('errors.mandatory_field')
+    })
+    setValidationErrors(errors)
+    return !Object.keys(errors).length
+  }
+
   const onSubmit = () => {
+    if(!validateRequiredFields()) {
+      setAlert({duration: 5000, message: t('errors.mandatory_field'), severity: 'error'})
+      return
+    }
     const payload = {}
     forEach(model, (value, field) => {
       if('externalID' === field)
@@ -247,7 +275,8 @@ const RepoCreate = () => {
 
   const setModelForEdit = data => {
     data = data || repo
-    setModel({id: data.id, fullName: data.full_name, name: data.name, canonicalURL: data.canonical_url, description: data.description, defaultLocale: data.default_locale, supportedLocales: data.supported_locales, type: data?.source_type || data?.collection_type, publicAccess: data.public_access, publisher: data.publisher, purpose: data.purpose, revisionDate: data.revision_date, customValidationSchema: data.custom_validation_schema, externalID: data.external_id, jurisdiction: objToValue(data.jurisdiction), copyright: data.copyright, identifier: objToValue(data.identifier), contact: objToValue(data.contact), contentType: data.content_type, meta: data.meta, experimental: data.experimental, caseSensitive: data.case_sensitive, compositional: data.compositional, versionNeeded: data.version_needed, text: data.text, extras: apiExtrasToExtras(data.extras), website: data.website, autoexpandHEAD: data.autoexpand_head})
+    setValidationErrors({})
+    setModel({id: data.id, fullName: data.full_name, name: data.name, canonicalURL: data.canonical_url, description: data.description, defaultLocale: valueToId(data.default_locale), supportedLocales: data.supported_locales?.map ? data.supported_locales.map(valueToId) : data.supported_locales, type: data?.source_type || data?.collection_type, publicAccess: data.public_access, publisher: data.publisher, purpose: data.purpose, revisionDate: data.revision_date, customValidationSchema: data.custom_validation_schema, externalID: data.external_id, jurisdiction: objToValue(data.jurisdiction), copyright: data.copyright, identifier: objToValue(data.identifier), contact: objToValue(data.contact), contentType: data.content_type, meta: data.meta, experimental: data.experimental, caseSensitive: data.case_sensitive, compositional: data.compositional, versionNeeded: data.version_needed, text: data.text, extras: apiExtrasToExtras(data.extras), website: data.website, autoexpandHEAD: data.autoexpand_head})
   }
 
   React.useEffect(() => {
@@ -257,9 +286,13 @@ const RepoCreate = () => {
   }, [])
 
   React.useEffect(() => {
+    if(isEdit) {
+      setStep(1)
+      return
+    }
     if(!params.step || params.step === '0')
       setStep(0)
-  }, [params])
+  }, [isEdit, params.step])
 
   const onStepChange = (newStep, resetFromOCLURL=true) => {
     if(resetFromOCLURL) {
@@ -267,6 +300,7 @@ const RepoCreate = () => {
       setFromOCLURLError(false)
       setRepo({})
       setModel({...baseModel})
+      setValidationErrors({})
       setIsCreatingFromOCLURL(false)
       canonicalURLEdited.current = false
     }
@@ -434,13 +468,13 @@ const RepoCreate = () => {
         step === 1 &&
           <>
             <FormSection>
-              <RepoCreateNameDescription isEdit={isEdit} url={getRepoURL()} ownerURL={ownerURL} onOwnerChange={onOwnerChange} onChange={onChange} onCanonicalURLChange={onCanonicalURLChange} config={selectedTab.content} {...model} />
+              <RepoCreateNameDescription isEdit={isEdit} url={getRepoURL()} ownerURL={ownerURL} onOwnerChange={onOwnerChange} onChange={onChange} onCanonicalURLChange={onCanonicalURLChange} validationErrors={validationErrors} config={selectedTab.content} {...model} />
             </FormSection>
             <FormSection sx={{marginTop: '16px'}}>
-              <RepoCreateLanguages isEdit={isEdit} locales={locales} onChange={onChange} config={selectedTab.content} {...model} />
+              <RepoCreateLanguages isEdit={isEdit} locales={locales} onChange={onChange} validationErrors={validationErrors} config={selectedTab.content} {...model} />
             </FormSection>
             <FormSection sx={{marginTop: '16px'}}>
-              <RepoCreateAdditionalMetadata isEdit={isEdit} typeLabel={t(`repo.${selectedTab.id}_type`)} types={selectedTab.types} onChange={onChange} config={selectedTab.content} {...model} />
+              <RepoCreateAdditionalMetadata isEdit={isEdit} typeLabel={t(`repo.${selectedTab.id}_type`)} types={selectedTab.types} onChange={onChange} validationErrors={validationErrors} config={selectedTab.content} {...model} />
             </FormSection>
             <FormSection sx={{marginTop: '16px'}}>
               <RepoCreatePublisher isEdit={isEdit} onChange={onChange} config={selectedTab.content} {...model} />

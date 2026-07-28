@@ -80,7 +80,7 @@ const CustomLocaleDialog = ({ open, onClose, onSave, isMultiple }) => {
   )
 }
 
-const LocaleAutoComplete = ({ cachedLocales, id, multiple, required, onChange, label, error, size, fullWidth, placeholder, custom, limit, disabled, value, optionsLimit, ...rest }) => {
+const LocaleAutoComplete = ({ cachedLocales, id, multiple, required, onChange, label, error, helperText, size, fullWidth, placeholder, custom, limit, disabled, value, optionsLimit, ...rest }) => {
   const [locales, setLocales] = React.useState(cachedLocales || [])
   const _fullWidth = !(fullWidth === false)
   const [input, setInput] = React.useState('')
@@ -176,6 +176,15 @@ const LocaleAutoComplete = ({ cachedLocales, id, multiple, required, onChange, l
   }
 
   const selectedLocales = getSelectedLocales()
+  const onInputChange = event => {
+    const inputValue = event.target.value || ''
+    setInput(inputValue)
+    const normalizedInputValue = inputValue.trim().toLowerCase()
+    const locale = !multiple && normalizedInputValue ? find(locales, option => [option?.id, option?.locale].map(value => value?.toLowerCase()).includes(normalizedInputValue)) : false
+    if(locale)
+      onChange(id || 'localesAutoComplete', locale)
+  }
+
   const getInputSlotProps = params => {
     const inputSlotProps = {
       ...params.slotProps?.input,
@@ -183,7 +192,7 @@ const LocaleAutoComplete = ({ cachedLocales, id, multiple, required, onChange, l
         <React.Fragment>{params.slotProps?.input?.endAdornment}</React.Fragment>
       )
     }
-    if(!multiple && value)
+    if(!multiple && value && !input)
       inputSlotProps.startAdornment = (<InputAdornment sx={{color: 'primary.main'}} position="start"> {value} </InputAdornment>)
     return inputSlotProps
   }
@@ -257,10 +266,11 @@ const LocaleAutoComplete = ({ cachedLocales, id, multiple, required, onChange, l
                   label={label}
                   placeholder={isLimitReached ? undefined : placeholder}
                   error={error}
+                  helperText={helperText}
                   variant="outlined"
                   fullWidth={_fullWidth}
                   value={input}
-                  onChange={event => setInput(event.target.value || '')}
+                  onChange={onInputChange}
                   slotProps={{
                     input: getInputSlotProps(params)
                   }}

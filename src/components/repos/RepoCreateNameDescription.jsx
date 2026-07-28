@@ -8,7 +8,7 @@ import TextField from '@mui/material/TextField'
 import NamespaceDropdown from '../url-registry/NamespaceDropdown'
 
 
-const RepoCreateNameDescription = ({url, ownerURL, onOwnerChange, onChange, onCanonicalURLChange, isEdit, ...rest}) => {
+const RepoCreateNameDescription = ({url, ownerURL, onOwnerChange, onChange, onCanonicalURLChange, isEdit, validationErrors, ...rest}) => {
   const { t } = useTranslation()
   return (
     <>
@@ -35,7 +35,7 @@ const RepoCreateNameDescription = ({url, ownerURL, onOwnerChange, onChange, onCa
           </Typography>
         </div>
         <div className='col-xs-3 padding-0'>
-          <TextField disabled={isEdit} value={rest.id || ''} label={t('repo.short_code')} required fullWidth onChange={event => onChange('id', event.target.value)} />
+          <TextField disabled={isEdit} value={rest.id || ''} label={t('repo.short_code')} required fullWidth onChange={event => onChange('id', event.target.value)} error={Boolean(validationErrors?.id)} helperText={validationErrors?.id || ''} />
         </div>
         {
           url ?
@@ -63,7 +63,7 @@ const RepoCreateNameDescription = ({url, ownerURL, onOwnerChange, onChange, onCa
           <TextField label={t('repo.full_name')} fullWidth value={rest.fullName || ''} onChange={event => onChange('fullName', event.target.value)} />
         </div>
         <div className='col-xs-5' style={{padding: '0 0 0 10px'}}>
-          <TextField label={t('repo.short_name')} fullWidth required value={rest.name || ''} onChange={event => onChange('name', event.target.value)} />
+          <TextField label={t('repo.short_name')} fullWidth required value={rest.name || ''} onChange={event => onChange('name', event.target.value)} error={Boolean(validationErrors?.name)} helperText={validationErrors?.name || ''} />
         </div>
       </div>
       <div className='col-xs-12 padding-0' style={{marginTop: '24px', textAlign: 'left'}}>

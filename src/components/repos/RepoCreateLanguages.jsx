@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Typography from '@mui/material/Typography'
 import LocaleAutoComplete from '../concepts/LocaleAutoComplete'
 
-const RepoCreateLanguages = ({ locales, defaultLocale, supportedLocales, onChange }) => {
+const RepoCreateLanguages = ({ locales, defaultLocale, supportedLocales, onChange, validationErrors }) => {
   const { t } = useTranslation()
 
   const onSupportedLocalesChange = (id, value) => onChange(id, value?.map(val => val?.id))
@@ -24,6 +24,8 @@ const RepoCreateLanguages = ({ locales, defaultLocale, supportedLocales, onChang
             cachedLocales={locales}
             value={defaultLocale || ''}
             onChange={onChange}
+            error={Boolean(validationErrors?.defaultLocale)}
+            helperText={validationErrors?.defaultLocale || ''}
           />
         </div>
         <div className='col-xs-7' style={{padding: '0 0 0 10px'}}>
