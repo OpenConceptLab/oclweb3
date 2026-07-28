@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography'
 import ListItemText from '@mui/material/ListItemText'
 import TextField from '@mui/material/TextField'
 
-const OrgCreateNameDescription = ({onChange, isEdit, ...rest}) => {
+const OrgCreateNameDescription = ({onChange, isEdit, validationErrors, ...rest}) => {
   const { t } = useTranslation()
   let url = rest?.id ? '/orgs/' + rest?.id + '/' : false
   return (
@@ -17,7 +17,7 @@ const OrgCreateNameDescription = ({onChange, isEdit, ...rest}) => {
       </div>
       <div className='col-xs-12 padding-0' style={{marginTop: '24px', textAlign: 'left'}}>
         <div className='col-xs-3 padding-0'>
-          <TextField disabled={isEdit} value={rest.id || ''} label={t('common.id')} required fullWidth onChange={event => onChange('id', event.target.value)} />
+          <TextField disabled={isEdit} value={rest.id || ''} label={t('common.id')} required fullWidth onChange={event => onChange('id', event.target.value)} error={Boolean(validationErrors?.id)} helperText={validationErrors?.id || ''} />
         </div>
         {
           url ?
@@ -41,7 +41,7 @@ const OrgCreateNameDescription = ({onChange, isEdit, ...rest}) => {
         }
       </div>
       <div className='col-xs-12 padding-0' style={{marginTop: '24px', textAlign: 'left'}}>
-        <TextField label={t('common.full_name')} fullWidth value={rest.name || ''} onChange={event => onChange('name', event.target.value)} />
+        <TextField label={t('common.full_name')} fullWidth required value={rest.name || ''} onChange={event => onChange('name', event.target.value)} error={Boolean(validationErrors?.name)} helperText={validationErrors?.name || ''} />
       </div>
       <div className='col-xs-12 padding-0' style={{marginTop: '24px', textAlign: 'left'}}>
         <TextField label={t('common.description')} fullWidth multiline rows={3} maxRows={10} value={rest.description || ''} onChange={event => onChange('description', event.target.value)} />

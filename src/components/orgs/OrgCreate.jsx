@@ -46,11 +46,15 @@ const OrgCreate = () => {
   const baseModel = {publicAccess: 'View', extras: [{key: '', value: ''}]}
   const [model, setModel] = React.useState({...baseModel})
   const [org, setOrg] = React.useState(null)
+  const [validationErrors, setValidationErrors] = React.useState({})
   const isEdit = Boolean(params.org)
 
   const { setAlert } = React.useContext(OperationsContext);
 
-  const onChange = (id, value) => setModel({...model, [id]: value?.id ? value?.id : value})
+  const onChange = (id, value) => {
+    setValidationErrors(prev => ({...prev, [id]: false}))
+    setModel({...model, [id]: value?.id ? value?.id : value})
+  }
 
   const onAddExtras = () => setModel({...model, extras: [...model.extras, {key: '', value: ''}]})
 
@@ -64,7 +68,27 @@ const OrgCreate = () => {
 
   const apiExtrasToExtras = extras => map(extras, (value, key) => ({ key, value }))
 
+  const isBlank = value => value === undefined || value === null || value === '' || (typeof value === 'string' && !value.trim()) || (isArray(value) && !value.length)
+
+  const validateRequiredFields = () => {
+    const errors = {}
+    const requiredFields = [
+      ...(!isEdit ? ['id'] : []),
+      'name'
+    ]
+    requiredFields.forEach(field => {
+      if(isBlank(model[field]))
+        errors[field] = t('errors.mandatory_field')
+    })
+    setValidationErrors(errors)
+    return !Object.keys(errors).length
+  }
+
   const onSubmit = () => {
+    if(!validateRequiredFields()) {
+      setAlert({duration: 5000, message: t('errors.mandatory_field'), severity: 'error'})
+      return
+    }
     const payload = {}
     forEach(model, (value, field) => {
       if('externalID' === field)
@@ -116,6 +140,7 @@ const OrgCreate = () => {
 
   const setModelForEdit = data => {
     data = data || org
+    setValidationErrors({})
     setModel({id: data.id, name: data.name, description: data.description, website: data.website, company: data.company, location: data.location, text: data.text, extras: apiExtrasToExtras(data.extras)})
   }
 
@@ -138,7 +163,7 @@ const OrgCreate = () => {
       />
       <>
         <FormSection sx={{marginTop: '16px'}}>
-          <OrgCreateNameAndDescription isEdit={isEdit} onChange={onChange} {...model} />
+          <OrgCreateNameAndDescription isEdit={isEdit} onChange={onChange} validationErrors={validationErrors} {...model} />
         </FormSection>
         <FormSection sx={{marginTop: '16px'}}>
           <div className='col-xs-12 padding-0' style={{marginBottom: '24px'}}>
