@@ -61,7 +61,7 @@ const OrgHeader = ({ org, members, onDeleteClick, canDelete, fetchMembers }) => 
   const extrasFields = Object.fromEntries(extrasKeys.map(key => [`extras.${key}`, {label: key}]))
 
   return (
-    <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderRadius: '8px 8px 0 0', display: 'inline-flex'}}>
+    <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderRadius: '10px 10px 0 0', display: 'inline-flex'}}>
       {
         org.logo_url &&
           <div className='col-xs-1' style={{width: '112px', paddingRight: '15px', paddingLeft: '0px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
