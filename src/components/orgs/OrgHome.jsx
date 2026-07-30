@@ -31,7 +31,7 @@ const OrgHome = () => {
   const TAB_KEYS = TABS.map(tab => tab.key)
   const findTab = () => TAB_KEYS.includes(params?.tab) ? params.tab : 'overview'
   const fetchOrg = () => {
-    APIService.orgs(params.org).get().then(response => {
+    APIService.orgs(params.org).get(null, null, {includeOverview: true}).then(response => {
       if(response?.data?.id) {
         setOrg(response.data)
         fetchMembers()

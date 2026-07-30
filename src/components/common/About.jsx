@@ -26,9 +26,12 @@ const About = ({ title, text, style, expanded }) => {
 
   return text ? (
     <div className='col-xs-12 padding-0' style={{marginTop: '16px', ...style}}>
-      <Typography component='h2' sx={{color: '#000', fontWeight: 'bold'}}>
-        {title}
-      </Typography>
+      {
+        title &&
+          <Typography component='h2' sx={{color: '#000', fontWeight: 'bold'}}>
+            {title}
+          </Typography>
+      }
       <div id='hidden-about' className='col-xs-12 padding-0 hidden' style={{display: 'none !important'}} dangerouslySetInnerHTML={{__html: text.replaceAll('href="/', 'href="/#/')}} />
       <Collapse in={showAll} collapsedSize={75}>
         <div id='about-text' className='col-xs-12 padding-0 md-content' dangerouslySetInnerHTML={{__html: text.replaceAll('href="/', 'href="/#/')}} />
