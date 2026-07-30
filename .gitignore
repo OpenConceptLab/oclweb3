@@ -1,10 +1,15 @@
 node_modules/
 src/stories/
 .storybook/
-dist/
 .idea/
+dist/
+.env
 .DS_Store
 CLAUDE.md
+
+# Local override files
+docker-compose.override.yml
+
 # Added by code-review-graph
 .code-review-graph/
 .claude/
