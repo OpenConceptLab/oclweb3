@@ -5,8 +5,9 @@ import ClearIcon from '@mui/icons-material/CancelOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
+import Chip from '@mui/material/Chip';
 
-const SearchInputText = React.forwardRef(({ id, input, clearSearch, onClick, handleInputChange, handleKeyPress, autoFocus, isMatchOp, ...rest }, ref) => {
+const SearchInputText = React.forwardRef(({ id, input, clearSearch, onClick, handleInputChange, handleKeyPress, autoFocus, isMatchOp, filterChip, ...rest }, ref) => {
   return (
     <TextField
       id={id}
@@ -19,6 +20,17 @@ const SearchInputText = React.forwardRef(({ id, input, clearSearch, onClick, han
           startAdornment: (
             <InputAdornment position="start">
               { isMatchOp ? <i className="fa-solid fa-diagram-project"></i> : <SearchIcon /> }
+              {
+                filterChip &&
+                  <Chip
+                    size='small'
+                    color='primary'
+                    variant='outlined'
+                    label={filterChip.label}
+                    onDelete={filterChip.onRemove}
+                    sx={{marginLeft: '8px', fontWeight: 'bold'}}
+                  />
+              }
             </InputAdornment>
           ),
           endAdornment: (

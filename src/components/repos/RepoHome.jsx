@@ -172,7 +172,7 @@ const RepoHome = () => {
       const _versions = Array.isArray(response?.data) ? response.data : []
       setVersions(_versions)
       setVersionsCount(parseInt(response?.headers?.['num_found'] || _versions.length || 0))
-      if(!repo.version_url && params.repoVersion !== 'HEAD' && !showConceptURL && !showMappingURL) {
+      if(!repo.version_url && !versionFromURL && !showConceptURL && !showMappingURL) {
         const releasedVersions = filter(_versions, {released: true})
         let version = orderBy(releasedVersions, 'created_on', ['desc'])[0] || orderBy(_versions, 'created_on', ['desc'])[0]
         if((version?.version_url || version?.url) != (repo?.version_url || repo?.url))
@@ -208,14 +208,14 @@ const RepoHome = () => {
     let url = version.version_url
     if(reload && version?.version === 'HEAD')
       url += 'HEAD/'
-    const nextPath = url + (tab || 'concepts')
+    const nextPath = url + (tab || 'concepts') + '/'
     if(nextPath === location.pathname)
       return
     setExpansions([])
     setSelectedExpansion(false)
     if(reload)
       setLoading(true)
-    history.push(nextPath)
+    history.push(nextPath + (location.search || ''))
   }
 
   const onVersionsPageChange = (page, pageSize=versionsPageSize) => {
