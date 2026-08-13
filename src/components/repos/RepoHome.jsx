@@ -61,6 +61,7 @@ const RepoHome = () => {
   const [versionsCount, setVersionsCount] = React.useState(false)
   const [versionsPage, setVersionsPage] = React.useState(1)
   const [versionsPageSize, setVersionsPageSize] = React.useState(DEFAULT_VERSIONS_PAGE_SIZE)
+  const [versionsRefreshKey, setVersionsRefreshKey] = React.useState(0)
   const [loading, setLoading] = React.useState(true)
   const [showItem, setShowItem] = React.useState(false)
   const [selectedItem, setSelectedItem] = React.useState([])
@@ -261,6 +262,7 @@ const RepoHome = () => {
   const onVersionFormClose = postUpsert => {
     if(postUpsert) {
       fetchVersions()
+      setVersionsRefreshKey(key => key + 1)
     }
     setVersionForm(false)
   }
@@ -279,6 +281,8 @@ const RepoHome = () => {
       if(!response || response?.status === 204) {
         setDeleteTarget(false)
         setAlert({severity: 'success', message: deletingVersion ? t('repo.success_delete_version') : t('repo.success_delete')})
+        if(deletingVersion)
+          setVersionsRefreshKey(key => key + 1)
         history.push(deletingVersion ? target.url : (owner?.url || repo.owner_url))
       }
       else if(response?.status === 202 || response?.detail === 'Already Queued') {
@@ -296,6 +300,7 @@ const RepoHome = () => {
       setReleaseTarget(false)
       if(response?.status === 200) {
         fetchVersions()
+        setVersionsRefreshKey(key => key + 1)
         fetchRepo()
         setAlert({severity: 'success', message: t('common.success_update')})
       }
@@ -437,12 +442,8 @@ const RepoHome = () => {
                   tab === 'versions' && !isCollection &&
                     <SourceVersionsTab
                       repo={repo}
-                      versions={versions}
-                      count={versionsCount}
-                      page={versionsPage}
-                      pageSize={versionsPageSize}
                       loading={loading}
-                      onPageChange={onVersionsPageChange}
+                      refreshKey={versionsRefreshKey}
                       onVersionChange={onVersionChange}
                       onEditVersion={version => setVersionForm({edit: true, version, expansions: []})}
                       onReleaseVersion={version => setReleaseTarget(version)}
@@ -450,6 +451,7 @@ const RepoHome = () => {
                       onDataChange={() => {
                         fetchRepo()
                         fetchVersions()
+                        setVersionsRefreshKey(key => key + 1)
                       }}
                     />
                 }

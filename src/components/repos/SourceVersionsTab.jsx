@@ -88,6 +88,8 @@ const headerCellSx = {
   padding: '3px 16px'
 };
 
+const SOURCE_VERSIONS_PAGE_SIZE = 25;
+
 const isHeadVersion = version => (version?.version || version?.id) === 'HEAD';
 const getVersionLabel = version => version?.version || version?.id || '-';
 const getVersionURL = version => isHeadVersion(version) ? `${version?.version_url || version?.url}HEAD/` : version?.version_url || version?.url;
@@ -354,12 +356,8 @@ const ChangelogDialog = ({ version, open, onClose }) => {
 };
 const SourceVersionsTab = ({
   repo,
-  versions,
-  count,
-  page,
-  pageSize,
   loading,
-  onPageChange,
+  refreshKey,
   onVersionChange,
   onEditVersion,
   onReleaseVersion,
@@ -374,7 +372,33 @@ const SourceVersionsTab = ({
   const [externalExportsVersion, setExternalExportsVersion] = React.useState(null);
   const [changelogVersion, setChangelogVersion] = React.useState(null);
   const [headVersion, setHeadVersion] = React.useState(isHeadVersion(repo) ? repo : null);
+  const [versions, setVersions] = React.useState([]);
+  const [totalCount, setTotalCount] = React.useState(0);
+  const [page, setPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(SOURCE_VERSIONS_PAGE_SIZE);
+  const [isLoadingVersions, setIsLoadingVersions] = React.useState(true);
   const baseRepoURL = dropVersion(repo?.version_url || repo?.url || '');
+
+  const fetchVersionsPage = (nextPage, nextPageSize) => {
+    if(!baseRepoURL) return;
+    setIsLoadingVersions(true);
+    APIService.new()
+      .overrideURL(baseRepoURL)
+      .appendToUrl('versions/')
+      .get(null, null, { verbose: true, includeSummary: true, limit: nextPageSize, page: nextPage })
+      .then(response => {
+        const _versions = Array.isArray(response?.data) ? response.data : [];
+        setVersions(_versions);
+        setTotalCount(parseInt(response?.headers?.['num_found'] || _versions.length || 0));
+      })
+      .finally(() => setIsLoadingVersions(false));
+  };
+
+  React.useEffect(() => {
+    setPage(1);
+    fetchVersionsPage(1, pageSize);
+  }, [baseRepoURL, refreshKey]);
+
   React.useEffect(() => {
     if(!baseRepoURL) {
       setHeadVersion(null);
@@ -405,6 +429,7 @@ const SourceVersionsTab = ({
     return headFirst(pagedVersions);
   }, [baseRepoURL, headVersion, page, versions]);
   const hasAccess = currentUserHasAccess();
+  const isLoading = loading || isLoadingVersions;
   const closeMenu = () => setMenuState({ anchorEl: null, version: null });
   const withClose = callback => {
     const version = menuState.version;
@@ -433,12 +458,21 @@ const SourceVersionsTab = ({
   const onExternalExportsChange = updatedVersion => {
     if(onDataChange) onDataChange(updatedVersion);
   };
-  const versionsCount = count || sortedVersions.length;
+  const versionsCount = totalCount || sortedVersions.length;
   const countLabel = versionsCount === 1
     ? t('repo.source_version_count', { count: versionsCount.toLocaleString() })
     : t('repo.source_versions_count', { count: versionsCount.toLocaleString() });
-  const handleChangePage = (event, nextPage) => onPageChange?.(nextPage + 1, pageSize);
-  const handleChangeRowsPerPage = event => onPageChange?.(1, parseInt(event.target.value, 10));
+  const handleChangePage = (event, nextPageIndex) => {
+    const nextPage = nextPageIndex + 1;
+    setPage(nextPage);
+    fetchVersionsPage(nextPage, pageSize);
+  };
+  const handleChangeRowsPerPage = event => {
+    const nextPageSize = parseInt(event.target.value, 10);
+    setPage(1);
+    setPageSize(nextPageSize);
+    fetchVersionsPage(1, nextPageSize);
+  };
   return (
     <Box sx={{ height: 'calc(100vh - 285px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', backgroundColor: 'background.paper' }}>
       <Toolbar
@@ -472,12 +506,12 @@ const SourceVersionsTab = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {loading && [1, 2, 3].map(index => (
+            {isLoading && [1, 2, 3].map(index => (
               <TableRow key={index}>
                 <TableCell colSpan={6} sx={bodyCellSx}><Skeleton height={32} /></TableCell>
               </TableRow>
             ))}
-            {!loading && sortedVersions.map(version => {
+            {!isLoading && sortedVersions.map(version => {
               const isHEAD = isHeadVersion(version);
               const isPublic = ['view', 'edit'].includes((version.public_access || '').toLowerCase());
               return (
@@ -565,7 +599,7 @@ const SourceVersionsTab = ({
                 </TableRow>
               );
             })}
-            {!loading && sortedVersions.length === 0 && (
+            {!isLoading && sortedVersions.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} sx={bodyCellSx}>
                   <Alert severity="info">{t('repo.no_versions_found')}</Alert>
