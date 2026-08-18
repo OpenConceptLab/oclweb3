@@ -1,5 +1,6 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+import React from 'react';
+import { useLocation, useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Box,
@@ -8,55 +9,69 @@ import {
   CircularProgress,
   Collapse,
   IconButton,
-  Menu,
-  MenuItem,
-  Paper,
+  Skeleton,
   Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
-  Typography,
-  Skeleton
-} from "@mui/material";
+  Toolbar,
+  Tooltip,
+  Typography
+} from '@mui/material';
 import {
+  Add as AddIcon,
   AspectRatio as ExpansionIcon,
   CheckCircleOutlined as DefaultIcon,
-  EditOutlined as DraftIcon,
+  ContentCopy as CopyIcon,
+  DeleteOutlined as DeleteIcon,
+  EditOutlined as EditIcon,
   ExpandLess as CollapseIcon,
   ExpandMore as ExpandIcon,
   MoreVert as MoreVertIcon,
   NewReleases as ReleaseIcon,
   OpenInNew as OpenInNewIcon,
+  Visibility as VisibilityIcon,
   WarningAmberOutlined as WarningIcon
-} from "@mui/icons-material";
-import find from "lodash/find";
-import orderBy from "lodash/orderBy";
-import uniqBy from "lodash/uniqBy";
-import get from "lodash/get";
-import isNumber from "lodash/isNumber";
-import { useTranslation } from "react-i18next";
+} from '@mui/icons-material';
+import find from 'lodash/find';
+import get from 'lodash/get';
 
-import APIService from "../../services/APIService";
+import APIService from '../../services/APIService';
 import {
+  copyToClipboard,
+  currentUserHasAccess,
   dropVersion,
-  formatDateTime,
+  formatDate,
   headFirst,
-  currentUserHasAccess
-} from "../../common/utils";
-import { OperationsContext } from "../app/LayoutContext";
-import DeleteEntityDialog from "../common/DeleteEntityDialog";
-import ProcessingChip from "../common/ProcessingChip";
-import ExpansionForm from "./ExpansionForm";
-import ExpansionDetailsDialog from "./ExpansionDetailsDialog";
-import RebuildExpansionDialog from "./RebuildExpansionDialog";
+  toFullAPIURL
+} from '../../common/utils';
+import { OperationsContext } from '../app/LayoutContext';
+import DeleteEntityDialog from '../common/DeleteEntityDialog';
+import ConceptIcon from '../concepts/ConceptIcon';
+import MappingIcon from '../mappings/MappingIcon';
+import ExpansionForm from './ExpansionForm';
+import ExpansionDetailsDialog from './ExpansionDetailsDialog';
+import ExpansionRowList from './ExpansionRowList';
+import RebuildExpansionDialog from './RebuildExpansionDialog';
+import RepoVersionRowMenu from './RepoVersionRowMenu';
+import VersionStatusIndicator from './VersionStatusIndicator';
+import {
+  REPO_VERSIONS_PAGE_SIZE,
+  bodyCellSx,
+  formatCount,
+  getPreviousVersionURL,
+  getVersionKey,
+  getVersionLabel,
+  headerCellSx,
+  isHeadVersion
+} from './versionsTab.styles';
 
 const PROCESSING_POLL_INTERVAL_MS = 10000;
 const PROCESSED_CHIP_FADE_MS = 6000;
-
-const isHeadVersion = version => (version?.version || version?.id) === "HEAD";
 
 const isStaleExpansion = expansion =>
   Boolean(
@@ -68,46 +83,27 @@ const isStaleExpansion = expansion =>
 
 const isExpansionProcessing = expansion => Boolean(expansion?.is_processing);
 
-const getVersionKey = version =>
-  version?.version_url || version?.url || version?.id;
-
 const getVersionEndpoint = version => {
-  const versionURL = version?.version_url || version?.url || "";
-  return version?.version === "HEAD"
-    ? `${dropVersion(versionURL)}HEAD/`
-    : versionURL;
+  const versionURL = version?.version_url || version?.url || '';
+  return version?.version === 'HEAD' ? `${dropVersion(versionURL)}HEAD/` : versionURL;
 };
 
 const matchesByValue = (value, candidates = []) => {
   if (!value) return false;
-
   const expected = value.toLowerCase();
-  return candidates
-    .filter(Boolean)
-    .some(candidate => String(candidate).toLowerCase() === expected);
+  return candidates.filter(Boolean).some(candidate => String(candidate).toLowerCase() === expected);
 };
 
 const findVersionFromQuery = (versions, value) =>
-  find(versions, version =>
-    matchesByValue(value, [
-      version?.version,
-      version?.id,
-      version?.url,
-      version?.version_url
-    ])
-  );
+  find(versions, version => matchesByValue(value, [version?.version, version?.id, version?.url, version?.version_url]));
 
 const findExpansionFromQuery = (expansions, value) =>
-  find(expansions, expansion =>
-    matchesByValue(value, [expansion?.mnemonic, expansion?.id, expansion?.url])
-  );
+  find(expansions, expansion => matchesByValue(value, [expansion?.mnemonic, expansion?.id, expansion?.url]));
 
 const formatExpansions = (version, versionExpansions = []) => {
-  let expansions = orderBy(
-    versionExpansions,
-    ["created_on", "id"],
-    ["desc", "desc"]
-  ).map(expansion => ({ ...expansion, default: false, auto: false }));
+  let expansions = [...versionExpansions]
+    .sort((a, b) => new Date(b.created_on) - new Date(a.created_on))
+    .map(expansion => ({ ...expansion, default: false, auto: false }));
 
   if (version?.autoexpand && expansions.length > 0) {
     const [latestExpansion, ...rest] = expansions;
@@ -119,9 +115,7 @@ const formatExpansions = (version, versionExpansions = []) => {
     if (defaultExpansion) {
       expansions = [
         { ...defaultExpansion, default: true },
-        ...expansions.filter(
-          expansion => expansion.url !== version.expansion_url
-        )
+        ...expansions.filter(expansion => expansion.url !== version.expansion_url)
       ];
     }
   }
@@ -129,194 +123,223 @@ const formatExpansions = (version, versionExpansions = []) => {
   return expansions;
 };
 
-const getUserLabel = user =>
-  user?.username ||
-  user?.id ||
-  user?.name ||
-  (typeof user === "string" ? user : "");
-
-const getReferencesCount = entity => {
-  const activeReferences =
-    get(entity, "summary.active_references") ?? get(entity, "active_references");
-  if (isNumber(activeReferences)) return activeReferences;
-
-  const explicitTotal =
-    get(entity, "summary.references.total") ?? get(entity, "references.total");
-  if (isNumber(explicitTotal)) return explicitTotal;
-
-  const conceptRefs =
-    get(entity, "summary.references.concepts") ??
-    get(entity, "references.concepts");
-  const mappingRefs =
-    get(entity, "summary.references.mappings") ??
-    get(entity, "references.mappings");
-  if (isNumber(conceptRefs) || isNumber(mappingRefs))
-    return (conceptRefs || 0) + (mappingRefs || 0);
-
-  return undefined;
-};
-
-const headerCellSx = {
-  color: "surface.contrastText",
-  fontSize: "12px",
-  fontWeight: 'bold',
-  borderBottom: "1px solid",
-  borderColor: "surface.nv80",
-  backgroundColor: "white",
-  padding: '3px 16px',
-  lineHeight: '1.2rem'
-};
-
-const bodyCellSx = {
-  borderBottom: "1px solid",
-  borderColor: "surface.nv80",
-  verticalAlign: "top",
-  py: 1.25
-};
-
-const countHeaderCellSx = {
-  ...headerCellSx,
-  width: "16%"
-};
-
-const countBodyCellSx = {
-  ...bodyCellSx,
-  width: "16%"
-};
-
-const actionHeaderCellSx = {
-  ...headerCellSx,
-  width: "1%",
-  whiteSpace: "nowrap"
-};
-
-const resolvedHeaderCellSx = {
-  ...headerCellSx,
-  width: "16%"
-};
-
-const actionBodyCellSx = {
-  ...bodyCellSx,
-  width: "1%",
-  whiteSpace: "nowrap"
-};
-
-const resolvedBodyCellSx = {
-  ...bodyCellSx,
-  width: "16%"
-};
-
-const compactButtonSx = {
-  minWidth: 0,
-  px: 0,
-  textTransform: "none",
-  justifyContent: "flex-start"
-};
-
-const MetaChip = ({ label, color = "default", icon, variant = "outlined" }) => (
-  <Chip
-    size="small"
-    label={label}
-    icon={icon}
-    color={color}
-    variant={variant}
-    sx={{ height: "22px", fontWeight: 600 }}
-  />
-);
-
-const CountCell = ({ value }) => (
-  <Typography
-    sx={{ fontSize: "16px", fontWeight: 600, color: "surface.contrastText" }}
-  >
-    {isNumber(value) ? value.toLocaleString() : "-"}
-  </Typography>
-);
-
-const getExplicitRepoVersions = expansion => [
-  ...(expansion?.explicit_source_versions || []),
-  ...(expansion?.explicit_collection_versions || [])
-];
-
-const getEvaluatedRepoVersions = expansion => [
-  ...(expansion?.evaluated_source_versions || []),
-  ...(expansion?.evaluated_collection_versions || [])
-];
-
-const renderRepoVersionLabel = version =>
-  `${version.owner} / ${version.short_code}:${version.version}`;
-
-const labelFromVersionUrl = url => {
-  const parts = url.split("/").filter(Boolean);
-  // URL form: /<orgs|users>/<owner>/<sources|collections>/<short_code>/<version>/
-  if (parts.length >= 5) return `${parts[1]} / ${parts[3]}:${parts[4]}`;
-  return url;
-};
-
 const parseProcessingValue = value => {
-  if (typeof value === "boolean") return value;
-  if (typeof value === "string") return value.toLowerCase() === "true";
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') return value.toLowerCase() === 'true';
   return Boolean(value);
 };
 
 const CollectionVersionsTab = ({
   repo,
-  versions,
-  count,
+  loading,
+  refreshKey,
+  onVersionChange,
+  onEditVersion,
   onReleaseVersion,
   onDeleteVersion,
   onDataChange
 }) => {
   const { t } = useTranslation();
   const location = useLocation();
+  const history = useHistory();
   const { setAlert } = React.useContext(OperationsContext);
-  const [headVersion, setHeadVersion] = React.useState(
-    isHeadVersion(repo) ? repo : null
-  );
-  const [expandedVersionKeys, setExpandedVersionKeys] = React.useState(new Set());
+  const hasAccess = currentUserHasAccess();
+  const baseRepoURL = dropVersion(repo?.version_url || repo?.url || '');
+
+  const [headVersion, setHeadVersion] = React.useState(isHeadVersion(repo) ? repo : null);
+  const [versions, setVersions] = React.useState([]);
+  const [totalCount, setTotalCount] = React.useState(0);
+  const [page, setPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(REPO_VERSIONS_PAGE_SIZE);
+  const [isLoadingVersions, setIsLoadingVersions] = React.useState(true);
+
   const [expansionsByVersion, setExpansionsByVersion] = React.useState({});
   const [loadingByVersion, setLoadingByVersion] = React.useState({});
-  const [headLoading, setHeadLoading] = React.useState(false);
   const [versionOverrides, setVersionOverrides] = React.useState({});
-  const [expansionFormState, setExpansionFormState] = React.useState({
-    open: false,
-    version: null,
-    copyFrom: null
-  });
+  const [repoUpdatesByExpansion, setRepoUpdatesByExpansion] = React.useState({});
+  const [processingStatusByExpansion, setProcessingStatusByExpansion] = React.useState({});
+
+  const [expansionFormState, setExpansionFormState] = React.useState({ open: false, version: null, copyFrom: null });
   const [deleteExpansion, setDeleteExpansion] = React.useState(null);
   const [detailsExpansion, setDetailsExpansion] = React.useState(null);
   const [rebuildExpansion, setRebuildExpansion] = React.useState(null);
-  const [versionMenu, setVersionMenu] = React.useState({
-    anchorEl: null,
-    version: null
-  });
-  const [expansionMenu, setExpansionMenu] = React.useState({
-    anchorEl: null,
-    version: null,
-    expansion: null
-  });
-  const [repoUpdatesByExpansion, setRepoUpdatesByExpansion] = React.useState({});
-  const [dismissedUpdates, setDismissedUpdates] = React.useState(new Set());
-  const [processingStatusByExpansion, setProcessingStatusByExpansion] =
-    React.useState({});
-  const expansionRefs = React.useRef({});
+  const [expandedVersionKeys, setExpandedVersionKeys] = React.useState(new Set());
+  const [rowMenu, setRowMenu] = React.useState({ anchorEl: null, version: null });
+  const [expansionMenu, setExpansionMenu] = React.useState({ anchorEl: null, version: null, expansion: null });
+
   const fetchedRepoUpdatesRef = React.useRef(new Set());
   const processingStatusRef = React.useRef({});
   const processingPollsRef = React.useRef({});
   const processedCleanupRef = React.useRef({});
-  const hasAccess = currentUserHasAccess();
-  const baseRepoURL = dropVersion(repo?.version_url || repo?.url || "");
-  const searchParams = React.useMemo(
-    () => new URLSearchParams(location.search),
-    [location.search]
-  );
-  const notificationVersion =
-    searchParams.get("version_url") ||
-    searchParams.get("version") ||
-    searchParams.get("version_id");
-  const notificationExpansion =
-    searchParams.get("expansion_url") ||
-    searchParams.get("expansion") ||
-    searchParams.get("expansion_id");
+  const handledDeepLinkRef = React.useRef(false);
+
+  const searchParams = React.useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const notificationVersion = searchParams.get('version_url') || searchParams.get('version') || searchParams.get('version_id');
+  const notificationExpansion = searchParams.get('expansion_url') || searchParams.get('expansion') || searchParams.get('expansion_id');
+
+  const fetchVersionsPage = (nextPage, nextPageSize) => {
+    if (!baseRepoURL) return;
+    setIsLoadingVersions(true);
+    APIService.new()
+      .overrideURL(baseRepoURL)
+      .appendToUrl('versions/')
+      .get(null, null, { verbose: true, includeSummary: true, limit: nextPageSize, page: nextPage })
+      .then(response => {
+        const _versions = Array.isArray(response?.data) ? response.data : [];
+        setVersions(_versions);
+        setTotalCount(parseInt(response?.headers?.['num_found'] || _versions.length || 0));
+      })
+      .finally(() => setIsLoadingVersions(false));
+  };
+
+  React.useEffect(() => {
+    setPage(1);
+    fetchVersionsPage(1, pageSize);
+  }, [baseRepoURL, refreshKey]);
+
+  React.useEffect(() => {
+    if (!baseRepoURL) {
+      setHeadVersion(null);
+      return;
+    }
+    if (isHeadVersion(repo)) {
+      setHeadVersion(repo);
+      return;
+    }
+    APIService.new()
+      .overrideURL(baseRepoURL)
+      .get(null, null, { includeSummary: true }, true)
+      .then(response => {
+        setHeadVersion(response?.data || response?.response?.data || null);
+      });
+  }, [baseRepoURL, repo]);
+
+  const displayVersions = React.useMemo(() => {
+    const normalizedHeadVersion = headVersion ? {
+      ...headVersion,
+      id: 'HEAD',
+      version: 'HEAD',
+      version_url: headVersion.url || headVersion.version_url || baseRepoURL
+    } : null;
+    const versionList = Array.isArray(versions) ? versions : [];
+    const pagedVersions = page === 1
+      ? [normalizedHeadVersion, ...versionList].filter(Boolean)
+      : versionList.filter(version => !isHeadVersion(version));
+    const withOverrides = pagedVersions.map(version => ({
+      ...version,
+      ...(versionOverrides[getVersionKey(version)] || {})
+    }));
+    return headFirst(withOverrides);
+  }, [baseRepoURL, headVersion, page, versionOverrides, versions]);
+
+  const fetchExpansions = React.useCallback((version, force = false) => {
+    const versionKey = getVersionKey(version);
+    if (!versionKey || loadingByVersion[versionKey] || (!force && expansionsByVersion[versionKey])) return;
+
+    const versionURL = getVersionEndpoint(version);
+    if (!versionURL) return;
+
+    setLoadingByVersion(prev => ({ ...prev, [versionKey]: true }));
+    APIService.new()
+      .overrideURL(versionURL)
+      .appendToUrl('expansions/')
+      .get(null, null, { includeSummary: true, verbose: true })
+      .then(response => {
+        const data = response?.data || [];
+        setExpansionsByVersion(prev => ({ ...prev, [versionKey]: formatExpansions(version, data) }));
+        setLoadingByVersion(prev => ({ ...prev, [versionKey]: false }));
+      });
+  }, [expansionsByVersion, loadingByVersion]);
+
+  React.useEffect(() => {
+    displayVersions.forEach(version => fetchExpansions(version));
+  }, [displayVersions, fetchExpansions]);
+
+  const getDefaultExpansion = React.useCallback(version => {
+    const versionExpansions = expansionsByVersion[getVersionKey(version)] || [];
+    return find(versionExpansions, exp => exp.default || exp.auto) || versionExpansions[0] || null;
+  }, [expansionsByVersion]);
+
+  const getDefaultExpansionLabel = version => {
+    const defaultExpansion = getDefaultExpansion(version);
+    if (defaultExpansion) return defaultExpansion.mnemonic;
+    if (version?.expansion_url) return version.expansion_url.split('/').filter(Boolean).slice(-1)[0];
+    if (version?.autoexpand) return t('repo.autoexpand');
+    return t('common.none');
+  };
+
+  const fetchResolvedRepoUpdates = React.useCallback((version, expansion) => {
+    if (!hasAccess || !expansion?.url || !expansion?.mnemonic) return;
+    if (fetchedRepoUpdatesRef.current.has(expansion.url)) return;
+    fetchedRepoUpdatesRef.current.add(expansion.url);
+
+    const versionURL = getVersionEndpoint(version);
+    APIService.new()
+      .overrideURL(`${versionURL}expansions/${expansion.mnemonic}/resolved-repo-updates/`)
+      .get()
+      .then(response => {
+        const data = response?.data || {};
+        setRepoUpdatesByExpansion(prev => ({ ...prev, [expansion.url]: data }));
+      });
+  }, [hasAccess]);
+
+  // Only fetch resolved-repo-updates for each visible row's default expansion,
+  // not every expansion of every version.
+  React.useEffect(() => {
+    displayVersions.forEach(version => {
+      const defaultExpansion = getDefaultExpansion(version);
+      if (defaultExpansion) fetchResolvedRepoUpdates(version, defaultExpansion);
+    });
+  }, [displayVersions, expansionsByVersion, fetchResolvedRepoUpdates, getDefaultExpansion]);
+
+  // Auto-expand any row whose default expansion has something worth flagging
+  // (resolved repo updates available, or stale) so the warning isn't hidden a click away.
+  React.useEffect(() => {
+    const toExpand = [];
+    displayVersions.forEach(version => {
+      const defaultExpansion = getDefaultExpansion(version);
+      if (!defaultExpansion) return;
+      const updates = repoUpdatesByExpansion[defaultExpansion.url];
+      const hasUpdates = hasAccess && updates && Object.keys(updates).length > 0;
+      if (hasUpdates || isStaleExpansion(defaultExpansion)) toExpand.push(getVersionKey(version));
+    });
+    if (!toExpand.length) return;
+    setExpandedVersionKeys(prev => {
+      const next = new Set([...prev, ...toExpand]);
+      return next.size === prev.size ? prev : next;
+    });
+  }, [displayVersions, getDefaultExpansion, hasAccess, repoUpdatesByExpansion]);
+
+  // When a version's row is expanded, fetch resolved-repo-updates for every one of
+  // its expansions (not just the default) so the inline list can show full detail.
+  React.useEffect(() => {
+    expandedVersionKeys.forEach(versionKey => {
+      const version = find(displayVersions, item => getVersionKey(item) === versionKey);
+      if (!version) return;
+      (expansionsByVersion[versionKey] || []).forEach(expansion => fetchResolvedRepoUpdates(version, expansion));
+    });
+  }, [expandedVersionKeys, expansionsByVersion, displayVersions, fetchResolvedRepoUpdates]);
+
+  React.useEffect(() => {
+    if (handledDeepLinkRef.current) return;
+    if (!displayVersions.length || !notificationVersion) return;
+    const version = findVersionFromQuery(displayVersions, notificationVersion);
+    if (!version) return;
+    const versionExpansions = expansionsByVersion[getVersionKey(version)];
+    if (!versionExpansions) return;
+
+    handledDeepLinkRef.current = true;
+    if (notificationExpansion) {
+      const expansion = findExpansionFromQuery(versionExpansions, notificationExpansion);
+      if (expansion) {
+        setDetailsExpansion(expansion);
+        return;
+      }
+    }
+    if (versionExpansions.length) {
+      setExpandedVersionKeys(prev => new Set([...prev, getVersionKey(version)]));
+    }
+  }, [displayVersions, expansionsByVersion, notificationExpansion, notificationVersion]);
 
   React.useEffect(() => {
     processingStatusRef.current = processingStatusByExpansion;
@@ -334,578 +357,286 @@ const CollectionVersionsTab = ({
     delete processedCleanupRef.current[url];
   }, []);
 
-  const markExpansionProcessing = React.useCallback(
-    url => {
-      if (!url) return;
+  const markExpansionProcessing = React.useCallback(url => {
+    if (!url) return;
+    clearProcessedCleanup(url);
+    setProcessingStatusByExpansion(prev => {
+      if (prev[url]?.state === 'processing') return prev;
+      return { ...prev, [url]: { state: 'processing' } };
+    });
+  }, [clearProcessedCleanup]);
 
-      clearProcessedCleanup(url);
-      setProcessingStatusByExpansion(prev => {
-        if (prev[url]?.state === "processing") return prev;
-        return {
-          ...prev,
-          [url]: { state: "processing" }
-        };
-      });
-    },
-    [clearProcessedCleanup]
-  );
-
-  const markExpansionProcessed = React.useCallback(
-    (url, onlyIfTracked = false) => {
-      if (!url) return;
-
-      const currentState = processingStatusRef.current[url]?.state;
-      if (onlyIfTracked && currentState !== "processing") {
-        clearProcessingPoll(url);
-        return;
-      }
-
+  const markExpansionProcessed = React.useCallback((url, onlyIfTracked = false) => {
+    if (!url) return;
+    const currentState = processingStatusRef.current[url]?.state;
+    if (onlyIfTracked && currentState !== 'processing') {
       clearProcessingPoll(url);
-      clearProcessedCleanup(url);
-      setProcessingStatusByExpansion(prev => ({
-        ...prev,
-        [url]: { state: "processed", processedAt: Date.now() }
-      }));
-      processedCleanupRef.current[url] = window.setTimeout(() => {
-        setProcessingStatusByExpansion(prev => {
-          if (!prev[url]) return prev;
-          const next = { ...prev };
-          delete next[url];
-          return next;
-        });
-        delete processedCleanupRef.current[url];
-      }, PROCESSED_CHIP_FADE_MS);
-    },
-    [clearProcessedCleanup, clearProcessingPoll]
-  );
-
-  React.useEffect(
-    () => () => {
-      Object.keys(processingPollsRef.current).forEach(clearProcessingPoll);
-      Object.keys(processedCleanupRef.current).forEach(clearProcessedCleanup);
-    },
-    [clearProcessedCleanup, clearProcessingPoll]
-  );
-
-  React.useEffect(() => {
-    if (!baseRepoURL || isHeadVersion(repo)) {
-      setHeadVersion(repo);
       return;
     }
-
-    setHeadLoading(true);
-    APIService.new()
-      .overrideURL(baseRepoURL)
-      .get(null, null, { includeSummary: true }, true)
-      .then(response => {
-        setHeadVersion(response?.data || response?.response?.data || null);
-        setHeadLoading(false);
-      });
-  }, [baseRepoURL, repo]);
-
-  const displayVersions = React.useMemo(() => {
-    const head = headVersion
-      ? {
-          ...headVersion,
-          id: "HEAD",
-          version: "HEAD",
-          version_url: headVersion.url || headVersion.version_url || baseRepoURL
-        }
-      : null;
-
-    const versionList = uniqBy(
-      [head, ...(versions || [])].filter(Boolean).map(version => ({
-        ...version,
-        ...(versionOverrides[getVersionKey(version)] || {})
-      })),
-      version => getVersionKey(version)
-    );
-
-    return headFirst(orderBy(versionList, ["created_on"], ["desc"]));
-  }, [baseRepoURL, headVersion, versionOverrides, versions]);
-
-  const fetchExpansions = React.useCallback(
-    (version, force = false) => {
-      const versionKey = getVersionKey(version);
-      if (
-        !versionKey ||
-        loadingByVersion[versionKey] ||
-        (!force && expansionsByVersion[versionKey])
-      )
-        return;
-
-      const versionURL = getVersionEndpoint(version);
-      if (!versionURL) return;
-
-      setLoadingByVersion(prev => ({ ...prev, [versionKey]: true }));
-      APIService.new()
-        .overrideURL(versionURL)
-        .appendToUrl("expansions/")
-        .get(null, null, { includeSummary: true, verbose: true })
-        .then(response => {
-          const data = response?.data || [];
-          setExpansionsByVersion(prev => ({
-            ...prev,
-            [versionKey]: formatExpansions(version, data)
-          }));
-          setLoadingByVersion(prev => ({ ...prev, [versionKey]: false }));
-        });
-    },
-    [expansionsByVersion, loadingByVersion]
-  );
-
-  React.useEffect(() => {
-    displayVersions.forEach(version => fetchExpansions(version));
-  }, [displayVersions, fetchExpansions]);
-
-  const latestReleasedVersion = React.useMemo(() => {
-    const released = displayVersions.filter(v => !isHeadVersion(v) && v.released);
-    return released.length ? released[0] : null;
-  }, [displayVersions]);
-
-  const fetchResolvedRepoUpdates = React.useCallback((version, expansion) => {
-    if (!hasAccess) return;
-    if (!expansion?.url || !expansion?.mnemonic) return;
-    if (fetchedRepoUpdatesRef.current.has(expansion.url)) return;
-    fetchedRepoUpdatesRef.current.add(expansion.url);
-
-    const versionURL = getVersionEndpoint(version);
-    APIService.new()
-      .overrideURL(`${versionURL}expansions/${expansion.mnemonic}/resolved-repo-updates/`)
-      .get()
-      .then(response => {
-        const data = response?.data || {};
-        setRepoUpdatesByExpansion(prev => ({ ...prev, [expansion.url]: data }));
-      });
-  }, []);
-
-  // Eagerly fetch resolved-repo-updates for HEAD and latest released as their expansions load
-  React.useEffect(() => {
-    const currentHead = find(displayVersions, isHeadVersion);
-    if (currentHead) {
-      (expansionsByVersion[getVersionKey(currentHead)] || []).forEach(exp =>
-        fetchResolvedRepoUpdates(currentHead, exp)
-      );
-    }
-    if (latestReleasedVersion) {
-      (expansionsByVersion[getVersionKey(latestReleasedVersion)] || []).forEach(exp =>
-        fetchResolvedRepoUpdates(latestReleasedVersion, exp)
-      );
-    }
-  }, [expansionsByVersion]); // intentionally omitting stable callbacks from deps
-
-  // Auto-expand HEAD and latest-released if any of their expansions have updates
-  React.useEffect(() => {
-    const toExpand = [];
-    const currentHead = find(displayVersions, isHeadVersion);
-    if (currentHead) {
-      const versionExpansions = expansionsByVersion[getVersionKey(currentHead)] || [];
-      const hasUpdates = versionExpansions.some(
-        exp => exp.url in repoUpdatesByExpansion && Object.keys(repoUpdatesByExpansion[exp.url]).length > 0
-      );
-      if (hasUpdates) toExpand.push(getVersionKey(currentHead));
-    }
-    if (latestReleasedVersion) {
-      const versionExpansions = expansionsByVersion[getVersionKey(latestReleasedVersion)] || [];
-      const hasUpdates = versionExpansions.some(
-        exp => exp.url in repoUpdatesByExpansion && Object.keys(repoUpdatesByExpansion[exp.url]).length > 0
-      );
-      if (hasUpdates) toExpand.push(getVersionKey(latestReleasedVersion));
-    }
-    if (toExpand.length > 0) {
-      setExpandedVersionKeys(prev => {
-        const next = new Set([...prev, ...toExpand]);
-        if (next.size === prev.size) return prev;
+    clearProcessingPoll(url);
+    clearProcessedCleanup(url);
+    setProcessingStatusByExpansion(prev => ({ ...prev, [url]: { state: 'processed', processedAt: Date.now() } }));
+    processedCleanupRef.current[url] = window.setTimeout(() => {
+      setProcessingStatusByExpansion(prev => {
+        if (!prev[url]) return prev;
+        const next = { ...prev };
+        delete next[url];
         return next;
       });
-    }
-  }, [repoUpdatesByExpansion]); // intentionally omitting stable callbacks from deps
+      delete processedCleanupRef.current[url];
+    }, PROCESSED_CHIP_FADE_MS);
+  }, [clearProcessedCleanup, clearProcessingPoll]);
 
-  // Fetch resolved-repo-updates for any expansion not yet fetched when a version is expanded
-  React.useEffect(() => {
-    expandedVersionKeys.forEach(versionKey => {
-      const version = find(displayVersions, v => getVersionKey(v) === versionKey);
-      if (!version) return;
-      (expansionsByVersion[versionKey] || []).forEach(exp =>
-        fetchResolvedRepoUpdates(version, exp)
-      );
+  React.useEffect(() => () => {
+    Object.keys(processingPollsRef.current).forEach(clearProcessingPoll);
+    Object.keys(processedCleanupRef.current).forEach(clearProcessedCleanup);
+  }, [clearProcessedCleanup, clearProcessingPoll]);
+
+  const refreshSelectedExpansions = React.useCallback(version => {
+    if (version) fetchExpansions(version, true);
+  }, [fetchExpansions]);
+
+  const pollExpansionProcessing = React.useCallback((version, expansion) => {
+    if (!expansion?.url) return;
+    APIService.new().overrideURL(expansion.url + 'processing/').get(null, null, null, true).then(response => {
+      if (response?.status !== 200) return;
+      const isProcessing = parseProcessingValue(response?.data);
+      if (isProcessing) {
+        markExpansionProcessing(expansion.url);
+        return;
+      }
+      markExpansionProcessed(expansion.url, true);
+      refreshSelectedExpansions(version);
     });
-  }, [expandedVersionKeys, expansionsByVersion]); // intentionally omitting stable callbacks from deps
+  }, [markExpansionProcessed, markExpansionProcessing, refreshSelectedExpansions]);
 
-  React.useEffect(() => {
-    if (!displayVersions.length) return;
-
-    const querySelectedVersion = findVersionFromQuery(
-      displayVersions,
-      notificationVersion
-    );
-    if (querySelectedVersion) {
-      const key = getVersionKey(querySelectedVersion);
-      setExpandedVersionKeys(prev => {
-        if (prev.has(key)) return prev;
-        return new Set([...prev, key]);
-      });
-    }
-  }, [displayVersions, notificationVersion]);
-
-  const expandedExpansions = React.useMemo(
-    () =>
-      [...expandedVersionKeys].flatMap(
-        key => expansionsByVersion[key] || []
-      ),
-    [expandedVersionKeys, expansionsByVersion]
-  );
-  const highlightedExpansion = notificationExpansion
-    ? findExpansionFromQuery(expandedExpansions, notificationExpansion)
-    : null;
-
-  React.useEffect(() => {
-    if (
-      highlightedExpansion?.url &&
-      expansionRefs.current[highlightedExpansion.url]
-    ) {
-      expansionRefs.current[highlightedExpansion.url].scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
-    }
-  }, [highlightedExpansion]);
-
-  const getDefaultExpansionLabel = version => {
-    const versionExpansions = expansionsByVersion[getVersionKey(version)] || [];
-    const defaultExpansion = find(
-      versionExpansions,
-      expansion => expansion.default || expansion.auto
-    );
-    if (defaultExpansion) return defaultExpansion.mnemonic;
-    if (version?.expansion_url) {
-      return version.expansion_url
-        .split("/")
-        .filter(Boolean)
-        .slice(-1)[0];
-    }
-    if (version?.autoexpand) return t("repo.autoexpand");
-    return t("common.none");
-  };
-
-  const getStaleCount = version => {
-    const versionExpansions = expansionsByVersion[getVersionKey(version)] || [];
-    return versionExpansions.filter(isStaleExpansion).length;
-  };
-
-  const refreshSelectedExpansions = React.useCallback(
-    version => {
-      if (version) fetchExpansions(version, true);
-    },
-    [fetchExpansions]
-  );
-
-  const pollExpansionProcessing = React.useCallback(
-    (version, expansion) => {
-      if (!expansion?.url) return;
-
-      APIService.new()
-        .overrideURL(expansion.url + "processing/")
-        .get(null, null, null, true)
-        .then(response => {
-          if (response?.status !== 200) return;
-
-          const isProcessing = parseProcessingValue(response?.data);
-          if (isProcessing) {
-            markExpansionProcessing(expansion.url);
-            return;
-          }
-
-          markExpansionProcessed(expansion.url, true);
-          refreshSelectedExpansions(version);
-        });
-    },
-    [markExpansionProcessed, markExpansionProcessing, refreshSelectedExpansions]
-  );
-
-  const ensureProcessingPoll = React.useCallback(
-    (version, expansion) => {
-      if (!expansion?.url || processingPollsRef.current[expansion.url]) return;
-
-      processingPollsRef.current[expansion.url] = window.setInterval(() => {
-        pollExpansionProcessing(version, expansion);
-      }, PROCESSING_POLL_INTERVAL_MS);
-    },
-    [pollExpansionProcessing]
-  );
+  const ensureProcessingPoll = React.useCallback((version, expansion) => {
+    if (!expansion?.url || processingPollsRef.current[expansion.url]) return;
+    processingPollsRef.current[expansion.url] = window.setInterval(() => {
+      pollExpansionProcessing(version, expansion);
+    }, PROCESSING_POLL_INTERVAL_MS);
+  }, [pollExpansionProcessing]);
 
   React.useEffect(() => {
     const activeProcessingUrls = new Set();
-
     Object.entries(expansionsByVersion).forEach(([versionKey, versionExpansions]) => {
       const version = find(displayVersions, item => getVersionKey(item) === versionKey);
       if (!version) return;
-
       versionExpansions.forEach(expansion => {
         if (!expansion?.url) return;
-
         if (isExpansionProcessing(expansion)) {
           activeProcessingUrls.add(expansion.url);
           markExpansionProcessing(expansion.url);
           ensureProcessingPoll(version, expansion);
           return;
         }
-
         clearProcessingPoll(expansion.url);
         markExpansionProcessed(expansion.url, true);
       });
     });
-
     Object.keys(processingPollsRef.current).forEach(url => {
       if (!activeProcessingUrls.has(url)) clearProcessingPoll(url);
     });
-  }, [
-    clearProcessingPoll,
-    displayVersions,
-    ensureProcessingPoll,
-    expansionsByVersion,
-    markExpansionProcessed,
-    markExpansionProcessing
-  ]);
+  }, [clearProcessingPoll, displayVersions, ensureProcessingPoll, expansionsByVersion, markExpansionProcessed, markExpansionProcessing]);
 
   const onMarkExpansionDefault = (version, expansion) => {
-    APIService.new()
-      .overrideURL(getVersionEndpoint(version))
-      .put({ expansion_url: expansion.url })
-      .then(response => {
-        if (response?.status === 200) {
-          const versionKey = getVersionKey(version);
-          setVersionOverrides(prev => ({
-            ...prev,
-            [versionKey]: {
-              ...(prev[versionKey] || {}),
-              expansion_url: expansion.url
-            }
-          }));
-          setExpansionsByVersion(prev => ({
-            ...prev,
-            [versionKey]: formatExpansions(
-              { ...version, expansion_url: expansion.url },
-              prev[versionKey] || []
-            )
-          }));
-          setAlert({
-            severity: "success",
-            message: t("repo.default_expansion_updated")
-          });
-          onDataChange?.();
-        } else {
-          setAlert({
-            severity: "error",
-            message:
-              response?.data?.detail ||
-              response?.detail ||
-              t("repo.unable_set_default_expansion")
-          });
-        }
-      });
+    APIService.new().overrideURL(getVersionEndpoint(version)).put({ expansion_url: expansion.url }).then(response => {
+      if (response?.status === 200) {
+        const versionKey = getVersionKey(version);
+        setVersionOverrides(prev => ({ ...prev, [versionKey]: { ...(prev[versionKey] || {}), expansion_url: expansion.url } }));
+        setExpansionsByVersion(prev => ({ ...prev, [versionKey]: formatExpansions({ ...version, expansion_url: expansion.url }, prev[versionKey] || []) }));
+        setAlert({ severity: 'success', message: t('repo.default_expansion_updated') });
+        onDataChange?.();
+      } else {
+        setAlert({ severity: 'error', message: response?.data?.detail || response?.detail || t('repo.unable_set_default_expansion') });
+      }
+    });
   };
 
   const onDeleteExpansionSubmit = () => {
     if (!deleteExpansion?.url) return;
-
-    APIService.new()
-      .overrideURL(deleteExpansion.url)
-      .delete()
-      .then(response => {
-        if (!response || response?.status === 204) {
-          setDeleteExpansion(false);
-          setAlert({
-            severity: "success",
-            message: t("repo.expansion_deleted")
-          });
-          refreshSelectedExpansions(deleteExpansion.__version);
-          onDataChange?.();
-        } else {
-          setAlert({
-            severity: "error",
-            message:
-              response?.data?.detail ||
-              response?.detail ||
-              t("repo.unable_delete_expansion")
-          });
-        }
-      });
+    APIService.new().overrideURL(deleteExpansion.url).delete().then(response => {
+      if (!response || response?.status === 204) {
+        setDeleteExpansion(false);
+        setAlert({ severity: 'success', message: t('repo.expansion_deleted') });
+        refreshSelectedExpansions(deleteExpansion.__version);
+        onDataChange?.();
+      } else {
+        setAlert({ severity: 'error', message: response?.data?.detail || response?.detail || t('repo.unable_delete_expansion') });
+      }
+    });
   };
 
   const onRebuildExpansion = expansion => {
-    APIService.new()
-      .overrideURL(`${expansion.url}re-evaluate/`)
-      .post()
-      .then(response => {
-        setRebuildExpansion(false);
-        if (
-          response?.status === 200 ||
-          response?.status === 201 ||
-          response?.status === 202
-        ) {
-          setAlert({
-            severity: "success",
-            message: t("repo.expansion_rebuild_accepted")
-          });
-          refreshSelectedExpansions(expansion.__version);
-        } else {
-          setAlert({
-            severity: "error",
-            message:
-              response?.data?.detail ||
-              response?.detail ||
-              t("repo.unable_rebuild_expansion")
-          });
-        }
-      });
+    APIService.new().overrideURL(`${expansion.url}re-evaluate/`).post().then(response => {
+      setRebuildExpansion(false);
+      if ([200, 201, 202].includes(response?.status)) {
+        setAlert({ severity: 'success', message: t('repo.expansion_rebuild_accepted') });
+        refreshSelectedExpansions(expansion.__version);
+      } else {
+        setAlert({ severity: 'error', message: response?.data?.detail || response?.detail || t('repo.unable_rebuild_expansion') });
+      }
+    });
   };
 
-  const renderAudit = (translationKey, date, user) => {
-    if (!date) return null;
+  const compareVersion = version => {
+    const previousVersionURL = getPreviousVersionURL(version);
+    if (previousVersionURL) {
+      history.push(`${baseRepoURL}compare-versions?version1=${previousVersionURL}&version2=${version.version_url || version.url}`);
+    }
+  };
 
-    return (
-      <Typography sx={{ mt: 0.25, fontSize: "12px", color: "secondary.main" }}>
-        {t(translationKey)} {formatDateTime(date)} {t("common.by")}{" "}
-        {getUserLabel(user) || "-"}
-      </Typography>
+  const copyVersionURL = version => {
+    copyToClipboard(toFullAPIURL(version.version_url || version.url));
+    setAlert({ severity: 'success', message: t('repo.copied_version_url') });
+  };
+
+  const toggleVersionExpand = version => {
+    const versionKey = getVersionKey(version);
+    setExpandedVersionKeys(prev => {
+      const next = new Set(prev);
+      if (next.has(versionKey)) next.delete(versionKey);
+      else next.add(versionKey);
+      return next;
+    });
+  };
+
+  const openRowMenu = (event, version) => setRowMenu({ anchorEl: event.currentTarget, version });
+  const closeRowMenu = () => setRowMenu({ anchorEl: null, version: null });
+  const openExpansionMenu = (event, version, expansion) => setExpansionMenu({ anchorEl: event.currentTarget, version, expansion });
+  const closeExpansionMenu = () => setExpansionMenu({ anchorEl: null, version: null, expansion: null });
+
+  const buildRowMenuItems = version => {
+    const versionKey = getVersionKey(version);
+    const isHead = isHeadVersion(version);
+    const released = Boolean(version.released);
+    const versionExpansions = expansionsByVersion[versionKey] || [];
+    const canDeleteVersion = !isHead && !released && versionExpansions.length === 0;
+
+    const items = [
+      { key: 'explore', label: t('repo.explore_version'), icon: <VisibilityIcon />, onClick: () => onVersionChange?.(version) },
+      { key: 'copy', label: t('common.copy_api_url'), icon: <CopyIcon />, onClick: () => copyVersionURL(version) },
+      { key: 'compare', label: t('repo.compare_with_previous'), icon: <OpenInNewIcon />, disabled: !getPreviousVersionURL(version), onClick: () => compareVersion(version) },
+      { divider: true },
+      { key: 'new-expansion', label: t('repo.new_expansion'), icon: <AddIcon />, onClick: () => setExpansionFormState({ open: true, version, copyFrom: null }) },
+      { key: 'manage-expansions', label: t('repo.expansions'), icon: <ExpansionIcon />, disabled: !versionExpansions.length, onClick: () => toggleVersionExpand(version) }
+    ];
+
+    if (hasAccess) {
+      items.push(
+        { divider: true },
+        { key: 'edit', label: t('common.edit'), icon: <EditIcon />, disabled: isHead, onClick: () => onEditVersion?.(version) },
+        { key: 'release', label: released ? t('repo.unrelease_version') : t('repo.release_version'), icon: <ReleaseIcon />, disabled: isHead, onClick: () => onReleaseVersion?.(version) },
+        { key: 'delete', label: t('repo.delete_repo_version'), icon: <DeleteIcon />, disabled: !canDeleteVersion, danger: true, onClick: () => onDeleteVersion?.(version) }
+      );
+    }
+
+    return items;
+  };
+
+  const buildExpansionMenuItems = () => {
+    const { version, expansion } = expansionMenu;
+    if (!version || !expansion) return [];
+
+    const items = [];
+    if (!expansion.default) {
+      items.push({ key: 'set-default', label: t('repo.set_as_default'), onClick: () => onMarkExpansionDefault(version, expansion) });
+    }
+    items.push(
+      { key: 'create-similar', label: t('repo.create_similar'), onClick: () => setExpansionFormState({ open: true, version, copyFrom: expansion }) },
+      { key: 'rebuild', label: t('repo.rebuild'), onClick: () => setRebuildExpansion({ ...expansion, __version: version }) },
+      { key: 'details', label: t('common.details'), onClick: () => setDetailsExpansion(expansion) },
+      { key: 'delete', label: t('common.delete_label'), danger: true, disabled: Boolean(expansion.default), onClick: () => setDeleteExpansion({ ...expansion, __version: version }) }
     );
-  };
-
-  const openVersionMenu = (event, version) => {
-    setVersionMenu({ anchorEl: event.currentTarget, version });
-  };
-
-  const closeVersionMenu = () => {
-    setVersionMenu({ anchorEl: null, version: null });
-  };
-
-  const openExpansionMenu = (event, version, expansion) => {
-    setExpansionMenu({ anchorEl: event.currentTarget, version, expansion });
-  };
-
-  const closeExpansionMenu = () => {
-    setExpansionMenu({ anchorEl: null, version: null, expansion: null });
+    return items;
   };
 
   const renderVersionRow = version => {
     const versionKey = getVersionKey(version);
-    const expanded = expandedVersionKeys.has(versionKey);
+    const isHead = isHeadVersion(version);
     const released = Boolean(version.released);
-    const staleCount = getStaleCount(version);
     const versionExpansions = expansionsByVersion[versionKey] || [];
     const versionLoading = loadingByVersion[versionKey];
+    const defaultExpansion = getDefaultExpansion(version);
+    const conceptCount = get(defaultExpansion, 'summary.active_concepts') ?? get(version, 'summary.active_concepts');
+    const mappingCount = get(defaultExpansion, 'summary.active_mappings') ?? get(version, 'summary.active_mappings');
+    const expansionUpdates = defaultExpansion ? repoUpdatesByExpansion[defaultExpansion.url] : null;
+    const hasRepoUpdates = hasAccess && expansionUpdates && Object.keys(expansionUpdates).length > 0;
+    const stale = isStaleExpansion(defaultExpansion);
+    const showWarning = hasRepoUpdates || stale;
+    const expanded = expandedVersionKeys.has(versionKey);
 
     return (
       <React.Fragment key={versionKey}>
         <TableRow hover>
-          <TableCell sx={{ ...bodyCellSx, width: "52%" }}>
-            <Box sx={{ position: "relative", pl: 5 }}>
-              <IconButton
+          <TableCell sx={bodyCellSx}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5 }}>
+              <MuiButton
                 size="small"
-                sx={{ position: "absolute", left: 0, top: -4 }}
-                onClick={() =>
-                  setExpandedVersionKeys(prev => {
-                    const next = new Set(prev);
-                    if (next.has(versionKey)) next.delete(versionKey);
-                    else next.add(versionKey);
-                    return next;
-                  })
-                }
+                onClick={() => onVersionChange?.(version)}
+                sx={{ minWidth: 0, p: 0, textTransform: 'none', fontWeight: 700 }}
               >
-                {expanded ? <CollapseIcon /> : <ExpandIcon />}
-              </IconButton>
-              <Box sx={{ minWidth: 0, flex: 1 }}>
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  sx={{ flexWrap: "wrap", rowGap: 0.75 }}
+                {getVersionLabel(version)}
+              </MuiButton>
+              <Chip
+                size="small"
+                variant="outlined"
+                icon={<DefaultIcon sx={{ fontSize: '14px !important' }} />}
+                label={t('repo.default_expansion_label', { expansion: getDefaultExpansionLabel(version) })}
+                sx={{ height: '22px', fontWeight: 600 }}
+              />
+            </Stack>
+            {version.description && (
+              <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.25 }}>
+                {version.description}
+              </Typography>
+            )}
+            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.25 }}>
+              {version.created_on ? formatDate(version.created_on) : ''}{version.created_by ? ` · ${version.created_by}` : ''}
+            </Typography>
+          </TableCell>
+          <TableCell sx={bodyCellSx}>
+            <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5 }}>
+              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+                <ConceptIcon selected color="secondary" sx={{ width: 12, height: 12 }} />
+                <Typography variant="body2">{formatCount(conceptCount)}</Typography>
+              </Stack>
+              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+                <MappingIcon width="15px" height="13px" fill="secondary.main" color="secondary" />
+                <Typography variant="body2">{formatCount(mappingCount)}</Typography>
+              </Stack>
+              {versionLoading && <CircularProgress size={14} />}
+              {!versionLoading && versionExpansions.length > 0 && (
+                <Chip
+                  size="small"
+                  variant="outlined"
+                  color="primary"
+                  icon={expanded ? <CollapseIcon sx={{ fontSize: '16px !important' }} /> : <ExpandIcon sx={{ fontSize: '16px !important' }} />}
+                  label={versionExpansions.length > 1 ? t('repo.show_expansions', { count: versionExpansions.length }) : t('repo.expansions')}
+                  onClick={() => toggleVersionExpand(version)}
+                  sx={{ height: '24px', cursor: 'pointer', fontWeight: 600 }}
+                />
+              )}
+            </Stack>
+          </TableCell>
+          <TableCell sx={bodyCellSx}>
+            <VersionStatusIndicator isHead={isHead} released={released} retired={version.retired} />
+          </TableCell>
+          <TableCell sx={{ ...bodyCellSx, width: '1%' }}>
+            {showWarning && (
+              <Tooltip title={hasRepoUpdates ? t('repo.resolved_repo_updates_available') : t('repo.stale')}>
+                <IconButton
+                  size="small"
+                  onClick={() => defaultExpansion && setRebuildExpansion({ ...defaultExpansion, __version: version })}
                 >
-                  <Typography
-                    sx={{
-                      fontSize: "15px",
-                      fontWeight: 700,
-                      color: "surface.contrastText"
-                    }}
-                  >
-                    {version.version || version.id}
-                  </Typography>
-                  {isHeadVersion(version) && <MetaChip label="HEAD" />}
-                  {!isHeadVersion(version) && released && (
-                    <MetaChip
-                      label={t("common.released")}
-                      color="primary"
-                      icon={<ReleaseIcon />}
-                    />
-                  )}
-                  {!isHeadVersion(version) && !released && (
-                    <MetaChip
-                      label={t("common.draft")}
-                      color="warning"
-                      icon={<DraftIcon />}
-                    />
-                  )}
-                  {staleCount > 0 && (
-                    <MetaChip
-                      label={t("repo.stale_count", { count: staleCount })}
-                      color="error"
-                      icon={<WarningIcon />}
-                    />
-                  )}
-                  <MetaChip
-                    label={t("repo.default_expansion_label", {
-                      expansion: getDefaultExpansionLabel(version)
-                    })}
-                    icon={<DefaultIcon />}
-                  />
-                  {version.autoexpand && (
-                    <MetaChip
-                      label={t("repo.autoexpand")}
-                      icon={<ExpansionIcon />}
-                    />
-                  )}
-                </Stack>
-
-                {version.description && (
-                  <Typography
-                    sx={{ mt: 0.75, fontSize: "13px", color: "secondary.main" }}
-                  >
-                    {version.description}
-                  </Typography>
-                )}
-
-                {renderAudit(
-                  "repo.created_by_at",
-                  version.created_on,
-                  version.created_by
-                )}
-                {renderAudit(
-                  "repo.updated_by_at",
-                  version.updated_on,
-                  version.updated_by
-                )}
-              </Box>
-            </Box>
-          </TableCell>
-          <TableCell sx={countBodyCellSx}>
-            <CountCell value={get(version, "summary.active_concepts")} />
-          </TableCell>
-          <TableCell sx={countBodyCellSx}>
-            <CountCell value={get(version, "summary.active_mappings")} />
-          </TableCell>
-          <TableCell sx={countBodyCellSx}>
-            {versionLoading ? (
-              <CircularProgress size={18} />
-            ) : (
-              <CountCell value={getReferencesCount(version)} />
+                  <WarningIcon fontSize="small" color="warning" />
+                </IconButton>
+              </Tooltip>
             )}
           </TableCell>
-          <TableCell sx={actionBodyCellSx}>
+          <TableCell align="right" sx={{ ...bodyCellSx, width: '1%', whiteSpace: 'nowrap' }}>
             {hasAccess && (
-              <IconButton
-                size="small"
-                onClick={event => openVersionMenu(event, version)}
-              >
+              <IconButton size="small" onClick={event => openRowMenu(event, version)}>
                 <MoreVertIcon fontSize="small" />
               </IconButton>
             )}
@@ -914,323 +645,20 @@ const CollectionVersionsTab = ({
         <TableRow>
           <TableCell
             colSpan={5}
-            sx={[{
-              p: 0,
-              borderColor: "surface.nv80"
-            }, expanded ? {
-              borderBottom: "1px solid"
-            } : {
-              borderBottom: 0
-            }]}
+            sx={[{ p: 0, borderColor: 'surface.nv80' }, expanded ? { borderBottom: '1px solid' } : { borderBottom: 0 }]}
           >
             <Collapse in={expanded} timeout="auto" unmountOnExit>
-              <Box sx={{ px: 0, py: 1 }}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={headerCellSx}>
-                        {t("repo.expansions")}
-                      </TableCell>
-                      <TableCell sx={countHeaderCellSx}>
-                        {t("search.concepts")}
-                      </TableCell>
-                      <TableCell sx={countHeaderCellSx}>
-                        {t("search.mappings")}
-                      </TableCell>
-                      <TableCell sx={resolvedHeaderCellSx}>
-                        {t("repo.resolved_repo_versions")}
-                      </TableCell>
-                      <TableCell sx={actionHeaderCellSx} />
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {versionLoading && (
-                      <TableRow>
-                        <TableCell
-                          colSpan={5}
-                          sx={{ ...bodyCellSx, textAlign: "center", py: 3 }}
-                        >
-                          <CircularProgress size={22} />
-                        </TableCell>
-                      </TableRow>
-                    )}
-                    {!versionLoading && versionExpansions.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={5} sx={{ ...bodyCellSx, py: 2 }}>
-                          <Stack
-                            direction="row"
-                            spacing={1.5}
-                            sx={{
-                              alignItems: "center",
-                              justifyContent: "space-between"
-                            }}>
-                            <Typography
-                              sx={{ fontSize: "13px", color: "secondary.main" }}
-                            >
-                              {t("repo.no_expansions_message")}
-                            </Typography>
-                            {hasAccess && (
-                              <MuiButton
-                                size="small"
-                                variant="text"
-                                sx={compactButtonSx}
-                                onClick={() =>
-                                  setExpansionFormState({
-                                    open: true,
-                                    version,
-                                    copyFrom: null
-                                  })
-                                }
-                              >
-                                {t("repo.create_first_expansion")}
-                              </MuiButton>
-                            )}
-                          </Stack>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                    {!versionLoading &&
-                      versionExpansions.map(expansion => {
-                        const highlighted =
-                          highlightedExpansion?.url === expansion.url;
-                        const processingStatus =
-                          processingStatusByExpansion[expansion.url];
-                        const processingState =
-                          processingStatus?.state ||
-                          (isExpansionProcessing(expansion)
-                            ? "processing"
-                            : null);
-                        const explicitRepoVersions = getExplicitRepoVersions(
-                          expansion
-                        );
-                        const evaluatedRepoVersions = getEvaluatedRepoVersions(
-                          expansion
-                        );
-                        const expansionUpdates = repoUpdatesByExpansion[expansion.url];
-                        const hasRepoUpdates =
-                          hasAccess &&
-                          expansionUpdates &&
-                          Object.keys(expansionUpdates).length > 0 &&
-                          !dismissedUpdates.has(expansion.url);
-                        return (
-                          <React.Fragment key={expansion.url}>
-                            <TableRow
-                              ref={element => {
-                                expansionRefs.current[expansion.url] = element;
-                              }}
-                              sx={[highlighted ? {
-                                backgroundColor: "rgba(237, 108, 2, 0.06)"
-                              } : {
-                                backgroundColor: "transparent"
-                              }]}
-                            >
-                              <TableCell sx={bodyCellSx}>
-                                <Box sx={{ minWidth: 0, pl: 5 }}>
-                                  <Stack
-                                    direction="row"
-                                    spacing={1}
-                                    sx={{ flexWrap: "wrap", rowGap: 0.75 }}
-                                  >
-                                    <Typography
-                                      sx={{
-                                        fontSize: "14px",
-                                        fontWeight: 700,
-                                        color: "primary.main",
-                                        cursor: "pointer"
-                                      }}
-                                      onClick={() =>
-                                        setDetailsExpansion(expansion)
-                                      }
-                                    >
-                                      {expansion.mnemonic}
-                                    </Typography>
-                                    {expansion.default && (
-                                      <MetaChip
-                                        label={t("common.default")}
-                                        color="success"
-                                        icon={<DefaultIcon />}
-                                      />
-                                    )}
-                                    {expansion.auto && !expansion.default && (
-                                      <MetaChip
-                                        label={t("repo.autoexpand")}
-                                        icon={<ExpansionIcon />}
-                                      />
-                                    )}
-                                    {isStaleExpansion(expansion) && (
-                                      <MetaChip
-                                        label={t("repo.stale")}
-                                        color="error"
-                                        icon={<WarningIcon />}
-                                      />
-                                    )}
-                                    {processingState && (
-                                      <ProcessingChip
-                                        processed={processingState === "processed"}
-                                        fading={processingState === "processed"}
-                                        fadeDurationMs={PROCESSED_CHIP_FADE_MS}
-                                      />
-                                    )}
-                                  </Stack>
-                                  {expansion.canonical_url && (
-                                    <Typography
-                                      sx={{
-                                        mt: 0.5,
-                                        fontSize: "12px",
-                                        color: "secondary.main",
-                                        wordBreak: "break-all"
-                                      }}
-                                    >
-                                      {expansion.canonical_url}
-                                    </Typography>
-                                  )}
-                                  {renderAudit(
-                                    "repo.last_built_by",
-                                    expansion.updated_on || expansion.created_on,
-                                    expansion.updated_by || expansion.created_by
-                                  )}
-                                  {hasRepoUpdates && (
-                                    <Alert
-                                      severity="warning"
-                                      sx={{ mt: 1 }}
-                                      onClose={() =>
-                                        setDismissedUpdates(
-                                          prev => new Set([...prev, expansion.url])
-                                        )
-                                      }
-                                    >
-                                      <Typography sx={{ fontSize: "13px", fontWeight: 600, mb: 0.5 }}>
-                                        {t("repo.resolved_repo_updates_available")}
-                                      </Typography>
-                                      {Object.entries(expansionUpdates).map(([oldUrl, newUrl]) => {
-                                        const compareUrl = `#${dropVersion(newUrl)}compare-versions?version1=${newUrl}&version2=${oldUrl}`;
-                                        return (
-                                          <Typography key={oldUrl} sx={{ fontSize: "12px", color: "primary.main", display: "flex", alignItems: "center", gap: 0.5 }}>
-                                            <a href={`#${oldUrl}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>{labelFromVersionUrl(oldUrl)}</a>
-                                            {" → "}
-                                            <a href={`#${newUrl}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>{labelFromVersionUrl(newUrl)}</a>
-                                            <a href={compareUrl} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "2px" }}>
-                                              ({t("common.compare")} <OpenInNewIcon sx={{ fontSize: "12px" }} />)
-                                            </a>
-                                          </Typography>
-                                        );
-                                      })}
-                                    </Alert>
-                                  )}
-                                </Box>
-                              </TableCell>
-                              <TableCell sx={countBodyCellSx}>
-                                <CountCell value={get(expansion, "summary.active_concepts")} />
-                              </TableCell>
-                              <TableCell sx={countBodyCellSx}>
-                                <CountCell value={get(expansion, "summary.active_mappings")} />
-                              </TableCell>
-                              <TableCell sx={resolvedBodyCellSx}>
-                                <Box sx={{ minWidth: 0 }}>
-                                  <Typography
-                                    sx={{
-                                      fontSize: "12px",
-                                      fontWeight: 600,
-                                      color: "secondary.main"
-                                    }}
-                                  >
-                                    {t("repo.explicit_repo_versions")}
-                                  </Typography>
-                                  {explicitRepoVersions.length ? (
-                                    <Box sx={{ mt: 0.25 }}>
-                                      {explicitRepoVersions.map(repoVersion => (
-                                        <Typography
-                                          key={
-                                            repoVersion.version_url ||
-                                            `${repoVersion.owner}-${repoVersion.short_code}-${repoVersion.version}`
-                                          }
-                                          sx={{
-                                            fontSize: "12px",
-                                            color: "primary.main",
-                                            lineHeight: 1.45,
-                                            wordBreak: "break-word"
-                                          }}
-                                        >
-                                          <a href={`#${repoVersion.version_url}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>
-                                            {renderRepoVersionLabel(repoVersion)}
-                                          </a>
-                                        </Typography>
-                                      ))}
-                                    </Box>
-                                  ) : (
-                                    <Typography
-                                      sx={{
-                                        mt: 0.25,
-                                        fontSize: "12px",
-                                        color: "secondary.main"
-                                      }}
-                                    >
-                                      {t("common.none")}
-                                    </Typography>
-                                  )}
-
-                                  <Typography
-                                    sx={{
-                                      mt: 1,
-                                      fontSize: "12px",
-                                      fontWeight: 600,
-                                      color: "secondary.main"
-                                    }}
-                                  >
-                                    {t("repo.evaluated_repo_versions")}
-                                  </Typography>
-                                  {evaluatedRepoVersions.length ? (
-                                    <Box sx={{ mt: 0.25 }}>
-                                      {evaluatedRepoVersions.map(repoVersion => (
-                                        <Typography
-                                          key={
-                                            repoVersion.version_url ||
-                                            `${repoVersion.owner}-${repoVersion.short_code}-${repoVersion.version}-evaluated`
-                                          }
-                                          sx={{
-                                            fontSize: "12px",
-                                            color: "primary.main",
-                                            lineHeight: 1.45,
-                                            wordBreak: "break-word"
-                                          }}
-                                        >
-                                          <a href={`#${repoVersion.version_url}`} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>
-                                            {renderRepoVersionLabel(repoVersion)}
-                                          </a>
-                                        </Typography>
-                                      ))}
-                                    </Box>
-                                  ) : (
-                                    <Typography
-                                      sx={{
-                                        mt: 0.25,
-                                        fontSize: "12px",
-                                        color: "secondary.main"
-                                      }}
-                                    >
-                                      {t("common.none")}
-                                    </Typography>
-                                  )}
-                                </Box>
-                              </TableCell>
-                              <TableCell sx={actionBodyCellSx}>
-                                {hasAccess && (
-                                  <IconButton
-                                    size="small"
-                                    onClick={event =>
-                                      openExpansionMenu(event, version, expansion)
-                                    }
-                                  >
-                                    <MoreVertIcon fontSize="small" />
-                                  </IconButton>
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          </React.Fragment>
-                        );
-                      })}
-                  </TableBody>
-                </Table>
+              <Box sx={{ px: 2, py: 1, backgroundColor: 'surface.n96' }}>
+                <ExpansionRowList
+                  expansions={versionExpansions}
+                  loading={versionLoading}
+                  isStale={isStaleExpansion}
+                  processingState={expansion => processingStatusByExpansion[expansion.url]?.state || (isExpansionProcessing(expansion) ? 'processing' : null)}
+                  getRepoUpdates={expansion => repoUpdatesByExpansion[expansion.url]}
+                  onSelectExpansion={expansion => setDetailsExpansion(expansion)}
+                  onOpenExpansionMenu={(event, expansion) => openExpansionMenu(event, version, expansion)}
+                  onRebuild={expansion => setRebuildExpansion({ ...expansion, __version: version })}
+                />
               </Box>
             </Collapse>
           </TableCell>
@@ -1238,70 +666,105 @@ const CollectionVersionsTab = ({
       </React.Fragment>
     );
   };
-  return (
-    <Box sx={{height: "calc(100vh - 300px)", overflow: "auto", display: 'flex', flexDirection: 'column' }}>
-      <Paper
-        sx={{
-          boxShadow: "none",
-          overflow: "hidden",
-          height: '48px',
-          flexShrink: 0,
-          borderBottom: '1px solid',
-          borderColor: 'surface.nv80',
-          borderRadius: 0,
-          fontSize: '14px',
-          padding: '12px 12px 12px 24px',
-          color: 'rgba(0, 0, 0, 0.87)'
-        }}
-      >
-        {count !== false ? `${count} versions` : <Skeleton variant='text' />}
-    </Paper>
 
-      <Paper
+  const versionsCount = totalCount || displayVersions.length;
+  const countLabel = `${versionsCount.toLocaleString()} ${t('repo.versions').toLowerCase()}`;
+  const isLoading = loading || isLoadingVersions;
+
+  const handleChangePage = (event, nextPageIndex) => {
+    const nextPage = nextPageIndex + 1;
+    setPage(nextPage);
+    fetchVersionsPage(nextPage, pageSize);
+  };
+
+  const handleChangeRowsPerPage = event => {
+    const nextPageSize = parseInt(event.target.value, 10);
+    setPage(1);
+    setPageSize(nextPageSize);
+    fetchVersionsPage(1, nextPageSize);
+  };
+
+  return (
+    <Box sx={{ height: 'calc(100vh - 285px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', backgroundColor: 'background.paper' }}>
+      <Toolbar
         sx={{
-          boxShadow: "none",
-          overflow: "hidden",
-          flexShrink: 0
+          bgcolor: 'background.paper',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          minHeight: '48px !important',
+          pl: { sm: 1 },
+          pr: { xs: 1, sm: 1 }
         }}
       >
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{...headerCellSx, paddingLeft: '54px'}}>{t("common.id")}</TableCell>
-                <TableCell sx={headerCellSx}>{t("search.concepts")}</TableCell>
-                <TableCell sx={headerCellSx}>{t("search.mappings")}</TableCell>
-                <TableCell sx={headerCellSx}>
-                  {t("reference.references")}
-                </TableCell>
-                <TableCell sx={headerCellSx} />
+        <Typography sx={{ fontSize: 'inherit', marginLeft: '8px' }} variant="h6" component="div">
+          {countLabel}
+        </Typography>
+      </Toolbar>
+      <TableContainer sx={{ flex: 1, minHeight: 0 }}>
+        <Table size="small" stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={headerCellSx}>{t('common.id')}</TableCell>
+              <TableCell sx={headerCellSx}>{t('common.content_summary')}</TableCell>
+              <TableCell sx={headerCellSx}>{t('common.status')}</TableCell>
+              <TableCell sx={headerCellSx} />
+              <TableCell align="right" sx={headerCellSx}>{t('common.actions')}</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {isLoading && [1, 2, 3].map(index => (
+              <TableRow key={index}>
+                <TableCell colSpan={5} sx={bodyCellSx}><Skeleton height={32} /></TableCell>
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {headLoading && !displayVersions.length && (
-                <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    sx={{ ...bodyCellSx, textAlign: "center", py: 4 }}
-                  >
-                    <CircularProgress size={26} />
-                  </TableCell>
-                </TableRow>
-              )}
-              {displayVersions.map(renderVersionRow)}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+            ))}
+            {!isLoading && displayVersions.map(renderVersionRow)}
+            {!isLoading && displayVersions.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} sx={bodyCellSx}>
+                  <Alert severity="info">{t('repo.no_versions_found')}</Alert>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 50, 100]}
+        component="div"
+        count={versionsCount}
+        rowsPerPage={pageSize || REPO_VERSIONS_PAGE_SIZE}
+        page={Math.max((page || 1) - 1, 0)}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        showFirstButton
+        showLastButton
+        sx={{
+          width: '100%',
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          '.MuiToolbar-root': { height: '40px', minHeight: '40px' },
+          '& .MuiTablePagination-actions svg': { color: 'surface.contrastText' },
+          '& .MuiTablePagination-actions .Mui-disabled.MuiIconButton-root svg': { color: 'rgba(0, 0, 0, 0.26)' }
+        }}
+      />
+
+      <RepoVersionRowMenu
+        anchorEl={rowMenu.anchorEl}
+        open={Boolean(rowMenu.anchorEl)}
+        onClose={closeRowMenu}
+        items={rowMenu.version ? buildRowMenuItems(rowMenu.version) : []}
+      />
+
+      <RepoVersionRowMenu
+        anchorEl={expansionMenu.anchorEl}
+        open={Boolean(expansionMenu.anchorEl)}
+        onClose={closeExpansionMenu}
+        items={buildExpansionMenuItems()}
+      />
+
       <ExpansionForm
         open={expansionFormState.open}
-        onClose={() =>
-          setExpansionFormState({
-            open: false,
-            version: null,
-            copyFrom: null
-          })
-        }
+        onClose={() => setExpansionFormState({ open: false, version: null, copyFrom: null })}
         version={expansionFormState.version}
         versions={displayVersions}
         copyFrom={expansionFormState.copyFrom}
@@ -1320,144 +783,21 @@ const CollectionVersionsTab = ({
         onRebuild={onRebuildExpansion}
         onCreateSimilar={expansion => {
           setRebuildExpansion(false);
-          setExpansionFormState({
-            open: true,
-            version: expansion.__version,
-            copyFrom: expansion
-          });
+          setExpansionFormState({ open: true, version: expansion.__version, copyFrom: expansion });
         }}
       />
       <DeleteEntityDialog
         open={deleteExpansion}
         onClose={() => setDeleteExpansion(false)}
         onSubmit={onDeleteExpansionSubmit}
-        entityType={t("repo.collection_expansion")}
-        entityId={deleteExpansion?.mnemonic || ""}
+        entityType={t('repo.collection_expansion')}
+        entityId={deleteExpansion?.mnemonic || ''}
         relationship=""
-        associationsLabel={t("repo.concepts_and_mappings")}
+        associationsLabel={t('repo.concepts_and_mappings')}
         warning={false}
       />
-      <Menu
-        anchorEl={versionMenu.anchorEl}
-        open={Boolean(versionMenu.anchorEl)}
-        onClose={closeVersionMenu}
-      >
-        <MenuItem
-          onClick={() => {
-            const version = versionMenu.version;
-            closeVersionMenu();
-            if (version) {
-              setExpansionFormState({ open: true, version, copyFrom: null });
-            }
-          }}
-        >
-          {t("repo.new_expansion")}
-        </MenuItem>
-        {Boolean(
-          versionMenu.version &&
-            hasAccess &&
-            !isHeadVersion(versionMenu.version) &&
-            !versionMenu.version.released
-        ) && (
-          <MenuItem
-            onClick={() => {
-              const version = versionMenu.version;
-              closeVersionMenu();
-              if (version) onReleaseVersion(version);
-            }}
-          >
-            {t("common.release")}
-          </MenuItem>
-        )}
-        {Boolean(
-          versionMenu.version &&
-            hasAccess &&
-            !isHeadVersion(versionMenu.version) &&
-            !versionMenu.version.released &&
-            (expansionsByVersion[getVersionKey(versionMenu.version)] || [])
-              .length === 0
-        ) && (
-          <MenuItem
-            onClick={() => {
-              const version = versionMenu.version;
-              closeVersionMenu();
-              if (version) onDeleteVersion(version);
-            }}
-            sx={{ color: "error.main" }}
-          >
-            {t("common.delete_label")}
-          </MenuItem>
-        )}
-      </Menu>
-      <Menu
-        anchorEl={expansionMenu.anchorEl}
-        open={Boolean(expansionMenu.anchorEl)}
-        onClose={closeExpansionMenu}
-      >
-        {Boolean(
-          expansionMenu.expansion && !expansionMenu.expansion.default
-        ) && (
-          <MenuItem
-            onClick={() => {
-              const { version, expansion } = expansionMenu;
-              closeExpansionMenu();
-              if (version && expansion)
-                onMarkExpansionDefault(version, expansion);
-            }}
-          >
-            {t("repo.set_as_default")}
-          </MenuItem>
-        )}
-        <MenuItem
-          onClick={() => {
-            const { version, expansion } = expansionMenu;
-            closeExpansionMenu();
-            if (version && expansion) {
-              setExpansionFormState({
-                open: true,
-                version,
-                copyFrom: expansion
-              });
-            }
-          }}
-        >
-          {t("repo.create_similar")}
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            const { version, expansion } = expansionMenu;
-            closeExpansionMenu();
-            if (version && expansion) {
-              setRebuildExpansion({ ...expansion, __version: version });
-            }
-          }}
-        >
-          {t("repo.rebuild")}
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            const expansion = expansionMenu.expansion;
-            closeExpansionMenu();
-            if (expansion) setDetailsExpansion(expansion);
-          }}
-        >
-          {t("common.details")}
-        </MenuItem>
-        <MenuItem
-          disabled={Boolean(expansionMenu.expansion?.default)}
-          onClick={() => {
-            const { version, expansion } = expansionMenu;
-            closeExpansionMenu();
-            if (version && expansion) {
-              setDeleteExpansion({ ...expansion, __version: version });
-            }
-          }}
-          sx={{ color: "error.main" }}
-        >
-          {t("common.delete_label")}
-        </MenuItem>
-      </Menu>
     </Box>
   );
 };
+
 export default CollectionVersionsTab;

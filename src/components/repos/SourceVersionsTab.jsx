@@ -36,7 +36,6 @@ import {
 } from '@mui/material';
 import {
   AttachFile as ExternalExportIcon,
-  CheckCircleOutlined as ReleasedIcon,
   ContentCopy as CopyIcon,
   DeleteOutlined as DeleteIcon,
   Download as ExportIcon,
@@ -45,14 +44,12 @@ import {
   NewReleases as ReleaseIcon,
   Newspaper as ChangelogIcon,
   OpenInNew as OpenInNewIcon,
-  RadioButtonUnchecked as DraftIcon,
   Summarize as SummaryIcon,
   Upload as UploadIcon,
   Visibility as VisibilityIcon
 } from '@mui/icons-material';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import isNumber from 'lodash/isNumber';
 import map from 'lodash/map';
 
 import APIService from '../../services/APIService';
@@ -70,37 +67,19 @@ import AccessIcon from '../common/AccessIcon';
 import MarkdownContent from '../common/MarkdownContent';
 import ConceptIcon from '../concepts/ConceptIcon';
 import MappingIcon from '../mappings/MappingIcon';
-
-const bodyCellSx = {
-  borderBottom: '1px solid',
-  borderColor: 'surface.nv80',
-  verticalAlign: 'middle'
-};
-
-const headerCellSx = {
-  backgroundColor: 'background.paper',
-  borderBottom: '1px solid',
-  borderColor: 'surface.nv80',
-  color: 'surface.contrastText',
-  fontSize: '12px',
-  fontWeight: 'bold',
-  lineHeight: '1.2rem',
-  padding: '3px 16px'
-};
-
-const SOURCE_VERSIONS_PAGE_SIZE = 25;
-
-const isHeadVersion = version => (version?.version || version?.id) === 'HEAD';
-const getVersionLabel = version => version?.version || version?.id || '-';
-const getVersionURL = version => isHeadVersion(version) ? `${version?.version_url || version?.url}HEAD/` : version?.version_url || version?.url;
-const getPreviousVersionURL = version => version?.previous_version_url;
-const getContentCount = (version, field) => get(version, `summary.${field}`);
-const formatCount = value => isNumber(value) ? value.toLocaleString() : '-';
-const formatError = (value, fallback) => {
-  if(!value) return fallback;
-  if(typeof value === 'string') return value;
-  return value.detail || value.error || value.__all__ || fallback;
-};
+import VersionStatusIndicator from './VersionStatusIndicator';
+import {
+  REPO_VERSIONS_PAGE_SIZE,
+  bodyCellSx,
+  formatCount,
+  formatError,
+  getContentCount,
+  getPreviousVersionURL,
+  getVersionLabel,
+  getVersionURL,
+  headerCellSx,
+  isHeadVersion
+} from './versionsTab.styles';
 
 const downloadBlob = (response, fallbackName) => {
   const contentType = get(response, 'headers.content-type') || get(response, 'data.type') || 'application/octet-stream';
@@ -375,7 +354,7 @@ const SourceVersionsTab = ({
   const [versions, setVersions] = React.useState([]);
   const [totalCount, setTotalCount] = React.useState(0);
   const [page, setPage] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(SOURCE_VERSIONS_PAGE_SIZE);
+  const [pageSize, setPageSize] = React.useState(REPO_VERSIONS_PAGE_SIZE);
   const [isLoadingVersions, setIsLoadingVersions] = React.useState(true);
   const baseRepoURL = dropVersion(repo?.version_url || repo?.url || '');
 
@@ -562,26 +541,7 @@ const SourceVersionsTab = ({
                     </Stack>
                   </TableCell>
                   <TableCell sx={bodyCellSx}>
-                    {isHEAD && (
-                      <Stack direction="row" spacing={0.5} sx={{
-                        alignItems: "center"
-                      }}>
-                        <DraftIcon sx={{ width: 17, height: 17 }} />
-                        <Typography variant="body2">{t('common.draft')}</Typography>
-                      </Stack>
-                    )}
-                    {!isHEAD && version.released && (
-                      <Stack direction="row" spacing={0.5} sx={{
-                        alignItems: "center"
-                      }}>
-                        <ReleasedIcon color="primary" sx={{ width: 17, height: 17 }} />
-                        <Typography variant="body2" color="primary">{t('common.released')}</Typography>
-                      </Stack>
-                    )}
-                    {!isHEAD && !version.released && (
-                      <Typography variant="body2">{t('repo.unreleased')}</Typography>
-                    )}
-                    {version.retired && <Typography variant="caption" color="error" sx={{ display: 'block' }}>{t('common.retired')}</Typography>}
+                    <VersionStatusIndicator isHead={isHEAD} released={version.released} retired={version.retired} />
                   </TableCell>
                   <TableCell sx={bodyCellSx}>
                     <Typography variant="body2">{version.created_on ? formatDate(version.created_on) : '-'}</Typography>

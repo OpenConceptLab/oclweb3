@@ -58,9 +58,8 @@ const RepoHome = () => {
   const [owner, setOwner] = React.useState(false)
   const [repoSummary, setRepoSummary] = React.useState(false)
   const [versions, setVersions] = React.useState(false)
-  const [versionsCount, setVersionsCount] = React.useState(false)
-  const [versionsPage, setVersionsPage] = React.useState(1)
-  const [versionsPageSize, setVersionsPageSize] = React.useState(DEFAULT_VERSIONS_PAGE_SIZE)
+  const versionsPage = 1
+  const versionsPageSize = DEFAULT_VERSIONS_PAGE_SIZE
   const [versionsRefreshKey, setVersionsRefreshKey] = React.useState(0)
   const [loading, setLoading] = React.useState(true)
   const [showItem, setShowItem] = React.useState(false)
@@ -172,7 +171,6 @@ const RepoHome = () => {
     APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit, page}).then(response => {
       const _versions = Array.isArray(response?.data) ? response.data : []
       setVersions(_versions)
-      setVersionsCount(parseInt(response?.headers?.['num_found'] || _versions.length || 0))
       if(!repo.version_url && !versionFromURL && !showConceptURL && !showMappingURL) {
         const releasedVersions = filter(_versions, {released: true})
         let version = orderBy(releasedVersions, 'created_on', ['desc'])[0] || orderBy(_versions, 'created_on', ['desc'])[0]
@@ -217,12 +215,6 @@ const RepoHome = () => {
     if(reload)
       setLoading(true)
     history.push(nextPath + (location.search || ''))
-  }
-
-  const onVersionsPageChange = (page, pageSize=versionsPageSize) => {
-    setVersionsPage(page)
-    setVersionsPageSize(pageSize)
-    fetchVersions(page, pageSize)
   }
 
   const onTabChange = (event, newTab) => {
@@ -424,17 +416,16 @@ const RepoHome = () => {
                   tab === 'versions' && isCollection &&
                     <CollectionVersionsTab
                       repo={repo}
-                      versions={versions}
-                      count={versionsCount}
-                      page={versionsPage}
-                      pageSize={versionsPageSize}
-                      onPageChange={onVersionsPageChange}
-                      onCreateVersion={onCreateVersionClick}
+                      loading={loading}
+                      refreshKey={versionsRefreshKey}
+                      onVersionChange={onVersionChange}
+                      onEditVersion={version => setVersionForm({edit: true, version, expansions: []})}
                       onReleaseVersion={version => setReleaseTarget(version)}
                       onDeleteVersion={version => setDeleteTarget(version)}
                       onDataChange={() => {
                         fetchRepo()
                         fetchVersions()
+                        setVersionsRefreshKey(key => key + 1)
                       }}
                     />
                 }
