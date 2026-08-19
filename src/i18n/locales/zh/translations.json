@@ -279,6 +279,7 @@
     "source_versions_count": "{{count}} source versions",
     "mapper": "Mapper",
     "export_source_version_title": "Export Source Version: {{repo}} / {{version}}",
+    "export_collection_version_title": "Export Collection Version: {{repo}} / {{version}}",
     "could_not_check_export": "Could not check export.",
     "could_not_queue_export": "Could not queue export.",
     "export_already_exists": "An export already exists for this version.",

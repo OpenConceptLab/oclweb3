@@ -14,10 +14,6 @@ import {
   DialogTitle,
   Divider,
   IconButton,
-  List,
-  ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
   Menu,
   MenuItem,
   Skeleton,
@@ -29,7 +25,6 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  TextField,
   Tooltip,
   Toolbar,
   Typography
@@ -45,12 +40,9 @@ import {
   Newspaper as ChangelogIcon,
   OpenInNew as OpenInNewIcon,
   Summarize as SummaryIcon,
-  Upload as UploadIcon,
   Visibility as VisibilityIcon
 } from '@mui/icons-material';
 import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
-import map from 'lodash/map';
 
 import APIService from '../../services/APIService';
 import {
@@ -67,6 +59,8 @@ import AccessIcon from '../common/AccessIcon';
 import MarkdownContent from '../common/MarkdownContent';
 import ConceptIcon from '../concepts/ConceptIcon';
 import MappingIcon from '../mappings/MappingIcon';
+import ExternalExportsDialog from './ExternalExportsDialog';
+import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
 import {
   REPO_VERSIONS_PAGE_SIZE,
@@ -76,210 +70,10 @@ import {
   getContentCount,
   getPreviousVersionURL,
   getVersionLabel,
-  getVersionURL,
   headerCellSx,
   isHeadVersion
 } from './versionsTab.styles';
 
-const downloadBlob = (response, fallbackName) => {
-  const contentType = get(response, 'headers.content-type') || get(response, 'data.type') || 'application/octet-stream';
-  const contentDisposition = get(response, 'headers.content-disposition', '');
-  const filenameMatch = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i) || contentDisposition.match(/filename="?([^";]+)"?/i);
-  const filename = filenameMatch?.[1] ? decodeURIComponent(filenameMatch[1].replace(/"/g, '').trim()) : fallbackName;
-  const blob = response.data instanceof Blob ? response.data : new Blob([response.data], { type: contentType });
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', filename);
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-};
-
-const VersionExportDialog = ({ version, open, onClose }) => {
-  const { t } = useTranslation();
-  const { setAlert } = React.useContext(OperationsContext);
-  const [loading, setLoading] = React.useState(false);
-  const [state, setState] = React.useState(null);
-  const [error, setError] = React.useState('');
-  const exportURL = `${getVersionURL(version)}export/`;
-
-  const checkExport = React.useCallback(() => {
-    if(!open || !version) return;
-    setLoading(true);
-    setState(null);
-    setError('');
-    APIService.new().overrideURL(exportURL).request('GET', null, null, { responseType: 'blob' })
-      .then(response => {
-        if(response.status === 200) {
-          downloadBlob(response, `${version.short_code || version.id}-${getVersionLabel(version)}.zip`);
-          setState('downloaded');
-        } else if(response.status === 204) {
-          setState('missing');
-        } else if(response.status === 208) {
-          setState('processing');
-        } else {
-          setError(formatError(response, t('repo.could_not_check_export')));
-        }
-      })
-      .catch(err => setError(formatError(get(err, 'response.data') || err, t('repo.could_not_check_export'))))
-      .finally(() => setLoading(false));
-  }, [exportURL, open, t, version]);
-
-  React.useEffect(() => {
-    checkExport();
-  }, [checkExport]);
-
-  const queueExport = () => {
-    setLoading(true);
-    APIService.new().overrideURL(exportURL).post(null, null, null, { noRedirect: true }, true).then(response => {
-      const status = response?.status || response?.response?.status;
-      if([202, 204, 409].includes(status)) {
-        setState(status === 204 ? 'exists' : 'queued');
-        setAlert({ severity: 'success', message: status === 204 ? t('repo.export_already_exists') : t('repo.export_request_queued') });
-      } else {
-        setError(formatError(response?.data || response, t('repo.could_not_queue_export')));
-      }
-    }).finally(() => setLoading(false));
-  };
-
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{t('repo.export_source_version_title', { repo: version?.short_code || version?.id, version: getVersionLabel(version) })}</DialogTitle>
-      <DialogContent dividers>
-        {loading && <Alert severity="warning" icon={<CircularProgress size={16} />}>{t('repo.checking_export_status')}</Alert>}
-        {!loading && state === 'downloaded' && <Alert severity="success">{t('repo.downloaded_cached_export')}</Alert>}
-        {!loading && state === 'processing' && <Alert severity="warning">{t('repo.cached_export_generating')}</Alert>}
-        {!loading && state === 'queued' && <Alert severity="success">{t('repo.export_request_queued_check_later')}</Alert>}
-        {!loading && state === 'exists' && <Alert severity="info">{t('repo.export_already_exists_try_again')}</Alert>}
-        {!loading && state === 'missing' && (
-          <Stack spacing={2}>
-            <Alert severity="warning">{t('repo.no_cached_export')}</Alert>
-            <Button variant="contained" onClick={queueExport} startIcon={<ExportIcon />}>{t('repo.queue_export')}</Button>
-          </Stack>
-        )}
-        {Boolean(error) && <Alert severity="error">{error}</Alert>}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>{t('common.close')}</Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
-
-const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) => {
-  const { t } = useTranslation();
-  const { setAlert } = React.useContext(OperationsContext);
-  const [exports, setExports] = React.useState(get(version, 'external_exports', []));
-  const [name, setName] = React.useState('');
-  const [description, setDescription] = React.useState('');
-  const [file, setFile] = React.useState(null);
-  const [busyKey, setBusyKey] = React.useState('');
-  const canUpload = Boolean(canEdit && !isHeadVersion(version));
-
-  React.useEffect(() => {
-    setExports(get(version, 'external_exports', []));
-  }, [version]);
-
-  const updateExports = nextExports => {
-    setExports(nextExports);
-    if(onChange) onChange({ ...version, external_exports: nextExports });
-  };
-
-  const download = externalExport => {
-    const url = externalExport.url || `${version.version_url}export/${externalExport.key}/`;
-    setBusyKey(externalExport.key);
-    APIService.new().overrideURL(url).request('GET', null, null, { responseType: 'blob' })
-      .then(response => {
-        if(response.status === 200) downloadBlob(response, externalExport.filename || externalExport.key);
-        else setAlert({ severity: 'error', message: t('repo.could_not_download_external_export') });
-      })
-      .catch(() => setAlert({ severity: 'error', message: t('repo.could_not_download_external_export') }))
-      .finally(() => setBusyKey(''));
-  };
-
-  const upload = () => {
-    const key = (name || '').replace(/\s/g, '');
-    if(!key || !file) {
-      setAlert({ severity: 'error', message: t('repo.external_export_required') });
-      return;
-    }
-    const data = new FormData();
-    data.append('file', file);
-    if(description) data.append('description', description);
-    setBusyKey('upload');
-    APIService.new().overrideURL(`${version.version_url}export/${key}/`).request('POST', data, null, { headers: { 'Content-Type': 'multipart/form-data' } })
-      .then(response => {
-        updateExports([...exports, response.data]);
-        setName('');
-        setDescription('');
-        setFile(null);
-        setAlert({ severity: 'success', message: t('repo.external_export_uploaded') });
-      })
-      .catch(error => setAlert({ severity: 'error', message: formatError(get(error, 'response.data'), t('repo.could_not_upload_external_export')) }))
-      .finally(() => setBusyKey(''));
-  };
-
-  const onFileChange = event => {
-    const file = get(event, 'target.files.0') || null
-    setFile(file)
-    if(file?.name && !name)
-      setName(file?.name)
-  };
-
-
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{t('repo.external_exports_title', { repo: version?.short_code || version?.id, version: getVersionLabel(version) })}</DialogTitle>
-      <DialogContent dividers>
-        {
-          isEmpty(exports) ?
-            <Alert severity="info">{t('repo.no_external_exports')}</Alert> :
-            <List dense>
-              {map(exports, externalExport => (
-                <ListItem key={externalExport.key} divider>
-                  <ListItemText primary={externalExport.key} secondary={externalExport.description || t('repo.no_description')} />
-                  <ListItemSecondaryAction>
-                    {busyKey === externalExport.key ? <CircularProgress size={18} /> : (
-                      <IconButton size="small" onClick={() => download(externalExport)}>
-                        <ExportIcon fontSize="inherit" />
-                      </IconButton>
-                    )}
-                  </ListItemSecondaryAction>
-                </ListItem>
-              ))}
-            </List>
-        }
-        {
-          canUpload && (
-            <Box sx={{ mt: 2 }}>
-              <Divider sx={{ mb: 2 }} />
-              <Typography variant="subtitle2" sx={{ mb: 1 }}>{t('repo.upload_external_export')}</Typography>
-              <TextField fullWidth size="small" label={t('common.name')} value={name} onChange={event => setName(event.target.value)} sx={{ mb: 1 }} />
-              <TextField fullWidth size="small" label={t('common.description')} value={description} onChange={event => setDescription(event.target.value)} sx={{ mb: 1 }} />
-              <Stack direction="row" spacing={1} sx={{
-                alignItems: "center"
-              }}>
-                <Button component="label" variant="outlined" size="small" startIcon={<UploadIcon />}>
-                  {t('repo.choose_file')}
-                  <input hidden type="file" accept=".sql,.zip,.pdf,.csv" onChange={onFileChange} />
-                </Button>
-                <Typography variant="body2" sx={{
-                  color: "text.secondary"
-                }}>{file ? file.name : t('repo.external_export_file_types')}</Typography>
-              </Stack>
-            </Box>
-          )
-        }
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>{t('common.close')}</Button>
-        {canUpload && <Button variant="contained" disabled={busyKey === 'upload'} onClick={upload}>{busyKey === 'upload' ? t('repo.uploading') : t('common.upload')}</Button>}
-      </DialogActions>
-    </Dialog>
-  );
-};
 const ChangelogDialog = ({ version, open, onClose }) => {
   const { t } = useTranslation();
   const [loading, setLoading] = React.useState(false);

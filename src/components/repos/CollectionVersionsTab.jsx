@@ -25,15 +25,18 @@ import {
 import {
   Add as AddIcon,
   AspectRatio as ExpansionIcon,
+  AttachFile as ExternalExportIcon,
   CheckCircleOutlined as DefaultIcon,
   ContentCopy as CopyIcon,
   DeleteOutlined as DeleteIcon,
+  Download as ExportIcon,
   EditOutlined as EditIcon,
   ExpandLess as CollapseIcon,
   ExpandMore as ExpandIcon,
   MoreVert as MoreVertIcon,
   NewReleases as ReleaseIcon,
   OpenInNew as OpenInNewIcon,
+  Summarize as SummaryIcon,
   Visibility as VisibilityIcon,
   WarningAmberOutlined as WarningIcon
 } from '@mui/icons-material';
@@ -47,6 +50,7 @@ import {
   dropVersion,
   formatDate,
   headFirst,
+  isLoggedIn,
   toFullAPIURL
 } from '../../common/utils';
 import { OperationsContext } from '../app/LayoutContext';
@@ -56,13 +60,16 @@ import MappingIcon from '../mappings/MappingIcon';
 import ExpansionForm from './ExpansionForm';
 import ExpansionDetailsDialog from './ExpansionDetailsDialog';
 import ExpansionRowList from './ExpansionRowList';
+import ExternalExportsDialog from './ExternalExportsDialog';
 import RebuildExpansionDialog from './RebuildExpansionDialog';
 import RepoVersionRowMenu from './RepoVersionRowMenu';
+import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
 import {
   REPO_VERSIONS_PAGE_SIZE,
   bodyCellSx,
   formatCount,
+  formatError,
   getPreviousVersionURL,
   getVersionKey,
   getVersionLabel,
@@ -160,6 +167,8 @@ const CollectionVersionsTab = ({
   const [processingStatusByExpansion, setProcessingStatusByExpansion] = React.useState({});
 
   const [expansionFormState, setExpansionFormState] = React.useState({ open: false, version: null, copyFrom: null });
+  const [exportVersion, setExportVersion] = React.useState(null);
+  const [externalExportsVersion, setExternalExportsVersion] = React.useState(null);
   const [deleteExpansion, setDeleteExpansion] = React.useState(null);
   const [detailsExpansion, setDetailsExpansion] = React.useState(null);
   const [rebuildExpansion, setRebuildExpansion] = React.useState(null);
@@ -491,6 +500,21 @@ const CollectionVersionsTab = ({
     setAlert({ severity: 'success', message: t('repo.copied_version_url') });
   };
 
+  const computeSummary = version => {
+    APIService.new().overrideURL(version.version_url).appendToUrl('summary/').put().then(response => {
+      if (response.detail || response.error)
+        setAlert({ severity: 'error', message: formatError(response.detail || response.error, t('common.generic_error')) });
+      else if (response.status === 202)
+        setAlert({ severity: 'success', message: t('repo.summary_request_queued') });
+      else
+        setAlert({ severity: 'warning', message: t('repo.summary_request_submitted') });
+    });
+  };
+
+  const onExternalExportsChange = updatedVersion => {
+    onDataChange?.(updatedVersion);
+  };
+
   const toggleVersionExpand = version => {
     const versionKey = getVersionKey(version);
     setExpandedVersionKeys(prev => {
@@ -516,6 +540,8 @@ const CollectionVersionsTab = ({
     const items = [
       { key: 'explore', label: t('repo.explore_version'), icon: <VisibilityIcon />, onClick: () => onVersionChange?.(version) },
       { key: 'copy', label: t('common.copy_api_url'), icon: <CopyIcon />, onClick: () => copyVersionURL(version) },
+      { key: 'export', label: t('repo.export_version'), icon: <ExportIcon />, disabled: !isLoggedIn(), onClick: () => setExportVersion(version) },
+      { key: 'external-exports', label: t('repo.external_exports'), icon: <ExternalExportIcon />, disabled: !isLoggedIn() || isHead, onClick: () => setExternalExportsVersion(version) },
       { key: 'compare', label: t('repo.compare_with_previous'), icon: <OpenInNewIcon />, disabled: !getPreviousVersionURL(version), onClick: () => compareVersion(version) },
       { divider: true },
       { key: 'new-expansion', label: t('repo.new_expansion'), icon: <AddIcon />, onClick: () => setExpansionFormState({ open: true, version, copyFrom: null }) },
@@ -527,6 +553,8 @@ const CollectionVersionsTab = ({
         { divider: true },
         { key: 'edit', label: t('common.edit'), icon: <EditIcon />, disabled: isHead, onClick: () => onEditVersion?.(version) },
         { key: 'release', label: released ? t('repo.unrelease_version') : t('repo.release_version'), icon: <ReleaseIcon />, disabled: isHead, onClick: () => onReleaseVersion?.(version) },
+        { key: 'recompute-summary', label: t('repo.recompute_summary'), icon: <SummaryIcon />, onClick: () => computeSummary(version) },
+        { divider: true },
         { key: 'delete', label: t('repo.delete_repo_version'), icon: <DeleteIcon />, disabled: !canDeleteVersion, danger: true, onClick: () => onDeleteVersion?.(version) }
       );
     }
@@ -762,6 +790,23 @@ const CollectionVersionsTab = ({
         items={buildExpansionMenuItems()}
       />
 
+      {Boolean(exportVersion) && (
+        <VersionExportDialog
+          version={exportVersion}
+          open={Boolean(exportVersion)}
+          onClose={() => setExportVersion(null)}
+          titleKey="repo.export_collection_version_title"
+        />
+      )}
+      {Boolean(externalExportsVersion) && (
+        <ExternalExportsDialog
+          version={externalExportsVersion}
+          canEdit={hasAccess}
+          open={Boolean(externalExportsVersion)}
+          onClose={() => setExternalExportsVersion(null)}
+          onChange={onExternalExportsChange}
+        />
+      )}
       <ExpansionForm
         open={expansionFormState.open}
         onClose={() => setExpansionFormState({ open: false, version: null, copyFrom: null })}

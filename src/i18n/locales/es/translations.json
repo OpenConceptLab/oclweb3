@@ -168,6 +168,7 @@
     "source_versions_count": "{{count}} versiones de fuente",
     "mapper": "Mapper",
     "export_source_version_title": "Exportar versión de fuente: {{repo}} / {{version}}",
+    "export_collection_version_title": "Exportar versión de colección: {{repo}} / {{version}}",
     "could_not_check_export": "No se pudo verificar la exportación.",
     "could_not_queue_export": "No se pudo poner en cola la exportación.",
     "export_already_exists": "Ya existe una exportación para esta versión.",
