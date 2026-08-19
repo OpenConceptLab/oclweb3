@@ -4,12 +4,13 @@ import { useTranslation } from 'react-i18next';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import DialogActions from '@mui/material/DialogActions';
 import Table from '@mui/material/Table';
 import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 import { map, get, keys, flatten, uniq, isBoolean } from 'lodash'
 import Link from '../common/Link'
 import { formatWebsiteLink, formatDate, formatDateTime } from '../../common/utils'
@@ -89,7 +90,8 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
       open={open}
       onClose={onClose}
       scroll='paper'
-      maxWidth="lg"
+      maxWidth="sm"
+      fullWidth
       sx={[{
         '& .MuiDialog-paper': {
           backgroundColor: 'surface.n92',
@@ -107,10 +109,11 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
         }
       }]}
     >
-      <DialogTitle sx={{p: 3, color: 'surface.dark', fontSize: '22px', textAlign: 'left'}}>
-        {entity.type} {t('common.attributes')}
+      <DialogTitle sx={{p: 2, color: 'surface.dark', fontSize: '22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+        <span>{entity.type} {t('common.attributes')}</span>
+        <IconButton onClick={onClose}><CloseIcon /></IconButton>
       </DialogTitle>
-      <DialogContent style={{padding: '0 8px'}}>
+      <DialogContent style={{padding: '0 16px'}}>
         <Table size="small" sx={{'.MuiTableCell-root': {padding: '6px'}}}>
           <TableHead>
             <TableRow>
@@ -137,9 +140,6 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
           </TableBody>
         </Table>
       </DialogContent>
-      <DialogActions sx={{p: 3}}>
-        <Link sx={{fontSize: '14px'}} label={t('common.close')} onClick={onClose} />
-      </DialogActions>
     </Dialog>
   );
 }
