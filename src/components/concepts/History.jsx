@@ -14,10 +14,13 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
 import CopyIcon from '@mui/icons-material/ContentCopy';
 import { Menu, ListItemButton, ListItemText, ListItemIcon } from '@mui/material'
 import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
 import MoreIcon from '@mui/icons-material/MoreVert';
+import DiffIcon from '@mui/icons-material/Difference';
 
 import compact from 'lodash/compact'
 import map from 'lodash/map'
@@ -82,6 +85,23 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
   const [selectedVersion, setSelectedVersion] = React.useState(false)
   const [selectedRepoVersion, setSelectedRepoVersion] = React.useState(false)
   const [anchorEl, setAnchorEl] = React.useState(false)
+  const [compareSelection, setCompareSelection] = React.useState([])
+  const isSelectedForCompare = version => compareSelection.some(selected => selected.uuid === version.uuid)
+  const toggleCompareSelection = version => {
+    setCompareSelection(prev => {
+      if(prev.some(selected => selected.uuid === version.uuid))
+        return prev.filter(selected => selected.uuid !== version.uuid)
+      if(prev.length >= 2)
+        return prev
+      return [...prev, version]
+    })
+  }
+  const compareHref = React.useMemo(() => {
+    if(compareSelection.length !== 2)
+      return undefined
+    const [older, newer] = orderBy(compareSelection, 'version_created_on')
+    return `#/concepts/compare?lhs=${older.version_url}&rhs=${newer.version_url}`
+  }, [compareSelection])
   const onMenuClick = (event, version, repoVersion) => {
     event.preventDefault()
     event.stopPropagation()
@@ -136,18 +156,53 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
 
 
   return (
-    <Timeline
-      sx={{
-        [`& .${timelineItemClasses.root}:before`]: {
-          flex: '0 !important',
-          padding: '0 !important',
-        },
-        [`& .${timelineItemClasses.missingOppositeContent}::before`]: {
-          flex: '0 !important',
-          padding: '0 !important',
-        },
-      }}
-    >
+    <Box>
+      {
+        !loading &&
+          <Box
+            sx={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '4px 8px',
+              position: 'sticky', top: 0, zIndex: 2,
+              bgcolor: 'background.paper'
+            }}
+          >
+            <Typography variant='body2' sx={{color: 'text.secondary', fontSize: '12px'}}>
+              {compareSelection.length > 0 ? `${compareSelection.length}/2 ${t('common.selected')}` : t('concept.select_two_versions_to_compare')}
+            </Typography>
+            <Box sx={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+              {
+                compareSelection.length > 0 &&
+                  <Button size='small' onClick={() => setCompareSelection([])} sx={{textTransform: 'none'}}>{t('common.clear')}</Button>
+              }
+              <Button
+                variant='outlined'
+                color='primary'
+                size='small'
+                startIcon={<DiffIcon fontSize='inherit' />}
+                disabled={!compareHref}
+                href={compareHref}
+                target='_blank'
+                sx={{textTransform: 'none'}}
+              >
+                {t('common.compare')}
+              </Button>
+            </Box>
+          </Box>
+      }
+      <Timeline
+        sx={{
+          marginTop: 0,
+          [`& .${timelineItemClasses.root}:before`]: {
+            flex: '0 !important',
+            padding: '0 !important',
+          },
+          [`& .${timelineItemClasses.missingOppositeContent}::before`]: {
+            flex: '0 !important',
+            padding: '0 !important',
+          },
+        }}
+      >
       {
         loading ?
           <>
@@ -214,8 +269,16 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
                           const cardBorderStyle = isLastChild ? {borderTopLeftRadius: 0, borderTopRightRadius: 0} : {borderBottom: 0, borderBottomLeftRadius: 0, borderBottomRightRadius: 0}
                           return (
                             <Card key={version.version_url} variant="outlined" sx={{cursor: 'pointer', display: 'flex', ...cardBorderStyle}} onClick={event => {event.preventDefault(); event.stopPropagation(); history.push(url); return false;}}>
-                              <CardContent sx={{display: 'inline-block', width: '100%', padding: '8px 12px !important'}}>
-                                <div className='col-xs-12 padding-0' style={{display: 'flex'}}>
+                              <CardContent sx={{display: 'flex', alignItems: 'flex-start', width: '100%', padding: '8px 12px !important'}}>
+                                <Checkbox
+                                  size='small'
+                                  checked={isSelectedForCompare(version)}
+                                  disabled={!isSelectedForCompare(version) && compareSelection.length >= 2}
+                                  onClick={event => event.stopPropagation()}
+                                  onChange={() => toggleCompareSelection(version)}
+                                  sx={{padding: '2px', marginRight: '4px', marginTop: 0}}
+                                />
+                                <div className='col-xs-12 padding-0' style={{display: 'flex', flex: 1, minWidth: 0}}>
                                   <div className='col-xs-10 padding-left-0' style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
                                     {
                                       version.update_comment &&
@@ -231,7 +294,8 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
                                         color: "text.secondary",
                                         fontSize: '12px',
                                         display: 'inline-flex',
-                                        alignItems: 'center'
+                                        alignItems: 'center',
+                                        marginTop: version.update_comment ? 0 : '-2px'
                                       }}>
                                       <UserChip size='small' hideType user={{username: version.version_updated_by, type: 'User', url: `/users/${version.version_updated_by}`}} sx={{'.MuiChip-label': {padding: 0}, marginRight: '4px', border: 0, padding: 0, minWidth: 'auto', '.MuiAvatar-root': {margin: '0 4px 0 0', width: '16px', height: '16px', background: 'transparent'}}} />
                                       {t('common.committed')} {moment(version.version_updated_on).fromNow()}
@@ -278,9 +342,21 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
                                           }
                                         </div> : null
                                     }
+                                    {
+                                      version.checksums?.standard &&
+                                        <Typography component='div' sx={{color: "text.secondary", fontSize: '12px', wordBreak: 'break-all', marginTop: '6px'}}>
+                                          {t('checksums.standard')} {version.checksums.standard}
+                                        </Typography>
+                                    }
+                                    {
+                                      version.checksums?.smart &&
+                                        <Typography component='div' sx={{color: "text.secondary", fontSize: '12px', wordBreak: 'break-all'}}>
+                                          {t('checksums.smart')} {version.checksums.smart}
+                                        </Typography>
+                                    }
                                   </div>
-                                  <div className='col-xs-2 padding-0' style={{display: 'flex', alignItems: 'flex-end', flexDirection: 'column', justifyContent: 'center'}}>
-                                    <IconButton size='small' onClick={event => onMenuClick(event, version, repoVersion)}><MoreIcon fontSize='inherit' /></IconButton>
+                                  <div className='col-xs-2 padding-0' style={{display: 'flex', alignItems: 'flex-end', flexDirection: 'column', justifyContent: 'flex-start'}}>
+                                    <IconButton size='small' onClick={event => onMenuClick(event, version, repoVersion)} sx={{marginTop: 0}}><MoreIcon fontSize='inherit' /></IconButton>
                                   </div>
                                 </div>
                               </CardContent>
@@ -297,7 +373,8 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
         </>
       }
       <VersionMenu version={selectedVersion} anchorEl={anchorEl} onClose={onMenuClose} resource={resource} repoVersion={selectedRepoVersion} icon={icon} />
-    </Timeline>
+      </Timeline>
+    </Box>
   );
 }
 export default History

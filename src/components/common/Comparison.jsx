@@ -18,7 +18,7 @@ import {
   memorySizeOf, formatByteSize
 } from '../../common/utils';
 import {
-  DIFF_BG_HIGHLIGHT,
+  DIFF_BG_HIGHLIGHT, PRIMARY_COLORS,
 } from '../../common/colors';
 import ComparisonAttributes from './ComparisonAttributes';
 import ExtrasDiff from '../common/ExtrasDiff';
@@ -170,7 +170,7 @@ class Comparison extends React.Component {
              return (
                <span style={{marginLeft: i ? '10px': ''}} key={i}>
                  <span className='gray-italics' style={{marginRight: '2px'}}>{attribute.name}</span>
-                 <Link to={toParentURI(attribute.url)}>
+                 <Link to={toParentURI(attribute.url)} style={{color: PRIMARY_COLORS.main}}>
                    <span>{attribute.value}</span>
                  </Link>
                </span>
@@ -196,7 +196,7 @@ class Comparison extends React.Component {
           {this.getHeaderSubAttributes(resource)}
         </div>
         <div style={{fontSize: '18px'}}>
-          <Link to={encodeURI(resource.version_url)}>{resource.display_name || resource.id}</Link>
+          <Link to={encodeURI(resource.version_url)} style={{color: PRIMARY_COLORS.main}}>{resource.display_name || resource.id}</Link>
         </div>
       </TableCell>
     )
@@ -390,8 +390,8 @@ class Comparison extends React.Component {
                       if(type === 'list') {
                         const lhsRawValue = lhs[attr];
                         const rhsRawValue = rhs[attr];
-                        const lhsCount = lhsRawValue.length;
-                        const rhsCount = rhsRawValue.length;
+                        const lhsCount = lhsRawValue?.length;
+                        const rhsCount = rhsRawValue?.length;
                         const hasKids = Boolean(lhsCount || rhsCount);
                         const styles = isDiff ? {background: DIFF_BG_HIGHLIGHT} : {};
                         const isExpanded = this.isSectionExpanded(config, hasKids, isDiff);

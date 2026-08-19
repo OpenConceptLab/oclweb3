@@ -26,13 +26,14 @@ const MappingsComparison = () => {
     to_concept_url: {...cloneDeep(attributeState), position: 12},
     extras: {...cloneDeep(attributeState), collapsed: true, type: 'list', position: 13},
     retired: {...cloneDeep(attributeState), type: 'bool', position: 14},
-    created_by: {...cloneDeep(attributeState), position: 15},
-    updated_by: {...cloneDeep(attributeState), position: 16},
-    created_on: {...cloneDeep(attributeState), type: 'date', position: 17},
-    updated_on: {...cloneDeep(attributeState), type: 'date', position: 18},
+    sort_weight: {...cloneDeep(attributeState), type: 'text', position: 15},
+    created_by: {...cloneDeep(attributeState), position: 16},
+    updated_by: {...cloneDeep(attributeState), position: 17},
+    created_on: {...cloneDeep(attributeState), type: 'date', position: 18},
+    updated_on: {...cloneDeep(attributeState), type: 'date', position: 19},
   }
 
-  const fetcher = (uri, attr, loadingAttr, state) => {
+  const fetcher = (uri, attr, loadingAttr, state, callback) => {
     if(uri && attr && loadingAttr) {
       const { isVersion } = state;
       const isAnyVersion = isVersion || uri.match(/\//g).length === 8;
@@ -51,6 +52,8 @@ const MappingsComparison = () => {
               newState.attributes['is_latest_version'] = {...cloneDeep(attributeState), type: 'bool', position: 14}
               newState.attributes['update_comment'] = {...cloneDeep(attributeState), position: 15}
             }
+            if(callback)
+              callback(newState)
             return newState
           }
         })

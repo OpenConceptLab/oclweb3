@@ -242,7 +242,8 @@
     "ai_assistant_not_configured": "AI assistant is not configured for this environment.",
     "try_again_in_a_moment": "Try again in a moment.",
     "make_change_before_generating": "Make a change to the concept before generating a comment.",
-    "generate_comment_aria": "Generate comment with AI"
+    "generate_comment_aria": "Generate comment with AI",
+    "select_two_versions_to_compare": "Select 2 versions to compare"
   },
   "mapping": {
     "mapping": "Mapping",
