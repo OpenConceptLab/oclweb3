@@ -2,6 +2,8 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import rehypeSlug from 'rehype-slug';
 
 const MarkdownContent = ({ markdown }) => (
   <Box
@@ -49,10 +51,11 @@ const MarkdownContent = ({ markdown }) => (
   >
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
+      rehypePlugins={[rehypeRaw, rehypeSlug]}
       components={{
-        h1: ({ children }) => <Typography variant="h6" sx={{ mt: 0, mb: 1, fontWeight: 700 }}>{children}</Typography>,
-        h2: ({ children }) => <Typography variant="subtitle1" sx={{ mt: 2.5, mb: 1, fontWeight: 700 }}>{children}</Typography>,
-        h3: ({ children }) => <Typography variant="subtitle2" sx={{ mt: 2.5, mb: 1, fontWeight: 700 }}>{children}</Typography>,
+        h1: ({ id, children }) => <Typography id={id} variant="h6" sx={{ mt: 0, mb: 1, fontWeight: 700 }}>{children}</Typography>,
+        h2: ({ id, children }) => <Typography id={id} variant="subtitle1" sx={{ mt: 2.5, mb: 1, fontWeight: 700 }}>{children}</Typography>,
+        h3: ({ id, children }) => <Typography id={id} variant="subtitle2" sx={{ mt: 2.5, mb: 1, fontWeight: 700 }}>{children}</Typography>,
         p: ({ children }) => <Typography variant="body2">{children}</Typography>,
         code: ({ inline, children }) => inline ? (
           <Box component="code" sx={{ fontFamily: 'monospace', px: 0.5, bgcolor: 'surface.main', borderRadius: '3px' }}>
@@ -74,11 +77,19 @@ const MarkdownContent = ({ markdown }) => (
         ),
         a: ({ href, children, ...props }) => {
           const isExternal = /^https?:\/\//i.test(href || '');
+          const isHashLink = (href || '').startsWith('#');
+          const onHashClick = (event) => {
+            event.preventDefault();
+            const container = event.currentTarget.closest('.MuiDialogContent-root') || document;
+            const target = container.querySelector(`#${CSS.escape(href.slice(1))}`);
+            if(target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          };
           return (
             <a
               href={href}
               {...props}
               {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              {...(isHashLink ? { onClick: onHashClick } : {})}
             >
               {children}
             </a>
