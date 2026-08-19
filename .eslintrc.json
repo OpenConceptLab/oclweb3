@@ -266,7 +266,8 @@
           "resourceversions",
           "monospace",
           "jsonl",
-          "ndjson"
+          "ndjson",
+          "rehype"
         ],
         "skipIfMatch": [
           "http://[^s]*",
