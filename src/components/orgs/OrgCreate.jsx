@@ -111,7 +111,9 @@ const OrgCreate = () => {
           setAlert({duration: 2000, message: isEdit ? t('org.success_update') : t('org.success_create'), severity: 'success'})
           history.push(response.data.url)
         }
-        model?.logo?.base64 && model?.logo?.name ? getService().post(model.logo).then(successCallback) : successCallback()
+        model?.logo?.base64 && model?.logo?.name ?
+          APIService.new().overrideURL(response.data.url).appendToUrl('logo/').post(model.logo).then(successCallback) :
+          successCallback()
       }
       else {
         let error = compact(flatten(values(response)))
