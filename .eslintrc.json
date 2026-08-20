@@ -267,7 +267,9 @@
           "monospace",
           "jsonl",
           "ndjson",
-          "rehype"
+          "rehype",
+          "reindex",
+          "wip"
         ],
         "skipIfMatch": [
           "http://[^s]*",

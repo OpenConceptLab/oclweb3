@@ -39,6 +39,7 @@ import {
   NewReleases as ReleaseIcon,
   Newspaper as ChangelogIcon,
   OpenInNew as OpenInNewIcon,
+  QueryStats as ReindexIcon,
   Summarize as SummaryIcon,
   Visibility as VisibilityIcon
 } from '@mui/icons-material';
@@ -52,6 +53,7 @@ import {
   formatDate,
   headFirst,
   isLoggedIn,
+  isStaffUser,
   toFullAPIURL
 } from '../../common/utils';
 import { OperationsContext } from '../app/LayoutContext';
@@ -60,6 +62,7 @@ import MarkdownContent from '../common/MarkdownContent';
 import ConceptIcon from '../concepts/ConceptIcon';
 import MappingIcon from '../mappings/MappingIcon';
 import ExternalExportsDialog from './ExternalExportsDialog';
+import ReindexVersionDialog from './ReindexVersionDialog';
 import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
 import {
@@ -69,7 +72,9 @@ import {
   formatError,
   getContentCount,
   getPreviousVersionURL,
+  getVersionKey,
   getVersionLabel,
+  getVersionURL,
   headerCellSx,
   isHeadVersion
 } from './versionsTab.styles';
@@ -144,6 +149,8 @@ const SourceVersionsTab = ({
   const [exportVersion, setExportVersion] = React.useState(null);
   const [externalExportsVersion, setExternalExportsVersion] = React.useState(null);
   const [changelogVersion, setChangelogVersion] = React.useState(null);
+  const [reindexTarget, setReindexTarget] = React.useState(null);
+  const [reindexWip, setReindexWip] = React.useState({});
   const [headVersion, setHeadVersion] = React.useState(isHeadVersion(repo) ? repo : null);
   const [versions, setVersions] = React.useState([]);
   const [totalCount, setTotalCount] = React.useState(0);
@@ -230,6 +237,14 @@ const SourceVersionsTab = ({
   };
   const onExternalExportsChange = updatedVersion => {
     if(onDataChange) onDataChange(updatedVersion);
+  };
+  const getReindexKey = (version, contentType) => `${getVersionKey(version)}:${contentType}`;
+  const closeReindexDialog = result => {
+    const target = reindexTarget;
+    setReindexTarget(null);
+    if(!target || !result) return;
+    if(result.taskId || result.status === 409)
+      setReindexWip(prev => ({ ...prev, [getReindexKey(target.version, target.contentType)]: { taskId: result.taskId } }));
   };
   const versionsCount = totalCount || sortedVersions.length;
   const countLabel = versionsCount === 1
@@ -399,6 +414,27 @@ const SourceVersionsTab = ({
         {hasAccess && <MenuItem onClick={() => withClose(onEditVersion)} disabled={isHeadVersion(menuState.version)}><EditIcon fontSize="small" sx={{ mr: 1 }} />{t('common.edit')}</MenuItem>}
         {hasAccess && <MenuItem onClick={() => withClose(onReleaseVersion)} disabled={isHeadVersion(menuState.version)}><ReleaseIcon fontSize="small" sx={{ mr: 1 }} />{menuState.version?.released ? t('repo.unrelease_version') : t('repo.release_version')}</MenuItem>}
         {hasAccess && <MenuItem onClick={() => withClose(computeSummary)}><SummaryIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.recompute_summary')}</MenuItem>}
+        {hasAccess && isStaffUser() && [
+          { contentType: 'concepts', label: t('repo.reindex_concepts') },
+          { contentType: 'mappings', label: t('repo.reindex_mappings') }
+        ].map(({ contentType, label }) => {
+          const wip = menuState.version ? reindexWip[getReindexKey(menuState.version, contentType)] : null;
+          const tooltip = wip
+            ? (wip.taskId ? t('repo.reindex_in_progress_tooltip_with_id', { id: wip.taskId }) : t('repo.reindex_in_progress_tooltip'))
+            : '';
+          return (
+            <Tooltip key={contentType} title={tooltip} placement="left">
+              <span>
+                <MenuItem
+                  disabled={Boolean(wip)}
+                  onClick={() => withClose(version => setReindexTarget({ version, contentType }))}
+                >
+                  <ReindexIcon fontSize="small" sx={{ mr: 1 }} />{label}
+                </MenuItem>
+              </span>
+            </Tooltip>
+          );
+        })}
         {
           hasAccess && !isHeadVersion(menuState.version) &&
             <>
@@ -417,6 +453,16 @@ const SourceVersionsTab = ({
       {Boolean(exportVersion) && <VersionExportDialog version={exportVersion} open={Boolean(exportVersion)} onClose={() => setExportVersion(null)} />}
       {Boolean(externalExportsVersion) && <ExternalExportsDialog version={externalExportsVersion} canEdit={hasAccess} open={Boolean(externalExportsVersion)} onClose={() => setExternalExportsVersion(null)} onChange={onExternalExportsChange} />}
       {Boolean(changelogVersion) && <ChangelogDialog version={changelogVersion} open={Boolean(changelogVersion)} onClose={() => setChangelogVersion(null)} />}
+      {Boolean(reindexTarget) && (
+        <ReindexVersionDialog
+          open={Boolean(reindexTarget)}
+          targetUrl={getVersionURL(reindexTarget.version)}
+          repoId={`${reindexTarget.version.short_code || reindexTarget.version.id} [${getVersionLabel(reindexTarget.version)}]`}
+          contentType={reindexTarget.contentType}
+          label={reindexTarget.contentType === 'mappings' ? t('repo.reindex_mappings') : t('repo.reindex_concepts')}
+          onClose={closeReindexDialog}
+        />
+      )}
     </Box>
   );
 };

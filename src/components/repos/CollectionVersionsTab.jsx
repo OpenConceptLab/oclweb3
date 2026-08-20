@@ -51,6 +51,7 @@ import {
   formatDate,
   headFirst,
   isLoggedIn,
+  isStaffUser,
   toFullAPIURL
 } from '../../common/utils';
 import { OperationsContext } from '../app/LayoutContext';
@@ -62,6 +63,7 @@ import ExpansionDetailsDialog from './ExpansionDetailsDialog';
 import ExpansionRowList from './ExpansionRowList';
 import ExternalExportsDialog from './ExternalExportsDialog';
 import RebuildExpansionDialog from './RebuildExpansionDialog';
+import ReindexVersionDialog from './ReindexVersionDialog';
 import RepoVersionRowMenu from './RepoVersionRowMenu';
 import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
@@ -172,6 +174,8 @@ const CollectionVersionsTab = ({
   const [deleteExpansion, setDeleteExpansion] = React.useState(null);
   const [detailsExpansion, setDetailsExpansion] = React.useState(null);
   const [rebuildExpansion, setRebuildExpansion] = React.useState(null);
+  const [reindexTarget, setReindexTarget] = React.useState(null);
+  const [reindexWip, setReindexWip] = React.useState({});
   const [expandedVersionKeys, setExpandedVersionKeys] = React.useState(new Set());
   const [rowMenu, setRowMenu] = React.useState({ anchorEl: null, version: null });
   const [expansionMenu, setExpansionMenu] = React.useState({ anchorEl: null, version: null, expansion: null });
@@ -515,6 +519,15 @@ const CollectionVersionsTab = ({
     onDataChange?.(updatedVersion);
   };
 
+  const getReindexKey = (targetUrl, contentType) => `${targetUrl}:${contentType}`;
+  const closeReindexDialog = result => {
+    const target = reindexTarget;
+    setReindexTarget(null);
+    if (!target || !result) return;
+    if (result.taskId || result.status === 409)
+      setReindexWip(prev => ({ ...prev, [getReindexKey(target.targetUrl, target.contentType)]: { taskId: result.taskId } }));
+  };
+
   const toggleVersionExpand = version => {
     const versionKey = getVersionKey(version);
     setExpandedVersionKeys(prev => {
@@ -573,7 +586,26 @@ const CollectionVersionsTab = ({
     items.push(
       { key: 'create-similar', label: t('repo.create_similar'), onClick: () => setExpansionFormState({ open: true, version, copyFrom: expansion }) },
       { key: 'rebuild', label: t('repo.rebuild'), onClick: () => setRebuildExpansion({ ...expansion, __version: version }) },
-      { key: 'details', label: t('common.details'), onClick: () => setDetailsExpansion(expansion) },
+      { key: 'details', label: t('common.details'), onClick: () => setDetailsExpansion(expansion) }
+    );
+    if (isStaffUser()) {
+      [
+        { contentType: 'concepts', label: t('repo.reindex_concepts') },
+        { contentType: 'mappings', label: t('repo.reindex_mappings') }
+      ].forEach(({ contentType, label }) => {
+        const wip = reindexWip[getReindexKey(expansion.url, contentType)];
+        items.push({
+          key: `reindex-${contentType}`,
+          label,
+          disabled: Boolean(wip),
+          tooltip: wip
+            ? (wip.taskId ? t('repo.reindex_in_progress_tooltip_with_id', { id: wip.taskId }) : t('repo.reindex_in_progress_tooltip'))
+            : undefined,
+          onClick: () => setReindexTarget({ targetUrl: expansion.url, repoId: expansion.mnemonic, contentType, indexPath: 'index' })
+        });
+      });
+    }
+    items.push(
       { key: 'delete', label: t('common.delete_label'), danger: true, disabled: Boolean(expansion.default), onClick: () => setDeleteExpansion({ ...expansion, __version: version }) }
     );
     return items;
@@ -841,6 +873,17 @@ const CollectionVersionsTab = ({
         associationsLabel={t('repo.concepts_and_mappings')}
         warning={false}
       />
+      {Boolean(reindexTarget) && (
+        <ReindexVersionDialog
+          open={Boolean(reindexTarget)}
+          targetUrl={reindexTarget.targetUrl}
+          repoId={reindexTarget.repoId}
+          contentType={reindexTarget.contentType}
+          indexPath={reindexTarget.indexPath}
+          label={reindexTarget.contentType === 'mappings' ? t('repo.reindex_mappings') : t('repo.reindex_concepts')}
+          onClose={closeReindexDialog}
+        />
+      )}
     </Box>
   );
 };

@@ -189,6 +189,8 @@ export const isAdminUser = () => {
   return get(currentUser, 'is_staff') || get(currentUser, 'is_superuser');
 }
 
+export const isStaffUser = () => Boolean(get(getCurrentUser(), 'is_staff'))
+
 export const isSuperuser = () => get(getCurrentUser(), 'is_superuser');
 
 export const toObjectArray = obj => isEmpty(obj) ? [] : map(keys(obj), k => pick(obj, k));
