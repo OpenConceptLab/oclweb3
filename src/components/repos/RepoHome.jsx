@@ -63,6 +63,7 @@ const RepoHome = () => {
   const [versionsRefreshKey, setVersionsRefreshKey] = React.useState(0)
   const [loading, setLoading] = React.useState(true)
   const [showItem, setShowItem] = React.useState(false)
+  const [dismissedResource, setDismissedResource] = React.useState(null)
   const [selectedItem, setSelectedItem] = React.useState([])
   const [conceptForm, setConceptForm] = React.useState(false)
   const [mappingForm, setMappingForm] = React.useState(false)
@@ -230,6 +231,11 @@ const RepoHome = () => {
     setMappingForm(false)
   }
 
+  const closeItem = () => {
+    setShowItem(false)
+    setDismissedResource(params.resource || null)
+  }
+
   const onCreateConceptClick = () => {
     setVersionForm(false)
     setShowItem(false)
@@ -242,6 +248,18 @@ const RepoHome = () => {
     setShowItem(false)
     setConceptForm(false)
     setMappingForm(true)
+  }
+
+  const onCreateSimilarClick = item => {
+    setVersionForm(false)
+    setShowItem(false)
+    if(tab === 'mappings') {
+      setConceptForm(false)
+      setMappingForm({copyFrom: item})
+    } else {
+      setMappingForm(false)
+      setConceptForm({copyFrom: item})
+    }
   }
 
   const onCreateVersionClick = () => {
@@ -322,9 +340,10 @@ const RepoHome = () => {
   const getConceptURLFromMainURL = () => (isConceptURL && params.resource) ? getURL() + 'concepts/' + params.resource + '/' : false
   const getMappingURLFromMainURL = () => (isMappingURL && params.resource) ? getURL() + 'mappings/' + params.resource + '/' : false
   const getReferenceURLFromMainURL = () => (isReferenceURL && params.resource) ? getURL() + 'references/' + params.resource + '/' : false
-  const showConceptURL = ((showItem?.concept_class || params.resource) && isConceptURL) ? showItem?.version_url || showItem?.url || getConceptURLFromMainURL() : false
-  const showMappingURL = ((showItem?.map_type || params.resource) && isMappingURL) ? showItem?.version_url || showItem?.url || getMappingURLFromMainURL() : false
-  const showReferenceURL = ((showItem?.expression || params.resource) && isReferenceURL) ? showItem?.uri || getReferenceURLFromMainURL() : false
+  const resourceFallbackActive = Boolean(params.resource) && params.resource !== dismissedResource
+  const showConceptURL = ((showItem?.concept_class || resourceFallbackActive) && isConceptURL) ? showItem?.version_url || showItem?.url || getConceptURLFromMainURL() : false
+  const showMappingURL = ((showItem?.map_type || resourceFallbackActive) && isMappingURL) ? showItem?.version_url || showItem?.url || getMappingURLFromMainURL() : false
+  const showReferenceURL = ((showItem?.expression || resourceFallbackActive) && isReferenceURL) ? showItem?.uri || getReferenceURLFromMainURL() : false
   const isSplitView = conceptForm || mappingForm || showConceptURL || showMappingURL || showReferenceURL || versionForm
 
   const onVersionEditClick = () => isVersion && setVersionForm({edit: true, version: repo, expansions: []})
@@ -378,6 +397,7 @@ const RepoHome = () => {
                       onShowItem={onShowItem}
                       showItem={showItem}
                       onSelectItem={setSelectedItem}
+                      onCreateSimilarClick={!isCollection ? onCreateSimilarClick : undefined}
                       filtersHeightToSubtract={268}
                       resultContainerStyle={{height: 'calc(100vh - 356px)', overflow: 'auto', maxWidth: showSummary ? 'calc(100vw - 300px)' : 'calc(100vw - 40px)'}}
                       containerStyle={{padding: 0}}
@@ -482,23 +502,23 @@ const RepoHome = () => {
       <div className={'col-xs-5 padding-0' + (isSplitView ? ' split-appear' : '')} style={{marginLeft: '16px', width: isSplitView ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: isSplitView ? 'calc(100vh - 102px)' : 0, opacity: isSplitView ? 1 : 0, overflow: 'auto'}}>
         {
           Boolean(showConceptURL && !conceptForm) &&
-            <ConceptHome repoSummary={repoSummary} repo={repo} url={showConceptURL} concept={showItem} onClose={() => setShowItem(false)} repoVersions={versions} nested />
+            <ConceptHome repoSummary={repoSummary} repo={repo} url={showConceptURL} concept={showItem} onClose={closeItem} repoVersions={versions} nested />
         }
         {
           Boolean(showMappingURL && !mappingForm) &&
-            <MappingHome repoSummary={repoSummary} repo={repo} url={showMappingURL} mapping={showItem} onClose={() => setShowItem(false)} repoVersions={versions} nested />
+            <MappingHome repoSummary={repoSummary} repo={repo} url={showMappingURL} mapping={showItem} onClose={closeItem} repoVersions={versions} nested />
         }
         {
           showReferenceURL &&
-            <ReferenceHome repoSummary={repoSummary} repo={repo} url={showReferenceURL} reference={showItem} onClose={() => setShowItem(false)} onDelete={() => setSearchReloadKey(key => key + 1)} repoVersions={versions} nested />
+            <ReferenceHome repoSummary={repoSummary} repo={repo} url={showReferenceURL} reference={showItem} onClose={closeItem} onDelete={() => setSearchReloadKey(key => key + 1)} repoVersions={versions} nested />
         }
         {
           conceptForm &&
-            <ConceptForm t={t} repoSummary={repoSummary} source={repo} repo={repo} onClose={() => setConceptForm(false)} />
+            <ConceptForm t={t} repoSummary={repoSummary} copyFrom={conceptForm?.copyFrom} source={repo} repo={repo} onClose={() => setConceptForm(false)} />
         }
         {
           mappingForm &&
-            <MappingForm t={t} repoSummary={repoSummary} source={repo} repo={repo} onClose={() => setMappingForm(false)} />
+            <MappingForm t={t} repoSummary={repoSummary} copyFrom={mappingForm?.copyFrom} source={repo} repo={repo} onClose={() => setMappingForm(false)} />
         }
         {
           versionForm &&

@@ -303,6 +303,10 @@ class ConceptForm extends FormComponent  {
   }
 
 
+  fetchConceptToCreate = () => {
+    APIService.new().overrideURL(this.props.copyFrom.url).get().then(response => this.setFieldsForEdit(response.data))
+  }
+
   prepareLocales = _locales => {
     this.setState({
       locales: sortValuesBySourceSummary(compact(_locales), this.props.repoSummary, 'concepts.locale', true)

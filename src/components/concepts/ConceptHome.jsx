@@ -31,6 +31,7 @@ const ConceptHome = props => {
   const [repoVersions, setRepoVersions] = React.useState(props.repoVersions || [])
   const [tab, setTab] = React.useState('metadata')
   const [edit, setEdit] = React.useState(false)
+  const [createSimilar, setCreateSimilar] = React.useState(false)
 
   const [loading, setLoading] = React.useState(false)
   const [loadingOwnerMappings, setLoadingOwnerMappings] = React.useState(null)
@@ -239,7 +240,7 @@ const ConceptHome = props => {
 
   return (concept?.id && repo?.id) ? (
     <>
-      <Fade in={edit}>
+      <Fade in={edit || createSimilar}>
         <div className='col-xs-12 padding-0'>
           {
             edit &&
@@ -257,15 +258,26 @@ const ConceptHome = props => {
                 }}
               />
           }
+          {
+            createSimilar &&
+              <ConceptForm
+                t={t}
+                repoSummary={props.repoSummary}
+                copyFrom={concept}
+                source={repo}
+                repo={repo}
+                onClose={() => setCreateSimilar(false)}
+              />
+          }
         </div>
       </Fade>
-      <Fade in={!edit}>
+      <Fade in={!edit && !createSimilar}>
         <div className='col-xs-12' style={{padding: '8px 16px 12px 16px', ...props.style}}>
           {
-            !edit &&
+            !edit && !createSimilar &&
               <>
                 <div className='col-xs-12 padding-0'>
-                  <ConceptHeader concept={concept} onClose={props.onClose} repoURL={getRepoURL()} onEdit={() => setEdit(true)} repo={repo} nested={props.nested} loading={loading} onRetire={() => setRetireDialog(true)} isInCollection={isInCollection} onRemoveFromCollection={() => setRemoveFromCollectionDialog(true)} />
+                  <ConceptHeader concept={concept} onClose={props.onClose} repoURL={getRepoURL()} onEdit={() => setEdit(true)} onCreateSimilar={() => setCreateSimilar(true)} repo={repo} nested={props.nested} loading={loading} onRetire={() => setRetireDialog(true)} isInCollection={isInCollection} onRemoveFromCollection={() => setRemoveFromCollectionDialog(true)} />
                 </div>
                 <ConceptTabs tab={tab} onTabChange={(event, newTab) => onTabChange(newTab)} loading={loading} />
                 {

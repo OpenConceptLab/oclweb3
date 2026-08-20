@@ -189,7 +189,11 @@
     "ai_assistant_not_configured": "此环境尚未配置 AI 助手。",
     "try_again_in_a_moment": "请稍后再试。",
     "make_change_before_generating": "请先更改概念，再生成评论。",
-    "generate_comment_aria": "使用 AI 生成评论"
+    "generate_comment_aria": "使用 AI 生成评论",
+    "success_create": "概念创建成功",
+    "success_update": "概念更新成功",
+    "error_create": "无法创建概念",
+    "error_update": "无法更新概念"
   },
   "mapping": {
     "mappings": "映射关系",
@@ -212,7 +216,33 @@
     "to_concept_not_defined": "OCL 之中并未定义目标概念",
     "to_concept_defined": "OCL 之中已定义目标概念",
     "sort_weight": "排序权重",
-    "fromAndTargetSource": "源头和目标来源"
+    "fromAndTargetSource": "源头和目标来源",
+    "from_source_url": "源头来源 URL",
+    "from_source_version": "源头来源版本",
+    "from_concept_url": "源头概念 URL",
+    "from_concept_name": "源头概念名称",
+    "from_concept_code": "源头概念代码",
+    "to_source_url": "目标来源 URL",
+    "to_source_version": "目标来源版本",
+    "to_concept_url": "目标概念 URL",
+    "to_concept_name": "目标概念名称",
+    "to_concept_code": "目标概念代码",
+    "success_create": "映射关系创建成功",
+    "success_update": "映射关系更新成功",
+    "error_create": "无法创建映射关系",
+    "error_update": "无法更新映射关系",
+    "form": {
+      "id": "映射关系 ID",
+      "mapping_details": {
+        "header": "映射关系详情"
+      },
+      "from_concept": {
+        "header": "源头概念"
+      },
+      "to_concept": {
+        "header": "目标概念"
+      }
+    }
   },
   "checksums": {
     "standard": "标准校验和",
@@ -312,7 +342,8 @@
     "delete_repo_version": "Delete Repo Version",
     "repo_version_summary": "存储库版本摘要",
     "repo_summary_is_calculating": "正在计算处理存储库摘要数据，请请稍后再回来查看。",
-    "no_overview": "所有者尚未为该存储库创建概述页面"
+    "no_overview": "所有者尚未为该存储库创建概述页面",
+    "create_similar": "创建相似项"
   },
   "org": {
     "my": "我的组织机构",

@@ -243,7 +243,11 @@
     "try_again_in_a_moment": "Try again in a moment.",
     "make_change_before_generating": "Make a change to the concept before generating a comment.",
     "generate_comment_aria": "Generate comment with AI",
-    "select_two_versions_to_compare": "Select 2 versions to compare"
+    "select_two_versions_to_compare": "Select 2 versions to compare",
+    "success_create": "Successfully created concept",
+    "success_update": "Successfully updated concept",
+    "error_create": "Couldn't create concept",
+    "error_update": "Couldn't update concept"
   },
   "mapping": {
     "mapping": "Mapping",
@@ -271,7 +275,33 @@
     "to_concept_defined": "Target concept is defined in OCL",
     "sort_weight": "Sort Weight",
     "fromAndTargetSource": "From and target Source",
-    "edit_mapping": "Edit Mapping"
+    "edit_mapping": "Edit Mapping",
+    "from_source_url": "From Source URL",
+    "from_source_version": "From Source Version",
+    "from_concept_url": "From Concept URL",
+    "from_concept_name": "From Concept Name",
+    "from_concept_code": "From Concept Code",
+    "to_source_url": "Target Source URL",
+    "to_source_version": "Target Source Version",
+    "to_concept_url": "Target Concept URL",
+    "to_concept_name": "Target Concept Name",
+    "to_concept_code": "Target Concept Code",
+    "success_create": "Successfully created mapping",
+    "success_update": "Successfully updated mapping",
+    "error_create": "Couldn't create mapping",
+    "error_update": "Couldn't update mapping",
+    "form": {
+      "id": "Mapping ID",
+      "mapping_details": {
+        "header": "Mapping Details"
+      },
+      "from_concept": {
+        "header": "From Concept"
+      },
+      "to_concept": {
+        "header": "Target Concept"
+      }
+    }
   },
   "reference": {
     "expression": "Expression",

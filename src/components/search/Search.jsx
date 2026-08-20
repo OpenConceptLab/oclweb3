@@ -694,6 +694,7 @@ const Search = props => {
                   baseURL={props.url}
                   toolbarControl={<>{props.toolbarControl}{referenceActionsControl}</>}
                   extraBulkActions={[bulkRemoveFromCollectionAction, props.extraBulkActions]}
+                  onCreateSimilarClick={props.onCreateSimilarClick}
                   fixedLeftControls={[props.fixedLeftControls]}
                 />
               </div>

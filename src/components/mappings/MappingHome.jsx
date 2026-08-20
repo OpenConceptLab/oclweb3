@@ -29,6 +29,7 @@ const MappingHome = props => {
   const [repoVersions, setRepoVersions] = React.useState(props.repoVersions || [])
   const [tab, setTab] = React.useState('metadata')
   const [edit, setEdit] = React.useState(false)
+  const [createSimilar, setCreateSimilar] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
 
   const [retireDialog, setRetireDialog] = React.useState(false)
@@ -153,7 +154,7 @@ const MappingHome = props => {
 
   return (mapping?.id && repo?.id) ? (
     <>
-      <Fade in={edit}>
+      <Fade in={edit || createSimilar}>
         <div className='col-xs-12 padding-0'>
           {
             edit &&
@@ -171,12 +172,23 @@ const MappingHome = props => {
                 }}
               />
           }
+          {
+            createSimilar &&
+              <MappingForm
+                t={t}
+                repoSummary={props.repoSummary}
+                copyFrom={mapping}
+                source={repo}
+                repo={repo}
+                onClose={() => setCreateSimilar(false)}
+              />
+          }
         </div>
       </Fade>
-      <Fade in={!edit}>
+      <Fade in={!edit && !createSimilar}>
         <div className='col-xs-12' style={{padding: '8px 16px 12px 16px'}}>
           <div className='col-xs-12 padding-0' style={{marginBottom: '12px'}}>
-            <MappingHeader mapping={mapping} onClose={props.onClose} repoURL={getRepoURL()} repo={repo} nested={props.nested} onEdit={() => setEdit(true)} onRetire={() => setRetireDialog(true)} isInCollection={isInCollection} onRemoveFromCollection={() => setRemoveFromCollectionDialog(true)} />
+            <MappingHeader mapping={mapping} onClose={props.onClose} repoURL={getRepoURL()} repo={repo} nested={props.nested} onEdit={() => setEdit(true)} onCreateSimilar={() => setCreateSimilar(true)} onRetire={() => setRetireDialog(true)} isInCollection={isInCollection} onRemoveFromCollection={() => setRemoveFromCollectionDialog(true)} />
           </div>
           <MappingTabs tab={tab} onTabChange={(event, newTab) => onTabChange(newTab)} />
           {

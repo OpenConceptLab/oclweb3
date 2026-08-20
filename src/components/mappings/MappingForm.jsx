@@ -60,17 +60,23 @@ class MappingForm extends FormComponent {
 
   componentDidMount() {
     fetchMapTypes(data => this.setState({mapTypes: data}))
-    if((this.props.edit && this.props.mapping) || this.props.copyFrom)
+    if(this.props.edit && this.props.mapping)
       this.setFieldsForEdit()
+    else if(this.props.copyFrom)
+      this.fetchMappingToCreate()
     if(this.props.selectedConcepts)
       this.setFieldsFromSelectedConcepts()
     if(!this.props.edit)
       this.setState({parent: this.props.source})
   }
 
-  setFieldsForEdit() {
+  fetchMappingToCreate = () => {
+    APIService.new().overrideURL(this.props.copyFrom.url).get().then(response => this.setFieldsForEdit(response.data))
+  }
+
+  setFieldsForEdit(instanceOverride) {
     const { mapping, edit, copyFrom } = this.props;
-    const instance = edit ? mapping : copyFrom
+    const instance = instanceOverride || (edit ? mapping : copyFrom)
     const attrs = [
       'id', 'map_type',
       'from_concept_url', 'from_concept_name',

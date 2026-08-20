@@ -100,10 +100,40 @@
     "ai_assistant_not_configured": "El asistente de IA no está configurado para este entorno.",
     "try_again_in_a_moment": "Vuelve a intentarlo en un momento.",
     "make_change_before_generating": "Haz un cambio en el concepto antes de generar un comentario.",
-    "generate_comment_aria": "Generar comentario con IA"
+    "generate_comment_aria": "Generar comentario con IA",
+    "success_create": "Concepto creado correctamente",
+    "success_update": "Concepto actualizado correctamente",
+    "error_create": "No se pudo crear el concepto",
+    "error_update": "No se pudo actualizar el concepto"
   },
   "mapping": {
-    "mappings": "Mapeos"
+    "mappings": "Mapeos",
+    "from_source_url": "URL de la fuente de origen",
+    "from_source_version": "Versión de la fuente de origen",
+    "from_concept_url": "URL del concepto de origen",
+    "from_concept_name": "Nombre del concepto de origen",
+    "from_concept_code": "Código del concepto de origen",
+    "to_source_url": "URL de la fuente de destino",
+    "to_source_version": "Versión de la fuente de destino",
+    "to_concept_url": "URL del concepto de destino",
+    "to_concept_name": "Nombre del concepto de destino",
+    "to_concept_code": "Código del concepto de destino",
+    "success_create": "Mapeo creado correctamente",
+    "success_update": "Mapeo actualizado correctamente",
+    "error_create": "No se pudo crear el mapeo",
+    "error_update": "No se pudo actualizar el mapeo",
+    "form": {
+      "id": "ID del mapeo",
+      "mapping_details": {
+        "header": "Detalles del mapeo"
+      },
+      "from_concept": {
+        "header": "Concepto de origen"
+      },
+      "to_concept": {
+        "header": "Concepto de destino"
+      }
+    }
   },
   "reference": {
     "references": "Referencias",
@@ -197,7 +227,8 @@
     "processing": "Procesando",
     "processed": "Procesado",
     "expansions": "Expansiones",
-    "expansion_dropdown_label": "Expansión: {{mnemonic}}"
+    "expansion_dropdown_label": "Expansión: {{mnemonic}}",
+    "create_similar": "Crear similar"
   },
   "org": {
     "orgs": "Organizaciones",

@@ -6,6 +6,7 @@ import Skeleton from '@mui/material/Skeleton';
 import Button from '@mui/material/Button';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import AddIcon from '@mui/icons-material/PlaylistAddOutlined';
+import RepeatIcon from '@mui/icons-material/Repeat';
 import CloseIconButton from '../common/CloseIconButton';
 import { toOwnerURI, currentUserHasAccess } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
@@ -14,7 +15,7 @@ import ConceptManagementList from './ConceptManagementList'
 import AddToCollectionDialog from '../common/AddToCollectionDialog'
 import Retired from '../common/Retired'
 
-const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, nested, loading}) => {
+const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCreateSimilar, nested, loading}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -91,6 +92,18 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, neste
               onClick={() => setAddToCollectionOpen(true)}
             >
               Add to Collection
+            </Button>
+          )}
+          {currentUserHasAccess() && has(repo, 'source_type') && (
+            <Button
+              startIcon={<RepeatIcon fontSize='inherit' />}
+              variant='text'
+              size='small'
+              color='primary'
+              sx={{textTransform: 'none'}}
+              onClick={onCreateSimilar}
+            >
+              {t('repo.create_similar')}
             </Button>
           )}
         </span>
