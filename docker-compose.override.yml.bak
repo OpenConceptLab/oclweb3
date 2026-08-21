@@ -1,8 +1,6 @@
-version: '3'
-
 services:
   web:
-    image: openconceptlab/oclweb3:${TAG-dev}
+    image: openconceptlab/oclweb3:${TAG:-dev}
     build:
       context: .
       target: build
@@ -10,9 +8,9 @@ services:
         NODE_ENV: development
         PRIVATE_PACKAGES_GIT:
     ports:
-      - "4002:4002"
-      - "4003:35729"
-      - "6007:6006"
+      - "${WEB_PORT:-4002}:4002"
+      - "${LIVE_RELOAD_PORT:-4003}:35729"
+      - "${STORYBOOK_PORT:-6007}:6006"
     restart: on-failure
     volumes:
       - .:/app:z

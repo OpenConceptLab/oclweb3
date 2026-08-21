@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   web:
     image: openconceptlab/oclweb3:${TAG-dev}
@@ -10,13 +8,13 @@ services:
         NODE_ENV: development
         PRIVATE_PACKAGES_GIT:
     ports:
-      - "4002:4002"
-      - "4003:35729"
-      - "6007:6006"
+      - "${WEB_PORT:-4002}:4002"
+      - "${LIVE_RELOAD_PORT:-4003}:35729"
+      - "${STORYBOOK_PORT:-6007}:6006"
     restart: on-failure
     volumes:
       - .:/app:z
     environment:
-      - LOGIN_REDIRECT_URL=${LOGIN_REDIRECT_URL-http://localhost:4002}
+      - LOGIN_REDIRECT_URL=${LOGIN_REDIRECT_URL:-http://localhost:${WEB_PORT:-4002}}
       - OIDC_RP_CLIENT_ID=${OIDC_RP_CLIENT_ID-ocllocal}
       - OIDC_RP_CLIENT_SECRET
