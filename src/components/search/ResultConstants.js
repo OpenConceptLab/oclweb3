@@ -126,6 +126,8 @@ export const HIGHLIGHT_ICON_WHITELISTED_FILEDS = {
   users: ['external_id'],
 }
 
+export const EXCLUDE_FILTER_KEY = '__exclude__'
+
 export const FACET_ORDER = {
   mappings: [
     'owner', 'ownerType', 'source', 'mapType',

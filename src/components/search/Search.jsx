@@ -26,6 +26,7 @@ import SearchResults from './SearchResults';
 import SearchFilters from './SearchFilters'
 import { OperationsContext } from '../app/LayoutContext';
 import ReferenceFilters from '../repos/ReferenceFilters'
+import { EXCLUDE_FILTER_KEY } from './ResultConstants'
 import DeleteReferencesDialog from '../collections/DeleteReferencesDialog'
 import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
 import TransformReferencesDialog from '../collections/TransformReferencesDialog'
@@ -251,8 +252,14 @@ const Search = props => {
       applied[field] = {}
       if(isBoolean(value)) {
         applied[field][value.toString()] = true
-      } else
-        forEach(value.split(','), val => applied[field][val] = true)
+      } else {
+        let _value = value
+        if(typeof _value === 'string' && _value.startsWith('!')) {
+          applied[field][EXCLUDE_FILTER_KEY] = true
+          _value = _value.slice(1)
+        }
+        forEach(_value.split(','), val => applied[field][val] = true)
+      }
     })
     return applied
   }
@@ -263,7 +270,9 @@ const Search = props => {
     const queryParam = {}
     forEach(
       filters, (value, field) => {
-        queryParam[field] = keys(pickBy(value, Boolean)).join(',')
+        const excluded = Boolean(value?.[EXCLUDE_FILTER_KEY])
+        const joined = keys(pickBy(omit(value, EXCLUDE_FILTER_KEY), Boolean)).join(',')
+        queryParam[field] = joined && excluded ? `!${joined}` : joined
       }
     )
 
@@ -647,6 +656,7 @@ const Search = props => {
                   <SearchFilters
                     open={showFilters}
                     loading={loadingFacets}
+                    allowExclude
                     resource={resource}
                     filters={result[resource]?.facets || {}}
                     onChange={onFiltersChange}

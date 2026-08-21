@@ -16,9 +16,9 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress';
 import { URIToParentParams, currentUserHasAccess, toCamelCase } from '../../common/utils'
-import { FACET_ORDER } from './ResultConstants';
+import { FACET_ORDER, EXCLUDE_FILTER_KEY } from './ResultConstants';
 
-const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions, nested, onSaveAsDefaultFilters, loading, repoDefaultFilters, propertyFilters, heightToSubtract, open}) => {
+const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions, nested, onSaveAsDefaultFilters, loading, repoDefaultFilters, propertyFilters, heightToSubtract, open, allowExclude}) => {
   const { t } = useTranslation()
   const [applied, setApplied] = React.useState({});
   const [count, setCount] = React.useState(0);
@@ -120,6 +120,8 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     return startCase(field)
   }
 
+  const computeCount = obj => flatten(values(obj).map(v => values(omit(v, EXCLUDE_FILTER_KEY)))).length
+
   const handleToggle = (field, value) => () => {
     const checked = !isApplied(field, value)
     let newApplied = {...cloneDeep(applied)}
@@ -133,9 +135,29 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
       newApplied[field] = omit(newApplied[field], value[0])
       newCount -= 1
     }
-    if(isEmpty(newApplied[field]))
+    if(isEmpty(omit(newApplied[field], EXCLUDE_FILTER_KEY)))
       newApplied = omit(newApplied, field)
     setCount(newCount)
+    setApplied(newApplied)
+  };
+
+  const isFieldExcluded = field => Boolean(get(applied[field], EXCLUDE_FILTER_KEY))
+  const isRowExcluded = (field, value) => isFieldExcluded(field) && isApplied(field, value)
+
+  const toggleFieldExclude = (field, value) => e => {
+    e.stopPropagation()
+    const isIncludeAction = isRowExcluded(field, value)
+    let newApplied = {...cloneDeep(applied)}
+    newApplied[field] = newApplied[field] || {}
+    if(isIncludeAction) {
+      newApplied[field] = omit(newApplied[field], EXCLUDE_FILTER_KEY)
+    } else {
+      newApplied[field][EXCLUDE_FILTER_KEY] = true
+      newApplied[field][value[0]] = true
+    }
+    if(isEmpty(omit(newApplied[field], EXCLUDE_FILTER_KEY)))
+      newApplied = omit(newApplied, field)
+    setCount(computeCount(newApplied))
     setApplied(newApplied)
   };
 
@@ -156,7 +178,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   const canResetToDefaultFilters = (!isEqual(applied, repoDefaultFilters) || !isEqual(appliedFilters, repoDefaultFilters)) && !isEmpty(repoDefaultFilters)
 
   React.useEffect(() => {
-    setCount(flatten(values(appliedFilters).map(v => values(v))).length)
+    setCount(computeCount(appliedFilters))
     setApplied(appliedFilters)
   }, [filters])
 
@@ -198,6 +220,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   const getFilterList = (fieldFilters, field) => {
     const shouldShowExpand = fieldFilters.length > 5
     const isExpanded = expanded.includes(field)
+    const excluded = allowExclude && isFieldExcluded(field)
     return (
       <ListItem key={field} sx={{padding: 0, flexDirection: 'column'}}>
         <List
@@ -213,20 +236,28 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
             !noSubheader &&
               <ListSubheader sx={{padding: '0 8px', fontWeight: 'bold', backgroundColor: bgColor, lineHeight: '30px'}}>
                 {formattedListSubheader(field)}
+                {
+                  excluded &&
+                    <span style={{color: '#d32f2f', fontWeight: 'normal', fontSize: '0.7rem', marginLeft: '6px'}}>
+                      ({t('common.excluded')})
+                    </span>
+                }
               </ListSubheader>
           }
           {
             map(getFieldFilters(field, fieldFilters), value => {
               const labelId = `checkbox-list-label-${value[0]}`;
               const key = `${field}-${value[0]}`
+              const rowExcluded = allowExclude && isRowExcluded(field, value)
 
               return (
-                <ListItemButton key={key} onClick={handleToggle(field, value)} sx={{p: '0 12px'}} disabled={value[3] === true || (disabledZero && value[1] === 0)}>
+                <ListItemButton key={key} onClick={handleToggle(field, value)} sx={{p: '0 12px', ...(allowExclude ? {'&:hover .filter-exclude-toggle': {opacity: 1}} : {})}} disabled={value[3] === true || (disabledZero && value[1] === 0)}>
                   <ListItemIcon sx={{minWidth: '25px'}}>
                     <Checkbox
                       size="small"
                       edge="start"
                       checked={isApplied(field, value)}
+                      color={rowExcluded ? 'error' : 'primary'}
                       tabIndex={-1}
                       disableRipple
                       slotProps={{ input: { 'aria-labelledby': labelId } }}
@@ -248,6 +279,27 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                       </span>
                     }
                     slotProps={{primary: {style: {fontSize: '0.875rem'}}}} style={{margin: 0}} />
+                  {
+                    allowExclude &&
+                      <Button
+                        className='filter-exclude-toggle'
+                        size='small'
+                        onClick={toggleFieldExclude(field, value)}
+                        sx={{
+                          opacity: 0,
+                          transition: 'opacity 0.1s',
+                          textTransform: 'none',
+                          minWidth: 'auto',
+                          lineHeight: 1,
+                          padding: '2px 6px',
+                          fontSize: '0.65rem',
+                          marginRight: '4px',
+                        }}
+                        color={rowExcluded ? 'primary' : 'error'}
+                      >
+                        {rowExcluded ? t('common.include') : t('common.exclude')}
+                      </Button>
+                  }
                   <span style={{fontSize: '0.7rem'}}>{value[1].toLocaleString()}</span>
                 </ListItemButton>
               );
