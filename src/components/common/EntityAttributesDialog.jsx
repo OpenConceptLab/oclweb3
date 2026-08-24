@@ -18,7 +18,7 @@ import { formatWebsiteLink, formatDate, formatDateTime } from '../../common/util
 const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
   const { t } = useTranslation()
   const getValue = (field, info) => {
-    let value = get(entity, field)
+    let value = info?.value || get(entity, field)
     if(value) {
       if(info.type === 'datetime')
         return moment(value).format('lll')

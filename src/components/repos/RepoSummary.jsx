@@ -326,7 +326,7 @@ const RepoSummary = ({ repo, summary, show, onShow }) => {
           name: {label: t('common.name')},
           full_name: {label: t('common.full_name')},
           external_id: {label: t('common.external_id')},
-          repo_type: {label: t('repo.repo_type')},
+          repo_type: {label: t('repo.repo_type'), value: repo?.repo_type || repo?.source_type || repo?.collection_type || ''},
           description: {label: t('common.description')},
           canonical_url: {label: t('url_registry.canonical_url')},
           locales: {label: t('repo.locales'), type: 'locales-list'},
