@@ -282,11 +282,9 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
                                   <div className='col-xs-10 padding-left-0' style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
                                     {
                                       version.update_comment &&
-                                        <Button variant='text' color='primary' href={`#${version.version_url}`} sx={{margin: 0, padding: 0, fontSize: '12px', textTransform: 'none', minWidth: 'auto'}}>
-                                          <Typography sx={{fontSize: '16px'}} component="div">
-                                            {version.update_comment}
-                                          </Typography>
-                                        </Button>
+                                        <Typography sx={{fontSize: '16px'}} component="div">
+                                          {version.update_comment}
+                                        </Typography>
                                     }
                                     <Typography
                                       component='span'
