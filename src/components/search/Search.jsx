@@ -192,7 +192,7 @@ const Search = props => {
       _orderBy = sortDesc
       _order = 'desc'
     } else if(!value) {
-      _orderBy = _resource === 'users' ? 'username' : (props.resource === 'repos' ? '' : 'id')
+      _orderBy = _resource === 'users' ? 'username' : ''
       _order = 'asc'
     }
     let _fetch = mustFetch || false
@@ -291,7 +291,7 @@ const Search = props => {
       else
         params.sortAsc = _orderBy
     } else if(!_input) {
-      params.sortAsc = props.resource === 'repos' ? '' : 'id'
+      params.sortAsc = ''
     }
     if(isMatchOp)
       params['$match'] = true
