@@ -250,7 +250,7 @@ class ConceptForm extends FormComponent  {
       this.fetchConceptToCreate()
     if(!this.props.edit) {
       const newState = {...this.state}
-      newState.fields.names[0].locale = this.props.source.default_locale
+      newState.fields.names[0].locale.value = this.props.source.default_locale
       this.setState(newState)
     }
     else
