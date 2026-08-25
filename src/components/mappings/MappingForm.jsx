@@ -22,6 +22,11 @@ import CloseIconButton from '../common/CloseIconButton';
 import Button from '../common/Button'
 
 const ANCHOR_UNDERLINE_STYLES = {textDecoration: 'underline', cursor: 'pointer'}
+const CONCEPT_REF_ERROR = 'Provide either a Concept URL, or both Concept Code and Concept Name.'
+const OPTIONAL_BLANK_FIELDS = [
+  'id', 'external_id', 'from_concept_url', 'from_concept_code', 'from_concept_name', 'from_source_url', 'from_source_version',
+  'to_concept_url', 'to_concept_code', 'to_concept_name', 'to_source_url', 'to_source_version'
+]
 
 class MappingForm extends FormComponent {
   static contextType = OperationsContext;
@@ -31,6 +36,7 @@ class MappingForm extends FormComponent {
 
     const mandatoryFieldStruct = this.getMandatoryFieldStruct()
     const fieldStruct = this.getFieldStruct()
+    const autoAssignedId = Boolean(props.source?.autoid_mapping_mnemonic)
 
     this.state = {
       manualMnemonic: false,
@@ -38,7 +44,7 @@ class MappingForm extends FormComponent {
       mapTypes: [],
       parent: null,
       fields: {
-        id: {...mandatoryFieldStruct, validators: [required(), matchPattern(ID_REGEX)]},
+        id: {...mandatoryFieldStruct, validators: autoAssignedId ? [matchPattern(ID_REGEX)] : [required(), matchPattern(ID_REGEX)]},
         map_type: {...mandatoryFieldStruct},
         external_id: {...fieldStruct},
         from_concept_url: {...fieldStruct},
@@ -209,6 +215,26 @@ class MappingForm extends FormComponent {
     this.setFieldValue(id, item?.id || '', true)
   }
 
+  isConceptRefValid = prefix => {
+    const { fields } = this.state
+    const url = fields[`${prefix}_concept_url`].value
+    const code = fields[`${prefix}_concept_code`].value
+    const name = fields[`${prefix}_concept_name`].value
+    return Boolean(url) || Boolean(code && name)
+  }
+
+  setConceptRefErrors = () => {
+    const fromValid = this.isConceptRefValid('from')
+    const toValid = this.isConceptRefValid('to')
+    this.setState(state => {
+      const newState = {...state, fields: {...state.fields}}
+      newState.fields.from_concept_url = {...newState.fields.from_concept_url, errors: fromValid ? [] : [CONCEPT_REF_ERROR]}
+      newState.fields.to_concept_url = {...newState.fields.to_concept_url, errors: toValid ? [] : [CONCEPT_REF_ERROR]}
+      return newState
+    })
+    return fromValid && toValid
+  }
+
   onSubmit = event => {
     event.preventDefault();
     event.stopPropagation();
@@ -217,14 +243,16 @@ class MappingForm extends FormComponent {
     const { edit } = this.props
 
     const isValid = this.setAllFieldsErrors()
+    const isConceptRefValid = this.setConceptRefErrors()
 
-    if(isValid) {
+    if(isValid && isConceptRefValid) {
       const payload = this.getValues()
       payload.extras = arrayToObject(fields.extras)
       if(edit)
         payload.update_comment = fields.comment.value
       if(!payload.sort_weight)
         delete payload.sort_weight
+      OPTIONAL_BLANK_FIELDS.forEach(field => { if(!payload[field]) delete payload[field] })
 
       let service = APIService.new().overrideURL(this.props.source.url).appendToUrl('mappings/')
       service = edit ? service.appendToUrl(this.state.fields.id.value + '/').put(payload) : service.post(payload)
@@ -255,8 +283,13 @@ class MappingForm extends FormComponent {
   toggleManualMnemonic = () => {
     const newManualMnemonic = !this.state.manualMnemonic
     const newState = {...this.state}
-    if(!newManualMnemonic)
-      newState.fields.id = ''
+    const autoAssignedId = Boolean(this.props.source?.autoid_mapping_mnemonic) && !newManualMnemonic
+    newState.fields.id = {
+      ...newState.fields.id,
+      value: newManualMnemonic ? newState.fields.id.value : '',
+      validators: autoAssignedId ? [matchPattern(ID_REGEX)] : [required(), matchPattern(ID_REGEX)],
+      errors: []
+    }
     newState.manualMnemonic = newManualMnemonic
     this.setState(newState)
   }
@@ -264,8 +297,7 @@ class MappingForm extends FormComponent {
   toggleManualExternalId = () => {
     const newManualExternalId = !this.state.manualExternalId
     const newState = {...this.state}
-    if(!newManualExternalId)
-      newState.fields.external_id = ''
+    newState.fields.external_id = {...newState.fields.external_id, value: newManualExternalId ? newState.fields.external_id.value : ''}
     newState.manualExternalId = newManualExternalId
     this.setState(newState)
   }
@@ -402,6 +434,8 @@ class MappingForm extends FormComponent {
               fullWidth
               onChange={this.onTextFieldChange}
               value={fields.from_concept_url.value}
+              error={Boolean(fields.from_concept_url.errors[0])}
+              helperText={fields.from_concept_url.errors[0]}
             />
           </div>
           <div className='col-xs-12 padding-0' style={{marginTop: '16px', width: '100%'}}>
@@ -466,6 +500,8 @@ class MappingForm extends FormComponent {
               fullWidth
               onChange={this.onTextFieldChange}
               value={fields.to_concept_url.value}
+              error={Boolean(fields.to_concept_url.errors[0])}
+              helperText={fields.to_concept_url.errors[0]}
             />
           </div>
           <div className='col-xs-12 padding-0' style={{marginTop: '16px', width: '100%'}}>
