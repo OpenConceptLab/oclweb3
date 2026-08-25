@@ -156,7 +156,8 @@
     "copy_standard_checksum": "Copy Standard Checksum",
     "copy_smart_checksum": "Copy Smart Checksum",
     "committed": "committed",
-    "results": "Results"
+    "results": "Results",
+    "click_here": "click here"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -231,6 +232,8 @@
       "description": "Description",
       "type": "Type",
       "locale_preferred": "Preferred",
+      "id_auto_assign": "Concept ID will be auto-assigned",
+      "id_auto_assign_override": "to override with manual entry",
       "concept_details": {
         "header": "Concept details"
       },
@@ -289,6 +292,7 @@
     "to_concept_url": "Target Concept URL",
     "to_concept_name": "Target Concept Name",
     "to_concept_code": "Target Concept Code",
+    "concept_ref_required": "Provide either a Concept URL, or both Concept Code and Concept Name.",
     "success_create": "Successfully created mapping",
     "success_update": "Successfully updated mapping",
     "error_create": "Couldn't create mapping",

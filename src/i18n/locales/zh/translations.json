@@ -110,7 +110,8 @@
     "generate_with_ai": "使用 AI 生成",
     "generic_error": "出了些问题。",
     "something_went_wrong": "出了些问题",
-    "no_results": "无结果"
+    "no_results": "无结果",
+    "click_here": "点击此处"
   },
   "errors": {
     "404": "很抱歉，未能找到您的页面。",
@@ -178,6 +179,8 @@
       "description": "描述",
       "type": "类型",
       "locale_preferred": "首选",
+      "id_auto_assign": "概念 ID 将自动分配",
+      "id_auto_assign_override": "以手动输入方式覆盖",
       "concept_details": {
         "header": "概念详情"
       },
@@ -230,6 +233,7 @@
     "to_concept_url": "目标概念 URL",
     "to_concept_name": "目标概念名称",
     "to_concept_code": "目标概念代码",
+    "concept_ref_required": "请提供概念 URL，或同时提供概念代码和概念名称。",
     "success_create": "映射关系创建成功",
     "success_update": "映射关系更新成功",
     "error_create": "无法创建映射关系",

@@ -22,7 +22,6 @@ import CloseIconButton from '../common/CloseIconButton';
 import Button from '../common/Button'
 
 const ANCHOR_UNDERLINE_STYLES = {textDecoration: 'underline', cursor: 'pointer'}
-const CONCEPT_REF_ERROR = 'Provide either a Concept URL, or both Concept Code and Concept Name.'
 const OPTIONAL_BLANK_FIELDS = [
   'id', 'external_id', 'from_concept_url', 'from_concept_code', 'from_concept_name', 'from_source_url', 'from_source_version',
   'to_concept_url', 'to_concept_code', 'to_concept_name', 'to_source_url', 'to_source_version'
@@ -226,10 +225,11 @@ class MappingForm extends FormComponent {
   setConceptRefErrors = () => {
     const fromValid = this.isConceptRefValid('from')
     const toValid = this.isConceptRefValid('to')
+    const message = this.props.t('mapping.concept_ref_required')
     this.setState(state => {
       const newState = {...state, fields: {...state.fields}}
-      newState.fields.from_concept_url = {...newState.fields.from_concept_url, errors: fromValid ? [] : [CONCEPT_REF_ERROR]}
-      newState.fields.to_concept_url = {...newState.fields.to_concept_url, errors: toValid ? [] : [CONCEPT_REF_ERROR]}
+      newState.fields.from_concept_url = {...newState.fields.from_concept_url, errors: fromValid ? [] : [message]}
+      newState.fields.to_concept_url = {...newState.fields.to_concept_url, errors: toValid ? [] : [message]}
       return newState
     })
     return fromValid && toValid

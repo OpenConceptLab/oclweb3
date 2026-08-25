@@ -438,7 +438,7 @@ class ConceptForm extends FormComponent  {
             {
               !edit && source?.autoid_concept_mnemonic && !manualMnemonic ?
                 <span style={{fontWeight: '500', borderLeft: '3px solid lightgray', padding: '10px 5px'}}>
-                  Concept ID will be auto-assigned (<a style={ANCHOR_UNDERLINE_STYLES} onClick={this.toggleManualMnemonic}>click here</a> to override with manual entry)
+                  {t('concept.form.id_auto_assign')} (<a style={ANCHOR_UNDERLINE_STYLES} onClick={this.toggleManualMnemonic}>{t('common.click_here')}</a> {t('concept.form.id_auto_assign_override')})
                 </span> :
                 <TextField
                   fullWidth

@@ -63,7 +63,8 @@
     "your_url_will_be": "Tu URL será",
     "company": "Empresa",
     "location": "Ubicación",
-    "generic_error": "Algo salió mal."
+    "generic_error": "Algo salió mal.",
+    "click_here": "haz clic aquí"
   },
   "errors": {
     "404": "Lo siento, no se pudo encontrar tu página.",
@@ -107,7 +108,11 @@
     "success_create": "Concepto creado correctamente",
     "success_update": "Concepto actualizado correctamente",
     "error_create": "No se pudo crear el concepto",
-    "error_update": "No se pudo actualizar el concepto"
+    "error_update": "No se pudo actualizar el concepto",
+    "form": {
+      "id_auto_assign": "El ID del concepto se asignará automáticamente",
+      "id_auto_assign_override": "para anular con entrada manual"
+    }
   },
   "mapping": {
     "mappings": "Mapeos",
@@ -121,6 +126,7 @@
     "to_concept_url": "URL del concepto de destino",
     "to_concept_name": "Nombre del concepto de destino",
     "to_concept_code": "Código del concepto de destino",
+    "concept_ref_required": "Proporcione una URL de concepto, o el código y el nombre del concepto.",
     "success_create": "Mapeo creado correctamente",
     "success_update": "Mapeo actualizado correctamente",
     "error_create": "No se pudo crear el mapeo",
