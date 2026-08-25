@@ -16,11 +16,13 @@ import {
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
+  ListSubheader,
   Stack,
   TextField,
   Typography
 } from '@mui/material';
 import {
+  Delete as DeleteIcon,
   Download as ExportIcon,
   Upload as UploadIcon
 } from '@mui/icons-material';
@@ -28,6 +30,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 
+import { formatDateTime } from '../../common/utils';
 import APIService from '../../services/APIService';
 import { OperationsContext } from '../app/LayoutContext';
 import { downloadBlob } from './VersionExportDialog';
@@ -41,7 +44,8 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
   const [description, setDescription] = React.useState('');
   const [file, setFile] = React.useState(null);
   const [busyKey, setBusyKey] = React.useState('');
-  const canUpload = Boolean(canEdit && !isHeadVersion(version));
+  const [deleteTarget, setDeleteTarget] = React.useState(null);
+  const canManage = Boolean(canEdit && !isHeadVersion(version));
 
   React.useEffect(() => {
     setExports(get(version, 'external_exports', []));
@@ -93,23 +97,53 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
       setName(file?.name)
   };
 
+  const deleteExport = externalExport => {
+    const url = externalExport.url || `${version.version_url}export/${externalExport.key}/`;
+    setBusyKey(externalExport.key);
+    APIService.new().overrideURL(url).delete().then(response => {
+      if(!response || [200, 204].includes(response?.status)) {
+        updateExports(exports.filter(item => item.key !== externalExport.key));
+        setAlert({ severity: 'success', message: t('repo.external_export_deleted') });
+      } else {
+        setAlert({ severity: 'error', message: formatError(get(response, 'data'), t('repo.could_not_delete_external_export')) });
+      }
+    })
+      .catch(() => setAlert({ severity: 'error', message: t('repo.could_not_delete_external_export') }))
+      .finally(() => {
+        setBusyKey('');
+        setDeleteTarget(null);
+      });
+  };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{t('repo.external_exports_title', { repo: version?.short_code || version?.id, version: getVersionLabel(version) })}</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent dividers sx={{ pt: 1 }}>
         {
           isEmpty(exports) ?
             <Alert severity="info">{t('repo.no_external_exports')}</Alert> :
-            <List dense>
-              {map(exports, externalExport => (
-                <ListItem key={externalExport.key} divider>
-                  <ListItemText primary={externalExport.key} secondary={externalExport.description || t('repo.no_description')} />
+          <List dense sx={{ pt: 0 }} subheader={<ListSubheader disableSticky disableGutters sx={{lineHeight: '28px'}}>{t('repo.existing_external_export')}</ListSubheader>}>
+              {map(exports, (externalExport, index) => (
+                <ListItem key={externalExport.key} divider={index < exports.length - 1} sx={{padding: 0}}>
+                  <ListItemText
+                    primary={externalExport.key}
+                    secondary={
+                      (externalExport.description || t('repo.no_description')) +
+                      (externalExport.created_at ? ` · ${t('common.created')} ${formatDateTime(externalExport.created_at)}` : '')
+                    }
+                  />
                   <ListItemSecondaryAction>
                     {busyKey === externalExport.key ? <CircularProgress size={18} /> : (
-                      <IconButton size="small" onClick={() => download(externalExport)}>
-                        <ExportIcon fontSize="inherit" />
-                      </IconButton>
+                      <>
+                        <IconButton size="small" color="primary" onClick={() => download(externalExport)}>
+                          <ExportIcon fontSize="inherit" />
+                        </IconButton>
+                        {canManage && (
+                          <IconButton size="small" color="error" onClick={() => setDeleteTarget(externalExport)}>
+                            <DeleteIcon fontSize="inherit" />
+                          </IconButton>
+                        )}
+                      </>
                     )}
                   </ListItemSecondaryAction>
                 </ListItem>
@@ -117,10 +151,10 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
             </List>
         }
         {
-          canUpload && (
-            <Box sx={{ mt: 2 }}>
-              <Divider sx={{ mb: 2 }} />
-              <Typography variant="subtitle2" sx={{ mb: 1 }}>{t('repo.upload_external_export')}</Typography>
+          canManage && (
+            <Box>
+              <Divider sx={{ mb: 1 }} />
+              <ListSubheader disableSticky disableGutters sx={{mb: 1, lineHeight: '28px'}}>{t('repo.upload_external_export')}</ListSubheader>
               <TextField fullWidth size="small" label={t('common.name')} value={name} onChange={event => setName(event.target.value)} sx={{ mb: 1 }} />
               <TextField fullWidth size="small" label={t('common.description')} value={description} onChange={event => setDescription(event.target.value)} sx={{ mb: 1 }} />
               <Stack direction="row" spacing={1} sx={{
@@ -140,8 +174,22 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>{t('common.close')}</Button>
-        {canUpload && <Button variant="contained" disabled={busyKey === 'upload'} onClick={upload}>{busyKey === 'upload' ? t('repo.uploading') : t('common.upload')}</Button>}
+        {canManage && <Button variant="contained" disabled={busyKey === 'upload'} onClick={upload}>{busyKey === 'upload' ? t('repo.uploading') : t('common.upload')}</Button>}
       </DialogActions>
+      <Dialog open={Boolean(deleteTarget)} onClose={() => setDeleteTarget(null)}>
+        <DialogTitle>{t('repo.confirm_delete_external_export_title')}</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            {t('repo.confirm_delete_external_export_message', { key: deleteTarget?.key })}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteTarget(null)}>{t('common.cancel')}</Button>
+          <Button color="error" variant="contained" disabled={busyKey === deleteTarget?.key} onClick={() => deleteExport(deleteTarget)}>
+            {t('common.delete_label')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Dialog>
   );
 };

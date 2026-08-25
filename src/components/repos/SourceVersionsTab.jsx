@@ -165,7 +165,7 @@ const SourceVersionsTab = ({
     APIService.new()
       .overrideURL(baseRepoURL)
       .appendToUrl('versions/')
-      .get(null, null, { verbose: true, includeSummary: true, limit: nextPageSize, page: nextPage })
+      .get(null, null, { verbose: true, includeSummary: true, limit: nextPageSize, page: nextPage, includeExternalExports: true })
       .then(response => {
         const _versions = Array.isArray(response?.data) ? response.data : [];
         setVersions(_versions);
