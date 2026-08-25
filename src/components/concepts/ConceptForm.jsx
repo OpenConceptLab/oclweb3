@@ -21,6 +21,9 @@ import AutocompleteGroupByRepoSummary from '../common/AutocompleteGroupByRepoSum
 import LocaleForm from './LocaleForm'
 import Breadcrumbs from '../common/Breadcrumbs'
 import CustomAttributesForm from '../common/CustomAttributesForm'
+import { required } from '../../common/validators';
+
+const ANCHOR_UNDERLINE_STYLES = {textDecoration: 'underline', cursor: 'pointer'}
 
 const TOP_LEVEL_PROMPT_EXCLUSIONS = [
   'uuid', 'type', 'url', 'version', 'version_url', 'versions_url', 'versioned_object_id', 'created_on',
@@ -45,6 +48,7 @@ class ConceptForm extends FormComponent  {
     super(props);
     const mandatoryFieldStruct = this.getMandatoryFieldStruct()
     const fieldStruct = this.getFieldStruct()
+    const autoAssignedId = Boolean(props.source?.autoid_concept_mnemonic)
     this.state = {
       locales: [],
       conceptClasses: [],
@@ -59,7 +63,7 @@ class ConceptForm extends FormComponent  {
       manualExternalId: false,
       generatingChangeComment: false,
       fields: {
-        id: {...mandatoryFieldStruct},
+        id: {...mandatoryFieldStruct, validators: autoAssignedId ? [] : [required()]},
         concept_class: {...mandatoryFieldStruct},
         datatype: {...mandatoryFieldStruct},
         external_id: {...fieldStruct},
@@ -347,6 +351,20 @@ class ConceptForm extends FormComponent  {
   }
 
 
+  toggleManualMnemonic = () => {
+    const newManualMnemonic = !this.state.manualMnemonic
+    const newState = {...this.state}
+    const autoAssignedId = Boolean(this.props.source?.autoid_concept_mnemonic) && !newManualMnemonic
+    newState.fields.id = {
+      ...newState.fields.id,
+      value: newManualMnemonic ? newState.fields.id.value : '',
+      validators: autoAssignedId ? [] : [required()],
+      errors: []
+    }
+    newState.manualMnemonic = newManualMnemonic
+    this.setState(newState)
+  }
+
   onChange = (id, value) => this.setFieldValue(id, value)
 
   handleSubmit = event => {
@@ -385,8 +403,8 @@ class ConceptForm extends FormComponent  {
 
 
   render() {
-    const { t, edit, repoSummary, repo, concept, onClose } = this.props
-    const { conceptClasses, datatypes, locales, nameTypes, descriptionTypes, fields, generatingChangeComment } = this.state
+    const { t, edit, repoSummary, repo, concept, onClose, source } = this.props
+    const { conceptClasses, datatypes, locales, nameTypes, descriptionTypes, fields, generatingChangeComment, manualMnemonic } = this.state
     const aiAssistantConfigured = Boolean(this.getAIAssistantURL())
     const canSeeGenerateComment = edit && (isSuperuser() || hasAuthGroup(getCurrentUser(), 'core_user'))
     const hasConceptChanges = canSeeGenerateComment && this.hasConceptChanges()
@@ -417,19 +435,25 @@ class ConceptForm extends FormComponent  {
 
         <CardSection title={t('concept.form.concept_details.header')} sx={{p: 2, marginTop: 0}}>
           <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>
-            <TextField
-              fullWidth
-              id='id'
-              label={t('concept.form.id')}
-              variant='outlined'
-              required
-              size='small'
-              onChange={event => this.setFieldValue('id', event.target.value || '')}
-              value={fields.id.value}
-              disabled={edit}
-              error={Boolean(fields.id.errors.length)}
-              helperText={fields.id.errors[0]}
-            />
+            {
+              !edit && source?.autoid_concept_mnemonic && !manualMnemonic ?
+                <span style={{fontWeight: '500', borderLeft: '3px solid lightgray', padding: '10px 5px'}}>
+                  Concept ID will be auto-assigned (<a style={ANCHOR_UNDERLINE_STYLES} onClick={this.toggleManualMnemonic}>click here</a> to override with manual entry)
+                </span> :
+                <TextField
+                  fullWidth
+                  id='id'
+                  label={t('concept.form.id')}
+                  variant='outlined'
+                  required={!source?.autoid_concept_mnemonic || manualMnemonic}
+                  size='small'
+                  onChange={event => this.setFieldValue('id', event.target.value || '')}
+                  value={fields.id.value}
+                  disabled={edit}
+                  error={Boolean(fields.id.errors.length)}
+                  helperText={fields.id.errors[0]}
+                />
+            }
           </div>
           <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
             <div className='col-xs-6' style={{padding: '0 8px 0 0'}}>
