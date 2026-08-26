@@ -331,6 +331,10 @@ const Search = props => {
       params.verbose = true
     if(__resource === 'references')
       params.includeResolvedRepoVersions = true
+    if(!params.sortAsc)
+      delete params.sortAsc
+    if(!params.sortDesc)
+      delete params.sortDesc
     APIService.new().overrideURL(getURL(__resource)).get(null, null, params).then(response => {
       if(response?.detail) {
         setAlert({message: response.detail, severity: 'error', duration: 5000})
