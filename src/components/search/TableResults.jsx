@@ -261,6 +261,7 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
   );
 }
 const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns, extraColumns, properties, propertyFilters, loading, hierarchical, baseURL, onRowsLoaded}) => {
+  const isSourceNested = baseURL?.includes('/sources/') && nested
   const [refTranslation, setRefTranslation] = React.useState(true)
   const rows = results?.results || []
   const getValue = (row, column) => {
@@ -277,7 +278,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
   };
   let columns = filter(
     ALL_COLUMNS[resource] || [],
-    column => nested ? column.nested !== false : column.global !== false
+    column => nested ? (!isSourceNested || column.nested !== false) : column.global !== false
   );
   if(extraColumns?.length)
     columns = [...columns, ...extraColumns]

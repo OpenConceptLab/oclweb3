@@ -5,7 +5,7 @@ import Fade from '@mui/material/Fade';
 import Skeleton from '@mui/material/Skeleton';
 
 import APIService from '../../services/APIService';
-import { toParentURI, dropVersion } from '../../common/utils'
+import { toParentURI, dropVersion, isSameResourceNavigation, getResourceIdFromUrl } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
@@ -23,6 +23,7 @@ const ConceptHome = props => {
   const location = useLocation()
   const history = useHistory()
   const isInitialMount = React.useRef(true);
+  const prevLocationRef = React.useRef({pathname: location.pathname, search: location.search})
 
   const [concept, setConcept] = React.useState(props.concept || {})
   const [versions, setVersions] = React.useState([])
@@ -65,9 +66,10 @@ const ConceptHome = props => {
   React.useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
-    } else {
+    } else if (!isSameResourceNavigation(prevLocationRef.current, location)) {
       props?.onClose()
     }
+    prevLocationRef.current = {pathname: location.pathname, search: location.search}
   }, [location])
 
   const fetchRepo = _concept => props?.repo?.id ? setRepo(props.repo) : APIService.new().overrideURL(getRepoURL(_concept)).get().then(response => setRepo(response.data))
@@ -86,8 +88,9 @@ const ConceptHome = props => {
     let _concept = props.concept?.id ? props.concept : concept
     let url = _concept?.version_url || _concept?.url || props.url
     const parentURL = getRepoURL()
-    if(parentURL && _concept?.id)
-      url = `${parentURL}concepts/${encodeURIComponent(_concept.id)}/`
+    const conceptId = props.concept?.id || getResourceIdFromUrl(props.url, 'concepts') || _concept?.id
+    if(parentURL && conceptId)
+      url = `${parentURL}concepts/${encodeURIComponent(conceptId)}/`
 
     return APIService.new().overrideURL(encodeURI(url))
   }

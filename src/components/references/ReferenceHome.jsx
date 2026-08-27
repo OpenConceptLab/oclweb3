@@ -13,7 +13,7 @@ import DeleteReferencesDialog from '../collections/DeleteReferencesDialog'
 
 const ReferenceHome = props => {
   const { t } = useTranslation()
-  const { reference } = props
+  const [reference, setReference] = React.useState(props.reference || {})
   const [loading, setLoading] = React.useState(false)
   const [deleteDialog, setDeleteDialog] = React.useState(false)
   const [deleting, setDeleting] = React.useState(false)
@@ -39,6 +39,19 @@ const ReferenceHome = props => {
     setConceptHeaders(false)
     setMappingHeaders(false)
   }
+
+  React.useEffect(() => {
+    if(props.reference?.expression) {
+      setReference(props.reference)
+      return
+    }
+    if(!props.url)
+      return
+    APIService.new().overrideURL(props.url).get().then(response => {
+      if(response?.data)
+        setReference(response.data)
+    })
+  }, [props.reference?.id, props.url])
 
   React.useEffect(() => {
     activeReferenceIdRef.current = reference?.id

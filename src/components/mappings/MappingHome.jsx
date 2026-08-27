@@ -5,7 +5,7 @@ import { useLocation, useHistory } from 'react-router-dom'
 import Fade from '@mui/material/Fade';
 
 import APIService from '../../services/APIService';
-import { toParentURI, dropVersion } from '../../common/utils'
+import { toParentURI, dropVersion, isSameResourceNavigation, getResourceIdFromUrl } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
@@ -22,6 +22,7 @@ const MappingHome = props => {
   const location = useLocation()
   const history = useHistory()
   const isInitialMount = React.useRef(true);
+  const prevLocationRef = React.useRef({pathname: location.pathname, search: location.search})
 
   const [mapping, setMapping] = React.useState(props.mapping || {})
   const [versions, setVersions] = React.useState([])
@@ -58,9 +59,10 @@ const MappingHome = props => {
   React.useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
-    } else {
+    } else if (!isSameResourceNavigation(prevLocationRef.current, location)) {
       props?.onClose()
     }
+    prevLocationRef.current = {pathname: location.pathname, search: location.search}
   }, [location])
 
   const fetchRepo = _mapping => props?.repo?.id ? setRepo(props.repo) : APIService.new().overrideURL(getRepoURL(_mapping)).get().then(response => setRepo(response.data))
@@ -79,8 +81,9 @@ const MappingHome = props => {
     let _mapping = props.mapping?.id ? props.mapping : mapping
     let url = _mapping?.version_url || _mapping.url || props.url
     const parentURL = getRepoURL()
-    if(parentURL && _mapping?.id)
-      url = `${parentURL}mappings/${encodeURIComponent(_mapping.id)}/`
+    const mappingId = props.mapping?.id || getResourceIdFromUrl(props.url, 'mappings') || _mapping?.id
+    if(parentURL && mappingId)
+      url = `${parentURL}mappings/${encodeURIComponent(mappingId)}/`
 
     return APIService.new().overrideURL(encodeURI(url))
   }
