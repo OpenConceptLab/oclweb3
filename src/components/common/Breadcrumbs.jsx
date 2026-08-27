@@ -1,4 +1,6 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import Tooltip from '@mui/material/Tooltip';
 import RepoIcon from '../repos/RepoIcon';
 import ConceptIcon from '../concepts/ConceptIcon';
 import MappingIcon from '../mappings/MappingIcon';
@@ -8,10 +10,26 @@ import RepoVersionButton from '../repos/RepoVersionButton'
 import RepoTooltip from '../repos/RepoTooltip'
 import Box from '@mui/material/Box';
 import OwnerButton from './OwnerButton'
+import { OperationsContext } from '../app/LayoutContext';
+import { copyToClipboard } from '../../common/utils'
 
-const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, concept, mapping, reference, noIcons, color, fontSize, size, ownerURL, nested}) => {
+const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, concept, mapping, reference, noIcons, color, fontSize, size, ownerURL, nested, trailing}) => {
+  const { t } = useTranslation()
+  const { setAlert } = React.useContext(OperationsContext);
   const iconProps = {color: 'secondary', style: {marginRight: '8px', width: '0.8em'}}
   const hideParents = Boolean((concept?.id || mapping?.id || reference?.id) && nested)
+  const idSpanStyle = {
+    maxWidth: hideParents ? 'calc(100% - 125px)' : '125px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    fontSize: '14px',
+    whiteSpace: 'nowrap',
+    cursor: 'copy',
+  }
+  const onCopyId = id => {
+    copyToClipboard(id)
+    setAlert({message: t('common.copied_to_clipboard'), severity: 'success', duration: 1000})
+  }
   return (
     <Box className='col-xs-12 padding-0' sx={{display: 'flex', alignItems: 'center', color: color, fontSize: fontSize}}>
       {
@@ -92,15 +110,11 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, concept, map
                   color={concept.retired? 'error': 'primary'}
                 />
             }
-            <span className='searchable' style={{
-              maxWidth: hideParents ? 'calc(100% - 125px)' : '125px',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              fontSize: '14px',
-              whiteSpace: 'nowrap',
-            }}>
-              {concept.id}
-            </span>
+            <Tooltip title={t('common.click_to_copy') + ' ' + concept.id}>
+              <span className='searchable' style={idSpanStyle} onClick={() => onCopyId(concept.id)}>
+                {concept.id}
+              </span>
+            </Tooltip>
           </React.Fragment>
       }
       {
@@ -115,15 +129,11 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, concept, map
                   color={mapping.retired? 'error': 'primary'}
                 />
             }
-            <span className='searchable' style={{
-              maxWidth: hideParents ? 'calc(100% - 125px)' : '125px',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              fontSize: '14px',
-              whiteSpace: 'nowrap',
-            }}>
-              {mapping.id}
-            </span>
+            <Tooltip title={t('common.click_to_copy') + ' ' + mapping.id}>
+              <span className='searchable' style={idSpanStyle} onClick={() => onCopyId(mapping.id)}>
+                {mapping.id}
+              </span>
+            </Tooltip>
           </React.Fragment>
       }
       {
@@ -137,16 +147,18 @@ const Breadcrumbs = ({owner, ownerType, repo, repoVersion, repoURL, concept, map
                   color={reference.include ? 'primary' : 'error'}
                 />
             }
-            <span className='searchable' style={{
-              maxWidth: hideParents ? 'calc(100% - 125px)' : '125px',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              fontSize: '14px',
-              whiteSpace: 'nowrap',
-            }}>
-              {reference.id}
-            </span>
+            <Tooltip title={t('common.click_to_copy') + ' ' + reference.id}>
+              <span className='searchable' style={idSpanStyle} onClick={() => onCopyId(reference.id)}>
+                {reference.id}
+              </span>
+            </Tooltip>
           </React.Fragment>
+      }
+      {
+        trailing &&
+          <span style={{flexShrink: 0, marginLeft: '8px'}}>
+            {trailing}
+          </span>
       }
     </Box>
   )

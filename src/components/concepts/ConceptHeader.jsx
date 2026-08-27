@@ -7,15 +7,16 @@ import Button from '@mui/material/Button';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import AddIcon from '@mui/icons-material/PlaylistAddOutlined';
 import RepeatIcon from '@mui/icons-material/Repeat';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import CloseIconButton from '../common/CloseIconButton';
-import { toOwnerURI, currentUserHasAccess } from '../../common/utils';
+import { toOwnerURI, toFullURL, currentUserHasAccess } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
 import { BLACK } from '../../common/colors'
 import ConceptManagementList from './ConceptManagementList'
 import AddToCollectionDialog from '../common/AddToCollectionDialog'
 import Retired from '../common/Retired'
 
-const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCreateSimilar, nested, loading}) => {
+const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCreateSimilar, nested, loading, isInCollection}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -57,6 +58,25 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
               repoURL={repoURL}
               concept={concept}
               nested={nested}
+              trailing={nested && isInCollection && concept?.url && (
+                <Button
+                  endIcon={<OpenInNewIcon fontSize='inherit' />}
+                  variant='text'
+                  size='small'
+                  color='primary'
+                  sx={{textTransform: 'none', whiteSpace: 'nowrap'}}
+                  href={`#/${concept.url}`}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  onClick={event => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    window.open(toFullURL(concept.url), '_blank', 'noopener,noreferrer')
+                  }}
+                >
+                  {t('common.go_to_source')}
+                </Button>
+              )}
             />
           }
         </span>

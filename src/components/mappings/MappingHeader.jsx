@@ -3,13 +3,14 @@ import has from 'lodash/has'
 import { useTranslation } from 'react-i18next';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import RepeatIcon from '@mui/icons-material/Repeat';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import Button from '@mui/material/Button';
 import CloseIconButton from '../common/CloseIconButton';
-import { toOwnerURI, currentUserHasAccess } from '../../common/utils';
+import { toOwnerURI, toFullURL, currentUserHasAccess } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
 import MappingManagementList from './MappingManagementList'
 
-const MappingHeader = ({mapping, onClose, repoURL, nested, onEdit, onRetire, onCreateSimilar, repo}) => {
+const MappingHeader = ({mapping, onClose, repoURL, nested, onEdit, onRetire, onCreateSimilar, repo, isInCollection}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -47,6 +48,25 @@ const MappingHeader = ({mapping, onClose, repoURL, nested, onEdit, onRetire, onC
             repoURL={repoURL}
             mapping={mapping}
             nested={nested}
+            trailing={nested && isInCollection && mapping?.url && (
+              <Button
+                endIcon={<OpenInNewIcon fontSize='inherit' />}
+                variant='text'
+                size='small'
+                color='primary'
+                sx={{textTransform: 'none', whiteSpace: 'nowrap'}}
+                href={`#/${mapping.url}`}
+                target='_blank'
+                rel='noopener noreferrer'
+                onClick={event => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  window.open(toFullURL(mapping.url), '_blank', 'noopener,noreferrer')
+                }}
+              >
+                {t('common.go_to_source')}
+              </Button>
+            )}
           />
         </span>
         <span>
