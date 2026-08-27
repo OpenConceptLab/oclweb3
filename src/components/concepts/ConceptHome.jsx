@@ -88,7 +88,7 @@ const ConceptHome = props => {
     let _concept = props.concept?.id ? props.concept : concept
     let url = _concept?.version_url || _concept?.url || props.url
     const parentURL = getRepoURL()
-    const conceptId = props.concept?.id || getResourceIdFromUrl(props.url, 'concepts') || _concept?.id
+    const conceptId = getResourceIdFromUrl(props.url, 'concepts') || props.concept?.id || _concept?.id
     if(parentURL && conceptId)
       url = `${parentURL}concepts/${encodeURIComponent(conceptId)}/`
 

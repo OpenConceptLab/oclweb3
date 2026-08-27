@@ -81,7 +81,7 @@ const MappingHome = props => {
     let _mapping = props.mapping?.id ? props.mapping : mapping
     let url = _mapping?.version_url || _mapping.url || props.url
     const parentURL = getRepoURL()
-    const mappingId = props.mapping?.id || getResourceIdFromUrl(props.url, 'mappings') || _mapping?.id
+    const mappingId = getResourceIdFromUrl(props.url, 'mappings') || props.mapping?.id || _mapping?.id
     if(parentURL && mappingId)
       url = `${parentURL}mappings/${encodeURIComponent(mappingId)}/`
 

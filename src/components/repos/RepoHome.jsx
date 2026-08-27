@@ -9,7 +9,7 @@ import find from 'lodash/find'
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add'
 import APIService from '../../services/APIService';
-import { dropVersion, toParentURI, toOwnerURI, currentUserHasAccess } from '../../common/utils';
+import { dropVersion, toParentURI, toOwnerURI, currentUserHasAccess, isSameResourceNavigation } from '../../common/utils';
 import { WHITE } from '../../common/colors';
 
 import { OperationsContext } from '../app/LayoutContext';
@@ -76,6 +76,8 @@ const RepoHome = () => {
   const [expansions, setExpansions] = React.useState([])
   const [expansionsLoading, setExpansionsLoading] = React.useState(false)
   const [selectedExpansion, setSelectedExpansion] = React.useState(false)
+  const isInitialMount = React.useRef(true)
+  const prevLocationRef = React.useRef(location)
 
   const TAB_KEYS = tabs.map(tab => tab.key)
   const findTab = () => TAB_KEYS.includes(params?.tab || params?.repoVersion) ? params.tab || params.repoVersion : 'concepts'
@@ -182,16 +184,21 @@ const RepoHome = () => {
   }
 
   React.useEffect(() => {
-      if(toParentURI(location.pathname) === (repo?.version_url || repo.url)) {
-          if(location.pathname.includes('/concepts'))
-              setTab('concepts')
-        if(location.pathname.includes('/mappings'))
-            setTab('mappings')
-        if(location.pathname.includes('/versions'))
-          setTab('versions')
-        if(location.pathname.includes('/references'))
-          setTab('references')
-      }
+    const skipRefetch = !isInitialMount.current && isSameResourceNavigation(prevLocationRef.current, location)
+    isInitialMount.current = false
+    prevLocationRef.current = location
+    if(skipRefetch)
+      return
+    if(toParentURI(location.pathname) === (repo?.version_url || repo.url)) {
+        if(location.pathname.includes('/concepts'))
+            setTab('concepts')
+      if(location.pathname.includes('/mappings'))
+          setTab('mappings')
+      if(location.pathname.includes('/versions'))
+        setTab('versions')
+      if(location.pathname.includes('/references'))
+        setTab('references')
+    }
     fetchRepo()
     fetchVersions()
   }, [location.pathname])

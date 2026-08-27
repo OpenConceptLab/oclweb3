@@ -2,7 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import APIService from '../../services/APIService';
-import { dropVersion } from '../../common/utils'
+import { dropVersion, getResourceIdFromUrl } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import ReferenceHeader from './ReferenceHeader'
@@ -41,7 +41,8 @@ const ReferenceHome = props => {
   }
 
   React.useEffect(() => {
-    if(props.reference?.expression) {
+    const urlId = getResourceIdFromUrl(props.url, 'references')
+    if(props.reference?.expression && (!urlId || String(props.reference.id) === String(urlId))) {
       setReference(props.reference)
       return
     }
