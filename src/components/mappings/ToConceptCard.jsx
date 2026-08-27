@@ -27,7 +27,7 @@ const ToConceptCard = ({ mapping }) => {
           hideType
           basicTooltip={mapping?.to_source_name ? false : repoURL}
           filled={mapping?.to_source_name}
-          repo={{url: repoURL, id: repoURL}}
+          repo={{url: mapping?.to_source_url, id: mapping?.to_source_name || mapping?.to_source_url || repoURL, owner: mapping?.to_source_owner, owner_type: mapping?.to_source_owner_type, name: mapping?.to_source_name}}
           noLink={!mapping?.to_source_name}
           sx={{
             '.entity-id': {
@@ -51,7 +51,7 @@ const ToConceptCard = ({ mapping }) => {
           noTooltip
           noLink={!mapping?.to_concept_name_resolved}
           filled={Boolean(mapping?.to_concept_name_resolved)}
-          concept={{url: mapping.to_concept_url, id: mapping.to_concept_code, name: mapping.to_concept_name_resolved || mapping.to_concept_name, type: 'Concept'}}
+          concept={{url: mapping.to_concept_url, id: mapping.to_concept_code, name: mapping.to_concept_name_resolved || mapping.to_concept_name, display_name: mapping.to_concept_name_resolved || mapping.to_concept_name, type: 'Concept'}}
           sx={{
             '.entity-label': {
               marginTop: '2px',
