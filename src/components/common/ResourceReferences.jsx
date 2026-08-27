@@ -9,6 +9,8 @@ import Tooltip from '@mui/material/Tooltip'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { map } from 'lodash'
 
+import TagCountLabel from './TagCountLabel'
+
 const borderColor = 'rgba(0, 0, 0, 0.12)'
 
 const ResourceReferences = ({ references, resourceType }) => {
@@ -16,8 +18,8 @@ const ResourceReferences = ({ references, resourceType }) => {
   if (!references?.length) return null
   return (
     <Paper className='col-xs-12 padding-0' sx={{marginTop: '16px', boxShadow: 'none', border: '1px solid', borderColor: borderColor, borderRadius: '10px'}}>
-      <Typography component='span' sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold'}}>
-        <span>{t('reference.references')} ({references.length})</span>
+      <Typography component='span' sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between'}}>
+        <TagCountLabel label={t('reference.references')} count={references.length} />
         <Tooltip arrow title={t('reference.brought_in_by_tooltip', { resource: resourceType || 'resource' })}>
           <InfoOutlinedIcon fontSize='small' sx={{color: 'action.active', cursor: 'help'}} />
         </Tooltip>

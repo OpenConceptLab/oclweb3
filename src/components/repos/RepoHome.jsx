@@ -341,9 +341,11 @@ const RepoHome = () => {
   const getMappingURLFromMainURL = () => (isMappingURL && params.resource) ? getURL() + 'mappings/' + params.resource + '/' : false
   const getReferenceURLFromMainURL = () => (isReferenceURL && params.resource) ? getURL() + 'references/' + params.resource + '/' : false
   const resourceFallbackActive = Boolean(params.resource) && params.resource !== dismissedResource
-  const showConceptURL = ((showItem?.concept_class || resourceFallbackActive) && isConceptURL) ? showItem?.version_url || showItem?.url || getConceptURLFromMainURL() : false
-  const showMappingURL = ((showItem?.map_type || resourceFallbackActive) && isMappingURL) ? showItem?.version_url || showItem?.url || getMappingURLFromMainURL() : false
-  const showReferenceURL = ((showItem?.expression || resourceFallbackActive) && isReferenceURL) ? showItem?.uri || getReferenceURLFromMainURL() : false
+  // URL-named resource id wins over a stale showItem selected via list click
+  const showItemMatchesURLResource = !params.resource || String(showItem?.id) === String(params.resource)
+  const showConceptURL = ((showItem?.concept_class || resourceFallbackActive) && isConceptURL) ? (showItemMatchesURLResource && (showItem?.version_url || showItem?.url)) || getConceptURLFromMainURL() : false
+  const showMappingURL = ((showItem?.map_type || resourceFallbackActive) && isMappingURL) ? (showItemMatchesURLResource && (showItem?.version_url || showItem?.url)) || getMappingURLFromMainURL() : false
+  const showReferenceURL = ((showItem?.expression || resourceFallbackActive) && isReferenceURL) ? (showItemMatchesURLResource && showItem?.uri) || getReferenceURLFromMainURL() : false
   const isSplitView = conceptForm || mappingForm || showConceptURL || showMappingURL || showReferenceURL || versionForm
 
   const onVersionEditClick = () => isVersion && setVersionForm({edit: true, version: repo, expansions: []})

@@ -136,23 +136,26 @@ export const toParentURI = uri => uri.split('/').splice(0, 5).join('/') + '/';
 
 export const toOwnerURI = uri => uri && uri.split('/').splice(0, 3).join('/') + '/';
 
-// Extracts the trailing id from a `.../<resourceType>/<id>/` URL, e.g.
-// getResourceIdFromUrl('.../concepts/3/', 'concepts') -> '3'
+// Extracts the trailing id from a `.../<resourceType>/<id>/` URL
 export const getResourceIdFromUrl = (url, resourceType) => {
   const match = (url || '').replace(/\/$/, '').match(new RegExp(`/${resourceType}/([^/]+)$`))
   return match ? decodeURIComponent(match[1]) : undefined
 }
 
-// True when a location change is just swapping the trailing resource-id segment
-// (e.g. .../concepts/3 -> .../concepts/4) within the same listing/tab, as opposed
-// to navigating to a different tab, repo, version, or search (filters/sort/page).
+// True when only the trailing resource-id segment was added, removed, or swapped
 export const isSameResourceNavigation = (prevLocation, nextLocation) => {
   if(prevLocation.search !== nextLocation.search)
     return false
   const prevSegments = prevLocation.pathname.replace(/\/$/, '').split('/')
   const nextSegments = nextLocation.pathname.replace(/\/$/, '').split('/')
-  return prevSegments.length === nextSegments.length &&
-    prevSegments.slice(0, -1).join('/') === nextSegments.slice(0, -1).join('/')
+  const diff = nextSegments.length - prevSegments.length
+  if(diff === 0)
+    return prevSegments.slice(0, -1).join('/') === nextSegments.slice(0, -1).join('/')
+  if(diff === 1)
+    return prevSegments.join('/') === nextSegments.slice(0, -1).join('/')
+  if(diff === -1)
+    return nextSegments.join('/') === prevSegments.slice(0, -1).join('/')
+  return false
 }
 
 export const headFirst = versions => compact([find(versions, version => (version.version || version.id) === 'HEAD'), ...reject(versions, version => (version.version || version.id) === 'HEAD')]);
