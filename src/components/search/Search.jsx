@@ -670,6 +670,7 @@ const Search = props => {
                     onSaveAsDefaultFilters={props.onSaveAsDefaultFilters ? filters => props.onSaveAsDefaultFilters(getFacetQueryParam(filters)) : false}
                     repoDefaultFilters={getAppliedFacetFromQueryParam(props.repoDefaultFilters || {})}
                     propertyFilters={props.propertyFilters}
+                    propertyDefinition={props.propertyDefinition}
                     heightToSubtract={props.filtersHeightToSubtract || 175}
                   />
               }
