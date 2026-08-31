@@ -23,6 +23,8 @@ const ReferenceHome = props => {
   const [mappings, setMappings] = React.useState(false)
   const [mappingHeaders, setMappingHeaders] = React.useState(false)
   const activeReferenceIdRef = React.useRef(reference?.id)
+  const lastReferenceActionRef = React.useRef('url')
+  const prevReferenceSelectionRef = React.useRef({id: props.reference?.id, url: props.url})
   const { setAlert } = React.useContext(OperationsContext);
 
   const repoURL = props?.repo?.version_url || props?.repo?.url
@@ -40,15 +42,29 @@ const ReferenceHome = props => {
     setMappingHeaders(false)
   }
 
+  const getActiveReferenceId = () => {
+    if(props.reference?.id && lastReferenceActionRef.current === 'selection')
+      return props.reference.id
+    return getResourceIdFromUrl(props.url, 'references') || props.reference?.id || reference?.id
+  }
+
   React.useEffect(() => {
-    const urlId = getResourceIdFromUrl(props.url, 'references')
-    if(props.reference?.expression && (!urlId || String(props.reference.id) === String(urlId))) {
+    const prevSelection = prevReferenceSelectionRef.current
+    if(prevSelection.id !== props.reference?.id)
+      lastReferenceActionRef.current = 'selection'
+    else if(prevSelection.url !== props.url)
+      lastReferenceActionRef.current = 'url'
+    prevReferenceSelectionRef.current = {id: props.reference?.id, url: props.url}
+
+    if(props.reference?.expression && lastReferenceActionRef.current === 'selection') {
       setReference(props.reference)
       return
     }
-    if(!props.url)
+    const referenceId = getActiveReferenceId()
+    const url = lastReferenceActionRef.current === 'selection' ? (props.reference?.url || (referenceId && repoURL ? `${repoURL}references/${encodeURIComponent(referenceId)}/` : props.url)) : props.url
+    if(!url)
       return
-    APIService.new().overrideURL(props.url).get().then(response => {
+    APIService.new().overrideURL(url).get().then(response => {
       if(response?.data)
         setReference(response.data)
     })

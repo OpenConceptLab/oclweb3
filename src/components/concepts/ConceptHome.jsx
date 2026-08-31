@@ -24,6 +24,8 @@ const ConceptHome = props => {
   const history = useHistory()
   const isInitialMount = React.useRef(true);
   const prevLocationRef = React.useRef({pathname: location.pathname, search: location.search})
+  const lastConceptActionRef = React.useRef('url')
+  const prevConceptSelectionRef = React.useRef({id: props.concept?.id, url: props.url})
 
   const [concept, setConcept] = React.useState(props.concept || {})
   const [versions, setVersions] = React.useState([])
@@ -48,7 +50,20 @@ const ConceptHome = props => {
 
   const isInCollection = Boolean(props.repo?.type?.includes('Collection') || props.url?.includes('/collections/'))
 
+  const getActiveConceptId = () => {
+    if(props.concept?.id && lastConceptActionRef.current === 'selection')
+      return props.concept.id
+    return getResourceIdFromUrl(props.url, 'concepts') || props.concept?.id || concept?.id
+  }
+
   React.useEffect(() => {
+    const prevSelection = prevConceptSelectionRef.current
+    if(prevSelection.id !== props.concept?.id)
+      lastConceptActionRef.current = 'selection'
+    else if(prevSelection.url !== props.url)
+      lastConceptActionRef.current = 'url'
+    prevConceptSelectionRef.current = {id: props.concept?.id, url: props.url}
+
     setLoading(true)
     setConcept(props.concept || {})
     setVersions([])
@@ -88,7 +103,7 @@ const ConceptHome = props => {
     let _concept = props.concept?.id ? props.concept : concept
     let url = _concept?.version_url || _concept?.url || props.url
     const parentURL = getRepoURL()
-    const conceptId = getResourceIdFromUrl(props.url, 'concepts') || props.concept?.id || _concept?.id
+    const conceptId = getActiveConceptId()
     if(parentURL && conceptId)
       url = `${parentURL}concepts/${encodeURIComponent(conceptId)}/`
 

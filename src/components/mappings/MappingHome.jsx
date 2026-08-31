@@ -23,6 +23,8 @@ const MappingHome = props => {
   const history = useHistory()
   const isInitialMount = React.useRef(true);
   const prevLocationRef = React.useRef({pathname: location.pathname, search: location.search})
+  const lastMappingActionRef = React.useRef('url')
+  const prevMappingSelectionRef = React.useRef({id: props.mapping?.id, url: props.url})
 
   const [mapping, setMapping] = React.useState(props.mapping || {})
   const [versions, setVersions] = React.useState([])
@@ -40,7 +42,20 @@ const MappingHome = props => {
 
   const isInCollection = Boolean(props.repo?.type?.includes('Collection') || props.url?.includes('/collections/'))
 
+  const getActiveMappingId = () => {
+    if(props.mapping?.id && lastMappingActionRef.current === 'selection')
+      return props.mapping.id
+    return getResourceIdFromUrl(props.url, 'mappings') || props.mapping?.id || mapping?.id
+  }
+
   React.useEffect(() => {
+    const prevSelection = prevMappingSelectionRef.current
+    if(prevSelection.id !== props.mapping?.id)
+      lastMappingActionRef.current = 'selection'
+    else if(prevSelection.url !== props.url)
+      lastMappingActionRef.current = 'url'
+    prevMappingSelectionRef.current = {id: props.mapping?.id, url: props.url}
+
     setLoading(true)
     setMapping(props.mapping || {})
     setVersions([])
@@ -81,7 +96,7 @@ const MappingHome = props => {
     let _mapping = props.mapping?.id ? props.mapping : mapping
     let url = _mapping?.version_url || _mapping.url || props.url
     const parentURL = getRepoURL()
-    const mappingId = getResourceIdFromUrl(props.url, 'mappings') || props.mapping?.id || _mapping?.id
+    const mappingId = getActiveMappingId()
     if(parentURL && mappingId)
       url = `${parentURL}mappings/${encodeURIComponent(mappingId)}/`
 
