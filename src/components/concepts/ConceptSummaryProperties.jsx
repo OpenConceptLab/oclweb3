@@ -14,7 +14,7 @@ const ConceptSummaryProperties = ({concept}) => {
       let values = []
       concept.property.forEach(prop => {
         if(prop?.code){
-        let label = prop?.code
+        let label = prop?.display || prop?.code
         let value;
         if(['concept_class', 'datatype'].includes(label))
           label = startCase(label)

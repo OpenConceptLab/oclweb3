@@ -105,6 +105,7 @@
     "from": "始于",
     "target": "目标",
     "properties": "特性",
+    "view_raw": "查看原始数据",
     "custom": "自定义",
     "none": "无",
     "load_more": "加载更多",

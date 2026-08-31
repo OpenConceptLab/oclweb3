@@ -252,6 +252,7 @@ const SearchResults = props => {
     excludedColumns: props.excludedColumns,
     extraColumns: props.extraColumns,
     properties: props.properties,
+    propertyDefinition: props.propertyDefinition,
     propertyFilters: props.propertyFilters,
     loading: props.loading
   }

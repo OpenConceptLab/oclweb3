@@ -260,12 +260,12 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
     </React.Fragment>
   );
 }
-const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns, extraColumns, properties, propertyFilters, loading, hierarchical, baseURL, onRowsLoaded}) => {
+const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSelectAllClick, results, resource, nested, isSelected, isItemShown, order, orderBy, className, style, onOrderByChange, selectedToShowItem, size, excludedColumns, extraColumns, properties, propertyDefinition, propertyFilters, loading, hierarchical, baseURL, onRowsLoaded}) => {
   const isSourceNested = baseURL?.includes('/sources/') && nested
   const [refTranslation, setRefTranslation] = React.useState(true)
   const rows = results?.results || []
   const getValue = (row, column) => {
-    let val = get(row, column.value)
+    let val = get(row, column.value) || get(row, column.id)
     if(column.formatter)
       return column.formatter(val)
     if(column.renderer)
@@ -288,9 +288,10 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
     const variableColumnIds = columns.map(col => col.id)
     let customProperties = reject(properties, property => variableColumnIds.includes(property))
     customProperties.forEach(property => {
+      const prop = find(propertyDefinition, {code: property})
       columns.push({
         id: property,
-        label: startCase(property),
+        label: prop?.display || startCase(property),
         className: 'searchable',
         sortable: Boolean(find(propertyFilters, {code: property})),
         sortBy: `properties.${property}.keyword`,

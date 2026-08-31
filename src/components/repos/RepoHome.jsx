@@ -411,6 +411,7 @@ const RepoHome = () => {
                       resultContainerStyle={{height: 'calc(100vh - 356px)', overflow: 'auto', maxWidth: showSummary ? 'calc(100vw - 300px)' : 'calc(100vw - 40px)'}}
                       containerStyle={{padding: 0}}
                       properties={(!tab || tab === 'concepts') ? repo?.meta?.display?.concept_summary_properties : []}
+                      propertyDefinition={(!tab || tab === 'concepts') ? repo?.properties : []}
                       propertyFilters={(!tab || tab === 'concepts') ? repo?.filters : []}
                       fixedLeftControls={
                         Boolean(isCollection && !selectedItem?.length && ['concepts', 'mappings'].includes(tab)) &&

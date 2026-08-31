@@ -702,6 +702,7 @@ const Search = props => {
                   resultSize={props.resultSize}
                   excludedColumns={props.excludedColumns}
                   properties={props.properties}
+                  propertyDefinition={props.propertyDefinition}
                   propertyFilters={props.propertyFilters}
                   isMatch={isMatchOp}
                   hierarchySupported={isHierarchySupported}

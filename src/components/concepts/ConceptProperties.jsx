@@ -5,6 +5,7 @@ import TableBody from '@mui/material/TableBody'
 import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
 import Chip from '@mui/material/Chip';
+import ListItemText from '@mui/material/ListItemText'
 import map from 'lodash/map'
 import get from 'lodash/get'
 import omitBy from 'lodash/omitBy'
@@ -15,8 +16,18 @@ import isBoolean from 'lodash/isBoolean'
 import compact from 'lodash/compact'
 import keys from 'lodash/keys'
 import find from 'lodash/find'
+import startCase from 'lodash/startCase'
 
-const ConceptProperties = ({ concept }) => {
+const getRawProperties = concept => {
+  const rawProperties = {}
+  if(concept?.property?.length)
+    rawProperties.properties = concept.property
+  if(concept?.extras && Object.keys(concept.extras).length)
+    rawProperties.extras = concept.extras
+  return rawProperties
+}
+
+const ConceptProperties = ({ concept, viewRaw }) => {
   const { t } = useTranslation()
   const isPropertiesDefined = concept?.property?.length > 0
   const sortedProperties = concept?.property?.length > 0 ? concept.property.map(prop => prop.code) : ['concept_class', 'datatype'];
@@ -24,17 +35,35 @@ const ConceptProperties = ({ concept }) => {
     if(isPropertiesDefined) {
       let property = find(concept.property, {code: prop})
       if(property?.code) {
-        let label = prop
-        if(['concept_class', 'datatype'].includes(prop)) {
+        let label = property.display || startCase(prop)
+        if(!property.display && ['concept_class', 'datatype'].includes(prop)) {
           label = t(`concept.${prop}`)
         }
-        return {label: label, value: property[keys(property).filter(key => key!== 'code')[0]]}
+        return {label: label, value: property[keys(property).filter(key => key!== 'code')[0]], code: prop}
       }
     }
     return {label: t(`concept.${prop}`), value: get(concept, prop)}
   }))
   let extras = omitBy(concept?.extras, (value, key) => sortedProperties.includes(key)) || {}
   extras = fromPairs(sortBy(toPairs(extras), 0))
+  if(viewRaw) {
+    return (
+      <pre
+        className='searchable'
+        style={{
+          margin: 0,
+          padding: '16px',
+          fontSize: '0.875rem',
+          overflow: 'auto',
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word'
+        }}
+      >
+        {JSON.stringify(getRawProperties(concept), null, 2)}
+      </pre>
+    )
+  }
+
   return (
     <Table size='small'>
       <TableBody sx={{ '.MuiTableRow-root': {'&:last-child td': {border: 0, borderRadius: '10px'}} }}>
@@ -42,10 +71,10 @@ const ConceptProperties = ({ concept }) => {
           map(definitions, (definition, index) => {
             return (
               <TableRow key={index}>
-                <TableCell style={{fontSize: '0.875rem', width: '150px', whiteSpace: definition.custom ? 'pre': undefined}}>
-                  {definition.label}
+                <TableCell sx={{fontSize: '0.875rem', width: '150px', whiteSpace: definition.custom ? 'pre': undefined, verticalAlign: 'top'}}>
+                  <ListItemText primary={definition.label} secondary={definition.label !== definition.code ? definition.code : undefined} sx={{margin: 0, '.MuiListItemText-primary': {fontSize: '0.875rem'}, '.MuiListItemText-secondary': {fontSize: '0.75rem'}}} />
                 </TableCell>
-                <TableCell style={{fontSize: '0.875rem'}} className='searchable'>
+                <TableCell sx={{fontSize: '0.875rem', verticalAlign: 'top'}} className='searchable'>
                   {isBoolean(definition.value) ? definition.value.toString() : definition.value}
                 </TableCell>
               </TableRow>

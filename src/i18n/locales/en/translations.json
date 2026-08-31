@@ -116,6 +116,7 @@
     "from": "From",
     "target": "Target",
     "properties": "Properties",
+    "view_raw": "View Raw",
     "custom": "Custom",
     "delete_label": "Delete",
     "edit": "Edit",
