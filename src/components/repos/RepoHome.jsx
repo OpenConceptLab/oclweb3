@@ -69,6 +69,7 @@ const RepoHome = () => {
   const [mappingForm, setMappingForm] = React.useState(false)
   const [versionForm, setVersionForm] = React.useState(false)
   const [deleteTarget, setDeleteTarget] = React.useState(false)
+  const [deletingRepo, setDeletingRepo] = React.useState(false)
   const [releaseTarget, setReleaseTarget] = React.useState(false)
   const [showSummary, setShowSummary] = React.useState(true)
   const [addReferencesOpen, setAddReferencesOpen] = React.useState(false)
@@ -294,7 +295,9 @@ const RepoHome = () => {
     const url = deletingVersion ? target.version_url : target.url
     if(!url)
       return
+    setDeletingRepo(true)
     APIService.new().overrideURL(url).delete().then(response => {
+      setDeletingRepo(false)
       if(!response || response?.status === 204) {
         setDeleteTarget(false)
         setAlert({severity: 'success', message: deletingVersion ? t('repo.success_delete_version') : t('repo.success_delete')})
@@ -556,6 +559,7 @@ const RepoHome = () => {
               open={deleteTarget}
               onClose={() => setDeleteTarget(false)}
               onSubmit={onDeleteRepo}
+              loading={deletingRepo}
               entityType={isVersionObject(getTargetVersion(deleteTarget)) ? getTargetVersion(deleteTarget).type : repo.type.replace(' Version', '')}
               entityId={isVersionObject(getTargetVersion(deleteTarget)) ? `${getTargetVersion(deleteTarget).short_code} [${getTargetVersion(deleteTarget).version}]` : (repo.short_code || repo.id)}
               relationship={isVersionObject(getTargetVersion(deleteTarget)) ? '' :  'versions, '}

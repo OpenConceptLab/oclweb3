@@ -3,17 +3,19 @@ import { useTranslation, Trans } from 'react-i18next'
 import TextField from '@mui/material/TextField'
 import DialogContent from '@mui/material/DialogContent'
 import Alert from '@mui/material/Alert'
+import Box from '@mui/material/Box'
+import CircularProgress from '@mui/material/CircularProgress'
 import Button from '../common/Button';
 import Dialog from '../common/Dialog'
 import DialogTitle from '../common/DialogTitle'
 
-const DeleteEntityDialog = ({ onSubmit, onClose, open, entityId, entityType, warning, relationship, associationsLabel }) => {
+const DeleteEntityDialog = ({ onSubmit, onClose, open, entityId, entityType, warning, relationship, associationsLabel, loading }) => {
   const { t } = useTranslation()
   const [value, setValue] = React.useState('')
   const onChange = event => setValue(event.target.value || '')
 
   return (
-    <Dialog open={Boolean(open)} onClose={onClose}>
+    <Dialog open={Boolean(open)} onClose={loading ? undefined : onClose}>
       <DialogTitle>
         <Trans
           i18nKey='common.delete.title'
@@ -52,21 +54,28 @@ const DeleteEntityDialog = ({ onSubmit, onClose, open, entityId, entityType, war
           sx={{backgroundColor: 'surface.n92'}}
           fullWidth
           required
+          disabled={loading}
           value={value}
           onChange={onChange}
         />
-        <Button
-          sx={{marginTop: '24px', width: '100%', textTransform: 'uppercase'}}
-          color='error'
-          label={
-            <Trans
-              i18nKey='common.delete.confirmation_button_label'
-              values={{resourceType: entityType}}
+        {
+          loading ?
+            <Box sx={{display: 'flex', justifyContent: 'center', marginTop: '24px'}}>
+              <CircularProgress size={28} />
+            </Box> :
+            <Button
+              sx={{marginTop: '24px', width: '100%', textTransform: 'uppercase'}}
+              color='error'
+              label={
+                <Trans
+                  i18nKey='common.delete.confirmation_button_label'
+                  values={{resourceType: entityType}}
+                />
+              }
+              onClick={onSubmit}
+              disabled={value !== entityId}
             />
-          }
-          onClick={onSubmit}
-          disabled={value !== entityId}
-        />
+        }
     </DialogContent>
     </Dialog>
   )
