@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next';
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Switch from '@mui/material/Switch'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import DataObjectIcon from '@mui/icons-material/DataObject'
 import has from 'lodash/has'
 import { formatDateTime } from '../../common/utils'
 import Link from '../common/Link'
@@ -27,18 +28,11 @@ const ConceptDetails = ({ concept, repo, mappings, reverseMappings, loading, loa
           <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor, borderRadius: '10px'}}>
             <Typography component='span' sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold'}}>
               {t('common.properties')}
-              <FormControlLabel
-                control={<Switch size='small' checked={viewRawProperties} onChange={event => setViewRawProperties(event.target.checked)} />}
-                label={t('common.view_raw')}
-                sx={{
-                  margin: 0,
-                  '.MuiFormControlLabel-label': {
-                    fontSize: '0.875rem',
-                    fontWeight: 'normal',
-                    color: 'surface.contrastText'
-                  }
-                }}
-              />
+              <Tooltip title={t('common.view_raw')}>
+                <IconButton color={viewRawProperties ? 'primary' : 'default'} sx={{padding: 0}} onClick={() => setViewRawProperties(!viewRawProperties)}>
+                  <DataObjectIcon fontSize='inherit' />
+                </IconButton>
+              </Tooltip>
             </Typography>
             <ConceptProperties concept={concept} viewRaw={viewRawProperties} />
           </Paper> :
