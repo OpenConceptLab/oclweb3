@@ -112,7 +112,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
 
   const formattedListSubheader = field => {
     if(isConcept) {
-      let prop = find(propertyDefinition, def => [field, snakeCase(field)].includes(def.code) && def.display)
+      let prop = find(propertyDefinition, def => [field, snakeCase(field), field.replace('properties__', '')].includes(def.code) && def.display)
       if(prop?.code)
         return prop.display
     }
