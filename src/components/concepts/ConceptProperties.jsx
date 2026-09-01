@@ -46,6 +46,7 @@ const ConceptProperties = ({ concept, viewRaw }) => {
   }))
   let extras = omitBy(concept?.extras, (value, key) => sortedProperties.includes(key)) || {}
   extras = fromPairs(sortBy(toPairs(extras), 0))
+  const isFormattedExtra = value => value && typeof value === 'object' && !Array.isArray(value) && 'value' in value
   if(viewRaw) {
     return (
       <pre
@@ -82,32 +83,37 @@ const ConceptProperties = ({ concept, viewRaw }) => {
           })
         }
         {
-          map(extras, (value, key) => (
-            <TableRow key={key}>
-              <TableCell style={{fontSize: '0.875rem', width: '170px', whiteSpace: 'pre'}}>
-                {key}
-                <Chip
-                  label={t('common.custom')?.toLowerCase()}
-                  size='small'
-                  sx={{
-                    height: '20px',
-                    borderRadius: '4px',
-                    backgroundColor: '#e4e1ec',
-                    fontSize: '12px',
-                    color: 'surface.dark',
-                    marginLeft: '8px',
-                    '.MuiChip-label': {
-                      padding: '0 6px',
-                      fontSize: '12px'
-                    }
-                  }}
-                />
-              </TableCell>
-              <TableCell sx={{ fontSize: '0.875rem' }}>
-                {isBoolean(value) ? value.toString() : value}
-              </TableCell>
-            </TableRow>
-          ))
+          map(extras, (value, key) => {
+            const formatted = isFormattedExtra(value)
+            const label = (formatted && value.display) || key
+            const cellValue = formatted ? value.value : value
+            return (
+              <TableRow key={key}>
+                <TableCell style={{fontSize: '0.875rem', width: '170px', whiteSpace: 'pre'}}>
+                  {label}
+                  <Chip
+                    label={t('common.custom')?.toLowerCase()}
+                    size='small'
+                    sx={{
+                      height: '20px',
+                      borderRadius: '4px',
+                      backgroundColor: '#e4e1ec',
+                      fontSize: '12px',
+                      color: 'surface.dark',
+                      marginLeft: '8px',
+                      '.MuiChip-label': {
+                        padding: '0 6px',
+                        fontSize: '12px'
+                      }
+                    }}
+                  />
+                </TableCell>
+                <TableCell sx={{ fontSize: '0.875rem' }}>
+                  {isBoolean(cellValue) ? cellValue.toString() : cellValue}
+                </TableCell>
+              </TableRow>
+            )
+          })
         }
         {
           concept?.retired &&
