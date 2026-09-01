@@ -66,7 +66,7 @@ const GuestDashboard = () => {
             <EmptyOverview
               label={t('dashboard.events_scope_sign_in')}
               action={
-                <Button className='no-anchor-styles' label={t('auth.sign_in')} sx={{ backgroundColor: 'primary.main', maxWidth: '100%', minWidth: '92px', color: '#FFF !important', marginTop: '16px' }} href={getLoginURL()} component='a' />
+                <Button className='no-anchor-styles' label={t('auth.sign_in')} sx={{ backgroundColor: 'primary.main', maxWidth: '100%', minWidth: '92px', color: '#FFF !important', marginTop: '16px' }} href='#' onClick={e => { e.preventDefault(); getLoginURL().then(url => { window.location.href = url }) }} component='a' />
               }
             />
           </div>

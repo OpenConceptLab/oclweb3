@@ -210,7 +210,8 @@ const UserForm = ({ user }) => {
             />
             <Link
               label={t('auth.update_password')}
-              href={getResetPasswordURL()}
+              href='#'
+              onClick={e => { e.preventDefault(); getResetPasswordURL().then(url => { window.location.href = url }) }}
               sx={{marginLeft: '24px', fontWeight: 'bold', fontSize: 'inherit'}}
             />
           </div>
