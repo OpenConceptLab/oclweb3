@@ -20,8 +20,14 @@ import startCase from 'lodash/startCase'
 
 const getRawProperties = concept => {
   const rawProperties = {}
-  if(concept?.property?.length)
+  if(concept?.property?.length) {
     rawProperties.properties = concept.property
+  } else {
+    rawProperties.properties = compact([
+      concept?.concept_class !== undefined ? {code: 'concept_class', value: concept.concept_class} : null,
+      concept?.datatype !== undefined ? {code: 'datatype', value: concept.datatype} : null,
+    ])
+  }
   if(concept?.extras && Object.keys(concept.extras).length)
     rawProperties.extras = concept.extras
   return rawProperties
