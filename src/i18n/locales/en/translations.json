@@ -159,7 +159,12 @@
     "copy_smart_checksum": "Copy Smart Checksum",
     "committed": "committed",
     "results": "Results",
-    "click_here": "click here"
+    "click_here": "click here",
+    "classic_termbrowser": "Classic TermBrowser",
+    "back_to_classic_termbrowser": "Back to the classic TermBrowser",
+    "alpha_banner_title": "You're using the new TermBrowser",
+    "alpha_banner_message": "TermBrowser v3 is in alpha. The classic TermBrowser is still one click away, at the top of the page.",
+    "dismiss": "Dismiss"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
