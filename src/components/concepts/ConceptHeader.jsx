@@ -14,6 +14,7 @@ import Breadcrumbs from '../common/Breadcrumbs'
 import { BLACK } from '../../common/colors'
 import ConceptManagementList from './ConceptManagementList'
 import AddToCollectionDialog from '../common/AddToCollectionDialog'
+import CloneToSourceDialog from '../repos/CloneToSourceDialog'
 import Retired from '../common/Retired'
 
 const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCreateSimilar, nested, loading, isInCollection}) => {
@@ -21,6 +22,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
   const [addToCollectionOpen, setAddToCollectionOpen] = React.useState(false)
+  const [cloneToSourceOpen, setCloneToSourceOpen] = React.useState(false)
   const onMenuOpen = event => {
     setMenuAnchorEl(event.currentTarget)
     setMenu(true)
@@ -37,6 +39,9 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
     }
     if(option === 'retireConcept') {
       onRetire()
+    }
+    if(option === 'cloneToSource') {
+      setCloneToSourceOpen(true)
     }
   }
 
@@ -140,6 +145,11 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
       <AddToCollectionDialog
         open={addToCollectionOpen}
         onClose={() => setAddToCollectionOpen(false)}
+        concept={concept}
+      />
+      <CloneToSourceDialog
+        open={cloneToSourceOpen}
+        onClose={() => setCloneToSourceOpen(false)}
         concept={concept}
       />
     </React.Fragment>
