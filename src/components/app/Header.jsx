@@ -15,7 +15,6 @@ import './Header.scss';
 import HeaderControls from './HeaderControls';
 import LeftMenu from './LeftMenu'
 import AlphaBanner from './AlphaBanner';
-import ClassicTermBrowserButton from './ClassicTermBrowserButton';
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -71,9 +70,6 @@ const Header = props => {
             <div className='col-xs-2' />
             <div className='col-xs-4 padding-0' style={{textAlign: 'center'}}>
               <SearchInput size='small' style={{width: '100%'}} placeholder={t('search.input_placeholder')} />
-            </div>
-            <div className='col-xs-2 padding-0' style={{textAlign: 'right'}}>
-              <ClassicTermBrowserButton />
             </div>
             <HeaderControls />
           </div>

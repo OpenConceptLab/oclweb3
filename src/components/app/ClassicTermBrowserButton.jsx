@@ -1,11 +1,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
 import Tooltip from '@mui/material/Tooltip';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toV2URL } from '../../common/utils';
+import ClassicOCLLogo from '../common/ClassicOCLLogo';
+
+const V2_PRIMARY = 'rgb(51, 115, 170)';
 
 const ClassicTermBrowserButton = () => {
   const { t } = useTranslation();
@@ -14,27 +15,28 @@ const ClassicTermBrowserButton = () => {
 
   return (
     <Tooltip title={t('common.back_to_classic_termbrowser')} arrow>
-      <Button
+      <Chip
+        size='medium'
+        variant='outlined'
+        clickable
+        component='a'
         href={href}
-        size='small'
-        color='secondary'
         aria-label={t('common.back_to_classic_termbrowser')}
-        startIcon={<ArrowBackIcon fontSize='inherit' />}
+        icon={<ClassicOCLLogo />}
+        label={t('common.classic_termbrowser')}
         sx={{
-          textTransform: 'none',
-          whiteSpace: 'nowrap',
-          minWidth: 'auto',
-          // below sm the header has no room for the label, the tooltip carries it instead
-          '& .MuiButton-startIcon': {
-            marginLeft: 0,
-            marginRight: { xs: 0, sm: '8px' },
-          },
+          marginRight: '8px',
+          paddingLeft: '8px',
+          verticalAlign: 'middle',
+          maxWidth: {xs: '150px', sm: 'none'},
+          color: V2_PRIMARY,
+          borderColor: V2_PRIMARY,
+          '.MuiChip-label': {
+            paddingLeft: '6px',
+            paddingRight: '8px'
+          }
         }}
-      >
-        <Box component='span' sx={{ display: { xs: 'none', sm: 'inline' } }}>
-          {t('common.classic_termbrowser')}
-        </Box>
-      </Button>
+      />
     </Tooltip>
   );
 };
