@@ -11,6 +11,7 @@ import AddIcon from '@mui/icons-material/Add'
 import APIService from '../../services/APIService';
 import { dropVersion, toParentURI, toOwnerURI, currentUserHasAccess, isSameResourceNavigation } from '../../common/utils';
 import { WHITE } from '../../common/colors';
+import { RESERVED_ROUTE_KEYWORDS } from '../../common/constants';
 
 import { OperationsContext } from '../app/LayoutContext';
 import CommonTabs from '../common/CommonTabs';
@@ -81,8 +82,9 @@ const RepoHome = () => {
   const prevLocationRef = React.useRef(location)
 
   const TAB_KEYS = tabs.map(tab => tab.key)
+  const isVersionSegment = segment => Boolean(segment) && !TAB_KEYS.includes(segment) && !RESERVED_ROUTE_KEYWORDS.includes(segment)
   const findTab = () => TAB_KEYS.includes(params?.tab || params?.repoVersion) ? params.tab || params.repoVersion : 'concepts'
-  const versionFromURL = (TAB_KEYS.includes(params?.repoVersion) ? '' : params.repoVersion) || ''
+  const versionFromURL = (isVersionSegment(params?.repoVersion) ? params.repoVersion : '') || ''
 
   const [tab, setTab] = React.useState(findTab)
   const { setAlert, setContextRepo } = React.useContext(OperationsContext);
@@ -134,9 +136,16 @@ const RepoHome = () => {
     setSelectedExpansion(false)
     APIService.new().overrideURL(getURL()).get(null, null, {includeSummary: true}, true).then(response => {
       const newStatus = response?.status || response?.response.status
+      const _repo = response?.data || response?.response?.data || {}
+
+      if(versionFromURL && (newStatus !== 200 || !_repo?.url)) {
+        isInitialMount.current = true
+        history.replace(`/${params.ownerType}/${params.owner}/${params.repoType}/${params.repo}`)
+        return
+      }
+
       setStatus(newStatus)
       setLoading(false)
-      const _repo = response?.data || response?.response?.data || {}
       setRepo(_repo)
       if(!isCollection)
         setContextRepo(_repo)
