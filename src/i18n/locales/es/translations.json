@@ -256,6 +256,7 @@
     "create_similar": "Crear similar"
   },
   "org": {
+    "my": "Mis organizaciones",
     "orgs": "Organizaciones",
     "org": "Organización",
     "create_an_org": "Crear una organización",

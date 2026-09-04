@@ -63,6 +63,7 @@ const CanonicalResolve = ({open, onClose, defaultOwner}) => {
               owner={owner}
               label={t('url_registry.registry_owner')}
               id='url_registry.registry_owner'
+              forURLRegistry
             />
           </div>
           <div className='col-xs-6' style={{paddingRight: '8px', paddingLeft: 0}}>
