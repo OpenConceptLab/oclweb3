@@ -11,7 +11,8 @@ import {
 } from 'lodash';
 import {
   DATE_FORMAT, TIME_FORMAT, DATETIME_FORMAT, OCL_SERVERS_GROUP, OCL_FHIR_SERVERS_GROUP, HAPI_FHIR_SERVERS_GROUP,
-  OPENMRS_URL, DEFAULT_FHIR_SERVER_FOR_LOCAL_ID, OPERATIONS_PANEL_GROUP, ID_REGEX
+  OPENMRS_URL, DEFAULT_FHIR_SERVER_FOR_LOCAL_ID, OPERATIONS_PANEL_GROUP, ID_REGEX,
+  RESERVED_ROUTE_KEYWORDS
 } from './constants';
 import APIService from '../services/APIService';
 import { SERVER_CONFIGS } from './serverConfigs';
@@ -1084,7 +1085,7 @@ export const toMapperURL = path => {
 }
 
 const SHARED_REPO_TABS = ['concepts', 'mappings', 'references', 'versions', 'about']
-const RESERVED_REPO_SEGMENTS = [...SHARED_REPO_TABS, 'summary', 'edit', 'compare-versions']
+const RESERVED_REPO_SEGMENTS = [...SHARED_REPO_TABS, ...RESERVED_ROUTE_KEYWORDS, 'edit', 'compare-versions']
 const SHARED_ROOT_PATHS = ['/search', '/imports', '/concepts/compare', '/mappings/compare']
 const SHARED_OWNER_PATHS = {users: ['settings'], orgs: ['edit']}
 
