@@ -1,5 +1,6 @@
 {
   "common": {
+    "error_details": "Error Details",
     "or": "or",
     "of": "of",
     "language": "Language",

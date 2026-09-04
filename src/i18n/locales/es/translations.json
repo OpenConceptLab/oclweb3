@@ -1,5 +1,12 @@
 {
   "common": {
+    "error_details": "Detalles del error",
+    "please": "Por favor",
+    "go_to": "ir a",
+    "go_to_your": "ir a tu ",
+    "back": "atrás",
+    "for_a_new_account": "para una cuenta nueva",
+    "go_back_or_to_your_dashboard": "Ir <0/> o a tu <1/>.",
     "or": "o",
     "language": "Idioma",
     "help_and_documentation": "Ayuda y documentación",
@@ -15,7 +22,7 @@
     "show": "Mostrar",
     "hide": "Ocultar",
     "more": "Más",
-    "refresh": "Actualizar",
+    "refresh": "actualizar",
     "or_go_to_your": "o ir a tu ",
     "retired": "Retirado",
     "id": "ID",
@@ -69,6 +76,10 @@
     "click_here": "haz clic aquí"
   },
   "errors": {
+    "401": "Se requiere iniciar sesión",
+    "403": "No tienes autorización para acceder a esta página",
+    "network_error": "Error de red",
+    "generic": "Algo falló, por favor inténtalo de nuevo más tarde.",
     "404": "Lo siento, no se pudo encontrar tu página.",
     "mandatory_field": "Este campo no puede estar en blanco"
   },

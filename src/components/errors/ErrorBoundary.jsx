@@ -58,10 +58,16 @@ class ErrorBoundary extends React.Component {
     })
   }
 
-  getErrorUIProps() {
-    const props = {header: 'Error', message: isString(this.state.error) ? this.state.error : 'Something went wrong.'}
+  isDebugMode() {
+    const debug = new URLSearchParams(window.location.search).get('debug') ||
+                  new URLSearchParams(window.location.hash.split('?')[1] || '').get('debug')
+    return debug === 'true' || debug === '1'
+  }
 
-    if(window.location.hash.match(/debug=true/))
+  getErrorUIProps() {
+    const props = {message: isString(this.state.error) ? this.state.error : undefined}
+
+    if(this.isDebugMode())
       return {...props, error: this.state.error, errorInfo: this.state.errorInfo}
 
     return props
