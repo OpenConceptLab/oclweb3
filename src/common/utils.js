@@ -1083,22 +1083,9 @@ export const toMapperURL = path => {
   return `${url}/#${path || '/'}?${referrerParams}`
 }
 
-/*
- * v2 (classic TermBrowser) and v3 share a near identical URL structure, so moving a user
- * across is a host swap rather than a route map. Where v3 has a surface v2 never built
- * (e.g. /url-registry), toV2Path walks up to the nearest ancestor both sides do have --
- * repo home -> owner home -> app home. That keeps the surfaces nobody has enumerated yet
- * safe by construction, rather than landing the user on a dead page.
- */
-
-// repo tabs that resolve on both v2 and v3 at the same path
 const SHARED_REPO_TABS = ['concepts', 'mappings', 'references', 'versions', 'about']
-// every segment v3 may put directly after a repo. Anything outside this list in that
-// position is a repo version, which both sides serve.
 const RESERVED_REPO_SEGMENTS = [...SHARED_REPO_TABS, 'summary', 'edit', 'compare-versions']
-// root level paths that resolve on both v2 and v3 at the same path
 const SHARED_ROOT_PATHS = ['/search', '/imports', '/concepts/compare', '/mappings/compare']
-// owner level surfaces verified to resolve on both sides
 const SHARED_OWNER_PATHS = {users: ['settings'], orgs: ['edit']}
 
 const isRouteId = segment => Boolean(segment) && ID_REGEX.test(segment)
@@ -1126,16 +1113,12 @@ export const toV2Path = path => {
   if(segments.length === 3 && SHARED_OWNER_PATHS[ownerType].includes(segments[2]))
     return fullPath
 
-  // anything else hanging off an owner (e.g. /orgs/:org/url-registry, /users/:user/settings)
-  // is v3 only, so the owner home is the nearest shared ancestor
   if(!['sources', 'collections'].includes(repoType) || !isRouteId(repo))
     return ownerHome
 
   let repoHome = `${ownerHome}/${repoType}/${repo}`
   let rest = segments.slice(4)
 
-  // an optional repo version sits between the repo and its tab. A reserved segment in that
-  // position is a v3 route rather than a version, so it is not carried across.
   if(rest.length > 0 && !RESERVED_REPO_SEGMENTS.includes(rest[0])) {
     if(!isRouteId(rest[0]))
       return repoHome
@@ -1146,7 +1129,6 @@ export const toV2Path = path => {
   if(rest.length === 0)
     return repoHome
 
-  // a tab v2 does not have (e.g. summary) falls back to the repo home
   if(!SHARED_REPO_TABS.includes(rest[0]))
     return repoHome
 
