@@ -14,6 +14,8 @@ import SearchInput from '../search/SearchInput';
 import './Header.scss';
 import HeaderControls from './HeaderControls';
 import LeftMenu from './LeftMenu'
+import AlphaBanner from './AlphaBanner';
+import ClassicTermBrowserButton from './ClassicTermBrowserButton';
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -66,17 +68,20 @@ const Header = props => {
               }
               <OCLLogo />
             </div>
-            <div className='col-xs-3' />
+            <div className='col-xs-2' />
             <div className='col-xs-4 padding-0' style={{textAlign: 'center'}}>
               <SearchInput size='small' style={{width: '100%'}} placeholder={t('search.input_placeholder')} />
             </div>
-            <div className='col-xs-1' />
+            <div className='col-xs-2 padding-0' style={{textAlign: 'right'}}>
+              <ClassicTermBrowserButton />
+            </div>
             <HeaderControls />
           </div>
         </Toolbar>
       </AppBar>
       <Box component="main" sx={{ flexGrow: 1, paddingTop: 0, paddingBottom: 1.25, paddingLeft: 2, paddingRight: 2 }}>
         <DrawerHeader />
+        <AlphaBanner />
         {
           props.children
         }
