@@ -66,7 +66,8 @@
     "company": "Empresa",
     "location": "Ubicación",
     "generic_error": "Algo salió mal.",
-    "click_here": "haz clic aquí"
+    "click_here": "haz clic aquí",
+    "all": "Todos"
   },
   "errors": {
     "404": "Lo siento, no se pudo encontrar tu página.",
@@ -331,5 +332,41 @@
     "search_all_site": "Buscar en todo OCL para ",
     "search_this_repository": "Buscar en este repositorio",
     "search_all_concepts": "Buscar todos los conceptos"
+  },
+  "cloneToSource": {
+    "title": "Clonar concepto(s) a una fuente",
+    "clone_to_source": "Clonar a fuente",
+    "description": "Esta operación clonará los conceptos seleccionados, junto con sus respuestas o miembros de conjunto, siguiendo de forma recursiva los mapeos especificados. Se omitirán los conceptos que ya existan en la fuente de destino.",
+    "target_source": "Fuente de destino",
+    "no_editable_sources": "No se encontraron fuentes editables",
+    "advanced_settings": "Configuración avanzada",
+    "advanced_caution": "Precaución: cambiar esta configuración podría producir una clonación incompleta (p. ej., faltarían respuestas o miembros de conjunto).",
+    "origination_sources": "Fuente(s) de origen",
+    "destination_source": "Fuente de destino",
+    "summary": "{{count}} concepto(s) seleccionado(s) se clonarán en",
+    "cloning": "Clonando concepto(s)…",
+    "clone_button": "Clonar",
+    "clone_finished": "Clonación finalizada. Consulte la columna de resultados para ver los detalles.",
+    "preview_api_call": "Vista previa de la llamada a la API",
+    "hide_api_call": "Ocultar la llamada a la API",
+    "same_source_warning": "Es la misma fuente que el destino. No se clonará nada.",
+    "preview_header": "Vista previa",
+    "results_header": "Resultados",
+    "preview_title": "Vista previa",
+    "preview_tooltip": "Ver qué se clonará",
+    "preview_result_tooltip": "Ver el concepto clonado",
+    "concepts_count": "Conceptos ({{count}})",
+    "mappings_count": "Mapeos ({{count}})",
+    "no_concepts": "Sin conceptos",
+    "no_mappings": "Sin mapeos",
+    "cloned_count": "{{count}} clonado(s)",
+    "nothing_cloned": "No se clonó nada",
+    "failed": "Error",
+    "back": "Atrás",
+    "cascade_levels": "Niveles de cascada",
+    "map_types": "MapTypes",
+    "exclude_map_types": "ExcludeMapTypes",
+    "return_map_types": "ReturnMapTypes",
+    "equivalency_map_type": "EquivalencyMapType"
   }
 }

@@ -4,6 +4,7 @@ import { Menu, ListItem, ListItemButton, ListItemText, ListItemIcon, Divider} fr
 import EditIcon from '@mui/icons-material/Edit';
 import RetireIcon from '@mui/icons-material/Delete';
 import UnretireIcon from '@mui/icons-material/RestoreFromTrash';
+import CloneIcon from '@mui/icons-material/ControlPointDuplicate';
 
 const ConceptManagementList = ({ anchorEl, open, onClose, id, onClick, concept }) => {
   const { t } = useTranslation()
@@ -26,6 +27,15 @@ const ConceptManagementList = ({ anchorEl, open, onClose, id, onClick, concept }
             <EditIcon />
           </ListItemIcon>
           <ListItemText primary={t('concept.edit_concept')} />
+        </ListItemButton>
+      </ListItem>
+      <Divider />
+      <ListItem disablePadding>
+        <ListItemButton id='cloneToSource' onClick={() => onClick('cloneToSource')} sx={{padding: '8px 12px'}}>
+          <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+            <CloneIcon />
+          </ListItemIcon>
+          <ListItemText primary={t('cloneToSource.clone_to_source')} />
         </ListItemButton>
       </ListItem>
       <Divider />
