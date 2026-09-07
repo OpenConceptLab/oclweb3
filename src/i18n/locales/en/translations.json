@@ -296,7 +296,7 @@
     "to_concept_not_defined": "Target concept is not defined in OCL",
     "to_concept_defined": "Target concept is defined in OCL",
     "sort_weight": "Sort Weight",
-    "fromAndTargetSource": "From and target Source",
+    "fromAndTargetSource": "From and target source",
     "edit_mapping": "Edit Mapping",
     "from_source_url": "From Source URL",
     "from_source_version": "From Source Version",

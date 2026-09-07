@@ -20,7 +20,7 @@ const SourceIcon = ({ selected }) => {
 export const Repo = ({mapping, direction, sx, present}) => {
   const repoName = get(mapping, `${direction}_source_name`)
   const repoURL = get(mapping, `${direction}_source_url`) || (isString(get(mapping, `${direction}_source`)) ? get(mapping, `${direction}_source`) : '')
-  const repo = URIToParentParams(repoURL)
+  const repo = URIToParentParams(repoURL || get(mapping, `${direction}_concept_url`))
   const isPresent = present || Boolean(repoName)
   return (
     <RepoTooltip basicTooltip={isPresent ? undefined : repo?.repo || repoURL} repo={{...repo, url: repoURL, id: repo?.repo || repoURL}}>
@@ -28,17 +28,17 @@ export const Repo = ({mapping, direction, sx, present}) => {
         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'left'}}>
           <SourceIcon selected={isPresent} />
           <Typography className='overflow-ellipsis' component='span' sx={{maxWidth: '150px', fontSize: '14px', color: 'rgba(0, 0, 0, 0.87)', marginLeft: '8px'}}>
-            {repoURL || repoName || repo?.repo}
+            {repo?.repo || repoName || repoURL}
           </Typography>
           <span/>
         </div>
         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'left'}}>
           <Typography component='span' sx={{fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px'}}>
-            {repo?.repo}
+            {repo?.owner}
           </Typography>
           <DotSeparator margin='0 6px' />
           <Typography component='span' sx={{fontSize: '12px', color: 'secondary.main'}}>
-            {repo?.repoType}
+            {repo?.ownerType}
           </Typography>
         </div>
       </span>
