@@ -43,6 +43,7 @@ import {
 } from '@mui/icons-material';
 import find from 'lodash/find';
 import get from 'lodash/get';
+import map from 'lodash/map';
 
 import APIService from '../../services/APIService';
 import {
@@ -57,14 +58,13 @@ import {
 } from '../../common/utils';
 import { OperationsContext } from '../app/LayoutContext';
 import DeleteEntityDialog from '../common/DeleteEntityDialog';
-import ConceptIcon from '../concepts/ConceptIcon';
-import MappingIcon from '../mappings/MappingIcon';
 import ExpansionForm from './ExpansionForm';
 import ExpansionDetailsDialog from './ExpansionDetailsDialog';
 import ExpansionRowList from './ExpansionRowList';
 import ExternalExportsDialog from './ExternalExportsDialog';
 import ClearProcessingDialog from './ClearProcessingDialog';
 import ProcessingFlag from './ProcessingFlag';
+import RepoContentSummary, { VERSION_STATS } from './RepoContentSummary';
 import ProcessingProgress from './ProcessingProgress';
 import RebuildExpansionDialog from './RebuildExpansionDialog';
 import ReindexVersionDialog from './ReindexVersionDialog';
@@ -76,7 +76,6 @@ import { PROCESSING_QUERY_PARAMS, areSeedStagesComplete, isExportAvailable, isVe
 import {
   REPO_VERSIONS_PAGE_SIZE,
   bodyCellSx,
-  formatCount,
   formatError,
   formatExportTime,
   getPreviousVersionURL,
@@ -649,6 +648,18 @@ const CollectionVersionsTab = ({
     return items;
   };
 
+  /* a version's counts come from its default expansion when it has one */
+  const getVersionSummary = React.useCallback(version => {
+    const defaultExpansion = getDefaultExpansion(version);
+    const fromExpansion = key => get(defaultExpansion, `summary.${key}`) ?? get(version, `summary.${key}`);
+    return {
+      active_concepts: fromExpansion('active_concepts'),
+      active_mappings: fromExpansion('active_mappings'),
+      active_references: fromExpansion('active_references'),
+      expansions: get(version, 'summary.expansions')
+    };
+  }, [getDefaultExpansion]);
+
   const renderVersionRow = version => {
     const versionKey = getVersionKey(version);
     const isHead = isHeadVersion(version);
@@ -656,8 +667,6 @@ const CollectionVersionsTab = ({
     const versionExpansions = expansionsByVersion[versionKey] || [];
     const versionLoading = loadingByVersion[versionKey];
     const defaultExpansion = getDefaultExpansion(version);
-    const conceptCount = get(defaultExpansion, 'summary.active_concepts') ?? get(version, 'summary.active_concepts');
-    const mappingCount = get(defaultExpansion, 'summary.active_mappings') ?? get(version, 'summary.active_mappings');
     const expansionUpdates = defaultExpansion ? repoUpdatesByExpansion[defaultExpansion.url] : null;
     const hasRepoUpdates = hasAccess && expansionUpdates && Object.keys(expansionUpdates).length > 0;
     const exportTime = formatExportTime(version);
@@ -699,14 +708,7 @@ const CollectionVersionsTab = ({
           </TableCell>
           <TableCell sx={bodyCellSx}>
             <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5 }}>
-              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-                <ConceptIcon selected color="secondary" sx={{ width: 12, height: 12 }} />
-                <Typography variant="body2">{formatCount(conceptCount)}</Typography>
-              </Stack>
-              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-                <MappingIcon width="15px" height="13px" fill="secondary.main" color="secondary" />
-                <Typography variant="body2">{formatCount(mappingCount)}</Typography>
-              </Stack>
+              <RepoContentSummary summary={getVersionSummary(version)} stats={VERSION_STATS} summaries={map(displayVersions, getVersionSummary)} />
               {versionLoading && <CircularProgress size={14} />}
               {!versionLoading && versionExpansions.length > 0 && (
                 <Chip

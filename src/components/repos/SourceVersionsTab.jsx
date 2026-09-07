@@ -45,6 +45,7 @@ import {
   Visibility as VisibilityIcon
 } from '@mui/icons-material';
 import get from 'lodash/get';
+import map from 'lodash/map';
 
 import APIService from '../../services/APIService';
 import {
@@ -60,11 +61,10 @@ import {
 import { OperationsContext } from '../app/LayoutContext';
 import AccessIcon from '../common/AccessIcon';
 import MarkdownContent from '../common/MarkdownContent';
-import ConceptIcon from '../concepts/ConceptIcon';
-import MappingIcon from '../mappings/MappingIcon';
 import ExternalExportsDialog from './ExternalExportsDialog';
 import ClearProcessingDialog from './ClearProcessingDialog';
 import ProcessingFlag from './ProcessingFlag';
+import RepoContentSummary, { VERSION_STATS } from './RepoContentSummary';
 import ProcessingProgress from './ProcessingProgress';
 import ReindexVersionDialog from './ReindexVersionDialog';
 import VersionExportDialog from './VersionExportDialog';
@@ -74,10 +74,8 @@ import { PROCESSING_QUERY_PARAMS, areSeedStagesComplete, isExportAvailable, isVe
 import {
   REPO_VERSIONS_PAGE_SIZE,
   bodyCellSx,
-  formatCount,
   formatError,
   formatExportTime,
-  getContentCount,
   getPreviousVersionURL,
   getVersionKey,
   getVersionLabel,
@@ -372,20 +370,7 @@ const SourceVersionsTab = ({
                     )}
                   </TableCell>
                   <TableCell sx={bodyCellSx}>
-                    <Stack direction="row" spacing={1.5}>
-                      <Stack direction="row" spacing={0.5} sx={{
-                        alignItems: "center"
-                      }}>
-                        <ConceptIcon selected color="secondary" sx={{ width: 12, height: 12 }} />
-                        <Typography variant="body2">{formatCount(getContentCount(version, 'active_concepts'))}</Typography>
-                      </Stack>
-                      <Stack direction="row" spacing={0.5} sx={{
-                        alignItems: "center"
-                      }}>
-                        <MappingIcon width="15px" height="13px" fill="secondary.main" color="secondary" />
-                        <Typography variant="body2">{formatCount(getContentCount(version, 'active_mappings'))}</Typography>
-                      </Stack>
-                    </Stack>
+                    <RepoContentSummary summary={version?.summary} stats={VERSION_STATS} summaries={map(sortedVersions, 'summary')} />
                   </TableCell>
                   <TableCell sx={bodyCellSx}>
                     <Stack direction="row" spacing={0.5} sx={{

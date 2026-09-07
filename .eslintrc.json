@@ -176,6 +176,7 @@
           "scrollable",
           "bgcolor",
           "nowrap",
+          "nums",
           "num",
           "struct",
           "checkbox",

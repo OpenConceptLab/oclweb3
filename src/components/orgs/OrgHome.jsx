@@ -106,6 +106,7 @@ const OrgHome = () => {
                       filtersHeightToSubtract={280}
                       resultContainerStyle={{height: 'calc(100vh - 368px)', overflow: 'auto'}}
                       containerStyle={{padding: 0}}
+                      excludedColumns={['owner']}
                     />
                 }
                 {

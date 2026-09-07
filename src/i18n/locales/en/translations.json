@@ -422,6 +422,7 @@
     "manage": "Manage Repository",
     "repo_id": "Repository ID",
     "repo_version": "Repo Version",
+    "latest_version": "Latest version",
     "add_concept": "Add Concept",
     "add_mapping": "Add Mapping",
     "source": "Source",

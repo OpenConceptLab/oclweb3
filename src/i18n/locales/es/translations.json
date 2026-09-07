@@ -248,6 +248,7 @@
     "release_version": "Publicar versión",
     "unrelease_version": "Despublicar versión",
     "versions": "Versiones",
+    "latest_version": "Última versión",
     "unreleased": "Sin publicar",
     "explore_version": "Explorar versión",
     "export_version": "Exportar versión",

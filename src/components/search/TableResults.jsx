@@ -268,7 +268,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
     if(column.formatter)
       return column.formatter(val)
     if(column.renderer)
-      return column.translation ? column.renderer(row, refTranslation) : column.renderer(row, Boolean(selectedToShowItem))
+      return column.translation ? column.renderer(row, refTranslation) : column.renderer(row, Boolean(selectedToShowItem), rows)
     return val
   }
   const handleRequestSort = (event, property) => {

@@ -10,6 +10,7 @@ import Retired from '../common/Retired';
 import OwnerIcon from '../common/OwnerIcon';
 import RepoVersionButton from '../repos/RepoVersionButton';
 import RepoChip from '../repos/RepoChip';
+import RepoContentSummary from '../repos/RepoContentSummary';
 import FromAndTargetSource from '../mappings/FromAndTargetSource'
 import ConceptCell from '../mappings/ConceptCell'
 import ReferenceChip from '../common/ReferenceChip';
@@ -88,7 +89,9 @@ export const ALL_COLUMNS = {
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: 'id', className: 'searchable'},
     {id: 'name', labelKey: 'common.name', value: 'name', sortOn: 'name', className: 'searchable'},
     {id: 'type', labelKey: 'repo.repo_type', value: 'repo_type', sortable: false},
-    {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', renderer: item => (<span style={{display: 'flex', alignItems: 'center'}}><OwnerIcon noTooltip ownerType={item.owner_type} fontSize='small' sx={{marginRight: '4px'}}/>{item.owner}</span>)}
+    {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', renderer: item => (<span style={{display: 'flex', alignItems: 'center'}}><OwnerIcon noTooltip ownerType={item.owner_type} fontSize='small' sx={{marginRight: '4px'}}/>{item.owner}</span>)},
+    {id: 'latest_released_version', labelKey: 'repo.latest_version', value: 'latest_released_version', sortable: false},
+    {id: 'summary', labelKey: 'common.content_summary', value: 'summary', sortable: false, renderer: (item, _, rows) => <RepoContentSummary summary={item.summary} summaries={map(rows, 'summary')} baseURL={item.url} />},
   ],
   orgs: [
     {id: 'id', labelKey: 'common.id', value: 'id', sortOn: '_mnemonic', className: 'searchable'},

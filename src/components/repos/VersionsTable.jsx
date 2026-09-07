@@ -68,7 +68,7 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
           {
             isNumber(version?.summary?.active_concepts) &&
               <span style={{marginRight: '8px', display: 'flex', alignItems: 'center'}}>
-                <ConceptIcon selected color='secondary' sx={{width: '9px', height: '9px', marginRight: '4px'}} />
+                <ConceptIcon selected color='secondary' sx={{width: '1rem', height: '1rem', marginRight: '4px'}} />
                 {version.summary.active_concepts.toLocaleString()}
               </span>
           }
