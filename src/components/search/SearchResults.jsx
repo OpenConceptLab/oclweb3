@@ -19,11 +19,12 @@ import TableResults from './TableResults';
 import CardResults from './CardResults';
 import ReferenceSourceGroupedResults, { getReferenceSourceGroups } from '../references/ReferenceSourceGroupedResults';
 import AddToCollectionDialog from '../common/AddToCollectionDialog';
-import { SORT_ATTRS } from './ResultConstants'
+import { getSortConfig } from './sortConfig'
+import { resolveColumns } from './columns'
 import { isLoggedIn, currentUserHasAccess } from '../../common/utils';
 
 const ResultsToolbar = props => {
-  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, toolbarControl, appliedFilters, openFilters, bulkActions, leftControls, displayOptions, resource } = props;
+  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortConfig, noCardDisplay, toolbarControl, appliedFilters, openFilters, bulkActions, leftControls, displayOptions, resource } = props;
   const filtersCount = resource === 'references' ? flatten(values(appliedFilters))?.length : flatten(values(appliedFilters).map(v => values(v))).length
   return (
     <Toolbar
@@ -101,7 +102,7 @@ const ResultsToolbar = props => {
         orderBy={orderBy}
         order={order}
         onOrderByChange={onOrderByChange}
-        sortableFields={sortableFields}
+        sortConfig={sortConfig}
         noCardDisplay={noCardDisplay}
         extraControls={toolbarControl}
         displayOptions={displayOptions}
@@ -229,7 +230,12 @@ const SearchResults = props => {
     }
   }
 
-  const sortableFields = (props.nested ? SORT_ATTRS.nested[props.resource] : SORT_ATTRS.global[props.resource]) || SORT_ATTRS.common[props.resource]
+  const columns = resolveColumns({
+    resource: props.resource, nested: props.nested, baseURL: props.baseURL,
+    excludedColumns: props.excludedColumns, extraColumns: props.extraColumns,
+    properties: props.properties, propertyDefinition: props.propertyDefinition, propertyFilters: props.propertyFilters
+  })
+  const sortConfig = getSortConfig(props.resource, props.nested, Boolean(props.searchedText), columns)
 
   const resultsProps = {
     handleClick: props.onSelect ? handleClick : false,
@@ -325,7 +331,7 @@ const SearchResults = props => {
             isFilterable={props.isFilterable}
             onDisplayChange={onDisplayChange}
             display={display}
-            sortableFields={(props.noSorting || isHierarchyDisplay) ? false : sortableFields}
+            sortConfig={(props.noSorting || isHierarchyDisplay) ? false : sortConfig}
             order={props.order}
             orderBy={props.orderBy}
             onOrderByChange={props.onOrderByChange}

@@ -904,5 +904,22 @@
     "result": "Result",
     "args": "Args",
     "sub_tasks": "Sub Tasks"
+  },
+  "sort": {
+    "source": "Source",
+    "most_relevant": "Most relevant",
+    "newest_first": "Newest first",
+    "oldest_first": "Oldest first",
+    "recently_joined": "Recently joined",
+    "longest_member": "Longest member",
+    "a_z": "A-Z",
+    "z_a": "Z-A",
+    "num_asc": "0-9",
+    "num_desc": "9-0",
+    "tooltip_a_z": "Sort by {{field}}, A to Z",
+    "tooltip_z_a": "Sort by {{field}}, Z to A",
+    "tooltip_num_asc": "Sort by {{field}}, lowest number first",
+    "tooltip_num_desc": "Sort by {{field}}, highest number first",
+    "clear": "Reset Sort"
   }
 }

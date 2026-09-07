@@ -403,5 +403,22 @@
     "key": "Nombre del atributo",
     "value": "Valor del atributo",
     "add": "Agregar un atributo personalizado"
+  },
+  "sort": {
+    "source": "Fuente",
+    "most_relevant": "Más relevantes",
+    "newest_first": "Más recientes primero",
+    "oldest_first": "Más antiguos primero",
+    "recently_joined": "Unidos recientemente",
+    "longest_member": "Miembros más antiguos",
+    "a_z": "A-Z",
+    "z_a": "Z-A",
+    "num_asc": "0-9",
+    "num_desc": "9-0",
+    "tooltip_a_z": "Ordenar por {{field}}, de la A a la Z",
+    "tooltip_z_a": "Ordenar por {{field}}, de la Z a la A",
+    "tooltip_num_asc": "Ordenar por {{field}}, del número menor al mayor",
+    "tooltip_num_desc": "Ordenar por {{field}}, del número mayor al menor",
+    "clear": "Restablecer orden"
   }
 }

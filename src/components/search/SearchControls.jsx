@@ -4,8 +4,9 @@ import Button from '@mui/material/Button';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import DisplayMenu from './DisplayMenu';
 import SortMenu from './SortMenu';
+import { hasSortOptions } from './sortConfig';
 
-const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, extraControls, displayOptions}) => {
+const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, onOrderByChange, sortConfig, noCardDisplay, extraControls, displayOptions}) => {
   const { t } = useTranslation()
   const [displayAnchorEl, setDisplayAnchorEl] = React.useState(null);
   const [sortAnchorEl, setSortAnchorEl] = React.useState(null);
@@ -18,7 +19,7 @@ const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, on
   return (
     <div className='col-xs-12 padding-0' style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center'}}>
       {
-      sortableFields?.length > 0 &&
+      hasSortOptions(sortConfig) &&
           <Button disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none'}} endIcon={<DownIcon fontSize='inherit' />} onClick={onSortClick}>
             {t('search.sort_by')}
           </Button>
@@ -47,7 +48,7 @@ const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, on
         onChange={onOrderByChange}
         order={order}
         orderBy={orderBy}
-        fields={sortableFields}
+        config={sortConfig}
       />
       {
         extraControls &&
