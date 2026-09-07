@@ -28,7 +28,7 @@ const RepoVersionRowMenu = ({ anchorEl, open, onClose, items = [] }) => (
 
       return (
         <Tooltip key={item.key} title={item.tooltip} placement="left">
-          <span>{menuItem}</span>
+          <span style={{ display: 'block' }}>{menuItem}</span>
         </Tooltip>
       );
     })}

@@ -11,7 +11,7 @@ import AddIcon from '@mui/icons-material/Add'
 import APIService from '../../services/APIService';
 import ProcessingBanner from './ProcessingBanner';
 import { useProcessingVersions } from '../../hooks/useProcessingState';
-import { PROCESSING_QUERY_PARAMS } from './processingStages';
+import { PROCESSING_QUERY_PARAMS, isVersionProcessing } from './processingStages';
 import { dropVersion, toParentURI, toOwnerURI, currentUserHasAccess, isSameResourceNavigation } from '../../common/utils';
 import { WHITE } from '../../common/colors';
 import { RESERVED_ROUTE_KEYWORDS } from '../../common/constants';
@@ -224,19 +224,26 @@ const RepoHome = () => {
   }, []);
 
 
-  const onVersionChange = (version, reload=true) => {
+  const onVersionChange = (version, reload=true, targetTab=null) => {
     let url = version.version_url
     if(reload && version?.version === 'HEAD')
       url += 'HEAD/'
-    const nextPath = url + (tab || 'concepts') + '/'
+    const nextTab = targetTab || tab || 'concepts'
+    const nextPath = url + nextTab + '/'
     if(nextPath === location.pathname)
       return
     setExpansions([])
     setSelectedExpansion(false)
     if(reload)
       setLoading(true)
+    if(nextTab !== tab)
+      setTab(nextTab)
     history.push(nextPath + (location.search || ''))
   }
+
+  // Opening a version from the versions tab means "go look at this version", so it
+  // lands on its content rather than back on the list it was picked from.
+  const onExploreVersion = version => onVersionChange(version, true, 'concepts')
 
   const onTabChange = (event, newTab) => {
     if(newTab) {
@@ -376,6 +383,9 @@ const RepoHome = () => {
 
   const onVersionEditClick = () => isVersion && setVersionForm({edit: true, version: repo, expansions: []})
   const onReleaseVersionClick = () => isVersion && setReleaseTarget(repo)
+  const _canRenderSearch = repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && canRenderSearch
+  const showProcessingBanner = _canRenderSearch && isVersionProcessing(currentRepo)
+  const heightTakenInProcessingBanner = showProcessingBanner ? 43 : 0
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
       <Paper component="div" className={isSplitView ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: 'white', borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.nv80'}}>
@@ -386,6 +396,7 @@ const RepoHome = () => {
                 isVersion={isVersion}
                 owner={owner}
                 repo={currentRepo}
+                repoHref={'#' + dropVersion(currentRepo?.version_url || currentRepo?.url || '')}
                 versions={versions}
                 onVersionChange={onVersionChange}
                 onCreateConceptClick={onCreateConceptClick}
@@ -409,11 +420,11 @@ const RepoHome = () => {
                     </div>
                 }
                 {
-                  repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && canRenderSearch &&
+                  showProcessingBanner &&
                     <ProcessingBanner version={currentRepo} resource={t(`search.${tab}`)} />
                 }
                 {
-                  repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && canRenderSearch &&
+                  _canRenderSearch &&
                     <Search
                       key={`${tab}-${searchReloadKey}`}
                       loading={loading}
@@ -430,8 +441,8 @@ const RepoHome = () => {
                       showItem={showItem}
                       onSelectItem={setSelectedItem}
                       onCreateSimilarClick={!isCollection ? onCreateSimilarClick : undefined}
-                      filtersHeightToSubtract={268}
-                      resultContainerStyle={{height: 'calc(100vh - 356px)', overflow: 'auto', maxWidth: showSummary ? 'calc(100vw - 300px)' : 'calc(100vw - 40px)'}}
+                      filtersHeightToSubtract={268 + heightTakenInProcessingBanner}
+                      resultContainerStyle={{height: `calc(100vh - 356px - ${heightTakenInProcessingBanner}px)`, overflow: 'auto', maxWidth: showSummary ? 'calc(100vw - 300px)' : 'calc(100vw - 40px)'}}
                       containerStyle={{padding: 0}}
                       properties={(!tab || tab === 'concepts') ? repo?.meta?.display?.concept_summary_properties : []}
                       propertyDefinition={(!tab || tab === 'concepts') ? repo?.properties : []}
@@ -471,7 +482,7 @@ const RepoHome = () => {
                       repo={repo}
                       loading={loading}
                       refreshKey={versionsRefreshKey}
-                      onVersionChange={onVersionChange}
+                      onVersionChange={onExploreVersion}
                       onEditVersion={version => setVersionForm({edit: true, version, expansions: []})}
                       onReleaseVersion={version => setReleaseTarget(version)}
                       onDeleteVersion={version => setDeleteTarget(version)}
@@ -488,7 +499,7 @@ const RepoHome = () => {
                       repo={repo}
                       loading={loading}
                       refreshKey={versionsRefreshKey}
-                      onVersionChange={onVersionChange}
+                      onVersionChange={onExploreVersion}
                       onEditVersion={version => setVersionForm({edit: true, version, expansions: []})}
                       onReleaseVersion={version => setReleaseTarget(version)}
                       onDeleteVersion={version => setDeleteTarget(version)}

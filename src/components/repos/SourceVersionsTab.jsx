@@ -39,6 +39,7 @@ import {
   NewReleases as ReleaseIcon,
   Newspaper as ChangelogIcon,
   OpenInNew as OpenInNewIcon,
+  LayersClear as ClearProcessingIcon,
   QueryStats as ReindexIcon,
   Summarize as SummaryIcon,
   Visibility as VisibilityIcon
@@ -62,13 +63,14 @@ import MarkdownContent from '../common/MarkdownContent';
 import ConceptIcon from '../concepts/ConceptIcon';
 import MappingIcon from '../mappings/MappingIcon';
 import ExternalExportsDialog from './ExternalExportsDialog';
+import ClearProcessingDialog from './ClearProcessingDialog';
 import ProcessingFlag from './ProcessingFlag';
 import ProcessingProgress from './ProcessingProgress';
 import ReindexVersionDialog from './ReindexVersionDialog';
 import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
 import { useProcessingVersions } from '../../hooks/useProcessingState';
-import { PROCESSING_QUERY_PARAMS, isExportAvailable, isVersionProcessing } from './processingStages';
+import { PROCESSING_QUERY_PARAMS, areSeedStagesComplete, isExportAvailable, isVersionProcessing } from './processingStages';
 import {
   REPO_VERSIONS_PAGE_SIZE,
   bodyCellSx,
@@ -81,6 +83,7 @@ import {
   getVersionLabel,
   getVersionURL,
   headerCellSx,
+  menuOpenRowSx,
   isHeadVersion
 } from './versionsTab.styles';
 
@@ -138,12 +141,14 @@ const ChangelogDialog = ({ version, open, onClose }) => {
   );
 };
 // A disabled MenuItem emits no pointer events, so the tooltip goes on a wrapping span.
+// That span must be display:block — left inline inside the <ul> it adds line-height
+// leading above and below the item, which shows up as stray gaps between menu rows.
 const GatedMenuItem = ({ reason, disabled, children, ...rest }) => {
   const item = <MenuItem disabled={disabled} {...rest}>{children}</MenuItem>;
   if(!disabled || !reason) return item;
   return (
     <Tooltip title={reason} placement="left">
-      <span>{item}</span>
+      <span style={{ display: 'block' }}>{item}</span>
     </Tooltip>
   );
 };
@@ -166,6 +171,7 @@ const SourceVersionsTab = ({
   const [externalExportsVersion, setExternalExportsVersion] = React.useState(null);
   const [changelogVersion, setChangelogVersion] = React.useState(null);
   const [reindexTarget, setReindexTarget] = React.useState(null);
+  const [clearProcessingVersion, setClearProcessingVersion] = React.useState(null);
   const [reindexWip, setReindexWip] = React.useState({});
   const [headVersion, setHeadVersion] = React.useState(isHeadVersion(repo) ? repo : null);
   const [versions, setVersions] = React.useState([]);
@@ -233,6 +239,12 @@ const SourceVersionsTab = ({
     closeMenu();
     callback(version);
   };
+  // Editing HEAD means editing the repo itself, which is a route rather than the
+  // version form — same destination as Manage Repository > Edit.
+  const editVersion = version => {
+    if(isHeadVersion(version)) history.push(`${baseRepoURL}edit`);
+    else onEditVersion(version);
+  };
   const compareVersion = version => {
     const previousVersionURL = getPreviousVersionURL(version);
     if(previousVersionURL)
@@ -269,6 +281,9 @@ const SourceVersionsTab = ({
   const menuVersionProcessing = isVersionProcessing(menuVersion);
   const processingReason = t('repo.action_disabled_while_processing');
   const exportPending = menuVersionProcessing && !isExportAvailable(menuVersion);
+  // Changelog/compare read the version's content, which isn't there until seeding ends.
+  const seedPending = menuVersionProcessing && !areSeedStagesComplete(menuVersion);
+  const seedPendingReason = t('repo.action_disabled_until_seeded');
   const versionsCount = totalCount || sortedVersions.length;
   const countLabel = versionsCount === 1
     ? t('repo.source_version_count', { count: versionsCount.toLocaleString() })
@@ -285,7 +300,7 @@ const SourceVersionsTab = ({
     fetchVersionsPage(1, nextPageSize);
   };
   return (
-    <Box sx={{ height: 'calc(100vh - 285px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', backgroundColor: 'background.paper' }}>
+    <Box sx={{ height: 'calc(100vh - 268px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', backgroundColor: 'background.paper', borderBottomLeftRadius: '10px' }}>
       <Toolbar
         sx={{
           bgcolor: 'background.paper',
@@ -325,8 +340,15 @@ const SourceVersionsTab = ({
             {!isLoading && sortedVersions.map(version => {
               const isHEAD = isHeadVersion(version);
               const isPublic = ['view', 'edit'].includes((version.public_access || '').toLowerCase());
+              const isRowMenuOpen = Boolean(menuState.anchorEl) &&
+                getVersionKey(menuState.version) === getVersionKey(version);
               return (
-                <TableRow hover key={version.version_url || version.url || version.id}>
+                <TableRow
+                  hover
+                  selected={isRowMenuOpen}
+                  sx={menuOpenRowSx}
+                  key={version.version_url || version.url || version.id}
+                >
                   <TableCell sx={bodyCellSx}>
                     <Button
                       size="small"
@@ -437,11 +459,11 @@ const SourceVersionsTab = ({
         <MenuItem onClick={() => withClose(version => setExternalExportsVersion(version))} disabled={!isLoggedIn() || isHeadVersion(menuState.version)}><ExternalExportIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.external_exports')}</MenuItem>
         {
           Boolean(getPreviousVersionURL(menuState.version)) &&
-            <MenuItem onClick={() => withClose(version => setChangelogVersion(version))}><ChangelogIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.changelog')}</MenuItem>
+            <GatedMenuItem onClick={() => withClose(version => setChangelogVersion(version))} disabled={seedPending} reason={seedPendingReason}><ChangelogIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.changelog')}</GatedMenuItem>
         }
-        <MenuItem onClick={() => withClose(compareVersion)} disabled={!getPreviousVersionURL(menuState.version)}><OpenInNewIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.compare_with_previous')}</MenuItem>
+        <GatedMenuItem onClick={() => withClose(compareVersion)} disabled={!getPreviousVersionURL(menuState.version) || seedPending} reason={seedPendingReason}><OpenInNewIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.compare_with_previous')}</GatedMenuItem>
         {hasAccess && <Divider />}
-        {hasAccess && <GatedMenuItem onClick={() => withClose(onEditVersion)} disabled={isHeadVersion(menuState.version) || menuVersionProcessing} reason={processingReason}><EditIcon fontSize="small" sx={{ mr: 1 }} />{t('common.edit')}</GatedMenuItem>}
+        {hasAccess && <GatedMenuItem onClick={() => withClose(editVersion)} disabled={!isHeadVersion(menuState.version) && menuVersionProcessing} reason={processingReason}><EditIcon fontSize="small" sx={{ mr: 1 }} />{t('common.edit')}</GatedMenuItem>}
         {hasAccess && <GatedMenuItem onClick={() => withClose(onReleaseVersion)} disabled={isHeadVersion(menuState.version) || menuVersionProcessing} reason={processingReason}><ReleaseIcon fontSize="small" sx={{ mr: 1 }} />{menuState.version?.released ? t('repo.unrelease_version') : t('repo.release_version')}</GatedMenuItem>}
         {hasAccess && <GatedMenuItem onClick={() => withClose(computeSummary)} disabled={menuVersionProcessing} reason={processingReason}><SummaryIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.recompute_summary')}</GatedMenuItem>}
         {hasAccess && isStaffUser() && [
@@ -454,7 +476,7 @@ const SourceVersionsTab = ({
             : (menuVersionProcessing ? processingReason : '');
           return (
             <Tooltip key={contentType} title={tooltip} placement="left">
-              <span>
+              <span style={{ display: 'block' }}>
                 <MenuItem
                   disabled={Boolean(wip) || menuVersionProcessing}
                   onClick={() => withClose(version => setReindexTarget({ version, contentType }))}
@@ -466,9 +488,17 @@ const SourceVersionsTab = ({
           );
         })}
         {
+          isStaffUser() && menuVersionProcessing && [
+            <Divider key="clear-processing-divider" sx={{margin: '8px 0'}} />,
+            <MenuItem key="clear-processing" onClick={() => withClose(version => setClearProcessingVersion(version))}>
+              <ClearProcessingIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.clear_processing')}
+            </MenuItem>
+          ]
+        }
+        {
           hasAccess && !isHeadVersion(menuState.version) &&
             <>
-              <Divider />
+              <Divider sx={{margin: '8px 0'}} />
               <GatedMenuItem
                 onClick={() => withClose(onDeleteVersion)}
                 disabled={menuState.version?.retired || menuVersionProcessing}
@@ -484,6 +514,14 @@ const SourceVersionsTab = ({
       {Boolean(exportVersion) && <VersionExportDialog version={exportVersion} open={Boolean(exportVersion)} onClose={() => setExportVersion(null)} />}
       {Boolean(externalExportsVersion) && <ExternalExportsDialog version={externalExportsVersion} canEdit={hasAccess} open={Boolean(externalExportsVersion)} onClose={() => setExternalExportsVersion(null)} onChange={onExternalExportsChange} />}
       {Boolean(changelogVersion) && <ChangelogDialog version={changelogVersion} open={Boolean(changelogVersion)} onClose={() => setChangelogVersion(null)} />}
+      {Boolean(clearProcessingVersion) && (
+        <ClearProcessingDialog
+          version={clearProcessingVersion}
+          open={Boolean(clearProcessingVersion)}
+          onClose={() => setClearProcessingVersion(null)}
+          onCleared={() => fetchVersionsPage(page, pageSize)}
+        />
+      )}
       {Boolean(reindexTarget) && (
         <ReindexVersionDialog
           open={Boolean(reindexTarget)}

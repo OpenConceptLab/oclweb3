@@ -37,3 +37,10 @@ export const formatError = (value, fallback) => {
 
 // Repo versions only; expansions never carry an export time.
 export const formatExportTime = version => formatRuntime(getExportTimeSeconds(version));
+
+// Matches how a concept row stays highlighted while its details are open, so it is
+// obvious which version an open row menu belongs to.
+export const menuOpenRowSx = {
+  '&.Mui-selected': { backgroundColor: 'surface.main' },
+  '&.Mui-selected.MuiTableRow-hover:hover': { backgroundColor: 'surface.main' }
+};

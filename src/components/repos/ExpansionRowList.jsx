@@ -69,6 +69,7 @@ const ExpansionRowList = ({
   isStale,
   processingState,
   getStageVersion,
+  isMenuOpen,
   getRepoUpdates,
   onSelectExpansion,
   onOpenExpansionMenu,
@@ -122,7 +123,8 @@ const ExpansionRowList = ({
               borderColor: 'surface.nv80',
               py: 1,
               px: 1,
-              '&:last-of-type': { borderBottom: 'none' }
+              '&:last-of-type': { borderBottom: 'none' },
+              ...(isMenuOpen?.(expansion) ? { backgroundColor: 'surface.main' } : {})
             }}
           >
             <Box sx={{ display: 'grid', gridTemplateColumns: GRID_COLUMNS, columnGap: 2, alignItems: 'start' }}>

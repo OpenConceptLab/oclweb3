@@ -108,6 +108,15 @@ export const getExportTimeSeconds = version => {
   return Number.isFinite(seconds) && seconds >= 0 ? seconds : null;
 };
 
+// Changelog and version comparison read the version's concepts/mappings, so they only
+// mean anything once both seed stages have copied them in.
+export const areSeedStagesComplete = version => {
+  const stages = getProcessingStages(version);
+  return ['seeded_concepts', 'seeded_mappings'].every(
+    key => get(stages.find(stage => stage.key === key), 'status') === STAGE_STATUS.DONE
+  );
+};
+
 export const isExportAvailable = version => {
   if(getExportTimeSeconds(version) !== null) return true;
   const exported = getProcessingStages(version).find(stage => stage.key === 'exported');
