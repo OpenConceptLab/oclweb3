@@ -66,6 +66,9 @@ const RepoHome = () => {
   const versionsPageSize = DEFAULT_VERSIONS_PAGE_SIZE
   const [versionsRefreshKey, setVersionsRefreshKey] = React.useState(0)
   const [loading, setLoading] = React.useState(true)
+
+  const routeRepoURL = `/${params.ownerType}/${params.owner}/${params.repoType}/${params.repo}/`
+  const isRepoForRoute = Boolean(repo?.url) && repo.url.toLowerCase() === routeRepoURL.toLowerCase()
   const [showItem, setShowItem] = React.useState(false)
   const [dismissedResource, setDismissedResource] = React.useState(null)
   const [selectedItem, setSelectedItem] = React.useState([])
@@ -245,6 +248,13 @@ const RepoHome = () => {
   // lands on its content rather than back on the list it was picked from.
   const onExploreVersion = version => onVersionChange(version, true, 'concepts')
 
+  // A tab carried over from a collection (references) must not stay selected on a
+  // source, or it queries an endpoint that cannot exist there.
+  React.useEffect(() => {
+    if(tabs?.length && tab && !tabs.some(item => item.key === tab))
+      setTab(tabs[0].key)
+  }, [tabs, tab])
+
   const onTabChange = (event, newTab) => {
     if(newTab) {
       setTab(newTab)
@@ -383,7 +393,8 @@ const RepoHome = () => {
 
   const onVersionEditClick = () => isVersion && setVersionForm({edit: true, version: repo, expansions: []})
   const onReleaseVersionClick = () => isVersion && setReleaseTarget(repo)
-  const _canRenderSearch = repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && canRenderSearch
+  // References are collection-only, so never query them on a source.
+  const _canRenderSearch = repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && (tab !== 'references' || isCollection) && canRenderSearch
   const showProcessingBanner = _canRenderSearch && isVersionProcessing(currentRepo)
   const heightTakenInProcessingBanner = showProcessingBanner ? 43 : 0
   return (
@@ -477,7 +488,7 @@ const RepoHome = () => {
                     />
                 }
                 {
-                  tab === 'versions' && isCollection &&
+                  tab === 'versions' && isCollection && isRepoForRoute &&
                     <CollectionVersionsTab
                       repo={repo}
                       loading={loading}
@@ -494,7 +505,7 @@ const RepoHome = () => {
                     />
                 }
                 {
-                  tab === 'versions' && !isCollection &&
+                  tab === 'versions' && !isCollection && isRepoForRoute &&
                     <SourceVersionsTab
                       repo={repo}
                       loading={loading}

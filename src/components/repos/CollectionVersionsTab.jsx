@@ -99,6 +99,8 @@ const isStaleExpansion = expansion =>
 
 const isExpansionProcessing = expansion => Boolean(expansion?.is_processing);
 
+const isCollectionURL = url => String(url || '').includes('/collections/');
+
 const getVersionEndpoint = version => {
   const versionURL = version?.version_url || version?.url || '';
   return version?.version === 'HEAD' ? `${dropVersion(versionURL)}HEAD/` : versionURL;
@@ -260,7 +262,7 @@ const CollectionVersionsTab = ({
     if (!versionKey || loadingByVersion[versionKey] || (!force && expansionsByVersion[versionKey])) return;
 
     const versionURL = getVersionEndpoint(version);
-    if (!versionURL) return;
+    if (!versionURL || !isCollectionURL(versionURL)) return;
 
     setLoadingByVersion(prev => ({ ...prev, [versionKey]: true }));
     APIService.new()
