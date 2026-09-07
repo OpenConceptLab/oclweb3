@@ -73,7 +73,14 @@
     "company": "Empresa",
     "location": "Ubicación",
     "generic_error": "Algo salió mal.",
-    "click_here": "haz clic aquí"
+    "click_here": "haz clic aquí",
+    "add": "Agregar",
+    "already_exists": "Ya existe",
+    "click_to_copy": "Clic para copiar",
+    "comment": "Comentario",
+    "no_results": "Sin resultados",
+    "submit": "Enviar",
+    "update_comment": "Comentario de actualización"
   },
   "errors": {
     "401": "Se requiere iniciar sesión",
@@ -124,7 +131,29 @@
     "error_update": "No se pudo actualizar el concepto",
     "form": {
       "id_auto_assign": "El ID del concepto se asignará automáticamente",
-      "id_auto_assign_override": "para anular con entrada manual"
+      "id_auto_assign_override": "para anular con entrada manual",
+      "id": "ID del concepto",
+      "external_id": "ID externo",
+      "concept_class": "Clase de concepto",
+      "datatype": "Tipo de dato",
+      "locale": "Idioma",
+      "name": "Nombre",
+      "description": "Descripción",
+      "type": "Tipo",
+      "locale_preferred": "Preferido",
+      "concept_details": {
+        "header": "Detalles del concepto"
+      },
+      "names": {
+        "header": "Nombre y sinónimos"
+      },
+      "descriptions": {
+        "header": "Descripciones"
+      },
+      "parent_concepts_header": "Conceptos padre",
+      "parent_concepts": "Conceptos padre",
+      "parent_concepts_placeholder": "Buscar conceptos en esta fuente",
+      "parent_concepts_help": "Conceptos bajo los cuales se ubica este concepto en la jerarquía. También puedes pegar la URL completa de un concepto."
     }
   },
   "mapping": {
@@ -194,7 +223,21 @@
     "id_helper": "Cada ID se convierte en {{path}}{id}/",
     "expression_hint": "Expresión de referencia completa. Precargada desde el selector de fuente / colección; edita según sea necesario.",
     "adding_references": "Agregando referencias…",
-    "request_failed": "La solicitud falló — verifica tu conexión de red e inténtalo de nuevo."
+    "request_failed": "La solicitud falló — verifica tu conexión de red e inténtalo de nuevo.",
+    "actions": "Acciones",
+    "expression": "Expresión",
+    "new_expression": "Nueva expresión",
+    "transform_to_non_versioned": "Transformar a referencia sin versión",
+    "transform_confirm_title": "¿Transformar {{count}} referencia(s)?",
+    "transform_confirm_body": "Esto agregará primero referencias de reemplazo sin versión y luego eliminará las referencias fijadas anteriores cuando la adición se complete correctamente.",
+    "transform_references": "Transformar referencias",
+    "transform_success": "{{count}} referencia(s) transformada(s) correctamente.",
+    "transform_partial_success": "{{transformed}} referencia(s) transformada(s). {{failed}} referencia(s) no pudieron transformarse y se dejaron sin cambios.",
+    "transform_no_eligible": "Ninguna de las referencias seleccionadas puede transformarse en una referencia sin versión.",
+    "transform_no_references_changed": "No se transformó ninguna referencia.",
+    "transform_delete_failed": "Se agregaron {{count}} referencia(s) sin versión, pero no se pudieron eliminar las referencias fijadas anteriores. Actualiza y revisa la lista de referencias para detectar duplicados.",
+    "already_non_versioned": "Ya está sin versión",
+    "unsupported_transform": "No compatible"
   },
   "repo": {
     "repos": "Repositorios",
@@ -322,22 +365,6 @@
     "last_login": "Último inicio de sesión",
     "name_and_description": "Nombre y descripción"
   },
-  "reference": {
-    "actions": "Acciones",
-    "expression": "Expresión",
-    "new_expression": "Nueva expresión",
-    "transform_to_non_versioned": "Transformar a referencia sin versión",
-    "transform_confirm_title": "¿Transformar {{count}} referencia(s)?",
-    "transform_confirm_body": "Esto agregará primero referencias de reemplazo sin versión y luego eliminará las referencias fijadas anteriores cuando la adición se complete correctamente.",
-    "transform_references": "Transformar referencias",
-    "transform_success": "{{count}} referencia(s) transformada(s) correctamente.",
-    "transform_partial_success": "{{transformed}} referencia(s) transformada(s). {{failed}} referencia(s) no pudieron transformarse y se dejaron sin cambios.",
-    "transform_no_eligible": "Ninguna de las referencias seleccionadas puede transformarse en una referencia sin versión.",
-    "transform_no_references_changed": "No se transformó ninguna referencia.",
-    "transform_delete_failed": "Se agregaron {{count}} referencia(s) sin versión, pero no se pudieron eliminar las referencias fijadas anteriores. Actualiza y revisa la lista de referencias para detectar duplicados.",
-    "already_non_versioned": "Ya está sin versión",
-    "unsupported_transform": "No compatible"
-  },
   "search": {
     "filters": "Filtros",
     "concepts": "Conceptos",
@@ -370,5 +397,11 @@
     "search_all_site": "Buscar en todo OCL para ",
     "search_this_repository": "Buscar en este repositorio",
     "search_all_concepts": "Buscar todos los conceptos"
+  },
+  "custom_attributes": {
+    "label": "Atributos personalizados",
+    "key": "Nombre del atributo",
+    "value": "Valor del atributo",
+    "add": "Agregar un atributo personalizado"
   }
 }

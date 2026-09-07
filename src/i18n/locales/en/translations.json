@@ -89,6 +89,8 @@
     "compare": "Compare",
     "something_went_wrong": "Something went wrong",
     "no_results": "No results",
+    "json_helper_text": "JSON format e.g. {\"key\": \"value\"}",
+    "format_json": "Format JSON",
     "content": "Content",
     "short_code": "Short Code",
     "attribute": "Attribute",
@@ -160,7 +162,10 @@
     "copy_smart_checksum": "Copy Smart Checksum",
     "committed": "committed",
     "results": "Results",
-    "click_here": "click here"
+    "click_here": "click here",
+    "already_exists": "Already exists",
+    "comment": "Comment",
+    "update_comment": "Update comment"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -168,6 +173,7 @@
     "403": "Access to this page is not authorized",
     "mandatory_field": "This field cannot be blank",
     "already_queued": "Already queued",
+    "invalid_json": "Please enter valid JSON",
     "generic": "Something failed, please try again later.",
     "network_error": "Network Error"
   },
@@ -248,7 +254,11 @@
       },
       "descriptions": {
         "header": "Descriptions"
-      }
+      },
+      "parent_concepts_header": "Parent concepts",
+      "parent_concepts": "Parent Concepts",
+      "parent_concepts_placeholder": "Search concepts in this source",
+      "parent_concepts_help": "Concepts this concept sits under in the hierarchy. A full concept URL can also be pasted."
     },
     "edit_concept": "Edit Concept",
     "ai_assistant_not_configured": "AI assistant is not configured for this environment.",
@@ -435,6 +445,12 @@
     "experimental": "Experimental",
     "case_sensitive": "Case Sensitive",
     "hierarchy_meaning": "Hierarchy Meaning",
+    "hierarchy": "Hierarchy",
+    "hierarchy_description": "Optionally declare the concept that roots this source's hierarchy and what the parent/child relationship means.",
+    "hierarchy_root": "Hierarchy Root",
+    "hierarchy_root_help": "Must be a concept in this source",
+    "hierarchy_root_after_create_help": "Can be set once this source has concepts",
+    "hierarchy_meaning_help": "How the parent/child relationship of this source's concepts should be interpreted",
     "compositional": "Compositional",
     "version_needed": "Version Needed",
     "meta": "Meta",

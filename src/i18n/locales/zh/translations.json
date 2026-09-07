@@ -114,7 +114,10 @@
     "generic_error": "出了些问题。",
     "something_went_wrong": "出了些问题",
     "no_results": "无结果",
-    "click_here": "点击此处"
+    "click_here": "点击此处",
+    "already_exists": "已存在",
+    "comment": "备注",
+    "update_comment": "更新说明"
   },
   "errors": {
     "network_error": "网络错误",
@@ -194,7 +197,11 @@
       },
       "descriptions": {
         "header": "描述"
-      }
+      },
+      "parent_concepts_header": "父概念",
+      "parent_concepts": "父概念",
+      "parent_concepts_placeholder": "在此来源中搜索概念",
+      "parent_concepts_help": "该概念在层级结构中所属的上级概念。也可以粘贴完整的概念 URL。"
     },
     "edit_concept": "编辑概念",
     "ai_assistant_not_configured": "此环境尚未配置 AI 助手。",
