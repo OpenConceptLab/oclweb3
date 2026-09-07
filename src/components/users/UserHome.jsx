@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams, useHistory } from 'react-router-dom'
 import Paper from '@mui/material/Paper'
 import { getCurrentUser } from '../../common/utils'
+import usePins from '../../hooks/usePins'
 import { COLORS } from '../../common/colors'
 import APIService from '../../services/APIService'
 import CommonTabs from '../common/CommonTabs';
@@ -18,7 +19,7 @@ const UserHome = () => {
   const history = useHistory()
   const [tab, setTab] = React.useState(findTab || 'overview')
   const [user, setUser] = React.useState({})
-  const [bookmarks, setBookmarks] = React.useState(false)
+  const { pins: bookmarks, canPin, togglePin, deletePin } = usePins(params?.user ? {type: 'user', id: params.user} : false)
   const [events, setEvents] = React.useState(false)
   const [eventsPage, setEventsPage] = React.useState(0)
   const [haveMoreEvents, setHaveMoreEvents] = React.useState(false)
@@ -33,7 +34,6 @@ const UserHome = () => {
   const isCurrentUser = Boolean(currentUser?.username && currentUser?.username == params.user)
 
   const reset = () => {
-    setBookmarks(false)
     setEvents(false)
     setEventsPage(0)
     setUser({})
@@ -44,26 +44,16 @@ const UserHome = () => {
     if(isCurrentUser) {
       setUser(getCurrentUser())
       fetchEvents(reset)
-      fetchBookmarks()
     } else {
       APIService.users(params.user).get(null, null, {includeSubscribedOrgs: true, includeFollowing: true}).then(response => {
         if(response.status === 200) {
           setUser(response.data)
           fetchEvents(reset)
-          fetchBookmarks()
         }
         else if(response.status)
           window.location.hash = '#/' + response.status
         else if(response.detail === 'Not found.')
           window.location.hash = '#/404/'
-      })
-    }
-  }
-
-  const fetchBookmarks = () => {
-    if(params?.user) {
-      APIService.users(params?.user).appendToUrl('pins/').get().then(response => {
-        setBookmarks(response?.data?.length ? response.data : [])
       })
     }
   }
@@ -119,6 +109,9 @@ const UserHome = () => {
               <Search
                 resource='repos'
                 url={user?.url + 'repos/'}
+                pins={bookmarks}
+                canPin={canPin}
+                onPinToggle={togglePin}
                 nested
                 noTabs
                 filtersHeightToSubtract={baseHeightToDeduct}
@@ -131,7 +124,7 @@ const UserHome = () => {
           }
           {
             tab === 'overview' && user?.url &&
-              <UserOverview user={user} bookmarks={bookmarks} events={events} height={height} onLoadMoreEvents={haveMoreEvents ? fetchEvents : false} />
+              <UserOverview user={user} bookmarks={bookmarks} events={events} height={height} onLoadMoreEvents={haveMoreEvents ? fetchEvents : false} canPin={canPin} onBookmarkDelete={deletePin} />
           }
         </div>
 

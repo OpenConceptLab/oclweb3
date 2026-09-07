@@ -4,6 +4,7 @@ import { useParams, useHistory } from 'react-router-dom'
 import Paper from '@mui/material/Paper'
 import APIService from '../../services/APIService'
 import { getCurrentUser, isAdminUser } from '../../common/utils';
+import usePins from '../../hooks/usePins';
 import { OperationsContext } from '../app/LayoutContext';
 import CommonTabs from '../common/CommonTabs';
 import DeleteEntityDialog from '../common/DeleteEntityDialog'
@@ -19,10 +20,10 @@ const OrgHome = () => {
   const user = getCurrentUser()
   const [org, setOrg] = React.useState({})
   const [members, setMembers] = React.useState([])
-  const [bookmarks, setBookmarks] = React.useState(false)
   const [deleteOrg, setDeleteOrg] = React.useState(false)
   const [tab, setTab] = React.useState(findTab)
   const { setAlert } = React.useContext(OperationsContext);
+  const { pins: bookmarks, canPin, togglePin, deletePin } = usePins(params?.org ? {type: 'org', id: params.org} : false)
 
   const TABS = [
     {key: 'overview', label: t('common.overview')},
@@ -35,7 +36,6 @@ const OrgHome = () => {
       if(response?.data?.id) {
         setOrg(response.data)
         fetchMembers()
-        fetchBookmarks()
       } else if(response.status)
         window.location.hash = '#/' + response.status
       else if(response.detail === 'Not found.')
@@ -47,13 +47,6 @@ const OrgHome = () => {
       if(response?.data?.length)
         setMembers(response.data)
     })
-  }
-  const fetchBookmarks = () => {
-    if(params?.org) {
-      APIService.orgs(params?.org).appendToUrl('pins/').get().then(response => {
-        setBookmarks(response?.data?.length ? response.data : [])
-      })
-    }
   }
   const onTabChange = (event, newTab) => {
     if(newTab) {
@@ -104,6 +97,9 @@ const OrgHome = () => {
                     <Search
                       resource={tab}
                       url={org.url + tab + '/'}
+                      pins={bookmarks}
+                      canPin={canPin}
+                      onPinToggle={togglePin}
                       defaultFiltersOpen={false}
                       nested
                       noTabs
@@ -114,7 +110,7 @@ const OrgHome = () => {
                 }
                 {
                   tab === 'overview' && org?.id &&
-                    <OrgOverview org={org} bookmarks={bookmarks} height={height} />
+                    <OrgOverview org={org} bookmarks={bookmarks} height={height} canPin={canPin} onBookmarkDelete={deletePin} />
                 }
               </div>
               <Paper component='div' className='col-xs-12' sx={{height: 'calc(100vh - 228px)', width: '272px !important', borderLeft: '0.5px solid', borderTop: '0.5px solid', borderColor: 'surface.nv80', borderRadius: '0 0 10px 0', boxShadow: 'none', padding: '16px', overflow: 'auto', backgroundColor: 'default.main'}}>

@@ -7,7 +7,7 @@ import About from '../common/About';
 import EmptyOverview from '../common/EmptyOverview'
 
 
-const OrgOverview = ({ org, bookmarks, height }) => {
+const OrgOverview = ({ org, bookmarks, height, canPin, onBookmarkDelete }) => {
   const { t } = useTranslation()
   const repos = (org?.public_sources || 0) + (org?.public_collections || 0)
   const overviewBackgroundImage = org?.overview?.background?.image
@@ -50,7 +50,7 @@ const OrgOverview = ({ org, bookmarks, height }) => {
             </div>
           </Paper>
           {emptyOverview}
-          <Bookmarks bookmarks={bookmarks} />
+          <Bookmarks bookmarks={bookmarks} canPin={canPin} onDelete={onBookmarkDelete} />
         </div>
       </div>
     )
@@ -59,7 +59,7 @@ const OrgOverview = ({ org, bookmarks, height }) => {
   return (
     <div className='col-xs-12 padding-0' style={{height: height || '100%' }}>
       <div className='col-xs-12' style={{padding: '0 16px', height: '100%', overflow: 'auto'}}>
-        <Bookmarks bookmarks={bookmarks} />
+        <Bookmarks bookmarks={bookmarks} canPin={canPin} onDelete={onBookmarkDelete} />
         <About text={org?.text} title={t('org.about_the_org')} expanded />
         {emptyOverview}
       </div>

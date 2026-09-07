@@ -189,7 +189,10 @@
   "bookmarks": {
     "name": "Bookmarks",
     "pinned": "Pinned",
-    "pinned_repos": "Pinned repositories"
+    "pinned_repos": "Pinned repositories",
+    "pin": "Pin",
+    "unpin": "Remove pin",
+    "max_pins_reached": "Maximum 4 items can be pinned"
   },
   "auth": {
     "sign_in": "Sign in",
