@@ -9,6 +9,9 @@ import find from 'lodash/find'
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add'
 import APIService from '../../services/APIService';
+import ProcessingBanner from './ProcessingBanner';
+import { useProcessingVersions } from '../../hooks/useProcessingState';
+import { PROCESSING_QUERY_PARAMS } from './processingStages';
 import { dropVersion, toParentURI, toOwnerURI, currentUserHasAccess, isSameResourceNavigation } from '../../common/utils';
 import { WHITE } from '../../common/colors';
 import { RESERVED_ROUTE_KEYWORDS } from '../../common/constants';
@@ -134,7 +137,7 @@ const RepoHome = () => {
     setStatus(false)
     setExpansions([])
     setSelectedExpansion(false)
-    APIService.new().overrideURL(getURL()).get(null, null, {includeSummary: true}, true).then(response => {
+    APIService.new().overrideURL(getURL()).get(null, null, {includeSummary: true, ...PROCESSING_QUERY_PARAMS}, true).then(response => {
       const newStatus = response?.status || response?.response.status
       const _repo = response?.data || response?.response?.data || {}
 
@@ -181,7 +184,7 @@ const RepoHome = () => {
   }
 
   const fetchVersions = (page=versionsPage, limit=versionsPageSize) => {
-    APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit, page}).then(response => {
+    APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit, page, ...PROCESSING_QUERY_PARAMS}).then(response => {
       const _versions = Array.isArray(response?.data) ? response.data : []
       setVersions(_versions)
       if(!repo.version_url && !versionFromURL && !showConceptURL && !showMappingURL) {
@@ -355,6 +358,10 @@ const RepoHome = () => {
   const isMappingURL = tab === 'mappings'
   const isReferenceURL = tab === 'references'
   const requiresExpansionSelection = isCollection && ['concepts', 'mappings'].includes(tab)
+  const processingTargets = React.useMemo(() => (repo?.url || repo?.version_url) ? [repo] : [], [repo])
+  const { versions: [liveRepo] = [] } = useProcessingVersions(processingTargets)
+  const currentRepo = liveRepo || repo
+
   const canRenderSearch = !requiresExpansionSelection || (!expansionsLoading && Boolean(selectedExpansion))
   const getConceptURLFromMainURL = () => (isConceptURL && params.resource) ? getURL() + 'concepts/' + params.resource + '/' : false
   const getMappingURLFromMainURL = () => (isMappingURL && params.resource) ? getURL() + 'mappings/' + params.resource + '/' : false
@@ -378,7 +385,7 @@ const RepoHome = () => {
               <RepoHeader
                 isVersion={isVersion}
                 owner={owner}
-                repo={repo}
+                repo={currentRepo}
                 versions={versions}
                 onVersionChange={onVersionChange}
                 onCreateConceptClick={onCreateConceptClick}
@@ -400,6 +407,10 @@ const RepoHome = () => {
                         onChange={setSelectedExpansion}
                       />
                     </div>
+                }
+                {
+                  repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && canRenderSearch &&
+                    <ProcessingBanner version={currentRepo} resource={t(`search.${tab}`)} />
                 }
                 {
                   repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && canRenderSearch &&

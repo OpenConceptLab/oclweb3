@@ -62,16 +62,21 @@ import ExpansionForm from './ExpansionForm';
 import ExpansionDetailsDialog from './ExpansionDetailsDialog';
 import ExpansionRowList from './ExpansionRowList';
 import ExternalExportsDialog from './ExternalExportsDialog';
+import ProcessingFlag from './ProcessingFlag';
+import ProcessingProgress from './ProcessingProgress';
 import RebuildExpansionDialog from './RebuildExpansionDialog';
 import ReindexVersionDialog from './ReindexVersionDialog';
 import RepoVersionRowMenu from './RepoVersionRowMenu';
 import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
+import { PROCESSING_POLL_INTERVAL_MS, useProcessingVersions } from '../../hooks/useProcessingState';
+import { PROCESSING_QUERY_PARAMS, isExportAvailable, isVersionProcessing } from './processingStages';
 import {
   REPO_VERSIONS_PAGE_SIZE,
   bodyCellSx,
   formatCount,
   formatError,
+  formatExportTime,
   getPreviousVersionURL,
   getVersionKey,
   getVersionLabel,
@@ -79,7 +84,6 @@ import {
   isHeadVersion
 } from './versionsTab.styles';
 
-const PROCESSING_POLL_INTERVAL_MS = 10000;
 const PROCESSED_CHIP_FADE_MS = 6000;
 
 const isStaleExpansion = expansion =>
@@ -196,7 +200,7 @@ const CollectionVersionsTab = ({
     APIService.new()
       .overrideURL(baseRepoURL)
       .appendToUrl('versions/')
-      .get(null, null, { verbose: true, includeSummary: true, limit: nextPageSize, page: nextPage, includeExternalExports: true })
+      .get(null, null, { verbose: true, includeSummary: true, limit: nextPageSize, page: nextPage, includeExternalExports: true, ...PROCESSING_QUERY_PARAMS })
       .then(response => {
         const _versions = Array.isArray(response?.data) ? response.data : [];
         setVersions(_versions);
@@ -221,13 +225,13 @@ const CollectionVersionsTab = ({
     }
     APIService.new()
       .overrideURL(baseRepoURL)
-      .get(null, null, { includeSummary: true }, true)
+      .get(null, null, { includeSummary: true, ...PROCESSING_QUERY_PARAMS }, true)
       .then(response => {
         setHeadVersion(response?.data || response?.response?.data || null);
       });
   }, [baseRepoURL, repo]);
 
-  const displayVersions = React.useMemo(() => {
+  const rawDisplayVersions = React.useMemo(() => {
     const normalizedHeadVersion = headVersion ? {
       ...headVersion,
       id: 'HEAD',
@@ -244,6 +248,8 @@ const CollectionVersionsTab = ({
     }));
     return headFirst(withOverrides);
   }, [baseRepoURL, headVersion, page, versionOverrides, versions]);
+
+  const { versions: displayVersions } = useProcessingVersions(rawDisplayVersions);
 
   const fetchExpansions = React.useCallback((version, force = false) => {
     const versionKey = getVersionKey(version);
@@ -549,26 +555,29 @@ const CollectionVersionsTab = ({
     const released = Boolean(version.released);
     const versionExpansions = expansionsByVersion[versionKey] || [];
     const canDeleteVersion = !isHead && !released && versionExpansions.length === 0;
+    const processing = isVersionProcessing(version);
+    const processingReason = t('repo.action_disabled_while_processing');
+    const exportPending = processing && !isExportAvailable(version);
 
     const items = [
       { key: 'explore', label: t('repo.explore_version'), icon: <VisibilityIcon />, onClick: () => onVersionChange?.(version) },
       { key: 'copy', label: t('common.copy_api_url'), icon: <CopyIcon />, onClick: () => copyVersionURL(version) },
-      { key: 'export', label: t('repo.export_version'), icon: <ExportIcon />, disabled: !isLoggedIn(), onClick: () => setExportVersion(version) },
+      { key: 'export', label: t('repo.export_version'), icon: <ExportIcon />, disabled: !isLoggedIn() || exportPending, tooltip: exportPending ? t('repo.export_not_ready_tooltip') : undefined, onClick: () => setExportVersion(version) },
       { key: 'external-exports', label: t('repo.external_exports'), icon: <ExternalExportIcon />, disabled: !isLoggedIn() || isHead, onClick: () => setExternalExportsVersion(version) },
       { key: 'compare', label: t('repo.compare_with_previous'), icon: <OpenInNewIcon />, disabled: !getPreviousVersionURL(version), onClick: () => compareVersion(version) },
       { divider: true },
-      { key: 'new-expansion', label: t('repo.new_expansion'), icon: <AddIcon />, onClick: () => setExpansionFormState({ open: true, version, copyFrom: null }) },
+      { key: 'new-expansion', label: t('repo.new_expansion'), icon: <AddIcon />, disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => setExpansionFormState({ open: true, version, copyFrom: null }) },
       { key: 'manage-expansions', label: t('repo.expansions'), icon: <ExpansionIcon />, disabled: !versionExpansions.length, onClick: () => toggleVersionExpand(version) }
     ];
 
     if (hasAccess) {
       items.push(
         { divider: true },
-        { key: 'edit', label: t('common.edit'), icon: <EditIcon />, disabled: isHead, onClick: () => onEditVersion?.(version) },
-        { key: 'release', label: released ? t('repo.unrelease_version') : t('repo.release_version'), icon: <ReleaseIcon />, disabled: isHead, onClick: () => onReleaseVersion?.(version) },
-        { key: 'recompute-summary', label: t('repo.recompute_summary'), icon: <SummaryIcon />, onClick: () => computeSummary(version) },
+        { key: 'edit', label: t('common.edit'), icon: <EditIcon />, disabled: isHead || processing, tooltip: processing ? processingReason : undefined, onClick: () => onEditVersion?.(version) },
+        { key: 'release', label: released ? t('repo.unrelease_version') : t('repo.release_version'), icon: <ReleaseIcon />, disabled: isHead || processing, tooltip: processing ? processingReason : undefined, onClick: () => onReleaseVersion?.(version) },
+        { key: 'recompute-summary', label: t('repo.recompute_summary'), icon: <SummaryIcon />, disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => computeSummary(version) },
         { divider: true },
-        { key: 'delete', label: t('repo.delete_repo_version'), icon: <DeleteIcon />, disabled: !canDeleteVersion, danger: true, onClick: () => onDeleteVersion?.(version) }
+        { key: 'delete', label: t('repo.delete_repo_version'), icon: <DeleteIcon />, disabled: !canDeleteVersion || processing, tooltip: processing ? processingReason : undefined, danger: true, onClick: () => onDeleteVersion?.(version) }
       );
     }
 
@@ -579,13 +588,16 @@ const CollectionVersionsTab = ({
     const { version, expansion } = expansionMenu;
     if (!version || !expansion) return [];
 
+    const processing = isExpansionProcessing(expansion) || isVersionProcessing(version);
+    const processingReason = t('repo.action_disabled_while_processing');
+
     const items = [];
     if (!expansion.default) {
-      items.push({ key: 'set-default', label: t('repo.set_as_default'), onClick: () => onMarkExpansionDefault(version, expansion) });
+      items.push({ key: 'set-default', label: t('repo.set_as_default'), disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => onMarkExpansionDefault(version, expansion) });
     }
     items.push(
-      { key: 'create-similar', label: t('repo.create_similar'), onClick: () => setExpansionFormState({ open: true, version, copyFrom: expansion }) },
-      { key: 'rebuild', label: t('repo.rebuild'), onClick: () => setRebuildExpansion({ ...expansion, __version: version }) },
+      { key: 'create-similar', label: t('repo.create_similar'), disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => setExpansionFormState({ open: true, version, copyFrom: expansion }) },
+      { key: 'rebuild', label: t('repo.rebuild'), disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => setRebuildExpansion({ ...expansion, __version: version }) },
       { key: 'details', label: t('common.details'), onClick: () => setDetailsExpansion(expansion) }
     );
     if (isStaffUser()) {
@@ -597,16 +609,16 @@ const CollectionVersionsTab = ({
         items.push({
           key: `reindex-${contentType}`,
           label,
-          disabled: Boolean(wip),
+          disabled: Boolean(wip) || processing,
           tooltip: wip
             ? (wip.taskId ? t('repo.reindex_in_progress_tooltip_with_id', { id: wip.taskId }) : t('repo.reindex_in_progress_tooltip'))
-            : undefined,
+            : (processing ? processingReason : undefined),
           onClick: () => setReindexTarget({ targetUrl: expansion.url, repoId: expansion.mnemonic, contentType, indexPath: 'index' })
         });
       });
     }
     items.push(
-      { key: 'delete', label: t('common.delete_label'), danger: true, disabled: Boolean(expansion.default), onClick: () => setDeleteExpansion({ ...expansion, __version: version }) }
+      { key: 'delete', label: t('common.delete_label'), danger: true, disabled: Boolean(expansion.default) || processing, tooltip: processing ? processingReason : undefined, onClick: () => setDeleteExpansion({ ...expansion, __version: version }) }
     );
     return items;
   };
@@ -622,6 +634,7 @@ const CollectionVersionsTab = ({
     const mappingCount = get(defaultExpansion, 'summary.active_mappings') ?? get(version, 'summary.active_mappings');
     const expansionUpdates = defaultExpansion ? repoUpdatesByExpansion[defaultExpansion.url] : null;
     const hasRepoUpdates = hasAccess && expansionUpdates && Object.keys(expansionUpdates).length > 0;
+    const exportTime = formatExportTime(version);
     const stale = isStaleExpansion(defaultExpansion);
     const showWarning = hasRepoUpdates || stale;
     const expanded = expandedVersionKeys.has(versionKey);
@@ -638,6 +651,7 @@ const CollectionVersionsTab = ({
               >
                 {getVersionLabel(version)}
               </MuiButton>
+              <ProcessingFlag version={version} />
               <Chip
                 size="small"
                 variant="outlined"
@@ -653,6 +667,7 @@ const CollectionVersionsTab = ({
             )}
             <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.25 }}>
               {version.created_on ? formatDate(version.created_on) : ''}{version.created_by ? ` · ${version.created_by}` : ''}
+              {exportTime ? ` · ${t('repo.export_time')}: ${exportTime}` : ''}
             </Typography>
           </TableCell>
           <TableCell sx={bodyCellSx}>
@@ -681,6 +696,7 @@ const CollectionVersionsTab = ({
           </TableCell>
           <TableCell sx={bodyCellSx}>
             <VersionStatusIndicator isHead={isHead} released={released} retired={version.retired} />
+            <ProcessingProgress version={version} />
           </TableCell>
           <TableCell sx={{ ...bodyCellSx, width: '1%' }}>
             {showWarning && (
@@ -714,6 +730,7 @@ const CollectionVersionsTab = ({
                   loading={versionLoading}
                   isStale={isStaleExpansion}
                   processingState={expansion => processingStatusByExpansion[expansion.url]?.state || (isExpansionProcessing(expansion) ? 'processing' : null)}
+                  getStageVersion={expansion => (expansion.default || expansion.auto) ? version : null}
                   getRepoUpdates={expansion => repoUpdatesByExpansion[expansion.url]}
                   onSelectExpansion={expansion => setDetailsExpansion(expansion)}
                   onOpenExpansionMenu={(event, expansion) => openExpansionMenu(event, version, expansion)}

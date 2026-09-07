@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import { has } from 'lodash'
 import RepoVersionChip from './RepoVersionChip';
+import ProcessingFlag from './ProcessingFlag';
 import RepoChip from './RepoChip'
 import OwnerChip from '../common/OwnerChip';
 import { currentUserHasAccess } from '../../common/utils';
@@ -53,6 +54,7 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
             onVersionChange &&
               <RepoVersionChip checkbox version={repo} versions={versions} sx={{marginLeft: '8px', borderRadius: '4px'}} onChange={onVersionChange} />
           }
+          <ProcessingFlag version={repo} sx={{marginLeft: '8px'}} />
         </span>
         <span style={{display: 'flex', alignItems: 'center', marginLeft: '16px'}}>
           <FollowActionButton iconButton entity={repo} />

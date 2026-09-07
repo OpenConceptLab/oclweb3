@@ -62,14 +62,19 @@ import MarkdownContent from '../common/MarkdownContent';
 import ConceptIcon from '../concepts/ConceptIcon';
 import MappingIcon from '../mappings/MappingIcon';
 import ExternalExportsDialog from './ExternalExportsDialog';
+import ProcessingFlag from './ProcessingFlag';
+import ProcessingProgress from './ProcessingProgress';
 import ReindexVersionDialog from './ReindexVersionDialog';
 import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
+import { useProcessingVersions } from '../../hooks/useProcessingState';
+import { PROCESSING_QUERY_PARAMS, isExportAvailable, isVersionProcessing } from './processingStages';
 import {
   REPO_VERSIONS_PAGE_SIZE,
   bodyCellSx,
   formatCount,
   formatError,
+  formatExportTime,
   getContentCount,
   getPreviousVersionURL,
   getVersionKey,
@@ -132,6 +137,17 @@ const ChangelogDialog = ({ version, open, onClose }) => {
     </Dialog>
   );
 };
+// A disabled MenuItem emits no pointer events, so the tooltip goes on a wrapping span.
+const GatedMenuItem = ({ reason, disabled, children, ...rest }) => {
+  const item = <MenuItem disabled={disabled} {...rest}>{children}</MenuItem>;
+  if(!disabled || !reason) return item;
+  return (
+    <Tooltip title={reason} placement="left">
+      <span>{item}</span>
+    </Tooltip>
+  );
+};
+
 const SourceVersionsTab = ({
   repo,
   loading,
@@ -165,7 +181,7 @@ const SourceVersionsTab = ({
     APIService.new()
       .overrideURL(baseRepoURL)
       .appendToUrl('versions/')
-      .get(null, null, { verbose: true, includeSummary: true, limit: nextPageSize, page: nextPage, includeExternalExports: true })
+      .get(null, null, { verbose: true, includeSummary: true, limit: nextPageSize, page: nextPage, includeExternalExports: true, ...PROCESSING_QUERY_PARAMS })
       .then(response => {
         const _versions = Array.isArray(response?.data) ? response.data : [];
         setVersions(_versions);
@@ -190,12 +206,12 @@ const SourceVersionsTab = ({
     }
     APIService.new()
       .overrideURL(baseRepoURL)
-      .get(null, null, { includeSummary: true }, true)
+      .get(null, null, { includeSummary: true, ...PROCESSING_QUERY_PARAMS }, true)
       .then(response => {
         setHeadVersion(response?.data || response?.response?.data || null);
       });
   }, [baseRepoURL, repo]);
-  const sortedVersions = React.useMemo(() => {
+  const rawSortedVersions = React.useMemo(() => {
     const versionList = Array.isArray(versions) ? versions : [];
     const normalizedHeadVersion = headVersion ? {
       ...headVersion,
@@ -208,6 +224,7 @@ const SourceVersionsTab = ({
       : versionList.filter(version => !isHeadVersion(version));
     return headFirst(pagedVersions);
   }, [baseRepoURL, headVersion, page, versions]);
+  const { versions: sortedVersions } = useProcessingVersions(rawSortedVersions);
   const hasAccess = currentUserHasAccess();
   const isLoading = loading || isLoadingVersions;
   const closeMenu = () => setMenuState({ anchorEl: null, version: null });
@@ -246,6 +263,12 @@ const SourceVersionsTab = ({
     if(result.taskId || result.status === 409)
       setReindexWip(prev => ({ ...prev, [getReindexKey(target.version, target.contentType)]: { taskId: result.taskId } }));
   };
+  const menuVersion = menuState.version
+    ? sortedVersions.find(version => getVersionKey(version) === getVersionKey(menuState.version)) || menuState.version
+    : null;
+  const menuVersionProcessing = isVersionProcessing(menuVersion);
+  const processingReason = t('repo.action_disabled_while_processing');
+  const exportPending = menuVersionProcessing && !isExportAvailable(menuVersion);
   const versionsCount = totalCount || sortedVersions.length;
   const countLabel = versionsCount === 1
     ? t('repo.source_version_count', { count: versionsCount.toLocaleString() })
@@ -312,6 +335,7 @@ const SourceVersionsTab = ({
                     >
                       {getVersionLabel(version)}
                     </Button>
+                    <ProcessingFlag version={version} sx={{ ml: 1 }} />
                     {version?.match_algorithms?.includes('llm') && <Chip size="small" label={t('repo.mapper')} variant="outlined" sx={{ ml: 1, height: 20 }} />}
                     {version.description && (
                       <Typography
@@ -351,12 +375,18 @@ const SourceVersionsTab = ({
                   </TableCell>
                   <TableCell sx={bodyCellSx}>
                     <VersionStatusIndicator isHead={isHEAD} released={version.released} retired={version.retired} />
+                    <ProcessingProgress version={version} />
                   </TableCell>
                   <TableCell sx={bodyCellSx}>
                     <Typography variant="body2">{version.created_on ? formatDate(version.created_on) : '-'}</Typography>
                     <Typography variant="caption" sx={{
                       color: "text.secondary"
                     }}>{version.created_by || ''}</Typography>
+                    {Boolean(formatExportTime(version)) && (
+                      <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                        {t('repo.export_time')}: {formatExportTime(version)}
+                      </Typography>
+                    )}
                   </TableCell>
                   <TableCell align="right" sx={bodyCellSx}>
                     <Tooltip title={t('common.actions')}>
@@ -403,7 +433,7 @@ const SourceVersionsTab = ({
       <Menu anchorEl={menuState.anchorEl} open={Boolean(menuState.anchorEl)} onClose={closeMenu}>
         <MenuItem onClick={() => withClose(version => onVersionChange(version))}><VisibilityIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.explore_version')}</MenuItem>
         <MenuItem onClick={() => withClose(version => copyVersionURL(version))}><CopyIcon fontSize="small" sx={{ mr: 1 }} />{t('common.copy_api_url')}</MenuItem>
-        <MenuItem onClick={() => withClose(version => setExportVersion(version))} disabled={!isLoggedIn()}><ExportIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.export_version')}</MenuItem>
+        <GatedMenuItem onClick={() => withClose(version => setExportVersion(version))} disabled={!isLoggedIn() || exportPending} reason={t('repo.export_not_ready_tooltip')}><ExportIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.export_version')}</GatedMenuItem>
         <MenuItem onClick={() => withClose(version => setExternalExportsVersion(version))} disabled={!isLoggedIn() || isHeadVersion(menuState.version)}><ExternalExportIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.external_exports')}</MenuItem>
         {
           Boolean(getPreviousVersionURL(menuState.version)) &&
@@ -411,9 +441,9 @@ const SourceVersionsTab = ({
         }
         <MenuItem onClick={() => withClose(compareVersion)} disabled={!getPreviousVersionURL(menuState.version)}><OpenInNewIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.compare_with_previous')}</MenuItem>
         {hasAccess && <Divider />}
-        {hasAccess && <MenuItem onClick={() => withClose(onEditVersion)} disabled={isHeadVersion(menuState.version)}><EditIcon fontSize="small" sx={{ mr: 1 }} />{t('common.edit')}</MenuItem>}
-        {hasAccess && <MenuItem onClick={() => withClose(onReleaseVersion)} disabled={isHeadVersion(menuState.version)}><ReleaseIcon fontSize="small" sx={{ mr: 1 }} />{menuState.version?.released ? t('repo.unrelease_version') : t('repo.release_version')}</MenuItem>}
-        {hasAccess && <MenuItem onClick={() => withClose(computeSummary)}><SummaryIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.recompute_summary')}</MenuItem>}
+        {hasAccess && <GatedMenuItem onClick={() => withClose(onEditVersion)} disabled={isHeadVersion(menuState.version) || menuVersionProcessing} reason={processingReason}><EditIcon fontSize="small" sx={{ mr: 1 }} />{t('common.edit')}</GatedMenuItem>}
+        {hasAccess && <GatedMenuItem onClick={() => withClose(onReleaseVersion)} disabled={isHeadVersion(menuState.version) || menuVersionProcessing} reason={processingReason}><ReleaseIcon fontSize="small" sx={{ mr: 1 }} />{menuState.version?.released ? t('repo.unrelease_version') : t('repo.release_version')}</GatedMenuItem>}
+        {hasAccess && <GatedMenuItem onClick={() => withClose(computeSummary)} disabled={menuVersionProcessing} reason={processingReason}><SummaryIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.recompute_summary')}</GatedMenuItem>}
         {hasAccess && isStaffUser() && [
           { contentType: 'concepts', label: t('repo.reindex_concepts') },
           { contentType: 'mappings', label: t('repo.reindex_mappings') }
@@ -421,12 +451,12 @@ const SourceVersionsTab = ({
           const wip = menuState.version ? reindexWip[getReindexKey(menuState.version, contentType)] : null;
           const tooltip = wip
             ? (wip.taskId ? t('repo.reindex_in_progress_tooltip_with_id', { id: wip.taskId }) : t('repo.reindex_in_progress_tooltip'))
-            : '';
+            : (menuVersionProcessing ? processingReason : '');
           return (
             <Tooltip key={contentType} title={tooltip} placement="left">
               <span>
                 <MenuItem
-                  disabled={Boolean(wip)}
+                  disabled={Boolean(wip) || menuVersionProcessing}
                   onClick={() => withClose(version => setReindexTarget({ version, contentType }))}
                 >
                   <ReindexIcon fontSize="small" sx={{ mr: 1 }} />{label}
@@ -439,14 +469,15 @@ const SourceVersionsTab = ({
           hasAccess && !isHeadVersion(menuState.version) &&
             <>
               <Divider />
-              <MenuItem
+              <GatedMenuItem
                 onClick={() => withClose(onDeleteVersion)}
-                disabled={menuState.version?.retired}
+                disabled={menuState.version?.retired || menuVersionProcessing}
+                reason={processingReason}
                 sx={{ color: 'error.main', '& .MuiSvgIcon-root': { color: 'error.main' } }}
               >
                 <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
                 {t('repo.delete_repo_version')}
-              </MenuItem>
+              </GatedMenuItem>
             </>
         }
       </Menu>

@@ -1,6 +1,8 @@
 import get from 'lodash/get';
 import isNumber from 'lodash/isNumber';
 
+import { formatRuntime, getExportTimeSeconds } from './processingStages';
+
 export const REPO_VERSIONS_PAGE_SIZE = 25;
 
 export const headerCellSx = {
@@ -32,3 +34,6 @@ export const formatError = (value, fallback) => {
   if (typeof value === 'string') return value;
   return value.detail || value.error || value.__all__ || fallback;
 };
+
+// Repo versions only; expansions never carry an export time.
+export const formatExportTime = version => formatRuntime(getExportTimeSeconds(version));
