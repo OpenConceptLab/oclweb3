@@ -113,7 +113,9 @@
     "generic_error": "出了些问题。",
     "something_went_wrong": "出了些问题",
     "no_results": "无结果",
-    "click_here": "点击此处"
+    "click_here": "点击此处",
+    "classic_termbrowser": "在 TBv2 中查看",
+    "back_to_classic_termbrowser": "返回经典版 TermBrowser"
   },
   "errors": {
     "404": "很抱歉，未能找到您的页面。",
