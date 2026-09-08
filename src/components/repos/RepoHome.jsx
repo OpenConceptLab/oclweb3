@@ -205,16 +205,14 @@ const RepoHome = () => {
     prevLocationRef.current = location
     if(skipRefetch)
       return
-    if(toParentURI(location.pathname) === (repo?.version_url || repo.url)) {
-        if(location.pathname.includes('/concepts'))
-            setTab('concepts')
-      if(location.pathname.includes('/mappings'))
-          setTab('mappings')
-      if(location.pathname.includes('/versions'))
-        setTab('versions')
-      if(location.pathname.includes('/references'))
-        setTab('references')
-    }
+    if(location.pathname.includes('/concepts'))
+      setTab('concepts')
+    if(location.pathname.includes('/mappings'))
+      setTab('mappings')
+    if(location.pathname.includes('/versions'))
+      setTab('versions')
+    if(location.pathname.includes('/references'))
+      setTab('references')
     fetchRepo()
     fetchVersions()
   }, [location.pathname])
@@ -231,7 +229,7 @@ const RepoHome = () => {
     let url = version.version_url
     if(reload && version?.version === 'HEAD')
       url += 'HEAD/'
-    const nextTab = targetTab || tab || 'concepts'
+    const nextTab = targetTab || findTab()
     const nextPath = url + nextTab + '/'
     if(nextPath === location.pathname)
       return
