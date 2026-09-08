@@ -38,7 +38,7 @@ const CloneCascadeParams = ({ params, onChange, disabled, conceptSources, toSour
           />
           <SourceMapTypeDropdown
             label={t('cloneToSource.exclude_map_types')}
-            placeholder='e.g. Q-AND-A,CONCEPT-SET'
+            placeholder={t('cloneToSource.map_types_placeholder')}
             sources={conceptSources}
             value={params.excludeMapTypes}
             disabled={disabled}
@@ -48,7 +48,7 @@ const CloneCascadeParams = ({ params, onChange, disabled, conceptSources, toSour
           />
           <SourceMapTypeDropdown
             label={t('cloneToSource.return_map_types')}
-            placeholder='e.g. Q-AND-A,CONCEPT-SET'
+            placeholder={t('cloneToSource.map_types_placeholder')}
             sources={conceptSources}
             value={params.returnMapTypes}
             disabled={disabled}
@@ -64,7 +64,7 @@ const CloneCascadeParams = ({ params, onChange, disabled, conceptSources, toSour
           </Typography>
           <SourceMapTypeDropdown
             label={t('cloneToSource.equivalency_map_type')}
-            placeholder='e.g. SAME-AS,CONCEPT-SET'
+            placeholder={t('cloneToSource.equivalency_map_type_placeholder')}
             sources={destinationSources}
             value={params.equivalencyMapType}
             disabled={disabled}

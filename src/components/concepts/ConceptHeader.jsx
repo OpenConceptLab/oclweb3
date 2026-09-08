@@ -9,7 +9,7 @@ import AddIcon from '@mui/icons-material/PlaylistAddOutlined';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import CloseIconButton from '../common/CloseIconButton';
-import { toOwnerURI, toFullURL, currentUserHasAccess } from '../../common/utils';
+import { toOwnerURI, toFullURL, currentUserHasAccess, isLoggedIn } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
 import { BLACK } from '../../common/colors'
 import ConceptManagementList from './ConceptManagementList'
@@ -23,6 +23,11 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
   const [addToCollectionOpen, setAddToCollectionOpen] = React.useState(false)
   const [cloneToSourceOpen, setCloneToSourceOpen] = React.useState(false)
+  const hasAccess = currentUserHasAccess()
+  const isSource = has(repo, 'source_type')
+  const canClone = isLoggedIn() && isSource
+  const canManage = hasAccess && repo?.version === 'HEAD' && isSource
+
   const onMenuOpen = event => {
     setMenuAnchorEl(event.currentTarget)
     setMenu(true)
@@ -107,7 +112,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
       !loading &&
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
-          {currentUserHasAccess() && (
+          {hasAccess && (
             <Button
               startIcon={<AddIcon fontSize='inherit' />}
               variant='text'
@@ -119,7 +124,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
               Add to Collection
             </Button>
           )}
-          {currentUserHasAccess() && has(repo, 'source_type') && (
+          {hasAccess && isSource && (
             <Button
               startIcon={<RepeatIcon fontSize='inherit' />}
               variant='text'
@@ -132,12 +137,12 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
             </Button>
           )}
         </span>
-        {currentUserHasAccess() && repo?.version === 'HEAD' && has(repo, 'source_type') && (
+        {(canManage || canClone) && (
             <span>
               <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='concept-actions'>
                 {t('common.actions')}
               </Button>
-              <ConceptManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='concept-actions' onClick={onManageOptionClick} concept={concept} />
+              <ConceptManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='concept-actions' onClick={onManageOptionClick} concept={concept} hasAccess={canManage} canClone={canClone} />
             </span>
           )}
       </div>

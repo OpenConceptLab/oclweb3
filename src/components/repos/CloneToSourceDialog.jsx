@@ -74,16 +74,8 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
     setError(null)
     setPreviewConcept(null)
     setPreviewResults({})
-    const seen = new Set()
-    getCurrentUserSources(batch => {
-      setSources(prev => [
-        ...prev,
-        ...batch.filter(source => {
-          if (seen.has(source.url)) return false
-          seen.add(source.url)
-          return true
-        }),
-      ])
+    getCurrentUserSources(userSources => {
+      setSources(userSources)
       setLoadingSources(false)
     })
   }, [open])
@@ -213,7 +205,10 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
               getOptionLabel={option => (option ? `${option.name || option.id} (${option.owner})` : '')}
               groupBy={option => option.owner}
               onInputChange={(_, value) => setInput(value || '')}
-              onChange={(_, item) => setSelected(item)}
+              onChange={(_, item) => {
+                setSelected(item)
+                setPreviewResults({})
+              }}
               disabled={submitting || done}
               renderInput={inputParams => (
                 <TextField
@@ -238,7 +233,7 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
                 />
               )}
               loadingText={<AutocompleteLoading text={input} />}
-              noOptionsText={t('cloneToSource.no_editable_sources')}
+              noOptionsText={t('cloneToSource.no_sources')}
               renderGroup={groupParams => (
                 <li style={{ listStyle: 'none' }} key={groupParams.group}>
                   <GroupHeader>{groupParams.group}</GroupHeader>

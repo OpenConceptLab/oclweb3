@@ -862,7 +862,7 @@
     "clone_to_source": "Clone to Source",
     "description": "This operation will clone the selected concept(s), plus any answers or set members, recursively following the specified mappings. Concepts already present in the destination source are skipped.",
     "target_source": "Destination Source",
-    "no_editable_sources": "No editable sources found",
+    "no_sources": "No sources found",
     "advanced_settings": "Advanced settings",
     "advanced_caution": "Caution: changing these settings could yield an incomplete clone (e.g. missing answers or set members).",
     "origination_sources": "Origination Source(s)",
@@ -888,9 +888,11 @@
     "failed": "Failed",
     "back": "Back",
     "cascade_levels": "Cascade Levels",
-    "map_types": "MapTypes",
-    "exclude_map_types": "ExcludeMapTypes",
-    "return_map_types": "ReturnMapTypes",
-    "equivalency_map_type": "EquivalencyMapType"
+    "map_types": "Map Types",
+    "exclude_map_types": "Exclude Map Types",
+    "return_map_types": "Return Map Types",
+    "equivalency_map_type": "Equivalency Map Type",
+    "map_types_placeholder": "e.g. Q-AND-A,CONCEPT-SET",
+    "equivalency_map_type_placeholder": "e.g. SAME-AS,CONCEPT-SET"
   }
 }
