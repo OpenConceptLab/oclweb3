@@ -165,7 +165,8 @@
     "click_here": "click here",
     "already_exists": "Already exists",
     "comment": "Comment",
-    "update_comment": "Update comment"
+    "update_comment": "Update comment",
+    "undo": "Undo"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -313,6 +314,29 @@
     "success_update": "Successfully updated mapping",
     "error_create": "Couldn't create mapping",
     "error_update": "Couldn't update mapping",
+    "include_retired": "Include Retired",
+    "associations_info": "The Associations section lists hierarchy and mapping associations for this concept.",
+    "has_child": "Has child",
+    "has_parent": "Has parent",
+    "open_mapping_details": "Open Mapping Details",
+    "open_from_concept": "Open From Concept",
+    "open_to_concept": "Open Target Concept",
+    "compare_concepts": "Compare Concepts",
+    "retire_mapping": "Retire mapping",
+    "reactivate_mapping": "Reactivate mapping",
+    "success_retired": "Mapping retired",
+    "success_unretired": "Mapping reactivated",
+    "add_new_mapping": "Add New Mapping",
+    "add_a_mapping": "Add a mapping",
+    "add_new_map_type_mapping": "Add new {{mapType}} mapping",
+    "relationship_type": "Relationship Type",
+    "assign_sort_weight": "Assign Sort Weight",
+    "clear_sort_weight": "Clear Sort Weight",
+    "custom_sorting_applied": "Custom sorting has been applied",
+    "custom_sorting_applied_partial": "Custom sorting has been applied to {{total}} mappings.",
+    "no_sort_weight": "Mapping has no sort weight applied",
+    "sort_changes_warning": "{{total}} change(s) made. Saving will create a new Mapping Version.",
+    "sort_success": "Mappings successfully updated.",
     "form": {
       "id": "Mapping ID",
       "mapping_details": {
@@ -733,7 +757,8 @@
     "processing_cleared": "Processing state cleared",
     "could_not_clear_processing": "Could not clear the processing state",
     "export_not_ready_tooltip": "Export is still being generated for this version",
-    "expansion_processing_tooltip": "This expansion is still being built"
+    "expansion_processing_tooltip": "This expansion is still being built",
+    "suggested_sources": "Suggested Sources"
   },
   "org": {
     "my": "My Organizations",

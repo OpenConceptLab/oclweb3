@@ -177,3 +177,11 @@ div.split-appear {
     0%    {transform: rotate(0deg);}
     100%  {transform: rotate(360deg);}
 }
+
+tr.droppable-disabled {
+    background-color: rgba(0, 0, 0, 0.1);
+    cursor: no-drop;
+    td {
+        cursor: no-drop !important;
+    }
+}

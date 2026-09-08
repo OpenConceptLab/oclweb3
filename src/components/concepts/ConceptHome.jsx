@@ -5,7 +5,7 @@ import Fade from '@mui/material/Fade';
 import Skeleton from '@mui/material/Skeleton';
 
 import APIService from '../../services/APIService';
-import { toParentURI, dropVersion, isSameResourceNavigation, getResourceIdFromUrl } from '../../common/utils'
+import { toParentURI, dropVersion, isSameResourceNavigation, getResourceIdFromUrl, currentUserHasAccess } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
@@ -38,12 +38,14 @@ const ConceptHome = props => {
 
   const [loading, setLoading] = React.useState(false)
   const [loadingOwnerMappings, setLoadingOwnerMappings] = React.useState(null)
+  const [includeRetiredAssociations, setIncludeRetiredAssociations] = React.useState(false)
   const [mappings, setMappings] = React.useState([])
   const [reverseMappings, setReverseMappings] = React.useState([])
   const [ownerMappings, setOwnerMappings] = React.useState([])
   const [reverseOwnerMappings, setReverseOwnerMappings] = React.useState([])
 
   const [retireDialog, setRetireDialog] = React.useState(false)
+  const [mappingRetireDialog, setMappingRetireDialog] = React.useState(null)
   const [removeFromCollectionDialog, setRemoveFromCollectionDialog] = React.useState(false)
   const [removingFromCollection, setRemovingFromCollection] = React.useState(false)
   const { setAlert } = React.useContext(OperationsContext);
@@ -143,7 +145,7 @@ const ConceptHome = props => {
       fetchVersions()
   }
 
-  const getMappings = (concept, directOnly) => {
+  const getMappings = (concept, directOnly, includeRetired = includeRetiredAssociations) => {
     getService()
       .appendToUrl('$cascade/')
       .get(
@@ -154,17 +156,18 @@ const ConceptHome = props => {
           cascadeLevels: 1,
           method: 'sourceToConcepts',
           view: 'hierarchy',
+          includeRetired: includeRetired,
         }
       )
       .then(response => {
         setMappings(response?.data?.entry?.entries || [])
         if(directOnly)
           setTimeout(() => setLoading(false), 300)
-        !directOnly && getInverseMappings(concept)
+        !directOnly && getInverseMappings(concept, includeRetired)
       })
   }
 
-  const getInverseMappings = concept => {
+  const getInverseMappings = (concept, includeRetired = includeRetiredAssociations) => {
     getService()
       .appendToUrl('$cascade/')
       .get(
@@ -176,6 +179,7 @@ const ConceptHome = props => {
           method: 'sourceToConcepts',
           view: 'hierarchy',
           reverse: true,
+          includeRetired: includeRetired,
         })
       .then(response => {
         setReverseMappings(response?.data?.entry?.entries || [])
@@ -220,6 +224,59 @@ const ConceptHome = props => {
         setReverseOwnerMappings(response?.data || [])
         setTimeout(() => setLoadingOwnerMappings(false), 300)
       })
+  }
+
+  const canManageMappings = !isInCollection && concept?.id && currentUserHasAccess()
+
+  const onCreateNewMapping = (payload, targetConcept, isDirect, successCallback) => {
+    APIService.new().overrideURL(`${concept.owner_url}sources/${concept.source}/mappings/`).post(payload).then(response => {
+      if(response?.status === 201) {
+        setAlert({severity: 'success', message: t('mapping.success_create')})
+        successCallback && successCallback()
+        isDirect ? getMappings(concept, true) : getInverseMappings(concept)
+      } else {
+        setAlert({severity: 'error', message: response?.data?.__all__?.[0] || response?.data?.detail || t('mapping.error_create')})
+      }
+    })
+  }
+
+  const updateSortWeight = (mapping, sortWeight, comment) => APIService
+        .new()
+        .overrideURL(mapping.url)
+        .put({id: mapping.id, sort_weight: sortWeight, comment: comment})
+
+  const onSortWeightUpdateSuccess = () => {
+    setAlert({severity: 'success', message: t('mapping.sort_success')})
+    getMappings(concept, true)
+  }
+
+  const onUpdateMappingsSorting = updatedMappings => Promise.all(
+    updatedMappings.map(mapping => updateSortWeight(mapping, mapping._sort_weight, 'Updated Sort Weight'))
+  ).then(onSortWeightUpdateSuccess)
+
+  const onAssignSortWeight = (mapping, sortWeight) => updateSortWeight(mapping, sortWeight, 'Assigned Sort Weight').then(onSortWeightUpdateSuccess)
+
+  const onClearSortWeight = mapping => updateSortWeight(mapping, null, 'Cleared Sort Weight').then(onSortWeightUpdateSuccess)
+
+  const onIncludeRetiredToggle = value => {
+    setIncludeRetiredAssociations(value)
+    getMappings(concept, false, value)
+  }
+
+  const toggleMappingRetire = reason => {
+    const { mapping, isDirect } = mappingRetireDialog
+    const isRetired = Boolean(mapping.retired)
+    setMappingRetireDialog(null)
+    let service = APIService.new().overrideURL(mapping.url)
+    service = isRetired ? service.appendToUrl('reactivate/').put({comment: reason}) : service.delete({comment: reason})
+    service.then(response => {
+      if(response?.status === 204) {
+        setAlert({severity: 'success', message: isRetired ? t('mapping.success_unretired') : t('mapping.success_retired')})
+        isDirect ? getMappings(concept, true) : getInverseMappings(concept)
+      } else {
+        setAlert({severity: 'error', message: response?.data?.detail || t('mapping.error_update')})
+      }
+    })
   }
 
   const toggleRetire = reason => {
@@ -311,6 +368,14 @@ const ConceptHome = props => {
                       reverseOwnerMappings={reverseOwnerMappings}
                       loadingOwnerMappings={loadingOwnerMappings}
                       onLoadOwnerMappings={() => getOwnerMappings(concept)}
+                      repoSummary={props.repoSummary}
+                      includeRetired={includeRetiredAssociations}
+                      onIncludeRetiredToggle={onIncludeRetiredToggle}
+                      onCreateNewMapping={canManageMappings ? onCreateNewMapping : false}
+                      onRetireMapping={canManageMappings ? (mapping, isDirect) => setMappingRetireDialog({mapping: mapping, isDirect: isDirect}) : false}
+                      onUpdateMappingsSorting={canManageMappings ? onUpdateMappingsSorting : false}
+                      onAssignSortWeight={canManageMappings ? onAssignSortWeight : false}
+                      onClearSortWeight={canManageMappings ? onClearSortWeight : false}
                     />
                 }
                 {
@@ -328,6 +393,12 @@ const ConceptHome = props => {
                   onClose={() => setRetireDialog(false)}
                   title={`${t('common.retire')} ${t('concept.concept')}`}
                   onSubmit={toggleRetire}
+                />
+                <RetireConfirmDialog
+                  open={Boolean(mappingRetireDialog)}
+                  onClose={() => setMappingRetireDialog(null)}
+                  title={`${mappingRetireDialog?.mapping?.retired ? t('common.unretire') : t('common.retire')} ${t('mapping.mapping')}`}
+                  onSubmit={toggleMappingRetire}
                 />
                 <RemoveFromCollectionDialog
                   open={removeFromCollectionDialog}
