@@ -22,7 +22,7 @@ const ToConceptCard = ({ mapping }) => {
       <Typography component='span' sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', borderRadius: '10px'}}>
         {t('common.target')}
       </Typography>
-      <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center'}}>
+      <div className='col-xs-12' style={{padding: '16px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', rowGap: '8px'}}>
         <RepoChip
           hideType
           basicTooltip={mapping?.to_source_name ? false : repoURL}
@@ -45,22 +45,23 @@ const ToConceptCard = ({ mapping }) => {
             },
           }}
         />
-        <ArrowRightIcon sx={{color: 'secondary.light', margin: '0 6px'}}/>
+        <ArrowRightIcon sx={{color: 'secondary.light', margin: '0 6px', flexShrink: 0}}/>
         <ConceptChip
           hideType
           noTooltip
+          multiLine
           noLink={!mapping?.to_concept_name_resolved}
           filled={Boolean(mapping?.to_concept_name_resolved)}
           concept={{url: mapping.to_concept_url, id: mapping.to_concept_code, name: mapping.to_concept_name_resolved || mapping.to_concept_name, display_name: mapping.to_concept_name_resolved || mapping.to_concept_name, type: 'Concept'}}
           sx={{
+            flex: '1 1 0',
+            minWidth: '200px',
             '.entity-label': {
               marginTop: '2px',
               fontSize: '12px',
               color: '#000',
-              maxWidth: '223px',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
+              whiteSpace: 'normal',
+              overflowWrap: 'break-word',
             },
             '.MuiSvgIcon-root': {
               color: mapping?.to_concept_name_resolved ? 'primary.main' : 'secondary.light',

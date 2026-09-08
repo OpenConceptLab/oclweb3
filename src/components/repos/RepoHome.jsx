@@ -9,6 +9,9 @@ import find from 'lodash/find'
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add'
 import APIService from '../../services/APIService';
+import ProcessingBanner from './ProcessingBanner';
+import { useProcessingVersions } from '../../hooks/useProcessingState';
+import { PROCESSING_QUERY_PARAMS, isVersionProcessing } from './processingStages';
 import { dropVersion, toParentURI, toOwnerURI, currentUserHasAccess, isSameResourceNavigation } from '../../common/utils';
 import { WHITE } from '../../common/colors';
 import { RESERVED_ROUTE_KEYWORDS } from '../../common/constants';
@@ -63,6 +66,9 @@ const RepoHome = () => {
   const versionsPageSize = DEFAULT_VERSIONS_PAGE_SIZE
   const [versionsRefreshKey, setVersionsRefreshKey] = React.useState(0)
   const [loading, setLoading] = React.useState(true)
+
+  const routeRepoURL = `/${params.ownerType}/${params.owner}/${params.repoType}/${params.repo}/`
+  const isRepoForRoute = Boolean(repo?.url) && repo.url.toLowerCase() === routeRepoURL.toLowerCase()
   const [showItem, setShowItem] = React.useState(false)
   const [dismissedResource, setDismissedResource] = React.useState(null)
   const [selectedItem, setSelectedItem] = React.useState([])
@@ -134,8 +140,8 @@ const RepoHome = () => {
     setStatus(false)
     setExpansions([])
     setSelectedExpansion(false)
-    APIService.new().overrideURL(getURL()).get(null, null, {includeSummary: true}, true).then(response => {
-      const newStatus = response?.status || response?.response.status
+    APIService.new().overrideURL(getURL()).get(null, null, {includeSummary: true, ...PROCESSING_QUERY_PARAMS}, true).then(response => {
+      const newStatus = response?.status || response?.response?.status
       const _repo = response?.data || response?.response?.data || {}
 
       if(versionFromURL && (newStatus !== 200 || !_repo?.url)) {
@@ -181,7 +187,7 @@ const RepoHome = () => {
   }
 
   const fetchVersions = (page=versionsPage, limit=versionsPageSize) => {
-    APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit, page}).then(response => {
+    APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit, page, ...PROCESSING_QUERY_PARAMS}).then(response => {
       const _versions = Array.isArray(response?.data) ? response.data : []
       setVersions(_versions)
       if(!repo.version_url && !versionFromURL && !showConceptURL && !showMappingURL) {
@@ -199,16 +205,14 @@ const RepoHome = () => {
     prevLocationRef.current = location
     if(skipRefetch)
       return
-    if(toParentURI(location.pathname) === (repo?.version_url || repo.url)) {
-        if(location.pathname.includes('/concepts'))
-            setTab('concepts')
-      if(location.pathname.includes('/mappings'))
-          setTab('mappings')
-      if(location.pathname.includes('/versions'))
-        setTab('versions')
-      if(location.pathname.includes('/references'))
-        setTab('references')
-    }
+    if(location.pathname.includes('/concepts'))
+      setTab('concepts')
+    if(location.pathname.includes('/mappings'))
+      setTab('mappings')
+    if(location.pathname.includes('/versions'))
+      setTab('versions')
+    if(location.pathname.includes('/references'))
+      setTab('references')
     fetchRepo()
     fetchVersions()
   }, [location.pathname])
@@ -221,19 +225,33 @@ const RepoHome = () => {
   }, []);
 
 
-  const onVersionChange = (version, reload=true) => {
+  const onVersionChange = (version, reload=true, targetTab=null) => {
     let url = version.version_url
     if(reload && version?.version === 'HEAD')
       url += 'HEAD/'
-    const nextPath = url + (tab || 'concepts') + '/'
+    const nextTab = targetTab || findTab()
+    const nextPath = url + nextTab + '/'
     if(nextPath === location.pathname)
       return
     setExpansions([])
     setSelectedExpansion(false)
     if(reload)
       setLoading(true)
+    if(nextTab !== tab)
+      setTab(nextTab)
     history.push(nextPath + (location.search || ''))
   }
+
+  // Opening a version from the versions tab means "go look at this version", so it
+  // lands on its content rather than back on the list it was picked from.
+  const onExploreVersion = version => onVersionChange(version, true, 'concepts')
+
+  // A tab carried over from a collection (references) must not stay selected on a
+  // source, or it queries an endpoint that cannot exist there.
+  React.useEffect(() => {
+    if(tabs?.length && tab && !tabs.some(item => item.key === tab))
+      setTab(tabs[0].key)
+  }, [tabs, tab])
 
   const onTabChange = (event, newTab) => {
     if(newTab) {
@@ -248,9 +266,10 @@ const RepoHome = () => {
     setMappingForm(false)
   }
 
-  const closeItem = () => {
+  const closeItem = options => {
     setShowItem(false)
-    setDismissedResource(params.resource || null)
+    if(!options?.navigated)
+      setDismissedResource(params.resource || null)
   }
 
   const onCreateConceptClick = () => {
@@ -355,6 +374,10 @@ const RepoHome = () => {
   const isMappingURL = tab === 'mappings'
   const isReferenceURL = tab === 'references'
   const requiresExpansionSelection = isCollection && ['concepts', 'mappings'].includes(tab)
+  const processingTargets = React.useMemo(() => (repo?.url || repo?.version_url) ? [repo] : [], [repo])
+  const { versions: [liveRepo] = [] } = useProcessingVersions(processingTargets)
+  const currentRepo = liveRepo || repo
+
   const canRenderSearch = !requiresExpansionSelection || (!expansionsLoading && Boolean(selectedExpansion))
   const getConceptURLFromMainURL = () => (isConceptURL && params.resource) ? getURL() + 'concepts/' + params.resource + '/' : false
   const getMappingURLFromMainURL = () => (isMappingURL && params.resource) ? getURL() + 'mappings/' + params.resource + '/' : false
@@ -369,6 +392,10 @@ const RepoHome = () => {
 
   const onVersionEditClick = () => isVersion && setVersionForm({edit: true, version: repo, expansions: []})
   const onReleaseVersionClick = () => isVersion && setReleaseTarget(repo)
+  // References are collection-only, so never query them on a source.
+  const _canRenderSearch = repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && (tab !== 'references' || isCollection) && canRenderSearch
+  const showProcessingBanner = _canRenderSearch && isVersionProcessing(currentRepo)
+  const heightTakenInProcessingBanner = showProcessingBanner ? 43 : 0
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
       <Paper component="div" className={isSplitView ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: 'white', borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.nv80'}}>
@@ -378,7 +405,8 @@ const RepoHome = () => {
               <RepoHeader
                 isVersion={isVersion}
                 owner={owner}
-                repo={repo}
+                repo={currentRepo}
+                repoHref={'#' + dropVersion(currentRepo?.version_url || currentRepo?.url || '')}
                 versions={versions}
                 onVersionChange={onVersionChange}
                 onCreateConceptClick={onCreateConceptClick}
@@ -402,7 +430,11 @@ const RepoHome = () => {
                     </div>
                 }
                 {
-                  repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && canRenderSearch &&
+                  showProcessingBanner &&
+                    <ProcessingBanner version={currentRepo} resource={t(`search.${tab}`)} />
+                }
+                {
+                  _canRenderSearch &&
                     <Search
                       key={`${tab}-${searchReloadKey}`}
                       loading={loading}
@@ -419,8 +451,8 @@ const RepoHome = () => {
                       showItem={showItem}
                       onSelectItem={setSelectedItem}
                       onCreateSimilarClick={!isCollection ? onCreateSimilarClick : undefined}
-                      filtersHeightToSubtract={268}
-                      resultContainerStyle={{height: 'calc(100vh - 356px)', overflow: 'auto', maxWidth: showSummary ? 'calc(100vw - 300px)' : 'calc(100vw - 40px)'}}
+                      filtersHeightToSubtract={268 + heightTakenInProcessingBanner}
+                      resultContainerStyle={{height: `calc(100vh - 356px - ${heightTakenInProcessingBanner}px)`, overflow: 'auto', maxWidth: showSummary ? 'calc(100vw - 300px)' : 'calc(100vw - 40px)'}}
                       containerStyle={{padding: 0}}
                       properties={(!tab || tab === 'concepts') ? repo?.meta?.display?.concept_summary_properties : []}
                       propertyDefinition={(!tab || tab === 'concepts') ? repo?.properties : []}
@@ -455,12 +487,12 @@ const RepoHome = () => {
                     />
                 }
                 {
-                  tab === 'versions' && isCollection &&
+                  tab === 'versions' && isCollection && isRepoForRoute &&
                     <CollectionVersionsTab
                       repo={repo}
                       loading={loading}
                       refreshKey={versionsRefreshKey}
-                      onVersionChange={onVersionChange}
+                      onVersionChange={onExploreVersion}
                       onEditVersion={version => setVersionForm({edit: true, version, expansions: []})}
                       onReleaseVersion={version => setReleaseTarget(version)}
                       onDeleteVersion={version => setDeleteTarget(version)}
@@ -472,12 +504,12 @@ const RepoHome = () => {
                     />
                 }
                 {
-                  tab === 'versions' && !isCollection &&
+                  tab === 'versions' && !isCollection && isRepoForRoute &&
                     <SourceVersionsTab
                       repo={repo}
                       loading={loading}
                       refreshKey={versionsRefreshKey}
-                      onVersionChange={onVersionChange}
+                      onVersionChange={onExploreVersion}
                       onEditVersion={version => setVersionForm({edit: true, version, expansions: []})}
                       onReleaseVersion={version => setReleaseTarget(version)}
                       onDeleteVersion={version => setDeleteTarget(version)}

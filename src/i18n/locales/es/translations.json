@@ -1,5 +1,12 @@
 {
   "common": {
+    "error_details": "Detalles del error",
+    "please": "Por favor",
+    "go_to": "ir a",
+    "go_to_your": "ir a tu ",
+    "back": "atrás",
+    "for_a_new_account": "para una cuenta nueva",
+    "go_back_or_to_your_dashboard": "Ir <0/> o a tu <1/>.",
     "or": "o",
     "language": "Idioma",
     "help_and_documentation": "Ayuda y documentación",
@@ -15,7 +22,7 @@
     "show": "Mostrar",
     "hide": "Ocultar",
     "more": "Más",
-    "refresh": "Actualizar",
+    "refresh": "actualizar",
     "or_go_to_your": "o ir a tu ",
     "retired": "Retirado",
     "id": "ID",
@@ -67,9 +74,20 @@
     "location": "Ubicación",
     "generic_error": "Algo salió mal.",
     "click_here": "haz clic aquí",
-    "all": "Todos"
+    "all": "Todos",
+    "add": "Agregar",
+    "already_exists": "Ya existe",
+    "click_to_copy": "Clic para copiar",
+    "comment": "Comentario",
+    "no_results": "Sin resultados",
+    "submit": "Enviar",
+    "update_comment": "Comentario de actualización"
   },
   "errors": {
+    "401": "Se requiere iniciar sesión",
+    "403": "No tienes autorización para acceder a esta página",
+    "network_error": "Error de red",
+    "generic": "Algo falló, por favor inténtalo de nuevo más tarde.",
     "404": "Lo siento, no se pudo encontrar tu página.",
     "mandatory_field": "Este campo no puede estar en blanco"
   },
@@ -114,7 +132,29 @@
     "error_update": "No se pudo actualizar el concepto",
     "form": {
       "id_auto_assign": "El ID del concepto se asignará automáticamente",
-      "id_auto_assign_override": "para anular con entrada manual"
+      "id_auto_assign_override": "para anular con entrada manual",
+      "id": "ID del concepto",
+      "external_id": "ID externo",
+      "concept_class": "Clase de concepto",
+      "datatype": "Tipo de dato",
+      "locale": "Idioma",
+      "name": "Nombre",
+      "description": "Descripción",
+      "type": "Tipo",
+      "locale_preferred": "Preferido",
+      "concept_details": {
+        "header": "Detalles del concepto"
+      },
+      "names": {
+        "header": "Nombre y sinónimos"
+      },
+      "descriptions": {
+        "header": "Descripciones"
+      },
+      "parent_concepts_header": "Conceptos padre",
+      "parent_concepts": "Conceptos padre",
+      "parent_concepts_placeholder": "Buscar conceptos en esta fuente",
+      "parent_concepts_help": "Conceptos bajo los cuales se ubica este concepto en la jerarquía. También puedes pegar la URL completa de un concepto."
     }
   },
   "mapping": {
@@ -184,7 +224,21 @@
     "id_helper": "Cada ID se convierte en {{path}}{id}/",
     "expression_hint": "Expresión de referencia completa. Precargada desde el selector de fuente / colección; edita según sea necesario.",
     "adding_references": "Agregando referencias…",
-    "request_failed": "La solicitud falló — verifica tu conexión de red e inténtalo de nuevo."
+    "request_failed": "La solicitud falló — verifica tu conexión de red e inténtalo de nuevo.",
+    "actions": "Acciones",
+    "expression": "Expresión",
+    "new_expression": "Nueva expresión",
+    "transform_to_non_versioned": "Transformar a referencia sin versión",
+    "transform_confirm_title": "¿Transformar {{count}} referencia(s)?",
+    "transform_confirm_body": "Esto agregará primero referencias de reemplazo sin versión y luego eliminará las referencias fijadas anteriores cuando la adición se complete correctamente.",
+    "transform_references": "Transformar referencias",
+    "transform_success": "{{count}} referencia(s) transformada(s) correctamente.",
+    "transform_partial_success": "{{transformed}} referencia(s) transformada(s). {{failed}} referencia(s) no pudieron transformarse y se dejaron sin cambios.",
+    "transform_no_eligible": "Ninguna de las referencias seleccionadas puede transformarse en una referencia sin versión.",
+    "transform_no_references_changed": "No se transformó ninguna referencia.",
+    "transform_delete_failed": "Se agregaron {{count}} referencia(s) sin versión, pero no se pudieron eliminar las referencias fijadas anteriores. Actualiza y revisa la lista de referencias para detectar duplicados.",
+    "already_non_versioned": "Ya está sin versión",
+    "unsupported_transform": "No compatible"
   },
   "repo": {
     "repos": "Repositorios",
@@ -195,6 +249,7 @@
     "release_version": "Publicar versión",
     "unrelease_version": "Despublicar versión",
     "versions": "Versiones",
+    "latest_version": "Última versión",
     "unreleased": "Sin publicar",
     "explore_version": "Explorar versión",
     "export_version": "Exportar versión",
@@ -254,7 +309,35 @@
     "processed": "Procesado",
     "expansions": "Expansiones",
     "expansion_dropdown_label": "Expansión: {{mnemonic}}",
-    "create_similar": "Crear similar"
+    "create_similar": "Crear similar",
+    "stage_seeded_concepts": "Conceptos sembrados",
+    "stage_seeded_mappings": "Mapeos sembrados",
+    "stage_indexed_concepts": "Conceptos indexados",
+    "stage_indexed_mappings": "Mapeos indexados",
+    "stage_exported": "Exportación",
+    "export_time": "Tiempo de exportación",
+    "copy_task_id": "Copiar ID de tarea",
+    "copied_task_id": "ID de tarea copiado al portapapeles",
+    "processing_summary": "Procesando — {{completed}} de {{total}} completado",
+    "processing_failed_summary": "Error de procesamiento — {{completed}} de {{total}} completado",
+    "processing_progress_short": "Procesando {{completed}}/{{total}}",
+    "processing_stage_caption": "{{stage}} · {{completed}}/{{total}}",
+    "processing_flag_tooltip": "Haga clic para ver las etapas de procesamiento y los ID de tarea",
+    "processing_listing_warning": "Esta versión aún se está procesando. Los {{resource}} que se muestran pueden estar incompletos.",
+    "processing_listing_failed": "El procesamiento de esta versión falló. Los {{resource}} que se muestran pueden estar incompletos.",
+    "view_processing_details": "Ver detalles",
+    "action_disabled_while_processing": "No disponible mientras se procesa esta versión",
+    "action_disabled_until_seeded": "Disponible cuando terminen de sembrarse los conceptos y mapeos",
+    "clear_processing": "Borrar estado de procesamiento",
+    "clear_processing_title": "{{resourceType}}: {{resourceId}}",
+    "clear_processing_confirmation": "¿Está seguro de que desea borrar el estado de procesamiento de esta versión?",
+    "clear_processing_message": "Esto solo borra los identificadores de tareas en segundo plano que la versión está rastreando. No detiene ninguna tarea que siga ejecutándose realmente, ni cambia el contenido de la versión.",
+    "clear_processing_not_processing": "Esta versión no está marcada actualmente como en procesamiento.",
+    "clear_processing_confirm_button": "Borrar estado de procesamiento",
+    "processing_cleared": "Estado de procesamiento borrado",
+    "could_not_clear_processing": "No se pudo borrar el estado de procesamiento",
+    "export_not_ready_tooltip": "La exportación de esta versión aún se está generando",
+    "expansion_processing_tooltip": "Esta expansión aún se está construyendo"
   },
   "org": {
     "my": "Mis organizaciones",
@@ -283,22 +366,6 @@
     "website": "Sitio web",
     "last_login": "Último inicio de sesión",
     "name_and_description": "Nombre y descripción"
-  },
-  "reference": {
-    "actions": "Acciones",
-    "expression": "Expresión",
-    "new_expression": "Nueva expresión",
-    "transform_to_non_versioned": "Transformar a referencia sin versión",
-    "transform_confirm_title": "¿Transformar {{count}} referencia(s)?",
-    "transform_confirm_body": "Esto agregará primero referencias de reemplazo sin versión y luego eliminará las referencias fijadas anteriores cuando la adición se complete correctamente.",
-    "transform_references": "Transformar referencias",
-    "transform_success": "{{count}} referencia(s) transformada(s) correctamente.",
-    "transform_partial_success": "{{transformed}} referencia(s) transformada(s). {{failed}} referencia(s) no pudieron transformarse y se dejaron sin cambios.",
-    "transform_no_eligible": "Ninguna de las referencias seleccionadas puede transformarse en una referencia sin versión.",
-    "transform_no_references_changed": "No se transformó ninguna referencia.",
-    "transform_delete_failed": "Se agregaron {{count}} referencia(s) sin versión, pero no se pudieron eliminar las referencias fijadas anteriores. Actualiza y revisa la lista de referencias para detectar duplicados.",
-    "already_non_versioned": "Ya está sin versión",
-    "unsupported_transform": "No compatible"
   },
   "search": {
     "filters": "Filtros",
@@ -370,5 +437,28 @@
     "equivalency_map_type": "Tipo de mapeo de equivalencia",
     "map_types_placeholder": "p. ej. Q-AND-A,CONCEPT-SET",
     "equivalency_map_type_placeholder": "p. ej. SAME-AS,CONCEPT-SET"
+  },
+  "custom_attributes": {
+    "label": "Atributos personalizados",
+    "key": "Nombre del atributo",
+    "value": "Valor del atributo",
+    "add": "Agregar un atributo personalizado"
+  },
+  "sort": {
+    "source": "Fuente",
+    "most_relevant": "Más relevantes",
+    "newest_first": "Más recientes primero",
+    "oldest_first": "Más antiguos primero",
+    "recently_joined": "Unidos recientemente",
+    "longest_member": "Miembros más antiguos",
+    "a_z": "A-Z",
+    "z_a": "Z-A",
+    "num_asc": "0-9",
+    "num_desc": "9-0",
+    "tooltip_a_z": "Ordenar por {{field}}, de la A a la Z",
+    "tooltip_z_a": "Ordenar por {{field}}, de la Z a la A",
+    "tooltip_num_asc": "Ordenar por {{field}}, del número menor al mayor",
+    "tooltip_num_desc": "Ordenar por {{field}}, del número mayor al menor",
+    "clear": "Restablecer orden"
   }
 }

@@ -14,11 +14,12 @@ import { sortValuesBySourceSummary } from '../repos/utils';
 import {
   fetchDatatypes, fetchNameTypes, fetchDescriptionTypes, fetchConceptClasses, fetchLocales
 } from './utils';
-import { toParentURI, isSuperuser, hasAuthGroup, getCurrentUser } from '../../common/utils'
+import { toParentURI, dropVersion, isSuperuser, hasAuthGroup, getCurrentUser } from '../../common/utils'
 import { OperationsContext } from '../app/LayoutContext';
 import Button from '../common/Button'
 import AutocompleteGroupByRepoSummary from '../common/AutocompleteGroupByRepoSummary'
 import LocaleForm from './LocaleForm'
+import ParentConceptsForm from './ParentConceptsForm'
 import Breadcrumbs from '../common/Breadcrumbs'
 import CustomAttributesForm from '../common/CustomAttributesForm'
 import { required } from '../../common/validators';
@@ -61,6 +62,7 @@ class ConceptForm extends FormComponent  {
       selected_datatype: null,
       manualMnemonic: false,
       manualExternalId: false,
+      originalParentConceptURLs: [],
       generatingChangeComment: false,
       fields: {
         id: {...mandatoryFieldStruct, validators: autoAssignedId ? [] : [required()]},
@@ -128,7 +130,7 @@ class ConceptForm extends FormComponent  {
       datatype: concept.datatype || '',
       external_id: concept.external_id || '',
       extras: concept.extras || {},
-      parent_concept_urls: concept.parent_concept_urls || [],
+      parent_concept_urls: [...this.state.originalParentConceptURLs].sort(),
       names: this.normalizeNamesForComparison(concept.names),
       descriptions: this.normalizeDescriptionsForComparison(concept.descriptions),
     }
@@ -143,7 +145,7 @@ class ConceptForm extends FormComponent  {
       datatype: valuesMap.datatype || '',
       external_id: valuesMap.external_id || '',
       extras: valuesMap.extras || {},
-      parent_concept_urls: valuesMap.parent_concept_urls || [],
+      parent_concept_urls: [...this.getParentConceptURLs()].sort(),
       names: this.normalizeNamesForComparison(valuesMap.names),
       descriptions: this.normalizeDescriptionsForComparison(valuesMap.descriptions),
     }
@@ -164,7 +166,7 @@ class ConceptForm extends FormComponent  {
       names: formValues.names || [],
       descriptions: formValues.descriptions || [],
       extras: formValues.extras || {},
-      parent_concept_urls: formValues.parent_concept_urls || [],
+      parent_concept_urls: this.getParentConceptURLs(),
       mappings: baseConcept.mappings,
     })
   }
@@ -248,8 +250,10 @@ class ConceptForm extends FormComponent  {
     fetchNameTypes(data => this.setState({nameTypes: sortValuesBySourceSummary(data, this.props.repoSummary, 'concepts.name_type')}))
     fetchDescriptionTypes(data => this.setState({descriptionTypes: data}))
     fetchLocales(this.prepareLocales, true)
-    if(this.props.edit && this.props.concept)
+    if(this.props.edit && this.props.concept) {
       this.setFieldsForEdit(this.props.concept)
+      this.fetchParentConceptURLs()
+    }
     if(this.props.copyFrom)
       this.fetchConceptToCreate()
     if(!this.props.edit) {
@@ -302,14 +306,33 @@ class ConceptForm extends FormComponent  {
     }
 
     newState.fields.extras = isEmpty(instance.extras) ? newState.fields.extras : map(instance.extras, (v, k) => ({key: k, value: v}))
-    newState.fields.parent_concept_urls = instance.parent_concept_urls || []
+    newState.fields.parent_concept_urls = this.normalizeParentConceptURLs(instance.parent_concept_urls)
     this.setState(newState);
   }
 
 
   fetchConceptToCreate = () => {
-    APIService.new().overrideURL(this.props.copyFrom.url).get().then(response => this.setFieldsForEdit(response.data))
+    APIService.new().overrideURL(this.props.copyFrom.url).get(null, null, {includeParentConceptURLs: true}).then(response => this.setFieldsForEdit(response.data))
   }
+
+  fetchParentConceptURLs = () => {
+    const { concept } = this.props
+    if(!concept?.url)
+      return
+    APIService.new().overrideURL(concept.url).get(null, null, {includeParentConceptURLs: true}).then(response => {
+      const urls = this.normalizeParentConceptURLs(response?.data?.parent_concept_urls)
+      this.setState(state => ({
+        originalParentConceptURLs: urls,
+        fields: {...state.fields, parent_concept_urls: urls}
+      }))
+    })
+  }
+
+  normalizeParentConceptURLs = urls => compact(map(urls || [], dropVersion)).sort()
+
+  getParentConceptURLs = () => this.state.fields.parent_concept_urls || []
+
+  onParentConceptURLsChange = urls => this.setState(state => ({fields: {...state.fields, parent_concept_urls: urls}}))
 
   prepareLocales = _locales => {
     this.setState({
@@ -376,12 +399,16 @@ class ConceptForm extends FormComponent  {
     if(isValid) {
       const { setAlert } = this.context;
       const payload = this.getValues()
+      payload.parent_concept_urls = this.getParentConceptURLs()
       if(edit) {
         payload.update_comment = fields.comment.value
         delete payload.comment
       }
+      const queryParams = {includeParentConceptURLs: true}
       let service = APIService.new().overrideURL(this.props.source.url).appendToUrl('concepts/')
-      service = this.props.edit ? service.appendToUrl(this.state.fields.id.value + '/').put(payload) : service.post(payload)
+      service = this.props.edit ?
+        service.appendToUrl(this.state.fields.id.value + '/').put(payload, null, {}, queryParams) :
+        service.post(payload, null, {}, queryParams)
       service.then(response => {
         if([200, 201].includes(response?.status)) {
           setAlert({duration: 2000, message: this.props.edit ? this.props.t('concept.success_update') : this.props.t('concept.success_create'), severity: 'success'})
@@ -543,6 +570,17 @@ class ConceptForm extends FormComponent  {
           </div>
           <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
             <Button label={t('common.add')} sx={{backgroundColor: 'surface.s90'}} onClick={this.onAddDescriptionLocale} />
+          </div>
+        </CardSection>
+        <CardSection title={t('concept.form.parent_concepts_header')}>
+          <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>
+            <ParentConceptsForm
+              t={t}
+              sourceURL={source?.url}
+              selfURL={edit ? concept?.url : undefined}
+              value={fields.parent_concept_urls}
+              onChange={this.onParentConceptURLsChange}
+            />
           </div>
         </CardSection>
         <CardSection title={t('custom_attributes.label')}>

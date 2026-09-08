@@ -4,8 +4,12 @@ import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Switch from '@mui/material/Switch'
+import snakeCase from 'lodash/snakeCase'
+import JSONTextField from '../common/JSONTextField'
 
-const RepoCreatePublisher = ({ onChange, config, ...rest }) => {
+const JSON_FIELDS = ['jurisdiction', 'identifier', 'contact', 'meta']
+
+const RepoCreatePublisher = ({ onChange, config, validationErrors, ...rest }) => {
   const { t } = useTranslation()
   const fields = config.fields
   const booleanFields = fields.filter(field => field.type === 'boolean')
@@ -22,23 +26,15 @@ const RepoCreatePublisher = ({ onChange, config, ...rest }) => {
         </div>
         <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>
           <div className='col-xs-6 padding-0'>
-            <TextField label={t('repo.jurisdiction')} fullWidth value={rest.jurisdiction || ''} onChange={event => onChange('jurisdiction', event.target.value)} />
-          </div>
-          <div className='col-xs-6' style={{padding: '0 0 0 10px'}}>
             <TextField label={t('repo.purpose')} fullWidth value={rest.purpose || ''} onChange={event => onChange('purpose', event.target.value)} />
           </div>
-        </div>
-        <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>
-          <div className='col-xs-6 padding-0'>
+          <div className='col-xs-6' style={{padding: '0 0 0 10px'}}>
             <TextField label={t('repo.copyright')} fullWidth value={rest.copyright || ''} onChange={event => onChange('copyright', event.target.value)} />
           </div>
-          <div className='col-xs-6' style={{padding: '0 0 0 10px'}}>
-            <TextField label={t('repo.identifier')} fullWidth value={rest.identifier || ''} onChange={event => onChange('identifier', event.target.value)} />
-          </div>
         </div>
         <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>
           <div className='col-xs-6 padding-0'>
-            <TextField label={t('repo.contact')} fullWidth value={rest.contact || ''} onChange={event => onChange('contact', event.target.value)} />
+            <TextField label={t('repo.revision_date')} fullWidth type='date' value={rest.revisionDate || ''} onChange={event => onChange('revisionDate', event.target.value)} slotProps={{inputLabel: {shrink: true}}} />
           </div>
           {
             fields.find(field => field.id === 'contentType') ?
@@ -48,14 +44,18 @@ const RepoCreatePublisher = ({ onChange, config, ...rest }) => {
             null
           }
         </div>
-        <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>
-          <div className='col-xs-6 padding-0'>
-            <TextField label={t('repo.meta')} fullWidth value={rest.meta || ''} onChange={event => onChange('meta', event.target.value)} />
-          </div>
-          <div className='col-xs-6' style={{padding: '0 0 0 10px'}}>
-            <TextField label={t('repo.revision_date')} fullWidth type='date' value={rest.revisionDate || ''} onChange={event => onChange('revisionDate', event.target.value)} slotProps={{inputLabel: {shrink: true}}} />
-          </div>
-        </div>
+        {
+          JSON_FIELDS.map(field => (
+            <div className='col-xs-12 padding-0' style={{marginTop: '24px'}} key={field}>
+              <JSONTextField
+                label={t(`repo.${snakeCase(field)}`)}
+                value={rest[field] || ''}
+                error={validationErrors?.[field]}
+                onChange={value => onChange(field, value)}
+              />
+            </div>
+          ))
+        }
         <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>
           <div className={`col-xs-${booleanGridSize} padding-0`}>
             <FormControlLabel

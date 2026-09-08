@@ -20,6 +20,7 @@ import MappingIcon from '../mappings/MappingIcon';
 import { formatDate, hasAccessToURL } from '../../common/utils'
 import { SURFACE_COLORS, BLACK } from '../../common/colors'
 import Button from '../common/Button';
+import ProcessingFlag from './ProcessingFlag';
 
 const normalizeVersions = versions => {
   if (Array.isArray(versions))
@@ -51,6 +52,7 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
           ...bodyCellStyle
         }, (checkbox ? {} : {borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px'})]} onClick={isDisabled ? undefined : () => onVersionChange(version)}>
           {version.id}
+          <ProcessingFlag version={version} showLabel={false} sx={{ ml: 1 }} />
           {
             version?.match_algorithms?.includes('llm') &&
               <Tooltip title={t('repo.version.vectorized_for_mapper')}>
@@ -66,7 +68,7 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
           {
             isNumber(version?.summary?.active_concepts) &&
               <span style={{marginRight: '8px', display: 'flex', alignItems: 'center'}}>
-                <ConceptIcon selected color='secondary' sx={{width: '9px', height: '9px', marginRight: '4px'}} />
+                <ConceptIcon selected color='secondary' sx={{width: '1rem', height: '1rem', marginRight: '4px'}} />
                 {version.summary.active_concepts.toLocaleString()}
               </span>
           }

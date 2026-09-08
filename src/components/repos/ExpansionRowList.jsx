@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import get from 'lodash/get';
 
 import ProcessingChip from '../common/ProcessingChip';
+import ProcessingFlag from './ProcessingFlag';
 import { dropVersion, formatDate } from '../../common/utils';
 import { formatCount } from './versionsTab.styles';
 
@@ -67,6 +68,8 @@ const ExpansionRowList = ({
   loading,
   isStale,
   processingState,
+  getStageVersion,
+  isMenuOpen,
   getRepoUpdates,
   onSelectExpansion,
   onOpenExpansionMenu,
@@ -108,6 +111,7 @@ const ExpansionRowList = ({
       {expansions.map(expansion => {
         const repoUpdates = getRepoUpdates?.(expansion);
         const hasRepoUpdates = repoUpdates && Object.keys(repoUpdates).length > 0;
+        const stageVersion = getStageVersion?.(expansion) || null;
         const explicitVersions = getExplicitRepoVersions(expansion);
         const evaluatedVersions = getEvaluatedRepoVersions(expansion);
 
@@ -119,7 +123,8 @@ const ExpansionRowList = ({
               borderColor: 'surface.nv80',
               py: 1,
               px: 1,
-              '&:last-of-type': { borderBottom: 'none' }
+              '&:last-of-type': { borderBottom: 'none' },
+              ...(isMenuOpen?.(expansion) ? { backgroundColor: 'surface.main' } : {})
             }}
           >
             <Box sx={{ display: 'grid', gridTemplateColumns: GRID_COLUMNS, columnGap: 2, alignItems: 'start' }}>
@@ -142,7 +147,10 @@ const ExpansionRowList = ({
                       <Typography sx={{ fontSize: '11px', color: 'error.main' }}>{t('repo.stale')}</Typography>
                     </Stack>
                   )}
-                  {processingState(expansion) && (
+                  {/* Only the default expansion has stage data, via its parent version. */}
+                  {processingState(expansion) === 'processing' && stageVersion ? (
+                    <ProcessingFlag version={stageVersion} />
+                  ) : processingState(expansion) && (
                     <ProcessingChip processed={processingState(expansion) === 'processed'} fading={processingState(expansion) === 'processed'} />
                   )}
                 </Stack>

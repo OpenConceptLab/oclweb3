@@ -6,13 +6,14 @@ import Typography from '@mui/material/Typography';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import { has } from 'lodash'
 import RepoVersionChip from './RepoVersionChip';
+import ProcessingFlag from './ProcessingFlag';
 import RepoChip from './RepoChip'
 import OwnerChip from '../common/OwnerChip';
 import { currentUserHasAccess } from '../../common/utils';
 import RepoManagementList from './RepoManagementList';
 import FollowActionButton from '../common/FollowActionButton'
 
-const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClick, onCreateMappingClick, onVersionEditClick, onCreateVersionClick, onDeleteRepoClick, isVersion, onReleaseVersionClick}) => {
+const RepoHeader = ({repo, owner, versions, onVersionChange, repoHref, onCreateConceptClick, onCreateMappingClick, onVersionEditClick, onCreateVersionClick, onDeleteRepoClick, isVersion, onReleaseVersionClick}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -48,11 +49,12 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
       <div className='col-xs-12 padding-0' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'auto'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
           <OwnerChip owner={owner} sx={{background: 'transparent', borderColor: 'surface.light'}} hideType />
-          <RepoChip repo={{...repo, type: repo?.type?.replace(' Version', '')}} sx={{marginLeft: '12px', background: 'transparent', borderColor: 'surface.light'}} onChange={onVersionChange}  />
+          <RepoChip repo={{...repo, type: repo?.type?.replace(' Version', '')}} sx={{marginLeft: '12px', background: 'transparent', borderColor: 'surface.light'}} onChange={onVersionChange} {...(repoHref ? {href: repoHref} : {})} />
           {
             onVersionChange &&
               <RepoVersionChip checkbox version={repo} versions={versions} sx={{marginLeft: '8px', borderRadius: '4px'}} onChange={onVersionChange} />
           }
+          <ProcessingFlag version={repo} sx={{marginLeft: '8px'}} />
         </span>
         <span style={{display: 'flex', alignItems: 'center', marginLeft: '16px'}}>
           <FollowActionButton iconButton entity={repo} />

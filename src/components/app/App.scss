@@ -120,8 +120,8 @@ div.split-appear {
     gap: 10px;
     padding: 0 8px;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
 }
 
 .confidence-bar {
@@ -171,4 +171,17 @@ div.split-appear {
     position: sticky;
     left: 0;
     background-color: white;
+}
+
+@keyframes ocl-spin{
+    0%    {transform: rotate(0deg);}
+    100%  {transform: rotate(360deg);}
+}
+
+tr.droppable-disabled {
+    background-color: rgba(0, 0, 0, 0.1);
+    cursor: no-drop;
+    td {
+        cursor: no-drop !important;
+    }
 }

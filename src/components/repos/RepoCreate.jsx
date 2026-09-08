@@ -13,8 +13,6 @@ import TextField from '@mui/material/TextField'
 import orderBy from 'lodash/orderBy'
 import map from 'lodash/map'
 import fromPairs from 'lodash/fromPairs'
-import isObject from 'lodash/isObject'
-import isEmpty from 'lodash/isEmpty'
 import forEach from 'lodash/forEach'
 import snakeCase from 'lodash/snakeCase'
 import compact from 'lodash/compact'
@@ -32,6 +30,7 @@ import { fetchLocales } from '../concepts/utils'
 import Button from '../common/Button'
 import RTEditor from '../common/RTEditor'
 import CustomAttributesForm from '../common/CustomAttributesForm'
+import { jsonToString, stringToJSON, isValidJSONString } from '../common/JSONTextField'
 import { OperationsContext } from '../app/LayoutContext';
 
 import RepoCreateFormHeader from './RepoCreateFormHeader'
@@ -39,6 +38,7 @@ import RepoCreateNameDescription from './RepoCreateNameDescription'
 import RepoCreateLanguages from './RepoCreateLanguages'
 import RepoCreateAdditionalMetadata from './RepoCreateAdditionalMetadata'
 import RepoCreatePublisher from './RepoCreatePublisher'
+import RepoCreateHierarchy from './RepoCreateHierarchy'
 
 const TabPanel = props => {
   const { children, value, index, ...other } = props;
@@ -67,6 +67,8 @@ const FormSection = ({children, sx}) => (
     {children}
   </Box>
 )
+
+const JSON_FIELDS = ['jurisdiction', 'identifier', 'contact', 'meta']
 
 const RepoCreate = () => {
   const { t } = useTranslation()
@@ -105,6 +107,7 @@ const RepoCreate = () => {
           {'id': 'versionNeeded', required: true, label: t('repo.version_needed'), type: 'boolean'},
         ]
       },
+      hierarchy: true,
       types: orderBy(map(SOURCE_TYPES, t => ({id: t, name: t})), 'name')
     },
     {
@@ -198,11 +201,9 @@ const RepoCreate = () => {
 
   const apiExtrasToExtras = extras => isArray(extras) ? extras : map(extras, (value, key) => ({ key, value }))
 
-  const objToValue = val => isObject(val) && !isEmpty(val) ? JSON.stringify(val) : ''
-
   const isBlank = value => value === undefined || value === null || value === '' || (typeof value === 'string' && !value.trim()) || (isArray(value) && !value.length)
 
-  const validateRequiredFields = () => {
+  const validateFields = () => {
     const errors = {}
     const requiredFields = [
       ...(!isEdit ? ['id'] : []),
@@ -214,17 +215,30 @@ const RepoCreate = () => {
       if(isBlank(model[field]))
         errors[field] = t('errors.mandatory_field')
     })
+    JSON_FIELDS.forEach(field => {
+      if(!isValidJSONString(model[field]))
+        errors[field] = t('errors.invalid_json')
+    })
     setValidationErrors(errors)
-    return !Object.keys(errors).length
+    return errors
   }
 
+  const getNullableFields = () => [
+    ...JSON_FIELDS,
+    ...(selectedTab?.hierarchy ? ['hierarchyRootURL', 'hierarchyMeaning'] : [])
+  ]
+
   const onSubmit = () => {
-    if(!validateRequiredFields()) {
-      setAlert({duration: 5000, message: t('errors.mandatory_field'), severity: 'error'})
+    const errors = validateFields()
+    if(Object.keys(errors).length) {
+      const hasInvalidJSON = JSON_FIELDS.some(field => errors[field])
+      setAlert({duration: 5000, message: hasInvalidJSON ? t('errors.invalid_json') : t('errors.mandatory_field'), severity: 'error'})
       return
     }
     const payload = {}
+    const nullableFields = getNullableFields()
     forEach(model, (value, field) => {
+      const modelField = field
       if('externalID' === field)
         field = 'external_id'
       else if('extras' === field)
@@ -235,8 +249,12 @@ const RepoCreate = () => {
         field = selectedTab?.id + '_type'
       else
         field = snakeCase(field)
+      if(JSON_FIELDS.includes(modelField))
+        value = stringToJSON(value)
       if(value)
         payload[field] = [true, false].includes(value) ? value : value || null
+      else if(nullableFields.includes(modelField))
+        payload[field] = null
     })
     let service = getService()
     service = isEdit ? service.put(payload) : service.post(payload)
@@ -276,7 +294,7 @@ const RepoCreate = () => {
   const setModelForEdit = data => {
     data = data || repo
     setValidationErrors({})
-    setModel({id: data.id, fullName: data.full_name, name: data.name, canonicalURL: data.canonical_url, description: data.description, defaultLocale: valueToId(data.default_locale), supportedLocales: data.supported_locales?.map ? data.supported_locales.map(valueToId) : data.supported_locales, type: data?.source_type || data?.collection_type, publicAccess: data.public_access, publisher: data.publisher, purpose: data.purpose, revisionDate: data.revision_date, customValidationSchema: data.custom_validation_schema, externalID: data.external_id, jurisdiction: objToValue(data.jurisdiction), copyright: data.copyright, identifier: objToValue(data.identifier), contact: objToValue(data.contact), contentType: data.content_type, meta: data.meta, experimental: data.experimental, caseSensitive: data.case_sensitive, compositional: data.compositional, versionNeeded: data.version_needed, text: data.text, extras: apiExtrasToExtras(data.extras), website: data.website, autoexpandHEAD: data.autoexpand_head})
+    setModel({id: data.id, fullName: data.full_name, name: data.name, canonicalURL: data.canonical_url, description: data.description, defaultLocale: valueToId(data.default_locale), supportedLocales: data.supported_locales?.map ? data.supported_locales.map(valueToId) : data.supported_locales, type: data?.source_type || data?.collection_type, publicAccess: data.public_access, publisher: data.publisher, purpose: data.purpose, revisionDate: data.revision_date, customValidationSchema: data.custom_validation_schema, externalID: data.external_id, jurisdiction: jsonToString(data.jurisdiction), copyright: data.copyright, identifier: jsonToString(data.identifier), contact: jsonToString(data.contact), contentType: data.content_type, meta: jsonToString(data.meta), hierarchyRootURL: isEdit ? (data.hierarchy_root_url || '') : '', hierarchyMeaning: data.hierarchy_meaning || '', experimental: data.experimental, caseSensitive: data.case_sensitive, compositional: data.compositional, versionNeeded: data.version_needed, text: data.text, extras: apiExtrasToExtras(data.extras), website: data.website, autoexpandHEAD: data.autoexpand_head})
   }
 
   React.useEffect(() => {
@@ -477,8 +495,14 @@ const RepoCreate = () => {
               <RepoCreateAdditionalMetadata isEdit={isEdit} typeLabel={t(`repo.${selectedTab.id}_type`)} types={selectedTab.types} onChange={onChange} validationErrors={validationErrors} config={selectedTab.content} {...model} />
             </FormSection>
             <FormSection sx={{marginTop: '16px'}}>
-              <RepoCreatePublisher isEdit={isEdit} onChange={onChange} config={selectedTab.content} {...model} />
+              <RepoCreatePublisher isEdit={isEdit} onChange={onChange} validationErrors={validationErrors} config={selectedTab.content} {...model} />
             </FormSection>
+            {
+              selectedTab.hierarchy &&
+                <FormSection sx={{marginTop: '16px'}}>
+                  <RepoCreateHierarchy sourceURL={isEdit ? repo?.url : ''} onChange={onChange} hierarchyRootURL={model.hierarchyRootURL} hierarchyMeaning={model.hierarchyMeaning} />
+                </FormSection>
+            }
             <FormSection sx={{marginTop: '16px'}}>
               <div className='col-xs-12 padding-0' style={{marginBottom: '24px'}}>
                 <Typography sx={{fontSize: '16px', fontWeight: 'bold'}}>

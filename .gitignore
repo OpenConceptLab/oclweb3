@@ -6,6 +6,8 @@ dist/
 .env
 .DS_Store
 CLAUDE.md
+.superpowers/
+jsconfig.json
 
 # Local Docker Compose overrides
 docker-compose.override.yml
