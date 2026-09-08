@@ -120,8 +120,8 @@ div.split-appear {
     gap: 10px;
     padding: 0 8px;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
 }
 
 .confidence-bar {

@@ -23,7 +23,7 @@ import AssociationRowOptions from './AssociationRowOptions'
 const DEFAULT_ORDER_BY = ['sort_weight', 'cascade_target_source_name', 'cascade_target_concept_name']
 const ORDER_BY = ['_sort_weight', 'cascade_target_source_name', 'cascade_target_concept_name']
 const order = (mappings, isDefault) => orderBy(mappings, isDefault ? DEFAULT_ORDER_BY : ORDER_BY)
-const CELL_WIDTHS = ['22%', '20%', '38%', '20%']
+const CELL_WIDTHS = ['18%', '24%', '38%', '20%']
 
 const SortableAssociationRow = ({ concept, mappings, mapType, isSelf, isIndirect, canAct, canSort, onSortEnd, onAddNewClick, onAssignSortWeight, onClearSortWeight, onRetireMapping }) => {
   const { t } = useTranslation()
@@ -94,6 +94,8 @@ const SortableAssociationRow = ({ concept, mappings, mapType, isSelf, isIndirect
   const getBadgeProps = (mapping, index) => {
     const isUpdated = mapping._sort_weight !== mapping._initial_assigned_sort_weight
     const props = {anchorOrigin: {horizontal: 'left', vertical: 'top'}}
+    if(!isNumber(mapping.sort_weight) && !isUpdated && sortedCount)
+      return {...props, badgeContent: <WarningIcon style={{fontSize: '10px'}} color='warning' />, style: {background: 'transparent'}}
     if(!isUpdated)
       return props
     if(index < mapping._original_position)
@@ -186,17 +188,17 @@ const SortableAssociationRow = ({ concept, mappings, mapType, isSelf, isIndirect
                                     <React.Fragment>
                                       {
                                         isSortable &&
-                                          <span style={{display: 'flex', marginRight: '4px'}} {...draggable.dragHandleProps}>
+                                          <span style={{display: 'flex'}} {...draggable.dragHandleProps}>
                                             <Badge {...getBadgeProps(mapping, index)}>
-                                              <DragIcon fontSize='small' sx={{color: 'rgba(0, 0, 0, 0.54)'}} />
+                                              {
+                                                (!isNumber(mapping.sort_weight) && !isUpdated && sortedCount) ?
+                                                  <Tooltip title={t('mapping.no_sort_weight')}>
+                                                    <DragIcon fontSize='small' sx={{color: 'rgba(0, 0, 0, 0.54)'}} />
+                                                </Tooltip> :
+                                                  <DragIcon fontSize='small' sx={{color: 'rgba(0, 0, 0, 0.54)'}} />
+                                              }
                                             </Badge>
                                           </span>
-                                      }
-                                      {
-                                        Boolean(isSortable && !isNumber(mapping.sort_weight) && !isUpdated && sortedCount) &&
-                                          <Tooltip title={t('mapping.no_sort_weight')}>
-                                            <WarningIcon fontSize='small' sx={{marginRight: '4px'}} />
-                                          </Tooltip>
                                       }
                                     </React.Fragment>
                                   }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography'
 import Table from '@mui/material/Table'
@@ -20,7 +21,7 @@ import DownIcon from '@mui/icons-material/KeyboardArrowDown';
 import AddIcon from '@mui/icons-material/Add';
 import WarnIcon from '@mui/icons-material/WarningAmber';
 import { get, isEmpty, forEach, map, find, compact, flatten, values, filter, without, uniqBy, orderBy } from 'lodash';
-import { generateRandomString, dropVersion, URIToParentParams, toParentURI } from '../../common/utils'
+import { generateRandomString, dropVersion, URIToParentParams, toParentURI, getResourceIdFromUrl } from '../../common/utils'
 import TagCountLabel from '../common/TagCountLabel'
 import RepoChip from '../repos/RepoChip'
 import AssociationMappingCells from '../mappings/AssociationMappingCells'
@@ -51,12 +52,22 @@ const groupMappings = (orderedMappings, concept, mappings, forward) => {
 }
 
 
-const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect, isHierarchy, hide}) => {
+const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect, isHierarchy, hide, getTargetURL}) => {
   const { t } = useTranslation()
   const rows = isHierarchy ? orderBy(mappings, 'display_name') : mappings
+  const rowProps = resource => {
+    const targetURL = getTargetURL ?
+                    getTargetURL(resource) :
+                    (resource?.type === 'Mapping' ? resource?.cascade_target_concept_url : resource?.url)
+    return {
+      hover: true,
+      sx: {...(hide ? {display: 'none'} : {}), cursor: targetURL ? 'pointer' : 'default'},
+      onClick: () => { if(targetURL) window.location.hash = targetURL }
+    }
+  }
   return (
     <React.Fragment>
-      <TableRow id={id || mapType} sx={hide ? {display: 'none'} : {}}>
+      <TableRow id={id || mapType} {...rowProps(get(rows, 0))}>
         <TableCell className='sticky-col' rowSpan={rows?.length} align='left' sx={{verticalAlign: 'top', width: '22%', paddingLeft: '8px', top: '37px', zIndex: 1}}>
           <span className='flex-vertical-center'>
             <Tooltip placement='left' title={isHierarchy ? '' : (isIndirect ? t('mapping.inverse_mappings') : (isSelf ? t('mapping.self_mappings') : t('mapping.direct_mappings')))}>
@@ -90,7 +101,7 @@ const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect, isHierarchy,
       {
         map(rows?.slice(1), (mapping, index) => {
           return (!mapping || isEmpty(mapping)) ? null : (
-            <TableRow key={index} sx={hide ? {display: 'none'} : {}}>
+            <TableRow key={index} {...rowProps(mapping)}>
               <AssociationMappingCells mapping={mapping} isIndirect={isIndirect} />
             </TableRow>
           )
@@ -109,6 +120,7 @@ const Associations = ({concept, source, repoSummary, mappings, reverseMappings, 
   const [ownerMappingsGroupedByRepo, setOwnerMappingsGroupedByRepo] = React.useState({});
   const [collapsedSections, setCollapsedSections] = React.useState([])
   const { t } = useTranslation()
+  const location = useLocation()
   const getMappings = () => {
     let _mappings = {}
     groupMappings(_mappings, concept, mappings, true)
@@ -156,6 +168,12 @@ const Associations = ({concept, source, repoSummary, mappings, reverseMappings, 
     }
   }
   const toggleSection = repoURI => setCollapsedSections(collapsedSections?.includes(repoURI) ? without(collapsedSections, repoURI) : [...collapsedSections, repoURI])
+
+  const getHierarchyURL = resource => {
+    const path = location.pathname.replace(/\/$/, '')
+    const base = getResourceIdFromUrl(path, 'concepts') ? path.split('/').slice(0, -1).join('/') : (/\/concepts$/.test(path) ? path : null)
+    return base ? `${base}/${encodeURIComponent(resource?.id)}/` : resource?.url
+  }
 
   const hierarchyMeaning = source?.hierarchy_meaning
   const hierarchyMapType = isChild => (
@@ -313,6 +331,7 @@ const Associations = ({concept, source, repoSummary, mappings, reverseMappings, 
                         id='has-child'
                         mapType={hierarchyMapType(true)}
                         isHierarchy
+                        getTargetURL={getHierarchyURL}
                       />
                   }
                   {
@@ -322,6 +341,7 @@ const Associations = ({concept, source, repoSummary, mappings, reverseMappings, 
                         id='has-parent'
                         mapType={hierarchyMapType(false)}
                         isHierarchy
+                        getTargetURL={getHierarchyURL}
                       />
                   }
                   {
