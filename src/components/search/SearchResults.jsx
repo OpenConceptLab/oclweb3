@@ -10,6 +10,7 @@ import Button from '@mui/material/Button';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import AddIcon from '@mui/icons-material/PlaylistAddOutlined';
 import RepeatIcon from '@mui/icons-material/Repeat';
+import CloneIcon from '@mui/icons-material/ControlPointDuplicate';
 import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
 import { isNumber, isNaN, flatten, values, uniqBy } from 'lodash'
@@ -19,6 +20,7 @@ import TableResults from './TableResults';
 import CardResults from './CardResults';
 import ReferenceSourceGroupedResults, { getReferenceSourceGroups } from '../references/ReferenceSourceGroupedResults';
 import AddToCollectionDialog from '../common/AddToCollectionDialog';
+import CloneToSourceDialog from '../repos/CloneToSourceDialog';
 import { getSortConfig } from './sortConfig'
 import { resolveColumns } from './columns'
 import { isLoggedIn, currentUserHasAccess } from '../../common/utils';
@@ -119,6 +121,7 @@ const SearchResults = props => {
   const [tableDisplayAnimation, setTableDisplayAnimation] = React.useState('animation-appear')
   const [selected, setSelected] = React.useState(props.selected || []);
   const [addToCollectionOpen, setAddToCollectionOpen] = React.useState(false);
+  const [cloneToSourceOpen, setCloneToSourceOpen] = React.useState(false);
   const [loadedChildRows, setLoadedChildRows] = React.useState([]);
   const page = props.results?.page;
   const rowsPerPage = props.results?.pageSize;
@@ -271,6 +274,7 @@ const SearchResults = props => {
   const addToCollectionBulkAction = props.resource === 'concepts' && isLoggedIn() && selected.length > 0
     ? (
       <Button
+        key='add-to-collection'
         startIcon={<AddIcon fontSize='inherit' />}
         variant='contained'
         size='small'
@@ -281,9 +285,24 @@ const SearchResults = props => {
       </Button>
     ) : null
 
+  const cloneToSourceBulkAction = props.resource === 'concepts' && isLoggedIn() && selected.length > 0
+    ? (
+      <Button
+        key='clone-to-source'
+        startIcon={<CloneIcon fontSize='inherit' />}
+        variant='contained'
+        size='small'
+        sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}, marginLeft: '8px'}}
+        onClick={() => setCloneToSourceOpen(true)}
+      >
+        {t('cloneToSource.clone_to_source')}
+      </Button>
+    ) : null
+
   const createSimilarBulkAction = ['concepts', 'mappings'].includes(props.resource) && Boolean(props.onCreateSimilarClick) && currentUserHasAccess() && selectedRows.length === 1
     ? (
       <Button
+        key='create-similar'
         startIcon={<RepeatIcon fontSize='inherit' />}
         variant='contained'
         size='small'
@@ -304,7 +323,7 @@ const SearchResults = props => {
     {id: 'hierarchy', labelKey: 'search.hierarchy'},
   ] : undefined
   const toolbarControl = props.toolbarControl
-  const allBulkActions = [addToCollectionBulkAction, createSimilarBulkAction, props.extraBulkActions].filter(Boolean)
+  const allBulkActions = [addToCollectionBulkAction, cloneToSourceBulkAction, createSimilarBulkAction, props.extraBulkActions].filter(Boolean)
   const bulkActionsElement = allBulkActions.length > 0 ? <>{allBulkActions}</> : null
   const leftControls = (props.fixedLeftControls || []).filter(Boolean)
 
@@ -393,6 +412,11 @@ const SearchResults = props => {
       <AddToCollectionDialog
         open={addToCollectionOpen}
         onClose={() => setAddToCollectionOpen(false)}
+        concepts={selectedRows}
+      />
+      <CloneToSourceDialog
+        open={cloneToSourceOpen}
+        onClose={() => setCloneToSourceOpen(false)}
         concepts={selectedRows}
       />
     </Box>

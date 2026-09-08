@@ -362,19 +362,16 @@ export const getCurrentUserCollections = callback => {
 
 export const getCurrentUserSources = callback => {
   const username = getCurrentUserUsername();
-  if(username) {
-    APIService
-      .users(username)
-      .sources()
-      .get(null, null, {limit: 1000, includeSummary: true})
-      .then(response => isArray(response.data) ? callback(response.data) : false);
-    APIService
-      .users(username)
-      .orgs()
-      .appendToUrl('sources/')
-      .get(null, null, {limit: 1000, includeSummary: true})
-      .then(response => isArray(response.data) ? callback(response.data) : false);
-  }
+  if(!username)
+    return callback([]);
+
+  const query = {limit: 1000, includeSummary: true};
+  Promise.all([
+    APIService.users(username).sources().get(null, null, query),
+    APIService.users(username).orgs().appendToUrl('sources/').get(null, null, query)
+  ]).then(responses => callback(
+    uniqBy(flatten(map(responses, response => isArray(response?.data) ? response.data : [])), 'url')
+  ));
 }
 
 export const isValidPassword = (password, strength, minStrength = 3) => {
