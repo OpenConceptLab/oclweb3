@@ -444,6 +444,8 @@
     "source_type": "Source Type",
     "collection_type": "Collection Type",
     "manage": "Manage Repository",
+    "manage_version": "Manage Repository Version",
+    "edit_version": "Edit Version",
     "repo_id": "Repository ID",
     "repo_version": "Repo Version",
     "latest_version": "Latest version",

@@ -274,6 +274,8 @@
     "source_type": "来源类型",
     "collection_type": "集合类型",
     "manage": "管理存储库",
+    "manage_version": "管理存储库版本",
+    "edit_version": "编辑版本",
     "repo_id": "存储库 ID",
     "add_concept": "添加概念",
     "source": "来源",

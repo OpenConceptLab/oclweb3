@@ -62,7 +62,7 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, repoHref, onCreateC
             Boolean(hasAccess && (has(repo, 'source_type') || has(repo, 'collection_type'))) &&
               <React.Fragment>
                 <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='repo-manage'>
-                  {t('repo.manage')}
+                  {isVersion ? t('repo.manage_version') : t('repo.manage')}
                 </Button>
                 <RepoManagementList isVersion={isVersion} anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-manage' onClick={onManageOptionClick} repo={repo} />
               </React.Fragment>

@@ -23,7 +23,7 @@ const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id, isVers
         <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
           <EditIcon />
         </ListItemIcon>
-        <ListItemText primary={t('common.edit')} />
+        <ListItemText primary={isVersion ? t('repo.edit_version') : t('common.edit')} />
       </ListItemButton>
       {
         isVersion ?

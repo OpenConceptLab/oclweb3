@@ -245,6 +245,8 @@
     "repo": "Repositorio",
     "repo_type": "Tipo de Repositorio",
     "manage": "Gestionar Repositorio",
+    "manage_version": "Gestionar versión del repositorio",
+    "edit_version": "Editar versión",
     "visibility": "Visibilidad",
     "release_version": "Publicar versión",
     "unrelease_version": "Despublicar versión",
