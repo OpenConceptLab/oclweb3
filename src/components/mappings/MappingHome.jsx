@@ -75,7 +75,7 @@ const MappingHome = props => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
     } else if (!isSameResourceNavigation(prevLocationRef.current, location)) {
-      props?.onClose()
+      props?.onClose({navigated: true})
     }
     prevLocationRef.current = {pathname: location.pathname, search: location.search}
   }, [location])

@@ -15,6 +15,7 @@ import CompareIcon from '@mui/icons-material/CompareArrows'
 import RetireIcon from '@mui/icons-material/Delete'
 import compact from 'lodash/compact'
 import isNumber from 'lodash/isNumber'
+import { dropVersion } from '../../common/utils'
 
 const AssociationRowOptions = ({ mapping, concept, isIndirect, canAct, canSort, disabled, onAddNewClick, onAssignSortWeight, onClearSortWeight, onRetireClick }) => {
   const { t } = useTranslation()
@@ -28,7 +29,7 @@ const AssociationRowOptions = ({ mapping, concept, isIndirect, canAct, canSort, 
   const navigate = href => () => { window.location.hash = href }
 
   const options = compact([
-    {label: t('mapping.open_mapping_details'), icon: <OpenIcon fontSize='small' />, onClick: navigate(mapping.url)},
+    {label: t('mapping.open_mapping_details'), icon: <OpenIcon fontSize='small' />, onClick: navigate(dropVersion(mapping.url))},
     fromConceptURL && fromConceptURL !== conceptURL && {label: t('mapping.open_from_concept'), icon: <OpenIcon fontSize='small' />, onClick: navigate(fromConceptURL)},
     toConceptURL && toConceptURL !== conceptURL && {label: t('mapping.open_to_concept'), icon: <OpenIcon fontSize='small' />, onClick: navigate(toConceptURL)},
     fromConceptURL && toConceptURL && {label: t('mapping.compare_concepts'), icon: <CompareIcon fontSize='small' />, divider: true, onClick: navigate(`/concepts/compare?lhs=${fromConceptURL}&rhs=${toConceptURL}`)},
@@ -56,7 +57,7 @@ const AssociationRowOptions = ({ mapping, concept, isIndirect, canAct, canSort, 
 
   return (
     <React.Fragment>
-      <IconButton size='small' color='primary' ref={anchorRef} disabled={disabled} onClick={event => { event.stopPropagation(); setOpen(!open) }}>
+      <IconButton size='small' ref={anchorRef} disabled={disabled} onClick={event => { event.stopPropagation(); setOpen(!open) }}>
         <MenuIcon fontSize='inherit' />
       </IconButton>
       <Menu open={open} anchorEl={anchorRef.current} onClose={() => setOpen(false)}>

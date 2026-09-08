@@ -19,7 +19,6 @@ import UpIcon from '@mui/icons-material/KeyboardArrowUp';
 import DownIcon from '@mui/icons-material/KeyboardArrowDown';
 import AddIcon from '@mui/icons-material/Add';
 import WarnIcon from '@mui/icons-material/WarningAmber';
-import InfoIcon from '@mui/icons-material/InfoOutlined';
 import { get, isEmpty, forEach, map, find, compact, flatten, values, filter, without, uniqBy, orderBy } from 'lodash';
 import { generateRandomString, dropVersion, URIToParentParams, toParentURI } from '../../common/utils'
 import TagCountLabel from '../common/TagCountLabel'
@@ -242,15 +241,11 @@ const Associations = ({concept, source, repoSummary, mappings, reverseMappings, 
       <Typography component="span" sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
           <TagCountLabel label={t('concept.associations')} count={scope === 'all' ? count : (scope === 'namespace' ? countOwnerMappings : count - countOwnerMappings)}/>
-          <Tooltip title={t('mapping.associations_info')}>
-            <InfoIcon fontSize='small' color='action' sx={{marginLeft: '8px'}} />
-          </Tooltip>
         </span>
         <span style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
         {
           onIncludeRetiredToggle && scope !== 'namespace' &&
             <Chip
-              size='small'
               label={t('mapping.include_retired')}
               icon={includeRetired ? <SelectedIcon fontSize='small' /> : undefined}
               onClick={() => onIncludeRetiredToggle(!includeRetired)}

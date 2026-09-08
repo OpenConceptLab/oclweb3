@@ -141,7 +141,7 @@ const RepoHome = () => {
     setExpansions([])
     setSelectedExpansion(false)
     APIService.new().overrideURL(getURL()).get(null, null, {includeSummary: true, ...PROCESSING_QUERY_PARAMS}, true).then(response => {
-      const newStatus = response?.status || response?.response.status
+      const newStatus = response?.status || response?.response?.status
       const _repo = response?.data || response?.response?.data || {}
 
       if(versionFromURL && (newStatus !== 200 || !_repo?.url)) {
@@ -268,9 +268,10 @@ const RepoHome = () => {
     setMappingForm(false)
   }
 
-  const closeItem = () => {
+  const closeItem = options => {
     setShowItem(false)
-    setDismissedResource(params.resource || null)
+    if(!options?.navigated)
+      setDismissedResource(params.resource || null)
   }
 
   const onCreateConceptClick = () => {

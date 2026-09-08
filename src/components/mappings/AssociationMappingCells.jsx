@@ -32,7 +32,7 @@ const AssociationMappingCells = ({ mapping, isIndirect, cellSx, prefix, suffix }
           {prefix}
           <Tooltip title={getTitle()}>
             <span style={{display: 'flex'}}>
-              <ConceptIcon selected={isDefinedInOCL} sx={{width: '10px', height: '10px', marginRight: '12px'}} />
+              <ConceptIcon selected={isDefinedInOCL} sx={{width: '1rem', height: '1rem', marginRight: '4px'}} />
             </span>
           </Tooltip>
           { has(mapping, CONCEPT_CODE_ATTR) ? mapping[CONCEPT_CODE_ATTR] : mapping?.id }

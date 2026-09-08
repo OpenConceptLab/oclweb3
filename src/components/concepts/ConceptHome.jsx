@@ -84,7 +84,7 @@ const ConceptHome = props => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
     } else if (!isSameResourceNavigation(prevLocationRef.current, location)) {
-      props?.onClose()
+      props?.onClose({navigated: true})
     }
     prevLocationRef.current = {pathname: location.pathname, search: location.search}
   }, [location])
@@ -92,13 +92,15 @@ const ConceptHome = props => {
   const fetchRepo = _concept => props?.repo?.id ? setRepo(props.repo) : APIService.new().overrideURL(getRepoURL(_concept)).get().then(response => setRepo(response.data))
 
   const getRepoURL = _concept => {
-    if(props?.repo?.id)
-      return props?.repo?.version_url || props?.repo?.url
-    let url = toParentURI(_concept?.version_url || _concept?.url || props?.url || '')
-    const repoVersion = _concept?.latest_source_version || concept?.latest_source_version
-    if(repoVersion)
-      url += repoVersion + '/'
-    return url
+    const parentURL = toParentURI(_concept?.version_url || _concept?.url || props?.url || '')
+    const repoURL = props?.repo?.version_url || props?.repo?.url
+    if(repoURL && (!parentURL || dropVersion(repoURL) === parentURL))
+      return repoURL
+    if(!parentURL)
+      return ''
+    const isStateConceptOfParent = toParentURI(concept?.url || '') === parentURL
+    const repoVersion = _concept?.latest_source_version || (isStateConceptOfParent ? concept?.latest_source_version : undefined)
+    return repoVersion ? parentURL + repoVersion + '/' : parentURL
   }
 
   const getService = () => {
