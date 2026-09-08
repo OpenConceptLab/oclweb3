@@ -63,10 +63,10 @@ export const ALL_COLUMNS = {
     {id: 'parent', labelKey: 'repo.repo', value: 'source', sortOn: 'source', nested: false, renderer: item => <RepoVersionButton repoType='Source' repo={item.source} version={item.latest_source_version} vertical />},
   ],
   mappings: [
-    {id: 'fromAndTargetSource', labelKey: 'mapping.fromAndTargetSource', sortable: false, className: 'searchable', renderer: item => <FromAndTargetSource mapping={item} />},
-    {id: 'fromConcept', labelKey: 'mapping.fromConcept', value: 'fromConceptCode', className: 'searchable', sortable: false, renderer: item => <ConceptCell mapping={item} direction='from' />},
-    {id: 'mapType', labelKey: 'mapping.map_type', value: 'map_type', sortable: true},
-    {id: 'toConcept', labelKey: 'mapping.toConcept', value: 'toConceptCode', className: 'searchable', sortable: false, renderer: item => <ConceptCell mapping={item} direction='to' />},
+    {id: 'fromAndTargetSource', labelKey: 'mapping.fromAndTargetSource', sortable: false, className: 'searchable', sx: {width: '28%'}, renderer: item => <FromAndTargetSource mapping={item} />},
+    {id: 'fromConcept', labelKey: 'mapping.fromConcept', value: 'fromConceptCode', className: 'searchable', sortable: false, sx: {width: '27%'}, renderer: item => <ConceptCell multiLine mapping={item} direction='from' />},
+    {id: 'mapType', labelKey: 'mapping.map_type', value: 'map_type', sortable: true, sx: {width: '15%', whiteSpace: 'nowrap'}},
+    {id: 'toConcept', labelKey: 'mapping.toConcept', value: 'toConceptCode', className: 'searchable', sortable: false, sx: {width: '30%'}, renderer: item => <ConceptCell multiLine mapping={item} direction='to' />},
   ],
   references: [
     {

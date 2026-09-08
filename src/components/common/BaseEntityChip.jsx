@@ -108,10 +108,10 @@ const Avatar = ({ entity, icon }) => {
     </MuiAvatar>
 }
 
-const Label = ({ entity, hideType, hideRepoVersion }) => {
+const Label = ({ entity, hideType, hideRepoVersion, multiLine }) => {
   const conceptHasName = entity?.type?.includes('Concept') && entity?.display_name
   return (
-    <span style={{display: 'flex', alignItems: 'center', ...(conceptHasName ? {marginTop: 0} : {})}} className='entity-label'>
+    <span style={{display: multiLine ? 'block' : 'flex', alignItems: 'center', ...(conceptHasName ? {marginTop: 0} : {})}} className='entity-label'>
       <span className='entity-id'>
         <b>{entity?.short_code || entity?.id || entity?.username}</b>
       </span>
@@ -145,13 +145,24 @@ const Label = ({ entity, hideType, hideRepoVersion }) => {
 }
 
 
-const BaseEntityChip = ({ entity, icon, hideType, hideRepoVersion, primary, size, sx, noLink, ...rest }) => {
+const BaseEntityChip = ({ entity, icon, hideType, hideRepoVersion, primary, size, sx, noLink, multiLine, ...rest }) => {
   const sizeStyle = ENTITY_CHIP_SIZE_MAP[size || 'medium'] || ENTITY_CHIP_SIZE_MAP.medium
   const baseStyle = primary ? PRIMARY_STYLE : SECONDARY_STYLE
+  /*
+   * A chip is a single fixed-height line by default. `multiLine` lets the label
+   * wrap to as many lines as the text needs, so the chip grows instead of
+   * truncating - the avatar then has to hang off the first line.
+   */
+  const multiLineStyle = multiLine ? {
+    height: 'auto',
+    alignItems: 'flex-start',
+    '.MuiChip-label': {...sizeStyle['.MuiChip-label'], ...sx?.['.MuiChip-label'], whiteSpace: 'normal', overflow: 'visible', textOverflow: 'clip'},
+    '.MuiAvatar-root': {...sizeStyle['.MuiAvatar-root'], ...sx?.['.MuiAvatar-root'], alignSelf: 'flex-start'},
+  } : {}
   return (
     <Chip
       avatar={<Avatar entity={entity} icon={icon} />}
-      label={<Label entity={entity} hideType={hideType} hideRepoVersion={hideRepoVersion} />}
+      label={<Label entity={entity} hideType={hideType} hideRepoVersion={hideRepoVersion} multiLine={multiLine} />}
       variant='outlined'
       sx={{
         borderRadius: '4px',
@@ -161,7 +172,8 @@ const BaseEntityChip = ({ entity, icon, hideType, hideRepoVersion, primary, size
         justifyContent: 'flex-start',
         ...baseStyle,
         ...sizeStyle,
-        ...sx
+        ...sx,
+        ...multiLineStyle
       }}
       onClick={noLink ? undefined : event => {
         event.stopPropagation()
