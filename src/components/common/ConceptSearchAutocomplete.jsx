@@ -29,6 +29,13 @@ const ConceptSearchAutocomplete = ({ id, label, required, size, parentURI, disab
     })
   }
 
+  const options = React.useMemo(() => {
+    const selectedURL = get(value, 'url')
+    if(!selectedURL || concepts.some(concept => concept.url === selectedURL))
+      return concepts
+    return [value, ...concepts]
+  }, [concepts, value])
+
   const handleInputChange = React.useMemo(() => debounce((event, newInput, reason) => {
     setInput(newInput || '')
     if(reason !== 'reset' && newInput && newInput.length >= MIN_LENGTH)
@@ -59,11 +66,15 @@ const ConceptSearchAutocomplete = ({ id, label, required, size, parentURI, disab
       value={value || null}
       id={fieldId}
       size={size || 'small'}
-      options={concepts}
+      options={options}
       loading={loading}
       loadingText={<AutocompleteLoading text={input} />}
-      noOptionsText={t('common.no_results')}
-      getOptionLabel={option => option?.id || option || ''}
+      noOptionsText={input ? t('common.no_results') : t('common.type_to_search')}
+      getOptionLabel={option => {
+        const id = get(option, 'id') || option || ''
+        const name = get(option, 'display_name')
+        return (!freeSolo && name) ? `${id} ${name}` : id
+      }}
       fullWidth
       onInputChange={handleInputChange}
       onChange={(event, item) => onChange(fieldId, item)}

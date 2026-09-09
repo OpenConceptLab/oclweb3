@@ -759,6 +759,7 @@ const Search = props => {
                   toolbarControl={<>{props.toolbarControl}{referenceActionsControl}</>}
                   extraBulkActions={[bulkRemoveFromCollectionAction, props.extraBulkActions]}
                   onCreateSimilarClick={props.onCreateSimilarClick}
+                  onCreateMappingClick={props.onCreateMappingClick}
                   fixedLeftControls={[props.fixedLeftControls]}
                 />
               </div>

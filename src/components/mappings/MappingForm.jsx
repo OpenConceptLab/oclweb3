@@ -1,6 +1,6 @@
 import React from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
-import { TextField, IconButton, Tooltip } from '@mui/material';
+import { TextField, IconButton, Tooltip, FormHelperText, Button as MuiButton } from '@mui/material';
 import {
   SwapVert as SwapIcon,
 } from '@mui/icons-material';
@@ -8,7 +8,7 @@ import {
   set, get, cloneDeep, isEmpty, map, isArray, compact, flatten, values, keys
 } from 'lodash';
 import APIService from '../../services/APIService';
-import { arrayToObject } from '../../common/utils';
+import { arrayToObject, toParentURI } from '../../common/utils';
 import { fetchMapTypes } from './utils';
 import { OperationsContext } from '../app/LayoutContext';
 import FormComponent, { CardSection } from '../common/FormComponent'
@@ -20,6 +20,7 @@ import Breadcrumbs from '../common/Breadcrumbs'
 import CustomAttributesForm from '../common/CustomAttributesForm'
 import CloseIconButton from '../common/CloseIconButton';
 import Button from '../common/Button'
+import ConceptSearchAutocomplete from '../common/ConceptSearchAutocomplete'
 
 const ANCHOR_UNDERLINE_STYLES = {textDecoration: 'underline', cursor: 'pointer'}
 const OPTIONAL_BLANK_FIELDS = [
@@ -40,6 +41,9 @@ class MappingForm extends FormComponent {
     this.state = {
       manualMnemonic: false,
       manualExternalId: false,
+      advanced: Boolean(props.edit || props.copyFrom),
+      fromConcept: null,
+      toConcept: null,
       mapTypes: [],
       parent: null,
       fields: {
@@ -110,10 +114,12 @@ class MappingForm extends FormComponent {
     const newState = {...this.state}
 
     if(fromConcept) {
+      newState.fromConcept = fromConcept
       newState.fields.from_concept_url.value = fromConcept.url
       newState.fields.from_concept_name.value = fromConcept.display_name
     }
     if(toConcept) {
+      newState.toConcept = toConcept
       newState.fields.to_concept_url.value = toConcept.url
       newState.fields.to_concept_name.value = toConcept.display_name
     }
@@ -123,6 +129,9 @@ class MappingForm extends FormComponent {
   swapConcepts = () => {
     const fields = cloneDeep(this.state.fields)
     const newState = {...this.state}
+
+    newState.fromConcept = this.state.toConcept
+    newState.toConcept = this.state.fromConcept
 
     newState.fields.from_concept_url.value = fields.to_concept_url.value
     newState.fields.from_concept_code.value = fields.to_concept_code.value
@@ -136,6 +145,51 @@ class MappingForm extends FormComponent {
     newState.fields.to_source_url.value = fields.from_source_url.value
     newState.fields.to_source_version.value = fields.from_source_version.value
 
+    this.setState(newState)
+  }
+
+  getConceptStateKey = prefix => prefix === 'from' ? 'fromConcept' : 'toConcept'
+
+  onConceptSelect = (prefix, concept) => {
+    const newState = {...this.state}
+    newState[this.getConceptStateKey(prefix)] = concept || null
+    newState.fields[`${prefix}_concept_url`] = {...newState.fields[`${prefix}_concept_url`], value: concept?.url || '', errors: []}
+    newState.fields[`${prefix}_concept_name`] = {...newState.fields[`${prefix}_concept_name`], value: concept?.display_name || ''}
+    this.setState(newState)
+  }
+
+  fillFieldsFromConcept = (newState, prefix) => {
+    const concept = newState[this.getConceptStateKey(prefix)]
+    if(!concept)
+      return
+    newState.fields[`${prefix}_concept_url`].value = concept.url || ''
+    newState.fields[`${prefix}_concept_name`].value = concept.display_name || ''
+    newState.fields[`${prefix}_concept_code`].value = concept.id || ''
+    newState.fields[`${prefix}_source_url`].value = concept.source_url || (concept.url ? toParentURI(concept.url) : '')
+  }
+
+  resolveConceptFromFields = prefix => {
+    const key = this.getConceptStateKey(prefix)
+    const url = this.state.fields[`${prefix}_concept_url`].value
+    if(this.state[key]?.url === url)
+      return
+    this.setState({[key]: null})
+    if(!url)
+      return
+    APIService.new().overrideURL(url).get().then(response => {
+      if(response?.status === 200 && response?.data?.url === this.state.fields[`${prefix}_concept_url`].value)
+        this.setState({[key]: response.data})
+    })
+  }
+
+  toggleAdvanced = () => {
+    if(this.state.advanced) {
+      this.setState({advanced: false}, () => ['from', 'to'].forEach(this.resolveConceptFromFields))
+      return
+    }
+    const newState = {...this.state}
+    ;['from', 'to'].forEach(prefix => this.fillFieldsFromConcept(newState, prefix))
+    newState.advanced = true
     this.setState(newState)
   }
 
@@ -303,7 +357,7 @@ class MappingForm extends FormComponent {
   }
 
   render() {
-    const { fields, mapTypes, manualMnemonic, manualExternalId, mapping } = this.state;
+    const { fields, mapTypes, manualMnemonic, manualExternalId, mapping, advanced, fromConcept, toConcept } = this.state;
     const { onClose, edit, source, t, repo } = this.props;
     return (
       <div className='col-xs-12' style={{padding: '8px 16px 12px 16px', height: '100%', overflow: 'auto'}}>
@@ -403,63 +457,94 @@ class MappingForm extends FormComponent {
             </div>
           </div>
         </CardSection>
+        <div className='col-xs-12 padding-0' style={{margin: '16px 0 8px 0', width: '100%', display: 'flex', justifyContent: 'flex-end'}}>
+          <MuiButton
+            id='advanced'
+            size='small'
+            color='primary'
+            variant={advanced ? 'contained' : 'text'}
+            onClick={this.toggleAdvanced}
+            sx={{textTransform: 'none'}}
+          >
+            {t('common.advanced')}
+          </MuiButton>
+        </div>
         <CardSection title={t('mapping.form.from_concept.header')}>
-          <div className='col-xs-12 padding-0' style={{marginTop: '24px', width: '100%'}}>
-            <div className='col-xs-8 padding-left-0'>
-              <TextField
-                id="from_source_url"
-                label={t('mapping.from_source_url')}
-                variant="outlined"
-                fullWidth
-                onChange={this.onTextFieldChange}
-                value={fields.from_source_url.value}
+          {
+            advanced ?
+              <React.Fragment>
+                <div className='col-xs-12 padding-0' style={{marginTop: '24px', width: '100%'}}>
+                  <div className='col-xs-8 padding-left-0'>
+                    <TextField
+                      id="from_source_url"
+                      label={t('mapping.from_source_url')}
+                      variant="outlined"
+                      fullWidth
+                      onChange={this.onTextFieldChange}
+                      value={fields.from_source_url.value}
+                    />
+                  </div>
+                  <div className='col-xs-4 padding-0'>
+                    <TextField
+                      id="from_source_version"
+                      label={t('mapping.from_source_version')}
+                      variant="outlined"
+                      fullWidth
+                      onChange={this.onTextFieldChange}
+                      value={fields.from_source_version.value}
+                    />
+                  </div>
+                </div>
+                <div className='col-xs-12 padding-0' style={{marginTop: '16px', width: '100%'}}>
+                  <TextField
+                    id="from_concept_url"
+                    label={t('mapping.from_concept_url')}
+                    variant="outlined"
+                    fullWidth
+                    onChange={this.onTextFieldChange}
+                    value={fields.from_concept_url.value}
+                    error={Boolean(fields.from_concept_url.errors[0])}
+                    helperText={fields.from_concept_url.errors[0]}
+                  />
+                </div>
+                <div className='col-xs-12 padding-0' style={{marginTop: '16px', width: '100%'}}>
+                  <div className='col-xs-8 padding-left-0'>
+                    <TextField
+                      id="from_concept_name"
+                      label={t('mapping.from_concept_name')}
+                      variant="outlined"
+                      fullWidth
+                      onChange={this.onTextFieldChange}
+                      value={fields.from_concept_name.value}
+                    />
+                  </div>
+                  <div className='col-xs-4 padding-0'>
+                    <TextField
+                      id="from_concept_code"
+                      label={t('mapping.from_concept_code')}
+                      variant="outlined"
+                      fullWidth
+                      onChange={this.onTextFieldChange}
+                      value={fields.from_concept_code.value}
+                    />
+                  </div>
+                </div>
+              </React.Fragment> :
+            <div className='col-xs-12 padding-0' style={{marginTop: '24px', width: '100%'}}>
+              <ConceptSearchAutocomplete
+                required
+                id='from_concept'
+                label={t('mapping.from_concept')}
+                parentURI={fromConcept?.url ? toParentURI(fromConcept.url) : source?.url}
+                value={fromConcept}
+                onChange={(id, item) => this.onConceptSelect('from', item)}
               />
+              {
+                Boolean(fields.from_concept_url.errors[0]) &&
+                  <FormHelperText error>{fields.from_concept_url.errors[0]}</FormHelperText>
+              }
             </div>
-            <div className='col-xs-4 padding-0'>
-              <TextField
-                id="from_source_version"
-                label={t('mapping.from_source_version')}
-                variant="outlined"
-                fullWidth
-                onChange={this.onTextFieldChange}
-                value={fields.from_source_version.value}
-              />
-            </div>
-          </div>
-          <div className='col-xs-12 padding-0' style={{marginTop: '16px', width: '100%'}}>
-            <TextField
-              id="from_concept_url"
-              label={t('mapping.from_concept_url')}
-              variant="outlined"
-              fullWidth
-              onChange={this.onTextFieldChange}
-              value={fields.from_concept_url.value}
-              error={Boolean(fields.from_concept_url.errors[0])}
-              helperText={fields.from_concept_url.errors[0]}
-            />
-          </div>
-          <div className='col-xs-12 padding-0' style={{marginTop: '16px', width: '100%'}}>
-            <div className='col-xs-8 padding-left-0'>
-              <TextField
-                id="from_concept_name"
-                label={t('mapping.from_concept_name')}
-                variant="outlined"
-                fullWidth
-                onChange={this.onTextFieldChange}
-                value={fields.from_concept_name.value}
-              />
-            </div>
-            <div className='col-xs-4 padding-0'>
-              <TextField
-                id="from_concept_code"
-                label={t('mapping.from_concept_code')}
-                variant="outlined"
-                fullWidth
-                onChange={this.onTextFieldChange}
-                value={fields.from_concept_code.value}
-              />
-            </div>
-          </div>
+          }
         </CardSection>
         <div className='col-xs-12 padding-0' style={{margin: '4px 0', width: '100%', textAlign: 'center'}}>
           <Tooltip arrow title="Swap From and To Concepts">
@@ -469,63 +554,81 @@ class MappingForm extends FormComponent {
           </Tooltip>
         </div>
         <CardSection title={t('mapping.form.to_concept.header')}>
-          <div className='col-xs-12 padding-0' style={{marginTop: '24px', width: '100%'}}>
-            <div className='col-xs-8 padding-left-0'>
-              <TextField
-                id="to_source_url"
-                label={t('mapping.to_source_url')}
-                placeholder="e.g. /orgs/IHTSDO/sources/SNOMED-CT/"
-                variant="outlined"
-                fullWidth
-                onChange={this.onTextFieldChange}
-                value={fields.to_source_url.value}
+          {
+            advanced ?
+              <React.Fragment>
+                <div className='col-xs-12 padding-0' style={{marginTop: '24px', width: '100%'}}>
+                  <div className='col-xs-8 padding-left-0'>
+                    <TextField
+                      id="to_source_url"
+                      label={t('mapping.to_source_url')}
+                      placeholder="e.g. /orgs/IHTSDO/sources/SNOMED-CT/"
+                      variant="outlined"
+                      fullWidth
+                      onChange={this.onTextFieldChange}
+                      value={fields.to_source_url.value}
+                    />
+                  </div>
+                  <div className='col-xs-4 padding-0'>
+                    <TextField
+                      id="to_source_version"
+                      label={t('mapping.to_source_version')}
+                      variant="outlined"
+                      fullWidth
+                      onChange={this.onTextFieldChange}
+                      value={fields.to_source_version.value}
+                    />
+                  </div>
+                </div>
+                <div className='col-xs-12 padding-0' style={{marginTop: '16px', width: '100%'}}>
+                  <TextField
+                    id="to_concept_url"
+                    label={t('mapping.to_concept_url')}
+                    variant="outlined"
+                    fullWidth
+                    onChange={this.onTextFieldChange}
+                    value={fields.to_concept_url.value}
+                    error={Boolean(fields.to_concept_url.errors[0])}
+                    helperText={fields.to_concept_url.errors[0]}
+                  />
+                </div>
+                <div className='col-xs-12 padding-0' style={{marginTop: '16px', width: '100%'}}>
+                  <div className='col-xs-8 padding-left-0'>
+                    <TextField
+                      id="to_concept_name"
+                      label={t('mapping.to_concept_name')}
+                      variant="outlined"
+                      fullWidth
+                      onChange={this.onTextFieldChange}
+                      value={fields.to_concept_name.value}
+                    />
+                  </div>
+                  <div className='col-xs-4 padding-0'>
+                    <TextField
+                      id="to_concept_code"
+                      label={t('mapping.to_concept_code')}
+                      variant="outlined"
+                      fullWidth
+                      onChange={this.onTextFieldChange}
+                      value={fields.to_concept_code.value}
+                    />
+                  </div>
+                </div>
+              </React.Fragment> :
+            <div className='col-xs-12 padding-0' style={{marginTop: '24px', width: '100%'}}>
+              <ConceptSearchAutocomplete
+                required
+                id='to_concept'
+                label={t('mapping.to_concept')}
+                value={toConcept}
+                onChange={(id, item) => this.onConceptSelect('to', item)}
               />
+              {
+                Boolean(fields.to_concept_url.errors[0]) &&
+                  <FormHelperText error>{fields.to_concept_url.errors[0]}</FormHelperText>
+              }
             </div>
-            <div className='col-xs-4 padding-0'>
-              <TextField
-                id="to_source_version"
-                label={t('mapping.to_source_version')}
-                variant="outlined"
-                fullWidth
-                onChange={this.onTextFieldChange}
-                value={fields.to_source_version.value}
-              />
-            </div>
-          </div>
-          <div className='col-xs-12 padding-0' style={{marginTop: '16px', width: '100%'}}>
-            <TextField
-              id="to_concept_url"
-              label={t('mapping.to_concept_url')}
-              variant="outlined"
-              fullWidth
-              onChange={this.onTextFieldChange}
-              value={fields.to_concept_url.value}
-              error={Boolean(fields.to_concept_url.errors[0])}
-              helperText={fields.to_concept_url.errors[0]}
-            />
-          </div>
-          <div className='col-xs-12 padding-0' style={{marginTop: '16px', width: '100%'}}>
-            <div className='col-xs-8 padding-left-0'>
-              <TextField
-                id="to_concept_name"
-                label={t('mapping.to_concept_name')}
-                variant="outlined"
-                fullWidth
-                onChange={this.onTextFieldChange}
-                value={fields.to_concept_name.value}
-              />
-            </div>
-            <div className='col-xs-4 padding-0'>
-              <TextField
-                id="to_concept_code"
-                label={t('mapping.to_concept_code')}
-                variant="outlined"
-                fullWidth
-                onChange={this.onTextFieldChange}
-                value={fields.to_concept_code.value}
-              />
-            </div>
-          </div>
+          }
         </CardSection>
         <CardSection title={t('custom_attributes.label')}>
           <CustomAttributesForm extras={fields.extras} onChange={this.setExtrasValue} onAdd={this.onAddExtras} />

@@ -83,7 +83,9 @@
     "comment": "Comentario",
     "no_results": "Sin resultados",
     "submit": "Enviar",
-    "update_comment": "Comentario de actualización"
+    "update_comment": "Comentario de actualización",
+    "advanced": "Avanzado",
+    "type_to_search": "Escribe para buscar"
   },
   "errors": {
     "401": "Se requiere iniciar sesión",
@@ -168,6 +170,7 @@
     "from_concept_code": "Código del concepto de origen",
     "to_source_url": "URL de la fuente de destino",
     "to_source_version": "Versión de la fuente de destino",
+    "from_concept": "Concepto de origen",
     "to_concept": "Concepto de destino",
     "to_concept_url": "URL del concepto de destino",
     "to_concept_name": "Nombre del concepto de destino",
@@ -188,7 +191,8 @@
       "to_concept": {
         "header": "Concepto de destino"
       }
-    }
+    },
+    "create_mapping": "Crear mapeo"
   },
   "reference": {
     "references": "Referencias",

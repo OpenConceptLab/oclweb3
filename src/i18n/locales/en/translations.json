@@ -168,7 +168,9 @@
     "already_exists": "Already exists",
     "comment": "Comment",
     "update_comment": "Update comment",
-    "undo": "Undo"
+    "undo": "Undo",
+    "advanced": "Advanced",
+    "type_to_search": "Type to search"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -308,6 +310,7 @@
     "from_concept_code": "From Concept Code",
     "to_source_url": "Target Source URL",
     "to_source_version": "Target Source Version",
+    "from_concept": "From Concept",
     "to_concept": "Target Concept",
     "to_concept_url": "Target Concept URL",
     "to_concept_name": "Target Concept Name",
@@ -351,7 +354,8 @@
       "to_concept": {
         "header": "Target Concept"
       }
-    }
+    },
+    "create_mapping": "Create Mapping"
   },
   "reference": {
     "expression": "Expression",

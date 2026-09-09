@@ -132,7 +132,7 @@ export const copyToClipboard = copyText => {
 
 export const copyURL = url => copyToClipboard(url, 'Copied URL to clipboard!');
 
-export const toParentURI = uri => uri.split('/').splice(0, 5).join('/') + '/';
+export const toParentURI = uri => (uri || '').split('/').splice(0, 5).join('/') + '/';
 
 export const toOwnerURI = uri => uri && uri.split('/').splice(0, 3).join('/') + '/';
 

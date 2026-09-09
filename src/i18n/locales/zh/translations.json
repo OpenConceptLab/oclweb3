@@ -119,7 +119,9 @@
     "click_here": "点击此处",
     "already_exists": "已存在",
     "comment": "备注",
-    "update_comment": "更新说明"
+    "update_comment": "更新说明",
+    "advanced": "高级",
+    "type_to_search": "输入以搜索"
   },
   "errors": {
     "network_error": "网络错误",
@@ -244,6 +246,7 @@
     "from_concept_code": "源头概念代码",
     "to_source_url": "目标来源 URL",
     "to_source_version": "目标来源版本",
+    "from_concept": "源头概念",
     "to_concept": "目标概念",
     "to_concept_url": "目标概念 URL",
     "to_concept_name": "目标概念名称",
@@ -264,7 +267,8 @@
       "to_concept": {
         "header": "目标概念"
       }
-    }
+    },
+    "create_mapping": "创建映射"
   },
   "checksums": {
     "standard": "标准校验和",

@@ -286,6 +286,13 @@ const RepoHome = () => {
     setMappingForm(true)
   }
 
+  const onCreateMappingFromConceptsClick = concepts => {
+    setVersionForm(false)
+    setShowItem(false)
+    setConceptForm(false)
+    setMappingForm({selectedConcepts: concepts})
+  }
+
   const onCreateSimilarClick = item => {
     setVersionForm(false)
     setShowItem(false)
@@ -451,6 +458,7 @@ const RepoHome = () => {
                       showItem={showItem}
                       onSelectItem={setSelectedItem}
                       onCreateSimilarClick={!isCollection ? onCreateSimilarClick : undefined}
+                      onCreateMappingClick={(!isCollection && !isVersion && tab === 'concepts') ? onCreateMappingFromConceptsClick : undefined}
                       filtersHeightToSubtract={268 + heightTakenInProcessingBanner}
                       resultContainerStyle={{height: `calc(100vh - 356px - ${heightTakenInProcessingBanner}px)`, overflow: 'auto', maxWidth: showSummary ? 'calc(100vw - 300px)' : 'calc(100vw - 40px)'}}
                       containerStyle={{padding: 0}}
@@ -572,7 +580,7 @@ const RepoHome = () => {
         }
         {
           mappingForm &&
-            <MappingForm t={t} repoSummary={repoSummary} copyFrom={mappingForm?.copyFrom} source={repo} repo={repo} onClose={() => setMappingForm(false)} />
+            <MappingForm t={t} repoSummary={repoSummary} copyFrom={mappingForm?.copyFrom} selectedConcepts={mappingForm?.selectedConcepts} source={repo} repo={repo} onClose={() => setMappingForm(false)} />
         }
         {
           versionForm &&

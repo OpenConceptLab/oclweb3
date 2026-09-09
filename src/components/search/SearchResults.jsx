@@ -13,7 +13,7 @@ import RepeatIcon from '@mui/icons-material/Repeat';
 import CloneIcon from '@mui/icons-material/ControlPointDuplicate';
 import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
-import { isNumber, isNaN, flatten, values, uniqBy } from 'lodash'
+import { isNumber, isNaN, flatten, values, uniqBy, compact } from 'lodash'
 import SearchControls from './SearchControls';
 import NoResults from './NoResults';
 import TableResults from './TableResults';
@@ -21,6 +21,7 @@ import CardResults from './CardResults';
 import ReferenceSourceGroupedResults, { getReferenceSourceGroups } from '../references/ReferenceSourceGroupedResults';
 import AddToCollectionDialog from '../common/AddToCollectionDialog';
 import CloneToSourceDialog from '../repos/CloneToSourceDialog';
+import MappingIcon from '../mappings/MappingIcon';
 import { getSortConfig } from './sortConfig'
 import { resolveColumns } from './columns'
 import { isLoggedIn, currentUserHasAccess } from '../../common/utils';
@@ -315,6 +316,22 @@ const SearchResults = props => {
     ) : null
 
 
+  const orderedSelectedRows = compact(selected.map(id => allRows.find(row => (row.version_url || row.url || row.id) === id)))
+
+  const createMappingBulkAction = props.resource === 'concepts' && Boolean(props.onCreateMappingClick) && currentUserHasAccess() && orderedSelectedRows.length === 2
+    ? (
+      <Button
+        key='create-mapping'
+        startIcon={<MappingIcon fontSize='inherit' />}
+        variant='contained'
+        size='small'
+        sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}, marginLeft: '8px'}}
+        onClick={() => props.onCreateMappingClick(orderedSelectedRows)}
+      >
+        {t('mapping.create_mapping')}
+      </Button>
+    ) : null
+
   const displayOptions = props.resource === 'references' ? [
     {id: 'source', labelKey: 'reference.group_by_source'},
     {id: 'table', labelKey: 'reference.ungrouped'},
@@ -324,7 +341,7 @@ const SearchResults = props => {
     {id: 'hierarchy', labelKey: 'search.hierarchy'},
   ] : undefined
   const toolbarControl = props.toolbarControl
-  const allBulkActions = [addToCollectionBulkAction, cloneToSourceBulkAction, createSimilarBulkAction, props.extraBulkActions].filter(Boolean)
+  const allBulkActions = [addToCollectionBulkAction, cloneToSourceBulkAction, createMappingBulkAction, createSimilarBulkAction, props.extraBulkActions].filter(Boolean)
   const bulkActionsElement = allBulkActions.length > 0 ? <>{allBulkActions}</> : null
   const leftControls = (props.fixedLeftControls || []).filter(Boolean)
 
