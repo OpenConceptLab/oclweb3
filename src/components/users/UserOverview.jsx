@@ -11,7 +11,7 @@ const UserOverview = ({ user, bookmarks, events, height, onLoadMoreEvents, canPi
   return (
     <div className='col-xs-12 padding-0' style={{height: height || '100%' }}>
       <div className='col-xs-9' style={{padding: '0 16px', height: '100%', overflow: 'auto', width: '100%'}}>
-        <Bookmarks bookmarks={bookmarks} canPin={canPin} onDelete={onBookmarkDelete} />
+        <Bookmarks bookmarks={bookmarks} canPin={canPin} onDelete={onBookmarkDelete} style={{marginTop: '16px'}} />
         {
           Boolean(events?.length) &&
             <Events user={user} events={events} height={height} onLoadMore={onLoadMoreEvents} />

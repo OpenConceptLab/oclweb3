@@ -5,12 +5,12 @@ import map from 'lodash/map'
 import PinIcon from './PinIcon';
 import Bookmark from './Bookmark';
 
-const Bookmarks = ({ bookmarks, canPin, onDelete }) => {
+const Bookmarks = ({ bookmarks, canPin, onDelete, style }) => {
   const { t } = useTranslation()
 
   return bookmarks && bookmarks?.length ? (
-    <div className='col-xs-12 padding-0'>
-      <Typography component='h3' sx={{margin: '16px 0 8px 0', fontWeight: 'bold', display: 'flex'}}>
+    <div className='col-xs-12 padding-0' style={style}>
+      <Typography component='h3' sx={{margin: 0, fontWeight: 'bold', display: 'flex'}}>
         <PinIcon sx={{mr: 1, color: 'surface.contrastText'}} />
         {t('bookmarks.pinned_repos')}
       </Typography>

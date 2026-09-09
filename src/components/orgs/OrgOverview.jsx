@@ -29,6 +29,7 @@ const OrgOverview = ({ org, bookmarks, height, canPin, onBookmarkDelete }) => {
             overflow: 'auto',
           }}
         >
+          <Bookmarks bookmarks={bookmarks} canPin={canPin} onDelete={onBookmarkDelete} style={{marginBottom: '8px'}} />
           <Paper
             component='section'
             className='col-xs-12 padding-0'
@@ -50,7 +51,6 @@ const OrgOverview = ({ org, bookmarks, height, canPin, onBookmarkDelete }) => {
             </div>
           </Paper>
           {emptyOverview}
-          <Bookmarks bookmarks={bookmarks} canPin={canPin} onDelete={onBookmarkDelete} />
         </div>
       </div>
     )
