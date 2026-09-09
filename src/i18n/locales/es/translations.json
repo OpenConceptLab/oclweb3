@@ -340,7 +340,8 @@
     "processing_cleared": "Estado de procesamiento borrado",
     "could_not_clear_processing": "No se pudo borrar el estado de procesamiento",
     "export_not_ready_tooltip": "La exportación de esta versión aún se está generando",
-    "expansion_processing_tooltip": "Esta expansión aún se está construyendo"
+    "expansion_processing_tooltip": "Esta expansión aún se está construyendo",
+    "resolved_repo_updates_available": "Hay nuevas versiones disponibles para algunas versiones de repositorio resueltas en esta expansión:"
   },
   "org": {
     "my": "Mis organizaciones",
