@@ -649,7 +649,9 @@
         "id": {
           "label": "ID",
           "helper_text": "Alphanumeric characters, @, hyphens, periods, and underscores are allowed."
-        }
+        },
+        "new_title": "New {{resourceType}} Version: {{version}}",
+        "edit_title": "Edit {{resourceType}} Version: {{version}}"
       },
       "update_dialog": {
         "title": "Update {{resourceType}}: {{resourceId}}",
