@@ -242,6 +242,7 @@
     "from_concept_code": "源头概念代码",
     "to_source_url": "目标来源 URL",
     "to_source_version": "目标来源版本",
+    "to_concept": "目标概念",
     "to_concept_url": "目标概念 URL",
     "to_concept_name": "目标概念名称",
     "to_concept_code": "目标概念代码",

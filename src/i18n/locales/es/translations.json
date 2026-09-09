@@ -166,6 +166,7 @@
     "from_concept_code": "Código del concepto de origen",
     "to_source_url": "URL de la fuente de destino",
     "to_source_version": "Versión de la fuente de destino",
+    "to_concept": "Concepto de destino",
     "to_concept_url": "URL del concepto de destino",
     "to_concept_name": "Nombre del concepto de destino",
     "to_concept_code": "Código del concepto de destino",

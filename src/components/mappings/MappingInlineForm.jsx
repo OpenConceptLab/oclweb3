@@ -90,6 +90,7 @@ const MappingInlineForm = ({ concept, defaultMapType, isDirect, suggested, repoS
           freeSolo
           required
           size='small'
+          label={t('mapping.to_concept')}
           disabled={!source}
           parentURI={source?.url}
           value={targetConcept}
@@ -103,7 +104,7 @@ const MappingInlineForm = ({ concept, defaultMapType, isDirect, suggested, repoS
             <TextField
               size='small'
               fullWidth
-              label={t('common.name')}
+              label={t('mapping.to_concept_name')}
               value={targetConceptName}
               onChange={event => setTargetConceptName(event.target.value || '')}
             />
