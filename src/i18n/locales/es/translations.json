@@ -345,7 +345,15 @@
     "expansion_processing_tooltip": "Esta expansión aún se está construyendo",
     "resolved_repo_updates_available": "Hay nuevas versiones disponibles para algunas versiones de repositorio resueltas en esta expansión:",
     "version_url": "URL de la versión",
-    "previous_version_url": "URL de la versión anterior"
+    "previous_version_url": "URL de la versión anterior",
+    "source": "Fuente",
+    "collection": "Colección",
+    "version": {
+      "form": {
+        "new_title": "Nueva versión de {{resourceType}}: {{version}}",
+        "edit_title": "Editar versión de {{resourceType}}: {{version}}"
+      }
+    }
   },
   "org": {
     "my": "Mis organizaciones",

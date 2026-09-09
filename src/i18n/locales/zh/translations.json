@@ -412,7 +412,14 @@
     "expansion_processing_tooltip": "此扩展仍在构建中",
     "resolved_repo_updates_available": "此扩展中的部分已解析仓库版本有新发布版本可用：",
     "version_url": "版本 URL",
-    "previous_version_url": "上一版本 URL"
+    "previous_version_url": "上一版本 URL",
+    "collection": "集合",
+    "version": {
+      "form": {
+        "new_title": "新建{{resourceType}}版本：{{version}}",
+        "edit_title": "编辑{{resourceType}}版本：{{version}}"
+      }
+    }
   },
   "org": {
     "my": "我的组织机构",
