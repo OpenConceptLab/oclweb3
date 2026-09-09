@@ -1,31 +1,13 @@
 import React from 'react';
 import Card from '@mui/material/Card';
 import Checkbox from '@mui/material/Checkbox';
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/PlaylistAddOutlined'
 
 import { COLORS } from '../../common/colors';
 import { isAtGlobalSearch, isLoggedIn } from '../../common/utils';
-import Retired from '../common/Retired';
-import ConceptSummaryProperties from './ConceptSummaryProperties'
+import ConceptListItem from './ConceptListItem'
 import AddToCollectionDialog from '../common/AddToCollectionDialog'
-
-const getBestSynonym = synonyms => {
-  return synonyms
-    .map(text => {
-      const matches = [...text.matchAll(/<em>(.*?)<\/em>/g)];
-      const longestMatch = matches.reduce((a, b) => (b[1].length > a.length ? b[1] : a), "");
-      const startsWithMatch = text.indexOf(`<em>${longestMatch}</em>`) === 0;
-      return { text, longestMatch, length: longestMatch.length, startsWithMatch };
-    })
-    .sort((a, b) => {
-      if (b.length !== a.length) return b.length - a.length; // longest match first
-      if (b.startsWithMatch !== a.startsWithMatch) return b.startsWithMatch ? 1 : -1; // prefer start
-      return 0;
-    })[0].text; // return best match's text
-}
 
 const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isShown, firstChild }) => {
   const id = concept.version_url || concept.url || concept.id
@@ -33,17 +15,6 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
   const isSelectedToShow = isShown(id)
   const [addToCollectionOpen, setAddToCollectionOpen] = React.useState(false)
   const border = (isChecked || isSelectedToShow) ? `1px solid ${COLORS.primary.main}` : '0.3px solid rgba(0, 0, 0, 0.12)'
-
-  let synonymPrefix = ''
-  const highlights = concept?.search_meta?.search_highlight
-  const synonymHighlight = highlights?.synonyms
-  const nameHighlight = highlights?.name
-  if(!nameHighlight?.length && synonymHighlight?.length) {
-    const bestMatch = getBestSynonym(synonymHighlight) || synonymHighlight[0]
-    synonymPrefix = bestMatch.replace('<em>', "<b className='searchable'>").replace('</em>', '</b>')
-  }
-
-  const getLabel = () => isAtGlobalSearch() ? `${concept.source || concept?.repo?.short_code || concept?.repo?.id}:${concept.id}` : concept.id
 
   return (
     <Card
@@ -84,34 +55,7 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
         />
       </div>
       <div className='col-xs-11' style={{width: 'calc(100% - 24px)'}}>
-        <ListItem sx={{padding: 0}}>
-          <ListItemText
-            className='searchable'
-            primary={
-              <span>
-                <span>
-                  {getLabel()}
-                  <span style={{marginLeft: '4px'}}>
-                    {
-                      synonymPrefix &&
-                        <span>
-                          <span dangerouslySetInnerHTML={{__html: synonymPrefix}} />
-                          <span style={{margin: '0 5px'}}>&rarr;</span>
-                        </span>
-                    }
-                    {concept.display_name}
-                  </span>
-                </span>
-                {
-                  concept.retired &&
-                    <Retired size='small' style={{margin: '0 12px'}} />
-                }
-              </span>
-            }
-            secondary={<ConceptSummaryProperties concept={concept} />}
-            sx={{margin: '2px 0', '.MuiListItemText-primary': {fontSize: '14px'}, '.MuiListItemText-secondary': {fontSize: '12px', overflow: 'scroll'}}}
-          />
-        </ListItem>
+        <ConceptListItem concept={concept} showSource={isAtGlobalSearch()} sx={{padding: 0}} />
         {isChecked && isLoggedIn() && (
           <Button
             startIcon={<AddIcon fontSize='inherit' />}

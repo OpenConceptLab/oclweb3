@@ -4,10 +4,12 @@ import TextField from '@mui/material/TextField'
 import Chip from '@mui/material/Chip'
 import Tooltip from '@mui/material/Tooltip'
 import CircularProgress from '@mui/material/CircularProgress'
+import Divider from '@mui/material/Divider'
 
 import APIService from '../../services/APIService'
 import { dropVersion } from '../../common/utils'
 import AutocompleteLoading from '../common/AutocompleteLoading'
+import ConceptListItem from './ConceptListItem'
 
 export const conceptIdFromURL = url => {
   if(!url)
@@ -23,16 +25,18 @@ const ParentConceptsForm = ({ t, sourceURL, selfURL, value, onChange }) => {
   const selfHeadURL = dropVersion(selfURL)
 
   const [options, setOptions] = React.useState([])
-  const [namesByURL, setNamesByURL] = React.useState({})
+  const [conceptsByURL, setConceptsByURL] = React.useState({})
   const [loading, setLoading] = React.useState(false)
   const [input, setInput] = React.useState('')
   const searchTimer = React.useRef(null)
 
   const urls = value || []
 
+  const conceptFor = url => conceptsByURL[url] || {url: url, id: conceptIdFromURL(url)}
+
   const labelFor = url => {
     const id = conceptIdFromURL(url)
-    const name = namesByURL[url]
+    const name = conceptsByURL[url]?.display_name
     return name ? `${id} - ${name}` : id
   }
 
@@ -44,7 +48,7 @@ const ParentConceptsForm = ({ t, sourceURL, selfURL, value, onChange }) => {
       .then(response => {
         const concepts = Array.isArray(response?.data) ? response.data : []
         setOptions(concepts.map(concept => dropVersion(concept.url)).filter(url => url && url !== selfHeadURL))
-        setNamesByURL(prev => ({...prev, ...Object.fromEntries(concepts.map(c => [dropVersion(c.url), c.display_name]))}))
+        setConceptsByURL(prev => ({...prev, ...Object.fromEntries(concepts.map(c => [dropVersion(c.url), c]))}))
         setLoading(false)
       })
   }
@@ -74,6 +78,15 @@ const ParentConceptsForm = ({ t, sourceURL, selfURL, value, onChange }) => {
       onOpen={() => { if(!options.length) fetchConcepts(input) }}
       onInputChange={onInputChange}
       onChange={(event, items) => { setInput(''); onChange(items.map(item => String(item).trim()).filter(isConceptURL)) }}
+      renderOption={(props, option) => {
+        const { key, ...listItemProps } = props
+        return (
+          <React.Fragment key={key || option}>
+            <ConceptListItem {...listItemProps} concept={conceptFor(option)} />
+            <Divider component='li' style={{listStyle: 'none'}} />
+          </React.Fragment>
+        )
+      }}
       renderTags={(values, getTagProps) => values.map((url, index) => {
         const { key, ...tagProps } = getTagProps({index})
         return (

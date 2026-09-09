@@ -4,10 +4,12 @@ import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
 import CircularProgress from '@mui/material/CircularProgress'
+import Divider from '@mui/material/Divider'
 
 import APIService from '../../services/APIService'
 import { HIERARCHY_MEANINGS } from '../../common/constants'
 import AutocompleteLoading from '../common/AutocompleteLoading'
+import ConceptListItem from '../concepts/ConceptListItem'
 
 const conceptIdFromURL = url => {
   if(!url)
@@ -83,6 +85,15 @@ const RepoCreateHierarchy = ({ sourceURL, hierarchyRootURL, hierarchyMeaning, on
             onOpen={() => { if(!concepts.length) fetchConcepts(input) }}
             onInputChange={onInputChange}
             onChange={(event, item) => onChange('hierarchyRootURL', item?.url || '')}
+            renderOption={(props, option) => {
+              const { key, ...listItemProps } = props
+              return (
+                <React.Fragment key={key || option.url}>
+                  <ConceptListItem {...listItemProps} concept={option} />
+                  <Divider component='li' style={{listStyle: 'none'}} />
+                </React.Fragment>
+              )
+            }}
             fullWidth
             loadingText={<AutocompleteLoading text={input} />}
             noOptionsText={t('common.no_results')}

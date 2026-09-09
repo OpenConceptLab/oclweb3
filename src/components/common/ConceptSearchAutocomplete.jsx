@@ -3,13 +3,12 @@ import { useTranslation } from 'react-i18next';
 import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import CircularProgress from '@mui/material/CircularProgress'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
 import Divider from '@mui/material/Divider'
 import { debounce, get } from 'lodash'
 
 import APIService from '../../services/APIService'
 import AutocompleteLoading from './AutocompleteLoading'
+import ConceptListItem from '../concepts/ConceptListItem'
 
 const MIN_LENGTH = 1
 
@@ -72,9 +71,7 @@ const ConceptSearchAutocomplete = ({ id, label, required, size, parentURI, disab
         const { key, ...listItemProps } = props
         return (
           <React.Fragment key={key || option.url}>
-            <ListItem {...listItemProps}>
-              <ListItemText primary={option.display_name} secondary={`${option.id} • ${option.concept_class}`} />
-            </ListItem>
+            <ConceptListItem {...listItemProps} concept={option} showSource={!parentURI} />
             <Divider component='li' style={{listStyle: 'none'}} />
           </React.Fragment>
         )
