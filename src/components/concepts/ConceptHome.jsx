@@ -18,6 +18,14 @@ import ConceptIcon from './ConceptIcon'
 import ConceptDetails from './ConceptDetails'
 import History from './History'
 
+// Repo version segment of a resource URL, e.g. /orgs/CIEL/sources/CIEL/v2026/concepts/1/ -> 'v2026'
+const repoVersionFromURL = url => {
+  const parts = (url || '').split('/').filter(Boolean)
+  const repoIndex = parts.findIndex(part => ['sources', 'collections'].includes(part))
+  const version = repoIndex > -1 ? parts[repoIndex + 2] : undefined
+  return (version && !['concepts', 'mappings', 'references'].includes(version)) ? version : 'HEAD'
+}
+
 const ConceptHome = props => {
   const { t } = useTranslation()
   const location = useLocation()
@@ -229,6 +237,11 @@ const ConceptHome = props => {
   }
 
   const canManageMappings = !isInCollection && concept?.id && currentUserHasAccess()
+  // Mappings can only be added/sorted within the context of a HEAD source - never on a
+  // repo version and never in global search, where there is no repo context at all.
+  const repoVersion = props.repo?.version || repoVersionFromURL(props.url || props.concept?.version_url || props.concept?.url)
+  const isRepoVersion = Boolean(repoVersion && repoVersion !== 'HEAD')
+  const mappingsReadOnly = isRepoVersion || !props.repo?.id
 
   const onCreateNewMapping = (payload, targetConcept, isDirect, successCallback) => {
     APIService.new().overrideURL(`${concept.owner_url}sources/${concept.source}/mappings/`).post(payload).then(response => {
@@ -371,6 +384,7 @@ const ConceptHome = props => {
                       loadingOwnerMappings={loadingOwnerMappings}
                       onLoadOwnerMappings={() => getOwnerMappings(concept)}
                       repoSummary={props.repoSummary}
+                      readOnlyMappings={mappingsReadOnly}
                       includeRetired={includeRetiredAssociations}
                       onIncludeRetiredToggle={onIncludeRetiredToggle}
                       onCreateNewMapping={canManageMappings ? onCreateNewMapping : false}

@@ -111,7 +111,7 @@ const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect, isHierarchy,
   )
 }
 const borderColor = 'rgba(0, 0, 0, 0.12)'
-const Associations = ({concept, source, repoSummary, mappings, reverseMappings, ownerMappings, reverseOwnerMappings, onLoadOwnerMappings, loadingOwnerMappings, nested, includeRetired, onIncludeRetiredToggle, onCreateNewMapping, onUpdateMappingsSorting, onAssignSortWeight, onClearSortWeight, onRetireMapping}) => {
+const Associations = ({concept, source, repoSummary, mappings, reverseMappings, ownerMappings, reverseOwnerMappings, onLoadOwnerMappings, loadingOwnerMappings, nested, includeRetired, onIncludeRetiredToggle, readOnlyMappings, onCreateNewMapping, onUpdateMappingsSorting, onAssignSortWeight, onClearSortWeight, onRetireMapping}) => {
   const [scope, setScope] = React.useState('repo')
   const [mappingForm, setMappingForm] = React.useState(null)
   const [updatedMappings, setUpdatedMappings] = React.useState([])
@@ -184,8 +184,10 @@ const Associations = ({concept, source, repoSummary, mappings, reverseMappings, 
     </span>
   )
 
-  const canAct = Boolean(onCreateNewMapping)
-  const canSort = Boolean(onUpdateMappingsSorting)
+  // Outside a HEAD source (repo version, global search) mappings are shown but cannot be added/sorted.
+  const canManage = Boolean(onCreateNewMapping || onUpdateMappingsSorting)
+  const canAct = Boolean(onCreateNewMapping) && !readOnlyMappings
+  const canSort = Boolean(onUpdateMappingsSorting) && !readOnlyMappings
   const suggestedSources = compact([source])
 
   const _onCreateNewMapping = canAct ? (payload, targetConcept, isDirect) => onCreateNewMapping(payload, targetConcept, isDirect, () => setMappingForm(null)) : false
@@ -220,7 +222,7 @@ const Associations = ({concept, source, repoSummary, mappings, reverseMappings, 
     return (
       <React.Fragment key={`${kind}-${mapType}`}>
         {
-          (canAct || canSort) ?
+          canManage ?
             <SortableAssociationRow
               concept={concept}
               mappings={groupMappingsList}
