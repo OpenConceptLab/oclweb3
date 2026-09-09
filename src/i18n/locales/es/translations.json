@@ -38,6 +38,7 @@
     "summary": "Resumen",
     "about": "Acerca de",
     "view_all_attributes": "Ver todos los atributos",
+    "view_attributes": "Ver atributos",
     "actions": "Acciones",
     "selected": "seleccionados",
     "eligible": "elegibles",
@@ -64,6 +65,7 @@
     "released": "Publicado",
     "edit": "Editar",
     "copy_api_url": "Copiar URL de API",
+    "api_url": "URL de la API",
     "load_more": "Cargar más",
     "generate_with_ai": "Generar con IA",
     "logo": "Logo",
@@ -341,7 +343,9 @@
     "could_not_clear_processing": "No se pudo borrar el estado de procesamiento",
     "export_not_ready_tooltip": "La exportación de esta versión aún se está generando",
     "expansion_processing_tooltip": "Esta expansión aún se está construyendo",
-    "resolved_repo_updates_available": "Hay nuevas versiones disponibles para algunas versiones de repositorio resueltas en esta expansión:"
+    "resolved_repo_updates_available": "Hay nuevas versiones disponibles para algunas versiones de repositorio resueltas en esta expansión:",
+    "version_url": "URL de la versión",
+    "previous_version_url": "URL de la versión anterior"
   },
   "org": {
     "my": "Mis organizaciones",

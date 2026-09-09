@@ -44,6 +44,7 @@
     "summary": "摘要",
     "about": "关于",
     "view_all_attributes": "查看全部属性",
+    "view_attributes": "查看属性",
     "all": "全部",
     "actions": "操作",
     "selected": "已选择",
@@ -96,6 +97,7 @@
     "company": "公司",
     "location": "位置",
     "copy_api_url": "复制 API URL",
+    "api_url": "API URL",
     "highlights": "亮点",
     "click_to_copy": "单击复制",
     "go_to_source": "转到源",
@@ -408,7 +410,9 @@
     "could_not_clear_processing": "无法清除处理状态",
     "export_not_ready_tooltip": "此版本的导出仍在生成中",
     "expansion_processing_tooltip": "此扩展仍在构建中",
-    "resolved_repo_updates_available": "此扩展中的部分已解析仓库版本有新发布版本可用："
+    "resolved_repo_updates_available": "此扩展中的部分已解析仓库版本有新发布版本可用：",
+    "version_url": "版本 URL",
+    "previous_version_url": "上一版本 URL"
   },
   "org": {
     "my": "我的组织机构",

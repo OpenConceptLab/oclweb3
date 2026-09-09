@@ -33,6 +33,7 @@ import {
   EditOutlined as EditIcon,
   ExpandLess as CollapseIcon,
   ExpandMore as ExpandIcon,
+  ListAlt as AttributesIcon,
   MoreVert as MoreVertIcon,
   NewReleases as ReleaseIcon,
   OpenInNew as OpenInNewIcon,
@@ -58,6 +59,7 @@ import {
 } from '../../common/utils';
 import { OperationsContext } from '../app/LayoutContext';
 import DeleteEntityDialog from '../common/DeleteEntityDialog';
+import EntityAttributesDialog from '../common/EntityAttributesDialog';
 import ExpansionForm from './ExpansionForm';
 import ExpansionDetailsDialog from './ExpansionDetailsDialog';
 import ExpansionRowList from './ExpansionRowList';
@@ -77,8 +79,8 @@ import {
   REPO_VERSIONS_PAGE_SIZE,
   bodyCellSx,
   formatError,
-  formatExportTime,
   getPreviousVersionURL,
+  getVersionAttributeFields,
   getVersionKey,
   getVersionLabel,
   headerCellSx,
@@ -178,6 +180,7 @@ const CollectionVersionsTab = ({
 
   const [expansionFormState, setExpansionFormState] = React.useState({ open: false, version: null, copyFrom: null });
   const [exportVersion, setExportVersion] = React.useState(null);
+  const [attributesVersion, setAttributesVersion] = React.useState(null);
   const [externalExportsVersion, setExternalExportsVersion] = React.useState(null);
   const [deleteExpansion, setDeleteExpansion] = React.useState(null);
   const [detailsExpansion, setDetailsExpansion] = React.useState(null);
@@ -574,6 +577,7 @@ const CollectionVersionsTab = ({
 
     const items = [
       { key: 'explore', label: t('repo.explore_version'), icon: <VisibilityIcon />, onClick: () => onVersionChange?.(version) },
+      { key: 'attributes', label: t('common.view_attributes'), icon: <AttributesIcon />, onClick: () => setAttributesVersion(version) },
       { key: 'copy', label: t('common.copy_api_url'), icon: <CopyIcon />, onClick: () => copyVersionURL(version) },
       { key: 'export', label: t('repo.export_version'), icon: <ExportIcon />, disabled: !isLoggedIn() || exportPending, tooltip: exportPending ? t('repo.export_not_ready_tooltip') : undefined, onClick: () => setExportVersion(version) },
       { key: 'external-exports', label: t('repo.external_exports'), icon: <ExternalExportIcon />, disabled: !isLoggedIn() || isHead, onClick: () => setExternalExportsVersion(version) },
@@ -669,7 +673,6 @@ const CollectionVersionsTab = ({
     const defaultExpansion = getDefaultExpansion(version);
     const expansionUpdates = defaultExpansion ? repoUpdatesByExpansion[defaultExpansion.url] : null;
     const hasRepoUpdates = hasAccess && expansionUpdates && Object.keys(expansionUpdates).length > 0;
-    const exportTime = formatExportTime(version);
     const stale = isStaleExpansion(defaultExpansion);
     const showWarning = hasRepoUpdates || stale;
     const expanded = expandedVersionKeys.has(versionKey);
@@ -703,7 +706,6 @@ const CollectionVersionsTab = ({
             )}
             <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.25 }}>
               {version.created_on ? formatDate(version.created_on) : ''}{version.created_by ? ` · ${version.created_by}` : ''}
-              {exportTime ? ` · ${t('repo.export_time')}: ${exportTime}` : ''}
             </Typography>
           </TableCell>
           <TableCell sx={bodyCellSx}>
@@ -869,6 +871,14 @@ const CollectionVersionsTab = ({
         items={buildExpansionMenuItems()}
       />
 
+      {Boolean(attributesVersion) && (
+        <EntityAttributesDialog
+          fields={getVersionAttributeFields(attributesVersion, t)}
+          entity={attributesVersion}
+          open={Boolean(attributesVersion)}
+          onClose={() => setAttributesVersion(null)}
+        />
+      )}
       {Boolean(exportVersion) && (
         <VersionExportDialog
           version={exportVersion}

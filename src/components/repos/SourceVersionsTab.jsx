@@ -35,6 +35,7 @@ import {
   DeleteOutlined as DeleteIcon,
   Download as ExportIcon,
   EditOutlined as EditIcon,
+  ListAlt as AttributesIcon,
   MoreVert as MoreVertIcon,
   NewReleases as ReleaseIcon,
   Newspaper as ChangelogIcon,
@@ -60,6 +61,7 @@ import {
 } from '../../common/utils';
 import { OperationsContext } from '../app/LayoutContext';
 import AccessIcon from '../common/AccessIcon';
+import EntityAttributesDialog from '../common/EntityAttributesDialog';
 import MarkdownContent from '../common/MarkdownContent';
 import ExternalExportsDialog from './ExternalExportsDialog';
 import ClearProcessingDialog from './ClearProcessingDialog';
@@ -75,8 +77,8 @@ import {
   REPO_VERSIONS_PAGE_SIZE,
   bodyCellSx,
   formatError,
-  formatExportTime,
   getPreviousVersionURL,
+  getVersionAttributeFields,
   getVersionKey,
   getVersionLabel,
   getVersionURL,
@@ -167,6 +169,7 @@ const SourceVersionsTab = ({
   const [menuState, setMenuState] = React.useState({ anchorEl: null, version: null });
   const [exportVersion, setExportVersion] = React.useState(null);
   const [externalExportsVersion, setExternalExportsVersion] = React.useState(null);
+  const [attributesVersion, setAttributesVersion] = React.useState(null);
   const [changelogVersion, setChangelogVersion] = React.useState(null);
   const [reindexTarget, setReindexTarget] = React.useState(null);
   const [clearProcessingVersion, setClearProcessingVersion] = React.useState(null);
@@ -389,11 +392,6 @@ const SourceVersionsTab = ({
                     <Typography variant="caption" sx={{
                       color: "text.secondary"
                     }}>{version.created_by || ''}</Typography>
-                    {Boolean(formatExportTime(version)) && (
-                      <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                        {t('repo.export_time')}: {formatExportTime(version)}
-                      </Typography>
-                    )}
                   </TableCell>
                   <TableCell align="right" sx={bodyCellSx}>
                     <Tooltip title={t('common.actions')}>
@@ -439,6 +437,7 @@ const SourceVersionsTab = ({
       />
       <Menu anchorEl={menuState.anchorEl} open={Boolean(menuState.anchorEl)} onClose={closeMenu}>
         <MenuItem onClick={() => withClose(version => onVersionChange(version))}><VisibilityIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.explore_version')}</MenuItem>
+        <MenuItem onClick={() => withClose(version => setAttributesVersion(version))}><AttributesIcon fontSize="small" sx={{ mr: 1 }} />{t('common.view_attributes')}</MenuItem>
         <MenuItem onClick={() => withClose(version => copyVersionURL(version))}><CopyIcon fontSize="small" sx={{ mr: 1 }} />{t('common.copy_api_url')}</MenuItem>
         <GatedMenuItem onClick={() => withClose(version => setExportVersion(version))} disabled={!isLoggedIn() || exportPending} reason={t('repo.export_not_ready_tooltip')}><ExportIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.export_version')}</GatedMenuItem>
         <MenuItem onClick={() => withClose(version => setExternalExportsVersion(version))} disabled={!isLoggedIn() || isHeadVersion(menuState.version)}><ExternalExportIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.external_exports')}</MenuItem>
@@ -496,6 +495,14 @@ const SourceVersionsTab = ({
             </>
         }
       </Menu>
+      {Boolean(attributesVersion) && (
+        <EntityAttributesDialog
+          fields={getVersionAttributeFields(attributesVersion, t)}
+          entity={attributesVersion}
+          open={Boolean(attributesVersion)}
+          onClose={() => setAttributesVersion(null)}
+        />
+      )}
       {Boolean(exportVersion) && <VersionExportDialog version={exportVersion} open={Boolean(exportVersion)} onClose={() => setExportVersion(null)} />}
       {Boolean(externalExportsVersion) && <ExternalExportsDialog version={externalExportsVersion} canEdit={hasAccess} open={Boolean(externalExportsVersion)} onClose={() => setExternalExportsVersion(null)} onChange={onExternalExportsChange} />}
       {Boolean(changelogVersion) && <ChangelogDialog version={changelogVersion} open={Boolean(changelogVersion)} onClose={() => setChangelogVersion(null)} />}
