@@ -8,6 +8,9 @@ export const DATE_FORMAT = 'M/D/YYYY';
 export const TIME_FORMAT = 'h:mm A';
 export const DATETIME_FORMAT = DATE_FORMAT + ' ' + TIME_FORMAT;
 export const DEFAULT_LIMIT = 25;
+// The API's search index cannot return results past this offset -- only plain,
+// unfiltered, unsorted listings (served from the DB) can be paged beyond it.
+export const MAX_SEARCH_RESULT_WINDOW = 10000;
 export const EMPTY_VALUE = '-';
 export const SOURCE_TYPES = [
   'Dictionary',

@@ -315,6 +315,14 @@ const Search = props => {
     return params
   }
 
+  const isSearchIndexQuery = () => {
+    const params = omit(
+      getQueryParams(input, page, pageSize, filters, orderBy, order),
+      ['page', 'limit', 'includeSearchMeta', 'onlyHierarchyRoot']
+    )
+    return Object.values(params).some(Boolean)
+  }
+
   const handleResourceChange = (event, newTab) => {
     event.preventDefault()
     event.stopPropagation()
@@ -458,7 +466,9 @@ const Search = props => {
   const highlight = item => highlightTexts(item?.id ? [item] : result[resource]?.results || [], null, true)
 
   const onFiltersChange = newFilters => {
-    history.push(getCurrentLayoutURL(getQueryParams(input, page, pageSize, newFilters, orderBy, order)))
+    // A new filter means a different result set -- the current page number is meaningless
+    // against it (and may not even exist), so start over from the first page.
+    history.push(getCurrentLayoutURL(getQueryParams(input, 1, pageSize, newFilters, orderBy, order)))
   }
 
   const TAB_STYLES = {textTransform: 'none'}
@@ -743,6 +753,7 @@ const Search = props => {
                   propertyDefinition={props.propertyDefinition}
                   propertyFilters={props.propertyFilters}
                   isMatch={isMatchOp}
+                  searchIndexQuery={isSearchIndexQuery()}
                   hierarchySupported={isHierarchySupported}
                   baseURL={props.url}
                   toolbarControl={<>{props.toolbarControl}{referenceActionsControl}</>}

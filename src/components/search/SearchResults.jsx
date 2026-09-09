@@ -24,6 +24,7 @@ import CloneToSourceDialog from '../repos/CloneToSourceDialog';
 import { getSortConfig } from './sortConfig'
 import { resolveColumns } from './columns'
 import { isLoggedIn, currentUserHasAccess } from '../../common/utils';
+import { MAX_SEARCH_RESULT_WINDOW } from '../../common/constants';
 
 const ResultsToolbar = props => {
   const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortConfig, noCardDisplay, toolbarControl, appliedFilters, openFilters, bulkActions, leftControls, displayOptions, resource } = props;
@@ -336,7 +337,15 @@ const SearchResults = props => {
   }, [props.resource, props.display])
 
 
-  const defaultLabelDisplayedRows = ({ from, to, count }) => `${from}–${to} of ${count !== -1 ? count?.toLocaleString() : (props.isMatch ? 'many' : `more than ${to?.toLocaleString()}`)}`
+  const totalResults = props.results?.total || 0
+  const pageSize = rowsPerPage || 25
+  const isSearchIndexQuery = props.searchIndexQuery === undefined || props.searchIndexQuery
+  const isResultWindowCapped = isSearchIndexQuery && props.resource !== 'references' && !props.isMatch && totalResults > MAX_SEARCH_RESULT_WINDOW
+  const paginationCount = props.isMatch ?
+                          -1 :
+                          (isResultWindowCapped ? Math.floor(MAX_SEARCH_RESULT_WINDOW / pageSize) * pageSize : totalResults)
+
+  const defaultLabelDisplayedRows = ({ from, to, count }) => `${from}–${to} of ${count !== -1 ? (isResultWindowCapped ? totalResults : count)?.toLocaleString() : (props.isMatch ? 'many' : `more than ${to?.toLocaleString()}`)}`
 
   return (
     <Box sx={{ width: '100%', background: 'inherit', height: '100%', ...props.sx }}>
@@ -388,13 +397,13 @@ const SearchResults = props => {
               <TablePagination
                 rowsPerPageOptions={[10, 25, 50, 100]}
                 component="div"
-                count={props.isMatch ? -1 : props.results?.total || 0}
-                rowsPerPage={rowsPerPage || 25}
+                count={paginationCount}
+                rowsPerPage={pageSize}
                 page={(page || 1) - 1}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 showFirstButton
-                showLastButton
+                showLastButton={!isResultWindowCapped}
                 labelDisplayedRows={defaultLabelDisplayedRows}
                 sx={{
                   width: '100%',
