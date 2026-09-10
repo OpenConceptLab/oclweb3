@@ -12,7 +12,7 @@ import ConceptListItem from '../concepts/ConceptListItem'
 
 const MIN_LENGTH = 1
 
-const ConceptSearchAutocomplete = ({ id, label, required, size, parentURI, disabled, value, freeSolo, onChange, onInputChange }) => {
+const ConceptSearchAutocomplete = ({ id, label, required, size, parentURI, disabled, error, helperText, value, freeSolo, onChange, onInputChange }) => {
   const { t } = useTranslation()
   const fieldId = id || 'concept'
   const [input, setInput] = React.useState('')
@@ -91,6 +91,8 @@ const ConceptSearchAutocomplete = ({ id, label, required, size, parentURI, disab
         params => <TextField
                     {...params}
                     required={required}
+                    error={Boolean(error)}
+                    helperText={helperText}
                     label={label || t('concept.concept')}
                     variant='outlined'
                     size={size || 'small'}

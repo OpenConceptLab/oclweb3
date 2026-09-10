@@ -1,6 +1,6 @@
 import React from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
-import { TextField, IconButton, Tooltip, FormHelperText, Button as MuiButton } from '@mui/material';
+import { TextField, IconButton, Tooltip, Button as MuiButton } from '@mui/material';
 import {
   SwapVert as SwapIcon,
 } from '@mui/icons-material';
@@ -8,7 +8,7 @@ import {
   set, get, cloneDeep, isEmpty, map, isArray, compact, flatten, values, keys
 } from 'lodash';
 import APIService from '../../services/APIService';
-import { arrayToObject, toParentURI } from '../../common/utils';
+import { arrayToObject, toParentURI, URIToParentParams } from '../../common/utils';
 import { fetchMapTypes } from './utils';
 import { OperationsContext } from '../app/LayoutContext';
 import FormComponent, { CardSection } from '../common/FormComponent'
@@ -21,6 +21,7 @@ import CustomAttributesForm from '../common/CustomAttributesForm'
 import CloseIconButton from '../common/CloseIconButton';
 import Button from '../common/Button'
 import ConceptSearchAutocomplete from '../common/ConceptSearchAutocomplete'
+import SourceSearchAutocomplete from '../common/SourceSearchAutocomplete'
 
 const ANCHOR_UNDERLINE_STYLES = {textDecoration: 'underline', cursor: 'pointer'}
 const OPTIONAL_BLANK_FIELDS = [
@@ -44,6 +45,8 @@ class MappingForm extends FormComponent {
       advanced: Boolean(props.edit || props.copyFrom),
       fromConcept: null,
       toConcept: null,
+      fromSource: null,
+      toSource: null,
       mapTypes: [],
       parent: null,
       fields: {
@@ -76,8 +79,28 @@ class MappingForm extends FormComponent {
     if(this.props.selectedConcepts)
       this.setFieldsFromSelectedConcepts()
     if(!this.props.edit)
-      this.setState({parent: this.props.source})
+      this.setState(state => ({parent: this.props.source, fromSource: state.fromSource || this.props.source || null}))
   }
+
+  buildSource = (url, name) => {
+    if(!url)
+      return null
+    if(this.props.source?.url === url)
+      return this.props.source
+    const params = URIToParentParams(url)
+    return {
+      url: url,
+      id: params?.repo || url,
+      short_code: params?.repo,
+      name: name || params?.repo || url,
+      owner: params?.owner,
+      owner_type: params?.ownerType
+    }
+  }
+
+  sourceFromConcept = concept => concept ?
+                                 this.buildSource(concept.source_url || (concept.url ? toParentURI(concept.url) : ''), concept.source) :
+                                 null
 
   fetchMappingToCreate = () => {
     APIService.new().overrideURL(this.props.copyFrom.url).get().then(response => this.setFieldsForEdit(response.data))
@@ -103,6 +126,11 @@ class MappingForm extends FormComponent {
     if(!edit)
       newState.fields.id.value = ''
     newState.fields.extras = isEmpty(instance.extras) ? newState.fields.extras : map(instance.extras, (v, k) => ({key: k, value: v}))
+    ;['from', 'to'].forEach(prefix => {
+      const conceptURL = newState.fields[`${prefix}_concept_url`].value
+      const sourceURL = newState.fields[`${prefix}_source_url`].value || (conceptURL ? toParentURI(conceptURL) : '')
+      newState[this.getSourceStateKey(prefix)] = this.buildSource(sourceURL)
+    })
 
     this.setState(newState);
   }
@@ -115,11 +143,13 @@ class MappingForm extends FormComponent {
 
     if(fromConcept) {
       newState.fromConcept = fromConcept
+      newState.fromSource = this.sourceFromConcept(fromConcept)
       newState.fields.from_concept_url.value = fromConcept.url
       newState.fields.from_concept_name.value = fromConcept.display_name
     }
     if(toConcept) {
       newState.toConcept = toConcept
+      newState.toSource = this.sourceFromConcept(toConcept)
       newState.fields.to_concept_url.value = toConcept.url
       newState.fields.to_concept_name.value = toConcept.display_name
     }
@@ -132,6 +162,8 @@ class MappingForm extends FormComponent {
 
     newState.fromConcept = this.state.toConcept
     newState.toConcept = this.state.fromConcept
+    newState.fromSource = this.state.toSource
+    newState.toSource = this.state.fromSource
 
     newState.fields.from_concept_url.value = fields.to_concept_url.value
     newState.fields.from_concept_code.value = fields.to_concept_code.value
@@ -150,6 +182,18 @@ class MappingForm extends FormComponent {
 
   getConceptStateKey = prefix => prefix === 'from' ? 'fromConcept' : 'toConcept'
 
+  getSourceStateKey = prefix => prefix === 'from' ? 'fromSource' : 'toSource'
+
+  onSourceSelect = (prefix, source) => {
+    const newState = {...this.state}
+    newState[this.getSourceStateKey(prefix)] = source || null
+    newState[this.getConceptStateKey(prefix)] = null
+    newState.fields[`${prefix}_source_url`] = {...newState.fields[`${prefix}_source_url`], errors: []}
+    newState.fields[`${prefix}_concept_url`] = {...newState.fields[`${prefix}_concept_url`], value: '', errors: []}
+    newState.fields[`${prefix}_concept_name`] = {...newState.fields[`${prefix}_concept_name`], value: ''}
+    this.setState(newState)
+  }
+
   onConceptSelect = (prefix, concept) => {
     const newState = {...this.state}
     newState[this.getConceptStateKey(prefix)] = concept || null
@@ -160,17 +204,25 @@ class MappingForm extends FormComponent {
 
   fillFieldsFromConcept = (newState, prefix) => {
     const concept = newState[this.getConceptStateKey(prefix)]
-    if(!concept)
+    const source = newState[this.getSourceStateKey(prefix)]
+    if(!concept) {
+      if(source)
+        newState.fields[`${prefix}_source_url`].value = source.url || ''
       return
+    }
     newState.fields[`${prefix}_concept_url`].value = concept.url || ''
     newState.fields[`${prefix}_concept_name`].value = concept.display_name || ''
     newState.fields[`${prefix}_concept_code`].value = concept.id || ''
-    newState.fields[`${prefix}_source_url`].value = concept.source_url || (concept.url ? toParentURI(concept.url) : '')
+    newState.fields[`${prefix}_source_url`].value = concept.source_url || (concept.url ? toParentURI(concept.url) : '') || source?.url || ''
   }
 
   resolveConceptFromFields = prefix => {
     const key = this.getConceptStateKey(prefix)
+    const sourceKey = this.getSourceStateKey(prefix)
     const url = this.state.fields[`${prefix}_concept_url`].value
+    const sourceURL = this.state.fields[`${prefix}_source_url`].value || (url ? toParentURI(url) : '')
+    if(this.state[sourceKey]?.url !== sourceURL)
+      this.setState({[sourceKey]: this.buildSource(sourceURL)})
     if(this.state[key]?.url === url)
       return
     this.setState({[key]: null})
@@ -277,16 +329,32 @@ class MappingForm extends FormComponent {
   }
 
   setConceptRefErrors = () => {
-    const fromValid = this.isConceptRefValid('from')
-    const toValid = this.isConceptRefValid('to')
-    const message = this.props.t('mapping.concept_ref_required')
+    const { advanced, fromSource, toSource } = this.state
+    const { t } = this.props
+    const sourceMessage = t('mapping.source_required')
+    const conceptMessage = advanced ? t('mapping.concept_ref_required') : t('mapping.concept_required')
+    // in the basic view the source has to be picked before the concept can be searched, so only
+    // point at the field the user has to act on next instead of flagging both at once
+    const validity = ['from', 'to'].map(prefix => {
+      const sourceValid = advanced || Boolean(prefix === 'from' ? fromSource : toSource)
+      const conceptValid = this.isConceptRefValid(prefix)
+      return {prefix, sourceValid, conceptValid}
+    })
     this.setState(state => {
       const newState = {...state, fields: {...state.fields}}
-      newState.fields.from_concept_url = {...newState.fields.from_concept_url, errors: fromValid ? [] : [message]}
-      newState.fields.to_concept_url = {...newState.fields.to_concept_url, errors: toValid ? [] : [message]}
+      validity.forEach(({prefix, sourceValid, conceptValid}) => {
+        newState.fields[`${prefix}_source_url`] = {
+          ...newState.fields[`${prefix}_source_url`],
+          errors: sourceValid ? [] : [sourceMessage]
+        }
+        newState.fields[`${prefix}_concept_url`] = {
+          ...newState.fields[`${prefix}_concept_url`],
+          errors: (!sourceValid || conceptValid) ? [] : [conceptMessage]
+        }
+      })
       return newState
     })
-    return fromValid && toValid
+    return validity.every(({sourceValid, conceptValid}) => sourceValid && conceptValid)
   }
 
   onSubmit = event => {
@@ -357,8 +425,9 @@ class MappingForm extends FormComponent {
   }
 
   render() {
-    const { fields, mapTypes, manualMnemonic, manualExternalId, mapping, advanced, fromConcept, toConcept } = this.state;
+    const { fields, mapTypes, manualMnemonic, manualExternalId, mapping, advanced, fromConcept, toConcept, fromSource, toSource } = this.state;
     const { onClose, edit, source, t, repo } = this.props;
+    const suggestedSources = compact([source]);
     return (
       <div className='col-xs-12' style={{padding: '8px 16px 12px 16px', height: '100%', overflow: 'auto'}}>
         <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px'}}>
@@ -530,20 +599,33 @@ class MappingForm extends FormComponent {
                   </div>
                 </div>
               </React.Fragment> :
-            <div className='col-xs-12 padding-0' style={{marginTop: '24px', width: '100%'}}>
-              <ConceptSearchAutocomplete
-                required
-                id='from_concept'
-                label={t('mapping.from_concept')}
-                parentURI={fromConcept?.url ? toParentURI(fromConcept.url) : source?.url}
-                value={fromConcept}
-                onChange={(id, item) => this.onConceptSelect('from', item)}
-              />
-              {
-                Boolean(fields.from_concept_url.errors[0]) &&
-                  <FormHelperText error>{fields.from_concept_url.errors[0]}</FormHelperText>
-              }
-            </div>
+            <React.Fragment>
+              <div className='col-xs-12 padding-0' style={{marginTop: '24px', width: '100%'}}>
+                <SourceSearchAutocomplete
+                  required
+                  id='from_source'
+                  label={t('mapping.from_source')}
+                  suggested={suggestedSources}
+                  value={fromSource}
+                  error={fields.from_source_url.errors[0]}
+                  helperText={fields.from_source_url.errors[0]}
+                  onChange={(id, item) => this.onSourceSelect('from', item)}
+                />
+              </div>
+              <div className='col-xs-12 padding-0' style={{marginTop: '16px', width: '100%'}}>
+                <ConceptSearchAutocomplete
+                  required
+                  id='from_concept'
+                  label={t('mapping.from_concept')}
+                  disabled={!fromSource}
+                  parentURI={fromSource?.url}
+                  value={fromConcept}
+                  error={fields.from_concept_url.errors[0]}
+                  helperText={fields.from_concept_url.errors[0]}
+                  onChange={(id, item) => this.onConceptSelect('from', item)}
+                />
+              </div>
+            </React.Fragment>
           }
         </CardSection>
         <div className='col-xs-12 padding-0' style={{margin: '4px 0', width: '100%', textAlign: 'center'}}>
@@ -615,19 +697,33 @@ class MappingForm extends FormComponent {
                   </div>
                 </div>
               </React.Fragment> :
-            <div className='col-xs-12 padding-0' style={{marginTop: '24px', width: '100%'}}>
-              <ConceptSearchAutocomplete
-                required
-                id='to_concept'
-                label={t('mapping.to_concept')}
-                value={toConcept}
-                onChange={(id, item) => this.onConceptSelect('to', item)}
-              />
-              {
-                Boolean(fields.to_concept_url.errors[0]) &&
-                  <FormHelperText error>{fields.to_concept_url.errors[0]}</FormHelperText>
-              }
-            </div>
+            <React.Fragment>
+              <div className='col-xs-12 padding-0' style={{marginTop: '24px', width: '100%'}}>
+                <SourceSearchAutocomplete
+                  required
+                  id='to_source'
+                  label={t('mapping.to_source')}
+                  suggested={suggestedSources}
+                  value={toSource}
+                  error={fields.to_source_url.errors[0]}
+                  helperText={fields.to_source_url.errors[0]}
+                  onChange={(id, item) => this.onSourceSelect('to', item)}
+                />
+              </div>
+              <div className='col-xs-12 padding-0' style={{marginTop: '16px', width: '100%'}}>
+                <ConceptSearchAutocomplete
+                  required
+                  id='to_concept'
+                  label={t('mapping.to_concept')}
+                  disabled={!toSource}
+                  parentURI={toSource?.url}
+                  value={toConcept}
+                  error={fields.to_concept_url.errors[0]}
+                  helperText={fields.to_concept_url.errors[0]}
+                  onChange={(id, item) => this.onConceptSelect('to', item)}
+                />
+              </div>
+            </React.Fragment>
           }
         </CardSection>
         <CardSection title={t('custom_attributes.label')}>
