@@ -100,7 +100,6 @@
     "api_url": "API URL",
     "highlights": "亮点",
     "click_to_copy": "单击复制",
-    "go_to_source": "转到源",
     "submit": "提交",
     "external_id": "外部 ID",
     "access_level": "访问权限级别",
@@ -215,7 +214,8 @@
     "success_create": "概念创建成功",
     "success_update": "概念更新成功",
     "error_create": "无法创建概念",
-    "error_update": "无法更新概念"
+    "error_update": "无法更新概念",
+    "view_in_source": "在其来源中查看概念"
   },
   "mapping": {
     "mappings": "映射关系",
@@ -268,7 +268,8 @@
         "header": "目标概念"
       }
     },
-    "create_mapping": "创建映射"
+    "create_mapping": "创建映射",
+    "view_in_source": "在其来源中查看映射"
   },
   "checksums": {
     "standard": "标准校验和",

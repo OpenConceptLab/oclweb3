@@ -801,6 +801,12 @@ export const getParamsFromObject = item => {
   return params;
 }
 
+export const latestResolvedRepoVersion = resource => orderBy(
+  compact(flatten(map(resource?.references || [], 'resolved_repo_versions'))),
+  'created_at',
+  'desc'
+)[0]
+
 export const dropVersion = uri => {
   if(!uri)
     return uri

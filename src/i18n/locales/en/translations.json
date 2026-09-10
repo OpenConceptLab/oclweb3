@@ -112,7 +112,6 @@
     "released": "Released",
     "highlights": "Highlights",
     "click_to_copy": "Click to Copy",
-    "go_to_source": "Go to Source",
     "submit": "Submit",
     "external_id": "External ID",
     "access_level": "Access Level",
@@ -274,7 +273,8 @@
     "success_create": "Successfully created concept",
     "success_update": "Successfully updated concept",
     "error_create": "Couldn't create concept",
-    "error_update": "Couldn't update concept"
+    "error_update": "Couldn't update concept",
+    "view_in_source": "View concept in its source"
   },
   "mapping": {
     "mapping": "Mapping",
@@ -355,7 +355,8 @@
         "header": "Target Concept"
       }
     },
-    "create_mapping": "Create Mapping"
+    "create_mapping": "Create Mapping",
+    "view_in_source": "View mapping in its source"
   },
   "reference": {
     "expression": "Expression",

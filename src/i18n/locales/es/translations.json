@@ -159,7 +159,8 @@
       "parent_concepts": "Conceptos padre",
       "parent_concepts_placeholder": "Buscar conceptos en esta fuente",
       "parent_concepts_help": "Conceptos bajo los cuales se ubica este concepto en la jerarquía. También puedes pegar la URL completa de un concepto."
-    }
+    },
+    "view_in_source": "Ver concepto en su fuente"
   },
   "mapping": {
     "mappings": "Mapeos",
@@ -192,7 +193,8 @@
         "header": "Concepto de destino"
       }
     },
-    "create_mapping": "Crear mapeo"
+    "create_mapping": "Crear mapeo",
+    "view_in_source": "Ver mapeo en su fuente"
   },
   "reference": {
     "references": "Referencias",

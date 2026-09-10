@@ -5,7 +5,7 @@ import Fade from '@mui/material/Fade';
 import Skeleton from '@mui/material/Skeleton';
 
 import APIService from '../../services/APIService';
-import { toParentURI, dropVersion, isSameResourceNavigation, getResourceIdFromUrl, currentUserHasAccess } from '../../common/utils'
+import { toParentURI, dropVersion, isSameResourceNavigation, getResourceIdFromUrl, currentUserHasAccess, latestResolvedRepoVersion } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
@@ -45,6 +45,7 @@ const ConceptHome = props => {
   const [createSimilar, setCreateSimilar] = React.useState(false)
 
   const [loading, setLoading] = React.useState(false)
+  const [detailsLoaded, setDetailsLoaded] = React.useState(false)
   const [loadingOwnerMappings, setLoadingOwnerMappings] = React.useState(null)
   const [includeRetiredAssociations, setIncludeRetiredAssociations] = React.useState(false)
   const [mappings, setMappings] = React.useState([])
@@ -75,12 +76,14 @@ const ConceptHome = props => {
     prevConceptSelectionRef.current = {id: props.concept?.id, url: props.url}
 
     setLoading(true)
+    setDetailsLoaded(false)
     setConcept(props.concept || {})
     setVersions([])
-    const queryParams = isInCollection ? { includeReferences: true } : {}
+    const queryParams = isInCollection ? { includeReferences: true, includeResolvedRepoVersions: true } : {}
     getService().get(null, null, queryParams).then(response => {
       const resource = response.data
       setConcept(resource)
+      setDetailsLoaded(true)
       props.repo?.id ? setRepo(repo) : fetchRepo(resource)
       getMappings(resource)
       if(tab === 'history')
@@ -100,6 +103,9 @@ const ConceptHome = props => {
   const fetchRepo = _concept => props?.repo?.id ? setRepo(props.repo) : APIService.new().overrideURL(getRepoURL(_concept)).get().then(response => setRepo(response.data))
 
   const getRepoURL = _concept => {
+    if(isInCollection)
+      return latestResolvedRepoVersion(concept)?.version_url ||
+             toParentURI((props.concept?.id ? props.concept : concept)?.url || '')
     const parentURL = toParentURI(_concept?.version_url || _concept?.url || props?.url || '')
     const repoURL = props?.repo?.version_url || props?.repo?.url
     if(repoURL && (!parentURL || dropVersion(repoURL) === parentURL))
@@ -111,16 +117,24 @@ const ConceptHome = props => {
     return repoVersion ? parentURL + repoVersion + '/' : parentURL
   }
 
+  const getFetchParentURL = () => isInCollection ?
+                                (props.expansionURL || props.repo?.version_url || props.repo?.url || '') :
+                                getRepoURL()
+
   const getService = () => {
     let _concept = props.concept?.id ? props.concept : concept
     let url = _concept?.version_url || _concept?.url || props.url
-    const parentURL = getRepoURL()
+    const parentURL = getFetchParentURL()
     const conceptId = getActiveConceptId()
     if(parentURL && conceptId)
       url = `${parentURL}concepts/${encodeURIComponent(conceptId)}/`
 
     return APIService.new().overrideURL(encodeURI(url))
   }
+
+  const withoutSelfEntry = (entries, _concept) => (entries || []).filter(
+    entry => !(entry?.type === 'Concept' && dropVersion(entry?.url || '') === dropVersion(_concept?.url || ''))
+  )
 
   const fetchVersions = conceptURL => {
     if(versions?.length === 0 || conceptURL) {
@@ -170,7 +184,7 @@ const ConceptHome = props => {
         }
       )
       .then(response => {
-        setMappings(response?.data?.entry?.entries || [])
+        setMappings(withoutSelfEntry(response?.data?.entry?.entries, concept))
         if(directOnly)
           setTimeout(() => setLoading(false), 300)
         !directOnly && getInverseMappings(concept, includeRetired)
@@ -192,7 +206,7 @@ const ConceptHome = props => {
           includeRetired: includeRetired,
         })
       .then(response => {
-        setReverseMappings(response?.data?.entry?.entries || [])
+        setReverseMappings(withoutSelfEntry(response?.data?.entry?.entries, concept))
         setTimeout(() => setLoading(false), 300)
       })
   }
@@ -367,7 +381,7 @@ const ConceptHome = props => {
             !edit && !createSimilar &&
               <>
                 <div className='col-xs-12 padding-0'>
-                  <ConceptHeader concept={concept} onClose={props.onClose} repoURL={getRepoURL()} onEdit={() => setEdit(true)} onCreateSimilar={() => setCreateSimilar(true)} repo={repo} nested={props.nested} loading={loading} onRetire={() => setRetireDialog(true)} isInCollection={isInCollection} onRemoveFromCollection={() => setRemoveFromCollectionDialog(true)} />
+                  <ConceptHeader concept={concept} detailsLoaded={detailsLoaded} onClose={props.onClose} repoURL={getRepoURL()} onEdit={() => setEdit(true)} onCreateSimilar={() => setCreateSimilar(true)} repo={repo} nested={props.nested} loading={loading} onRetire={() => setRetireDialog(true)} isInCollection={isInCollection} onRemoveFromCollection={() => setRemoveFromCollectionDialog(true)} />
                 </div>
                 <ConceptTabs tab={tab} onTabChange={(event, newTab) => onTabChange(newTab)} loading={loading} />
                 {

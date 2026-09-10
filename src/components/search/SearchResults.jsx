@@ -53,9 +53,9 @@ const ResultsToolbar = props => {
         </IconButton>
       }
       {
-        leftControls &&
+        leftControls?.length > 0 &&
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {leftControls}
+            {leftControls.map((control, index) => <React.Fragment key={index}>{control}</React.Fragment>)}
           </Box>
       }
       {numSelected > 0 ? (

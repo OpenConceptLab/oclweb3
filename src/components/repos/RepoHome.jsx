@@ -386,14 +386,17 @@ const RepoHome = () => {
   const currentRepo = liveRepo || repo
 
   const canRenderSearch = !requiresExpansionSelection || (!expansionsLoading && Boolean(selectedExpansion))
-  const getConceptURLFromMainURL = () => (isConceptURL && params.resource) ? getURL() + 'concepts/' + params.resource + '/' : false
-  const getMappingURLFromMainURL = () => (isMappingURL && params.resource) ? getURL() + 'mappings/' + params.resource + '/' : false
+  const expansionURL = (isCollection && selectedExpansion?.url) ? selectedExpansion.url : false
+  const toExpansionURL = (resourceType, id) => (expansionURL && id) ? `${expansionURL}${resourceType}/${encodeURIComponent(id)}/` : false
+  const isExpansionReady = !requiresExpansionSelection || Boolean(expansionURL)
+  const getConceptURLFromMainURL = () => (isConceptURL && params.resource) ? (toExpansionURL('concepts', params.resource) || getURL() + 'concepts/' + params.resource + '/') : false
+  const getMappingURLFromMainURL = () => (isMappingURL && params.resource) ? (toExpansionURL('mappings', params.resource) || getURL() + 'mappings/' + params.resource + '/') : false
   const getReferenceURLFromMainURL = () => (isReferenceURL && params.resource) ? getURL() + 'references/' + params.resource + '/' : false
   const resourceFallbackActive = Boolean(params.resource) && params.resource !== dismissedResource
   // URL-named resource id wins over a stale showItem selected via list click
   const showItemMatchesURLResource = !params.resource || String(showItem?.id) === String(params.resource)
-  const showConceptURL = ((showItem?.concept_class || resourceFallbackActive) && isConceptURL) ? (showItemMatchesURLResource && (showItem?.version_url || showItem?.url)) || getConceptURLFromMainURL() : false
-  const showMappingURL = ((showItem?.map_type || resourceFallbackActive) && isMappingURL) ? (showItemMatchesURLResource && (showItem?.version_url || showItem?.url)) || getMappingURLFromMainURL() : false
+  const showConceptURL = (isExpansionReady && (showItem?.concept_class || resourceFallbackActive) && isConceptURL) ? (showItemMatchesURLResource && (toExpansionURL('concepts', showItem?.id) || showItem?.version_url || showItem?.url)) || getConceptURLFromMainURL() : false
+  const showMappingURL = (isExpansionReady && (showItem?.map_type || resourceFallbackActive) && isMappingURL) ? (showItemMatchesURLResource && (toExpansionURL('mappings', showItem?.id) || showItem?.version_url || showItem?.url)) || getMappingURLFromMainURL() : false
   const showReferenceURL = ((showItem?.expression || resourceFallbackActive) && isReferenceURL) ? (showItemMatchesURLResource && showItem?.uri) || getReferenceURLFromMainURL() : false
   const isSplitView = conceptForm || mappingForm || showConceptURL || showMappingURL || showReferenceURL || versionForm
 
@@ -564,11 +567,11 @@ const RepoHome = () => {
       <div className={'col-xs-5 padding-0' + (isSplitView ? ' split-appear' : '')} style={{marginLeft: '16px', width: isSplitView ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: isSplitView ? 'calc(100vh - 102px)' : 0, opacity: isSplitView ? 1 : 0, overflow: 'auto'}}>
         {
           Boolean(showConceptURL && !conceptForm) &&
-            <ConceptHome repoSummary={repoSummary} repo={repo} url={showConceptURL} concept={showItem} onClose={closeItem} repoVersions={versions} nested />
+            <ConceptHome repoSummary={repoSummary} repo={repo} url={showConceptURL} expansionURL={expansionURL} concept={showItem} onClose={closeItem} repoVersions={versions} nested />
         }
         {
           Boolean(showMappingURL && !mappingForm) &&
-            <MappingHome repoSummary={repoSummary} repo={repo} url={showMappingURL} mapping={showItem} onClose={closeItem} repoVersions={versions} nested />
+            <MappingHome repoSummary={repoSummary} repo={repo} url={showMappingURL} expansionURL={expansionURL} mapping={showItem} onClose={closeItem} repoVersions={versions} nested />
         }
         {
           showReferenceURL &&
