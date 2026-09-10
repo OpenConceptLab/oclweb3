@@ -77,6 +77,8 @@
     "location": "Ubicación",
     "generic_error": "Algo salió mal.",
     "click_here": "haz clic aquí",
+    "classic_termbrowser": "Ver esto en TBv2",
+    "back_to_classic_termbrowser": "Volver al TermBrowser clásico",
     "all": "Todos",
     "add": "Agregar",
     "already_exists": "Ya existe",
