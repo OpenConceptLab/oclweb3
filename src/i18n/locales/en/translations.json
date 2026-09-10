@@ -650,6 +650,7 @@
     "set_as_default": "Set as default",
     "update_metadata": "Update metadata",
     "create_similar": "Create similar",
+    "create_similar_disclaimer": "Only the repository's metadata is copied. Concepts, mappings and versions are not copied.",
     "id_auto_assignment": "ID Auto-Assignment",
     "id_auto_assignment_description": "Configure ID assignment for Concepts and Mappings",
     "id_auto_assignment_openmrs_hint": "OpenMRS recommends selecting 'Sequential' for IDs and selecting 'UUID' for External IDs",

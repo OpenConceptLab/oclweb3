@@ -408,6 +408,7 @@
     "repo_summary_is_calculating": "正在计算处理存储库摘要数据，请请稍后再回来查看。",
     "no_overview": "所有者尚未为该存储库创建概述页面",
     "create_similar": "创建相似项",
+    "create_similar_disclaimer": "仅复制仓库的元数据，不复制概念、映射和版本。",
     "id_auto_assignment": "ID 自动分配",
     "id_auto_assignment_description": "配置概念和映射的 ID 分配方式",
     "id_auto_assignment_openmrs_hint": "OpenMRS 建议 ID 选择“顺序”，外部 ID 选择“UUID”",

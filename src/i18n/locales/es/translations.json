@@ -349,6 +349,7 @@
     "expansions": "Expansiones",
     "expansion_dropdown_label": "Expansión: {{mnemonic}}",
     "create_similar": "Crear similar",
+    "create_similar_disclaimer": "Solo se copian los metadatos del repositorio. Los conceptos, mapeos y versiones no se copian.",
     "autoid_concept_mnemonic": "Asignación automática del ID de concepto",
     "autoid_concept_external_id": "Asignación automática del ID externo de concepto",
     "autoid_concept_name_external_id": "Asignación automática del ID externo del nombre del concepto",

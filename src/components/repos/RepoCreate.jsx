@@ -479,31 +479,41 @@ const RepoCreate = () => {
             </Tabs>
             {
               TABS.map(_tab => (
-                <TabPanel key={_tab.index} value={tab} index={_tab.index} style={{width: 'calc(100vh - 320px)'}}>
+                <TabPanel key={_tab.index} value={tab} index={_tab.index} style={{flex: 1, minWidth: 0}}>
                   <Typography sx={{color: 'secondary.40', fontSize: '14px'}}>
                     {_tab.content.description}
                   </Typography>
                   <Button sx={{margin: '24px 0', '.MuiChip-label': {fontWeight: 'bold'}}} label={t('common.create')} variant='outlined' color='primary' onClick={() => onStepChange(1)} />
-                  <Button sx={{margin: '24px 8px', '.MuiChip-label': {fontWeight: 'bold'}}} label={t('common.create_from_ocl_url')} variant={isCreatingFromOCLURL ? 'contained' : 'outlined'} color='secondary' onClick={onCreateFromURLToggle} />
+                  <Button sx={{margin: '24px 8px', '.MuiChip-label': {fontWeight: 'bold'}}} label={t('repo.create_similar')} variant={isCreatingFromOCLURL ? 'contained' : 'outlined'} color='secondary' onClick={onCreateFromURLToggle} />
                   {
                     isCreatingFromOCLURL && step === 0 && !isEdit &&
-                      <div className='col-xs-12 padding-0'>
-                        <div className='col-xs-9 padding-0'>
-                          <TextField
-                            autoFocus
-                            fullWidth
-                            required
-                            size='small'
-                            label={t('repo.ocl_repo_url')}
-                            value={fromOCLURL || ''}
-                            onChange={event => setFromOCLURL(event.target.value)}
-                            error={Boolean(fromOCLURLError)}
-                            helperText={fromOCLURLError || t('repo.ocl_repo_url_help', {example: `/orgs/MyOrg/${selectedTab.id}s/MyRepo/`, interpolation: {escapeValue: false}})}
-                          />
-                          </div>
-                        <div className='col-xs-3' style={{padding: '0 0 0 10px'}}>
-                          <Button disabled={isFetchingFromOCLURL || !fromOCLURLParsed} sx={{'.MuiChip-label': {fontWeight: 'bold'}}} label={isFetchingFromOCLURL ? t('common.loading') : t('common.proceed')} variant='outlined' color='primary' onClick={onFetchRepoFromURL} />
-                          </div>
+                      <Typography sx={{color: 'secondary.40', fontSize: '13px', margin: '0 0 16px 0'}}>
+                        {t('repo.create_similar_disclaimer')}
+                      </Typography>
+                  }
+                  {
+                    isCreatingFromOCLURL && step === 0 && !isEdit &&
+                      <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'flex-start', gap: '10px'}}>
+                        <TextField
+                          autoFocus
+                          fullWidth
+                          required
+                          size='small'
+                          label={t('repo.ocl_repo_url')}
+                          value={fromOCLURL || ''}
+                          onChange={event => setFromOCLURL(event.target.value)}
+                          error={Boolean(fromOCLURLError)}
+                          helperText={fromOCLURLError || t('repo.ocl_repo_url_help', {example: `/orgs/MyOrg/${selectedTab.id}s/MyRepo/`, interpolation: {escapeValue: false}})}
+                          sx={{flex: 1, minWidth: 0}}
+                        />
+                        <Button
+                          disabled={isFetchingFromOCLURL || !fromOCLURLParsed}
+                          sx={{flexShrink: 0, maxWidth: 'none', '.MuiChip-label': {fontWeight: 'bold', overflow: 'visible', textOverflow: 'clip'}}}
+                          label={isFetchingFromOCLURL ? t('common.loading') : t('common.proceed')}
+                          variant='outlined'
+                          color='primary'
+                          onClick={onFetchRepoFromURL}
+                        />
                       </div>
                   }
                 </TabPanel>
