@@ -20,6 +20,7 @@ import Button from '../common/Button'
 import AutocompleteGroupByRepoSummary from '../common/AutocompleteGroupByRepoSummary'
 import LocaleForm from './LocaleForm'
 import ParentConceptsForm from './ParentConceptsForm'
+import ConceptDatatypeSection, { getDatatypeExtraKeys } from './ConceptDatatypeSection'
 import Breadcrumbs from '../common/Breadcrumbs'
 import CustomAttributesForm from '../common/CustomAttributesForm'
 import { required } from '../../common/validators';
@@ -58,8 +59,6 @@ class ConceptForm extends FormComponent  {
       descriptionTypes: [],
       usedExtras: [],
       parent: null,
-      selected_concept_class: null,
-      selected_datatype: null,
       manualMnemonic: false,
       manualExternalId: false,
       originalParentConceptURLs: [],
@@ -129,7 +128,7 @@ class ConceptForm extends FormComponent  {
       concept_class: concept.concept_class || '',
       datatype: concept.datatype || '',
       external_id: concept.external_id || '',
-      extras: concept.extras || {},
+      extras: this.getExtrasWithDatatypeDefaults(concept.datatype, concept.extras),
       parent_concept_urls: [...this.state.originalParentConceptURLs].sort(),
       names: this.normalizeNamesForComparison(concept.names),
       descriptions: this.normalizeDescriptionsForComparison(concept.descriptions),
@@ -137,7 +136,7 @@ class ConceptForm extends FormComponent  {
   }
 
   getComparableCurrentConcept = () => {
-    const valuesMap = this.getValues()
+    const valuesMap = this.getConceptValues()
 
     return {
       id: valuesMap.id || '',
@@ -157,7 +156,7 @@ class ConceptForm extends FormComponent  {
 
   getPromptConceptB = () => {
     const baseConcept = this.sanitizeConceptForPrompt(this.props.concept)
-    const formValues = this.getValues()
+    const formValues = this.getConceptValues()
     delete formValues.comment
 
     return this.sanitizeConceptForPrompt({
@@ -390,6 +389,30 @@ class ConceptForm extends FormComponent  {
 
   onChange = (id, value) => this.setFieldValue(id, value)
 
+  getConceptValues = () => {
+    const result = this.getValues()
+    result.extras = this.getExtrasWithDatatypeDefaults(result.datatype, result.extras)
+    return result
+  }
+
+  getExtrasWithDatatypeDefaults = (datatype, extras) => {
+    const result = {...extras}
+    if(datatype === 'Text' && !result.text_format)
+      result.text_format = 'PLAIN'
+    if(datatype === 'Numeric' && result.allow_decimal == null)
+      result.allow_decimal = false
+    return result
+  }
+
+  onDatatypeExtraChange = (key, value) => {
+    this.setState(state => {
+      const extras = state.fields.extras.filter(extra => extra.key !== key)
+      if(value !== undefined && value !== '')
+        extras.push({key, value})
+      return {fields: {...state.fields, extras}}
+    })
+  }
+
   handleSubmit = event => {
     event.preventDefault()
     event.stopPropagation()
@@ -398,7 +421,7 @@ class ConceptForm extends FormComponent  {
     const isValid = this.setAllFieldsErrors()
     if(isValid) {
       const { setAlert } = this.context;
-      const payload = this.getValues()
+      const payload = this.getConceptValues()
       payload.parent_concept_urls = this.getParentConceptURLs()
       if(edit) {
         payload.update_comment = fields.comment.value
@@ -523,6 +546,12 @@ class ConceptForm extends FormComponent  {
             />
           </div>
         </CardSection>
+        <ConceptDatatypeSection
+          datatype={fields.datatype.value}
+          extras={this.getConceptValues().extras}
+          onChange={this.onDatatypeExtraChange}
+          t={t}
+        />
         <CardSection title={t('concept.form.names.header')}>
           <div id='locales-names' className='col-xs-12 padding-0' style={{maxHeight: '500px', overflow: 'auto'}}>
             {
@@ -584,7 +613,11 @@ class ConceptForm extends FormComponent  {
           </div>
         </CardSection>
         <CardSection title={t('custom_attributes.label')}>
-          <CustomAttributesForm extras={fields.extras} onChange={this.setExtrasValue} onAdd={this.onAddExtras} />
+          <CustomAttributesForm
+            extras={fields.extras} onChange={this.setExtrasValue} onAdd={this.onAddExtras}
+            excludedKeys={getDatatypeExtraKeys(fields.datatype.value)}
+            usedExtras={this.state.usedExtras}
+          />
         </CardSection>
         {
           edit &&
