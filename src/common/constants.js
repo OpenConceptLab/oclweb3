@@ -1,3 +1,5 @@
+import packageJson from '../../package.json';
+
 export const LANGUAGES = [
   {locale: 'en', name: 'English'},
   {locale: 'es', name: "Español"}
@@ -44,7 +46,7 @@ export const AUTO_ID_FIELDS = [
   'autoidMappingMnemonic',
   'autoidMappingExternalID',
 ];
-export const OCL_CLIENT = 'oclweb3/3.0.0-alpha';
+export const OCL_CLIENT = `oclweb3/${packageJson.version}`;
 export const OCL_CLIENT_HEADERS = {
   'X-OCL-CLIENT': OCL_CLIENT,
 };
