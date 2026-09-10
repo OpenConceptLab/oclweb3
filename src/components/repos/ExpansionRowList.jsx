@@ -11,6 +11,7 @@ import get from 'lodash/get';
 
 import ProcessingChip from '../common/ProcessingChip';
 import ProcessingFlag from './ProcessingFlag';
+import { isProcessing } from './processingStages';
 import { dropVersion, formatDate } from '../../common/utils';
 import { formatCount } from './versionsTab.styles';
 
@@ -147,9 +148,8 @@ const ExpansionRowList = ({
                       <Typography sx={{ fontSize: '11px', color: 'error.main' }}>{t('repo.stale')}</Typography>
                     </Stack>
                   )}
-                  {/* Only the default expansion has stage data, via its parent version. */}
-                  {processingState(expansion) === 'processing' && stageVersion ? (
-                    <ProcessingFlag version={stageVersion} />
+                  {processingState(expansion) === 'processing' ? (
+                    <ProcessingFlag entity={isProcessing(stageVersion) ? stageVersion : expansion} processing />
                   ) : processingState(expansion) && (
                     <ProcessingChip processed={processingState(expansion) === 'processed'} fading={processingState(expansion) === 'processed'} />
                   )}

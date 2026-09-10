@@ -610,6 +610,7 @@
     "new_version": "New Version",
     "new_expansion": "New Expansion",
     "show_expansions": "Show expansions ({{count}})",
+    "expansions_processing": "Expansions processing ({{count}})",
     "hide_expansions": "Hide expansions",
     "default_expansion_label": "Default: {{expansion}}",
     "expansion_dropdown_label": "Expansion: {{mnemonic}}",

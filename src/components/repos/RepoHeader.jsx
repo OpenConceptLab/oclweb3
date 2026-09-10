@@ -54,7 +54,7 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, repoHref, onCreateC
             onVersionChange &&
               <RepoVersionChip checkbox version={repo} versions={versions} sx={{marginLeft: '8px', borderRadius: '4px'}} onChange={onVersionChange} />
           }
-          <ProcessingFlag version={repo} sx={{marginLeft: '8px'}} />
+          <ProcessingFlag entity={repo} sx={{marginLeft: '8px'}} />
         </span>
         <span style={{display: 'flex', alignItems: 'center', marginLeft: '16px'}}>
           <FollowActionButton iconButton entity={repo} />

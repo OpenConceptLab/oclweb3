@@ -358,7 +358,7 @@ const SourceVersionsTab = ({
                     >
                       {getVersionLabel(version)}
                     </Button>
-                    <ProcessingFlag version={version} sx={{ ml: 1 }} />
+                    <ProcessingFlag entity={version} sx={{ ml: 1 }} />
                     {version?.match_algorithms?.includes('llm') && <Chip size="small" label={t('repo.mapper')} variant="outlined" sx={{ ml: 1, height: 20 }} />}
                     {version.description && (
                       <Typography

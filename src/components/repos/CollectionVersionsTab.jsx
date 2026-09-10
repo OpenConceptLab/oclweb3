@@ -38,6 +38,7 @@ import {
   NewReleases as ReleaseIcon,
   OpenInNew as OpenInNewIcon,
   Summarize as SummaryIcon,
+  Sync as ProcessingIcon,
   Visibility as VisibilityIcon,
   LayersClear as ClearProcessingIcon,
   WarningAmberOutlined as WarningIcon
@@ -74,7 +75,7 @@ import RepoVersionRowMenu from './RepoVersionRowMenu';
 import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
 import { PROCESSING_POLL_INTERVAL_MS, useProcessingVersions } from '../../hooks/useProcessingState';
-import { PROCESSING_QUERY_PARAMS, areSeedStagesComplete, isExportAvailable, isVersionProcessing } from './processingStages';
+import { PROCESSING_QUERY_PARAMS, areSeedStagesComplete, isExportAvailable, isProcessing as isExpansionProcessing, isVersionProcessing } from './processingStages';
 import {
   REPO_VERSIONS_PAGE_SIZE,
   bodyCellSx,
@@ -97,8 +98,6 @@ const isStaleExpansion = expansion =>
       expansion?.extras?.__stale_expansion ||
       expansion?.extras?.stale
   );
-
-const isExpansionProcessing = expansion => Boolean(expansion?.is_processing);
 
 const isCollectionURL = url => String(url || '').includes('/collections/');
 
@@ -652,6 +651,11 @@ const CollectionVersionsTab = ({
     return items;
   };
 
+  const getExpansionProcessingState = React.useCallback(
+    expansion => processingStatusByExpansion[expansion.url]?.state || (isExpansionProcessing(expansion) ? 'processing' : null),
+    [processingStatusByExpansion]
+  );
+
   /* a version's counts come from its default expansion when it has one */
   const getVersionSummary = React.useCallback(version => {
     const defaultExpansion = getDefaultExpansion(version);
@@ -677,6 +681,12 @@ const CollectionVersionsTab = ({
     const showWarning = hasRepoUpdates || stale;
     const expanded = expandedVersionKeys.has(versionKey);
     const isRowMenuOpen = Boolean(rowMenu.anchorEl) && getVersionKey(rowMenu.version) === versionKey;
+    const processingExpansionsCount = versionExpansions.filter(
+      expansion => getExpansionProcessingState(expansion) === 'processing'
+    ).length;
+    const expansionsLabel = versionExpansions.length > 1
+      ? t('repo.show_expansions', { count: versionExpansions.length })
+      : t('repo.expansions');
 
     return (
       <React.Fragment key={versionKey}>
@@ -690,7 +700,7 @@ const CollectionVersionsTab = ({
               >
                 {getVersionLabel(version)}
               </MuiButton>
-              <ProcessingFlag version={version} />
+              <ProcessingFlag entity={version} />
               <Chip
                 size="small"
                 variant="outlined"
@@ -713,15 +723,22 @@ const CollectionVersionsTab = ({
               <RepoContentSummary summary={getVersionSummary(version)} stats={VERSION_STATS} summaries={map(displayVersions, getVersionSummary)} />
               {versionLoading && <CircularProgress size={14} />}
               {!versionLoading && versionExpansions.length > 0 && (
-                <Chip
-                  size="small"
-                  variant="outlined"
-                  color="primary"
-                  icon={expanded ? <CollapseIcon sx={{ fontSize: '16px !important' }} /> : <ExpandIcon sx={{ fontSize: '16px !important' }} />}
-                  label={versionExpansions.length > 1 ? t('repo.show_expansions', { count: versionExpansions.length }) : t('repo.expansions')}
-                  onClick={() => toggleVersionExpand(version)}
-                  sx={{ height: '24px', cursor: 'pointer', fontWeight: 600 }}
-                />
+                <Tooltip title={processingExpansionsCount ? t('repo.expansions_processing', { count: processingExpansionsCount }) : ''}>
+                  <Chip
+                    size="small"
+                    variant="outlined"
+                    color={processingExpansionsCount ? 'warning' : 'primary'}
+                    icon={expanded ? <CollapseIcon sx={{ fontSize: '16px !important' }} /> : <ExpandIcon sx={{ fontSize: '16px !important' }} />}
+                    label={processingExpansionsCount ? (
+                      <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+                        <span>{expansionsLabel}</span>
+                        <ProcessingIcon sx={{ fontSize: '14px !important', animation: 'ocl-spin 1.6s linear infinite' }} />
+                      </Stack>
+                    ) : expansionsLabel}
+                    onClick={() => toggleVersionExpand(version)}
+                    sx={{ height: '24px', cursor: 'pointer', fontWeight: 600 }}
+                  />
+                </Tooltip>
               )}
             </Stack>
           </TableCell>
@@ -760,7 +777,7 @@ const CollectionVersionsTab = ({
                   expansions={versionExpansions}
                   loading={versionLoading}
                   isStale={isStaleExpansion}
-                  processingState={expansion => processingStatusByExpansion[expansion.url]?.state || (isExpansionProcessing(expansion) ? 'processing' : null)}
+                  processingState={getExpansionProcessingState}
                   getStageVersion={expansion => (expansion.default || expansion.auto) ? version : null}
                   isMenuOpen={expansion => Boolean(expansionMenu.anchorEl) && expansionMenu.expansion?.url === expansion.url}
                   getRepoUpdates={expansion => repoUpdatesByExpansion[expansion.url]}

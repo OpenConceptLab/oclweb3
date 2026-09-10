@@ -39,7 +39,9 @@ export const getStageStatus = state => {
   return STAGE_STATUS.PENDING;
 };
 
-export const isVersionProcessing = version => Boolean(version?.is_processing);
+export const isProcessing = entity => Boolean(entity?.is_processing);
+
+export const isVersionProcessing = isProcessing;
 
 export const getProcessingStages = version => {
   const states = get(version, 'states') || {};

@@ -52,7 +52,7 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
           ...bodyCellStyle
         }, (checkbox ? {} : {borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px'})]} onClick={isDisabled ? undefined : () => onVersionChange(version)}>
           {version.id}
-          <ProcessingFlag version={version} showLabel={false} sx={{ ml: 1 }} />
+          <ProcessingFlag entity={version} showLabel={false} sx={{ ml: 1 }} />
           {
             version?.match_algorithms?.includes('llm') &&
               <Tooltip title={t('repo.version.vectorized_for_mapper')}>

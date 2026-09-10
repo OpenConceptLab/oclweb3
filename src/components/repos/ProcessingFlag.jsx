@@ -7,17 +7,17 @@ import {
 } from '@mui/icons-material';
 
 import ProcessingStagesPopover from './ProcessingStagesPopover';
-import { getProcessingProgress, hasProcessingStages, isVersionProcessing } from './processingStages';
+import { getProcessingProgress, hasProcessingStages, isProcessing as isEntityProcessing } from './processingStages';
 
 // Sits next to the version id wherever a version is named; opens the stage breakdown.
-const ProcessingFlag = ({ version, size = 'small', sx, showLabel = true, onClick }) => {
+const ProcessingFlag = ({ entity, processing, size = 'small', sx, showLabel = true, onClick }) => {
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
-  if(!isVersionProcessing(version)) return null;
+  if(!(processing ?? isEntityProcessing(entity))) return null;
 
-  const { completed, total, hasFailure } = getProcessingProgress(version);
-  const hasDetail = hasProcessingStages(version);
+  const { completed, total, hasFailure } = getProcessingProgress(entity);
+  const hasDetail = hasProcessingStages(entity);
 
   const openPopover = event => {
     event.stopPropagation();
@@ -46,7 +46,7 @@ const ProcessingFlag = ({ version, size = 'small', sx, showLabel = true, onClick
         />
       </Tooltip>
       <ProcessingStagesPopover
-        version={version}
+        version={entity}
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={() => setAnchorEl(null)}
