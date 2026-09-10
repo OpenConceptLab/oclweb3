@@ -25,7 +25,7 @@ import get from 'lodash/get'
 
 import APIService from '../../services/APIService'
 import { WHITE, BLACK } from '../../common/colors'
-import { SOURCE_TYPES, COLLECTION_TYPES } from '../../common/constants'
+import { SOURCE_TYPES, COLLECTION_TYPES, AUTO_ID_FIELDS } from '../../common/constants'
 import { fetchRepoFromURL } from '../../common/utils'
 import { fetchLocales } from '../concepts/utils'
 import Button from '../common/Button'
@@ -40,6 +40,7 @@ import RepoCreateLanguages from './RepoCreateLanguages'
 import RepoCreateAdditionalMetadata from './RepoCreateAdditionalMetadata'
 import RepoCreatePublisher from './RepoCreatePublisher'
 import RepoCreateHierarchy from './RepoCreateHierarchy'
+import RepoCreateIDAutoAssignment from './RepoCreateIDAutoAssignment'
 import { parseRepoURL } from './utils'
 
 const TabPanel = props => {
@@ -113,6 +114,7 @@ const RepoCreate = () => {
         ]
       },
       hierarchy: true,
+      autoAssignIDs: true,
       types: orderBy(map(SOURCE_TYPES, t => ({id: t, name: t})), 'name')
     },
     {
@@ -230,7 +232,8 @@ const RepoCreate = () => {
 
   const getNullableFields = () => [
     ...JSON_FIELDS,
-    ...(selectedTab?.hierarchy ? ['hierarchyRootURL', 'hierarchyMeaning'] : [])
+    ...(selectedTab?.hierarchy ? ['hierarchyRootURL', 'hierarchyMeaning'] : []),
+    ...(selectedTab?.autoAssignIDs ? AUTO_ID_FIELDS : [])
   ]
 
   const onSubmit = () => {
@@ -299,7 +302,7 @@ const RepoCreate = () => {
   const setModelForEdit = data => {
     data = data || repo
     setValidationErrors({})
-    setModel({id: data.id, fullName: data.full_name, name: data.name, canonicalURL: data.canonical_url, description: data.description, defaultLocale: valueToId(data.default_locale), supportedLocales: data.supported_locales?.map ? data.supported_locales.map(valueToId) : data.supported_locales, type: data?.source_type || data?.collection_type, publicAccess: data.public_access, publisher: data.publisher, purpose: data.purpose, revisionDate: data.revision_date, customValidationSchema: data.custom_validation_schema, externalID: data.external_id, jurisdiction: jsonToString(data.jurisdiction), copyright: data.copyright, identifier: jsonToString(data.identifier), contact: jsonToString(data.contact), contentType: data.content_type, meta: jsonToString(data.meta), hierarchyRootURL: isEdit ? (data.hierarchy_root_url || '') : '', hierarchyMeaning: data.hierarchy_meaning || '', experimental: data.experimental, caseSensitive: data.case_sensitive, compositional: data.compositional, versionNeeded: data.version_needed, text: data.text, extras: apiExtrasToExtras(data.extras), website: data.website, autoexpandHEAD: data.autoexpand_head})
+    setModel({id: data.id, fullName: data.full_name, name: data.name, canonicalURL: data.canonical_url, description: data.description, defaultLocale: valueToId(data.default_locale), supportedLocales: data.supported_locales?.map ? data.supported_locales.map(valueToId) : data.supported_locales, type: data?.source_type || data?.collection_type, publicAccess: data.public_access, publisher: data.publisher, purpose: data.purpose, revisionDate: data.revision_date, customValidationSchema: data.custom_validation_schema, externalID: data.external_id, jurisdiction: jsonToString(data.jurisdiction), copyright: data.copyright, identifier: jsonToString(data.identifier), contact: jsonToString(data.contact), contentType: data.content_type, meta: jsonToString(data.meta), hierarchyRootURL: isEdit ? (data.hierarchy_root_url || '') : '', hierarchyMeaning: data.hierarchy_meaning || '', experimental: data.experimental, caseSensitive: data.case_sensitive, compositional: data.compositional, versionNeeded: data.version_needed, text: data.text, extras: apiExtrasToExtras(data.extras), website: data.website, autoexpandHEAD: data.autoexpand_head, autoidConceptMnemonic: data.autoid_concept_mnemonic, autoidConceptMnemonicStartFrom: data.autoid_concept_mnemonic_start_from, autoidConceptExternalID: data.autoid_concept_external_id, autoidConceptExternalIDStartFrom: data.autoid_concept_external_id_start_from, autoidConceptNameExternalID: data.autoid_concept_name_external_id, autoidConceptDescriptionExternalID: data.autoid_concept_description_external_id, autoidMappingMnemonic: data.autoid_mapping_mnemonic, autoidMappingMnemonicStartFrom: data.autoid_mapping_mnemonic_start_from, autoidMappingExternalID: data.autoid_mapping_external_id, autoidMappingExternalIDStartFrom: data.autoid_mapping_external_id_start_from})
   }
 
   React.useEffect(() => {
@@ -527,6 +530,12 @@ const RepoCreate = () => {
               selectedTab.hierarchy &&
                 <FormSection sx={{marginTop: '16px'}}>
                   <RepoCreateHierarchy sourceURL={isEdit ? repo?.url : ''} onChange={onChange} hierarchyRootURL={model.hierarchyRootURL} hierarchyMeaning={model.hierarchyMeaning} />
+                </FormSection>
+            }
+            {
+              selectedTab.autoAssignIDs &&
+                <FormSection sx={{marginTop: '16px'}}>
+                  <RepoCreateIDAutoAssignment onChange={onChange} {...model} />
                 </FormSection>
             }
             <FormSection sx={{marginTop: '16px'}}>

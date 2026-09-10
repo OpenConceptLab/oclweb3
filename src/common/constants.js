@@ -33,6 +33,17 @@ export const HIERARCHY_MEANINGS = [
 ];
 /*eslint no-useless-escape: 0*/
 export const SOURCE_CHILD_URI_REGEX = /\/(orgs|users)\/([a-zA-Z0-9\-\.\_\@]+)\/(sources|collections)\/([a-zA-Z0-9\-\.\_\@]+)\/(concepts|mappings)\/([a-zA-Z0-9\-\.\_\@]+)?\/?([a-zA-Z0-9\-\.\_\@]+)?\/?/;
+export const AUTO_ID_NONE = 'None';
+export const AUTO_ID_SEQUENTIAL = 'sequential';
+export const AUTO_ID_UUID = 'uuid';
+export const AUTO_ID_FIELDS = [
+  'autoidConceptMnemonic',
+  'autoidConceptExternalID',
+  'autoidConceptNameExternalID',
+  'autoidConceptDescriptionExternalID',
+  'autoidMappingMnemonic',
+  'autoidMappingExternalID',
+];
 export const OCL_CLIENT = 'oclweb3/3.0.0-alpha';
 export const OCL_CLIENT_HEADERS = {
   'X-OCL-CLIENT': OCL_CLIENT,
