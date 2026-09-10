@@ -67,6 +67,16 @@ const NamespaceDropdown = ({onChange, label, id, owner, backgroundColor, asOwner
     searched: searched
   })
 
+  // an owner outside the current user's own namespaces (e.g. a repo you administer but don't own) has no option of its own
+  const toURLOption = url => {
+    const [, type, id] = (url || '').match(/^\/(users|orgs)\/([^/]+)\/?$/) || []
+    if(!id)
+      return false
+    return type === 'users' ?
+      {url: url, id: id, type: 'User', name: id, icon: <UserIcon authenticated user={{username: id, url: url}} logoClassName='user-img-xsmall' />, group: ''} :
+      {url: url, id: id, type: 'Organization', name: id, icon: <OrgIcon noLink strict logoClassName='user-img-xsmall' org={{id: id, url: url}} />, group: ''}
+  }
+
   const searchOrgs = React.useMemo(
     () => debounce(searchStr => {
       APIService.orgs().get(null, null, {q: searchStr, limit: 25}).then(response => {
@@ -101,12 +111,17 @@ const NamespaceDropdown = ({onChange, label, id, owner, backgroundColor, asOwner
 
   // "My Organizations" (and the user/global entries) always win over a search hit for the same namespace
   const options = React.useMemo(() => {
+    let pinned = selectedSearchedOrg ? [...ownerOptions, selectedSearchedOrg] : ownerOptions
+    if(owner && !map(pinned, 'url').includes(owner)) {
+      const ownerOption = toURLOption(owner)
+      if(ownerOption)
+        pinned = [...pinned, ownerOption]
+    }
     if(!forURLRegistry)
-      return ownerOptions
-    const pinned = selectedSearchedOrg ? [...ownerOptions, selectedSearchedOrg] : ownerOptions
+      return pinned
     const pinnedURLs = map(pinned, 'url')
     return [...pinned, ...map(reject(searchedOrgs, org => pinnedURLs.includes(org.url)), org => toOrgOption(org, true))]
-  }, [ownerOptions, searchedOrgs, selectedSearchedOrg, forURLRegistry])
+  }, [ownerOptions, searchedOrgs, selectedSearchedOrg, forURLRegistry, owner])
 
   const filterOptions = (options, { inputValue }) => inputValue ? filter(options, option => option.searched || option.id?.toLowerCase()?.includes(inputValue.toLowerCase()) || option.name?.toLowerCase()?.includes(inputValue.toLowerCase())) : options;
   const selectedOption = options.find(value => value?.url === owner) || ''
