@@ -4,8 +4,13 @@ import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import Tooltip from '@mui/material/Tooltip';
 import CheckIcon from '@mui/icons-material/Check';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
+import SyncIcon from '@mui/icons-material/Sync';
+
+import ProcessingFlag from './ProcessingFlag';
+import { isProcessing } from './processingStages';
 
 const ExpansionDropDown = ({ expansions = [], loading = false, selectedExpansion, onChange }) => {
   const { t } = useTranslation();
@@ -24,6 +29,13 @@ const ExpansionDropDown = ({ expansions = [], loading = false, selectedExpansion
         size='small'
         color='default'
         onClick={event => setAnchorEl(event.currentTarget)}
+        startIcon={
+          isProcessing(selectedExpansion) ? (
+            <Tooltip title={t('common.processing')}>
+              <SyncIcon fontSize='small' color='warning' sx={{ animation: 'ocl-spin 1.6s linear infinite' }} />
+            </Tooltip>
+          ) : undefined
+        }
         endIcon={
           loading ? <CircularProgress size={14} color='inherit' /> : <DownIcon fontSize='small' />
         }
@@ -54,6 +66,7 @@ const ExpansionDropDown = ({ expansions = [], loading = false, selectedExpansion
             >
               {isSelected ? <CheckIcon fontSize='small' sx={{ mr: 1 }} /> : <span style={{ width: 20, display: 'inline-block' }} />}
               {expansion.mnemonic || expansion.id}
+              <ProcessingFlag entity={expansion} sx={{ ml: 1, pointerEvents: 'none' }} />
             </MenuItem>
           );
         })}

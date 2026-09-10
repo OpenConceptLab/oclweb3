@@ -21,14 +21,14 @@ const LocaleForm = ({index, locales, idPrefix, localeType, field, localeTypes, o
 
   return (
     <div className='col-xs-12 padding-0' key={index}>
-      <div className='col-xs-12' style={{marginTop: '24px', padding: 0}}>
-        <div className='col-xs-10 padding-0'>
+      <div className='col-xs-12' style={{marginTop: '24px', padding: 0, display: 'flex', alignItems: 'center', gap: '8px'}}>
+        <div className='col-xs-10 padding-0' style={{display: 'flex', alignItems: 'flex-start', gap: '8px'}}>
           <DropDownChip
             id={`${idPrefix}.locale`}
             label={t('concept.form.locale')}
             options={locales?.map(locale => locale.id)}
             onChange={value => onChange(`${idPrefix}.locale`, value || '')}
-            sx={{marginRight: '8px'}}
+            sx={{flexShrink: 0, maxWidth: '25%'}}
             defaultValue={field.locale.value}
             required
           />
@@ -40,7 +40,7 @@ const LocaleForm = ({index, locales, idPrefix, localeType, field, localeTypes, o
             size='small'
             onChange={event => onChange(event.target.id, event.target.value || '')}
             value={get(field, `${localeType}.value`)}
-            sx={{'.MuiInputBase-root': {paddingLeft: 0}, width: '50%'}}
+            sx={{'.MuiInputBase-root': {paddingLeft: 0}, flex: 1, minWidth: '120px'}}
             error={Boolean(get(field, `${localeType}.errors.length`))}
             helperText={get(field, `${localeType}.errors.0`)}
           />
@@ -49,7 +49,7 @@ const LocaleForm = ({index, locales, idPrefix, localeType, field, localeTypes, o
             id={`${idPrefix}.${localeType}_type`}
             options={localeTypes?.map(type => type.id)}
             onChange={value => onChange(`${idPrefix}.${localeType}_type`, value || '')}
-            sx={{marginLeft: '8px'}}
+            sx={{flexShrink: 0, maxWidth: '35%'}}
             defaultValue={get(field, `${localeType}_type.value`)}
             label={t('concept.form.type')}
             required
@@ -59,7 +59,7 @@ const LocaleForm = ({index, locales, idPrefix, localeType, field, localeTypes, o
         </div>
         <div className='col-xs-2 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
         <FormControlLabel
-          sx={{ml: 1, '.MuiFormControlLabel-label': {fontSize: '12px'}}}
+          sx={{ml: 1, mr: 0.5, '.MuiFormControlLabel-label': {fontSize: '12px'}}}
           labelPlacement="top"
           id={`${idPrefix}.locale_preferred`}
           control={
@@ -75,7 +75,7 @@ const LocaleForm = ({index, locales, idPrefix, localeType, field, localeTypes, o
           onChange={event => onChange(event.target.id, event.target.checked || false)}
           checked={Boolean(field.locale_preferred.value)}
         />
-          <IconButton sx={{marginLeft: '4px'}} color={showExternalID ? 'primary' : 'secondary'} onClick={() => setShowExternalID(field.external_id.value ? true : !showExternalID)}>
+          <IconButton sx={{marginLeft: 0}} color={showExternalID ? 'primary' : 'secondary'} onClick={() => setShowExternalID(field.external_id.value ? true : !showExternalID)}>
             <ExternalIdIcon fontSize='inherit' />
     </IconButton>
         </div>

@@ -6,7 +6,7 @@ import Skeleton from '@mui/material/Skeleton'
 const CardResults = ({bgColor, handleClick, handleRowClick, results, resource, isSelected, isItemShown, className, isSplitView, style, loading}) => {
   const rows = results?.results || []
   return (
-    <div className={'col-xs-12 padding-0 ' + (className || '')} style={style || {height: 'calc(100vh - 275px)', overflowX: 'auto'}}>
+    <div className={'col-xs-12 ' + (className || '')} style={style || {height: 'calc(100vh - 275px)', overflowX: 'auto'}}>
       {
         resource === 'concepts' && (
           loading ?

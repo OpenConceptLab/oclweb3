@@ -3,24 +3,47 @@ import { useTranslation } from 'react-i18next';
 import has from 'lodash/has';
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton';
+import Fade from '@mui/material/Fade';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import AddIcon from '@mui/icons-material/PlaylistAddOutlined';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import CloseIconButton from '../common/CloseIconButton';
-import { toOwnerURI, toFullURL, currentUserHasAccess } from '../../common/utils';
+import { toOwnerURI, toFullURL, currentUserHasAccess, isLoggedIn, latestResolvedRepoVersion } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
 import { BLACK } from '../../common/colors'
 import ConceptManagementList from './ConceptManagementList'
 import AddToCollectionDialog from '../common/AddToCollectionDialog'
+import CloneToSourceDialog from '../repos/CloneToSourceDialog'
 import Retired from '../common/Retired'
 
-const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCreateSimilar, nested, loading, isInCollection}) => {
+const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCreateSimilar, nested, loading, isInCollection, detailsLoaded}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
   const [addToCollectionOpen, setAddToCollectionOpen] = React.useState(false)
+  const [cloneToSourceOpen, setCloneToSourceOpen] = React.useState(false)
+  const hasAccess = currentUserHasAccess()
+  const isSource = has(repo, 'source_type')
+  const canClone = isLoggedIn() && isSource
+  const canManage = hasAccess && repo?.version === 'HEAD' && isSource
+  const getRepoVersion = () => {
+    if(!isInCollection)
+      return concept.latest_source_version
+    if(!detailsLoaded)
+      return (
+        <Fade in style={{transitionDelay: '500ms'}}>
+          <Skeleton variant='text' sx={{width: '100px'}} />
+        </Fade>
+      )
+    const version = latestResolvedRepoVersion(concept)?.version
+    return version === 'HEAD' ? undefined : version
+  }
+  const conceptSourceURL = (repoURL && concept?.id) ? `${repoURL}concepts/${encodeURIComponent(concept.id)}/` : concept?.url
+
   const onMenuOpen = event => {
     setMenuAnchorEl(event.currentTarget)
     setMenu(true)
@@ -38,6 +61,9 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
     if(option === 'retireConcept') {
       onRetire()
     }
+    if(option === 'cloneToSource') {
+      setCloneToSourceOpen(true)
+    }
   }
 
   return (
@@ -52,30 +78,30 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
               owner={concept.owner}
               ownerType={concept.owner_type}
               repo={concept.source}
-              repoVersion={concept.latest_source_version}
+              repoVersion={getRepoVersion()}
               repoType={concept.source?.type}
               version={concept.version}
               repoURL={repoURL}
               concept={concept}
-              nested={nested}
-              trailing={nested && isInCollection && concept?.url && (
-                <Button
-                  endIcon={<OpenInNewIcon fontSize='inherit' />}
-                  variant='text'
-                  size='small'
-                  color='primary'
-                  sx={{textTransform: 'none', whiteSpace: 'nowrap'}}
-                  href={`#/${concept.url}`}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  onClick={event => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    window.open(toFullURL(concept.url), '_blank', 'noopener,noreferrer')
-                  }}
-                >
-                  {t('common.go_to_source')}
-                </Button>
+              nested={nested && !isInCollection}
+              trailing={nested && isInCollection && conceptSourceURL && (
+                <Tooltip title={t('concept.view_in_source')}>
+                  <IconButton
+                    size='small'
+                    color='primary'
+                    disabled={!detailsLoaded}
+                    href={detailsLoaded ? `#${conceptSourceURL}` : undefined}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    onClick={event => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      window.open(toFullURL(conceptSourceURL), '_blank', 'noopener,noreferrer')
+                    }}
+                  >
+                    <OpenInNewIcon fontSize='inherit' />
+                  </IconButton>
+                </Tooltip>
               )}
             />
           }
@@ -102,7 +128,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
       !loading &&
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
-          {currentUserHasAccess() && (
+          {hasAccess && (
             <Button
               startIcon={<AddIcon fontSize='inherit' />}
               variant='text'
@@ -114,7 +140,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
               Add to Collection
             </Button>
           )}
-          {currentUserHasAccess() && has(repo, 'source_type') && (
+          {hasAccess && isSource && (
             <Button
               startIcon={<RepeatIcon fontSize='inherit' />}
               variant='text'
@@ -127,12 +153,12 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
             </Button>
           )}
         </span>
-        {currentUserHasAccess() && repo?.version === 'HEAD' && has(repo, 'source_type') && (
+        {(canManage || canClone) && (
             <span>
               <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='concept-actions'>
                 {t('common.actions')}
               </Button>
-              <ConceptManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='concept-actions' onClick={onManageOptionClick} concept={concept} />
+              <ConceptManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='concept-actions' onClick={onManageOptionClick} concept={concept} hasAccess={canManage} canClone={canClone} />
             </span>
           )}
       </div>
@@ -140,6 +166,11 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
       <AddToCollectionDialog
         open={addToCollectionOpen}
         onClose={() => setAddToCollectionOpen(false)}
+        concept={concept}
+      />
+      <CloneToSourceDialog
+        open={cloneToSourceOpen}
+        onClose={() => setCloneToSourceOpen(false)}
         concept={concept}
       />
     </React.Fragment>

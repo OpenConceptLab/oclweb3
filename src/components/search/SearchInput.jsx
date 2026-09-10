@@ -126,6 +126,8 @@ const SearchInput = props => {
       // A facet filter (Class/Map Type) from a prior Searchlight search is unrelated to
       // this new query - drop it so it doesn't silently carry over.
       queryParams.delete('filters')
+      // A new search term means a different result set -- start over from the first page.
+      queryParams.delete('page')
       if(isMatch)
         queryParams.set('$match', true)
       else

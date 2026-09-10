@@ -4,8 +4,9 @@ import { Menu, ListItem, ListItemButton, ListItemText, ListItemIcon, Divider} fr
 import EditIcon from '@mui/icons-material/Edit';
 import RetireIcon from '@mui/icons-material/Delete';
 import UnretireIcon from '@mui/icons-material/RestoreFromTrash';
+import CloneIcon from '@mui/icons-material/ControlPointDuplicate';
 
-const ConceptManagementList = ({ anchorEl, open, onClose, id, onClick, concept }) => {
+const ConceptManagementList = ({ anchorEl, open, onClose, id, onClick, concept, hasAccess, canClone }) => {
   const { t } = useTranslation()
   return (
     <Menu
@@ -20,23 +21,38 @@ const ConceptManagementList = ({ anchorEl, open, onClose, id, onClick, concept }
       }}
       sx={{'.MuiMenu-list': {padding: 0, minWidth: '200px'}}}
     >
-      <ListItem disablePadding>
-        <ListItemButton id='editConcept' onClick={() => onClick('editConcept')} sx={{padding: '8px 12px'}}>
-          <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
-            <EditIcon />
-          </ListItemIcon>
-          <ListItemText primary={t('concept.edit_concept')} />
-        </ListItemButton>
-      </ListItem>
-      <Divider />
-      <ListItem disablePadding>
-        <ListItemButton id='retireConcept' onClick={() => onClick('retireConcept')} sx={{padding: '8px 12px', color: 'error.main'}}>
-          <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px', color: 'error.main'}}>
-    {concept?.retired ? <UnretireIcon /> : <RetireIcon />}
-          </ListItemIcon>
-          <ListItemText primary={concept?.retired ? t('common.unretire') : t('common.retire')} />
-        </ListItemButton>
-      </ListItem>
+      {hasAccess && [
+        <ListItem disablePadding key='editConcept'>
+          <ListItemButton id='editConcept' onClick={() => onClick('editConcept')} sx={{padding: '8px 12px'}}>
+            <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+              <EditIcon />
+            </ListItemIcon>
+            <ListItemText primary={t('concept.edit_concept')} />
+          </ListItemButton>
+        </ListItem>,
+        <Divider key='editConceptDivider' />
+      ]}
+      {canClone && [
+        <ListItem disablePadding key='cloneToSource'>
+          <ListItemButton id='cloneToSource' onClick={() => onClick('cloneToSource')} sx={{padding: '8px 12px'}}>
+            <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+              <CloneIcon />
+            </ListItemIcon>
+            <ListItemText primary={t('cloneToSource.clone_to_source')} />
+          </ListItemButton>
+        </ListItem>,
+        hasAccess ? <Divider key='cloneToSourceDivider' /> : null
+      ]}
+      {hasAccess && (
+        <ListItem disablePadding>
+          <ListItemButton id='retireConcept' onClick={() => onClick('retireConcept')} sx={{padding: '8px 12px', color: 'error.main'}}>
+            <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px', color: 'error.main'}}>
+              {concept?.retired ? <UnretireIcon /> : <RetireIcon />}
+            </ListItemIcon>
+            <ListItemText primary={concept?.retired ? t('common.unretire') : t('common.retire')} />
+          </ListItemButton>
+        </ListItem>
+      )}
     </Menu>
   )
 }

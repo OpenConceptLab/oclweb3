@@ -5,7 +5,7 @@ import { useLocation, useHistory } from 'react-router-dom'
 import Fade from '@mui/material/Fade';
 
 import APIService from '../../services/APIService';
-import { toParentURI, dropVersion, isSameResourceNavigation, getResourceIdFromUrl } from '../../common/utils'
+import { toParentURI, dropVersion, isSameResourceNavigation, getResourceIdFromUrl, latestResolvedRepoVersion } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
@@ -34,6 +34,7 @@ const MappingHome = props => {
   const [edit, setEdit] = React.useState(false)
   const [createSimilar, setCreateSimilar] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
+  const [detailsLoaded, setDetailsLoaded] = React.useState(false)
 
   const [retireDialog, setRetireDialog] = React.useState(false)
   const [removeFromCollectionDialog, setRemoveFromCollectionDialog] = React.useState(false)
@@ -57,12 +58,14 @@ const MappingHome = props => {
     prevMappingSelectionRef.current = {id: props.mapping?.id, url: props.url}
 
     setLoading(true)
+    setDetailsLoaded(false)
     setMapping(props.mapping || {})
     setVersions([])
-    const queryParams = isInCollection ? { includeReferences: true } : {}
+    const queryParams = isInCollection ? { includeReferences: true, includeResolvedRepoVersions: true } : {}
     getService().get(null, null, queryParams).then(response => {
       const resource = response.data
       setMapping(resource)
+      setDetailsLoaded(true)
       props.repo?.id ? setRepo(props.repo) : fetchRepo(resource)
       if(tab === 'history')
         fetchVersions(resource?.url)
@@ -75,7 +78,7 @@ const MappingHome = props => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
     } else if (!isSameResourceNavigation(prevLocationRef.current, location)) {
-      props?.onClose()
+      props?.onClose({navigated: true})
     }
     prevLocationRef.current = {pathname: location.pathname, search: location.search}
   }, [location])
@@ -83,6 +86,9 @@ const MappingHome = props => {
   const fetchRepo = _mapping => props?.repo?.id ? setRepo(props.repo) : APIService.new().overrideURL(getRepoURL(_mapping)).get().then(response => setRepo(response.data))
 
   const getRepoURL = _mapping => {
+    if(isInCollection)
+      return latestResolvedRepoVersion(mapping)?.version_url ||
+             toParentURI((props.mapping?.id ? props.mapping : mapping)?.url || '')
     if(props?.repo?.id)
       return props?.repo?.version_url || props?.repo?.url
     let url = toParentURI(_mapping?.version_url || _mapping?.url || props?.url || '')
@@ -92,10 +98,14 @@ const MappingHome = props => {
     return url
   }
 
+  const getFetchParentURL = () => isInCollection ?
+                                (props.expansionURL || props.repo?.version_url || props.repo?.url || '') :
+                                getRepoURL()
+
   const getService = () => {
     let _mapping = props.mapping?.id ? props.mapping : mapping
     let url = _mapping?.version_url || _mapping.url || props.url
-    const parentURL = getRepoURL()
+    const parentURL = getFetchParentURL()
     const mappingId = getActiveMappingId()
     if(parentURL && mappingId)
       url = `${parentURL}mappings/${encodeURIComponent(mappingId)}/`
@@ -206,7 +216,7 @@ const MappingHome = props => {
       <Fade in={!edit && !createSimilar}>
         <div className='col-xs-12' style={{padding: '8px 16px 12px 16px'}}>
           <div className='col-xs-12 padding-0' style={{marginBottom: '12px'}}>
-            <MappingHeader mapping={mapping} onClose={props.onClose} repoURL={getRepoURL()} repo={repo} nested={props.nested} onEdit={() => setEdit(true)} onCreateSimilar={() => setCreateSimilar(true)} onRetire={() => setRetireDialog(true)} isInCollection={isInCollection} onRemoveFromCollection={() => setRemoveFromCollectionDialog(true)} />
+            <MappingHeader mapping={mapping} detailsLoaded={detailsLoaded} onClose={props.onClose} repoURL={getRepoURL()} repo={repo} nested={props.nested} onEdit={() => setEdit(true)} onCreateSimilar={() => setCreateSimilar(true)} onRetire={() => setRetireDialog(true)} isInCollection={isInCollection} onRemoveFromCollection={() => setRemoveFromCollectionDialog(true)} />
           </div>
           <MappingTabs tab={tab} onTabChange={(event, newTab) => onTabChange(newTab)} />
           {

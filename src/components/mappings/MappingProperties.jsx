@@ -6,6 +6,7 @@ import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
 import Chip from '@mui/material/Chip';
 import map from 'lodash/map'
+import isNumber from 'lodash/isNumber'
 import ExternalIdLabel from '../common/ExternalIdLabel'
 
 const MappingProperties = ({ mapping }) => {
@@ -36,7 +37,7 @@ const MappingProperties = ({ mapping }) => {
             </TableRow>
         }
         {
-          mapping?.sort_weight &&
+          isNumber(mapping?.sort_weight) &&
             <TableRow>
               <TableCell style={{fontSize: '0.875rem', width: '170px'}}>
                 {t('mapping.sort_weight')}

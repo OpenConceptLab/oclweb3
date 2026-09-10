@@ -13,11 +13,10 @@ import TextField from '@mui/material/TextField'
 import orderBy from 'lodash/orderBy'
 import map from 'lodash/map'
 import fromPairs from 'lodash/fromPairs'
-import isObject from 'lodash/isObject'
-import isEmpty from 'lodash/isEmpty'
 import forEach from 'lodash/forEach'
 import snakeCase from 'lodash/snakeCase'
 import compact from 'lodash/compact'
+import reject from 'lodash/reject'
 import flatten from 'lodash/flatten'
 import values from 'lodash/values'
 import isArray from 'lodash/isArray'
@@ -26,12 +25,13 @@ import get from 'lodash/get'
 
 import APIService from '../../services/APIService'
 import { WHITE, BLACK } from '../../common/colors'
-import { SOURCE_TYPES, COLLECTION_TYPES } from '../../common/constants'
-import { URIToParentParams } from '../../common/utils'
+import { SOURCE_TYPES, COLLECTION_TYPES, AUTO_ID_FIELDS } from '../../common/constants'
+import { fetchRepoFromURL } from '../../common/utils'
 import { fetchLocales } from '../concepts/utils'
 import Button from '../common/Button'
 import RTEditor from '../common/RTEditor'
 import CustomAttributesForm from '../common/CustomAttributesForm'
+import { jsonToString, stringToJSON, isValidJSONString } from '../common/JSONTextField'
 import { OperationsContext } from '../app/LayoutContext';
 
 import RepoCreateFormHeader from './RepoCreateFormHeader'
@@ -39,6 +39,9 @@ import RepoCreateNameDescription from './RepoCreateNameDescription'
 import RepoCreateLanguages from './RepoCreateLanguages'
 import RepoCreateAdditionalMetadata from './RepoCreateAdditionalMetadata'
 import RepoCreatePublisher from './RepoCreatePublisher'
+import RepoCreateHierarchy from './RepoCreateHierarchy'
+import RepoCreateIDAutoAssignment from './RepoCreateIDAutoAssignment'
+import { parseRepoURL } from './utils'
 
 const TabPanel = props => {
   const { children, value, index, ...other } = props;
@@ -68,6 +71,8 @@ const FormSection = ({children, sx}) => (
   </Box>
 )
 
+const JSON_FIELDS = ['jurisdiction', 'identifier', 'contact', 'meta']
+
 const RepoCreate = () => {
   const { t } = useTranslation()
   const history = useHistory()
@@ -84,6 +89,9 @@ const RepoCreate = () => {
   const [fromOCLURL, setFromOCLURL] = React.useState('')
   const [fromOCLURLError, setFromOCLURLError] = React.useState(false)
   const [isFetchingFromOCLURL, setIsFetchingFromOCLURL] = React.useState(false)
+  const copyFromParam = new URLSearchParams(location.search).get('copyFrom')
+  const copyFromApplied = React.useRef(false)
+  const fromOCLURLParsed = React.useMemo(() => parseRepoURL(fromOCLURL), [fromOCLURL])
   const [validationErrors, setValidationErrors] = React.useState({})
   const isEdit = Boolean(params.repo)
   const canonicalURLEdited = React.useRef(false)
@@ -105,6 +113,8 @@ const RepoCreate = () => {
           {'id': 'versionNeeded', required: true, label: t('repo.version_needed'), type: 'boolean'},
         ]
       },
+      hierarchy: true,
+      autoAssignIDs: true,
       types: orderBy(map(SOURCE_TYPES, t => ({id: t, name: t})), 'name')
     },
     {
@@ -198,11 +208,9 @@ const RepoCreate = () => {
 
   const apiExtrasToExtras = extras => isArray(extras) ? extras : map(extras, (value, key) => ({ key, value }))
 
-  const objToValue = val => isObject(val) && !isEmpty(val) ? JSON.stringify(val) : ''
-
   const isBlank = value => value === undefined || value === null || value === '' || (typeof value === 'string' && !value.trim()) || (isArray(value) && !value.length)
 
-  const validateRequiredFields = () => {
+  const validateFields = () => {
     const errors = {}
     const requiredFields = [
       ...(!isEdit ? ['id'] : []),
@@ -214,17 +222,31 @@ const RepoCreate = () => {
       if(isBlank(model[field]))
         errors[field] = t('errors.mandatory_field')
     })
+    JSON_FIELDS.forEach(field => {
+      if(!isValidJSONString(model[field]))
+        errors[field] = t('errors.invalid_json')
+    })
     setValidationErrors(errors)
-    return !Object.keys(errors).length
+    return errors
   }
 
+  const getNullableFields = () => [
+    ...JSON_FIELDS,
+    ...(selectedTab?.hierarchy ? ['hierarchyRootURL', 'hierarchyMeaning'] : []),
+    ...(selectedTab?.autoAssignIDs ? AUTO_ID_FIELDS : [])
+  ]
+
   const onSubmit = () => {
-    if(!validateRequiredFields()) {
-      setAlert({duration: 5000, message: t('errors.mandatory_field'), severity: 'error'})
+    const errors = validateFields()
+    if(Object.keys(errors).length) {
+      const hasInvalidJSON = JSON_FIELDS.some(field => errors[field])
+      setAlert({duration: 5000, message: hasInvalidJSON ? t('errors.invalid_json') : t('errors.mandatory_field'), severity: 'error'})
       return
     }
     const payload = {}
+    const nullableFields = getNullableFields()
     forEach(model, (value, field) => {
+      const modelField = field
       if('externalID' === field)
         field = 'external_id'
       else if('extras' === field)
@@ -235,8 +257,12 @@ const RepoCreate = () => {
         field = selectedTab?.id + '_type'
       else
         field = snakeCase(field)
+      if(JSON_FIELDS.includes(modelField))
+        value = stringToJSON(value)
       if(value)
         payload[field] = [true, false].includes(value) ? value : value || null
+      else if(nullableFields.includes(modelField))
+        payload[field] = null
     })
     let service = getService()
     service = isEdit ? service.put(payload) : service.post(payload)
@@ -276,7 +302,7 @@ const RepoCreate = () => {
   const setModelForEdit = data => {
     data = data || repo
     setValidationErrors({})
-    setModel({id: data.id, fullName: data.full_name, name: data.name, canonicalURL: data.canonical_url, description: data.description, defaultLocale: valueToId(data.default_locale), supportedLocales: data.supported_locales?.map ? data.supported_locales.map(valueToId) : data.supported_locales, type: data?.source_type || data?.collection_type, publicAccess: data.public_access, publisher: data.publisher, purpose: data.purpose, revisionDate: data.revision_date, customValidationSchema: data.custom_validation_schema, externalID: data.external_id, jurisdiction: objToValue(data.jurisdiction), copyright: data.copyright, identifier: objToValue(data.identifier), contact: objToValue(data.contact), contentType: data.content_type, meta: data.meta, experimental: data.experimental, caseSensitive: data.case_sensitive, compositional: data.compositional, versionNeeded: data.version_needed, text: data.text, extras: apiExtrasToExtras(data.extras), website: data.website, autoexpandHEAD: data.autoexpand_head})
+    setModel({id: data.id, fullName: data.full_name, name: data.name, canonicalURL: data.canonical_url, description: data.description, defaultLocale: valueToId(data.default_locale), supportedLocales: data.supported_locales?.map ? data.supported_locales.map(valueToId) : data.supported_locales, type: data?.source_type || data?.collection_type, publicAccess: data.public_access, publisher: data.publisher, purpose: data.purpose, revisionDate: data.revision_date, customValidationSchema: data.custom_validation_schema, externalID: data.external_id, jurisdiction: jsonToString(data.jurisdiction), copyright: data.copyright, identifier: jsonToString(data.identifier), contact: jsonToString(data.contact), contentType: data.content_type, meta: jsonToString(data.meta), hierarchyRootURL: isEdit ? (data.hierarchy_root_url || '') : '', hierarchyMeaning: data.hierarchy_meaning || '', experimental: data.experimental, caseSensitive: data.case_sensitive, compositional: data.compositional, versionNeeded: data.version_needed, text: data.text, extras: apiExtrasToExtras(data.extras), website: data.website, autoexpandHEAD: data.autoexpand_head, autoidConceptMnemonic: data.autoid_concept_mnemonic, autoidConceptMnemonicStartFrom: data.autoid_concept_mnemonic_start_from, autoidConceptExternalID: data.autoid_concept_external_id, autoidConceptExternalIDStartFrom: data.autoid_concept_external_id_start_from, autoidConceptNameExternalID: data.autoid_concept_name_external_id, autoidConceptDescriptionExternalID: data.autoid_concept_description_external_id, autoidMappingMnemonic: data.autoid_mapping_mnemonic, autoidMappingMnemonicStartFrom: data.autoid_mapping_mnemonic_start_from, autoidMappingExternalID: data.autoid_mapping_external_id, autoidMappingExternalIDStartFrom: data.autoid_mapping_external_id_start_from})
   }
 
   React.useEffect(() => {
@@ -318,36 +344,57 @@ const RepoCreate = () => {
     setStep(newStep)
   }
 
-  const onFetchRepoFromURL = () => {
+  const setTabForRepoType = repoType => setTab(TABS.find(_tab => _tab.id + 's' === repoType)?.index || 0)
+
+  const fetchRepoFrom = parsed => {
     setFromOCLURLError(false)
     setIsFetchingFromOCLURL(true)
-    if(isValidFromOCLURL(fromOCLURL)) {
-      let url = fromOCLURL
-      if(url.includes('/#/')) {
-        url = url.replace('/#/', '/').replace('//app.', '//api.')
+    fetchRepoFromURL(parsed).then(({ok, status, data}) => {
+      setIsFetchingFromOCLURL(false)
+      if(ok && data?.id) {
+        setRepo(data)
+        setModelForEdit({...data, extras: reject(apiExtrasToExtras(data.extras), {key: '__export_time'})})
+        setTabForRepoType(parsed.repoType)
+        onStepChange(1, false)
       }
-      fetch(url).then(response => {
-        return response.json()
-      }).then(json => {
-        setIsFetchingFromOCLURL(false)
-        if(json?.id) {
-          setRepo(json)
-          setModelForEdit(json)
-          onStepChange(1, false)
-        }
-        else
-          setFromOCLURLError(json?.detail || json?.error || t('common.error'))
-      })
-    }
+      else
+        setFromOCLURLError(data?.detail || data?.error || compact([status, t('common.error')]).join(': '))
+    }).catch(error => {
+      setIsFetchingFromOCLURL(false)
+      setFromOCLURLError(error?.message || t('common.error'))
+    })
   }
 
-  const isValidFromOCLURL = () => {
-    if(fromOCLURL && fromOCLURL.startsWith('https://') && fromOCLURL.includes('/' + selectedTab.id + 's/') && (fromOCLURL.includes('/orgs/') || fromOCLURL.includes('/users/'))) {
-      const params = URIToParentParams(fromOCLURL.split('//')[1])
-      return Boolean(params.repoType && params.repo && params.owner && params.ownerType)
-    }
-    return false
+  const onFetchRepoFromURL = () => {
+    if(fromOCLURLParsed)
+      fetchRepoFrom(fromOCLURLParsed)
+    else
+      setFromOCLURLError(t('repo.invalid_repo_url'))
   }
+
+  const onCreateFromURLToggle = () => {
+    if(isCreatingFromOCLURL) {
+      setFromOCLURL('')
+      setFromOCLURLError(false)
+      setIsFetchingFromOCLURL(false)
+    }
+    setIsCreatingFromOCLURL(!isCreatingFromOCLURL)
+  }
+
+  React.useEffect(() => {
+    if(isEdit || !copyFromParam || copyFromApplied.current)
+      return
+    copyFromApplied.current = true
+    setIsCreatingFromOCLURL(true)
+    setFromOCLURL(copyFromParam)
+    const parsed = parseRepoURL(copyFromParam)
+    if(parsed) {
+      setTabForRepoType(parsed.repoType)
+      fetchRepoFrom(parsed)
+    }
+    else
+      setFromOCLURLError(t('repo.invalid_repo_url'))
+  }, [isEdit, copyFromParam])
 
   return (
     <Paper component="div" className='col-xs-12' sx={{borderRadius: '10px', boxShadow: 'none', p: 2, backgroundColor: 'primary.99', height: 'calc(100vh - 100px)', overflow: 'auto'}}>
@@ -437,7 +484,7 @@ const RepoCreate = () => {
                     {_tab.content.description}
                   </Typography>
                   <Button sx={{margin: '24px 0', '.MuiChip-label': {fontWeight: 'bold'}}} label={t('common.create')} variant='outlined' color='primary' onClick={() => onStepChange(1)} />
-                  <Button sx={{margin: '24px 8px', '.MuiChip-label': {fontWeight: 'bold'}}} label={t('common.create_from_ocl_url')} variant={isCreatingFromOCLURL ? 'contained' : 'outlined'} color='secondary' onClick={() => setIsCreatingFromOCLURL(!isCreatingFromOCLURL)} />
+                  <Button sx={{margin: '24px 8px', '.MuiChip-label': {fontWeight: 'bold'}}} label={t('common.create_from_ocl_url')} variant={isCreatingFromOCLURL ? 'contained' : 'outlined'} color='secondary' onClick={onCreateFromURLToggle} />
                   {
                     isCreatingFromOCLURL && step === 0 && !isEdit &&
                       <div className='col-xs-12 padding-0'>
@@ -451,11 +498,11 @@ const RepoCreate = () => {
                             value={fromOCLURL || ''}
                             onChange={event => setFromOCLURL(event.target.value)}
                             error={Boolean(fromOCLURLError)}
-                            helperText={fromOCLURLError || `e.g. https://app.openconceptlab.org/#/orgs/MyOrg/${selectedTab.id}s/MyRepo/`}
+                            helperText={fromOCLURLError || t('repo.ocl_repo_url_help', {example: `/orgs/MyOrg/${selectedTab.id}s/MyRepo/`, interpolation: {escapeValue: false}})}
                           />
                           </div>
                         <div className='col-xs-3' style={{padding: '0 0 0 10px'}}>
-                          <Button disabled={isFetchingFromOCLURL || !isValidFromOCLURL()} sx={{'.MuiChip-label': {fontWeight: 'bold'}}} label={isFetchingFromOCLURL ? t('common.loading') : t('common.proceed')} variant='outlined' color='primary' onClick={onFetchRepoFromURL} />
+                          <Button disabled={isFetchingFromOCLURL || !fromOCLURLParsed} sx={{'.MuiChip-label': {fontWeight: 'bold'}}} label={isFetchingFromOCLURL ? t('common.loading') : t('common.proceed')} variant='outlined' color='primary' onClick={onFetchRepoFromURL} />
                           </div>
                       </div>
                   }
@@ -477,8 +524,20 @@ const RepoCreate = () => {
               <RepoCreateAdditionalMetadata isEdit={isEdit} typeLabel={t(`repo.${selectedTab.id}_type`)} types={selectedTab.types} onChange={onChange} validationErrors={validationErrors} config={selectedTab.content} {...model} />
             </FormSection>
             <FormSection sx={{marginTop: '16px'}}>
-              <RepoCreatePublisher isEdit={isEdit} onChange={onChange} config={selectedTab.content} {...model} />
+              <RepoCreatePublisher isEdit={isEdit} onChange={onChange} validationErrors={validationErrors} config={selectedTab.content} {...model} />
             </FormSection>
+            {
+              selectedTab.hierarchy &&
+                <FormSection sx={{marginTop: '16px'}}>
+                  <RepoCreateHierarchy sourceURL={isEdit ? repo?.url : ''} onChange={onChange} hierarchyRootURL={model.hierarchyRootURL} hierarchyMeaning={model.hierarchyMeaning} />
+                </FormSection>
+            }
+            {
+              selectedTab.autoAssignIDs &&
+                <FormSection sx={{marginTop: '16px'}}>
+                  <RepoCreateIDAutoAssignment onChange={onChange} {...model} />
+                </FormSection>
+            }
             <FormSection sx={{marginTop: '16px'}}>
               <div className='col-xs-12 padding-0' style={{marginBottom: '24px'}}>
                 <Typography sx={{fontSize: '16px', fontWeight: 'bold'}}>

@@ -8,6 +8,9 @@ export const DATE_FORMAT = 'M/D/YYYY';
 export const TIME_FORMAT = 'h:mm A';
 export const DATETIME_FORMAT = DATE_FORMAT + ' ' + TIME_FORMAT;
 export const DEFAULT_LIMIT = 25;
+// The API's search index cannot return results past this offset -- only plain,
+// unfiltered, unsorted listings (served from the DB) can be paged beyond it.
+export const MAX_SEARCH_RESULT_WINDOW = 10000;
 export const EMPTY_VALUE = '-';
 export const SOURCE_TYPES = [
   'Dictionary',
@@ -22,8 +25,31 @@ export const COLLECTION_TYPES = [
   'Value Set',
   'Subset',
 ];
+export const HIERARCHY_MEANINGS = [
+  'grouped-by',
+  'is-a',
+  'part-of',
+  'classified-with',
+];
 /*eslint no-useless-escape: 0*/
 export const SOURCE_CHILD_URI_REGEX = /\/(orgs|users)\/([a-zA-Z0-9\-\.\_\@]+)\/(sources|collections)\/([a-zA-Z0-9\-\.\_\@]+)\/(concepts|mappings)\/([a-zA-Z0-9\-\.\_\@]+)?\/?([a-zA-Z0-9\-\.\_\@]+)?\/?/;
+export const AUTO_ID_NONE = 'None';
+export const AUTO_ID_SEQUENTIAL = 'sequential';
+export const AUTO_ID_UUID = 'uuid';
+export const AUTO_ID_FIELDS = [
+  'autoidConceptMnemonic',
+  'autoidConceptExternalID',
+  'autoidConceptNameExternalID',
+  'autoidConceptDescriptionExternalID',
+  'autoidMappingMnemonic',
+  'autoidMappingExternalID',
+];
+export const OCL_CLIENT = 'oclweb3/3.0.0-alpha';
+export const OCL_CLIENT_HEADERS = {
+  'X-OCL-CLIENT': OCL_CLIENT,
+};
+export const OWNER_TYPES = ['orgs', 'users'];
+export const REPO_TYPES = ['sources', 'collections'];
 export const OCL_SERVERS_GROUP = 'ocl_servers';
 export const OCL_FHIR_SERVERS_GROUP = 'ocl_fhir_servers';
 export const HAPI_FHIR_SERVERS_GROUP = 'hapi_fhir_servers';

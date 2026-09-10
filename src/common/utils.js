@@ -12,7 +12,7 @@ import {
 import {
   DATE_FORMAT, TIME_FORMAT, DATETIME_FORMAT, OCL_SERVERS_GROUP, OCL_FHIR_SERVERS_GROUP, HAPI_FHIR_SERVERS_GROUP,
   OPENMRS_URL, DEFAULT_FHIR_SERVER_FOR_LOCAL_ID, OPERATIONS_PANEL_GROUP, ID_REGEX,
-  RESERVED_ROUTE_KEYWORDS
+  RESERVED_ROUTE_KEYWORDS, OCL_CLIENT_HEADERS
 } from './constants';
 import APIService from '../services/APIService';
 import { SERVER_CONFIGS } from './serverConfigs';
@@ -126,6 +126,33 @@ export const toFullAPIURL = uri => getAPIURL() + uri;
 
 export const toRelativeURL = url => url.replace(getAPIURL(), '');
 
+export const originOf = url => {
+  try {
+    return new URL(url).origin
+  } catch {
+    return ''
+  }
+}
+
+export const toAPIOrigin = origin => origin.replace('://app.v3.', '://api.').replace('://app.', '://api.')
+
+export const fetchRepoFromURL = parsed => {
+  if(parsed.isExternal)
+    return fetch(parsed.fetchURL, {
+      method: 'GET',
+      credentials: 'omit',
+      headers: {...OCL_CLIENT_HEADERS, Accept: 'application/json'}
+    }).then(response => response.json().then(
+      data => ({ok: response.ok, status: response.status, data}),
+      () => ({ok: false, status: response.status, data: false})
+    ))
+
+  return APIService.new().overrideURL(parsed.fetchURL).get(null, {}, {}, true).then(response => {
+    const result = response?.response || response
+    return {ok: result?.status === 200, status: result?.status, data: result?.data}
+  })
+}
+
 export const copyToClipboard = copyText => {
   if(copyText)
     navigator.clipboard.writeText(copyText);
@@ -133,7 +160,7 @@ export const copyToClipboard = copyText => {
 
 export const copyURL = url => copyToClipboard(url, 'Copied URL to clipboard!');
 
-export const toParentURI = uri => uri.split('/').splice(0, 5).join('/') + '/';
+export const toParentURI = uri => (uri || '').split('/').splice(0, 5).join('/') + '/';
 
 export const toOwnerURI = uri => uri && uri.split('/').splice(0, 3).join('/') + '/';
 
@@ -363,19 +390,16 @@ export const getCurrentUserCollections = callback => {
 
 export const getCurrentUserSources = callback => {
   const username = getCurrentUserUsername();
-  if(username) {
-    APIService
-      .users(username)
-      .sources()
-      .get(null, null, {limit: 1000, includeSummary: true})
-      .then(response => isArray(response.data) ? callback(response.data) : false);
-    APIService
-      .users(username)
-      .orgs()
-      .appendToUrl('sources/')
-      .get(null, null, {limit: 1000, includeSummary: true})
-      .then(response => isArray(response.data) ? callback(response.data) : false);
-  }
+  if(!username)
+    return callback([]);
+
+  const query = {limit: 1000, includeSummary: true};
+  Promise.all([
+    APIService.users(username).sources().get(null, null, query),
+    APIService.users(username).orgs().appendToUrl('sources/').get(null, null, query)
+  ]).then(responses => callback(
+    uniqBy(flatten(map(responses, response => isArray(response?.data) ? response.data : [])), 'url')
+  ));
 }
 
 export const isValidPassword = (password, strength, minStrength = 3) => {
@@ -804,6 +828,12 @@ export const getParamsFromObject = item => {
 
   return params;
 }
+
+export const latestResolvedRepoVersion = resource => orderBy(
+  compact(flatten(map(resource?.references || [], 'resolved_repo_versions'))),
+  'created_at',
+  'desc'
+)[0]
 
 export const dropVersion = uri => {
   if(!uri)

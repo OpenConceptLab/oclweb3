@@ -39,7 +39,7 @@ const URLRegistry = () => {
         </div>
         <div className='col-xs-5 padding-0' style={{textAlign: 'right'}}>
           <Button variant='outlined' color='primary' sx={{textTransform: 'none', border: 'none', background: 'transparent'}} label={t('url_registry.test_canonical_url')} onClick={() => setTestDialog(true)} />
-          <Button variant='contained' color='primary' sx={{textTransform: 'none', marginLeft: '8px'}} label={t('url_registry.add_entry')} />
+          <Button disabled variant='contained' color='primary' sx={{textTransform: 'none', marginLeft: '8px'}} label={t('url_registry.add_entry')} />
         </div>
       </div>
       <div className='col-xs-12' style={{padding: '16px', marginBottom: '8px', backgroundColor: WHITE, borderRadius: '10px'}}>
@@ -49,6 +49,7 @@ const URLRegistry = () => {
             id='url_registry.registry_owner'
             onChange={onOwnerChange}
             owner={owner}
+            forURLRegistry
           />
         </div>
         <div className='col-xs-9' style={{paddingLeft: '8px', paddingRight: 0}}>

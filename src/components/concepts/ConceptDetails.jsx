@@ -17,7 +17,7 @@ import ResourceReferences from '../common/ResourceReferences'
 
 const borderColor = 'rgba(0, 0, 0, 0.12)'
 
-const ConceptDetails = ({ concept, repo, mappings, reverseMappings, loading, loadingOwnerMappings, ownerMappings, reverseOwnerMappings, onLoadOwnerMappings, style }) => {
+const ConceptDetails = ({ concept, repo, repoSummary, mappings, reverseMappings, loading, loadingOwnerMappings, ownerMappings, reverseOwnerMappings, onLoadOwnerMappings, includeRetired, onIncludeRetiredToggle, readOnlyMappings, onCreateNewMapping, onUpdateMappingsSorting, onAssignSortWeight, onClearSortWeight, onRetireMapping, style }) => {
   const { t } = useTranslation()
   const updatedBy = concept?.version_updated_by || concept?.updated_by
   const [viewRawProperties, setViewRawProperties] = React.useState(false)
@@ -55,7 +55,7 @@ const ConceptDetails = ({ concept, repo, mappings, reverseMappings, loading, loa
         {
           loading ?
           <Skeleton variant="rounded" width='100%' height={120} sx={{borderRadius: '10px'}} /> :
-          <Associations concept={concept} mappings={mappings} reverseMappings={reverseMappings} ownerMappings={ownerMappings} reverseOwnerMappings={reverseOwnerMappings} onLoadOwnerMappings={onLoadOwnerMappings} loadingOwnerMappings={loadingOwnerMappings} />
+          <Associations concept={concept} source={repo} repoSummary={repoSummary} mappings={mappings} reverseMappings={reverseMappings} ownerMappings={ownerMappings} reverseOwnerMappings={reverseOwnerMappings} onLoadOwnerMappings={onLoadOwnerMappings} loadingOwnerMappings={loadingOwnerMappings} includeRetired={includeRetired} onIncludeRetiredToggle={onIncludeRetiredToggle} readOnlyMappings={readOnlyMappings} onCreateNewMapping={onCreateNewMapping} onUpdateMappingsSorting={onUpdateMappingsSorting} onAssignSortWeight={onAssignSortWeight} onClearSortWeight={onClearSortWeight} onRetireMapping={onRetireMapping} />
         }
       </div>
       <ResourceReferences references={concept?.references} resourceType='concept' />

@@ -29,7 +29,7 @@ const EntityAttributesDialog = ({ entity, fields, open, onClose }) => {
       if(info.type === 'external_link')
         return formatWebsiteLink(value)
       if(info.type === 'user')
-        return <Link sx={{fontSize: '14px'}} label={value} href={`#/users/${value}/`} />
+        return <Link sx={{fontSize: '14px', justifyContent: 'flex-start'}} label={value} href={`#/users/${value}/`} />
       if(info.type === 'json')
         return <pre style={{margin: 0}}>{JSON.stringify(value, undefined, 2)}</pre>
       if(info.type === 'locales-list') {

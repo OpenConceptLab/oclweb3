@@ -57,7 +57,7 @@ const ReferenceResultsCell = ({ reference, t }) => {
     <Box sx={{display: 'flex', alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5}}>
       <ReferenceResultCount
         count={reference.concepts}
-        icon={<ConceptIcon selected color='secondary' sx={{width: '9px', height: '9px'}} />}
+        icon={<ConceptIcon selected color='secondary' sx={{width: '1rem', height: '1rem'}} />}
         label={t(reference.concepts === 1 ? 'concept.concept' : 'concept.concepts').toLowerCase()}
       />
       <ReferenceResultCount

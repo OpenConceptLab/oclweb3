@@ -17,7 +17,9 @@ import TransformIcon from '@mui/icons-material/Transform';
 import DownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { forEach, keys, pickBy, isEmpty, find, uniq, has, orderBy as sortBy, uniqBy, omit, max, isEqual, isBoolean } from 'lodash';
 import { COLORS } from '../../common/colors';
-import { dropVersion, highlightTexts, isLoggedIn } from '../../common/utils';
+import { dropVersion, highlightTexts, isLoggedIn, getCurrentUserUsername } from '../../common/utils';
+import usePins, { PIN_RESOURCES, MAX_PINS_ALLOWED } from '../../hooks/usePins';
+import PinActionButton from '../common/PinActionButton';
 import APIService from '../../services/APIService';
 import RepoIcon from '../repos/RepoIcon';
 import ConceptIcon from '../concepts/ConceptIcon';
@@ -47,6 +49,14 @@ const getCollectionLookupUrl = url => (url || '').replace(/\/(concepts|mappings|
 
 const Search = props => {
   const { setAlert, contextRepo } = React.useContext(OperationsContext);
+
+  // Pins: the owning page (org/user home) supplies them; a standalone search pins to the current user.
+  const hasPinsFromProps = Boolean(props.onPinToggle)
+  const currentUsername = getCurrentUserUsername()
+  const ownPins = usePins((hasPinsFromProps || props.nested || !currentUsername) ? false : {type: 'user', id: currentUsername})
+  const pins = hasPinsFromProps ? props.pins : ownPins.pins
+  const canPin = hasPinsFromProps ? props.canPin : ownPins.canPin
+  const onPinToggle = hasPinsFromProps ? props.onPinToggle : ownPins.togglePin
   const { t } = useTranslation()
   const history = useHistory();
   const location = useLocation();
@@ -305,6 +315,14 @@ const Search = props => {
     return params
   }
 
+  const isSearchIndexQuery = () => {
+    const params = omit(
+      getQueryParams(input, page, pageSize, filters, orderBy, order),
+      ['page', 'limit', 'includeSearchMeta', 'onlyHierarchyRoot']
+    )
+    return Object.values(params).some(Boolean)
+  }
+
   const handleResourceChange = (event, newTab) => {
     event.preventDefault()
     event.stopPropagation()
@@ -331,6 +349,11 @@ const Search = props => {
       params.verbose = true
     if(__resource === 'references')
       params.includeResolvedRepoVersions = true
+    if(__resource === 'repos') {
+      // fills the latest version and content summary columns
+      params.includeLatestReleasedVersion = true
+      params.includeSummary = true
+    }
     if(!params.sortAsc)
       delete params.sortAsc
     if(!params.sortDesc)
@@ -383,7 +406,7 @@ const Search = props => {
   const fetchFacets = (params, otherResults, _resource=undefined) => {
     setLoadingFacets(true)
     const __resource = _resource || resource
-    APIService.new().overrideURL(getURL(__resource)).get(null, null, {...params, facetsOnly: true}).then(response => {
+    APIService.new().overrideURL(getURL(__resource)).get(null, null, {...omit(params, ['includeLatestReleasedVersion', 'includeSummary']), facetsOnly: true}).then(response => {
       setResult(prev => {
         return {...prev, [__resource]: {...(prev[__resource] || otherResults), facets: prepareFacets(response?.data?.facets?.fields || {}, __resource)}}
       })
@@ -443,7 +466,9 @@ const Search = props => {
   const highlight = item => highlightTexts(item?.id ? [item] : result[resource]?.results || [], null, true)
 
   const onFiltersChange = newFilters => {
-    history.push(getCurrentLayoutURL(getQueryParams(input, page, pageSize, newFilters, orderBy, order)))
+    // A new filter means a different result set -- the current page number is meaningless
+    // against it (and may not even exist), so start over from the first page.
+    history.push(getCurrentLayoutURL(getQueryParams(input, 1, pageSize, newFilters, orderBy, order)))
   }
 
   const TAB_STYLES = {textTransform: 'none'}
@@ -629,6 +654,27 @@ const Search = props => {
     setShowItem(props.showItem || false)
   }, [props.showItem])
 
+  const findPinFor = item => (pins || []).find(pin => pin.resource_uri === item?.url)
+  const pinLimitReached = (pins || []).length >= MAX_PINS_ALLOWED
+  const pinColumn = (canPin && PIN_RESOURCES.includes(resource)) ? {
+    id: 'pin',
+    label: '',
+    sortable: false,
+    align: 'right',
+    sx: {width: '48px', padding: '0 8px'},
+    renderer: item => {
+      const pin = findPinFor(item)
+      return (
+        <PinActionButton
+          item={item}
+          pin={pin}
+          onToggle={onPinToggle}
+          disabled={!pin && pinLimitReached}
+        />
+      )
+    }
+  } : null
+
   return (
     <div className='col-xs-12 padding-0'>
       <div className={!props.nested && showItem?.id ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: '10px', height: '100%', ...(props.containerStyle || {})}}>
@@ -702,15 +748,18 @@ const Search = props => {
                   resultContainerStyle={props.resultContainerStyle}
                   resultSize={props.resultSize}
                   excludedColumns={props.excludedColumns}
+                  extraColumns={[...(props.extraColumns || []), pinColumn].filter(Boolean)}
                   properties={props.properties}
                   propertyDefinition={props.propertyDefinition}
                   propertyFilters={props.propertyFilters}
                   isMatch={isMatchOp}
+                  searchIndexQuery={isSearchIndexQuery()}
                   hierarchySupported={isHierarchySupported}
                   baseURL={props.url}
                   toolbarControl={<>{props.toolbarControl}{referenceActionsControl}</>}
                   extraBulkActions={[bulkRemoveFromCollectionAction, props.extraBulkActions]}
                   onCreateSimilarClick={props.onCreateSimilarClick}
+                  onCreateMappingClick={props.onCreateMappingClick}
                   fixedLeftControls={[props.fixedLeftControls]}
                 />
               </div>

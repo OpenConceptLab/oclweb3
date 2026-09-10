@@ -4,14 +4,14 @@ import Bookmarks from '../common/Bookmarks';
 import EmptyOverview from '../common/EmptyOverview'
 import Events from '../common/Events';
 
-const UserOverview = ({ user, bookmarks, events, height, onLoadMoreEvents }) => {
+const UserOverview = ({ user, bookmarks, events, height, onLoadMoreEvents, canPin, onBookmarkDelete }) => {
   const { t } = useTranslation()
   const repos = (user?.public_sources || 0) + (user?.public_collections || 0)
 
   return (
     <div className='col-xs-12 padding-0' style={{height: height || '100%' }}>
       <div className='col-xs-9' style={{padding: '0 16px', height: '100%', overflow: 'auto', width: '100%'}}>
-        <Bookmarks bookmarks={bookmarks} />
+        <Bookmarks bookmarks={bookmarks} canPin={canPin} onDelete={onBookmarkDelete} style={{marginTop: '16px'}} />
         {
           Boolean(events?.length) &&
             <Events user={user} events={events} height={height} onLoadMore={onLoadMoreEvents} />

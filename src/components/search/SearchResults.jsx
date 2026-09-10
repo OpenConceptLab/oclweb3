@@ -10,20 +10,26 @@ import Button from '@mui/material/Button';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import AddIcon from '@mui/icons-material/PlaylistAddOutlined';
 import RepeatIcon from '@mui/icons-material/Repeat';
+import CloneIcon from '@mui/icons-material/ControlPointDuplicate';
 import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
-import { isNumber, isNaN, flatten, values, uniqBy } from 'lodash'
+import { isNumber, isNaN, flatten, values, uniqBy, compact } from 'lodash'
 import SearchControls from './SearchControls';
 import NoResults from './NoResults';
 import TableResults from './TableResults';
 import CardResults from './CardResults';
 import ReferenceSourceGroupedResults, { getReferenceSourceGroups } from '../references/ReferenceSourceGroupedResults';
 import AddToCollectionDialog from '../common/AddToCollectionDialog';
-import { SORT_ATTRS } from './ResultConstants'
+import CloneToSourceDialog from '../repos/CloneToSourceDialog';
+import MappingIcon from '../mappings/MappingIcon';
+import { getSortConfig } from './sortConfig'
+import { resolveColumns } from './columns'
 import { isLoggedIn, currentUserHasAccess } from '../../common/utils';
+import { createSimilarRepoHref } from '../repos/utils';
+import { MAX_SEARCH_RESULT_WINDOW } from '../../common/constants';
 
 const ResultsToolbar = props => {
-  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortableFields, noCardDisplay, toolbarControl, appliedFilters, openFilters, bulkActions, leftControls, displayOptions, resource } = props;
+  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortConfig, noCardDisplay, toolbarControl, appliedFilters, openFilters, bulkActions, leftControls, displayOptions, resource } = props;
   const filtersCount = resource === 'references' ? flatten(values(appliedFilters))?.length : flatten(values(appliedFilters).map(v => values(v))).length
   return (
     <Toolbar
@@ -48,9 +54,9 @@ const ResultsToolbar = props => {
         </IconButton>
       }
       {
-        leftControls &&
+        leftControls?.length > 0 &&
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {leftControls}
+            {leftControls.map((control, index) => <React.Fragment key={index}>{control}</React.Fragment>)}
           </Box>
       }
       {numSelected > 0 ? (
@@ -101,7 +107,7 @@ const ResultsToolbar = props => {
         orderBy={orderBy}
         order={order}
         onOrderByChange={onOrderByChange}
-        sortableFields={sortableFields}
+        sortConfig={sortConfig}
         noCardDisplay={noCardDisplay}
         extraControls={toolbarControl}
         displayOptions={displayOptions}
@@ -118,6 +124,7 @@ const SearchResults = props => {
   const [tableDisplayAnimation, setTableDisplayAnimation] = React.useState('animation-appear')
   const [selected, setSelected] = React.useState(props.selected || []);
   const [addToCollectionOpen, setAddToCollectionOpen] = React.useState(false);
+  const [cloneToSourceOpen, setCloneToSourceOpen] = React.useState(false);
   const [loadedChildRows, setLoadedChildRows] = React.useState([]);
   const page = props.results?.page;
   const rowsPerPage = props.results?.pageSize;
@@ -229,7 +236,12 @@ const SearchResults = props => {
     }
   }
 
-  const sortableFields = (props.nested ? SORT_ATTRS.nested[props.resource] : SORT_ATTRS.global[props.resource]) || SORT_ATTRS.common[props.resource]
+  const columns = resolveColumns({
+    resource: props.resource, nested: props.nested, baseURL: props.baseURL,
+    excludedColumns: props.excludedColumns, extraColumns: props.extraColumns,
+    properties: props.properties, propertyDefinition: props.propertyDefinition, propertyFilters: props.propertyFilters
+  })
+  const sortConfig = getSortConfig(props.resource, props.nested, Boolean(props.searchedText), columns)
 
   const resultsProps = {
     handleClick: props.onSelect ? handleClick : false,
@@ -265,6 +277,7 @@ const SearchResults = props => {
   const addToCollectionBulkAction = props.resource === 'concepts' && isLoggedIn() && selected.length > 0
     ? (
       <Button
+        key='add-to-collection'
         startIcon={<AddIcon fontSize='inherit' />}
         variant='contained'
         size='small'
@@ -275,9 +288,24 @@ const SearchResults = props => {
       </Button>
     ) : null
 
+  const cloneToSourceBulkAction = props.resource === 'concepts' && isLoggedIn() && selected.length > 0
+    ? (
+      <Button
+        key='clone-to-source'
+        startIcon={<CloneIcon fontSize='inherit' />}
+        variant='contained'
+        size='small'
+        sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}, marginLeft: '8px'}}
+        onClick={() => setCloneToSourceOpen(true)}
+      >
+        {t('cloneToSource.clone_to_source')}
+      </Button>
+    ) : null
+
   const createSimilarBulkAction = ['concepts', 'mappings'].includes(props.resource) && Boolean(props.onCreateSimilarClick) && currentUserHasAccess() && selectedRows.length === 1
     ? (
       <Button
+        key='create-similar'
         startIcon={<RepeatIcon fontSize='inherit' />}
         variant='contained'
         size='small'
@@ -289,6 +317,39 @@ const SearchResults = props => {
     ) : null
 
 
+  const createSimilarRepoLink = ['repos', 'sources', 'collections'].includes(props.resource) && selectedRows.length === 1
+                                ? createSimilarRepoHref(selectedRows[0])
+                                : false
+  const createSimilarRepoBulkAction = createSimilarRepoLink
+    ? (
+      <Button
+        key='create-similar-repo'
+        startIcon={<RepeatIcon fontSize='inherit' />}
+        variant='contained'
+        size='small'
+        sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}, marginLeft: '8px'}}
+        href={createSimilarRepoLink}
+      >
+        {t('repo.create_similar')}
+      </Button>
+    ) : null
+
+  const orderedSelectedRows = compact(selected.map(id => allRows.find(row => (row.version_url || row.url || row.id) === id)))
+
+  const createMappingBulkAction = props.resource === 'concepts' && Boolean(props.onCreateMappingClick) && currentUserHasAccess() && orderedSelectedRows.length === 2
+    ? (
+      <Button
+        key='create-mapping'
+        startIcon={<MappingIcon fontSize='inherit' />}
+        variant='contained'
+        size='small'
+        sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}, marginLeft: '8px'}}
+        onClick={() => props.onCreateMappingClick(orderedSelectedRows)}
+      >
+        {t('mapping.create_mapping')}
+      </Button>
+    ) : null
+
   const displayOptions = props.resource === 'references' ? [
     {id: 'source', labelKey: 'reference.group_by_source'},
     {id: 'table', labelKey: 'reference.ungrouped'},
@@ -298,7 +359,7 @@ const SearchResults = props => {
     {id: 'hierarchy', labelKey: 'search.hierarchy'},
   ] : undefined
   const toolbarControl = props.toolbarControl
-  const allBulkActions = [addToCollectionBulkAction, createSimilarBulkAction, props.extraBulkActions].filter(Boolean)
+  const allBulkActions = [addToCollectionBulkAction, cloneToSourceBulkAction, createMappingBulkAction, createSimilarBulkAction, createSimilarRepoBulkAction, props.extraBulkActions].filter(Boolean)
   const bulkActionsElement = allBulkActions.length > 0 ? <>{allBulkActions}</> : null
   const leftControls = (props.fixedLeftControls || []).filter(Boolean)
 
@@ -311,7 +372,15 @@ const SearchResults = props => {
   }, [props.resource, props.display])
 
 
-  const defaultLabelDisplayedRows = ({ from, to, count }) => `${from}–${to} of ${count !== -1 ? count?.toLocaleString() : (props.isMatch ? 'many' : `more than ${to?.toLocaleString()}`)}`
+  const totalResults = props.results?.total || 0
+  const pageSize = rowsPerPage || 25
+  const isSearchIndexQuery = props.searchIndexQuery === undefined || props.searchIndexQuery
+  const isResultWindowCapped = isSearchIndexQuery && props.resource !== 'references' && !props.isMatch && totalResults > MAX_SEARCH_RESULT_WINDOW
+  const paginationCount = props.isMatch ?
+                          -1 :
+                          (isResultWindowCapped ? Math.floor(MAX_SEARCH_RESULT_WINDOW / pageSize) * pageSize : totalResults)
+
+  const defaultLabelDisplayedRows = ({ from, to, count }) => `${from}–${to} of ${count !== -1 ? (isResultWindowCapped ? totalResults : count)?.toLocaleString() : (props.isMatch ? 'many' : `more than ${to?.toLocaleString()}`)}`
 
   return (
     <Box sx={{ width: '100%', background: 'inherit', height: '100%', ...props.sx }}>
@@ -325,7 +394,7 @@ const SearchResults = props => {
             isFilterable={props.isFilterable}
             onDisplayChange={onDisplayChange}
             display={display}
-            sortableFields={(props.noSorting || isHierarchyDisplay) ? false : sortableFields}
+            sortConfig={(props.noSorting || isHierarchyDisplay) ? false : sortConfig}
             order={props.order}
             orderBy={props.orderBy}
             onOrderByChange={props.onOrderByChange}
@@ -363,13 +432,13 @@ const SearchResults = props => {
               <TablePagination
                 rowsPerPageOptions={[10, 25, 50, 100]}
                 component="div"
-                count={props.isMatch ? -1 : props.results?.total || 0}
-                rowsPerPage={rowsPerPage || 25}
+                count={paginationCount}
+                rowsPerPage={pageSize}
                 page={(page || 1) - 1}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 showFirstButton
-                showLastButton
+                showLastButton={!isResultWindowCapped}
                 labelDisplayedRows={defaultLabelDisplayedRows}
                 sx={{
                   width: '100%',
@@ -387,6 +456,11 @@ const SearchResults = props => {
       <AddToCollectionDialog
         open={addToCollectionOpen}
         onClose={() => setAddToCollectionOpen(false)}
+        concepts={selectedRows}
+      />
+      <CloneToSourceDialog
+        open={cloneToSourceOpen}
+        onClose={() => setCloneToSourceOpen(false)}
         concepts={selectedRows}
       />
     </Box>

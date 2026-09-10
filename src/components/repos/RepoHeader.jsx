@@ -6,13 +6,15 @@ import Typography from '@mui/material/Typography';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import { has } from 'lodash'
 import RepoVersionChip from './RepoVersionChip';
+import ProcessingFlag from './ProcessingFlag';
 import RepoChip from './RepoChip'
 import OwnerChip from '../common/OwnerChip';
-import { currentUserHasAccess } from '../../common/utils';
+import { copyURL, currentUserHasAccess, toFullAPIURL } from '../../common/utils';
 import RepoManagementList from './RepoManagementList';
+import { createSimilarRepoHref } from './utils';
 import FollowActionButton from '../common/FollowActionButton'
 
-const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClick, onCreateMappingClick, onVersionEditClick, onCreateVersionClick, onDeleteRepoClick, isVersion, onReleaseVersionClick}) => {
+const RepoHeader = ({repo, owner, versions, onVersionChange, repoHref, onCreateConceptClick, onCreateMappingClick, onVersionEditClick, onCreateVersionClick, onDeleteRepoClick, isVersion, onReleaseVersionClick}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -39,30 +41,35 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, onCreateConceptClic
       onVersionEditClick()
     else if (option === 'release')
       onReleaseVersionClick()
+    else if (option === 'copyURL')
+      copyURL(toFullAPIURL(repo.url))
   }
 
   const hasAccess = currentUserHasAccess()
+  const isRepo = has(repo, 'source_type') || has(repo, 'collection_type')
+  const createSimilarHref = isVersion ? false : createSimilarRepoHref(repo)
 
   return (
     <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderRadius: '10px 10px 0 0'}}>
       <div className='col-xs-12 padding-0' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'auto'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
           <OwnerChip owner={owner} sx={{background: 'transparent', borderColor: 'surface.light'}} hideType />
-          <RepoChip repo={{...repo, type: repo?.type?.replace(' Version', '')}} sx={{marginLeft: '12px', background: 'transparent', borderColor: 'surface.light'}} onChange={onVersionChange}  />
+          <RepoChip repo={{...repo, type: repo?.type?.replace(' Version', '')}} sx={{marginLeft: '12px', background: 'transparent', borderColor: 'surface.light'}} onChange={onVersionChange} {...(repoHref ? {href: repoHref} : {})} />
           {
             onVersionChange &&
               <RepoVersionChip checkbox version={repo} versions={versions} sx={{marginLeft: '8px', borderRadius: '4px'}} onChange={onVersionChange} />
           }
+          <ProcessingFlag entity={repo} sx={{marginLeft: '8px'}} />
         </span>
         <span style={{display: 'flex', alignItems: 'center', marginLeft: '16px'}}>
           <FollowActionButton iconButton entity={repo} />
           {
-            Boolean(hasAccess && (has(repo, 'source_type') || has(repo, 'collection_type'))) &&
+            Boolean(isRepo && (hasAccess || !isVersion)) &&
               <React.Fragment>
-                <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='repo-manage'>
-                  {t('repo.manage')}
+                <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='repo-actions'>
+                  {t('common.actions')}
                 </Button>
-                <RepoManagementList isVersion={isVersion} anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-manage' onClick={onManageOptionClick} repo={repo} />
+                <RepoManagementList isVersion={isVersion} hasAccess={hasAccess} createSimilarHref={createSimilarHref} anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-actions' onClick={onManageOptionClick} repo={repo} />
               </React.Fragment>
           }
         </span>

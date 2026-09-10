@@ -115,9 +115,9 @@ class VersionForm extends FormComponent {
     const { fields } = this.state;
     const { onClose, edit, version, resourceType, resource, t } = this.props;
     const idLabel = fields.id.value ? fields.id.value : 'version-id';
-    const resourceTypeLabel = startCase(resourceType)
+    const resourceTypeLabel = t(`repo.${resourceType || resource}`, {defaultValue: startCase(resourceType || resource)})
     const versionLabel = `${version.short_code} [${idLabel}]`;
-    const header = edit ? `${t('common.edit')} ${resourceTypeLabel}: ${versionLabel}` : `New ${resourceTypeLabel} Version: ${versionLabel}`;
+    const header = t(edit ? 'repo.version.form.edit_title' : 'repo.version.form.new_title', {resourceType: resourceTypeLabel, version: versionLabel});
     return (
       <div className='col-xs-12' style={{marginBottom: '30px'}}>
           <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px'}}>
