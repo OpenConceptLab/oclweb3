@@ -336,7 +336,7 @@ const SearchResults = props => {
 
   const orderedSelectedRows = compact(selected.map(id => allRows.find(row => (row.version_url || row.url || row.id) === id)))
 
-  const createMappingBulkAction = props.resource === 'concepts' && Boolean(props.onCreateMappingClick) && currentUserHasAccess() && orderedSelectedRows.length === 2
+  const createMappingBulkAction = props.resource === 'concepts' && Boolean(props.onCreateMappingClick) && currentUserHasAccess() && [1, 2].includes(orderedSelectedRows.length)
     ? (
       <Button
         key='create-mapping'
