@@ -11,7 +11,7 @@ import {
 } from 'lodash';
 import {
   DATE_FORMAT, TIME_FORMAT, DATETIME_FORMAT, OCL_SERVERS_GROUP, OCL_FHIR_SERVERS_GROUP, HAPI_FHIR_SERVERS_GROUP,
-  OPENMRS_URL, DEFAULT_FHIR_SERVER_FOR_LOCAL_ID, OPERATIONS_PANEL_GROUP
+  OPENMRS_URL, DEFAULT_FHIR_SERVER_FOR_LOCAL_ID, OPERATIONS_PANEL_GROUP, OCL_CLIENT_HEADERS
 } from './constants';
 import APIService from '../services/APIService';
 import { SERVER_CONFIGS } from './serverConfigs';
@@ -124,6 +124,33 @@ export const toFullURL = uri => window.location.origin + '/#' + uri;
 export const toFullAPIURL = uri => getAPIURL() + uri;
 
 export const toRelativeURL = url => url.replace(getAPIURL(), '');
+
+export const originOf = url => {
+  try {
+    return new URL(url).origin
+  } catch {
+    return ''
+  }
+}
+
+export const toAPIOrigin = origin => origin.replace('://app.v3.', '://api.').replace('://app.', '://api.')
+
+export const fetchRepoFromURL = parsed => {
+  if(parsed.isExternal)
+    return fetch(parsed.fetchURL, {
+      method: 'GET',
+      credentials: 'omit',
+      headers: {...OCL_CLIENT_HEADERS, Accept: 'application/json'}
+    }).then(response => response.json().then(
+      data => ({ok: response.ok, status: response.status, data}),
+      () => ({ok: false, status: response.status, data: false})
+    ))
+
+  return APIService.new().overrideURL(parsed.fetchURL).get(null, {}, {}, true).then(response => {
+    const result = response?.response || response
+    return {ok: result?.status === 200, status: result?.status, data: result?.data}
+  })
+}
 
 export const copyToClipboard = copyText => {
   if(copyText)

@@ -2,6 +2,7 @@
 import axios from 'axios';
 import {get, omit, isPlainObject, isString, defaults } from 'lodash';
 import { currentUserToken, getAPIURL, logoutUser } from '../common/utils';
+import { OCL_CLIENT_HEADERS } from '../common/constants';
 
 const APIServiceProvider = {};
 const RESOURCES = [
@@ -120,8 +121,7 @@ class APIService {
     const obj = defaults(headers, this.headers);
     if (token) obj['Authorization'] = `Token ${token}`;
     obj['INCLUDESEARCHLATEST'] = true
-    obj['X-OCL-CLIENT'] = 'oclweb3/3.0.0-alpha';
-    return obj;
+    return {...obj, ...OCL_CLIENT_HEADERS};
   }
 
   getQueryParams(query) {

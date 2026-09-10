@@ -16,6 +16,7 @@ import fromPairs from 'lodash/fromPairs'
 import forEach from 'lodash/forEach'
 import snakeCase from 'lodash/snakeCase'
 import compact from 'lodash/compact'
+import reject from 'lodash/reject'
 import flatten from 'lodash/flatten'
 import values from 'lodash/values'
 import isArray from 'lodash/isArray'
@@ -25,7 +26,7 @@ import get from 'lodash/get'
 import APIService from '../../services/APIService'
 import { WHITE, BLACK } from '../../common/colors'
 import { SOURCE_TYPES, COLLECTION_TYPES } from '../../common/constants'
-import { URIToParentParams } from '../../common/utils'
+import { fetchRepoFromURL } from '../../common/utils'
 import { fetchLocales } from '../concepts/utils'
 import Button from '../common/Button'
 import RTEditor from '../common/RTEditor'
@@ -39,6 +40,7 @@ import RepoCreateLanguages from './RepoCreateLanguages'
 import RepoCreateAdditionalMetadata from './RepoCreateAdditionalMetadata'
 import RepoCreatePublisher from './RepoCreatePublisher'
 import RepoCreateHierarchy from './RepoCreateHierarchy'
+import { parseRepoURL } from './utils'
 
 const TabPanel = props => {
   const { children, value, index, ...other } = props;
@@ -86,6 +88,9 @@ const RepoCreate = () => {
   const [fromOCLURL, setFromOCLURL] = React.useState('')
   const [fromOCLURLError, setFromOCLURLError] = React.useState(false)
   const [isFetchingFromOCLURL, setIsFetchingFromOCLURL] = React.useState(false)
+  const copyFromParam = new URLSearchParams(location.search).get('copyFrom')
+  const copyFromApplied = React.useRef(false)
+  const fromOCLURLParsed = React.useMemo(() => parseRepoURL(fromOCLURL), [fromOCLURL])
   const [validationErrors, setValidationErrors] = React.useState({})
   const isEdit = Boolean(params.repo)
   const canonicalURLEdited = React.useRef(false)
@@ -336,36 +341,57 @@ const RepoCreate = () => {
     setStep(newStep)
   }
 
-  const onFetchRepoFromURL = () => {
+  const setTabForRepoType = repoType => setTab(TABS.find(_tab => _tab.id + 's' === repoType)?.index || 0)
+
+  const fetchRepoFrom = parsed => {
     setFromOCLURLError(false)
     setIsFetchingFromOCLURL(true)
-    if(isValidFromOCLURL(fromOCLURL)) {
-      let url = fromOCLURL
-      if(url.includes('/#/')) {
-        url = url.replace('/#/', '/').replace('//app.', '//api.')
+    fetchRepoFromURL(parsed).then(({ok, status, data}) => {
+      setIsFetchingFromOCLURL(false)
+      if(ok && data?.id) {
+        setRepo(data)
+        setModelForEdit({...data, extras: reject(apiExtrasToExtras(data.extras), {key: '__export_time'})})
+        setTabForRepoType(parsed.repoType)
+        onStepChange(1, false)
       }
-      fetch(url).then(response => {
-        return response.json()
-      }).then(json => {
-        setIsFetchingFromOCLURL(false)
-        if(json?.id) {
-          setRepo(json)
-          setModelForEdit(json)
-          onStepChange(1, false)
-        }
-        else
-          setFromOCLURLError(json?.detail || json?.error || t('common.error'))
-      })
-    }
+      else
+        setFromOCLURLError(data?.detail || data?.error || compact([status, t('common.error')]).join(': '))
+    }).catch(error => {
+      setIsFetchingFromOCLURL(false)
+      setFromOCLURLError(error?.message || t('common.error'))
+    })
   }
 
-  const isValidFromOCLURL = () => {
-    if(fromOCLURL && fromOCLURL.startsWith('https://') && fromOCLURL.includes('/' + selectedTab.id + 's/') && (fromOCLURL.includes('/orgs/') || fromOCLURL.includes('/users/'))) {
-      const params = URIToParentParams(fromOCLURL.split('//')[1])
-      return Boolean(params.repoType && params.repo && params.owner && params.ownerType)
-    }
-    return false
+  const onFetchRepoFromURL = () => {
+    if(fromOCLURLParsed)
+      fetchRepoFrom(fromOCLURLParsed)
+    else
+      setFromOCLURLError(t('repo.invalid_repo_url'))
   }
+
+  const onCreateFromURLToggle = () => {
+    if(isCreatingFromOCLURL) {
+      setFromOCLURL('')
+      setFromOCLURLError(false)
+      setIsFetchingFromOCLURL(false)
+    }
+    setIsCreatingFromOCLURL(!isCreatingFromOCLURL)
+  }
+
+  React.useEffect(() => {
+    if(isEdit || !copyFromParam || copyFromApplied.current)
+      return
+    copyFromApplied.current = true
+    setIsCreatingFromOCLURL(true)
+    setFromOCLURL(copyFromParam)
+    const parsed = parseRepoURL(copyFromParam)
+    if(parsed) {
+      setTabForRepoType(parsed.repoType)
+      fetchRepoFrom(parsed)
+    }
+    else
+      setFromOCLURLError(t('repo.invalid_repo_url'))
+  }, [isEdit, copyFromParam])
 
   return (
     <Paper component="div" className='col-xs-12' sx={{borderRadius: '10px', boxShadow: 'none', p: 2, backgroundColor: 'primary.99', height: 'calc(100vh - 100px)', overflow: 'auto'}}>
@@ -455,7 +481,7 @@ const RepoCreate = () => {
                     {_tab.content.description}
                   </Typography>
                   <Button sx={{margin: '24px 0', '.MuiChip-label': {fontWeight: 'bold'}}} label={t('common.create')} variant='outlined' color='primary' onClick={() => onStepChange(1)} />
-                  <Button sx={{margin: '24px 8px', '.MuiChip-label': {fontWeight: 'bold'}}} label={t('common.create_from_ocl_url')} variant={isCreatingFromOCLURL ? 'contained' : 'outlined'} color='secondary' onClick={() => setIsCreatingFromOCLURL(!isCreatingFromOCLURL)} />
+                  <Button sx={{margin: '24px 8px', '.MuiChip-label': {fontWeight: 'bold'}}} label={t('common.create_from_ocl_url')} variant={isCreatingFromOCLURL ? 'contained' : 'outlined'} color='secondary' onClick={onCreateFromURLToggle} />
                   {
                     isCreatingFromOCLURL && step === 0 && !isEdit &&
                       <div className='col-xs-12 padding-0'>
@@ -469,11 +495,11 @@ const RepoCreate = () => {
                             value={fromOCLURL || ''}
                             onChange={event => setFromOCLURL(event.target.value)}
                             error={Boolean(fromOCLURLError)}
-                            helperText={fromOCLURLError || `e.g. https://app.openconceptlab.org/#/orgs/MyOrg/${selectedTab.id}s/MyRepo/`}
+                            helperText={fromOCLURLError || t('repo.ocl_repo_url_help', {example: `/orgs/MyOrg/${selectedTab.id}s/MyRepo/`, interpolation: {escapeValue: false}})}
                           />
                           </div>
                         <div className='col-xs-3' style={{padding: '0 0 0 10px'}}>
-                          <Button disabled={isFetchingFromOCLURL || !isValidFromOCLURL()} sx={{'.MuiChip-label': {fontWeight: 'bold'}}} label={isFetchingFromOCLURL ? t('common.loading') : t('common.proceed')} variant='outlined' color='primary' onClick={onFetchRepoFromURL} />
+                          <Button disabled={isFetchingFromOCLURL || !fromOCLURLParsed} sx={{'.MuiChip-label': {fontWeight: 'bold'}}} label={isFetchingFromOCLURL ? t('common.loading') : t('common.proceed')} variant='outlined' color='primary' onClick={onFetchRepoFromURL} />
                           </div>
                       </div>
                   }

@@ -9,8 +9,9 @@ import RepoVersionChip from './RepoVersionChip';
 import ProcessingFlag from './ProcessingFlag';
 import RepoChip from './RepoChip'
 import OwnerChip from '../common/OwnerChip';
-import { currentUserHasAccess } from '../../common/utils';
+import { copyURL, currentUserHasAccess, toFullAPIURL } from '../../common/utils';
 import RepoManagementList from './RepoManagementList';
+import { createSimilarRepoHref } from './utils';
 import FollowActionButton from '../common/FollowActionButton'
 
 const RepoHeader = ({repo, owner, versions, onVersionChange, repoHref, onCreateConceptClick, onCreateMappingClick, onVersionEditClick, onCreateVersionClick, onDeleteRepoClick, isVersion, onReleaseVersionClick}) => {
@@ -40,9 +41,13 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, repoHref, onCreateC
       onVersionEditClick()
     else if (option === 'release')
       onReleaseVersionClick()
+    else if (option === 'copyURL')
+      copyURL(toFullAPIURL(repo.url))
   }
 
   const hasAccess = currentUserHasAccess()
+  const isRepo = has(repo, 'source_type') || has(repo, 'collection_type')
+  const createSimilarHref = isVersion ? false : createSimilarRepoHref(repo)
 
   return (
     <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderRadius: '10px 10px 0 0'}}>
@@ -59,12 +64,12 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, repoHref, onCreateC
         <span style={{display: 'flex', alignItems: 'center', marginLeft: '16px'}}>
           <FollowActionButton iconButton entity={repo} />
           {
-            Boolean(hasAccess && (has(repo, 'source_type') || has(repo, 'collection_type'))) &&
+            Boolean(isRepo && (hasAccess || !isVersion)) &&
               <React.Fragment>
-                <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='repo-manage'>
-                  {isVersion ? t('repo.manage_version') : t('repo.manage')}
+                <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='repo-actions'>
+                  {t('common.actions')}
                 </Button>
-                <RepoManagementList isVersion={isVersion} anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-manage' onClick={onManageOptionClick} repo={repo} />
+                <RepoManagementList isVersion={isVersion} hasAccess={hasAccess} createSimilarHref={createSimilarHref} anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-actions' onClick={onManageOptionClick} repo={repo} />
               </React.Fragment>
           }
         </span>

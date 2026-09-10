@@ -25,6 +25,7 @@ import MappingIcon from '../mappings/MappingIcon';
 import { getSortConfig } from './sortConfig'
 import { resolveColumns } from './columns'
 import { isLoggedIn, currentUserHasAccess } from '../../common/utils';
+import { createSimilarRepoHref } from '../repos/utils';
 import { MAX_SEARCH_RESULT_WINDOW } from '../../common/constants';
 
 const ResultsToolbar = props => {
@@ -316,6 +317,23 @@ const SearchResults = props => {
     ) : null
 
 
+  const createSimilarRepoLink = ['repos', 'sources', 'collections'].includes(props.resource) && selectedRows.length === 1
+                                ? createSimilarRepoHref(selectedRows[0])
+                                : false
+  const createSimilarRepoBulkAction = createSimilarRepoLink
+    ? (
+      <Button
+        key='create-similar-repo'
+        startIcon={<RepeatIcon fontSize='inherit' />}
+        variant='contained'
+        size='small'
+        sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}, marginLeft: '8px'}}
+        href={createSimilarRepoLink}
+      >
+        {t('repo.create_similar')}
+      </Button>
+    ) : null
+
   const orderedSelectedRows = compact(selected.map(id => allRows.find(row => (row.version_url || row.url || row.id) === id)))
 
   const createMappingBulkAction = props.resource === 'concepts' && Boolean(props.onCreateMappingClick) && currentUserHasAccess() && orderedSelectedRows.length === 2
@@ -341,7 +359,7 @@ const SearchResults = props => {
     {id: 'hierarchy', labelKey: 'search.hierarchy'},
   ] : undefined
   const toolbarControl = props.toolbarControl
-  const allBulkActions = [addToCollectionBulkAction, cloneToSourceBulkAction, createMappingBulkAction, createSimilarBulkAction, props.extraBulkActions].filter(Boolean)
+  const allBulkActions = [addToCollectionBulkAction, cloneToSourceBulkAction, createMappingBulkAction, createSimilarBulkAction, createSimilarRepoBulkAction, props.extraBulkActions].filter(Boolean)
   const bulkActionsElement = allBulkActions.length > 0 ? <>{allBulkActions}</> : null
   const leftControls = (props.fixedLeftControls || []).filter(Boolean)
 
