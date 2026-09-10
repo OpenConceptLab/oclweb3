@@ -393,6 +393,7 @@
     "source_to_mappings": "Source to Mappings",
     "raw": "Raw",
     "translation": "Translation",
+    "transform": "Transform",
     "remove_selected": "Remove Selected",
     "remove_confirm_title": "Remove {{count}} {{reference}}?",
     "remove_confirm_body": "This will remove {{summary}} from the collection expansion.",
