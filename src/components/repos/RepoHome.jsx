@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useHistory, useParams } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import Paper from '@mui/material/Paper'
 import orderBy from 'lodash/orderBy'
@@ -12,9 +12,9 @@ import APIService from '../../services/APIService';
 import ProcessingBanner from './ProcessingBanner';
 import { useProcessingVersions } from '../../hooks/useProcessingState';
 import { PROCESSING_QUERY_PARAMS, isVersionProcessing } from './processingStages';
-import { dropVersion, toParentURI, toOwnerURI, currentUserHasAccess, isSameResourceNavigation } from '../../common/utils';
+import { dropVersion, toOwnerURI, currentUserHasAccess } from '../../common/utils';
+import { parseRepoPath, buildRepoPath, buildRepoApiUrl, isSameRepoScope, hasResourcePanel, RESOURCE_TABS } from '../../common/repoRoute';
 import { WHITE } from '../../common/colors';
-import { RESERVED_ROUTE_KEYWORDS } from '../../common/constants';
 
 import { OperationsContext } from '../app/LayoutContext';
 import CommonTabs from '../common/CommonTabs';
@@ -42,12 +42,12 @@ const RepoHome = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const history = useHistory()
-  const params = useParams()
+  const route = React.useMemo(() => parseRepoPath(location.pathname), [location.pathname])
   const TABS = [
     {key: 'concepts', label: t('concept.concepts')},
     {key: 'mappings', label: t('mapping.mappings')},
   ]
-  const isCollection = params.repoType === 'collections'
+  const isCollection = route.repoType === 'collections'
   const getRepoTabs = React.useCallback(() => {
     if(isCollection)
       return [...TABS, {key: 'references', label: t('reference.references')}, {key: 'versions', label: t('repo.versions_expansions')}]
@@ -67,10 +67,9 @@ const RepoHome = () => {
   const [versionsRefreshKey, setVersionsRefreshKey] = React.useState(0)
   const [loading, setLoading] = React.useState(true)
 
-  const routeRepoURL = `/${params.ownerType}/${params.owner}/${params.repoType}/${params.repo}/`
+  const routeRepoURL = buildRepoApiUrl({...route, version: ''})
   const isRepoForRoute = Boolean(repo?.url) && repo.url.toLowerCase() === routeRepoURL.toLowerCase()
-  const [showItem, setShowItem] = React.useState(false)
-  const [dismissedResource, setDismissedResource] = React.useState(null)
+  const [seedItem, setSeedItem] = React.useState(false)
   const [selectedItem, setSelectedItem] = React.useState([])
   const [conceptForm, setConceptForm] = React.useState(false)
   const [mappingForm, setMappingForm] = React.useState(false)
@@ -84,28 +83,28 @@ const RepoHome = () => {
   const [expansions, setExpansions] = React.useState([])
   const [expansionsLoading, setExpansionsLoading] = React.useState(false)
   const [selectedExpansion, setSelectedExpansion] = React.useState(false)
-  const isInitialMount = React.useRef(true)
-  const prevLocationRef = React.useRef(location)
+  const prevRouteRef = React.useRef(null)
 
-  const TAB_KEYS = tabs.map(tab => tab.key)
-  const isVersionSegment = segment => Boolean(segment) && !TAB_KEYS.includes(segment) && !RESERVED_ROUTE_KEYWORDS.includes(segment)
-  const findTab = () => TAB_KEYS.includes(params?.tab || params?.repoVersion) ? params.tab || params.repoVersion : 'concepts'
-  const versionFromURL = (isVersionSegment(params?.repoVersion) ? params.repoVersion : '') || ''
-
-  const [tab, setTab] = React.useState(findTab)
+  const [tab, setTab] = React.useState(route.tab || 'concepts')
   const { setAlert, setContextRepo } = React.useContext(OperationsContext);
 
-  const getURL = () => ((toParentURI(location.pathname) + '/').replace('//', '/') + versionFromURL + '/').replace('//', '/')
+  const getURL = () => buildRepoApiUrl(route)
   const getSearchURL = () => {
-    let url = getURL()
-    if(isCollection && selectedExpansion?.mnemonic && ['concepts', 'mappings'].includes(tab)) {
-      if(repo.version === 'HEAD' && !url.includes('/HEAD/')) {
-        url += 'HEAD/'
-      }
-      return `${url}expansions/${selectedExpansion.mnemonic}/${tab}/`
-    }
+    if(isCollection && selectedExpansion?.url && ['concepts', 'mappings'].includes(tab))
+      return `${selectedExpansion.url}${tab}/`
     return getURL() + tab + '/'
   }
+
+  const replacePath = overrides => {
+    const nextPath = buildRepoPath(route, overrides)
+    if(nextPath !== location.pathname)
+      history.replace(nextPath + (location.search || ''))
+  }
+
+  const pickExpansion = (list, version) =>
+    (route.expansion && find(list, {mnemonic: route.expansion})) ||
+    find(list, {url: version?.expansion_url}) ||
+    false
 
   const fetchExpansions = React.useCallback((url, version = repo) => {
     setExpansions([])
@@ -121,10 +120,7 @@ const RepoHome = () => {
       let versionExpansions = Array.isArray(response?.data) ? response.data : []
       versionExpansions = orderBy(versionExpansions, ['created_on', 'id'], ['desc', 'desc']).map(expansion => ({...expansion, default: expansion.url === version?.expansion_url}))
       setExpansions(versionExpansions)
-      setSelectedExpansion(() =>
-        find(versionExpansions, {url: version?.expansion_url}) ||
-        false
-      )
+      setSelectedExpansion(pickExpansion(versionExpansions, version))
       setExpansionsLoading(false)
       return versionExpansions
     }).catch(() => {
@@ -144,9 +140,8 @@ const RepoHome = () => {
       const newStatus = response?.status || response?.response?.status
       const _repo = response?.data || response?.response?.data || {}
 
-      if(versionFromURL && (newStatus !== 200 || !_repo?.url)) {
-        isInitialMount.current = true
-        history.replace(`/${params.ownerType}/${params.owner}/${params.repoType}/${params.repo}`)
+      if(route.version && (newStatus !== 200 || !_repo?.url)) {
+        history.replace(buildRepoPath(route, {version: '', expansion: '', tab: '', resource: ''}))
         return
       }
 
@@ -168,9 +163,6 @@ const RepoHome = () => {
         }
         fetchExpansions(expansionURL, _repo)
       }
-
-      if(isConceptURL || isMappingURL || isReferenceURL)
-        setShowItem(true)
     })
   }
 
@@ -190,7 +182,7 @@ const RepoHome = () => {
     APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit, page, ...PROCESSING_QUERY_PARAMS}).then(response => {
       const _versions = Array.isArray(response?.data) ? response.data : []
       setVersions(_versions)
-      if(!repo.version_url && !versionFromURL && !showConceptURL && !showMappingURL) {
+      if(!repo.version_url && !route.version && !route.resource) {
         const releasedVersions = filter(_versions, {released: true})
         let version = orderBy(releasedVersions, 'created_on', ['desc'])[0] || orderBy(_versions, 'created_on', ['desc'])[0]
         if((version?.version_url || version?.url) != (repo?.version_url || repo?.url))
@@ -200,22 +192,22 @@ const RepoHome = () => {
   }
 
   React.useEffect(() => {
-    const skipRefetch = !isInitialMount.current && isSameResourceNavigation(prevLocationRef.current, location)
-    isInitialMount.current = false
-    prevLocationRef.current = location
-    if(skipRefetch)
+    const prevRoute = prevRouteRef.current
+    prevRouteRef.current = route
+    setTab(route.tab || 'concepts')
+    if(prevRoute && isSameRepoScope(prevRoute, route))
       return
-    if(location.pathname.includes('/concepts'))
-      setTab('concepts')
-    if(location.pathname.includes('/mappings'))
-      setTab('mappings')
-    if(location.pathname.includes('/versions'))
-      setTab('versions')
-    if(location.pathname.includes('/references'))
-      setTab('references')
     fetchRepo()
     fetchVersions()
   }, [location.pathname])
+
+  React.useEffect(() => {
+    if(!isCollection || !expansions?.length)
+      return
+    const next = pickExpansion(expansions, repo)
+    if((next?.url || '') !== (selectedExpansion?.url || ''))
+      setSelectedExpansion(next)
+  }, [expansions, route.expansion])
 
   React.useEffect(() => {
     return () => {
@@ -226,11 +218,11 @@ const RepoHome = () => {
 
 
   const onVersionChange = (version, reload=true, targetTab=null) => {
-    let url = version.version_url
-    if(reload && version?.version === 'HEAD')
-      url += 'HEAD/'
-    const nextTab = targetTab || findTab()
-    const nextPath = url + nextTab + '/'
+    const nextTab = targetTab || route.tab || 'concepts'
+    const versionId = version?.version || version?.id || ''
+    const isHead = versionId === 'HEAD'
+    const nextVersion = isHead ? (reload ? 'HEAD' : '') : versionId
+    const nextPath = buildRepoPath(route, {version: nextVersion, expansion: '', tab: nextTab, resource: ''})
     if(nextPath === location.pathname)
       return
     setExpansions([])
@@ -242,6 +234,13 @@ const RepoHome = () => {
     history.push(nextPath + (location.search || ''))
   }
 
+  const onExpansionChange = expansion => {
+    setSelectedExpansion(expansion)
+    if(!expansion?.mnemonic)
+      return
+    replacePath({expansion: (expansion.default && !route.expansion) ? '' : expansion.mnemonic, resource: ''})
+  }
+
   // Opening a version from the versions tab means "go look at this version", so it
   // lands on its content rather than back on the list it was picked from.
   const onExploreVersion = version => onVersionChange(version, true, 'concepts')
@@ -249,53 +248,60 @@ const RepoHome = () => {
   // A tab carried over from a collection (references) must not stay selected on a
   // source, or it queries an endpoint that cannot exist there.
   React.useEffect(() => {
-    if(tabs?.length && tab && !tabs.some(item => item.key === tab))
-      setTab(tabs[0].key)
+    if(!tabs?.length || !tab || tabs.some(item => item.key === tab))
+      return
+    setTab(tabs[0].key)
+    if(RESOURCE_TABS.includes(route.tab))
+      replacePath({tab: tabs[0].key, expansion: '', resource: ''})
   }, [tabs, tab])
 
   const onTabChange = (event, newTab) => {
     if(newTab) {
       setTab(newTab)
-      history.push((getURL() + '/' + newTab).replace('//', '/'))
+      history.push(buildRepoPath(route, {
+        tab: newTab,
+        expansion: ['concepts', 'mappings'].includes(newTab) ? route.expansion : '',
+        resource: ''
+      }))
     }
   }
 
   const onShowItem = item => {
-    setShowItem(item)
     setConceptForm(false)
     setMappingForm(false)
+    setSeedItem(item || false)
+    replacePath({tab, resource: item?.id || ''})
   }
 
-  const closeItem = options => {
-    setShowItem(false)
-    if(!options?.navigated)
-      setDismissedResource(params.resource || null)
+  const closeItem = () => {
+    setSeedItem(false)
+    replacePath({tab, resource: ''})
   }
 
   const onCreateConceptClick = () => {
     setVersionForm(false)
-    setShowItem(false)
+    closeItem()
     setMappingForm(false)
     setConceptForm(true)
   }
 
   const onCreateMappingClick = () => {
     setVersionForm(false)
-    setShowItem(false)
+    closeItem()
     setConceptForm(false)
     setMappingForm(true)
   }
 
   const onCreateMappingFromConceptsClick = concepts => {
     setVersionForm(false)
-    setShowItem(false)
+    closeItem()
     setConceptForm(false)
     setMappingForm({selectedConcepts: concepts})
   }
 
   const onCreateSimilarClick = item => {
     setVersionForm(false)
-    setShowItem(false)
+    closeItem()
     if(tab === 'mappings') {
       setConceptForm(false)
       setMappingForm({copyFrom: item})
@@ -306,7 +312,7 @@ const RepoHome = () => {
   }
 
   const onCreateVersionClick = () => {
-    setShowItem(false)
+    closeItem()
     setConceptForm(false)
     setMappingForm(false)
     setVersionForm({edit: false, version: repo, expansions: []})
@@ -389,15 +395,12 @@ const RepoHome = () => {
   const expansionURL = (isCollection && selectedExpansion?.url) ? selectedExpansion.url : false
   const toExpansionURL = (resourceType, id) => (expansionURL && id) ? `${expansionURL}${resourceType}/${encodeURIComponent(id)}/` : false
   const isExpansionReady = !requiresExpansionSelection || Boolean(expansionURL)
-  const getConceptURLFromMainURL = () => (isConceptURL && params.resource) ? (toExpansionURL('concepts', params.resource) || getURL() + 'concepts/' + params.resource + '/') : false
-  const getMappingURLFromMainURL = () => (isMappingURL && params.resource) ? (toExpansionURL('mappings', params.resource) || getURL() + 'mappings/' + params.resource + '/') : false
-  const getReferenceURLFromMainURL = () => (isReferenceURL && params.resource) ? getURL() + 'references/' + params.resource + '/' : false
-  const resourceFallbackActive = Boolean(params.resource) && params.resource !== dismissedResource
-  // URL-named resource id wins over a stale showItem selected via list click
-  const showItemMatchesURLResource = !params.resource || String(showItem?.id) === String(params.resource)
-  const showConceptURL = (isExpansionReady && (showItem?.concept_class || resourceFallbackActive) && isConceptURL) ? (showItemMatchesURLResource && (toExpansionURL('concepts', showItem?.id) || showItem?.version_url || showItem?.url)) || getConceptURLFromMainURL() : false
-  const showMappingURL = (isExpansionReady && (showItem?.map_type || resourceFallbackActive) && isMappingURL) ? (showItemMatchesURLResource && (toExpansionURL('mappings', showItem?.id) || showItem?.version_url || showItem?.url)) || getMappingURLFromMainURL() : false
-  const showReferenceURL = ((showItem?.expression || resourceFallbackActive) && isReferenceURL) ? (showItemMatchesURLResource && showItem?.uri) || getReferenceURLFromMainURL() : false
+  const panelOpen = hasResourcePanel(route)
+  const resourceReadURL = resourceType => toExpansionURL(resourceType, route.resource) || (getURL() + resourceType + '/' + encodeURIComponent(route.resource) + '/')
+  const showConceptURL = (panelOpen && isConceptURL && isExpansionReady) ? resourceReadURL('concepts') : false
+  const showMappingURL = (panelOpen && isMappingURL && isExpansionReady) ? resourceReadURL('mappings') : false
+  const showReferenceURL = (panelOpen && isReferenceURL) ? (getURL() + 'references/' + encodeURIComponent(route.resource) + '/') : false
+  const seed = (seedItem && String(seedItem.id) === String(route.resource)) ? seedItem : undefined
   const isSplitView = conceptForm || mappingForm || showConceptURL || showMappingURL || showReferenceURL || versionForm
 
   const onVersionEditClick = () => isVersion && setVersionForm({edit: true, version: repo, expansions: []})
@@ -435,7 +438,7 @@ const RepoHome = () => {
                         expansions={expansions}
                         loading={expansionsLoading}
                         selectedExpansion={selectedExpansion}
-                        onChange={setSelectedExpansion}
+                        onChange={onExpansionChange}
                       />
                     </div>
                 }
@@ -446,7 +449,7 @@ const RepoHome = () => {
                 {
                   _canRenderSearch &&
                     <Search
-                      key={`${tab}-${searchReloadKey}`}
+                      key={`${tab}-${selectedExpansion?.mnemonic || ''}-${searchReloadKey}`}
                       loading={loading}
                       summary={repoSummary || repo?.summary}
                       resource={tab}
@@ -458,7 +461,7 @@ const RepoHome = () => {
                       onSaveAsDefaultFilters={onSaveAsDefaultFilters}
                       repoDefaultFilters={(!tab || tab === 'concepts') ? repo?.meta?.display?.default_filter : {}}
                       onShowItem={onShowItem}
-                      showItem={showItem}
+                      showItem={seed || false}
                       onSelectItem={setSelectedItem}
                       onCreateSimilarClick={!isCollection ? onCreateSimilarClick : undefined}
                       onCreateMappingClick={(!isCollection && !isVersion && tab === 'concepts') ? onCreateMappingFromConceptsClick : undefined}
@@ -474,7 +477,7 @@ const RepoHome = () => {
                             expansions={expansions}
                             loading={expansionsLoading}
                             selectedExpansion={selectedExpansion}
-                            onChange={setSelectedExpansion}
+                            onChange={onExpansionChange}
                           />
                       }
                       extraBulkActions={
@@ -567,15 +570,15 @@ const RepoHome = () => {
       <div className={'col-xs-5 padding-0' + (isSplitView ? ' split-appear' : '')} style={{marginLeft: '16px', width: isSplitView ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: isSplitView ? 'calc(100vh - 102px)' : 0, opacity: isSplitView ? 1 : 0, overflow: 'auto'}}>
         {
           Boolean(showConceptURL && !conceptForm) &&
-            <ConceptHome repoSummary={repoSummary} repo={repo} url={showConceptURL} expansionURL={expansionURL} concept={showItem} onClose={closeItem} repoVersions={versions} nested />
+            <ConceptHome repoSummary={repoSummary} repo={repo} url={showConceptURL} expansionURL={expansionURL} concept={seed} onClose={closeItem} repoVersions={versions} nested />
         }
         {
           Boolean(showMappingURL && !mappingForm) &&
-            <MappingHome repoSummary={repoSummary} repo={repo} url={showMappingURL} expansionURL={expansionURL} mapping={showItem} onClose={closeItem} repoVersions={versions} nested />
+            <MappingHome repoSummary={repoSummary} repo={repo} url={showMappingURL} expansionURL={expansionURL} mapping={seed} onClose={closeItem} repoVersions={versions} nested />
         }
         {
           showReferenceURL &&
-            <ReferenceHome repoSummary={repoSummary} repo={repo} url={showReferenceURL} reference={showItem} onClose={closeItem} onDelete={() => setSearchReloadKey(key => key + 1)} repoVersions={versions} nested />
+            <ReferenceHome repoSummary={repoSummary} repo={repo} url={showReferenceURL} reference={seed} onClose={closeItem} onDelete={() => setSearchReloadKey(key => key + 1)} repoVersions={versions} nested />
         }
         {
           conceptForm &&

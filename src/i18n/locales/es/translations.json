@@ -97,7 +97,10 @@
     "network_error": "Error de red",
     "generic": "Algo falló, por favor inténtalo de nuevo más tarde.",
     "404": "Lo siento, no se pudo encontrar tu página.",
-    "mandatory_field": "Este campo no puede estar en blanco"
+    "mandatory_field": "Este campo no puede estar en blanco",
+    "concept_404": "Lo siento, no se pudo encontrar este concepto.",
+    "mapping_404": "Lo siento, no se pudo encontrar este mapeo.",
+    "reference_404": "Lo siento, no se pudo encontrar esta referencia."
   },
   "dashboard": {
     "name": "Tablero",

@@ -5,6 +5,7 @@ import APIService from '../../services/APIService';
 import { dropVersion, getResourceIdFromUrl } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
+import PanelError from '../errors/PanelError';
 import ReferenceHeader from './ReferenceHeader'
 import ReferenceDetails from './ReferenceDetails'
 import ReferenceTabs from './ReferenceTabs'
@@ -15,6 +16,7 @@ const ReferenceHome = props => {
   const { t } = useTranslation()
   const [reference, setReference] = React.useState(props.reference || {})
   const [loading, setLoading] = React.useState(false)
+  const [errorStatus, setErrorStatus] = React.useState(false)
   const [deleteDialog, setDeleteDialog] = React.useState(false)
   const [deleting, setDeleting] = React.useState(false)
   const [tab, setTab] = React.useState('metadata')
@@ -23,8 +25,6 @@ const ReferenceHome = props => {
   const [mappings, setMappings] = React.useState(false)
   const [mappingHeaders, setMappingHeaders] = React.useState(false)
   const activeReferenceIdRef = React.useRef(reference?.id)
-  const lastReferenceActionRef = React.useRef('url')
-  const prevReferenceSelectionRef = React.useRef({id: props.reference?.id, url: props.url})
   const { setAlert } = React.useContext(OperationsContext);
 
   const repoURL = props?.repo?.version_url || props?.repo?.url
@@ -42,29 +42,21 @@ const ReferenceHome = props => {
     setMappingHeaders(false)
   }
 
-  const getActiveReferenceId = () => {
-    if(props.reference?.id && lastReferenceActionRef.current === 'selection')
-      return props.reference.id
-    return getResourceIdFromUrl(props.url, 'references') || props.reference?.id || reference?.id
-  }
-
   React.useEffect(() => {
-    const prevSelection = prevReferenceSelectionRef.current
-    if(prevSelection.id !== props.reference?.id)
-      lastReferenceActionRef.current = 'selection'
-    else if(prevSelection.url !== props.url)
-      lastReferenceActionRef.current = 'url'
-    prevReferenceSelectionRef.current = {id: props.reference?.id, url: props.url}
-
-    if(props.reference?.expression && lastReferenceActionRef.current === 'selection') {
+    setErrorStatus(false)
+    const urlReferenceId = getResourceIdFromUrl(props.url, 'references')
+    if(props.reference?.expression && (!urlReferenceId || String(props.reference.id) === String(urlReferenceId))) {
       setReference(props.reference)
       return
     }
-    const referenceId = getActiveReferenceId()
-    const url = lastReferenceActionRef.current === 'selection' ? (props.reference?.url || (referenceId && repoURL ? `${repoURL}references/${encodeURIComponent(referenceId)}/` : props.url)) : props.url
-    if(!url)
+    if(!props.url)
       return
-    APIService.new().overrideURL(url).get().then(response => {
+    APIService.new().overrideURL(props.url).get(null, null, null, true).then(response => {
+      const status = response?.status || response?.response?.status
+      if(status && status !== 200) {
+        setErrorStatus(status)
+        return
+      }
       if(response?.data)
         setReference(response.data)
     })
@@ -161,6 +153,9 @@ const ReferenceHome = props => {
   }
 
 
+
+  if(errorStatus)
+    return <PanelError status={errorStatus} resourceType='reference' onClose={props.onClose} />
 
   return (
     <div className='col-xs-12' style={{padding: '8px 16px 12px 16px'}}>

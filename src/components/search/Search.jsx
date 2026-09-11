@@ -654,6 +654,11 @@ const Search = props => {
     setShowItem(props.showItem || false)
   }, [props.showItem])
 
+  React.useEffect(() => {
+    if(!props.nested)
+      setShowItem(false)
+  }, [location.search])
+
   const findPinFor = item => (pins || []).find(pin => pin.resource_uri === item?.url)
   const pinLimitReached = (pins || []).length >= MAX_PINS_ALLOWED
   const pinColumn = (canPin && PIN_RESOURCES.includes(resource)) ? {

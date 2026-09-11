@@ -171,21 +171,6 @@ export const getResourceIdFromUrl = (url, resourceType) => {
 }
 
 // True when only the trailing resource-id segment was added, removed, or swapped
-export const isSameResourceNavigation = (prevLocation, nextLocation) => {
-  if(prevLocation.search !== nextLocation.search)
-    return false
-  const prevSegments = prevLocation.pathname.replace(/\/$/, '').split('/')
-  const nextSegments = nextLocation.pathname.replace(/\/$/, '').split('/')
-  const diff = nextSegments.length - prevSegments.length
-  if(diff === 0)
-    return prevSegments.slice(0, -1).join('/') === nextSegments.slice(0, -1).join('/')
-  if(diff === 1)
-    return prevSegments.join('/') === nextSegments.slice(0, -1).join('/')
-  if(diff === -1)
-    return nextSegments.join('/') === prevSegments.slice(0, -1).join('/')
-  return false
-}
-
 export const headFirst = versions => compact([find(versions, version => (version.version || version.id) === 'HEAD'), ...reject(versions, version => (version.version || version.id) === 'HEAD')]);
 
 export const currentUserToken = () => localStorage.token;
@@ -1115,6 +1100,7 @@ export const toMapperURL = path => {
 }
 
 const SHARED_REPO_TABS = ['concepts', 'mappings', 'references', 'versions', 'about']
+const EXPANSION_SCOPED_TABS = ['concepts', 'mappings']
 const RESERVED_REPO_SEGMENTS = [...SHARED_REPO_TABS, ...RESERVED_ROUTE_KEYWORDS, 'edit', 'compare-versions']
 const SHARED_ROOT_PATHS = ['/search', '/imports', '/concepts/compare', '/mappings/compare']
 const SHARED_OWNER_PATHS = {users: ['settings'], orgs: ['edit']}
@@ -1149,21 +1135,31 @@ export const toV2Path = path => {
 
   let repoHome = `${ownerHome}/${repoType}/${repo}`
   let rest = segments.slice(4)
+  let hasVersion = false
 
   if(rest.length > 0 && !RESERVED_REPO_SEGMENTS.includes(rest[0])) {
     if(!isRouteId(rest[0]))
       return repoHome
     repoHome = `${repoHome}/${rest[0]}`
     rest = rest.slice(1)
+    hasVersion = true
   }
 
+  let expansion = ''
+  if(rest[0] === 'expansions' && isRouteId(rest[1])) {
+    expansion = rest[1]
+    rest = rest.slice(2)
+  }
+
+  const expansionBase = expansion ? `${repoHome}${hasVersion ? '' : '/HEAD'}/expansions/${expansion}` : repoHome
+
   if(rest.length === 0)
-    return repoHome
+    return expansionBase
 
   if(!SHARED_REPO_TABS.includes(rest[0]))
     return repoHome
 
-  const tabPath = `${repoHome}/${rest[0]}`
+  const tabPath = `${EXPANSION_SCOPED_TABS.includes(rest[0]) ? expansionBase : repoHome}/${rest[0]}`
 
   return isRouteId(rest[1]) ? `${tabPath}/${rest[1]}` : tabPath
 }

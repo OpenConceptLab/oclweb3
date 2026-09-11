@@ -4,6 +4,7 @@ import { Route, Switch, withRouter } from 'react-router-dom';
 import {
   recordGAPageView, isLoggedIn, getCurrentUser, getLoginURL, isOtherOCLClientURL, isRedirectingToLoginViaReferrer
 } from '../../common/utils';
+import { REPO_ROUTE_PATHS } from '../../common/repoRoute';
 import Error404 from '../errors/Error404';
 import Error403 from '../errors/Error403';
 import Error401 from '../errors/Error401';
@@ -153,9 +154,7 @@ const App = props => {
       })
   }, []);
 
-  const repoTabs = ['concepts', 'mappings', 'versions', 'summary', 'about', 'references']
   const orgTabs = ['repos']
-  const repoTabsStr = repoTabs.join('|')
   const orgTabsStr = orgTabs.join('|')
 
   return (
@@ -224,11 +223,8 @@ const App = props => {
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/repos/new/:step?`} component={RepoCreate} />
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/edit/:step?`} component={RepoCreate} />
               <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/compare-versions`} component={CompareVersions} />
-              <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo`} component={RepoHome} />
               <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/edit`} component={RepoCreate} />
-              <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion`} component={RepoHome} />
-              <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:tab(${repoTabsStr})/:resource?`} component={RepoHome} />
-              <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/:repoVersion/:tab(${repoTabsStr})/:resource?`} component={RepoHome} />
+              <Route exact path={REPO_ROUTE_PATHS} component={RepoHome} />
               <AuthenticationRequiredRoute exact path='/url-registry' component={URLRegistry} />
               <AuthenticationRequiredRoute exact path='/orgs/:org/url-registry' component={URLRegistry} />
               <AuthenticationRequiredRoute exact path='/users/:user/url-registry' component={URLRegistry} />

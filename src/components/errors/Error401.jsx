@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { BLACK, PRIMARY_COLORS } from '../../common/colors';
 import { getLoginURL, getRegisterURL } from '../../common/utils'
 
-const Error401 = () => {
+const Error401 = ({ nested, message }) => {
   const { t } = useTranslation()
   return (
-    <div style={{display: 'flex', height: 'calc(100vh - 100px)', alignItems: 'center', justifyContent: 'center', textAlign: 'center', flexDirection: 'column'}}>
+    <div style={{display: 'flex', height: nested ? '100%' : 'calc(100vh - 100px)', padding: nested ? '24px 16px' : 0, boxSizing: 'border-box', alignItems: 'center', justifyContent: 'center', textAlign: 'center', flexDirection: 'column'}}>
       <div className='col-xs-12'>
-        <SvgIcon style={{width: "395px", height: "341px", fill: 'none'}} viewBox="0 0 395 341">
+        <SvgIcon style={{width: nested ? "220px" : "395px", height: nested ? "190px" : "341px", maxWidth: '100%', fill: 'none'}} viewBox="0 0 395 341">
           <path d="M144.805 214.456h89.53v1.47h-89.53v-1.47z" fill="#000"/>
           <path d="M188.835 170.424h1.47v89.53h-1.47v-89.53z" fill="#000"/>
           <path d="m190.155 260.395-1.18-.89c.15-.2 14.77-19.89 14.77-44.32s-14.63-44.13-14.77-44.32l1.18-.89c.15.2 15.07 20.27 15.07 45.21s-14.92 45.01-15.07 45.21z" fill="#000"/>
@@ -54,15 +54,18 @@ const Error401 = () => {
         </SvgIcon>
       </div>
       <div className='col-xs-12'>
-        <p style={{color: '#000', fontSize: '24px', margin: '16px 0'}}>
-          {t('errors.401')}
+        <p style={{color: '#000', fontSize: nested ? '20px' : '24px', margin: '16px 0'}}>
+          {message || t('errors.401')}
         </p>
       </div>
-      <div className='col-xs-12'>
+      {
+        !nested &&
+        <div className='col-xs-12'>
         <p style={{color: BLACK, fontSize: '16px', margin: 0}}>
           {t('common.please')} {t('common.go_to')} <a className='no-anchor-styles' href='#' onClick={e => { e.preventDefault(); getLoginURL(window.location.href).then(url => { window.location.href = url }) }} style={{cursor: 'pointer', color: PRIMARY_COLORS.main}}>{t('auth.sign_in')}</a> {t('common.or')} <a href='#' onClick={e => { e.preventDefault(); getRegisterURL().then(url => { window.location.href = url }) }} className='no-anchor-styles' style={{color: PRIMARY_COLORS.main}}>{t('auth.register')}</a> {t('common.for_a_new_account')}.
         </p>
-      </div>
+        </div>
+      }
     </div>
   )
 }

@@ -1,15 +1,16 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
-import { useLocation, useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 
 import Fade from '@mui/material/Fade';
 
 import APIService from '../../services/APIService';
-import { toParentURI, dropVersion, isSameResourceNavigation, getResourceIdFromUrl, latestResolvedRepoVersion } from '../../common/utils'
+import { toParentURI, dropVersion, getResourceIdFromUrl, latestResolvedRepoVersion } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
 import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
+import PanelError from '../errors/PanelError';
 import MappingHeader from './MappingHeader';
 import MappingTabs from './MappingTabs';
 import MappingDetails from './MappingDetails'
@@ -19,12 +20,7 @@ import History from '../concepts/History'
 
 const MappingHome = props => {
   const { t } = useTranslation()
-  const location = useLocation()
   const history = useHistory()
-  const isInitialMount = React.useRef(true);
-  const prevLocationRef = React.useRef({pathname: location.pathname, search: location.search})
-  const lastMappingActionRef = React.useRef('url')
-  const prevMappingSelectionRef = React.useRef({id: props.mapping?.id, url: props.url})
 
   const [mapping, setMapping] = React.useState(props.mapping || {})
   const [versions, setVersions] = React.useState([])
@@ -34,6 +30,7 @@ const MappingHome = props => {
   const [edit, setEdit] = React.useState(false)
   const [createSimilar, setCreateSimilar] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
+  const [errorStatus, setErrorStatus] = React.useState(false)
   const [detailsLoaded, setDetailsLoaded] = React.useState(false)
 
   const [retireDialog, setRetireDialog] = React.useState(false)
@@ -43,27 +40,23 @@ const MappingHome = props => {
 
   const isInCollection = Boolean(props.repo?.type?.includes('Collection') || props.url?.includes('/collections/'))
 
-  const getActiveMappingId = () => {
-    if(props.mapping?.id && lastMappingActionRef.current === 'selection')
-      return props.mapping.id
-    return getResourceIdFromUrl(props.url, 'mappings') || props.mapping?.id || mapping?.id
-  }
+  const getActiveMappingId = () => getResourceIdFromUrl(props.url, 'mappings') || mapping?.id
 
   React.useEffect(() => {
-    const prevSelection = prevMappingSelectionRef.current
-    if(prevSelection.id !== props.mapping?.id)
-      lastMappingActionRef.current = 'selection'
-    else if(prevSelection.url !== props.url)
-      lastMappingActionRef.current = 'url'
-    prevMappingSelectionRef.current = {id: props.mapping?.id, url: props.url}
-
     setLoading(true)
     setDetailsLoaded(false)
+    setErrorStatus(false)
     setMapping(props.mapping || {})
     setVersions([])
     const queryParams = isInCollection ? { includeReferences: true, includeResolvedRepoVersions: true } : {}
-    getService().get(null, null, queryParams).then(response => {
-      const resource = response.data
+    getService().get(null, null, queryParams, true).then(response => {
+      const status = response?.status || response?.response?.status
+      if(status && status !== 200) {
+        setErrorStatus(status)
+        setLoading(false)
+        return
+      }
+      const resource = response?.data
       setMapping(resource)
       setDetailsLoaded(true)
       props.repo?.id ? setRepo(props.repo) : fetchRepo(resource)
@@ -73,15 +66,6 @@ const MappingHome = props => {
         setLoading(false)
     })
   }, [props.mapping?.id, props.url])
-
-  React.useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-    } else if (!isSameResourceNavigation(prevLocationRef.current, location)) {
-      props?.onClose({navigated: true})
-    }
-    prevLocationRef.current = {pathname: location.pathname, search: location.search}
-  }, [location])
 
   const fetchRepo = _mapping => props?.repo?.id ? setRepo(props.repo) : APIService.new().overrideURL(getRepoURL(_mapping)).get().then(response => setRepo(response.data))
 
@@ -179,6 +163,9 @@ const MappingHome = props => {
       }
     })
   }
+
+  if(errorStatus)
+    return <PanelError status={errorStatus} resourceType='mapping' onClose={props.onClose} />
 
   return (mapping?.id && repo?.id) ? (
     <>

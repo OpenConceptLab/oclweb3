@@ -184,7 +184,10 @@
     "already_queued": "Already queued",
     "invalid_json": "Please enter valid JSON",
     "generic": "Something failed, please try again later.",
-    "network_error": "Network Error"
+    "network_error": "Network Error",
+    "concept_404": "Sorry, this concept could not be found.",
+    "mapping_404": "Sorry, this mapping could not be found.",
+    "reference_404": "Sorry, this reference could not be found."
   },
   "success": {
     "queued": "Successfully Queued"

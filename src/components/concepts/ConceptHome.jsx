@@ -1,16 +1,17 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'
-import { useLocation, useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import Fade from '@mui/material/Fade';
 import Skeleton from '@mui/material/Skeleton';
 
 import APIService from '../../services/APIService';
-import { toParentURI, dropVersion, isSameResourceNavigation, getResourceIdFromUrl, currentUserHasAccess, latestResolvedRepoVersion } from '../../common/utils'
+import { toParentURI, dropVersion, getResourceIdFromUrl, currentUserHasAccess, latestResolvedRepoVersion } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
 import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
 
+import PanelError from '../errors/PanelError';
 import ConceptHeader from './ConceptHeader';
 import ConceptTabs from './ConceptTabs';
 import ConceptForm from './ConceptForm'
@@ -28,12 +29,7 @@ const repoVersionFromURL = url => {
 
 const ConceptHome = props => {
   const { t } = useTranslation()
-  const location = useLocation()
   const history = useHistory()
-  const isInitialMount = React.useRef(true);
-  const prevLocationRef = React.useRef({pathname: location.pathname, search: location.search})
-  const lastConceptActionRef = React.useRef('url')
-  const prevConceptSelectionRef = React.useRef({id: props.concept?.id, url: props.url})
 
   const [concept, setConcept] = React.useState(props.concept || {})
   const [versions, setVersions] = React.useState([])
@@ -45,6 +41,7 @@ const ConceptHome = props => {
   const [createSimilar, setCreateSimilar] = React.useState(false)
 
   const [loading, setLoading] = React.useState(false)
+  const [errorStatus, setErrorStatus] = React.useState(false)
   const [detailsLoaded, setDetailsLoaded] = React.useState(false)
   const [loadingOwnerMappings, setLoadingOwnerMappings] = React.useState(null)
   const [includeRetiredAssociations, setIncludeRetiredAssociations] = React.useState(false)
@@ -61,27 +58,23 @@ const ConceptHome = props => {
 
   const isInCollection = Boolean(props.repo?.type?.includes('Collection') || props.url?.includes('/collections/'))
 
-  const getActiveConceptId = () => {
-    if(props.concept?.id && lastConceptActionRef.current === 'selection')
-      return props.concept.id
-    return getResourceIdFromUrl(props.url, 'concepts') || props.concept?.id || concept?.id
-  }
+  const getActiveConceptId = () => getResourceIdFromUrl(props.url, 'concepts') || concept?.id
 
   React.useEffect(() => {
-    const prevSelection = prevConceptSelectionRef.current
-    if(prevSelection.id !== props.concept?.id)
-      lastConceptActionRef.current = 'selection'
-    else if(prevSelection.url !== props.url)
-      lastConceptActionRef.current = 'url'
-    prevConceptSelectionRef.current = {id: props.concept?.id, url: props.url}
-
     setLoading(true)
     setDetailsLoaded(false)
+    setErrorStatus(false)
     setConcept(props.concept || {})
     setVersions([])
     const queryParams = isInCollection ? { includeReferences: true, includeResolvedRepoVersions: true } : {}
-    getService().get(null, null, queryParams).then(response => {
-      const resource = response.data
+    getService().get(null, null, queryParams, true).then(response => {
+      const status = response?.status || response?.response?.status
+      if(status && status !== 200) {
+        setErrorStatus(status)
+        setLoading(false)
+        return
+      }
+      const resource = response?.data
       setConcept(resource)
       setDetailsLoaded(true)
       props.repo?.id ? setRepo(repo) : fetchRepo(resource)
@@ -90,15 +83,6 @@ const ConceptHome = props => {
         fetchVersions(resource?.url)
     })
   }, [props.concept?.id, props.url])
-
-  React.useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-    } else if (!isSameResourceNavigation(prevLocationRef.current, location)) {
-      props?.onClose({navigated: true})
-    }
-    prevLocationRef.current = {pathname: location.pathname, search: location.search}
-  }, [location])
 
   const fetchRepo = _concept => props?.repo?.id ? setRepo(props.repo) : APIService.new().overrideURL(getRepoURL(_concept)).get().then(response => setRepo(response.data))
 
@@ -341,6 +325,9 @@ const ConceptHome = props => {
       }
     })
   }
+
+  if(errorStatus)
+    return <PanelError status={errorStatus} resourceType='concept' onClose={props.onClose} />
 
   return (concept?.id && repo?.id) ? (
     <>
