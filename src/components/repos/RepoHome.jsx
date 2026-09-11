@@ -83,6 +83,7 @@ const RepoHome = () => {
   const [expansions, setExpansions] = React.useState([])
   const [expansionsLoading, setExpansionsLoading] = React.useState(false)
   const [selectedExpansion, setSelectedExpansion] = React.useState(false)
+  const [versionPending, setVersionPending] = React.useState(!route.version)
   const prevRouteRef = React.useRef(null)
 
   const [tab, setTab] = React.useState(route.tab || 'concepts')
@@ -185,9 +186,10 @@ const RepoHome = () => {
       if(!repo.version_url && !route.version && !route.resource) {
         const releasedVersions = filter(_versions, {released: true})
         let version = orderBy(releasedVersions, 'created_on', ['desc'])[0] || orderBy(_versions, 'created_on', ['desc'])[0]
-        if((version?.version_url || version?.url) != (repo?.version_url || repo?.url))
-          onVersionChange(version, false)
+        if((version?.version_url || version?.url) != (repo?.version_url || repo?.url) && onVersionChange(version, false))
+          return
       }
+      setVersionPending(false)
     })
   }
 
@@ -197,6 +199,7 @@ const RepoHome = () => {
     setTab(route.tab || 'concepts')
     if(prevRoute && isSameRepoScope(prevRoute, route))
       return
+    setVersionPending(!route.version)
     fetchRepo()
     fetchVersions()
   }, [location.pathname])
@@ -224,7 +227,7 @@ const RepoHome = () => {
     const nextVersion = isHead ? (reload ? 'HEAD' : '') : versionId
     const nextPath = buildRepoPath(route, {version: nextVersion, expansion: '', tab: nextTab, resource: ''})
     if(nextPath === location.pathname)
-      return
+      return false
     setExpansions([])
     setSelectedExpansion(false)
     if(reload)
@@ -232,6 +235,7 @@ const RepoHome = () => {
     if(nextTab !== tab)
       setTab(nextTab)
     history.push(nextPath + (location.search || ''))
+    return true
   }
 
   const onExpansionChange = expansion => {
@@ -391,10 +395,10 @@ const RepoHome = () => {
   const { versions: [liveRepo] = [] } = useProcessingVersions(processingTargets)
   const currentRepo = liveRepo || repo
 
-  const canRenderSearch = !requiresExpansionSelection || (!expansionsLoading && Boolean(selectedExpansion))
+  const canRenderSearch = !versionPending && (!requiresExpansionSelection || (!expansionsLoading && Boolean(selectedExpansion)))
   const expansionURL = (isCollection && selectedExpansion?.url) ? selectedExpansion.url : false
   const toExpansionURL = (resourceType, id) => (expansionURL && id) ? `${expansionURL}${resourceType}/${encodeURIComponent(id)}/` : false
-  const isExpansionReady = !requiresExpansionSelection || Boolean(expansionURL)
+  const isExpansionReady = !versionPending && (!requiresExpansionSelection || Boolean(expansionURL))
   const panelOpen = hasResourcePanel(route)
   const resourceReadURL = resourceType => toExpansionURL(resourceType, route.resource) || (getURL() + resourceType + '/' + encodeURIComponent(route.resource) + '/')
   const showConceptURL = (panelOpen && isConceptURL && isExpansionReady) ? resourceReadURL('concepts') : false

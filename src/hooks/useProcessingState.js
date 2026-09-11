@@ -44,10 +44,12 @@ const useProcessingState = (targets = [], { enabled = true, intervalMs = PROCESS
     targetsRef.current.forEach(target => refresh(getKey(target)));
   }, [refresh]);
 
+  // Callers always hand us targets they just fetched fresh (with processing
+  // states/tasks already included), so an immediate refresh here would just
+  // repeat that same request. Only poll from here on.
   React.useEffect(() => {
     if(!enabled || !signature) return undefined;
 
-    refreshAll();
     const timer = window.setInterval(refreshAll, intervalMs);
     return () => window.clearInterval(timer);
   }, [enabled, intervalMs, refreshAll, signature]);
