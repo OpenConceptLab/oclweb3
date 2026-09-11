@@ -9,6 +9,7 @@ import { OperationsContext } from '../app/LayoutContext';
 import CommonTabs from '../common/CommonTabs';
 import DeleteEntityDialog from '../common/DeleteEntityDialog'
 import Search from '../search/Search';
+import Error40X from '../errors/Error40X';
 import OrgOverview from './OrgOverview';
 import OrgSummary from './OrgSummary';
 import OrgHeader from './OrgHeader'
@@ -19,6 +20,7 @@ const OrgHome = () => {
   const history = useHistory()
   const user = getCurrentUser()
   const [org, setOrg] = React.useState({})
+  const [status, setStatus] = React.useState(false)
   const [members, setMembers] = React.useState([])
   const [deleteOrg, setDeleteOrg] = React.useState(false)
   const [tab, setTab] = React.useState(findTab)
@@ -32,14 +34,14 @@ const OrgHome = () => {
   const TAB_KEYS = TABS.map(tab => tab.key)
   const findTab = () => TAB_KEYS.includes(params?.tab) ? params.tab : 'overview'
   const fetchOrg = () => {
-    APIService.orgs(params.org).get(null, null, {includeOverview: true}).then(response => {
-      if(response?.data?.id) {
-        setOrg(response.data)
+    APIService.orgs(params.org).get(null, null, {includeOverview: true}, true).then(response => {
+      const newStatus = response?.status || response?.response?.status
+      const data = response?.data || response?.response?.data || {}
+      setStatus(newStatus)
+      if(newStatus === 200 && data?.id) {
+        setOrg(data)
         fetchMembers()
-      } else if(response.status)
-        window.location.hash = '#/' + response.status
-      else if(response.detail === 'Not found.')
-        window.location.hash = '#/404/'
+      }
     })
   }
   const fetchMembers = () => {
@@ -118,6 +120,9 @@ const OrgHome = () => {
                 <OrgSummary org={org} members={members} />
               </Paper>
             </React.Fragment>
+        }
+        {
+          !org?.id && status && status !== 200 && <Error40X status={status} />
         }
       </Paper>
       {
