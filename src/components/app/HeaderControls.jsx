@@ -26,7 +26,7 @@ const HeaderControls = () => {
   const authenticated = isLoggedIn()
 
   return (
-    <div className='col-xs-5 padding-0' style={{textAlign: 'right'}}>
+    <div className='col-xs-4 padding-0' style={{textAlign: 'right'}}>
       <ClassicTermBrowserButton />
       {
         authenticated &&

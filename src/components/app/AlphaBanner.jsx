@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
+import { TBV3_ANNOUNCEMENT_URL } from '../../common/constants';
 
 const DISMISSED_KEY = 'alphaBannerDismissed';
 
@@ -41,7 +42,7 @@ const AlphaBanner = () => {
       sx={{ margin: '8px 0', borderRadius: '8px' }}
     >
       <AlertTitle sx={{ marginBottom: 0 }}>{t('common.alpha_banner_title')}</AlertTitle>
-      {t('common.alpha_banner_message')}
+      <a className='link' href={TBV3_ANNOUNCEMENT_URL} target='_blank' rel='noopener noreferrer'>{t('common.learn_more')}</a>
     </Alert>
   );
 };
