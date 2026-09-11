@@ -1,12 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Typography from '@mui/material/Typography'
-import LocaleAutoComplete from '../concepts/LocaleAutoComplete'
+import LocaleSelect from '../common/LocaleSelect'
 
 const RepoCreateLanguages = ({ locales, defaultLocale, supportedLocales, onChange, validationErrors }) => {
   const { t } = useTranslation()
 
-  const onSupportedLocalesChange = (id, value) => onChange(id, value?.map(val => val?.id))
   return (
     <>
       <div className='col-xs-12 padding-0'>
@@ -16,27 +15,28 @@ const RepoCreateLanguages = ({ locales, defaultLocale, supportedLocales, onChang
       </div>
       <div className='col-xs-12 padding-0' style={{marginTop: '24px', textAlign: 'left'}}>
         <div className='col-xs-5 padding-0'>
-          <LocaleAutoComplete
+          <LocaleSelect
             id='defaultLocale'
             label={t('repo.default_locale')}
             required
             size='medium'
-            cachedLocales={locales}
+            locales={locales}
             value={defaultLocale || ''}
+            focusOnSelect='supportedLocales'
             onChange={onChange}
             error={Boolean(validationErrors?.defaultLocale)}
             helperText={validationErrors?.defaultLocale || ''}
           />
         </div>
         <div className='col-xs-7' style={{padding: '0 0 0 10px'}}>
-          <LocaleAutoComplete
+          <LocaleSelect
             multiple
             id='supportedLocales'
             size='medium'
             label={t('repo.supported_locales')}
-            cachedLocales={locales}
-            value={supportedLocales || ''}
-            onChange={onSupportedLocalesChange}
+            locales={locales}
+            value={supportedLocales || []}
+            onChange={onChange}
           />
         </div>
       </div>

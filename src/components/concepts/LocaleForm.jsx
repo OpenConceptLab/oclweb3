@@ -5,14 +5,34 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import Switch from '@mui/material/Switch';
 import Divider from '@mui/material/Divider';
 import get from 'lodash/get'
+import compact from 'lodash/compact'
+import fromPairs from 'lodash/fromPairs'
+import uniq from 'lodash/uniq'
 import IconButton from '@mui/material/IconButton'
 import DropDownChip from '../common/DropDownChip'
 import ExternalIdIcon from '../common/ExternalIdIcon'
 
 
-const LocaleForm = ({index, locales, idPrefix, localeType, field, localeTypes, onChange, divider}) => {
+const LocaleForm = ({index, locales, repo, idPrefix, localeType, field, localeTypes, onChange, divider}) => {
   const { t } = useTranslation()
   const [showExternalID, setShowExternalID] = React.useState(Boolean(field.external_id.value))
+  const localeNames = React.useMemo(
+    () => fromPairs((locales || []).map(locale => [locale.id, locale.displayName || locale.name || ''])),
+    [locales]
+  )
+  // the repo's own default locale first, then its supported ones, then everything else
+  const suggestedLocales = React.useMemo(
+    () => uniq(compact([repo?.default_locale, ...(repo?.supported_locales || [])])),
+    [repo?.default_locale, repo?.supported_locales]
+  )
+  const localeOptions = React.useMemo(() => {
+    const all = (locales || []).map(locale => locale.id)
+    return [...suggestedLocales, ...all.filter(id => !suggestedLocales.includes(id))]
+  }, [locales, suggestedLocales])
+  const localeGroup = React.useCallback(
+    option => suggestedLocales.includes(option) ? t('common.suggested') : t('common.rest'),
+    [suggestedLocales, t]
+  )
 
   React.useEffect(() => {
     if(!showExternalID && Boolean(field.external_id.value))
@@ -26,7 +46,10 @@ const LocaleForm = ({index, locales, idPrefix, localeType, field, localeTypes, o
           <DropDownChip
             id={`${idPrefix}.locale`}
             label={t('concept.form.locale')}
-            options={locales?.map(locale => locale.id)}
+            options={localeOptions}
+            optionDisplayName={option => localeNames[option] || ''}
+            groupBy={localeGroup}
+            popperSx={{minWidth: '160px', maxWidth: '220px'}}
             onChange={value => onChange(`${idPrefix}.locale`, value || '')}
             sx={{flexShrink: 0, maxWidth: '25%'}}
             defaultValue={field.locale.value}

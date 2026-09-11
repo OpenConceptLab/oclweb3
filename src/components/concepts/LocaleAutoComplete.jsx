@@ -223,11 +223,12 @@ const LocaleAutoComplete = ({ cachedLocales, id, multiple, required, onChange, l
               </li>
             )}
             renderOption={(props, option) => {
+              const { key, ...optionProps } = props
               const isCustom = option.id === 'custom'
               const suffix = ((option?.id?.length || 0) > 3 && !isCustom) ? option?.id || '' : false
-              const boxProps = isCustom ? {...props, onClick: onCustomAddOptionClick} : props
+              const boxProps = isCustom ? {...optionProps, onClick: onCustomAddOptionClick} : optionProps
               return (
-                <React.Fragment key={option?.id || '' + option?.name || ''}>
+                <React.Fragment key={key || option?.id || option?.name || ''}>
                   <Box component='li' {...boxProps} id={option?.id || '' + option?.name || ''}>
                     {
                       isCustom ?
@@ -277,16 +278,17 @@ const LocaleAutoComplete = ({ cachedLocales, id, multiple, required, onChange, l
                 />
               )
             }
-            renderTags={(tagValue, getTagProps) =>
+            renderValue={!multiple ? undefined : (tagValue, getItemProps) =>
               tagValue.map((option, index) => {
                 const isValid = isValidOption(option)
+                const { key, ...tagProps } = getItemProps({ index })
                 return (
-                  <Tooltip key={index} title={isValid ? 'ISO-639-1 language code' : `${SITE_TITLE}'s data model supports ISO-639-1 (two digit) codes as standard. Consider updating.`}>
+                  <Tooltip key={key || index} title={isValid ? 'ISO-639-1 language code' : `${SITE_TITLE}'s data model supports ISO-639-1 (two digit) codes as standard. Consider updating.`}>
                     <Chip
                       size='small'
                       icon={option?.locale ? <span>{option.locale}</span> : undefined}
                       label={getOptionLabel(option)}
-                      {...getTagProps({ index })}
+                      {...tagProps}
                       disabled={disabled}
                       color={isValid ? 'primary' : 'default'}
                       className={isValid ? '' : 'invalid-locale-chip'}

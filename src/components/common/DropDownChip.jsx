@@ -1,12 +1,13 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
-import { Chip, Popper, Box, InputBase } from '@mui/material';
+import { Chip, Popper, Box, InputBase, Typography } from '@mui/material';
 import { ArrowDropDown } from '@mui/icons-material';
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import FormControl from '@mui/material/FormControl'
-import DoneIcon from '@mui/icons-material/Done';
 import isEqual from 'lodash/isEqual'
+import GroupHeader from './GroupHeader'
+import GroupItems from './GroupItems'
 
 const StyledAutocompletePopper = styled('div')(({ theme }) => ({
   [`& .${autocompleteClasses.paper}`]: {
@@ -25,9 +26,6 @@ const StyledAutocompletePopper = styled('div')(({ theme }) => ({
       borderBottom: `1px solid  ${
         '#30363d'
       }`,
-      '&[aria-selected="true"]': {
-        backgroundColor: 'transparent',
-      },
       '&[data-focus="true"], &[data-focus="true"][aria-selected="true"]': {
         backgroundColor: theme.palette.action.hover,
       },
@@ -153,6 +151,23 @@ class DropDownChip extends React.Component {
       this.props.onChange(this.state.selected);
   }
 
+  renderGroup = params => (
+    <li style={{listStyle: 'none'}} key={params.key || params.group}>
+      <GroupHeader>{params.group}</GroupHeader>
+      <GroupItems>{params.children}</GroupItems>
+    </li>
+  )
+
+  filterByCodeOrName = (options, state) => {
+    const input = (state?.inputValue || '').trim().toLowerCase()
+    if(!input)
+      return options
+    return options.filter(
+      option => String(option).toLowerCase().includes(input) ||
+                String(this.props.optionDisplayName(option) || '').toLowerCase().includes(input)
+    )
+  }
+
   handleSelect(value) {
     if(value !== this.state.selected)
       this.setState({selected: value}, this.afterSelect);
@@ -160,7 +175,7 @@ class DropDownChip extends React.Component {
 
   render() {
     const { selected, anchorEl } = this.state;
-    const { disabled, options, sx, label, color, error } = this.props;
+    const { disabled, options, sx, label, color, error, optionDisplayName, popperSx, groupBy } = this.props;
     const open = Boolean(anchorEl)
     return (
       <FormControl sx={{...sx}}>
@@ -176,7 +191,7 @@ class DropDownChip extends React.Component {
           disabled={disabled}
           sx={{height: "40px"}}
         />
-        <StyledPopper id={open ? 'locale-selector' : undefined} open={open} anchorEl={anchorEl} placement="bottom-start">
+        <StyledPopper id={open ? 'locale-selector' : undefined} open={open} anchorEl={anchorEl} placement="bottom-start" sx={popperSx}>
         <ClickAwayListener onClickAway={this.close}>
           <div>
             <Box
@@ -208,28 +223,38 @@ class DropDownChip extends React.Component {
                   this.handleSelect(newValue);
               }}
               PopperComponent={PopperComponent}
+              groupBy={groupBy}
+              renderGroup={groupBy ? this.renderGroup : undefined}
+              filterOptions={optionDisplayName ? this.filterByCodeOrName : undefined}
               noOptionsText="No matches found"
-              renderOption={(props, option, { selected }) => (
-                <li {...props} style={selected ? {backgroundColor: 'rgba(106, 174, 32, 0.12)'} : {}}>
-                  <Box
-                    component={DoneIcon}
-                    sx={{ width: 17, height: 17, mr: '5px', ml: '-2px' }}
-                    style={{
-                      visibility: selected ? 'visible' : 'hidden',
-                    }}
-                  />
-                  <Box
-                    sx={{
-                      flexGrow: 1,
-                      '& span': {
-                        color: '#586069',
-                      },
-                    }}
-                  >
-                    {option}
-                  </Box>
-                </li>
-              )}
+              renderOption={(props, option) => {
+                const { key, ...optionProps } = props
+                return (
+                  <li key={key || option} {...optionProps}>
+                    {
+                      optionDisplayName ?
+                        <Box sx={{flexGrow: 1, display: 'flex', alignItems: 'flex-start'}}>
+                          <Typography component='span' sx={{fontSize: 'inherit', color: 'text.secondary', minWidth: '32px', marginRight: '8px'}}>
+                            {option}
+                          </Typography>
+                          <Typography component='span' sx={{fontSize: 'inherit'}}>
+                            {optionDisplayName(option)}
+                          </Typography>
+                        </Box> :
+                      <Box
+                        sx={{
+                          flexGrow: 1,
+                          '& span': {
+                            color: '#586069',
+                          },
+                        }}
+                      >
+                        {option}
+                      </Box>
+                    }
+                  </li>
+                )
+              }}
               options={options}
               getOptionLabel={(option) => option}
               renderInput={(params) => (

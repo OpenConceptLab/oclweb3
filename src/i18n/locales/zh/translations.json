@@ -1,6 +1,8 @@
 {
   "common": {
     "error_details": "错误详情",
+    "suggested": "推荐",
+    "rest": "其他",
     "or": "或",
     "language": "语言",
     "languages": "语言",

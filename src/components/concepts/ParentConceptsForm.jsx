@@ -87,8 +87,8 @@ const ParentConceptsForm = ({ t, sourceURL, selfURL, value, onChange }) => {
           </React.Fragment>
         )
       }}
-      renderTags={(values, getTagProps) => values.map((url, index) => {
-        const { key, ...tagProps } = getTagProps({index})
+      renderValue={(values, getItemProps) => values.map((url, index) => {
+        const { key, ...tagProps } = getItemProps({index})
         return (
           <Tooltip key={key} title={url} arrow>
             <Chip size='small' label={labelFor(url)} {...tagProps} />

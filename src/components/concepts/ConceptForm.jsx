@@ -592,6 +592,7 @@ class ConceptForm extends FormComponent  {
                     localeTypes={descriptionTypes}
                     onChange={(id, value) => this.setFieldValue(id, value || '')}
                     repoSummary={repoSummary}
+                    repo={repo}
                     divider={index !== (fields.descriptions.length - 1)}
                   />
                 )})
