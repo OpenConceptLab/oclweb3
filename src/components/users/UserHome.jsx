@@ -8,6 +8,7 @@ import { COLORS } from '../../common/colors'
 import APIService from '../../services/APIService'
 import CommonTabs from '../common/CommonTabs';
 import Search from '../search/Search';
+import Error40X from '../errors/Error40X';
 import UserOverview from './UserOverview';
 import UserSummary from './UserSummary'
 import UserProfile from './UserProfile'
@@ -19,6 +20,7 @@ const UserHome = () => {
   const history = useHistory()
   const [tab, setTab] = React.useState(findTab || 'overview')
   const [user, setUser] = React.useState({})
+  const [status, setStatus] = React.useState(false)
   const { pins: bookmarks, canPin, togglePin, deletePin } = usePins(params?.user ? {type: 'user', id: params.user} : false)
   const [events, setEvents] = React.useState(false)
   const [eventsPage, setEventsPage] = React.useState(0)
@@ -42,18 +44,18 @@ const UserHome = () => {
 
   const fetchUser = reset => {
     if(isCurrentUser) {
+      setStatus(200)
       setUser(getCurrentUser())
       fetchEvents(reset)
     } else {
-      APIService.users(params.user).get(null, null, {includeSubscribedOrgs: true, includeFollowing: true}).then(response => {
-        if(response.status === 200) {
-          setUser(response.data)
+      APIService.users(params.user).get(null, null, {includeSubscribedOrgs: true, includeFollowing: true}, true).then(response => {
+        const newStatus = response?.status || response?.response?.status
+        const data = response?.data || response?.response?.data || {}
+        setStatus(newStatus)
+        if(newStatus === 200) {
+          setUser(data)
           fetchEvents(reset)
         }
-        else if(response.status)
-          window.location.hash = '#/' + response.status
-        else if(response.detail === 'Not found.')
-          window.location.hash = '#/404/'
       })
     }
   }
@@ -98,40 +100,48 @@ const UserHome = () => {
   const baseHeightToDeduct = 150
   return (
     <div className='col-xs-12 padding-0'>
-      <div className='col-xs-3' style={{height: height, padding: '24px 24px 24px 8px', maxWidth: '20%', overflow: 'auto'}}>
-        <UserProfile user={user} />
-      </div>
-      <div className='col-xs-10 padding-0' style={{backgroundColor: COLORS.primary.contrastText, borderRadius: '10px', height: height, maxWidth: '80%', border: `1px solid ${COLORS.surface.nv80}`, borderTop: 'none'}}>
-        <div className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
-          <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} sx={{borderTopLeftRadius: '10px'}} />
-          {
-            user?.url && tab === 'repos' &&
-              <Search
-                resource='repos'
-                url={user?.url + 'repos/'}
-                pins={bookmarks}
-                canPin={canPin}
-                onPinToggle={togglePin}
-                nested
-                noTabs
-                filtersHeightToSubtract={baseHeightToDeduct}
-                resultContainerStyle={{height: `calc(100vh - ${baseHeightToDeduct}px - 88px)`, overflow: 'auto'}}
-                containerStyle={{padding: 0}}
-                defaultFiltersOpen={false}
-                resultSize='medium'
-                excludedColumns={['owner']}
-              />
-          }
-          {
-            tab === 'overview' && user?.url &&
-              <UserOverview user={user} bookmarks={bookmarks} events={events} height={height} onLoadMoreEvents={haveMoreEvents ? fetchEvents : false} canPin={canPin} onBookmarkDelete={deletePin} />
-          }
-        </div>
+      {
+        user?.url &&
+          <React.Fragment>
+            <div className='col-xs-3' style={{height: height, padding: '24px 24px 24px 8px', maxWidth: '20%', overflow: 'auto'}}>
+              <UserProfile user={user} />
+            </div>
+            <div className='col-xs-10 padding-0' style={{backgroundColor: COLORS.primary.contrastText, borderRadius: '10px', height: height, maxWidth: '80%', border: `1px solid ${COLORS.surface.nv80}`, borderTop: 'none'}}>
+              <div className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
+                <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} sx={{borderTopLeftRadius: '10px'}} />
+                {
+                  tab === 'repos' &&
+                    <Search
+                      resource='repos'
+                      url={user?.url + 'repos/'}
+                      pins={bookmarks}
+                      canPin={canPin}
+                      onPinToggle={togglePin}
+                      nested
+                      noTabs
+                      filtersHeightToSubtract={baseHeightToDeduct}
+                      resultContainerStyle={{height: `calc(100vh - ${baseHeightToDeduct}px - 88px)`, overflow: 'auto'}}
+                      containerStyle={{padding: 0}}
+                      defaultFiltersOpen={false}
+                      resultSize='medium'
+                      excludedColumns={['owner']}
+                    />
+                }
+                {
+                  tab === 'overview' &&
+                    <UserOverview user={user} bookmarks={bookmarks} events={events} height={height} onLoadMoreEvents={haveMoreEvents ? fetchEvents : false} canPin={canPin} onBookmarkDelete={deletePin} />
+                }
+              </div>
 
-        <Paper component='div' className='col-xs-12' sx={{height: 'calc(100vh - 96px)', width: '272px !important', borderLeft: '0.5px solid', borderTop: '0.5px solid', borderColor: 'surface.nv80', borderRadius: '0 10px 10px 0', boxShadow: 'none', padding: '16px', overflow: 'auto', backgroundColor: 'surface.n96'}}>
-          <UserSummary user={user} />
-        </Paper>
-      </div>
+              <Paper component='div' className='col-xs-12' sx={{height: 'calc(100vh - 96px)', width: '272px !important', borderLeft: '0.5px solid', borderTop: '0.5px solid', borderColor: 'surface.nv80', borderRadius: '0 10px 10px 0', boxShadow: 'none', padding: '16px', overflow: 'auto', backgroundColor: 'surface.n96'}}>
+                <UserSummary user={user} />
+              </Paper>
+            </div>
+          </React.Fragment>
+      }
+      {
+        !user?.url && status && status !== 200 && <Error40X status={status} />
+      }
     </div>
   )
 }
