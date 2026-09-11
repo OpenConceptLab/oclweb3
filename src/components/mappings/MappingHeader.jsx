@@ -10,7 +10,7 @@ import Skeleton from '@mui/material/Skeleton';
 import Fade from '@mui/material/Fade';
 import Tooltip from '@mui/material/Tooltip';
 import CloseIconButton from '../common/CloseIconButton';
-import { toOwnerURI, toFullURL, currentUserHasAccess, latestResolvedRepoVersion } from '../../common/utils';
+import { toOwnerURI, toFullURL, currentUserHasAccess, sourceVersionOf } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
 import MappingManagementList from './MappingManagementList'
 
@@ -27,8 +27,7 @@ const MappingHeader = ({mapping, onClose, repoURL, nested, onEdit, onRetire, onC
           <Skeleton variant='text' sx={{width: '100px'}} />
         </Fade>
       )
-    const version = latestResolvedRepoVersion(mapping)?.version
-    return version === 'HEAD' ? undefined : version
+    return sourceVersionOf(mapping)
   }
   const mappingSourceURL = (repoURL && mapping?.id) ? `${repoURL}mappings/${encodeURIComponent(mapping.id)}/` : mapping?.url
 

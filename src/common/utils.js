@@ -820,6 +820,13 @@ export const latestResolvedRepoVersion = resource => orderBy(
   'desc'
 )[0]
 
+export const sourceVersionOf = resource => {
+  if(!resource?.references)
+    return resource?.latest_source_version
+  const version = latestResolvedRepoVersion(resource)?.version
+  return version === 'HEAD' ? undefined : version
+}
+
 export const dropVersion = uri => {
   if(!uri)
     return uri

@@ -13,7 +13,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import CircularProgress from '@mui/material/CircularProgress'
 import APIService from '../../services/APIService'
-import { dropVersion } from '../../common/utils'
+import { dropVersion, sourceVersionOf } from '../../common/utils'
 import RepoChip from '../repos/RepoChip'
 
 const getUrlPart = (url, part) => {
@@ -26,6 +26,7 @@ const getRepoFromConcept = concept => {
   const sourceId = concept.source || getUrlPart(concept.source_url || concept.url, 'sources')
   if(!sourceId) return null
   const sourceURL = concept.source_url || (concept.owner_url ? `${concept.owner_url}sources/${sourceId}/` : undefined)
+  const version = sourceVersionOf(concept)
 
   return {
     id: sourceId,
@@ -35,8 +36,8 @@ const getRepoFromConcept = concept => {
     owner: concept.owner,
     owner_type: concept.owner_type,
     owner_url: concept.owner_url,
-    version: concept.latest_source_version,
-    version_url: concept.latest_source_version && sourceURL ? `${sourceURL}${concept.latest_source_version}/` : undefined,
+    version,
+    version_url: version && sourceURL ? `${sourceURL}${version}/` : undefined,
   }
 }
 
@@ -51,7 +52,7 @@ const getMappingSourceToken = (mapping, direction) => {
     mapping[`${direction}_source_name`] ||
     getUrlPart(mapping[`${direction}_source_url`] || mapping[`${direction}_concept_url`], 'sources') ||
     (direction === 'from' ? mapping.source : null)
-  const version = getVersionToken(mapping[`${direction}_source_version`] || (source === mapping.source ? mapping.latest_source_version : null))
+  const version = getVersionToken(mapping[`${direction}_source_version`] || (source === mapping.source ? sourceVersionOf(mapping) : null))
 
   return source && version ? `${source}(${version})` : source
 }

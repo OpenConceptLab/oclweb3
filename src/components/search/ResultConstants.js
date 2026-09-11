@@ -5,6 +5,7 @@ import isNumber from 'lodash/isNumber'
 import {
   formatDate,
   formatWebsiteLink,
+  sourceVersionOf,
 } from '../../common/utils';
 import Retired from '../common/Retired';
 import OwnerIcon from '../common/OwnerIcon';
@@ -60,7 +61,7 @@ export const ALL_COLUMNS = {
     {id: 'concept_class', labelKey: 'concept.concept_class', value: 'concept_class', sortOn: 'concept_class', className: 'searchable', sx: {whiteSpace: 'pre'}, property: true},
     {id: 'datatype', labelKey: 'concept.datatype', value: 'datatype', sortOn: 'datatype', className: 'searchable', property: true},
     {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', nested: false, renderer: item => (<span style={{display: 'flex', whiteSpace: 'nowrap'}}><OwnerIcon noTooltip ownerType={item.owner_type} fontSize='small' sx={{marginRight: '4px'}}/>{item.owner}</span>)},
-    {id: 'parent', labelKey: 'repo.repo', value: 'source', sortOn: 'source', nested: false, renderer: item => <RepoVersionButton repoType='Source' repo={item.source} version={item.latest_source_version} vertical />},
+    {id: 'parent', labelKey: 'repo.repo', value: 'source', sortOn: 'source', nested: false, renderer: item => <RepoVersionButton repoType='Source' repo={item.source} version={sourceVersionOf(item)} vertical />},
   ],
   mappings: [
     {id: 'fromAndTargetSource', labelKey: 'mapping.fromAndTargetSource', sortable: false, className: 'searchable', sx: {width: '28%'}, renderer: item => <FromAndTargetSource mapping={item} />},

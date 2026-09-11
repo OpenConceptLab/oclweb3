@@ -12,7 +12,7 @@ import AddIcon from '@mui/icons-material/PlaylistAddOutlined';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import CloseIconButton from '../common/CloseIconButton';
-import { toOwnerURI, toFullURL, currentUserHasAccess, isLoggedIn, latestResolvedRepoVersion } from '../../common/utils';
+import { toOwnerURI, toFullURL, currentUserHasAccess, isLoggedIn, sourceVersionOf } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
 import { BLACK } from '../../common/colors'
 import ConceptManagementList from './ConceptManagementList'
@@ -39,8 +39,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
           <Skeleton variant='text' sx={{width: '100px'}} />
         </Fade>
       )
-    const version = latestResolvedRepoVersion(concept)?.version
-    return version === 'HEAD' ? undefined : version
+    return sourceVersionOf(concept)
   }
   const conceptSourceURL = (repoURL && concept?.id) ? `${repoURL}concepts/${encodeURIComponent(concept.id)}/` : concept?.url
 

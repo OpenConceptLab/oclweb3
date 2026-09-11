@@ -349,6 +349,10 @@ const Search = props => {
       params.verbose = true
     if(__resource === 'references')
       params.includeResolvedRepoVersions = true
+    if(['concepts', 'mappings'].includes(__resource) && props.url?.includes('/collections/')) {
+      params.includeReferences = true
+      params.includeResolvedRepoVersions = true
+    }
     if(__resource === 'repos') {
       // fills the latest version and content summary columns
       params.includeLatestReleasedVersion = true
@@ -406,7 +410,7 @@ const Search = props => {
   const fetchFacets = (params, otherResults, _resource=undefined) => {
     setLoadingFacets(true)
     const __resource = _resource || resource
-    APIService.new().overrideURL(getURL(__resource)).get(null, null, {...omit(params, ['includeLatestReleasedVersion', 'includeSummary']), facetsOnly: true}).then(response => {
+    APIService.new().overrideURL(getURL(__resource)).get(null, null, {...omit(params, ['includeLatestReleasedVersion', 'includeSummary', 'includeReferences', 'includeResolvedRepoVersions']), facetsOnly: true}).then(response => {
       setResult(prev => {
         return {...prev, [__resource]: {...(prev[__resource] || otherResults), facets: prepareFacets(response?.data?.facets?.fields || {}, __resource)}}
       })
