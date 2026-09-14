@@ -126,7 +126,11 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
   // already re-fetches whenever the URL changes, no reload needed.
   const navigateToFacetFilter = (facetConfig, term, q, options = {}) => {
     const { closeAfter = true } = options
-    const url = getFacetFilterURL(facetConfig, term, isRepoContext ? location.pathname : null, q)
+    let existingFilters = {}
+    try {
+      existingFilters = JSON.parse(new URLSearchParams(location.search).get('filters') || '{}')
+    } catch(e) { /* malformed filters param, ignore */ }
+    const url = getFacetFilterURL(facetConfig, term, isRepoContext ? location.pathname : null, q, existingFilters)
 
     if(isRepoContext && facetConfig.resourceType !== (resource || 'concepts')) {
       inputRef.current?.blur()
@@ -204,7 +208,12 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
         return
       }
 
-      if(event.key === 'Enter' && input) {
+      // Once a facet value is committed (the chip is showing), Enter should still submit with
+      // an empty box -- that's how a keyword search on top of the chip gets cleared back out.
+      // Browsing without a committed value has nothing to submit yet, so that case still needs
+      // typed input.
+      const canSubmitEmpty = facetConfig && activeFilterValue
+      if(event.key === 'Enter' && (input || canSubmitEmpty)) {
         event.preventDefault()
         if(facetConfig) {
           applyFacetInput(facetConfig)

@@ -214,6 +214,11 @@ const Search = props => {
     }
     if(includeRepoDefaultFilters && !_filters && props.repoDefaultFilters) {
       _filters = getAppliedFacetFromQueryParam(props.repoDefaultFilters)
+      // Write the defaults into the URL so it stays the single source of truth --
+      // otherwise the next location.search-driven sync sees no `filters` param and
+      // wipes these back out (e.g. as soon as the user performs a search).
+      history.replace(getCurrentLayoutURL(getQueryParams(value, _page, _pageSize, _filters, _orderBy, _order), _resource))
+      return
     }
     if(!isEqual(isMatch, isMatchOp)) {
       setIsMatchOp(isMatch)

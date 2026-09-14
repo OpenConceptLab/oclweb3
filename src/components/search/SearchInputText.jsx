@@ -47,6 +47,7 @@ const SearchInputText = React.forwardRef(({ id, input, clearSearch, onClick, han
       onClick={onClick}
       onChange={handleInputChange}
       onKeyDown={handleKeyPress}
+      onFocus={event => event.target.select()}
       sx={
         autoFocus ?
           {

@@ -103,8 +103,12 @@ export const FACET_FILTER_CONFIG = {
 
 const REPO_RESOURCE_SEGMENTS = ['concepts', 'mappings', 'references']
 
-export const getFacetFilterURL = (facetConfig, term, repoPathname, q) => {
-  const filtersParam = encodeURIComponent(JSON.stringify({[facetConfig.facetField]: term}))
+export const getFacetFilterURL = (facetConfig, term, repoPathname, q, existingFilters = {}) => {
+  // Searchlight only tracks one facet chip (Class/Map Type) of its own, but the page can
+  // already have other filters applied (e.g. repo default filters like Locale) - merge into
+  // those instead of replacing the whole `filters` param, or a Searchlight search silently
+  // drops every filter it doesn't know about.
+  const filtersParam = encodeURIComponent(JSON.stringify({...existingFilters, [facetConfig.facetField]: term}))
   const qParam = q ? `&q=${encodeURIComponent(q)}` : ''
 
   if(repoPathname) {
