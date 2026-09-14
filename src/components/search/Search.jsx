@@ -212,7 +212,7 @@ const Search = props => {
       _fetch = true
       _fetchFacets = true
     }
-    if(includeRepoDefaultFilters && !_filters && props.repoDefaultFilters) {
+    if(includeRepoDefaultFilters && !_filters && !isEmpty(props.repoDefaultFilters)) {
       _filters = getAppliedFacetFromQueryParam(props.repoDefaultFilters)
       // Write the defaults into the URL so it stays the single source of truth --
       // otherwise the next location.search-driven sync sees no `filters` param and

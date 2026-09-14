@@ -920,7 +920,12 @@
     "confidence": "Confidence",
     "score": "Score",
     "search_highlight": "Search Highlight",
-    "save_default_filters": "Save default filters"
+    "save_default_filters": "Save as Default Filters",
+    "reset_default_filters": "Reset to Default Filters",
+    "reset_default_filters_tooltip": "Discard applied filters and go back to the saved default filters",
+    "default_filters_menu_tooltip": "Default filter options",
+    "clear_filters_tooltip": "Remove all applied filters",
+    "clear_filters_with_defaults_tooltip": "Remove all applied filters including the default filters"
   },
   "url_registry": {
     "url_registry": "Canonical URL registry",

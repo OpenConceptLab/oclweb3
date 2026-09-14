@@ -1,12 +1,18 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {omit, omitBy, isEmpty, isObject, has, map, startCase, includes, get, without, forEach, flatten, values, pickBy, isEqual, filter, reject, cloneDeep, keys, find, snakeCase} from 'lodash';
+import {omit, omitBy, isEmpty, isObject, has, map, startCase, includes, get, without, forEach, flatten, values, pickBy, pick, isEqual, filter, reject, cloneDeep, keys, find, snakeCase} from 'lodash';
 import InfoIcon from '@mui/icons-material/InfoOutlined';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import Badge from '@mui/material/Badge';
 import Tooltip from '@mui/material/Tooltip';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import UpIcon from '@mui/icons-material/ArrowDropUp';
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import List from '@mui/material/List';
 import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
@@ -21,8 +27,8 @@ import { FACET_ORDER, EXCLUDE_FILTER_KEY } from './ResultConstants';
 const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions, nested, onSaveAsDefaultFilters, loading, repoDefaultFilters, propertyFilters, propertyDefinition, heightToSubtract, open, allowExclude}) => {
   const { t } = useTranslation()
   const [applied, setApplied] = React.useState({});
-  const [count, setCount] = React.useState(0);
   const [expanded, setExpanded] = React.useState([])
+  const [menuAnchorEl, setMenuAnchorEl] = React.useState(null)
   const shouldShowActionBar = open !== undefined
 
   const filterOrder = fieldOrder || FACET_ORDER[resource]
@@ -126,24 +132,21 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     return startCase(field)
   }
 
-  const computeCount = obj => flatten(values(obj).map(v => values(omit(v, EXCLUDE_FILTER_KEY)))).length
+  const computeCount = obj => flatten(values(pick(obj, keys(filters))).map(v => values(omit(v, EXCLUDE_FILTER_KEY)))).length
+  const count = computeCount(applied)
 
   const handleToggle = (field, value) => () => {
     const checked = !isApplied(field, value)
     let newApplied = {...cloneDeep(applied)}
-    let newCount = count
     if(checked) {
       newApplied[field] = newApplied[field] || {}
       newApplied[field][value[0]] = checked
-      newCount += 1
     }
     else {
       newApplied[field] = omit(newApplied[field], value[0])
-      newCount -= 1
     }
     if(isEmpty(omit(newApplied[field], EXCLUDE_FILTER_KEY)))
       newApplied = omit(newApplied, field)
-    setCount(newCount)
     setApplied(newApplied)
   };
 
@@ -163,13 +166,11 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     }
     if(isEmpty(omit(newApplied[field], EXCLUDE_FILTER_KEY)))
       newApplied = omit(newApplied, field)
-    setCount(computeCount(newApplied))
     setApplied(newApplied)
   };
 
   const onClear = () => {
     setApplied({})
-    setCount(0)
     if(onSaveAsDefaultFilters)
       onSaveAsDefaultFilters({})
     onChange({})
@@ -181,12 +182,13 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
 
   const isApplied = (field, value) => Boolean(get(applied[field], value[0]))
   const isUnApplied = (field, value) => isApplied(field, value) && !get(appliedFilters[field], value[0])
-  const canResetToDefaultFilters = (!isEqual(applied, repoDefaultFilters) || !isEqual(appliedFilters, repoDefaultFilters)) && !isEmpty(repoDefaultFilters)
+  const availableFilterFields = keys(filters)
+  const canClear = !isEmpty(pick(applied, availableFilterFields)) || !isEmpty(pick(appliedFilters, availableFilterFields))
+  const canResetToDefaultFilters = !isEmpty(repoDefaultFilters) && !isEqual(applied, repoDefaultFilters)
 
   React.useEffect(() => {
-    setCount(computeCount(appliedFilters))
     setApplied(appliedFilters)
-  }, [filters])
+  }, [filters, appliedFilters])
 
   React.useEffect(() => {
     if(!shouldShowActionBar && !isEqual(applied, appliedFilters))
@@ -327,7 +329,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
 
   const isFixedConceptField = field => isConcept && ['conceptClass', 'datatype'].includes(field)
   const canUpdateDefaultFilters = nested && onSaveAsDefaultFilters && currentUserHasAccess()
-  const topBarHeight = shouldShowActionBar ? (canUpdateDefaultFilters ? 60 : 30) : 0
+  const topBarHeight = shouldShowActionBar ? 36 : 0
   let totalFilters = {...propertyFacets, ...uiFilters}
 
   return (
@@ -335,32 +337,69 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
       {
         shouldShowActionBar &&
           <div className='col-xs-12' style={{zIndex: 2, padding: '0px', position: open ? 'absolute' : undefined, top: 0, display: open ? undefined : 'none'}}>
-            <div className='col-xs-12' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px'}}>
+            <div className='col-xs-12' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 8px', flexWrap: 'nowrap'}}>
+              <Badge badgeContent={count} color='primary' sx={{'.MuiBadge-badge': {top: '10px', left: '36px'}}}>
+                <b>{t('search.filters')}</b>
+              </Badge>
               <span>
-                <Badge badgeContent={count} color='primary' sx={{'.MuiBadge-badge': {top: '10px', left: '36px'}}}>
-                  <b>{t('search.filters')}</b>
-                </Badge>
-              </span>
-              <span>
-                <Button variant='text' color='primary' style={{textTransform: 'none'}} onClick={onApply} disabled={!unapplied}>
-                  {t('common.apply')}
-                </Button>
-                <Button variant='text' style={{textTransform: 'none'}} onClick={onClear} disabled={!count} color='error'>
-                  {t('common.clear')}
-                </Button>
+                <Tooltip title={t('common.apply')}>
+                  <span>
+                    <IconButton size='small' color='primary' onClick={onApply} disabled={!unapplied}>
+                      <CheckIcon fontSize='small' />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+                <Tooltip
+                  title={
+                    !isEmpty(repoDefaultFilters) && canUpdateDefaultFilters ?
+                      t('search.clear_filters_with_defaults_tooltip') :
+                      t('search.clear_filters_tooltip')
+                  }
+                >
+                  <span>
+                    <IconButton size='small' color='error' onClick={onClear} disabled={!canClear}>
+                      <ClearIcon fontSize='small' />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+                {
+                  canUpdateDefaultFilters &&
+                    <Tooltip title={t('search.default_filters_menu_tooltip')}>
+                      <IconButton size='small' onClick={e => setMenuAnchorEl(e.currentTarget)}>
+                        <MoreVertIcon fontSize='small' />
+                      </IconButton>
+                    </Tooltip>
+                }
+                {
+                  canUpdateDefaultFilters &&
+                    <Menu anchorEl={menuAnchorEl} open={Boolean(menuAnchorEl)} onClose={() => setMenuAnchorEl(null)}>
+                      <Tooltip title={t('search.save_default_filters')} placement='right' disableInteractive>
+                        <span>
+                          <MenuItem
+                            dense
+                            disabled={isEmpty(applied) || isEqual(applied, repoDefaultFilters)}
+                            onClick={() => { setMenuAnchorEl(null); onSetDefaultFilters() }}
+                          >
+                            {t('search.save_default_filters')}
+                          </MenuItem>
+                        </span>
+                      </Tooltip>
+                      <Tooltip title={t('search.reset_default_filters_tooltip')} placement='right' disableInteractive>
+                        <span>
+                          <MenuItem
+                            dense
+                            disabled={!canResetToDefaultFilters}
+                            onClick={() => { setMenuAnchorEl(null); onResetDefaultFilters() }}
+                            sx={{color: 'error.main'}}
+                          >
+                            {t('search.reset_default_filters')}
+                          </MenuItem>
+                        </span>
+                      </Tooltip>
+                    </Menu>
+                }
               </span>
             </div>
-            {
-              canUpdateDefaultFilters &&
-                <div className='col-xs-12 padding-0' style={{textAlign: 'right'}}>
-                  <Button size='small' sx={{textTransform: 'none'}} onClick={onSetDefaultFilters} disabled={isEmpty(applied) || isEqual(applied, repoDefaultFilters)}>
-                    {t('search.save_default_filters')}
-                  </Button>
-                  <Button size='small' color='error' sx={{textTransform: 'none'}} onClick={onResetDefaultFilters} disabled={!canResetToDefaultFilters}>
-                    {t('common.reset')}
-                  </Button>
-                </div>
-            }
           </div>
       }
       <div className='col-xs-12 padding-0' style={{marginTop: `${topBarHeight}px`, height: `calc(100vh - ${heightToSubtract || 0}px - ${topBarHeight}px)`, overflowY: 'auto'}}>

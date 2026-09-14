@@ -481,7 +481,13 @@
     "card": "Tarjeta",
     "search_all_site": "Buscar en todo OCL para ",
     "search_this_repository": "Buscar en este repositorio",
-    "search_all_concepts": "Buscar todos los conceptos"
+    "search_all_concepts": "Buscar todos los conceptos",
+    "save_default_filters": "Guardar como Filtros Predeterminados",
+    "reset_default_filters": "Restablecer a Filtros Predeterminados",
+    "reset_default_filters_tooltip": "Descartar los filtros aplicados y volver a los filtros predeterminados guardados",
+    "default_filters_menu_tooltip": "Opciones de filtros predeterminados",
+    "clear_filters_tooltip": "Eliminar todos los filtros aplicados",
+    "clear_filters_with_defaults_tooltip": "Eliminar todos los filtros aplicados, incluidos los filtros predeterminados"
   },
   "cloneToSource": {
     "title": "Clonar concepto(s) a una fuente",

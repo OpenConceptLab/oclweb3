@@ -462,7 +462,7 @@ const RepoHome = () => {
                       nested
                       repo={repo}
                       noTabs
-                      onSaveAsDefaultFilters={onSaveAsDefaultFilters}
+                      onSaveAsDefaultFilters={(!isCollection && (!tab || tab === 'concepts')) ? onSaveAsDefaultFilters : undefined}
                       repoDefaultFilters={(!tab || tab === 'concepts') ? repo?.meta?.display?.default_filter : {}}
                       onShowItem={onShowItem}
                       showItem={seed || false}

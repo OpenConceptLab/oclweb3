@@ -614,7 +614,13 @@
     "url_registry": "条目",
     "confidence": "置信度",
     "score": "评分",
-    "search_highlight": "搜索亮点"
+    "search_highlight": "搜索亮点",
+    "save_default_filters": "另存为默认筛选条件",
+    "reset_default_filters": "重置为默认筛选条件",
+    "reset_default_filters_tooltip": "放弃已应用的筛选条件并恢复到已保存的默认筛选条件",
+    "default_filters_menu_tooltip": "默认筛选选项",
+    "clear_filters_tooltip": "清除所有已应用的筛选条件",
+    "clear_filters_with_defaults_tooltip": "清除所有已应用的筛选条件，包括默认筛选条件"
   },
   "url_registry": {
     "url_registry": "规范型 URL 注册库",
