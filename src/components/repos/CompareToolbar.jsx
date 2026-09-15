@@ -43,7 +43,7 @@ const CompareToolbar = ({
         <span style={{display: 'flex', alignItems: 'center'}}>
           {t('repo.compare')}
           <RepoVersionChip
-            tooltip
+            noTooltip
             compare
             originVersion
             size='small'
@@ -55,7 +55,7 @@ const CompareToolbar = ({
           />
           {
             isCollection && version1?.id &&
-              <span style={{margin: '0 8px'}}>
+              <span style={{margin: '0 8px 0 0'}}>
                 <ExpansionDropDown
                   variant='outlined'
                   expansions={expansions1}
@@ -67,7 +67,7 @@ const CompareToolbar = ({
           }
           {t('common.with')}
           <RepoVersionChip
-            tooltip
+            noTooltip
             compare
             size='small'
             version={version2}
@@ -78,7 +78,7 @@ const CompareToolbar = ({
           />
           {
             isCollection && version2?.id &&
-              <span style={{margin: '0 8px'}}>
+              <span style={{margin: '0 8px 0 0'}}>
                 <ExpansionDropDown
                   variant='outlined'
                   expansions={expansions2}
