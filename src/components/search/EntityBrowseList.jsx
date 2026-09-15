@@ -100,7 +100,7 @@ const EntityBrowseList = React.forwardRef(({ type, onNavigate }, ref) => {
                     selected={focus === itemIndex}
                     onClick={() => navigate(item.url)}
                   >
-                    <ListItemAvatar sx={{minWidth: '40px'}}>
+                    <ListItemAvatar sx={{textAlign: 'center'}}>
                       <EntityIcon entity={item} noTooltip noLink strict fontSize='small' />
                     </ListItemAvatar>
                     <div>
