@@ -14,7 +14,7 @@ import RepoManagementList from './RepoManagementList';
 import { createSimilarRepoHref } from './utils';
 import FollowActionButton from '../common/FollowActionButton'
 
-const RepoHeader = ({repo, owner, versions, onVersionChange, repoHref, onCreateConceptClick, onCreateMappingClick, onVersionEditClick, onCreateVersionClick, onDeleteRepoClick, isVersion, onReleaseVersionClick}) => {
+const RepoHeader = ({repo, owner, versions, onVersionChange, repoHref, onCreateConceptClick, onCreateMappingClick, onVersionEditClick, onCreateVersionClick, onDeleteRepoClick, isVersion, onReleaseVersionClick, hideActions}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -61,18 +61,21 @@ const RepoHeader = ({repo, owner, versions, onVersionChange, repoHref, onCreateC
           }
           <ProcessingFlag entity={repo} sx={{marginLeft: '8px'}} />
         </span>
-        <span style={{display: 'flex', alignItems: 'center', marginLeft: '16px'}}>
-          <FollowActionButton iconButton entity={repo} />
-          {
-            Boolean(isRepo && (hasAccess || !isVersion)) &&
-              <React.Fragment>
-                <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='repo-actions'>
-                  {t('common.actions')}
-                </Button>
-                <RepoManagementList isVersion={isVersion} hasAccess={hasAccess} createSimilarHref={createSimilarHref} anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-actions' onClick={onManageOptionClick} repo={repo} />
-              </React.Fragment>
-          }
-        </span>
+        {
+          !hideActions &&
+            <span style={{display: 'flex', alignItems: 'center', marginLeft: '16px'}}>
+              <FollowActionButton iconButton entity={repo} />
+              {
+                Boolean(isRepo && (hasAccess || !isVersion)) &&
+                  <React.Fragment>
+                    <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='repo-actions'>
+                      {t('common.actions')}
+                    </Button>
+                    <RepoManagementList isVersion={isVersion} hasAccess={hasAccess} createSimilarHref={createSimilarHref} anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-actions' onClick={onManageOptionClick} repo={repo} />
+                  </React.Fragment>
+              }
+            </span>
+        }
       </div>
       <div className='col-xs-12 padding-0' style={{margin: '8px 0 -8px 0'}}>
         <Typography component='span' sx={{fontSize: '28px', color: 'surface.dark', fontWeight: 600}}>{repo.name}</Typography>

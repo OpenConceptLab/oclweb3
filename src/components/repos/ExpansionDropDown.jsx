@@ -12,7 +12,7 @@ import SyncIcon from '@mui/icons-material/Sync';
 import ProcessingFlag from './ProcessingFlag';
 import { isProcessing } from './processingStages';
 
-const ExpansionDropDown = ({ expansions = [], loading = false, selectedExpansion, onChange }) => {
+const ExpansionDropDown = ({ expansions = [], loading = false, selectedExpansion, onChange, variant = 'contained' }) => {
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
@@ -25,7 +25,7 @@ const ExpansionDropDown = ({ expansions = [], loading = false, selectedExpansion
   return (
     <React.Fragment>
       <Button
-        variant='contained'
+        variant={variant}
         size='small'
         color='default'
         onClick={event => setAnchorEl(event.currentTarget)}

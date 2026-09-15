@@ -29,7 +29,7 @@ import APIService from '../../services/APIService'
 import { OperationsContext } from '../app/LayoutContext';
 import { COLORS } from '../../common/colors'
 
-import SearchFilters from '../search/SearchFilters';
+import DiffFilterList from './DiffFilterList';
 import { Repo } from '../mappings/FromAndTargetSource'
 import ConceptIcon from '../concepts/ConceptIcon'
 
@@ -54,7 +54,7 @@ const VirtuosoTableComponents = {
   TableBody: React.forwardRef((props, ref) => <TableBody {...props} ref={ref} />),
 }
 
-const VersionResourcesComparison = ({version1, version2, resource}) => {
+const VersionResourcesComparison = ({version1, version2, resource, isCollection, expansion1, expansion2}) => {
   const { t } = useTranslation()
   const { setAlert } = React.useContext(OperationsContext);
   const [response, setResponse] = React.useState(null)
@@ -64,11 +64,17 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
   const [selected, setSelected] = React.useState([])
   const [expanded, setExpanded] = React.useState([])
 
+  const expansionsMissing = isCollection && (!expansion1?.url || !expansion2?.url)
+  const fetchedKeyRef = React.useRef(null)
+
   const fetchChangelog = () => {
-    if(loading)
+    if(loading || expansionsMissing)
       return
     setLoading(true)
-    APIService.sources().appendToUrl('$changelog/').post({version1: version1.version_url, version2: version2.version_url, verbosity: 3}).then(res => {
+    const request = isCollection ?
+      APIService.collections().appendToUrl('expansions/$changelog/').post({expansion1: expansion1.url, expansion2: expansion2.url, verbosity: 3}) :
+      APIService.sources().appendToUrl('$changelog/').post({version1: version1.version_url, version2: version2.version_url, verbosity: 3})
+    request.then(res => {
       setResponse(res)
       if(isAccepted(res)) {
         setAlert({severity: 'warning', message: t('repo.version_changelog_request_accepted'), duration: 10000})
@@ -76,7 +82,7 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
         setChangelog(res.data)
         const diffFields = get(res?.data?.meta?.diff, resource)
         let _filters = {}
-        forEach(diffFields, (count, field) => field !== 'changed_total' ? _filters[field] = [[field, count, false]] : null)
+        forEach(diffFields, (count, field) => field !== 'changed_total' ? _filters[field] = count : null)
         setFilters(_filters)
         let defaultSelected = getDefaultSelected(_filters)
         setSelected(defaultSelected ? [defaultSelected] : [])
@@ -88,37 +94,40 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
   const isAccepted = res => [202, 409].includes(res?.status_code) || res?.data?.task || res?.detail === 'Already Queued'
 
   React.useEffect(() => {
+    if(expansionsMissing) {
+      fetchedKeyRef.current = null
+      setChangelog(false)
+      setFilters({})
+      setSelected([])
+      return
+    }
+    const key = [version1?.version_url, version2?.version_url, expansion1?.url, expansion2?.url, resource].join('|')
+    if(fetchedKeyRef.current === key)
+      return
+    fetchedKeyRef.current = key
     fetchChangelog()
-  }, [version1?.version_url, version2?.version_url])
+  }, [version1?.version_url, version2?.version_url, expansion1?.url, expansion2?.url, isCollection])
 
   const getDefaultSelected = (_filters) => {
     if(!isEmpty(_filters))
-      return diffOrder.find(field => get(_filters, `${field}.0.1`) !== 0)
+      return diffOrder.find(field => get(_filters, field) !== 0)
     return undefined
   }
 
+  const getBaseURL1 = () => isCollection ? expansion1?.url : version1.version_url
+  const getBaseURL2 = () => isCollection ? expansion2?.url : version2.version_url
+
   const getChangeURL = entity => {
     let resourceURI = resource + '/' + entity.id + '/'
-    return '/concepts/compare?lhs=' + (version1.version_url + resourceURI) + '&rhs=' + (version2.version_url + resourceURI)
+    return '/concepts/compare?lhs=' + (getBaseURL1() + resourceURI) + '&rhs=' + (getBaseURL2() + resourceURI)
   }
 
   const getViewURL = (entity, section) => {
     let resourceURI = resource + '/' + entity.id + '/'
     if(['removed', 'changed_retired'].includes(section))
-      return version1.version_url + resourceURI
+      return getBaseURL1() + resourceURI
 
-    return version2.version_url + resourceURI
-  }
-
-  const getApplied = () => {
-    if(selected?.length) {
-      let applied = {}
-      selected.forEach(section => {
-        applied[section] = {[section]: true}
-      })
-      return applied
-    }
-    return {}
+    return getBaseURL2() + resourceURI
   }
 
   const flatItems = React.useMemo(() => {
@@ -231,19 +240,26 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
     )
   }
 
+  if(expansionsMissing) {
+    return (
+      <div className='col-xs-12 padding-0' style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <Typography variant='body1' color='text.secondary'>
+          {t('repo.select_expansions_to_compare')}
+        </Typography>
+      </div>
+    )
+  }
+
   return (
     <div className='col-xs-12 padding-0' style={{height: '100%'}}>
       <>
         <div className='col-xs-3 split' style={{width: '250px', padding: '0 8px', height: 'calc(100vh - 175px)', overflow: 'auto', borderRight: '0.3px solid', borderColor: COLORS.surface.n90}}>
-          <SearchFilters
-            resource={resource}
-            filters={loading ? {} : filters}
-            onChange={newApplied => setSelected(keys(newApplied))}
+          <DiffFilterList
             fieldOrder={diffOrder}
-            appliedFilters={getApplied()}
             filterDefinitions={sections}
-            noSubheader
-            disabledZero
+            counts={filters}
+            selected={selected}
+            onChange={setSelected}
           />
         </div>
         <div className='col-xs-9 split' style={{width: 'calc(100% - 250px)', paddingRight: 0, paddingLeft: 0, float: 'right', height: '100%'}}>
