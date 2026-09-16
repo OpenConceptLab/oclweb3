@@ -169,9 +169,12 @@ const RepoHome = () => {
       }
       fetchExpansions(expansionURL, _repo)
     }
-    if(!route.version && !route.resource) {
+    if(!route.version) {
       setHeadVersion(_repo)
-      resolveLatestVersion(_repo)
+      if(route.resource)
+        setVersionPending(false)
+      else
+        resolveLatestVersion(_repo)
     }
   }
 
