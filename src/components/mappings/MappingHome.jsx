@@ -75,6 +75,8 @@ const MappingHome = props => {
              toParentURI((props.mapping?.id ? props.mapping : mapping)?.url || '')
     if(props?.repo?.id)
       return props?.repo?.version_url || props?.repo?.url
+    if(props?.repoURL)
+      return props.repoURL
     let url = toParentURI(_mapping?.version_url || _mapping?.url || props?.url || '')
     const repoVersion = _mapping?.latest_source_version || mapping?.latest_source_version
     if(repoVersion)

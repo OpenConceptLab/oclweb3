@@ -27,7 +27,7 @@ const ReferenceHome = props => {
   const activeReferenceIdRef = React.useRef(reference?.id)
   const { setAlert } = React.useContext(OperationsContext);
 
-  const repoURL = props?.repo?.version_url || props?.repo?.url
+  const repoURL = props?.repo?.version_url || props?.repo?.url || props?.repoURL
   const isHeadReferenceUrl = url => {
     const normalizedUrl = (url || '').replace(/\/$/, '')
     return normalizedUrl.includes('/HEAD/') || Boolean(normalizedUrl.match(/\/collections\/[^/]+\/references\/[^/]+$/));

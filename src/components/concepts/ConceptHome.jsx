@@ -91,7 +91,7 @@ const ConceptHome = props => {
       return latestResolvedRepoVersion(concept)?.version_url ||
              toParentURI((props.concept?.id ? props.concept : concept)?.url || '')
     const parentURL = toParentURI(_concept?.version_url || _concept?.url || props?.url || '')
-    const repoURL = props?.repo?.version_url || props?.repo?.url
+    const repoURL = props?.repo?.version_url || props?.repo?.url || props?.repoURL
     if(repoURL && (!parentURL || dropVersion(repoURL) === parentURL))
       return repoURL
     if(!parentURL)
