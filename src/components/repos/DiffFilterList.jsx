@@ -14,7 +14,7 @@ const DiffFilterList = ({fieldOrder, filterDefinitions, counts, selected, onChan
   }
 
   return (
-    <List dense sx={{width: '100%', padding: 0}}>
+    <List dense sx={{width: '100%', padding: '8px 0'}}>
       {
         fieldOrder.map(field => {
           const count = counts?.[field] || 0
@@ -22,7 +22,7 @@ const DiffFilterList = ({fieldOrder, filterDefinitions, counts, selected, onChan
           const definition = filterDefinitions?.[field] || {}
           const labelId = `diff-filter-checkbox-${field}`
           return (
-            <ListItemButton key={field} onClick={toggle(field)} disabled={disabled} sx={{p: '0 12px'}}>
+            <ListItemButton key={field} onClick={toggle(field)} disabled={disabled} sx={{p: '4px 12px'}}>
               <ListItemIcon sx={{minWidth: '25px'}}>
                 <Checkbox
                   size='small'

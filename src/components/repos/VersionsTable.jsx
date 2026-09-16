@@ -15,6 +15,7 @@ import ReleaseIcon from '@mui/icons-material/VerifiedOutlined';
 import DraftIcon from '@mui/icons-material/EditOutlined';
 import isNumber from 'lodash/isNumber'
 import without from 'lodash/without'
+import find from 'lodash/find'
 import ConceptIcon from '../concepts/ConceptIcon'
 import AccessIcon from '../common/AccessIcon'
 import MappingIcon from '../mappings/MappingIcon';
@@ -22,6 +23,7 @@ import { formatDate, hasAccessToURL } from '../../common/utils'
 import { SURFACE_COLORS, BLACK } from '../../common/colors'
 import Button from '../common/Button';
 import ProcessingFlag from './ProcessingFlag';
+import { isSameVersion, hasMultipleExpansions, isCollectionURL } from './versionsTab.styles';
 
 const normalizeVersions = versions => {
   if (Array.isArray(versions))
@@ -148,6 +150,10 @@ const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabl
   }
 
   const isDisabled = version => {
+    const other = disabledFrom || disabledUntil
+    if(isSameVersion(version, other) && hasMultipleExpansions(version))
+      return false
+
     if(version.id === 'HEAD')
       return disabledFrom?.id === version.id || disabledUntil?.id === version.id
 
@@ -222,7 +228,23 @@ const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabl
       </TableContainer>
       {
         checked?.length == 2 &&
-          <Button sx={{marginTop: '16px', display: 'flex'}} onClick={() => history.push(`${selected?.url + 'compare-versions'}?version1=${checked[0]}&version2=${checked[1]}`)} label={t('repo.compare_versions')} color='primary' variant='outlined' />
+          <Button
+            sx={{marginTop: '16px', display: 'flex'}}
+            onClick={() => history.push(`${selected?.url + 'compare-versions'}?version1=${checked[0]}&version2=${checked[1]}`)}
+            label={isCollectionURL(checked[0]) ? t('repo.compare_versions_and_expansions') : t('repo.compare_versions')}
+            color='primary'
+            variant='outlined'
+          />
+      }
+      {
+        checked?.length == 1 && hasMultipleExpansions(find(versionList, version => (version.version_url || version.url) === checked[0])) &&
+          <Button
+            sx={{marginTop: '16px', display: 'flex'}}
+            onClick={() => history.push(`${selected?.url + 'compare-versions'}?version1=${checked[0]}&version2=${checked[0]}`)}
+            label={t('repo.compare_expansions_of_version')}
+            color='primary'
+            variant='outlined'
+          />
       }
     </React.Fragment>
   )

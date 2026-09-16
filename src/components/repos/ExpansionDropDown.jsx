@@ -12,11 +12,20 @@ import SyncIcon from '@mui/icons-material/Sync';
 import ProcessingFlag from './ProcessingFlag';
 import { isProcessing } from './processingStages';
 
-const ExpansionDropDown = ({ expansions = [], loading = false, selectedExpansion, onChange, variant = 'contained' }) => {
+const ExpansionDropDown = ({ expansions = [], loading = false, selectedExpansion, onChange, variant = 'contained', disabledUrl, autoOpen = false }) => {
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const buttonRef = React.useRef(null);
+  const hasAutoOpenedRef = React.useRef(false);
 
   const onClose = () => setAnchorEl(null);
+
+  React.useEffect(() => {
+    if(autoOpen && !hasAutoOpenedRef.current && !loading && expansions.length && buttonRef.current) {
+      hasAutoOpenedRef.current = true
+      setAnchorEl(buttonRef.current)
+    }
+  }, [autoOpen, loading, expansions.length]);
 
   const label = selectedExpansion?.mnemonic
     ? t('repo.expansion_dropdown_label', { mnemonic: selectedExpansion.mnemonic })
@@ -25,6 +34,7 @@ const ExpansionDropDown = ({ expansions = [], loading = false, selectedExpansion
   return (
     <React.Fragment>
       <Button
+        ref={buttonRef}
         variant={variant}
         size='small'
         color='default'
@@ -55,10 +65,11 @@ const ExpansionDropDown = ({ expansions = [], loading = false, selectedExpansion
       >
         {expansions.map(expansion => {
           const isSelected = selectedExpansion?.url === expansion.url;
-          return (
+          const isDisabled = Boolean(disabledUrl) && expansion.url === disabledUrl;
+          const menuItem = (
             <MenuItem
-              key={expansion.url || expansion.id || expansion.mnemonic}
               selected={isSelected}
+              disabled={isDisabled}
               onClick={() => {
                 onClose();
                 onChange && onChange(expansion);
@@ -69,6 +80,11 @@ const ExpansionDropDown = ({ expansions = [], loading = false, selectedExpansion
               <ProcessingFlag entity={expansion} sx={{ ml: 1, pointerEvents: 'none' }} />
             </MenuItem>
           );
+          return isDisabled ? (
+            <Tooltip key={expansion.url || expansion.id || expansion.mnemonic} title={t('repo.expansion_already_selected_other_side')} placement='right'>
+              <span style={{ display: 'block' }}>{menuItem}</span>
+            </Tooltip>
+          ) : React.cloneElement(menuItem, { key: expansion.url || expansion.id || expansion.mnemonic });
         })}
       </Menu>
     </React.Fragment>

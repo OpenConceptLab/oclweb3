@@ -242,7 +242,7 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
 
   if(expansionsMissing) {
     return (
-      <div className='col-xs-12 padding-0' style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+      <div className='col-xs-12 padding-0' style={{height: 'calc(100vh - 270px)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
         <Typography variant='body1' color='text.secondary'>
           {t('repo.select_expansions_to_compare')}
         </Typography>

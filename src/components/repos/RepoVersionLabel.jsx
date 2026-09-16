@@ -11,7 +11,7 @@ const RepoVersionLabel = ({ version }) => {
   return (
     <React.Fragment>
       <HeaderChip
-        labelPrefix={`${t('common.version')} `}
+        labelPrefix={`${t('common.version')}: `}
         label={version?.version || version?.id}
         icon={<VersionIcon color='surface.contrastText' fontSize='inherit' />}
         sx={{

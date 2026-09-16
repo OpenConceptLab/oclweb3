@@ -10,6 +10,7 @@ import ExpansionDropDown from './ExpansionDropDown'
 import RepoIcon from './RepoIcon'
 import ConceptIcon from '../concepts/ConceptIcon';
 import JSONIcon from '../common/JSONIcon';
+import { isSameVersion } from './versionsTab.styles'
 
 const ButtonControl = ({ label, icon, selected, terminal, onClick, disabled }) => {
   return (
@@ -37,6 +38,7 @@ const CompareToolbar = ({
   const { t } = useTranslation()
   const isSource = version1?.version_url?.includes('/sources/') && version2?.version_url?.includes('/sources/')
   const canCompareContent = isSource || (isCollection && version1?.id && version2?.id)
+  const sameVersionCompare = isCollection && isSameVersion(version1, version2)
   return (
     <div className='col-xs-12 padding-0'>
       <div className='col-xs-12' style={{padding: '12px', borderBottom: '0.5px solid', borderTop: '0.5px solid', borderColor: SURFACE_COLORS.nv80, backgroundColor: SURFACE_COLORS.main, display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
@@ -85,6 +87,8 @@ const CompareToolbar = ({
                   loading={expansions2Loading}
                   selectedExpansion={expansion2}
                   onChange={expansion => onExpansionChange('expansion2', expansion)}
+                  disabledUrl={sameVersionCompare ? expansion1?.url : undefined}
+                  autoOpen={sameVersionCompare && !expansion2}
                 />
               </span>
           }

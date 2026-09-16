@@ -3,8 +3,10 @@ import moment from 'moment'
 import { useLocation } from 'react-router-dom';
 import ReactDiffViewer from 'react-diff-viewer'
 import find from 'lodash/find'
+import { useTranslation } from 'react-i18next';
 
 import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
 import { toParentURI, toOwnerURI } from '../../common/utils';
 import APIService from '../../services/APIService';
 import LoaderDialog from '../common/LoaderDialog';
@@ -14,10 +16,11 @@ import CompareToolbar from './CompareToolbar';
 import VersionStats from './VersionStats'
 import VersionMeta from './VersionMeta'
 import VersionResourcesComparison from './VersionResourcesComparison'
-import { getVersionURL } from './versionsTab.styles'
+import { getVersionURL, isSameVersion } from './versionsTab.styles'
 
 const CompareVersions = () => {
   const location = useLocation()
+  const { t } = useTranslation()
 
   const [loading, setLoading] = React.useState(false)
   const [status, setStatus] = React.useState(false)
@@ -149,6 +152,13 @@ const CompareVersions = () => {
     fetchExpansions(version2, setExpansions2, setExpansion2, setExpansions2Loading)
   }, [version2?.id, isCollection])
 
+  React.useEffect(() => {
+    if(isCollection && isSameVersion(version1, version2) && expansion1?.url && expansion2?.url === expansion1.url)
+      setExpansion2(false)
+  }, [isCollection, version1, version2, expansion1, expansion2])
+
+  const identicalSelection = isSameVersion(version1, version2) &&
+    (!isCollection || Boolean(expansion1?.url && expansion2?.url && expansion1.url === expansion2.url))
 
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '8px'}}>
@@ -181,31 +191,41 @@ const CompareVersions = () => {
           onExpansionChange={(expansionType, expansion) => expansionType === 'expansion1' ? setExpansion1(expansion) : setExpansion2(expansion)}
         />
         {
-          metric === 'stats' &&
-            <VersionStats version1={version1} version2={version2} />
-        }
-        {
-          metric === 'meta' &&
-            <VersionMeta version1={version1} version2={version2} isCollection={isCollection} expansion1={expansion1} expansion2={expansion2} />
-        }
-        {
-          metric === 'content' &&
-            <VersionResourcesComparison version1={version1} version2={version2} isCollection={isCollection} expansion1={expansion1} expansion2={expansion2} resource='concepts' />
-        }
-        {
-          metric === 'mappings' &&
-            <VersionResourcesComparison version1={version1} version2={version2} isCollection={isCollection} expansion1={expansion1} expansion2={expansion2} resource='mappings' />
-        }
-        {
-          metric === 'json' &&
-            <div style={{height: 'calc(100vh - 270px)', overflow: 'auto', display: 'inline-block', width: '100%'}}>
-              <ReactDiffViewer
-                oldValue={JSON.stringify(isCollection && expansion1 ? {...version1, expansion: expansion1} : version1, undefined, 2)}
-                newValue={JSON.stringify(isCollection && expansion2 ? {...version2, expansion: expansion2} : version2, undefined, 2)}
-                compareMethod='diffSentences'
-                splitView={true}
-              />
-            </div>
+          identicalSelection ?
+            <div className='col-xs-12 padding-0' style={{height: 'calc(100vh - 270px)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+              <Typography variant='body1' color='text.secondary'>
+                {t('repo.select_different_version_or_expansion')}
+              </Typography>
+            </div> :
+          <React.Fragment>
+            {
+              metric === 'stats' &&
+                <VersionStats version1={version1} version2={version2} />
+            }
+            {
+              metric === 'meta' &&
+                <VersionMeta version1={version1} version2={version2} isCollection={isCollection} expansion1={expansion1} expansion2={expansion2} />
+            }
+            {
+              metric === 'content' &&
+                <VersionResourcesComparison version1={version1} version2={version2} isCollection={isCollection} expansion1={expansion1} expansion2={expansion2} resource='concepts' />
+            }
+            {
+              metric === 'mappings' &&
+                <VersionResourcesComparison version1={version1} version2={version2} isCollection={isCollection} expansion1={expansion1} expansion2={expansion2} resource='mappings' />
+            }
+            {
+              metric === 'json' &&
+                <div style={{height: 'calc(100vh - 270px)', overflow: 'auto', display: 'inline-block', width: '100%'}}>
+                  <ReactDiffViewer
+                    oldValue={JSON.stringify(isCollection && expansion1 ? {...version1, expansion: expansion1} : version1, undefined, 2)}
+                    newValue={JSON.stringify(isCollection && expansion2 ? {...version2, expansion: expansion2} : version2, undefined, 2)}
+                    compareMethod='diffSentences'
+                    splitView={true}
+                  />
+                </div>
+            }
+          </React.Fragment>
         }
       </Paper>
     </div>
