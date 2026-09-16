@@ -80,11 +80,12 @@ export const buildRepoApiUrl = route => {
   return '/' + segments.filter(Boolean).join('/') + '/'
 }
 
-export const isSameRepoScope = (prev, next) => Boolean(prev) && Boolean(next) &&
+export const isSameRepo = (prev, next) => Boolean(prev) && Boolean(next) &&
   prev.ownerType === next.ownerType &&
   prev.owner === next.owner &&
   prev.repoType === next.repoType &&
-  prev.repo === next.repo &&
-  prev.version === next.version
+  prev.repo === next.repo
+
+export const isSameRepoScope = (prev, next) => isSameRepo(prev, next) && prev.version === next.version
 
 export const hasResourcePanel = route => Boolean(route?.resource) && RESOURCE_TABS.includes(route?.tab)

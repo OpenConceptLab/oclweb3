@@ -16,7 +16,7 @@ const normalizeVersions = versions => {
   return []
 }
 
-const RepoVersionChip = ({ version, versions, sx, onChange, size, disabledFrom, disabledUntil, compare, originVersion, checkbox, tooltip }) => {
+const RepoVersionChip = ({ version, versions, versionsLoading, previewVersions, sx, onChange, size, disabledFrom, disabledUntil, compare, originVersion, checkbox, tooltip }) => {
   const { t } = useTranslation()
   const [anchorEl, setAnchorEl] = React.useState(null);
   const onOpen = event => setAnchorEl(event.currentTarget);
@@ -26,15 +26,22 @@ const RepoVersionChip = ({ version, versions, sx, onChange, size, disabledFrom, 
     onClose()
   }
 
-  const getVersions = () => {
-    const versionList = normalizeVersions(versions)
-    if(!versionList.length)
-      return versionList
+  const orderVersions = versionList => {
     const head = find(versionList, {version: 'HEAD'})
     return compact([head, ...orderBy(reject(versionList, {version: 'HEAD'}), 'created_at', 'desc')])
   }
 
+  const getVersions = () => {
+    const versionList = normalizeVersions(versions)
+    if(versionList.length)
+      return orderVersions(versionList)
+    // Full versions list hasn't loaded yet -- show whatever we already know
+    // (HEAD and/or the latest released version) instead of an empty menu.
+    return orderVersions(normalizeVersions(previewVersions))
+  }
+
   const allVersions = getVersions()
+  const showSkeleton = Boolean(versionsLoading) && !normalizeVersions(versions).length
 
   return (
     <React.Fragment>
@@ -96,6 +103,7 @@ const RepoVersionChip = ({ version, versions, sx, onChange, size, disabledFrom, 
         <VersionsTable
           selected={version}
           versions={allVersions}
+          loading={showSkeleton}
           onChange={onSelect}
           bgColor={SURFACE_COLORS.main}
           disabledFrom={disabledFrom}
