@@ -41,6 +41,7 @@ const CompareVersions = () => {
   const isCollection = location.pathname.includes('/collections/')
 
   const isHeadVersion = version => (version?.version || version?.id) === 'HEAD'
+  const getVersionURLKey = version => decodeURIComponent(version?.version_url || version?.url || '')
 
   const isNewerVersion = (a, b) => {
     const aIsHead = isHeadVersion(a)
@@ -52,16 +53,32 @@ const CompareVersions = () => {
     return moment(a?.created_on).isAfter(b?.created_on)
   }
 
+  const fetchMissingVersion = (url, setter) => {
+    APIService.new().overrideURL(url).get(null, null, {includeSummary: true, verbose: true}, true).then(response => {
+      let data = response?.data || response?.response?.data
+      if(!data?.id) return
+      if(isHeadVersion(data) && data.id !== 'HEAD')
+        data = {...data, id: 'HEAD', version_url: data.url || data.version_url}
+      setter(data)
+      fetchVerboseSummary(data, setter)
+      setVersions(prev => {
+        const list = Array.isArray(prev) ? prev : []
+        return find(list, version => getVersionURLKey(version) === getVersionURLKey(data)) ? list : [...list, data]
+      })
+    })
+  }
+
   const setVersionsFromURL = repoVersions => {
     const queryParams = new URLSearchParams(location.search)
     const version1URL = queryParams.get('version1')
     const version2URL = queryParams.get('version2')
-    const getVersionURLKey = version => decodeURIComponent(version.version_url || version.url || '')
-    let _version1, _version2;
-    if(version1URL)
-      _version1 = repoVersions?.find(version => getVersionURLKey(version) === version1URL)
-    if(version2URL)
-      _version2 = repoVersions?.find(version => getVersionURLKey(version) === version2URL)
+    const headVersion = find(repoVersions, isHeadVersion)
+    const _version1 = version1URL ? repoVersions?.find(version => getVersionURLKey(version) === version1URL) : headVersion
+    const _version2 = version2URL ? repoVersions?.find(version => getVersionURLKey(version) === version2URL) : headVersion
+
+    if(version1URL && !_version1) fetchMissingVersion(version1URL, setVersion1)
+    if(version2URL && !_version2) fetchMissingVersion(version2URL, setVersion2)
+
     if(_version1?.id && _version2?.id && isNewerVersion(_version1, _version2)) {
       setVersion2(_version1)
       fetchVerboseSummary(_version1, setVersion2)
@@ -82,9 +99,10 @@ const CompareVersions = () => {
     APIService.new().overrideURL(getURL()).get(null, null, {}, true).then(response => {
       setStatus(response?.status || response?.response.status)
       setLoading(false)
-      setRepo(response?.data || response?.response?.data || {})
+      const repoData = response?.data || response?.response?.data || {}
+      setRepo(repoData)
       fetchOwner()
-      fetchVersions()
+      fetchVersions(repoData)
     })
   }
 
@@ -94,11 +112,18 @@ const CompareVersions = () => {
     })
   }
 
-  const fetchVersions = () => {
+  const fetchVersions = headRepo => {
     APIService.new().overrideURL(getURL()).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true}).then(response => {
       const repoVersions = Array.isArray(response?.data) ? response.data : []
-      setVersions(repoVersions)
-      setVersionsFromURL(repoVersions)
+      const normalizedHead = headRepo?.id && !find(repoVersions, isHeadVersion) ? {
+        ...headRepo,
+        id: 'HEAD',
+        version: 'HEAD',
+        version_url: headRepo.url || headRepo.version_url
+      } : null
+      const allVersions = normalizedHead ? [normalizedHead, ...repoVersions] : repoVersions
+      setVersions(allVersions)
+      setVersionsFromURL(allVersions)
     })
   }
 
