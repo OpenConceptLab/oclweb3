@@ -53,19 +53,23 @@ const CompareVersions = () => {
     return moment(a?.created_on).isAfter(b?.created_on)
   }
 
-  const fetchMissingVersion = (url, setter) => {
+  const fetchMissingVersion = url =>
     APIService.new().overrideURL(url).get(null, null, {includeSummary: true, verbose: true}, true).then(response => {
       let data = response?.data || response?.response?.data
-      if(!data?.id) return
+      if(!data?.id) return null
       if(isHeadVersion(data) && data.id !== 'HEAD')
         data = {...data, id: 'HEAD', version_url: data.url || data.version_url}
-      setter(data)
-      fetchVerboseSummary(data, setter)
       setVersions(prev => {
         const list = Array.isArray(prev) ? prev : []
         return find(list, version => getVersionURLKey(version) === getVersionURLKey(data)) ? list : [...list, data]
       })
+      return data
     })
+
+  const resolveVersion = (url, repoVersions, fallback) => {
+    if(!url) return Promise.resolve(fallback)
+    const found = repoVersions?.find(version => getVersionURLKey(version) === url)
+    return found ? Promise.resolve(found) : fetchMissingVersion(url)
   }
 
   const setVersionsFromURL = repoVersions => {
@@ -73,23 +77,23 @@ const CompareVersions = () => {
     const version1URL = queryParams.get('version1')
     const version2URL = queryParams.get('version2')
     const headVersion = find(repoVersions, isHeadVersion)
-    const _version1 = version1URL ? repoVersions?.find(version => getVersionURLKey(version) === version1URL) : headVersion
-    const _version2 = version2URL ? repoVersions?.find(version => getVersionURLKey(version) === version2URL) : headVersion
 
-    if(version1URL && !_version1) fetchMissingVersion(version1URL, setVersion1)
-    if(version2URL && !_version2) fetchMissingVersion(version2URL, setVersion2)
-
-    if(_version1?.id && _version2?.id && isNewerVersion(_version1, _version2)) {
-      setVersion2(_version1)
-      fetchVerboseSummary(_version1, setVersion2)
-      setVersion1(_version2)
-      fetchVerboseSummary(_version2, setVersion1)
-    } else {
-      setVersion2(_version2)
-      fetchVerboseSummary(_version2, setVersion2)
-      setVersion1(_version1)
-      fetchVerboseSummary(_version1, setVersion1)
-    }
+    Promise.all([
+      resolveVersion(version1URL, repoVersions, headVersion),
+      resolveVersion(version2URL, repoVersions, headVersion)
+    ]).then(([_version1, _version2]) => {
+      if(_version1?.id && _version2?.id && isNewerVersion(_version1, _version2)) {
+        setVersion2(_version1)
+        fetchVerboseSummary(_version1, setVersion2)
+        setVersion1(_version2)
+        fetchVerboseSummary(_version2, setVersion1)
+      } else {
+        setVersion2(_version2)
+        fetchVerboseSummary(_version2, setVersion2)
+        setVersion1(_version1)
+        fetchVerboseSummary(_version1, setVersion1)
+      }
+    })
   }
 
   const getURL = () => (toParentURI(location.pathname) + '/').replace('//', '/')
