@@ -1,6 +1,6 @@
 import React from 'react'
 import moment from 'moment'
-import { useLocation } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 import ReactDiffViewer from 'react-diff-viewer'
 import find from 'lodash/find'
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,7 @@ import { getVersionURL, isSameVersion } from './versionsTab.styles'
 
 const CompareVersions = () => {
   const location = useLocation()
+  const history = useHistory()
   const { t } = useTranslation()
 
   const [loading, setLoading] = React.useState(false)
@@ -29,7 +30,7 @@ const CompareVersions = () => {
   const [versions, setVersions] = React.useState(false)
   const [version1, setVersion1] = React.useState()
   const [version2, setVersion2] = React.useState()
-  const [metric, setMetric] = React.useState('stats')
+  const [metric, setMetric] = React.useState(() => new URLSearchParams(location.search).get('metric') || 'stats')
   const [expansion1, setExpansion1] = React.useState(false)
   const [expansion2, setExpansion2] = React.useState(false)
   const [expansions1, setExpansions1] = React.useState([])
@@ -106,6 +107,16 @@ const CompareVersions = () => {
   }, [location.pathname])
 
 
+  const onMetricChange = newMetric => {
+    setMetric(newMetric)
+    const params = new URLSearchParams(location.search)
+    if(newMetric === 'stats')
+      params.delete('metric')
+    else
+      params.set('metric', newMetric)
+    history.replace({pathname: location.pathname, search: params.toString()})
+  }
+
   const onVersionChange = (versionType, version) => {
     if(!versionType || !version?.id)
       return
@@ -180,7 +191,7 @@ const CompareVersions = () => {
           versions={versions}
           onVersionChange={onVersionChange}
           metric={metric}
-          onMetricChange={setMetric}
+          onMetricChange={onMetricChange}
           isCollection={isCollection}
           expansion1={expansion1}
           expansion2={expansion2}
