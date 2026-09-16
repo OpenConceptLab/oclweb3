@@ -10,6 +10,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import Tooltip from '@mui/material/Tooltip';
+import Skeleton from '@mui/material/Skeleton';
 import ReleaseIcon from '@mui/icons-material/VerifiedOutlined';
 import DraftIcon from '@mui/icons-material/EditOutlined';
 import isNumber from 'lodash/isNumber'
@@ -108,7 +109,23 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
   );
 }
 
-const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabledFrom, disabledUntil, originVersion }) => {
+const SkeletonRow = ({ checkbox, bgColor }) => (
+  <TableRow>
+    {
+      checkbox &&
+        <TableCell padding="checkbox" sx={{background: bgColor}}>
+          <Skeleton variant="circular" width={18} height={18} />
+        </TableCell>
+    }
+    <TableCell sx={{background: bgColor}}><Skeleton variant="text" width={50} /></TableCell>
+    <TableCell sx={{background: bgColor}}><Skeleton variant="text" width={80} /></TableCell>
+    <TableCell sx={{background: bgColor}}><Skeleton variant="text" width={70} /></TableCell>
+    <TableCell sx={{background: bgColor}}><Skeleton variant="text" width={60} /></TableCell>
+    <TableCell sx={{background: bgColor}}><Skeleton variant="text" width={90} /></TableCell>
+  </TableRow>
+)
+
+const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabledFrom, disabledUntil, originVersion, loading }) => {
   const { t } = useTranslation()
   const history = useHistory()
   const [checked, setChecked] = React.useState([])
@@ -195,6 +212,10 @@ const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabl
                   />
                 )
               })
+            }
+            {
+              loading &&
+                [0, 1, 2].map(key => <SkeletonRow key={`skeleton-${key}`} checkbox={checkbox} bgColor={bgColor} />)
             }
           </TableBody>
         </Table>

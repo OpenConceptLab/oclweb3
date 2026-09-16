@@ -107,10 +107,12 @@ const CompareVersions = () => {
     if(!versionType || !version?.id)
       return
     if(versionType === 'version1'){
+      setExpansion1(false)
       setVersion1(version)
       fetchVerboseSummary(version, setVersion1)
     }
     else if(versionType === 'version2') {
+      setExpansion2(false)
       setVersion2(version)
       fetchVerboseSummary(version, setVersion2)
     }
