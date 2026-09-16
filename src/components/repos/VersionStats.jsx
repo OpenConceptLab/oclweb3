@@ -59,7 +59,7 @@ const VersionStats = ({version1, version2}) => {
     return locales.join(', ')
   }
   return (
-    <TableContainer sx={{ maxHeight: 'calc(100vh - 300px)' }}>
+    <TableContainer sx={{ maxHeight: 'calc(100vh - 270px)' }}>
       <Table size='small' stickyHeader aria-label="sticky table">
         <TableHead>
           <TableRow>

@@ -251,7 +251,7 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
   }
 
   return (
-    <div className='col-xs-12 padding-0' style={{height: '100%'}}>
+    <div className='col-xs-12 padding-0' style={{height: 'calc(100vh - 270px)'}}>
       <>
         <div className='col-xs-3 split' style={{width: '250px', padding: '0 8px', height: 'calc(100vh - 175px)', overflow: 'auto', borderRight: '0.3px solid', borderColor: COLORS.surface.n90}}>
           <DiffFilterList

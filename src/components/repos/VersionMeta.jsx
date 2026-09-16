@@ -112,7 +112,7 @@ const VersionMeta = ({version1, version2, isCollection, expansion1, expansion2})
   }, [isCollection, expansion1, expansion2])
 
   return (
-    <TableContainer sx={{ maxHeight: 'calc(100vh - 300px)' }}>
+    <TableContainer sx={{ maxHeight: 'calc(100vh - 270px)' }}>
       <Table size='small' stickyHeader aria-label="version metadata table" sx={tableSx}>
         <TableHead>
           <TableRow>

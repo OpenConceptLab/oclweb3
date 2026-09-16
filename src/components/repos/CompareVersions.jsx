@@ -198,7 +198,7 @@ const CompareVersions = () => {
         }
         {
           metric === 'json' &&
-            <div style={{height: 'calc(100vh - 325px)', overflow: 'auto', display: 'inline-block', width: '100%'}}>
+            <div style={{height: 'calc(100vh - 270px)', overflow: 'auto', display: 'inline-block', width: '100%'}}>
               <ReactDiffViewer
                 oldValue={JSON.stringify(isCollection && expansion1 ? {...version1, expansion: expansion1} : version1, undefined, 2)}
                 newValue={JSON.stringify(isCollection && expansion2 ? {...version2, expansion: expansion2} : version2, undefined, 2)}
