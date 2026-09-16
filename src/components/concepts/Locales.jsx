@@ -27,7 +27,7 @@ const LocalePrimary = ({ locale }) => {
   const locale_type = locale.name_type || locale.description_type
   return (
     <React.Fragment>
-      <Typography component="span" sx={{fontSize: '0.875rem', color: locale?.retired ? 'error.main' : '#000000de', display: 'inline-flex', alignItems: 'center'}} className={locale?.name ? 'searchable' : undefined}>
+      <Typography component="span" sx={{fontSize: '0.875rem', color: locale?.retired ? 'error.main' : '#000000de'}} className={locale?.name ? 'searchable' : undefined}>
         {locale.name || locale.description}
 
         {
@@ -96,6 +96,10 @@ const LocaleItem = ({ locale, url }) => {
           secondary={externalID ? <ExternalIdLabel showFull value={externalID} style={{marginTop: '4px'}} iconStyle={{marginTop: '2px'}} /> : undefined}
           sx={{
             margin: '2px 0',
+            '.MuiListItemText-primary': {
+              display: 'inline-flex',
+              alignItems: 'center'
+            }
           }}
         />
       </ListItem>
