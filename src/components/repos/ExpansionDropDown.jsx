@@ -1,11 +1,12 @@
 import React from 'react';
+import moment from 'moment'
 import { useTranslation } from 'react-i18next';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import ListItemText from '@mui/material/ListItemText';
 import Tooltip from '@mui/material/Tooltip';
-import CheckIcon from '@mui/icons-material/Check';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import SyncIcon from '@mui/icons-material/Sync';
 
@@ -75,9 +76,15 @@ const ExpansionDropDown = ({ expansions = [], loading = false, selectedExpansion
                 onChange && onChange(expansion);
               }}
             >
-              {isSelected ? <CheckIcon fontSize='small' sx={{ mr: 1 }} /> : <span style={{ width: 20, display: 'inline-block' }} />}
-              {expansion.mnemonic || expansion.id}
-              <ProcessingFlag entity={expansion} sx={{ ml: 1, pointerEvents: 'none' }} />
+              <ListItemText
+                primary={
+                  <>
+                    {expansion.mnemonic || expansion.id}
+                    <ProcessingFlag entity={expansion} sx={{ ml: 1, pointerEvents: 'none' }} />
+                  </>
+                }
+                secondary={expansion?.created_on ? moment(expansion.created_on).fromNow() : undefined}
+              />
             </MenuItem>
           );
           return isDisabled ? (
