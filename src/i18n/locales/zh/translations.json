@@ -418,6 +418,7 @@
     "select_expansions_to_compare": "请为两个版本选择一个扩展以比较内容。",
     "select_different_version_or_expansion": "两侧的版本和扩展相同。请选择不同的扩展或版本以查看比较结果。",
     "select_different_version": "两侧的版本相同。请选择不同的版本以查看比较结果。",
+    "no_content_differences": "未发现这两个版本之间存在差异。",
     "version_changelog_request_accepted": "版本比较请求已接受，请稍后再回来查看。",
     "delete_repo_version": "Delete Repo Version",
     "repo_version_summary": "存储库版本摘要",

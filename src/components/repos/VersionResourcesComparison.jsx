@@ -113,6 +113,8 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
   }
 
   const isAccepted = res => [202, 409].includes(res?.status_code) || res?.data?.task || res?.detail === 'Already Queued'
+  const hasNoDifferences = Boolean(changelog) && !loading && !isAccepted(response) &&
+    Object.values(filters).every(count => !count)
 
   React.useEffect(() => {
     if(selectionIncomplete) {
@@ -298,6 +300,12 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
             (loading || isAccepted(response)) ?
               <div className='col-xs-12' style={{padding: '16px'}}>
                 <Skeleton variant="rectangular" width='100%' height={600} />
+              </div> :
+            hasNoDifferences ?
+              <div className='col-xs-12 padding-0' style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                <Typography variant='body1' color='text.secondary'>
+                  {t('repo.no_content_differences')}
+                </Typography>
               </div> :
             <TableVirtuoso
               style={{height: 'calc(100vh - 320px)'}}

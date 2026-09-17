@@ -800,6 +800,7 @@
     "select_expansions_to_compare": "Select an expansion for both versions to compare content.",
     "select_different_version_or_expansion": "This version and expansion are identical on both sides. Choose a different expansion or version to see a comparison.",
     "select_different_version": "This version is identical on both sides. Choose a different version to see a comparison.",
+    "no_content_differences": "No differences were found between these two versions.",
     "properties_filters_subheader": "Repository Properties",
     "additional_metadata_filters_subheader": "Additional Metadata",
     "stage_seeded_concepts": "Seeded concepts",
