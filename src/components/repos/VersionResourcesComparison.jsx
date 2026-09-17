@@ -26,7 +26,6 @@ import keys from 'lodash/keys'
 import without from 'lodash/without'
 
 import APIService from '../../services/APIService'
-import { OperationsContext } from '../app/LayoutContext';
 import { COLORS } from '../../common/colors'
 
 import DiffFilterList from './DiffFilterList';
@@ -55,6 +54,18 @@ const getChangedMappingsOnlyLabel = mappingChangesKeys => (
   mappingChangesKeys.length === 1 ? MAPPING_ONLY_CHANGE_LABELS[mappingChangesKeys[0]] : null
 ) || sections.changed_mappings_only.label
 
+const ROW_SKELETON_COUNT = 4
+
+const RowSkeleton = () => (
+  <TableRow>
+    <TableCell><Skeleton variant="circular" width={20} height={20} /></TableCell>
+    <TableCell><Skeleton variant="text" width={70} /></TableCell>
+    <TableCell><Skeleton variant="text" width={180} /></TableCell>
+    <TableCell><Skeleton variant="text" width={90} /></TableCell>
+    <TableCell><Skeleton variant="text" width={70} /></TableCell>
+  </TableRow>
+)
+
 const VirtuosoTableComponents = {
   Scroller: React.forwardRef((props, ref) => (
     <TableContainer {...props} ref={ref} sx={{overflow: 'auto'}} />
@@ -69,7 +80,6 @@ const VirtuosoTableComponents = {
 
 const VersionResourcesComparison = ({version1, version2, resource, isCollection, expansion1, expansion2}) => {
   const { t } = useTranslation()
-  const { setAlert } = React.useContext(OperationsContext);
   const [response, setResponse] = React.useState(null)
   const [changelog, setChangelog] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
@@ -86,6 +96,7 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
     if(loading || selectionIncomplete)
       return
     setLoading(true)
+    setResponse(null)
     setChangelog(false)
     setFilters({})
     setSelected([])
@@ -95,9 +106,7 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
       APIService.sources().appendToUrl('$changelog/').post({version1: version1.version_url, version2: version2.version_url, verbosity: 3})
     request.then(res => {
       setResponse(res)
-      if(isAccepted(res)) {
-        setAlert({severity: 'warning', message: t('repo.version_changelog_request_accepted'), duration: 10000})
-      } else if (res?.data?.meta) {
+      if(!isAccepted(res) && res?.data?.meta) {
         setChangelog(res.data)
         const diffFields = get(res?.data?.meta?.diff, resource)
         let _filters = {}
@@ -267,9 +276,14 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
 
   if(versionsMissing) {
     return (
-      <div className='col-xs-12' style={{padding: '16px'}}>
-        <Skeleton variant="rectangular" width='100%' height={600} />
-      </div>
+      <Box sx={{padding: '16px'}}>
+        <Table size='small'>
+          <TableHead>{fixedHeaderContent()}</TableHead>
+          <TableBody>
+            {Array.from({length: ROW_SKELETON_COUNT}).map((_, index) => <RowSkeleton key={index} />)}
+          </TableBody>
+        </Table>
+      </Box>
     )
   }
 
@@ -298,9 +312,22 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
         <div className='col-xs-9 split' style={{width: 'calc(100% - 250px)', paddingRight: 0, paddingLeft: 0, float: 'right', height: '100%'}}>
           {
             (loading || isAccepted(response)) ?
-              <div className='col-xs-12' style={{padding: '16px'}}>
-                <Skeleton variant="rectangular" width='100%' height={600} />
-              </div> :
+              <Box sx={{position: 'relative', padding: '16px'}}>
+                <Table size='small'>
+                  <TableHead>{fixedHeaderContent()}</TableHead>
+                  <TableBody>
+                    {Array.from({length: ROW_SKELETON_COUNT}).map((_, index) => <RowSkeleton key={index} />)}
+                  </TableBody>
+                </Table>
+                {
+                  isAccepted(response) &&
+                    <Box sx={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px'}}>
+                      <Typography variant='body1' color='text.secondary' sx={{textAlign: 'center', backgroundColor: 'background.paper', boxShadow: 2, borderRadius: 2, padding: '12px 20px'}}>
+                        {t('repo.version_changelog_request_accepted')}
+                      </Typography>
+                    </Box>
+                }
+              </Box> :
             hasNoDifferences ?
               <div className='col-xs-12 padding-0' style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                 <Typography variant='body1' color='text.secondary'>
