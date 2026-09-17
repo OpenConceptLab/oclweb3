@@ -253,7 +253,7 @@ const CompareVersions = () => {
           identicalSelection ?
             <div className='col-xs-12 padding-0' style={{height: 'calc(100vh - 270px)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
               <Typography variant='body1' color='text.secondary'>
-                {t('repo.select_different_version_or_expansion')}
+                {t(isCollection ? 'repo.select_different_version_or_expansion' : 'repo.select_different_version')}
               </Typography>
             </div> :
           <React.Fragment>

@@ -799,6 +799,7 @@
     "version_changelog_request_accepted": "Versions compare request is accepted, please come back in few minutes.",
     "select_expansions_to_compare": "Select an expansion for both versions to compare content.",
     "select_different_version_or_expansion": "This version and expansion are identical on both sides. Choose a different expansion or version to see a comparison.",
+    "select_different_version": "This version is identical on both sides. Choose a different version to see a comparison.",
     "properties_filters_subheader": "Repository Properties",
     "additional_metadata_filters_subheader": "Additional Metadata",
     "stage_seeded_concepts": "Seeded concepts",

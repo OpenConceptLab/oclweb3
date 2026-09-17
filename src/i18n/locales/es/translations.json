@@ -363,6 +363,7 @@
     "unresolved_repo_versions": "Versiones de Repositorio No Resueltas",
     "select_expansions_to_compare": "Selecciona una expansión para ambas versiones para comparar el contenido.",
     "select_different_version_or_expansion": "La versión y la expansión son idénticas en ambos lados. Elige una expansión o versión diferente para ver una comparación.",
+    "select_different_version": "Esta versión es idéntica en ambos lados. Elige una versión diferente para ver una comparación.",
     "version_changelog_request_accepted": "La solicitud de comparación de versiones ha sido aceptada, vuelve en unos minutos.",
     "create_similar": "Crear similar",
     "create_similar_disclaimer": "Solo se copian los metadatos del repositorio. Los conceptos, mapeos y versiones no se copian.",
