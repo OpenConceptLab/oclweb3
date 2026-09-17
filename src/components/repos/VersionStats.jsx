@@ -15,29 +15,38 @@ import MappingIcon from '../mappings/MappingIcon'
 import RepoVersionLabel from './RepoVersionLabel'
 
 const StatRow = ({icon, label, version1, version2, statKey, statFunc}) => {
-  const lastCellStyle = {borderBottom: '1px solid', borderColor: 'surface.nv80'}
+  const lastCellStyle = {borderBottom: '1px solid', borderColor: 'surface.nv80', verticalAlign: 'top'}
   const cellStyle = {borderRight: '1px solid', ...lastCellStyle}
   const getValue = version => {
     if(statFunc)
       return statFunc(version)
     return get(version, `summary.${statKey}`)?.toLocaleString()
   }
+  const isLoaded = version => {
+    if(!version?.id)
+      return false
+    if(statFunc)
+      return true
+    return get(version, `summary.${statKey.split('.')[0]}`) !== undefined
+  }
   return (
   <TableRow>
-    <TableCell sx={{...cellStyle, display: 'flex', alignItems: 'center'}}>
-      {icon}
-      {label}
+    <TableCell sx={cellStyle}>
+      <span style={{display: 'flex', alignItems: 'center'}}>
+        {icon}
+        {label}
+      </span>
     </TableCell>
     <TableCell sx={cellStyle}>
       {
-        version1?.id ?
+        isLoaded(version1) ?
           getValue(version1):
           <Skeleton variant="circular" width={20} height={20} />
       }
     </TableCell>
     <TableCell sx={lastCellStyle}>
       {
-        version2?.id ?
+        isLoaded(version2) ?
           getValue(version2) :
           <Skeleton variant="circular" width={20} height={20} />
       }

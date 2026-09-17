@@ -37,7 +37,7 @@ import ReferenceHome from '../references/ReferenceHome'
 import AddReferencesDialog from '../collections/AddReferencesDialog'
 import ExpansionDropDown from './ExpansionDropDown';
 
-const DEFAULT_VERSIONS_PAGE_SIZE = 100
+const DEFAULT_VERSIONS_PAGE_SIZE = 10
 
 const RepoHome = () => {
   const { t } = useTranslation()
@@ -64,9 +64,10 @@ const RepoHome = () => {
   const [repoSummary, setRepoSummary] = React.useState(false)
   const [versions, setVersions] = React.useState(false)
   const [versionsLoading, setVersionsLoading] = React.useState(true)
+  const [versionsHeaders, setVersionsHeaders] = React.useState(false)
   const [headVersion, setHeadVersion] = React.useState(false)
   const [latestVersion, setLatestVersion] = React.useState(false)
-  const versionsPage = 1
+  const [versionsPage, setVersionsPage] = React.useState(1)
   const versionsPageSize = DEFAULT_VERSIONS_PAGE_SIZE
   const [versionsRefreshKey, setVersionsRefreshKey] = React.useState(0)
   const [loading, setLoading] = React.useState(true)
@@ -139,6 +140,8 @@ const RepoHome = () => {
 
   const versionCacheKey = version => version || 'HEAD'
 
+  const toVersionObject = obj => (!obj || (obj.type || '').includes('Version')) ? obj : {...obj, id: obj.version || 'HEAD'}
+
   const cacheVersion = _repo => {
     if(_repo?.url)
       versionCacheRef.current[versionCacheKey(_repo.version)] = _repo
@@ -169,8 +172,11 @@ const RepoHome = () => {
       }
       fetchExpansions(expansionURL, _repo)
     }
+    if(!route.version || route.version === 'HEAD')
+      setHeadVersion(toVersionObject(_repo))
+    else
+      fetchHeadVersion()
     if(!route.version) {
-      setHeadVersion(_repo)
       if(route.resource)
         setVersionPending(false)
       else
@@ -217,6 +223,17 @@ const RepoHome = () => {
     })
   }
 
+  const fetchHeadVersion = () => {
+    APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('HEAD/').get(null, null, {includeSummary: true, verbose: true, ...PROCESSING_QUERY_PARAMS}, true).then(response => {
+      const headStatus = response?.status || response?.response?.status
+      const _head = response?.data || response?.response?.data
+      if(headStatus === 200 && _head?.url) {
+        setHeadVersion(_head)
+        cacheVersion(_head)
+      }
+    })
+  }
+
   const fetchOwner = () => {
     APIService.new().overrideURL(toOwnerURI(getURL())).get().then(response => {
       setOwner(response?.data || {})
@@ -229,14 +246,19 @@ const RepoHome = () => {
     })
   }
 
-  const fetchVersions = (page=versionsPage, limit=versionsPageSize) => {
+  const fetchVersions = (page=1, limit=versionsPageSize, append=false) => {
     setVersionsLoading(true)
     APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit, page, ...PROCESSING_QUERY_PARAMS}).then(response => {
       const _versions = Array.isArray(response?.data) ? response.data : []
-      setVersions(_versions)
+      setVersions(prevVersions => append ? [...(prevVersions || []), ..._versions] : _versions)
+      setVersionsHeaders(response?.headers || {})
+      setVersionsPage(page)
       setVersionsLoading(false)
     })
   }
+
+  const fetchMoreVersions = () => fetchVersions(versionsPage + 1, versionsPageSize, true)
+  const hasMoreVersions = Boolean(versionsHeaders?.next)
 
   React.useEffect(() => {
     const prevRoute = prevRouteRef.current
@@ -479,6 +501,8 @@ const RepoHome = () => {
                 versions={versions}
                 versionsLoading={versionsLoading}
                 previewVersions={compact([headVersion, latestVersion])}
+                hasMoreVersions={hasMoreVersions}
+                onLoadMoreVersions={fetchMoreVersions}
                 onVersionChange={onVersionChange}
                 onCreateConceptClick={onCreateConceptClick}
                 onCreateMappingClick={onCreateMappingClick}

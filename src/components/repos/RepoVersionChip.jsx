@@ -16,7 +16,7 @@ const normalizeVersions = versions => {
   return []
 }
 
-const RepoVersionChip = ({ version, versions, versionsLoading, previewVersions, sx, onChange, size, disabledFrom, disabledUntil, compare, originVersion, checkbox, tooltip }) => {
+const RepoVersionChip = ({ version, versions, versionsLoading, previewVersions, hasMoreVersions, onLoadMoreVersions, sx, onChange, size, disabledFrom, disabledUntil, compare, originVersion, checkbox, tooltip }) => {
   const { t } = useTranslation()
   const [anchorEl, setAnchorEl] = React.useState(null);
   const onOpen = event => setAnchorEl(event.currentTarget);
@@ -33,11 +33,13 @@ const RepoVersionChip = ({ version, versions, versionsLoading, previewVersions, 
 
   const getVersions = () => {
     const versionList = normalizeVersions(versions)
-    if(versionList.length)
+    if(!versionList.length)
+      return orderVersions(normalizeVersions(previewVersions))
+
+    if(find(versionList, {version: 'HEAD'}))
       return orderVersions(versionList)
-    // Full versions list hasn't loaded yet -- show whatever we already know
-    // (HEAD and/or the latest released version) instead of an empty menu.
-    return orderVersions(normalizeVersions(previewVersions))
+    const head = find(normalizeVersions(previewVersions), {version: 'HEAD'})
+    return orderVersions(head ? [head, ...versionList] : versionList)
   }
 
   const allVersions = getVersions()
@@ -111,6 +113,9 @@ const RepoVersionChip = ({ version, versions, versionsLoading, previewVersions, 
           compare={compare}
           originVersion={originVersion}
           checkbox={checkbox}
+          hasMore={hasMoreVersions}
+          loadingMore={versionsLoading && Boolean(normalizeVersions(versions).length)}
+          onLoadMore={onLoadMoreVersions}
         />
       </Menu>
     </React.Fragment>

@@ -32,7 +32,7 @@ const ButtonControl = ({ label, icon, selected, terminal, onClick, disabled }) =
   );
 }
 const CompareToolbar = ({
-  version1, version2, versions, metric, onMetricChange, onVersionChange, isCollection,
+  version1, version2, versions, versionsLoading, hasMoreVersions, onLoadMoreVersions, metric, onMetricChange, onVersionChange, isCollection,
   expansion1, expansion2, expansions1, expansions2, expansions1Loading, expansions2Loading, onExpansionChange
 }) => {
   const { t } = useTranslation()
@@ -51,6 +51,9 @@ const CompareToolbar = ({
             size='small'
             version={version1}
             versions={versions}
+            versionsLoading={versionsLoading}
+            hasMoreVersions={hasMoreVersions}
+            onLoadMoreVersions={onLoadMoreVersions}
             disabledFrom={version2}
             sx={{margin: '0 8px', fontSize: '14px', height: '32px', borderRadius: '4px', '.MuiSvgIcon-root': {fontSize: '14px', color: 'black'}}}
             onChange={version => onVersionChange('version1', version)}
@@ -74,6 +77,9 @@ const CompareToolbar = ({
             size='small'
             version={version2}
             versions={versions}
+            versionsLoading={versionsLoading}
+            hasMoreVersions={hasMoreVersions}
+            onLoadMoreVersions={onLoadMoreVersions}
             disabledUntil={version1}
             sx={{margin: '0 8px', fontSize: '15px', height: '32px', borderRadius: '4px', '.MuiSvgIcon-root': {fontSize: '14px', color: 'black'}}}
             onChange={version => onVersionChange('version2', version)}

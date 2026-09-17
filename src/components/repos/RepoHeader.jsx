@@ -14,7 +14,7 @@ import RepoManagementList from './RepoManagementList';
 import { createSimilarRepoHref } from './utils';
 import FollowActionButton from '../common/FollowActionButton'
 
-const RepoHeader = ({repo, owner, versions, versionsLoading, previewVersions, onVersionChange, repoHref, onCreateConceptClick, onCreateMappingClick, onVersionEditClick, onCreateVersionClick, onDeleteRepoClick, isVersion, onReleaseVersionClick, hideActions}) => {
+const RepoHeader = ({repo, owner, versions, versionsLoading, previewVersions, hasMoreVersions, onLoadMoreVersions, onVersionChange, repoHref, onCreateConceptClick, onCreateMappingClick, onVersionEditClick, onCreateVersionClick, onDeleteRepoClick, isVersion, onReleaseVersionClick, hideActions}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -57,7 +57,7 @@ const RepoHeader = ({repo, owner, versions, versionsLoading, previewVersions, on
           <RepoChip repo={{...repo, type: repo?.type?.replace(' Version', '')}} sx={{marginLeft: '12px', background: 'transparent', borderColor: 'surface.light'}} onChange={onVersionChange} {...(repoHref ? {href: repoHref} : {})} />
           {
             onVersionChange &&
-              <RepoVersionChip checkbox version={repo} versions={versions} versionsLoading={versionsLoading} previewVersions={previewVersions} sx={{marginLeft: '8px', borderRadius: '4px'}} onChange={onVersionChange} />
+              <RepoVersionChip checkbox version={repo} versions={versions} versionsLoading={versionsLoading} previewVersions={previewVersions} hasMoreVersions={hasMoreVersions} onLoadMoreVersions={onLoadMoreVersions} sx={{marginLeft: '8px', borderRadius: '4px'}} onChange={onVersionChange} />
           }
           <ProcessingFlag entity={repo} sx={{marginLeft: '8px'}} />
         </span>

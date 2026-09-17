@@ -11,6 +11,7 @@ import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import Tooltip from '@mui/material/Tooltip';
 import Skeleton from '@mui/material/Skeleton';
+import MuiButton from '@mui/material/Button';
 import ReleaseIcon from '@mui/icons-material/VerifiedOutlined';
 import DraftIcon from '@mui/icons-material/EditOutlined';
 import isNumber from 'lodash/isNumber'
@@ -127,7 +128,7 @@ const SkeletonRow = ({ checkbox, bgColor }) => (
   </TableRow>
 )
 
-const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabledFrom, disabledUntil, originVersion, loading }) => {
+const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabledFrom, disabledUntil, originVersion, loading, hasMore, loadingMore, onLoadMore }) => {
   const { t } = useTranslation()
   const history = useHistory()
   const [checked, setChecked] = React.useState([])
@@ -222,6 +223,16 @@ const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabl
             {
               loading &&
                 [0, 1, 2].map(key => <SkeletonRow key={`skeleton-${key}`} checkbox={checkbox} bgColor={bgColor} />)
+            }
+            {
+              !loading && hasMore &&
+                <TableRow>
+                  <TableCell colSpan={checkbox ? 6 : 5} sx={{background: bgColor, borderBottom: 'none', textAlign: 'center'}}>
+                    <MuiButton sx={{textTransform: 'none'}} variant='text' size='small' disabled={loadingMore} onClick={onLoadMore}>
+                      {loadingMore ? t('common.loading') : t('common.load_more')}
+                    </MuiButton>
+                  </TableCell>
+                </TableRow>
             }
           </TableBody>
         </Table>

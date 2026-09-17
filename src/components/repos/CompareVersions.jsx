@@ -18,6 +18,8 @@ import VersionMeta from './VersionMeta'
 import VersionResourcesComparison from './VersionResourcesComparison'
 import { getVersionURL, isSameVersion } from './versionsTab.styles'
 
+const VERSIONS_PAGE_SIZE = 10
+
 const CompareVersions = () => {
   const location = useLocation()
   const history = useHistory()
@@ -28,6 +30,9 @@ const CompareVersions = () => {
   const [repo, setRepo] = React.useState(false)
   const [owner, setOwner] = React.useState(false)
   const [versions, setVersions] = React.useState(false)
+  const [versionsLoading, setVersionsLoading] = React.useState(true)
+  const [versionsHeaders, setVersionsHeaders] = React.useState(false)
+  const [versionsPage, setVersionsPage] = React.useState(1)
   const [version1, setVersion1] = React.useState()
   const [version2, setVersion2] = React.useState()
   const [metric, setMetric] = React.useState(() => new URLSearchParams(location.search).get('metric') || 'stats')
@@ -116,20 +121,31 @@ const CompareVersions = () => {
     })
   }
 
-  const fetchVersions = headRepo => {
-    APIService.new().overrideURL(getURL()).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true}).then(response => {
+  const fetchVersions = (headRepo, page=1, limit=VERSIONS_PAGE_SIZE, append=false) => {
+    setVersionsLoading(true)
+    APIService.new().overrideURL(getURL()).appendToUrl('versions/').get(null, null, {verbose:true, includeSummary: true, limit, page}).then(response => {
       const repoVersions = Array.isArray(response?.data) ? response.data : []
-      const normalizedHead = headRepo?.id && !find(repoVersions, isHeadVersion) ? {
-        ...headRepo,
-        id: 'HEAD',
-        version: 'HEAD',
-        version_url: headRepo.url || headRepo.version_url
-      } : null
-      const allVersions = normalizedHead ? [normalizedHead, ...repoVersions] : repoVersions
-      setVersions(allVersions)
-      setVersionsFromURL(allVersions)
+      let pageVersions = repoVersions
+      if(page === 1) {
+        const normalizedHead = headRepo?.id && !find(repoVersions, isHeadVersion) ? {
+          ...headRepo,
+          id: 'HEAD',
+          version: 'HEAD',
+          version_url: headRepo.url || headRepo.version_url
+        } : null
+        pageVersions = normalizedHead ? [normalizedHead, ...repoVersions] : repoVersions
+      }
+      setVersions(prev => append ? [...(Array.isArray(prev) ? prev : []), ...pageVersions] : pageVersions)
+      setVersionsHeaders(response?.headers || {})
+      setVersionsPage(page)
+      setVersionsLoading(false)
+      if(page === 1)
+        setVersionsFromURL(pageVersions)
     })
   }
+
+  const fetchMoreVersions = () => fetchVersions(null, versionsPage + 1, VERSIONS_PAGE_SIZE, true)
+  const hasMoreVersions = Boolean(versionsHeaders?.next)
 
   React.useEffect(() => {
     fetchRepo()
@@ -218,6 +234,9 @@ const CompareVersions = () => {
           version1={version1}
           version2={version2}
           versions={versions}
+          versionsLoading={versionsLoading}
+          hasMoreVersions={hasMoreVersions}
+          onLoadMoreVersions={fetchMoreVersions}
           onVersionChange={onVersionChange}
           metric={metric}
           onMetricChange={onMetricChange}
