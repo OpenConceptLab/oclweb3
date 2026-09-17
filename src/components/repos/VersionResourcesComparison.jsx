@@ -86,6 +86,10 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
     if(loading || selectionIncomplete)
       return
     setLoading(true)
+    setChangelog(false)
+    setFilters({})
+    setSelected([])
+    setExpanded([])
     const request = isCollection ?
       APIService.collections().appendToUrl('expansions/$changelog/').post({expansion1: expansion1.url, expansion2: expansion2.url, verbosity: 3}) :
       APIService.sources().appendToUrl('$changelog/').post({version1: version1.version_url, version2: version2.version_url, verbosity: 3})
@@ -103,8 +107,8 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
         setFilters(_filters)
         let defaultSelected = getDefaultSelected(_filters)
         setSelected(defaultSelected ? [defaultSelected] : [])
-        setLoading(false)
       }
+      setLoading(false)
     })
   }
 
