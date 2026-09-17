@@ -33,14 +33,27 @@ import DiffFilterList from './DiffFilterList';
 import { Repo } from '../mappings/FromAndTargetSource'
 import ConceptIcon from '../concepts/ConceptIcon'
 
-const diffOrder = ['new', 'changed_retired', 'changed_major', 'changed_minor', 'removed']
+const diffOrder = ['new', 'changed_retired', 'changed_major', 'changed_minor', 'changed_mappings_only', 'removed']
 const sections = {
   "new": {label: 'New', tooltip: 'Resources added in newer version'},
   changed_retired: {label: 'Retired', tooltip: 'Resources retired in newer version'},
   changed_major: {label: 'Major Change', tooltip: 'Resources with "smart checksum" change between versions'},
   changed_minor: {label: 'Minor Change', tooltip: 'Resources with "standard checksum" change between versions'},
+  changed_mappings_only: {label: 'Mappings Changed', tooltip: 'Concepts whose only change is in their mappings'},
   removed: {label: "Removed", tooltip: 'Resource removed in newer version'},
 }
+
+const MAPPING_ONLY_CHANGE_LABELS = {
+  new: 'Mappings Added',
+  removed: 'Mappings Removed',
+  changed_retired: 'Mappings Retired',
+  changed_major: 'Mappings Changed (Major)',
+  changed_minor: 'Mappings Changed (Minor)',
+}
+
+const getChangedMappingsOnlyLabel = mappingChangesKeys => (
+  mappingChangesKeys.length === 1 ? MAPPING_ONLY_CHANGE_LABELS[mappingChangesKeys[0]] : null
+) || sections.changed_mappings_only.label
 
 const VirtuosoTableComponents = {
   Scroller: React.forwardRef((props, ref) => (
@@ -64,11 +77,13 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
   const [selected, setSelected] = React.useState([])
   const [expanded, setExpanded] = React.useState([])
 
+  const versionsMissing = !isCollection && (!version1?.version_url || !version2?.version_url)
   const expansionsMissing = isCollection && (!expansion1?.url || !expansion2?.url)
+  const selectionIncomplete = versionsMissing || expansionsMissing
   const fetchedKeyRef = React.useRef(null)
 
   const fetchChangelog = () => {
-    if(loading || expansionsMissing)
+    if(loading || selectionIncomplete)
       return
     setLoading(true)
     const request = isCollection ?
@@ -83,6 +98,8 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
         const diffFields = get(res?.data?.meta?.diff, resource)
         let _filters = {}
         forEach(diffFields, (count, field) => field !== 'changed_total' ? _filters[field] = count : null)
+        if(resource === 'concepts')
+          _filters.changed_mappings_only = keys(get(res, 'data.concepts.changed_mappings_only')).length
         setFilters(_filters)
         let defaultSelected = getDefaultSelected(_filters)
         setSelected(defaultSelected ? [defaultSelected] : [])
@@ -94,7 +111,7 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
   const isAccepted = res => [202, 409].includes(res?.status_code) || res?.data?.task || res?.detail === 'Already Queued'
 
   React.useEffect(() => {
-    if(expansionsMissing) {
+    if(selectionIncomplete) {
       fetchedKeyRef.current = null
       setChangelog(false)
       setFilters({})
@@ -114,8 +131,8 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
     return undefined
   }
 
-  const getBaseURL1 = () => isCollection ? expansion1?.url : version1.version_url
-  const getBaseURL2 = () => isCollection ? expansion2?.url : version2.version_url
+  const getBaseURL1 = () => isCollection ? expansion1?.url : version1?.version_url
+  const getBaseURL2 = () => isCollection ? expansion2?.url : version2?.version_url
 
   const getChangeURL = entity => {
     let resourceURI = resource + '/' + entity.id + '/'
@@ -223,7 +240,9 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
         <TableCell>{change.id}</TableCell>
         <TableCell>{change.display_name}</TableCell>
         <TableCell>
-            {sectionDefinition?.label || startCase(section)}
+            {section === 'changed_mappings_only'
+              ? getChangedMappingsOnlyLabel(mappingChangesKeys)
+              : sectionDefinition?.label || startCase(section)}
         </TableCell>
         <TableCell>
           <Button type='text' href={'#' + getViewURL(change, section)} size='small' startIcon={<ConceptIcon selected noTooltip fontSize='inherit' />} target='_blank' sx={{textTransform: 'none'}}>
@@ -237,6 +256,14 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
           }
         </TableCell>
       </React.Fragment>
+    )
+  }
+
+  if(versionsMissing) {
+    return (
+      <div className='col-xs-12' style={{padding: '16px'}}>
+        <Skeleton variant="rectangular" width='100%' height={600} />
+      </div>
     )
   }
 
