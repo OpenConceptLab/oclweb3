@@ -62,7 +62,7 @@ import {
 import { OperationsContext } from '../app/LayoutContext';
 import AccessIcon from '../common/AccessIcon';
 import EntityAttributesDialog from '../common/EntityAttributesDialog';
-import MarkdownContent from '../common/MarkdownContent';
+import LazyMarkdownDocument from '../common/LazyMarkdownDocument';
 import ExternalExportsDialog from './ExternalExportsDialog';
 import ClearProcessingDialog from './ClearProcessingDialog';
 import ProcessingFlag from './ProcessingFlag';
@@ -131,7 +131,7 @@ const ChangelogDialog = ({ version, open, onClose }) => {
         )}
         {!loading && Boolean(error) && <Alert severity="error">{error}</Alert>}
         {!loading && Boolean(markdown) && (
-          <MarkdownContent markdown={markdown} />
+          <LazyMarkdownDocument markdown={markdown} />
         )}
       </DialogContent>
       <DialogActions>
