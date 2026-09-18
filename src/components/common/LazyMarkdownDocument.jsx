@@ -34,7 +34,8 @@ const splitIntoSections = markdown => {
     sections: sections.map(({ title, bodyLines }) => {
       const contentLines = [...bodyLines];
       const highlightIndex = contentLines.findIndex(line => HIGHLIGHT_RE.test(line));
-      const highlight = highlightIndex === -1 ? '' : HIGHLIGHT_RE.exec(contentLines[highlightIndex])[1];
+      const rawHighlight = highlightIndex === -1 ? '' : HIGHLIGHT_RE.exec(contentLines[highlightIndex])[1];
+      const highlight = rawHighlight.startsWith(`${title}: `) ? rawHighlight.slice(title.length + 2) : rawHighlight;
       if (highlightIndex !== -1) contentLines.splice(highlightIndex, 1);
       return { title, highlight, markdown: contentLines.join('\n') };
     })
@@ -47,6 +48,7 @@ const LazyMarkdownDocument = ({ markdown }) => {
   const [opened, setOpened] = React.useState({});
   const [pendingScrollId, setPendingScrollId] = React.useState(null);
   const containerRef = React.useRef(null);
+  const registryRef = React.useRef(new Map());
 
   const expandSection = React.useCallback(title => {
     setExpanded(prev => (prev[title] ? prev : { ...prev, [title]: true }));
@@ -55,12 +57,28 @@ const LazyMarkdownDocument = ({ markdown }) => {
 
   React.useEffect(() => {
     if (!pendingScrollId) return undefined;
-    const frame = requestAnimationFrame(() => {
+    let canceled = false;
+    let attempts = 0;
+
+    const tryScroll = () => {
+      if (canceled) return;
       const target = containerRef.current?.querySelector(`#${CSS.escape(pendingScrollId)}`);
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setPendingScrollId(null);
-    });
-    return () => cancelAnimationFrame(frame);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setPendingScrollId(null);
+        return;
+      }
+      registryRef.current.get(pendingScrollId)?.(pendingScrollId);
+      attempts += 1;
+      if (attempts < 20) requestAnimationFrame(tryScroll);
+      else setPendingScrollId(null);
+    };
+
+    const frame = requestAnimationFrame(tryScroll);
+    return () => {
+      canceled = true;
+      cancelAnimationFrame(frame);
+    };
   }, [pendingScrollId, expanded]);
 
   const handleClick = React.useCallback(event => {
@@ -101,6 +119,13 @@ const LazyMarkdownDocument = ({ markdown }) => {
               if (isExpanded) setOpened(prev => (prev[section.title] ? prev : { ...prev, [section.title]: true }));
             }}
             disableGutters
+            sx={{
+              mb: 1.5,
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 1,
+              '&:before': { display: 'none' }
+            }}
           >
             <AccordionSummary expandIcon={<ExpandIcon />}>
               <Box>
@@ -111,7 +136,9 @@ const LazyMarkdownDocument = ({ markdown }) => {
               </Box>
             </AccordionSummary>
             <AccordionDetails>
-              {Boolean(opened[section.title]) && <SectionMarkdown markdown={section.markdown} />}
+              {Boolean(opened[section.title]) && (
+                <SectionMarkdown markdown={section.markdown} registry={registryRef.current} />
+              )}
             </AccordionDetails>
           </Accordion>
         );

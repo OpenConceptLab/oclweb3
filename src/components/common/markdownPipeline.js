@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
