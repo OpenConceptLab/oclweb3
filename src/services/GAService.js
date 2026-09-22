@@ -6,30 +6,26 @@ import { OCL_CLIENT } from '../common/constants';
 const SIGNUP_FLOW_PENDING_KEY = 'signup_flow_pending';
 
 const gaId = () => window.GA_ACCOUNT_ID || process.env.GA_ACCOUNT_ID;
+const enabled = () => Boolean(gaId() && gaId() !== 'UA-000000-01');
 
-// The marketing site only exists in prod, at these two domains, regardless
-// of which env this app itself is running in. map./app. mirror this app's
-// own env (e.g. app.v3.qa. -> map.qa., app.v3.qa. -> app.qa.).
-const linkedDomains = () => {
-  const host = window.location.host;
-
-  return [
-    'openconceptlab.org',
-    'preview.openconceptlab.org',
-    host.replace('app.v3.', 'map.'),
-    host.replace('app.v3.', 'app.'),
-  ];
-};
-
-const initialize = options => {
+let initialized = false;
+const initialize = () => {
   /*eslint no-undef: 0*/
-  ReactGA.initialize(gaId(), options);
+  if(initialized || !enabled())
+    return;
+
+  // react-ga4 only applies options on the first initialize call.
+  // eslint-disable-next-line spellcheck/spell-checker
+  ReactGA.initialize(gaId(), { gtagOptions: { send_page_view: false } });
+  initialized = true;
 };
 
 const GAService = {
   recordPageView() {
-    // eslint-disable-next-line spellcheck/spell-checker
-    initialize({ gtagOptions: { linker: { domains: linkedDomains() } } });
+    initialize();
+    if(!enabled())
+      return;
+
     ReactGA.send({ hitType: 'pageview', page: window.location.pathname + window.location.hash.split('?')[0] });
   },
 
@@ -59,6 +55,9 @@ const GAService = {
 
   recordEvent(name, params) {
     initialize();
+    if(!enabled())
+      return;
+
     ReactGA.event(name, { client: OCL_CLIENT, ...params });
   },
 };
