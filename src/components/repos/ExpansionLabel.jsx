@@ -1,19 +1,19 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
+import ExpansionIcon from '@mui/icons-material/AspectRatio';
 import startCase from 'lodash/startCase'
 import { SECONDARY_COLORS } from '../../common/colors'
 import HeaderChip from '../common/HeaderChip'
 import { formatDate } from '../../common/utils'
 
-const RepoVersionLabel = ({ version }) => {
+const ExpansionLabel = ({ expansion }) => {
   const { t } = useTranslation()
   return (
     <React.Fragment>
       <HeaderChip
-        labelPrefix={`${t('common.version')}: `}
-        label={version?.version || version?.id}
-        icon={<VersionIcon color='surface.contrastText' fontSize='inherit' />}
+        labelPrefix={`${t('repo.expansion')} `}
+        label={expansion?.mnemonic || expansion?.id}
+        icon={<ExpansionIcon color='surface.contrastText' fontSize='inherit' />}
         sx={{
           backgroundColor: 'surface.main',
           border: 'none',
@@ -26,10 +26,10 @@ const RepoVersionLabel = ({ version }) => {
         size='small'
       />
       <span style={{fontSize: '12px', marginLeft: '-4px', color: SECONDARY_COLORS.main }}>
-        {` ${startCase(t('common.updated_on'))} ${formatDate(version?.updated_on)}`}
+        {` ${startCase(t('common.updated_on'))} ${formatDate(expansion?.updated_on)}`}
       </span>
     </React.Fragment>
   )
 }
 
-export default RepoVersionLabel;
+export default ExpansionLabel;

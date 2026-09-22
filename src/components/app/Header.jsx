@@ -75,7 +75,7 @@ const Header = props => {
           </div>
         </Toolbar>
       </AppBar>
-      <Box component="main" sx={{ flexGrow: 1, paddingTop: 0, paddingBottom: 1.25, paddingLeft: 2, paddingRight: 2 }}>
+      <Box component="main" sx={{ flexGrow: 1, minWidth: 0, paddingTop: 0, paddingBottom: 1.25, paddingLeft: 2, paddingRight: 2 }}>
         <DrawerHeader />
         <AlphaBanner />
         {

@@ -16,7 +16,7 @@ const normalizeVersions = versions => {
   return []
 }
 
-const RepoVersionChip = ({ version, versions, sx, onChange, size, disabledFrom, disabledUntil, compare, originVersion, checkbox, tooltip }) => {
+const RepoVersionChip = ({ version, versions, versionsLoading, previewVersions, hasMoreVersions, onLoadMoreVersions, sx, onChange, size, disabledFrom, disabledUntil, compare, originVersion, checkbox, tooltip }) => {
   const { t } = useTranslation()
   const [anchorEl, setAnchorEl] = React.useState(null);
   const onOpen = event => setAnchorEl(event.currentTarget);
@@ -26,15 +26,24 @@ const RepoVersionChip = ({ version, versions, sx, onChange, size, disabledFrom, 
     onClose()
   }
 
-  const getVersions = () => {
-    const versionList = normalizeVersions(versions)
-    if(!versionList.length)
-      return versionList
+  const orderVersions = versionList => {
     const head = find(versionList, {version: 'HEAD'})
     return compact([head, ...orderBy(reject(versionList, {version: 'HEAD'}), 'created_at', 'desc')])
   }
 
+  const getVersions = () => {
+    const versionList = normalizeVersions(versions)
+    if(!versionList.length)
+      return orderVersions(normalizeVersions(previewVersions))
+
+    if(find(versionList, {version: 'HEAD'}))
+      return orderVersions(versionList)
+    const head = find(normalizeVersions(previewVersions), {version: 'HEAD'})
+    return orderVersions(head ? [head, ...versionList] : versionList)
+  }
+
   const allVersions = getVersions()
+  const showSkeleton = Boolean(versionsLoading) && !normalizeVersions(versions).length
 
   return (
     <React.Fragment>
@@ -96,6 +105,7 @@ const RepoVersionChip = ({ version, versions, sx, onChange, size, disabledFrom, 
         <VersionsTable
           selected={version}
           versions={allVersions}
+          loading={showSkeleton}
           onChange={onSelect}
           bgColor={SURFACE_COLORS.main}
           disabledFrom={disabledFrom}
@@ -103,6 +113,9 @@ const RepoVersionChip = ({ version, versions, sx, onChange, size, disabledFrom, 
           compare={compare}
           originVersion={originVersion}
           checkbox={checkbox}
+          hasMore={hasMoreVersions}
+          loadingMore={versionsLoading && Boolean(normalizeVersions(versions).length)}
+          onLoadMore={onLoadMoreVersions}
         />
       </Menu>
     </React.Fragment>

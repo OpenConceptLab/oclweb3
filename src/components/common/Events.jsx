@@ -100,7 +100,7 @@ const Events = ({ user, events, onLoadMore, showAvatar, maxHeight, dashboard }) 
   const isSelf = Boolean(currentUser?.username && currentUser?.username === user.username)
   return (
     <div className='col-xs-12 padding-0'>
-      <Typography component='h3' sx={{margin: '16px 0', fontWeight: 'bold', display: 'flex', alignItems: 'center'}}>
+      <Typography component='h3' sx={{margin: '16px 0 0 0', fontWeight: 'bold', display: 'flex', alignItems: 'center'}}>
         {
           showAvatar &&
             <UserIcon noTooltip user={user} sx={{width: '40px', height: '40px', marginRight: '16px'}} color='primary' />

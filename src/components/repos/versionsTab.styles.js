@@ -25,10 +25,13 @@ export const bodyCellSx = {
 };
 
 export const isHeadVersion = version => (version?.version || version?.id) === 'HEAD';
+export const isCollectionURL = url => String(url || '').includes('/collections/');
 export const getVersionKey = version => version?.version_url || version?.url || version?.id;
 export const getVersionLabel = version => version?.version || version?.id || '-';
 export const getVersionURL = version => isHeadVersion(version) ? `${version?.version_url || version?.url}HEAD/` : version?.version_url || version?.url;
 export const getPreviousVersionURL = version => version?.previous_version_url;
+export const isSameVersion = (a, b) => Boolean(a && b && a.id === b.id && (a.version_url || a.url) === (b.version_url || b.url));
+export const hasMultipleExpansions = version => isCollectionURL(version?.version_url || version?.url) && get(version, 'summary.expansions', 0) > 1;
 export const getContentCount = (version, field) => get(version, `summary.${field}`);
 export const formatCount = value => isNumber(value) ? value.toLocaleString() : '-';
 export const formatError = (value, fallback) => {

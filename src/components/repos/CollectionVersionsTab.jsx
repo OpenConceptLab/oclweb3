@@ -87,7 +87,8 @@ import {
   getVersionLabel,
   headerCellSx,
   menuOpenRowSx,
-  isHeadVersion
+  isHeadVersion,
+  isCollectionURL
 } from './versionsTab.styles';
 
 const PROCESSED_CHIP_FADE_MS = 6000;
@@ -99,8 +100,6 @@ const isStaleExpansion = expansion =>
       expansion?.extras?.__stale_expansion ||
       expansion?.extras?.stale
   );
-
-const isCollectionURL = url => String(url || '').includes('/collections/');
 
 const getVersionEndpoint = version => {
   const versionURL = version?.version_url || version?.url || '';

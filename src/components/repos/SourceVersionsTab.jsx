@@ -62,7 +62,7 @@ import {
 import { OperationsContext } from '../app/LayoutContext';
 import AccessIcon from '../common/AccessIcon';
 import EntityAttributesDialog from '../common/EntityAttributesDialog';
-import MarkdownContent from '../common/MarkdownContent';
+import LazyMarkdownDocument from '../common/LazyMarkdownDocument';
 import ExternalExportsDialog from './ExternalExportsDialog';
 import ClearProcessingDialog from './ClearProcessingDialog';
 import ProcessingFlag from './ProcessingFlag';
@@ -73,7 +73,7 @@ import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
 import GAService from '../../services/GAService';
 import { useProcessingVersions } from '../../hooks/useProcessingState';
-import { PROCESSING_QUERY_PARAMS, areSeedStagesComplete, isExportAvailable, isVersionProcessing } from './processingStages';
+import { PROCESSING_QUERY_PARAMS, areSeedStagesComplete, isChangelogAvailable, isExportAvailable, isVersionProcessing } from './processingStages';
 import {
   REPO_VERSIONS_PAGE_SIZE,
   bodyCellSx,
@@ -132,7 +132,7 @@ const ChangelogDialog = ({ version, open, onClose }) => {
         )}
         {!loading && Boolean(error) && <Alert severity="error">{error}</Alert>}
         {!loading && Boolean(markdown) && (
-          <MarkdownContent markdown={markdown} />
+          <LazyMarkdownDocument markdown={markdown} />
         )}
       </DialogContent>
       <DialogActions>
@@ -296,6 +296,9 @@ const SourceVersionsTab = ({
   // Changelog/compare read the version's content, which isn't there until seeding ends.
   const seedPending = menuVersionProcessing && !areSeedStagesComplete(menuVersion);
   const seedPendingReason = t('repo.action_disabled_until_seeded');
+  const changelogPending = menuVersionProcessing &&
+    (!areSeedStagesComplete(menuVersion) || !isChangelogAvailable(menuVersion));
+  const changelogPendingReason = seedPending ? seedPendingReason : t('repo.action_disabled_until_changelog_ready');
   const versionsCount = totalCount || sortedVersions.length;
   const countLabel = versionsCount === 1
     ? t('repo.source_version_count', { count: versionsCount.toLocaleString() })
@@ -460,7 +463,7 @@ const SourceVersionsTab = ({
                 version2: version.version_url || version.url
               });
               setChangelogVersion(version);
-            })} disabled={seedPending} reason={seedPendingReason}><ChangelogIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.changelog')}</GatedMenuItem>
+            })} disabled={changelogPending} reason={changelogPendingReason}><ChangelogIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.changelog')}</GatedMenuItem>
         }
         <GatedMenuItem onClick={() => withClose(compareVersion)} disabled={!getPreviousVersionURL(menuState.version) || seedPending} reason={seedPendingReason}><OpenInNewIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.compare_with_previous')}</GatedMenuItem>
         {hasAccess && <Divider />}

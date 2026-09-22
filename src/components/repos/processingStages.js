@@ -5,7 +5,8 @@ export const PROCESSING_STAGE_KEYS = [
   'seeded_mappings',
   'indexed_concepts',
   'indexed_mappings',
-  'exported'
+  'exported',
+  'changelog'
 ];
 
 export const PROCESSING_STAGE_LABEL_KEYS = {
@@ -13,7 +14,8 @@ export const PROCESSING_STAGE_LABEL_KEYS = {
   seeded_mappings: 'repo.stage_seeded_mappings',
   indexed_concepts: 'repo.stage_indexed_concepts',
   indexed_mappings: 'repo.stage_indexed_mappings',
-  exported: 'repo.stage_exported'
+  exported: 'repo.stage_exported',
+  changelog: 'repo.stage_changelog'
 };
 
 export const PROCESSING_QUERY_PARAMS = { includeStates: true, includeTasks: true };
@@ -123,6 +125,11 @@ export const isExportAvailable = version => {
   if(getExportTimeSeconds(version) !== null) return true;
   const exported = getProcessingStages(version).find(stage => stage.key === 'exported');
   return get(exported, 'status') === STAGE_STATUS.DONE;
+};
+
+export const isChangelogAvailable = version => {
+  const changelog = getProcessingStages(version).find(stage => stage.key === 'changelog');
+  return get(changelog, 'status') === STAGE_STATUS.DONE;
 };
 
 export const formatRuntime = seconds => {
