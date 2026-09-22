@@ -37,6 +37,18 @@ const GAService = {
     this.recordEvent(action, { event_category: category, event_label: label });
   },
 
+  recordActionEvent(category, action, label, params = {}) {
+    this.recordEvent(action, { event_category: category, event_label: label || startCase(action), ...params });
+  },
+
+  recordDisplayEvent(resource, display) {
+    this.recordActionEvent('Search Display', `display_${display}`, `${startCase(resource || 'resource')} ${startCase(display)}`, { resource, display });
+  },
+
+  recordSortEvent(resource, orderBy, order) {
+    this.recordActionEvent('Search Sort', 'sort_by', `${startCase(resource || 'resource')} ${orderBy || 'default'} ${order || ''}`.trim(), { resource, order_by: orderBy, order });
+  },
+
   recordSignupStart() {
     sessionStorage.setItem(SIGNUP_FLOW_PENDING_KEY, '1');
     this.recordEvent('signup_start', { event_category: 'auth', event_label: 'signup_start' });

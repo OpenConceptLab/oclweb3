@@ -24,6 +24,7 @@ import keys from 'lodash/keys'
 import get from 'lodash/get'
 
 import APIService from '../../services/APIService'
+import GAService from '../../services/GAService'
 import { WHITE, BLACK } from '../../common/colors'
 import { SOURCE_TYPES, COLLECTION_TYPES, AUTO_ID_FIELDS } from '../../common/constants'
 import { fetchRepoFromURL } from '../../common/utils'
@@ -264,6 +265,7 @@ const RepoCreate = () => {
       else if(nullableFields.includes(modelField))
         payload[field] = null
     })
+    GAService.recordUpsertEvent(selectedTab.id === 'collection' ? 'Collection' : 'Source', isEdit)
     let service = getService()
     service = isEdit ? service.put(payload) : service.post(payload)
     service.then(response => {

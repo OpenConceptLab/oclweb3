@@ -14,6 +14,7 @@ import { includes, toLower } from 'lodash'
 import { useTranslation } from 'react-i18next'
 import APIService from '../../services/APIService'
 import { getCurrentUserCollections, dropVersion } from '../../common/utils'
+import GAService from '../../services/GAService'
 import Dialog from './Dialog'
 import DialogTitle from './DialogTitle'
 import CloseIconButton from './CloseIconButton'
@@ -131,6 +132,10 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
 
   const handleSubmit = () => {
     if (!selected || !conceptUrls.length) return
+    GAService.recordActionEvent('Collection References', 'add_to_collection', selected?.short_code || selected?.id, {
+      collection: selected?.url,
+      count: conceptUrls.length
+    })
     setSubmitting(true)
     setError(null)
     setResults(null)

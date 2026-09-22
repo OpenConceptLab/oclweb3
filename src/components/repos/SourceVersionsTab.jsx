@@ -71,6 +71,7 @@ import ProcessingProgress from './ProcessingProgress';
 import ReindexVersionDialog from './ReindexVersionDialog';
 import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
+import GAService from '../../services/GAService';
 import { useProcessingVersions } from '../../hooks/useProcessingState';
 import { PROCESSING_QUERY_PARAMS, areSeedStagesComplete, isExportAvailable, isVersionProcessing } from './processingStages';
 import {
@@ -248,14 +249,24 @@ const SourceVersionsTab = ({
   };
   const compareVersion = version => {
     const previousVersionURL = getPreviousVersionURL(version);
-    if(previousVersionURL)
+    if(previousVersionURL) {
+      GAService.recordActionEvent('Version Compare', 'compare_with_previous', version.short_code || version.id, {
+        version1: previousVersionURL,
+        version2: version.version_url || version.url,
+        resource: 'source'
+      });
       history.push(`${repo.url}compare-versions?version1=${previousVersionURL}&version2=${version.version_url || version.url}`);
+    }
   };
   const copyVersionURL = version => {
     copyToClipboard(toFullAPIURL(version.version_url || version.url));
     setAlert({ severity: 'success', message: t('repo.copied_version_url') });
   };
   const computeSummary = version => {
+    GAService.recordActionEvent('Version Summary', 'refresh_repo_summary', version.short_code || version.id, {
+      version: version.version_url || version.url,
+      resource: 'source'
+    });
     APIService.new().overrideURL(version.version_url).appendToUrl('summary/').put().then(response => {
       if(response.detail || response.error)
         setAlert({ severity: 'error', message: formatError(response.detail || response.error, t('common.generic_error')) });
@@ -443,7 +454,13 @@ const SourceVersionsTab = ({
         <MenuItem onClick={() => withClose(version => setExternalExportsVersion(version))} disabled={!isLoggedIn() || isHeadVersion(menuState.version)}><ExternalExportIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.external_exports')}</MenuItem>
         {
           Boolean(getPreviousVersionURL(menuState.version)) &&
-            <GatedMenuItem onClick={() => withClose(version => setChangelogVersion(version))} disabled={seedPending} reason={seedPendingReason}><ChangelogIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.changelog')}</GatedMenuItem>
+            <GatedMenuItem onClick={() => withClose(version => {
+              GAService.recordActionEvent('Version Changelog', 'changelog', version.short_code || version.id, {
+                version1: getPreviousVersionURL(version),
+                version2: version.version_url || version.url
+              });
+              setChangelogVersion(version);
+            })} disabled={seedPending} reason={seedPendingReason}><ChangelogIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.changelog')}</GatedMenuItem>
         }
         <GatedMenuItem onClick={() => withClose(compareVersion)} disabled={!getPreviousVersionURL(menuState.version) || seedPending} reason={seedPendingReason}><OpenInNewIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.compare_with_previous')}</GatedMenuItem>
         {hasAccess && <Divider />}

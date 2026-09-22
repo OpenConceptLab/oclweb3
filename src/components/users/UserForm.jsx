@@ -8,6 +8,7 @@ import FormHelperText from '@mui/material/FormHelperText'
 import MenuItem from '@mui/material/MenuItem'
 import merge from 'lodash/merge'
 import APIService from '../../services/APIService'
+import GAService from '../../services/GAService'
 import { OperationsContext } from '../app/LayoutContext';
 import { LANGUAGES } from '../../common/constants';
 import { refreshCurrentUserCache, getCurrentUser, getResetPasswordURL } from '../../common/utils'
@@ -47,6 +48,7 @@ const UserForm = ({ user }) => {
     const form = document.getElementById('user-form')
     const isValid = form.reportValidity()
     if(isValid) {
+      GAService.recordUpsertEvent('User', true)
       APIService.users(user.username).put(getPayload()).then(response => {
         if(response?.status === 200) {
           const callback = () => {

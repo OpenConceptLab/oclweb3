@@ -8,6 +8,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import ReleaseIcon from '@mui/icons-material/NewReleases';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import CopyIcon from '@mui/icons-material/ContentCopy';
+import GAService from '../../services/GAService';
 
 const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id, isVersion, hasAccess, createSimilarHref }) => {
   const { t } = useTranslation()
@@ -72,7 +73,10 @@ const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id, isVers
       }
       {
         Boolean(createSimilarHref) &&
-          <ListItemButton id='createSimilar' href={createSimilarHref} onClick={onClose} sx={{padding: '8px 12px', '&:hover': {color: 'inherit'}, '&:focus': {outline: 'none', textDecoration: 'none', color: 'inherit'}}}>
+          <ListItemButton id='createSimilar' href={createSimilarHref} onClick={() => {
+            GAService.recordActionEvent('Create Similar', 'create_similar_repo', repo.short_code || repo.id, { url: repo.url })
+            onClose()
+          }} sx={{padding: '8px 12px', '&:hover': {color: 'inherit'}, '&:focus': {outline: 'none', textDecoration: 'none', color: 'inherit'}}}>
             <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
               <RepeatIcon />
             </ListItemIcon>

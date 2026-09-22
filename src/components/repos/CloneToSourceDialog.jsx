@@ -17,6 +17,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import BackIcon from '@mui/icons-material/ArrowBackOutlined'
 import { compact, get, includes, isEmpty, map, toLower, uniqBy } from 'lodash'
 import APIService from '../../services/APIService'
+import GAService from '../../services/GAService'
 import { getCurrentUserSources, dropVersion, toParentURI } from '../../common/utils'
 import Dialog from '../common/Dialog'
 import DialogTitle from '../common/DialogTitle'
@@ -117,6 +118,10 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
 
   const handleSubmit = () => {
     if (!selected?.url || isEmpty(conceptUrls)) return
+    GAService.recordActionEvent('Source Clone', 'clone_to_source', selected?.short_code || selected?.id, {
+      source: selected?.url,
+      count: conceptUrls.length
+    })
     setSubmitting(true)
     setError(null)
     setResult(null)

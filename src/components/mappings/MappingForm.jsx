@@ -8,6 +8,7 @@ import {
   set, get, cloneDeep, isEmpty, map, isArray, compact, flatten, values, keys
 } from 'lodash';
 import APIService from '../../services/APIService';
+import GAService from '../../services/GAService';
 import { arrayToObject, toParentURI, URIToParentParams } from '../../common/utils';
 import { fetchMapTypes } from './utils';
 import { OperationsContext } from '../app/LayoutContext';
@@ -375,6 +376,7 @@ class MappingForm extends FormComponent {
       if(!payload.sort_weight)
         delete payload.sort_weight
       OPTIONAL_BLANK_FIELDS.forEach(field => { if(!payload[field]) delete payload[field] })
+      GAService.recordUpsertEvent('Mapping', edit)
 
       let service = APIService.new().overrideURL(this.props.source.url).appendToUrl('mappings/')
       service = edit ? service.appendToUrl(this.state.fields.id.value + '/').put(payload) : service.post(payload)

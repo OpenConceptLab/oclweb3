@@ -3,6 +3,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { Alert, Box, CircularProgress, DialogContent } from '@mui/material';
 
 import APIService from '../../services/APIService';
+import GAService from '../../services/GAService';
 import { OperationsContext } from '../app/LayoutContext';
 import Button from '../common/Button';
 import Dialog from '../common/Dialog';
@@ -22,6 +23,9 @@ const ClearProcessingDialog = ({ version, open, onClose, onCleared }) => {
   const showStages = hasProcessingStages(version);
 
   const onSubmit = () => {
+    GAService.recordActionEvent('Processing', 'clear_processing', entityId, {
+      version: getVersionURL(version)
+    });
     setLoading(true);
     APIService.new()
       .overrideURL(getVersionURL(version))

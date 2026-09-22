@@ -34,6 +34,7 @@ import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialo
 import TransformReferencesDialog from '../collections/TransformReferencesDialog'
 import { getTransformAddGroups } from '../collections/referenceTransformUtils'
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutlined'
+import GAService from '../../services/GAService'
 
 const DEFAULT_LIMIT = 25;
 const FILTERS_WIDTH = 250
@@ -342,10 +343,21 @@ const Search = props => {
     return `/${__resource}/`
   }
 
+  const recordSearchEvent = (__resource, params) => {
+    GAService.recordActionEvent('Search', `search_${__resource}`, undefined, {
+      term: params?.q || '',
+      resource: __resource,
+      page: params?.page || 1,
+      page_size: params?.limit || DEFAULT_LIMIT,
+      has_filters: !isEmpty(omit(params || {}, ['q', 'page', 'limit', 'includeSearchMeta', 'verbose', 'sortAsc', 'sortDesc']))
+    })
+  }
+
   const fetchResults = (params, facets=true, _resource=undefined) => {
     let __resource = _resource || resource
     if(!__resource)
       return
+    recordSearchEvent(__resource, params)
     setLoading(true)
     setResult(prev => {
       return {...prev, [__resource]: {...result[__resource], results: []}}
@@ -390,6 +402,7 @@ const Search = props => {
 
   const fetchMatchResults = (params) => {
     let __resource = 'concepts'
+    recordSearchEvent(__resource, params)
     setLoading(true)
     setResult(prev => {
       return {...prev, [__resource]: {...result[__resource], results: []}}

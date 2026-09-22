@@ -28,6 +28,7 @@ import orderBy from 'lodash/orderBy'
 import uniqBy from 'lodash/uniqBy'
 
 import { copyURL, toFullAPIURL } from '../../common/utils';
+import GAService from '../../services/GAService'
 import UserChip from '../users/UserChip'
 import RepoChip from '../repos/RepoChip'
 
@@ -102,6 +103,15 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
     const [older, newer] = orderBy(compareSelection, 'version_created_on')
     return `#/concepts/compare?lhs=${older.version_url}&rhs=${newer.version_url}`
   }, [compareSelection])
+  const onCompareClick = () => {
+    if(compareSelection.length !== 2)
+      return
+    const [older, newer] = orderBy(compareSelection, 'version_created_on')
+    GAService.recordActionEvent('Concept Version Compare', 'compare_concept_versions', resource, {
+      lhs: older.version_url,
+      rhs: newer.version_url
+    })
+  }
   const onMenuClick = (event, version, repoVersion) => {
     event.preventDefault()
     event.stopPropagation()
@@ -183,6 +193,7 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
                 disabled={!compareHref}
                 href={compareHref}
                 target='_blank'
+                onClick={onCompareClick}
                 sx={{textTransform: 'none'}}
               >
                 {t('common.compare')}

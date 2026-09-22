@@ -26,6 +26,7 @@ import keys from 'lodash/keys'
 import without from 'lodash/without'
 
 import APIService from '../../services/APIService'
+import GAService from '../../services/GAService'
 import { OperationsContext } from '../app/LayoutContext';
 import { COLORS } from '../../common/colors'
 
@@ -67,6 +68,11 @@ const VersionResourcesComparison = ({version1, version2, resource}) => {
   const fetchChangelog = () => {
     if(loading)
       return
+    GAService.recordActionEvent('Version Changelog', 'changelog', `${version1?.id || version1?.version} -> ${version2?.id || version2?.version}`, {
+      version1: version1?.version_url,
+      version2: version2?.version_url,
+      resource
+    })
     setLoading(true)
     APIService.sources().appendToUrl('$changelog/').post({version1: version1.version_url, version2: version2.version_url, verbosity: 3}).then(res => {
       setResponse(res)

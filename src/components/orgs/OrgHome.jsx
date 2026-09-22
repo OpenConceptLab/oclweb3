@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams, useHistory } from 'react-router-dom'
 import Paper from '@mui/material/Paper'
 import APIService from '../../services/APIService'
+import GAService from '../../services/GAService'
 import { getCurrentUser, isAdminUser } from '../../common/utils';
 import usePins from '../../hooks/usePins';
 import { OperationsContext } from '../app/LayoutContext';
@@ -65,6 +66,9 @@ const OrgHome = () => {
   const onDelete = () => {
     if(!canDelete)
       return
+    GAService.recordActionEvent('Organization', 'delete_organization', org.id, {
+      organization: org.url
+    })
     APIService.orgs(org.id).delete().then(response => {
       if([202, 409, 208].includes(response.status === 202) || response?.detail === 'Already Queued' || response?.__all__ === 'Already Queued') {
         setDeleteOrg(false)

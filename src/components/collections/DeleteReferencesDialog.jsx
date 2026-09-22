@@ -7,6 +7,7 @@ import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import CircularProgress from '@mui/material/CircularProgress'
+import GAService from '../../services/GAService'
 
 const DeleteReferencesDialog = ({ open, onClose, onConfirm, references, loading }) => {
   const { t } = useTranslation()
@@ -39,7 +40,12 @@ const DeleteReferencesDialog = ({ open, onClose, onConfirm, references, loading 
           {t('common.cancel')}
         </Button>
         <Button
-          onClick={() => onConfirm({ ids: referenceIds })}
+          onClick={() => {
+            GAService.recordActionEvent('Collection References', 'delete_references', 'Delete References', {
+              count: referenceIds.length
+            })
+            onConfirm({ ids: referenceIds })
+          }}
           variant='contained'
           color='error'
           disabled={loading || referenceIds.length === 0}
