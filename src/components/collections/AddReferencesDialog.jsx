@@ -24,6 +24,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import { DialogContent, DialogActions } from '@mui/material'
 import { toLower, includes } from 'lodash'
 import APIService from '../../services/APIService'
+import GAService from '../../services/GAService'
 import Dialog from '../common/Dialog'
 import DialogTitle from '../common/DialogTitle'
 import CloseIconButton from '../common/CloseIconButton'
@@ -193,6 +194,11 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
 
   const handleSubmit = () => {
     if (!expressionList.length) return
+    GAService.recordActionEvent('Collection References', 'add_references', collectionUrl, {
+      collection: collectionUrl,
+      count: expressionList.length,
+      mode: includeExclude
+    })
     setSubmitting(true)
     setError(null)
     setResults(null)

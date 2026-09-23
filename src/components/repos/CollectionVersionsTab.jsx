@@ -74,6 +74,7 @@ import ReindexVersionDialog from './ReindexVersionDialog';
 import RepoVersionRowMenu from './RepoVersionRowMenu';
 import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
+import GAService from '../../services/GAService';
 import { PROCESSING_POLL_INTERVAL_MS, useProcessingVersions } from '../../hooks/useProcessingState';
 import { PROCESSING_QUERY_PARAMS, areSeedStagesComplete, isExportAvailable, isProcessing as isExpansionProcessing, isVersionProcessing } from './processingStages';
 import {
@@ -480,6 +481,9 @@ const CollectionVersionsTab = ({
 
   const onDeleteExpansionSubmit = () => {
     if (!deleteExpansion?.url) return;
+    GAService.recordActionEvent('Expansion', 'delete_expansion', deleteExpansion.mnemonic || deleteExpansion.url, {
+      expansion: deleteExpansion.url
+    });
     APIService.new().overrideURL(deleteExpansion.url).delete().then(response => {
       if (!response || response?.status === 204) {
         setDeleteExpansion(false);
@@ -493,6 +497,9 @@ const CollectionVersionsTab = ({
   };
 
   const onRebuildExpansion = expansion => {
+    GAService.recordActionEvent('Expansion', 'rebuild_expansion', expansion.mnemonic || expansion.url, {
+      expansion: expansion.url
+    });
     APIService.new().overrideURL(`${expansion.url}re-evaluate/`).post().then(response => {
       setRebuildExpansion(false);
       if ([200, 201, 202].includes(response?.status)) {
@@ -513,6 +520,11 @@ const CollectionVersionsTab = ({
   const compareVersion = version => {
     const previousVersionURL = getPreviousVersionURL(version);
     if (previousVersionURL) {
+      GAService.recordActionEvent('Version Compare', 'compare_with_previous', version.short_code || version.id, {
+        version1: previousVersionURL,
+        version2: version.version_url || version.url,
+        resource: 'collection'
+      });
       history.push(`${baseRepoURL}compare-versions?version1=${previousVersionURL}&version2=${version.version_url || version.url}`);
     }
   };
@@ -523,6 +535,10 @@ const CollectionVersionsTab = ({
   };
 
   const computeSummary = version => {
+    GAService.recordActionEvent('Version Summary', 'refresh_repo_summary', version.short_code || version.id, {
+      version: version.version_url || version.url,
+      resource: 'collection'
+    });
     APIService.new().overrideURL(version.version_url).appendToUrl('summary/').put().then(response => {
       if (response.detail || response.error)
         setAlert({ severity: 'error', message: formatError(response.detail || response.error, t('common.generic_error')) });
@@ -623,7 +639,10 @@ const CollectionVersionsTab = ({
       items.push({ key: 'set-default', label: t('repo.set_as_default'), disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => onMarkExpansionDefault(version, expansion) });
     }
     items.push(
-      { key: 'create-similar', label: t('repo.create_similar'), disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => setExpansionFormState({ open: true, version, copyFrom: expansion }) },
+      { key: 'create-similar', label: t('repo.create_similar'), disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => {
+        GAService.recordActionEvent('Expansion', 'create_similar_expansion', expansion.mnemonic || expansion.url, { expansion: expansion.url });
+        setExpansionFormState({ open: true, version, copyFrom: expansion });
+      } },
       { key: 'rebuild', label: t('repo.rebuild'), disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => setRebuildExpansion({ ...expansion, __version: version }) },
       { key: 'details', label: t('common.details'), onClick: () => setDetailsExpansion(expansion) }
     );

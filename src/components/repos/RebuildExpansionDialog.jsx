@@ -4,6 +4,7 @@ import DialogActions from "@mui/material/DialogActions";
 import { Button as MuiButton } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
+import GAService from "../../services/GAService";
 import Dialog from "../common/Dialog";
 import DialogTitle from "../common/DialogTitle";
 
@@ -29,7 +30,10 @@ const RebuildExpansionDialog = ({
         <MuiButton
           variant="contained"
           sx={{ textTransform: "none" }}
-          onClick={() => onCreateSimilar(expansion)}
+          onClick={() => {
+            GAService.recordActionEvent("Expansion", "create_similar_expansion", expansion.mnemonic || expansion.url, { expansion: expansion.url });
+            onCreateSimilar(expansion);
+          }}
         >
           {t("repo.create_similar")}
         </MuiButton>

@@ -18,6 +18,7 @@ import keys from 'lodash/keys'
 import get from 'lodash/get'
 
 import APIService from '../../services/APIService'
+import GAService from '../../services/GAService'
 import { WHITE } from '../../common/colors'
 import { OperationsContext } from '../app/LayoutContext';
 import Button from '../common/Button'
@@ -103,6 +104,7 @@ const OrgCreate = () => {
         payload[field] = [true, false].includes(value) ? value : value || null
     })
     delete payload.logo
+    GAService.recordUpsertEvent('Organization', isEdit)
     let service = getService()
     service = isEdit ? service.put(payload) : service.post(payload)
     service.then(response => {

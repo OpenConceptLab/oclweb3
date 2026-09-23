@@ -10,6 +10,7 @@ import Skeleton from '@mui/material/Skeleton';
 import Fade from '@mui/material/Fade';
 import Tooltip from '@mui/material/Tooltip';
 import CloseIconButton from '../common/CloseIconButton';
+import GAService from '../../services/GAService'
 import { toOwnerURI, toFullURL, currentUserHasAccess, sourceVersionOf } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
 import MappingManagementList from './MappingManagementList'
@@ -99,7 +100,10 @@ const MappingHeader = ({mapping, onClose, repoURL, nested, onEdit, onRetire, onC
               size='small'
               color='primary'
               sx={{textTransform: 'none'}}
-              onClick={onCreateSimilar}
+              onClick={() => {
+                GAService.recordActionEvent('Create Similar', 'create_similar_mapping', mapping.id, { url: mapping.url })
+                onCreateSimilar()
+              }}
             >
               {t('repo.create_similar')}
             </Button>

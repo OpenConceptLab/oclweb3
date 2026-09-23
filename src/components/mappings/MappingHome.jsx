@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom'
 import Fade from '@mui/material/Fade';
 
 import APIService from '../../services/APIService';
+import GAService from '../../services/GAService';
 import { toParentURI, dropVersion, getResourceIdFromUrl, latestResolvedRepoVersion } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
@@ -57,6 +58,7 @@ const MappingHome = props => {
         return
       }
       const resource = response?.data
+      GAService.recordEvent('split_view', { event_category: 'Mapping', event_label: `Mapping - ${resource?.url || props.url}` })
       setMapping(resource)
       setDetailsLoaded(true)
       props.repo?.id ? setRepo(props.repo) : fetchRepo(resource)
@@ -135,6 +137,10 @@ const MappingHome = props => {
   const toggleRetire = reason => {
     setRetireDialog(false)
     const isRetired = mapping.retired
+    GAService.recordEvent(isRetired ? 'unretired_mapping' : 'retired_mapping', {
+      event_category: 'Mapping',
+      event_label: isRetired ? 'Reactivated Mapping' : 'Retired Mapping'
+    })
     let service = APIService.new().overrideURL(mapping.url)
     service = mapping.retired ? service.appendToUrl('reactivate/').put({comment: reason}) : service.delete({comment: reason})
     service.then(response => {

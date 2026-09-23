@@ -5,6 +5,7 @@ import moment from 'moment';
 import { TextField, FormControlLabel, Checkbox, Autocomplete } from '@mui/material';
 import { set, get, startCase, isBoolean, isObject, values, map } from 'lodash';
 import APIService from '../../services/APIService';
+import GAService from '../../services/GAService';
 import FormComponent from '../common/FormComponent'
 import { OperationsContext } from '../app/LayoutContext';
 import {
@@ -82,6 +83,7 @@ class VersionForm extends FormComponent {
         }
 
         const url = edit ? version.version_url : version.url
+        GAService.recordUpsertEvent(isCollectionVersion ? 'Collection Version' : 'Source Version', edit)
         let service = APIService.new().overrideURL(url)
         service = edit ? service.put(payload) : service.appendToUrl('versions/').post(payload)
         service.then(response => this.handleSubmitResponse(response))

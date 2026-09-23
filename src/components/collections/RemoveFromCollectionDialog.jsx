@@ -13,6 +13,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import CircularProgress from '@mui/material/CircularProgress'
 import APIService from '../../services/APIService'
+import GAService from '../../services/GAService'
 import { dropVersion, sourceVersionOf } from '../../common/utils'
 import RepoChip from '../repos/RepoChip'
 
@@ -263,7 +264,13 @@ const RemoveFromCollectionDialog = ({ open, onClose, onConfirm, resources, colle
           {t('common.cancel')}
         </Button>
         <Button
-          onClick={() => onConfirm({ ids: Array.from(checkedRefIds) })}
+          onClick={() => {
+            GAService.recordActionEvent('Collection References', 'remove_from_collection', collectionUrl, {
+              collection: collectionUrl,
+              count: checkedRefIds.size
+            })
+            onConfirm({ ids: Array.from(checkedRefIds) })
+          }}
           variant='contained'
           color='error'
           disabled={isDisabled}

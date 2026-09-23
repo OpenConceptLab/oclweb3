@@ -14,6 +14,7 @@ import { Download as ExportIcon } from '@mui/icons-material';
 import get from 'lodash/get';
 
 import APIService from '../../services/APIService';
+import GAService from '../../services/GAService';
 import { OperationsContext } from '../app/LayoutContext';
 import { formatError, getVersionLabel, getVersionURL } from './versionsTab.styles';
 
@@ -49,6 +50,9 @@ const VersionExportDialog = ({ version, open, onClose, titleKey = 'repo.export_s
     APIService.new().overrideURL(exportURL).request('GET', null, null, { responseType: 'blob' })
       .then(response => {
         if(response.status === 200) {
+          GAService.recordActionEvent('Version Export', 'export_version_download', version?.short_code || version?.id, {
+            version: getVersionURL(version)
+          });
           downloadBlob(response, `${version.short_code || version.id}-${getVersionLabel(version)}.zip`);
           setState('downloaded');
         } else if(response.status === 204) {
@@ -68,6 +72,9 @@ const VersionExportDialog = ({ version, open, onClose, titleKey = 'repo.export_s
   }, [checkExport]);
 
   const queueExport = () => {
+    GAService.recordActionEvent('Version Export', 'export_version_queue', version?.short_code || version?.id, {
+      version: getVersionURL(version)
+    });
     setLoading(true);
     APIService.new().overrideURL(exportURL).post(null, null, null, { noRedirect: true }, true).then(response => {
       const status = response?.status || response?.response?.status;

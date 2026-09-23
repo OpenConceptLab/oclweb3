@@ -22,6 +22,7 @@ import ReferenceSourceGroupedResults, { getReferenceSourceGroups } from '../refe
 import AddToCollectionDialog from '../common/AddToCollectionDialog';
 import CloneToSourceDialog from '../repos/CloneToSourceDialog';
 import MappingIcon from '../mappings/MappingIcon';
+import GAService from '../../services/GAService';
 import { getSortConfig } from './sortConfig'
 import { resolveColumns } from './columns'
 import { isLoggedIn, currentUserHasAccess } from '../../common/utils';
@@ -112,6 +113,7 @@ const ResultsToolbar = props => {
         noCardDisplay={noCardDisplay}
         extraControls={toolbarControl}
         displayOptions={displayOptions}
+        resource={resource}
       />
     </Toolbar>
   );
@@ -136,6 +138,8 @@ const SearchResults = props => {
   const isReferenceSourceGrouped = props.resource === 'references' && display === 'source'
   const isHierarchyDisplay = props.resource === 'concepts' && props.hierarchySupported && display === 'hierarchy'
   const onDisplayChange = async (newDisplay, ms) => {
+    if(newDisplay !== display)
+      GAService.recordDisplayEvent(props.resource, newDisplay)
     if(['table', 'source', 'hierarchy'].includes(newDisplay)) {
       setCardDisplayAnimation('animation-disappear')
       setTableDisplayAnimation('animation-appear')
@@ -311,7 +315,13 @@ const SearchResults = props => {
         variant='contained'
         size='small'
         sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}, marginLeft: '8px'}}
-        onClick={() => props.onCreateSimilarClick(selectedRows[0])}
+        onClick={() => {
+          GAService.recordActionEvent('Create Similar', `create_similar_${props.resource.slice(0, -1)}`, selectedRows[0]?.id || selectedRows[0]?.url, {
+            resource: props.resource,
+            url: selectedRows[0]?.url
+          })
+          props.onCreateSimilarClick(selectedRows[0])
+        }}
       >
         {t('repo.create_similar')}
       </Button>
@@ -330,6 +340,10 @@ const SearchResults = props => {
         size='small'
         sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}, marginLeft: '8px'}}
         href={createSimilarRepoLink}
+        onClick={() => GAService.recordActionEvent('Create Similar', 'create_similar_repo', selectedRows[0]?.short_code || selectedRows[0]?.id, {
+          resource: props.resource,
+          url: selectedRows[0]?.url
+        })}
       >
         {t('repo.create_similar')}
       </Button>

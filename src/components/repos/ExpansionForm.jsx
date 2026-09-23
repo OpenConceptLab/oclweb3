@@ -26,6 +26,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 import APIService from "../../services/APIService";
+import GAService from "../../services/GAService";
 import { dropVersion } from "../../common/utils";
 import { OperationsContext } from "../app/LayoutContext";
 import Dialog from "../common/Dialog";
@@ -226,6 +227,7 @@ const ExpansionForm = ({
     }
 
     setState(prev => ({ ...prev, saving: true }));
+    GAService.recordUpsertEvent("Expansion", false);
 
     const request = APIService.new()
       .overrideURL(getVersionEndpoint(selectedVersion))

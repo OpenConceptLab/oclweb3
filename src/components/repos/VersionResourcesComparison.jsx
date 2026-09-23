@@ -26,6 +26,7 @@ import keys from 'lodash/keys'
 import without from 'lodash/without'
 
 import APIService from '../../services/APIService'
+import GAService from '../../services/GAService'
 import { COLORS } from '../../common/colors'
 
 import DiffFilterList from './DiffFilterList';
@@ -95,6 +96,11 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
   const fetchChangelog = () => {
     if(loading || selectionIncomplete)
       return
+    GAService.recordActionEvent('Version Changelog', 'changelog', `${version1?.id || version1?.version} -> ${version2?.id || version2?.version}`, {
+      version1: version1?.version_url,
+      version2: version2?.version_url,
+      resource
+    })
     setLoading(true)
     setResponse(null)
     setChangelog(false)

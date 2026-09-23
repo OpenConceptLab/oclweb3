@@ -12,6 +12,7 @@ import AddIcon from '@mui/icons-material/PlaylistAddOutlined';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import CloseIconButton from '../common/CloseIconButton';
+import GAService from '../../services/GAService'
 import { toOwnerURI, toFullURL, currentUserHasAccess, isLoggedIn, sourceVersionOf } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
 import { BLACK } from '../../common/colors'
@@ -146,7 +147,10 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
               size='small'
               color='primary'
               sx={{textTransform: 'none'}}
-              onClick={onCreateSimilar}
+              onClick={() => {
+                GAService.recordActionEvent('Create Similar', 'create_similar_concept', concept.id, { url: concept.url })
+                onCreateSimilar()
+              }}
             >
               {t('repo.create_similar')}
             </Button>

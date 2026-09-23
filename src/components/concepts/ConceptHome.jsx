@@ -5,6 +5,7 @@ import Fade from '@mui/material/Fade';
 import Skeleton from '@mui/material/Skeleton';
 
 import APIService from '../../services/APIService';
+import GAService from '../../services/GAService';
 import { toParentURI, dropVersion, getResourceIdFromUrl, currentUserHasAccess, latestResolvedRepoVersion } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
@@ -75,6 +76,7 @@ const ConceptHome = props => {
         return
       }
       const resource = response?.data
+      GAService.recordEvent('split_view', { event_category: 'Concept', event_label: `Concept - ${resource?.url || props.url}` })
       setConcept(resource)
       setDetailsLoaded(true)
       props.repo?.id ? setRepo(repo) : fetchRepo(resource)
@@ -242,6 +244,7 @@ const ConceptHome = props => {
   const mappingsReadOnly = isRepoVersion || !props.repo?.id
 
   const onCreateNewMapping = (payload, targetConcept, isDirect, successCallback) => {
+    GAService.recordEvent('create_mapping', { event_category: 'Mapping Inline', event_label: 'Created Mapping from Concept Details using Quick Actions' })
     APIService.new().overrideURL(`${concept.owner_url}sources/${concept.source}/mappings/`).post(payload).then(response => {
       if(response?.status === 201) {
         setAlert({severity: 'success', message: t('mapping.success_create')})
@@ -280,6 +283,10 @@ const ConceptHome = props => {
     const { mapping, isDirect } = mappingRetireDialog
     const isRetired = Boolean(mapping.retired)
     setMappingRetireDialog(null)
+    GAService.recordEvent(isRetired ? 'unretired_mapping' : 'retired_mapping', {
+      event_category: 'Mapping Inline',
+      event_label: isRetired ? 'Reactivated retired Mapping from Concept Details using Quick Actions' : 'Retired Mapping from Concept Details using Quick Actions'
+    })
     let service = APIService.new().overrideURL(mapping.url)
     service = isRetired ? service.appendToUrl('reactivate/').put({comment: reason}) : service.delete({comment: reason})
     service.then(response => {
@@ -295,6 +302,10 @@ const ConceptHome = props => {
   const toggleRetire = reason => {
     setRetireDialog(false)
     const isRetired = concept.retired
+    GAService.recordEvent(isRetired ? 'unretired_concept' : 'retired_concept', {
+      event_category: 'Concept',
+      event_label: isRetired ? 'Reactivated Concept' : 'Retired Concept'
+    })
     let service = APIService.new().overrideURL(concept.url)
     service = concept.retired ? service.appendToUrl('reactivate/').put({comment: reason}) : service.delete({comment: reason})
     service.then(response => {

@@ -6,6 +6,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import DialogContent from '@mui/material/DialogContent';
 
 import APIService from '../../services/APIService';
+import GAService from '../../services/GAService';
 import Button from '../common/Button';
 import Dialog from '../common/Dialog';
 import DialogTitle from '../common/DialogTitle';
@@ -36,6 +37,10 @@ const ReindexVersionDialog = ({ open, targetUrl, repoId, contentType, indexPath 
   };
 
   const handleSubmit = () => {
+    GAService.recordActionEvent('Version Index', `reindex_${contentType}`, repoId, {
+      target: targetUrl,
+      content_type: contentType
+    });
     setSubmitting(true);
     APIService.new()
       .overrideURL(targetUrl)

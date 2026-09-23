@@ -9,6 +9,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CloseIconButton from '../common/CloseIconButton';
 import APIService from '../../services/APIService'
+import GAService from '../../services/GAService'
 import FormComponent, { CardSection } from '../common/FormComponent'
 import { sortValuesBySourceSummary } from '../repos/utils';
 import {
@@ -427,6 +428,7 @@ class ConceptForm extends FormComponent  {
         payload.update_comment = fields.comment.value
         delete payload.comment
       }
+      GAService.recordUpsertEvent('Concept', edit)
       const queryParams = {includeParentConceptURLs: true}
       let service = APIService.new().overrideURL(this.props.source.url).appendToUrl('concepts/')
       service = this.props.edit ?

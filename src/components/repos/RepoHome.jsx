@@ -10,6 +10,7 @@ import isNumber from 'lodash/isNumber'
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add'
 import APIService from '../../services/APIService';
+import GAService from '../../services/GAService';
 import ProcessingBanner from './ProcessingBanner';
 import { useProcessingVersions } from '../../hooks/useProcessingState';
 import { PROCESSING_QUERY_PARAMS, isVersionProcessing } from './processingStages';
@@ -414,6 +415,9 @@ const RepoHome = () => {
     const url = deletingVersion ? target.version_url : target.url
     if(!url)
       return
+    GAService.recordActionEvent(deletingVersion ? 'Repo Version' : 'Repo', deletingVersion ? 'delete_repo_version' : 'delete_repo', target.short_code || target.id, {
+      url
+    })
     setDeletingRepo(true)
     APIService.new().overrideURL(url).delete().then(response => {
       setDeletingRepo(false)
@@ -435,6 +439,9 @@ const RepoHome = () => {
 
   const onReleaseVersion = () => {
     const target = getTargetVersion(releaseTarget)
+    GAService.recordActionEvent('Repo Version', target.released ? 'unrelease_version' : 'release_version', target.short_code || target.id, {
+      version: target.version_url || target.url
+    })
     APIService.new().overrideURL(target.version_url).put({released: !target.released}).then(response => {
       setReleaseTarget(false)
       if(response?.status === 200) {
