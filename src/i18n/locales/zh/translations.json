@@ -652,5 +652,11 @@
     "resolve_failed_without_entry_global": "未能将 {{url}} 匹配到全球注册库之中的特定条目",
     "target_owner": "目标所有者",
     "view_canonical_url_registry": "查看规范型 URL 注册库"
+  },
+  "announcement": {
+    "title": "欢迎体验全新 OCL TermBrowser v3 公开预览版！",
+    "text": "您的内容已在这里，并可随时切换回 TBv2。",
+    "link_label": "了解更多",
+    "dismiss": "关闭"
   }
 }
