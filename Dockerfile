@@ -29,11 +29,12 @@ RUN npm ci --production=false
 # OPTIONAL: install private premium UI package during image build
 # Example installs a package from a private repo/subdir
 ARG PRIVATE_PACKAGES_GIT
+ARG SOURCE_COMMIT
 RUN --mount=type=ssh \
   mkdir -p /root/.ssh && \
   ssh-keyscan github.com >> /root/.ssh/known_hosts && \
   if [ -n "$PRIVATE_PACKAGES_GIT" ]; then \
-    echo "Installing premium UI packages:" $PRIVATE_PACKAGES_GIT && \
+    echo "Installing premium UI packages (oclweb3 commit $SOURCE_COMMIT):" $PRIVATE_PACKAGES_GIT && \
     npm i $PRIVATE_PACKAGES_GIT --no-save --production=false; \
   fi
 
