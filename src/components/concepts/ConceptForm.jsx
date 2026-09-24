@@ -229,7 +229,6 @@ class ConceptForm extends FormComponent  {
   getNameStruct = (preferred=false) => {
     const mandatoryFieldStruct = this.getMandatoryFieldStruct()
     const fieldStruct = this.getFieldStruct()
-
     return {
       locale: {...mandatoryFieldStruct, value: this.props.source?.default_locale || this.state.parent?.default_locale || ''},
       name_type: {...mandatoryFieldStruct, value: 'Fully-Specified'},
