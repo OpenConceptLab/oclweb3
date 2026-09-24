@@ -64,6 +64,8 @@ class ConceptForm extends FormComponent  {
       manualMnemonic: false,
       manualExternalId: false,
       originalParentConceptURLs: [],
+      parentConceptURLsLoaded: false,
+      parentConceptURLsChanged: false,
       generatingChangeComment: false,
       fields: {
         id: {...mandatoryFieldStruct, validators: autoAssignedId ? [] : [required()]},
@@ -154,7 +156,10 @@ class ConceptForm extends FormComponent  {
 
   hasConceptChanges = () => !isEqual(this.getComparableOriginalConcept(), this.getComparableCurrentConcept())
 
-  getPromptConceptA = () => this.sanitizeConceptForPrompt(this.props.concept)
+  getPromptConceptA = () => this.sanitizeConceptForPrompt({
+    ...this.props.concept,
+    parent_concept_urls: this.state.originalParentConceptURLs,
+  })
 
   getPromptConceptB = () => {
     const baseConcept = this.sanitizeConceptForPrompt(this.props.concept)
@@ -324,11 +329,25 @@ class ConceptForm extends FormComponent  {
     if(!concept?.url)
       return
     APIService.new().overrideURL(concept.url).get(null, null, {includeParentConceptURLs: true}).then(response => {
+      if(response?.status !== 200)
+        throw new Error(response?.data?.detail || response?.data?.error || response?.detail || response?.error || this.props.t('common.generic_error'))
+
       const urls = this.normalizeParentConceptURLs(response?.data?.parent_concept_urls)
       this.setState(state => ({
         originalParentConceptURLs: urls,
-        fields: {...state.fields, parent_concept_urls: urls}
+        parentConceptURLsLoaded: true,
+        fields: {
+          ...state.fields,
+          parent_concept_urls: state.parentConceptURLsChanged ? state.fields.parent_concept_urls : urls
+        }
       }))
+    }).catch(error => {
+      const { setAlert } = this.context
+      setAlert({
+        duration: 10000,
+        message: error?.message || this.props.t('common.generic_error'),
+        severity: 'error'
+      })
     })
   }
 
@@ -336,7 +355,10 @@ class ConceptForm extends FormComponent  {
 
   getParentConceptURLs = () => this.state.fields.parent_concept_urls || []
 
-  onParentConceptURLsChange = urls => this.setState(state => ({fields: {...state.fields, parent_concept_urls: urls}}))
+  onParentConceptURLsChange = urls => this.setState(state => ({
+    parentConceptURLsChanged: true,
+    fields: {...state.fields, parent_concept_urls: this.normalizeParentConceptURLs(urls)}
+  }))
 
   prepareLocales = _locales => {
     this.setState({
@@ -427,7 +449,8 @@ class ConceptForm extends FormComponent  {
     if(isValid) {
       const { setAlert } = this.context;
       const payload = this.getConceptValues()
-      payload.parent_concept_urls = this.getParentConceptURLs()
+      if(!edit || this.state.parentConceptURLsLoaded || this.state.parentConceptURLsChanged)
+        payload.parent_concept_urls = this.getParentConceptURLs()
       if(edit) {
         payload.update_comment = fields.comment.value
         delete payload.comment
@@ -543,11 +566,12 @@ class ConceptForm extends FormComponent  {
           <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
             <TextField
               fullWidth
-              id='id'
+              id='external_id'
               label={t('concept.form.external_id')}
               variant='outlined'
               size='small'
               onChange={event => this.setFieldValue('external_id', event.target.value || '')}
+              value={fields.external_id.value}
             />
           </div>
         </CardSection>
