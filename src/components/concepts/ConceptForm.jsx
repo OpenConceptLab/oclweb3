@@ -623,25 +623,28 @@ class ConceptForm extends FormComponent  {
           edit &&
             <CardSection title={t('common.update_comment')}>
               <div className='col-xs-12 padding-0' style={{marginTop: '0px'}}>
-                <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '8px'}}>
-                  <Tooltip arrow title={generateCommentTooltip}>
-                    <span>
-                      <IconButton
-                        color='secondary'
-                        size='small'
-                        onClick={this.generateChangeComment}
-                        disabled={!canGenerateComment}
-                        aria-label={t('concept.generate_comment_aria')}
-                      >
-                        {
-                          generatingChangeComment ?
-                            <CircularProgress size={18} color='inherit' /> :
-                          <AutoAwesomeIcon fontSize='small' />
-                        }
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                </div>
+                {
+                  aiAssistantConfigured &&
+                    <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '8px'}}>
+                      <Tooltip arrow title={generateCommentTooltip}>
+                        <span>
+                          <IconButton
+                            color='secondary'
+                            size='small'
+                            onClick={this.generateChangeComment}
+                            disabled={!canGenerateComment}
+                            aria-label={t('concept.generate_comment_aria')}
+                          >
+                            {
+                              generatingChangeComment ?
+                                <CircularProgress size={18} color='inherit' /> :
+                                <AutoAwesomeIcon fontSize='small' />
+                            }
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                    </div>
+                }
                 <TextField
                   id="comment"
                   label={t('common.comment')}
