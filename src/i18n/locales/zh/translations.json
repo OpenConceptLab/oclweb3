@@ -496,6 +496,8 @@
     "members": "成员",
     "member": "成员",
     "edit_members": "编辑成员",
+    "member_add_failed": "无法添加 {{user}}：{{detail}}",
+    "member_remove_failed": "无法移除 {{user}}：{{detail}}",
     "org_have_not_created_public_repos_suffix": "尚未创建任何公开的存储库",
     "browse_members": "浏览成员",
     "member_of": "作为成员隶属于",

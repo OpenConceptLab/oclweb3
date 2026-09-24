@@ -441,6 +441,8 @@
     "my": "Mis organizaciones",
     "orgs": "Organizaciones",
     "org": "Organización",
+    "member_add_failed": "No se pudo agregar {{user}}: {{detail}}",
+    "member_remove_failed": "No se pudo eliminar {{user}}: {{detail}}",
     "create_an_org": "Crear una organización",
     "create_an_org_description": "Organiza tu contenido y colaboradores. <0> Obtén más información sobre las organizaciones en OCL.</0>",
     "edit_org": "Editar organización",

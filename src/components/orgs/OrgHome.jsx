@@ -47,8 +47,10 @@ const OrgHome = () => {
   }
   const fetchMembers = () => {
     APIService.orgs(params.org).appendToUrl('members/?verbose=true').get().then(response => {
-      if(response?.data?.length)
+      if(Array.isArray(response?.data)) {
         setMembers(response.data)
+        setOrg(prev => ({...prev, members: response.data.length}))
+      }
     })
   }
   const onTabChange = (event, newTab) => {

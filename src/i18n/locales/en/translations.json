@@ -844,6 +844,8 @@
     "member": "Member",
     "edit_members": "Edit Members",
     "updated_members": "Updated Members",
+    "member_add_failed": "Could not add {{user}}: {{detail}}",
+    "member_remove_failed": "Could not remove {{user}}: {{detail}}",
     "org_have_not_created_public_repos_suffix": "have not created any public repositories",
     "browse_members": "Browse members",
     "member_of": "Member of",
