@@ -25,7 +25,7 @@ import ConceptDatatypeSection, { getDatatypeExtraKeys } from './ConceptDatatypeS
 import Breadcrumbs from '../common/Breadcrumbs'
 import CustomAttributesForm from '../common/CustomAttributesForm'
 import { required } from '../../common/validators';
-import { OCL_CLIENT } from '../../common/constants';
+import { OCL_REQUEST_SOURCE } from '../../common/constants';
 
 const ANCHOR_UNDERLINE_STYLES = {textDecoration: 'underline', cursor: 'pointer'}
 
@@ -204,7 +204,7 @@ class ConceptForm extends FormComponent  {
         null,
         {
           url: `${aiAssistantURL}/prompts/concept-generate-change-comment/$invoke/`,
-          headers: {'X-OCL-Request-Source': OCL_CLIENT},
+          headers: {'X-OCL-Request-Source': OCL_REQUEST_SOURCE},
         }
       )
 
