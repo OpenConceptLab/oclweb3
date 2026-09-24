@@ -15,7 +15,7 @@ import { sortValuesBySourceSummary } from '../repos/utils';
 import {
   fetchDatatypes, fetchNameTypes, fetchDescriptionTypes, fetchConceptClasses, fetchLocales
 } from './utils';
-import { toParentURI, dropVersion, isSuperuser, hasAuthGroup, getCurrentUser } from '../../common/utils'
+import { toParentURI, dropVersion } from '../../common/utils'
 import { OperationsContext } from '../app/LayoutContext';
 import Button from '../common/Button'
 import AutocompleteGroupByRepoSummary from '../common/AutocompleteGroupByRepoSummary'
@@ -25,6 +25,7 @@ import ConceptDatatypeSection, { getDatatypeExtraKeys } from './ConceptDatatypeS
 import Breadcrumbs from '../common/Breadcrumbs'
 import CustomAttributesForm from '../common/CustomAttributesForm'
 import { required } from '../../common/validators';
+import { OCL_CLIENT } from '../../common/constants';
 
 const ANCHOR_UNDERLINE_STYLES = {textDecoration: 'underline', cursor: 'pointer'}
 
@@ -196,7 +197,10 @@ class ConceptForm extends FormComponent  {
           }
         },
         null,
-        { url: `${aiAssistantURL}/prompts/concept-generate-change-comment/$invoke/` }
+        {
+          url: `${aiAssistantURL}/prompts/concept-generate-change-comment/$invoke/`,
+          headers: {'X-OCL-Request-Source': OCL_CLIENT},
+        }
       )
 
       const output = (get(response, 'data.output') || '').trim()
@@ -458,9 +462,8 @@ class ConceptForm extends FormComponent  {
     const { t, edit, repoSummary, repo, concept, onClose, source } = this.props
     const { conceptClasses, datatypes, locales, nameTypes, descriptionTypes, fields, generatingChangeComment, manualMnemonic } = this.state
     const aiAssistantConfigured = Boolean(this.getAIAssistantURL())
-    const canSeeGenerateComment = edit && (isSuperuser() || hasAuthGroup(getCurrentUser(), 'core_user'))
-    const hasConceptChanges = canSeeGenerateComment && this.hasConceptChanges()
-    const canGenerateComment = canSeeGenerateComment && aiAssistantConfigured && hasConceptChanges && !generatingChangeComment
+    const hasConceptChanges = edit && this.hasConceptChanges()
+    const canGenerateComment = edit && aiAssistantConfigured && hasConceptChanges && !generatingChangeComment
     const generateCommentTooltip = !aiAssistantConfigured ?
       t('concept.ai_assistant_not_configured') :
       (!hasConceptChanges ? t('concept.make_change_before_generating') : t('common.generate_with_ai'))
@@ -625,44 +628,44 @@ class ConceptForm extends FormComponent  {
         {
           edit &&
             <CardSection title={t('common.update_comment')}>
-              <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>
-                  {
-                    canSeeGenerateComment &&
-                      <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '8px'}}>
-                        <Tooltip arrow title={generateCommentTooltip}>
-                          <span>
-                            <IconButton
-                              color='secondary'
-                              size='small'
-                              onClick={this.generateChangeComment}
-                              disabled={!canGenerateComment}
-                              aria-label={t('concept.generate_comment_aria')}
-                            >
-                              {
-                                generatingChangeComment ?
-                                  <CircularProgress size={18} color='inherit' /> :
-                                  <AutoAwesomeIcon fontSize='small' />
-                              }
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                      </div>
-                  }
-                  <TextField
-                    id="comment"
-                    label={t('common.comment')}
-                    variant="outlined"
-                    fullWidth
-                    onChange={event => this.setFieldValue('comment', event.target.value || '')}
-                    value={fields.comment.value}
-                    required
-                    rows={3}
-                    maxRows={4}
-                    multiline
-                    helperText={fields.comment.errors[0]}
-                    error={Boolean(fields.comment.errors[0])}
-                  />
-                </div>
+              <div className='col-xs-12 padding-0' style={{marginTop: '0px'}}>
+                {
+                  aiAssistantConfigured &&
+                    <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '8px'}}>
+                      <Tooltip arrow title={generateCommentTooltip}>
+                        <span>
+                          <IconButton
+                            color='secondary'
+                            size='small'
+                            onClick={this.generateChangeComment}
+                            disabled={!canGenerateComment}
+                            aria-label={t('concept.generate_comment_aria')}
+                          >
+                            {
+                              generatingChangeComment ?
+                                <CircularProgress size={18} color='inherit' /> :
+                                <AutoAwesomeIcon fontSize='small' />
+                            }
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                    </div>
+                }
+                <TextField
+                  id="comment"
+                  label={t('common.comment')}
+                  variant="outlined"
+                  fullWidth
+                  onChange={event => this.setFieldValue('comment', event.target.value || '')}
+                  value={fields.comment.value}
+                  required
+                  rows={3}
+                  maxRows={4}
+                  multiline
+                  helperText={fields.comment.errors[0]}
+                  error={Boolean(fields.comment.errors[0])}
+                />
+              </div>
             </CardSection>
         }
 
