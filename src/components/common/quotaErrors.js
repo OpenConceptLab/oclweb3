@@ -1,5 +1,5 @@
 export const QUOTA_PRICING_URL = 'https://preview.openconceptlab.org/pricing'
-export const REQUEST_MORE_ACCESS_URL = 'mailto:jonathan@openconceptlab.org?subject=' + // eslint-disable-line spellcheck/spell-checker
+export const REQUEST_MORE_ACCESS_URL = 'mailto:jon@openconceptlab.org?subject=' + // eslint-disable-line spellcheck/spell-checker
   encodeURIComponent('OCL - request more access')
 
 const QUOTA_ERRORS = {
