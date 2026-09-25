@@ -1071,8 +1071,14 @@
   "quota": {
     "title_quota": "You've reached your quota",
     "title_cap": "You've reached your limit",
+    "title_limit": "That's over your limit",
     "your_plan": "Your plan",
     "used_of": "{{used}} of {{limit}} used",
+    "requested_of": {
+      "generic": "{{requested}} requested, limit {{limit}}",
+      "import_file_size": "{{requested}} KB, limit {{limit}} KB",
+      "clone_resources": "More than {{limit}} concepts and mappings"
+    },
     "period_one_time": "One-time preview allowance",
     "request_more_access": "Request more access",
     "view_pricing": "View pricing",
@@ -1082,6 +1088,8 @@
       "ai_assistant_change_comments": "OCL AI Assistant update comments",
       "projects": "Map projects",
       "rows": "Rows per project",
+      "import_file_size": "Import size",
+      "clone_resources": "Concepts and mappings per clone",
       "generic": "Usage"
     },
     "consequence": {
@@ -1106,6 +1114,12 @@
       "rows": {
         "default": "Rows past your limit stay in the project but aren't matched.",
         "import": "Rows past your limit stay in the project but aren't matched."
+      },
+      "import_file_size": {
+        "default": "Split the file into smaller imports, or request more access."
+      },
+      "clone_resources": {
+        "default": "Clone a narrower concept or fewer cascade levels, or request more access."
       }
     }
   }

@@ -10,20 +10,23 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import Dialog from './Dialog'
 import DialogTitle from './DialogTitle'
 import CloseIconButton from './CloseIconButton'
-import { isCapMeter, QUOTA_PRICING_URL, REQUEST_MORE_ACCESS_URL } from './quotaErrors'
+import { isCapMeter, isLimitMeter, QUOTA_PRICING_URL, REQUEST_MORE_ACCESS_URL } from './quotaErrors'
 
 const QuotaDialog = ({open, onClose, meter, surface, plan, usage}) => {
   const { t } = useTranslation()
   const isCap = isCapMeter(meter)
-  const { used, limit, period } = usage || {}
-  const hasCount = Number.isFinite(used) && Number.isFinite(limit) && limit > 0
+  const isLimit = isLimitMeter(meter)
+  const { used, limit, period, requested } = usage || {}
+  const hasCount = !isLimit && Number.isFinite(used) && Number.isFinite(limit) && limit > 0
+  const hasRequested = isLimit && Number.isFinite(requested) && Number.isFinite(limit) && limit > 0
   const progress = hasCount ? Math.min(100, (used / limit) * 100) : 100
+  const title = isLimit ? 'quota.title_limit' : (isCap ? 'quota.title_cap' : 'quota.title_quota')
   const linkProps = {target: '_blank', rel: 'noopener noreferrer', endIcon: <OpenInNewIcon />, sx: {textTransform: 'none', borderRadius: '100px', whiteSpace: 'nowrap', flexShrink: 0, '&:hover, &:focus, &:active': {textDecoration: 'none'}, '&:focus:not(:focus-visible)': {outline: 'none'}}}
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth='sm' fullWidth>
       <DialogTitle sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-        {t(isCap ? 'quota.title_cap' : 'quota.title_quota')}
+        {t(title)}
         <CloseIconButton onClick={onClose} aria-label={t('common.close')} />
       </DialogTitle>
       <DialogContent sx={{px: 0, pb: 0}}>
@@ -46,10 +49,16 @@ const QuotaDialog = ({open, onClose, meter, surface, plan, usage}) => {
               hasCount &&
                 <Typography variant='body1' sx={{fontWeight: 600}}>{t('quota.used_of', {used, limit})}</Typography>
             }
+            {
+              hasRequested &&
+                <Typography variant='body1' sx={{fontWeight: 600}}>
+                  {t(`quota.requested_of.${meter}`, {requested, limit, defaultValue: t('quota.requested_of.generic', {requested, limit})})}
+                </Typography>
+            }
           </div>
           <LinearProgress variant='determinate' value={progress} sx={{my: 1, height: 8, borderRadius: '4px'}} />
           {
-            !isCap && period === 'one_time' &&
+            !isCap && !isLimit && period === 'one_time' &&
               <Typography variant='body2' color='text.secondary'>{t('quota.period_one_time')}</Typography>
           }
         </div>
