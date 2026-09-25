@@ -6,7 +6,7 @@ import AccessIcon from './AccessIcon'
 
 const AccessChip = ({public_access, ...rest}) => {
   const { t } = useTranslation()
-  const isPublic = ['view', 'edit'].includes(public_access?.toLowerCase())
+  const isPublic = public_access?.toLowerCase() === 'view'
   return (
     <Chip
       size='small'

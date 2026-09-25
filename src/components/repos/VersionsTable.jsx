@@ -35,7 +35,7 @@ const normalizeVersions = versions => {
 
 const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onVersionChange, originVersion }) => {
   const { t } = useTranslation()
-  const isPublic = ['view', 'edit'].includes(version.public_access.toLowerCase())
+  const isPublic = version.public_access?.toLowerCase() === 'view'
   const tooltip = originVersion ? t('repo.compare_origin_version_disabled_tooltip') : t('repo.compare_destination_version_disabled_tooltip')
   const isPrivateAndHasNoAccess = !isPublic && !hasAccessToURL(version.version_url || version.url)
   const isDisabled = disabled || isPrivateAndHasNoAccess
