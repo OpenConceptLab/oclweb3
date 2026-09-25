@@ -35,6 +35,8 @@ import TransformReferencesDialog from '../collections/TransformReferencesDialog'
 import { getTransformAddGroups } from '../collections/referenceTransformUtils'
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutlined'
 import GAService from '../../services/GAService'
+import QuotaDialog from '../common/QuotaDialog'
+import { getQuotaError } from '../common/quotaErrors'
 
 const DEFAULT_LIMIT = 25;
 const FILTERS_WIDTH = 250
@@ -62,6 +64,7 @@ const Search = props => {
   const history = useHistory();
   const location = useLocation();
   const [loading, setLoading] = React.useState(true)
+  const [quotaError, setQuotaError] = React.useState(null)
   const [loadingFacets, setLoadingFacets] = React.useState(true)
   const [openFilters, setOpenFilters] = React.useState(has(props, 'defaultFiltersOpen') ? props.defaultFiltersOpen : true)
   const [input, setInput] = React.useState('');
@@ -410,6 +413,12 @@ const Search = props => {
     let _filters = omit(params, ['q', 'page', 'page_number', 'page_size', 'limit', 'offset', 'includeSearchMeta', 'verbose', 'order', 'orderBy', 'sortAsc', 'sortDesc', 'display', 'type', 'onlyHierarchyRoot'])
     const payload = {rows: [{name: params.q}], target_repo_url: contextRepo?.version_url, filter: _filters || {}}
     APIService.new().overrideURL('/concepts/$match/').post(payload, null, null, {verbose: true, includeSearchMeta: true, semantic: true, reranker: true, ...params}).then(response => {
+      const limitError = getQuotaError(response)
+      if(limitError) {
+        setQuotaError(limitError)
+        setLoading(false)
+        return
+      }
       if(response?.detail) {
         setAlert({message: response.detail, severity: 'error', duration: 5000})
         setLoading(false)
@@ -853,6 +862,13 @@ const Search = props => {
         collectionUrl={collectionUrl}
         lookupCollectionUrl={collectionLookupUrl}
         loading={bulkRemoving}
+      />
+      <QuotaDialog
+        open={Boolean(quotaError)}
+        onClose={() => setQuotaError(null)}
+        meter={quotaError?.meter}
+        surface='tbv3_match'
+        usage={quotaError?.usage}
       />
     </div>
   )

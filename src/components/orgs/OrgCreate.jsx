@@ -20,6 +20,7 @@ import get from 'lodash/get'
 import APIService from '../../services/APIService'
 import GAService from '../../services/GAService'
 import { WHITE } from '../../common/colors'
+import { refreshCurrentUserCache } from '../../common/utils'
 import { OperationsContext } from '../app/LayoutContext';
 import Button from '../common/Button'
 import RTEditor from '../common/RTEditor'
@@ -110,8 +111,11 @@ const OrgCreate = () => {
     service.then(response => {
       if([200, 201].includes(response.status)) {
         const successCallback = () => {
-          setAlert({duration: 2000, message: isEdit ? t('org.success_update') : t('org.success_create'), severity: 'success'})
-          history.push(response.data.url)
+          const onSuccess = () => {
+            setAlert({duration: 2000, message: isEdit ? t('org.success_update') : t('org.success_create'), severity: 'success'})
+            history.push(response.data.url)
+          }
+          isEdit ? onSuccess() : refreshCurrentUserCache(onSuccess)
         }
         model?.logo?.base64 && model?.logo?.name ?
           APIService.new().overrideURL(response.data.url).appendToUrl('logo/').post(model.logo).then(successCallback) :

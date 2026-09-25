@@ -841,6 +841,8 @@
     "member": "Member",
     "edit_members": "Edit Members",
     "updated_members": "Updated Members",
+    "member_add_failed": "Could not add {{user}}: {{detail}}",
+    "member_remove_failed": "Could not remove {{user}}: {{detail}}",
     "org_have_not_created_public_repos_suffix": "have not created any public repositories",
     "browse_members": "Browse members",
     "member_of": "Member of",
@@ -1068,5 +1070,46 @@
     "text": "Your content is already here, and you can switch back to TBv2 any time.",
     "link_label": "Learn more",
     "dismiss": "Dismiss"
+  },
+  "quota": {
+    "title_quota": "You've reached your quota",
+    "title_cap": "You've reached your limit",
+    "your_plan": "Your plan",
+    "used_of": "{{used}} of {{limit}} used",
+    "period_one_time": "One-time preview allowance",
+    "request_more_access": "Request more access",
+    "view_pricing": "View pricing",
+    "meter": {
+      "match_operations": "Match operations",
+      "ai_assistant_calls": "OCL AI Assistant calls",
+      "ai_assistant_change_comments": "OCL AI Assistant update comments",
+      "projects": "Map projects",
+      "rows": "Rows per project",
+      "generic": "Usage"
+    },
+    "consequence": {
+      "generic": "Some features are paused until your allowance is increased.",
+      "ai_assistant_calls": {
+        "default": "Features that use the OCL AI Assistant are paused.",
+        "auto_match": "Auto Match will keep running without recommendations from the OCL AI Assistant."
+      },
+      "ai_assistant_change_comments": {
+        "default": "You can still write the update comment yourself, without a draft from the OCL AI Assistant.",
+        "tbv3_change_comment": "You can still write the update comment yourself, without a draft from the OCL AI Assistant."
+      },
+      "match_operations": {
+        "default": "Matching is paused.",
+        "auto_match": "You can still review, edit and export your projects, but Auto Match is paused.",
+        "tbv3_match": "Search will keep working, but $match with OCL Semantic Search is paused."
+      },
+      "projects": {
+        "default": "Your existing projects stay open; delete one to free a slot for a new one.",
+        "new_project": "Your existing projects stay open; delete one to free a slot for a new one."
+      },
+      "rows": {
+        "default": "Rows past your limit stay in the project but aren't matched.",
+        "import": "Rows past your limit stay in the project but aren't matched."
+      }
+    }
   }
 }

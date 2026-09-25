@@ -15,7 +15,7 @@ import { sortValuesBySourceSummary } from '../repos/utils';
 import {
   fetchDatatypes, fetchNameTypes, fetchDescriptionTypes, fetchConceptClasses, fetchLocales
 } from './utils';
-import { toParentURI, dropVersion, isSuperuser, hasAuthGroup, getCurrentUser } from '../../common/utils'
+import { toParentURI, dropVersion } from '../../common/utils'
 import { OperationsContext } from '../app/LayoutContext';
 import Button from '../common/Button'
 import AutocompleteGroupByRepoSummary from '../common/AutocompleteGroupByRepoSummary'
@@ -23,8 +23,11 @@ import LocaleForm from './LocaleForm'
 import ParentConceptsForm from './ParentConceptsForm'
 import ConceptDatatypeSection, { getDatatypeExtraKeys } from './ConceptDatatypeSection'
 import Breadcrumbs from '../common/Breadcrumbs'
+import QuotaDialog from '../common/QuotaDialog'
+import { getQuotaError } from '../common/quotaErrors'
 import CustomAttributesForm from '../common/CustomAttributesForm'
 import { required } from '../../common/validators';
+import { OCL_REQUEST_SOURCE } from '../../common/constants';
 
 const ANCHOR_UNDERLINE_STYLES = {textDecoration: 'underline', cursor: 'pointer'}
 
@@ -63,7 +66,10 @@ class ConceptForm extends FormComponent  {
       manualMnemonic: false,
       manualExternalId: false,
       originalParentConceptURLs: [],
+      parentConceptURLsLoaded: false,
+      parentConceptURLsChanged: false,
       generatingChangeComment: false,
+      quotaError: null,
       fields: {
         id: {...mandatoryFieldStruct, validators: autoAssignedId ? [] : [required()]},
         concept_class: {...mandatoryFieldStruct},
@@ -153,7 +159,10 @@ class ConceptForm extends FormComponent  {
 
   hasConceptChanges = () => !isEqual(this.getComparableOriginalConcept(), this.getComparableCurrentConcept())
 
-  getPromptConceptA = () => this.sanitizeConceptForPrompt(this.props.concept)
+  getPromptConceptA = () => this.sanitizeConceptForPrompt({
+    ...this.props.concept,
+    parent_concept_urls: this.state.originalParentConceptURLs,
+  })
 
   getPromptConceptB = () => {
     const baseConcept = this.sanitizeConceptForPrompt(this.props.concept)
@@ -196,7 +205,10 @@ class ConceptForm extends FormComponent  {
           }
         },
         null,
-        { url: `${aiAssistantURL}/prompts/concept-generate-change-comment/$invoke/` }
+        {
+          url: `${aiAssistantURL}/prompts/concept-generate-change-comment/$invoke/`,
+          headers: {'X-OCL-Request-Source': OCL_REQUEST_SOURCE},
+        }
       )
 
       const output = (get(response, 'data.output') || '').trim()
@@ -206,6 +218,11 @@ class ConceptForm extends FormComponent  {
 
       this.setFieldValue('comment', output)
     } catch (error) {
+      const quotaError = getQuotaError(error)
+      if(quotaError) {
+        this.setState({quotaError})
+        return
+      }
       const status = error?.response?.status
       const message = status === 429 ?
         t('concept.try_again_in_a_moment') :
@@ -220,7 +237,6 @@ class ConceptForm extends FormComponent  {
   getNameStruct = (preferred=false) => {
     const mandatoryFieldStruct = this.getMandatoryFieldStruct()
     const fieldStruct = this.getFieldStruct()
-
     return {
       locale: {...mandatoryFieldStruct, value: this.props.source?.default_locale || this.state.parent?.default_locale || ''},
       name_type: {...mandatoryFieldStruct, value: 'Fully-Specified'},
@@ -320,11 +336,25 @@ class ConceptForm extends FormComponent  {
     if(!concept?.url)
       return
     APIService.new().overrideURL(concept.url).get(null, null, {includeParentConceptURLs: true}).then(response => {
+      if(response?.status !== 200)
+        throw new Error(response?.data?.detail || response?.data?.error || response?.detail || response?.error || this.props.t('common.generic_error'))
+
       const urls = this.normalizeParentConceptURLs(response?.data?.parent_concept_urls)
       this.setState(state => ({
         originalParentConceptURLs: urls,
-        fields: {...state.fields, parent_concept_urls: urls}
+        parentConceptURLsLoaded: true,
+        fields: {
+          ...state.fields,
+          parent_concept_urls: state.parentConceptURLsChanged ? state.fields.parent_concept_urls : urls
+        }
       }))
+    }).catch(error => {
+      const { setAlert } = this.context
+      setAlert({
+        duration: 10000,
+        message: error?.message || this.props.t('common.generic_error'),
+        severity: 'error'
+      })
     })
   }
 
@@ -332,7 +362,10 @@ class ConceptForm extends FormComponent  {
 
   getParentConceptURLs = () => this.state.fields.parent_concept_urls || []
 
-  onParentConceptURLsChange = urls => this.setState(state => ({fields: {...state.fields, parent_concept_urls: urls}}))
+  onParentConceptURLsChange = urls => this.setState(state => ({
+    parentConceptURLsChanged: true,
+    fields: {...state.fields, parent_concept_urls: this.normalizeParentConceptURLs(urls)}
+  }))
 
   prepareLocales = _locales => {
     this.setState({
@@ -423,7 +456,8 @@ class ConceptForm extends FormComponent  {
     if(isValid) {
       const { setAlert } = this.context;
       const payload = this.getConceptValues()
-      payload.parent_concept_urls = this.getParentConceptURLs()
+      if(!edit || this.state.parentConceptURLsLoaded || this.state.parentConceptURLsChanged)
+        payload.parent_concept_urls = this.getParentConceptURLs()
       if(edit) {
         payload.update_comment = fields.comment.value
         delete payload.comment
@@ -456,11 +490,10 @@ class ConceptForm extends FormComponent  {
 
   render() {
     const { t, edit, repoSummary, repo, concept, onClose, source } = this.props
-    const { conceptClasses, datatypes, locales, nameTypes, descriptionTypes, fields, generatingChangeComment, manualMnemonic } = this.state
+    const { conceptClasses, datatypes, locales, nameTypes, descriptionTypes, fields, generatingChangeComment, manualMnemonic, quotaError } = this.state
     const aiAssistantConfigured = Boolean(this.getAIAssistantURL())
-    const canSeeGenerateComment = edit && (isSuperuser() || hasAuthGroup(getCurrentUser(), 'core_user'))
-    const hasConceptChanges = canSeeGenerateComment && this.hasConceptChanges()
-    const canGenerateComment = canSeeGenerateComment && aiAssistantConfigured && hasConceptChanges && !generatingChangeComment
+    const hasConceptChanges = edit && this.hasConceptChanges()
+    const canGenerateComment = edit && aiAssistantConfigured && hasConceptChanges && !generatingChangeComment
     const generateCommentTooltip = !aiAssistantConfigured ?
       t('concept.ai_assistant_not_configured') :
       (!hasConceptChanges ? t('concept.make_change_before_generating') : t('common.generate_with_ai'))
@@ -540,11 +573,12 @@ class ConceptForm extends FormComponent  {
           <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
             <TextField
               fullWidth
-              id='id'
+              id='external_id'
               label={t('concept.form.external_id')}
               variant='outlined'
               size='small'
               onChange={event => this.setFieldValue('external_id', event.target.value || '')}
+              value={fields.external_id.value}
             />
           </div>
         </CardSection>
@@ -625,50 +659,57 @@ class ConceptForm extends FormComponent  {
         {
           edit &&
             <CardSection title={t('common.update_comment')}>
-              <div className='col-xs-12 padding-0' style={{marginTop: '24px'}}>
-                  {
-                    canSeeGenerateComment &&
-                      <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '8px'}}>
-                        <Tooltip arrow title={generateCommentTooltip}>
-                          <span>
-                            <IconButton
-                              color='secondary'
-                              size='small'
-                              onClick={this.generateChangeComment}
-                              disabled={!canGenerateComment}
-                              aria-label={t('concept.generate_comment_aria')}
-                            >
-                              {
-                                generatingChangeComment ?
-                                  <CircularProgress size={18} color='inherit' /> :
-                                  <AutoAwesomeIcon fontSize='small' />
-                              }
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                      </div>
-                  }
-                  <TextField
-                    id="comment"
-                    label={t('common.comment')}
-                    variant="outlined"
-                    fullWidth
-                    onChange={event => this.setFieldValue('comment', event.target.value || '')}
-                    value={fields.comment.value}
-                    required
-                    rows={3}
-                    maxRows={4}
-                    multiline
-                    helperText={fields.comment.errors[0]}
-                    error={Boolean(fields.comment.errors[0])}
-                  />
-                </div>
+              <div className='col-xs-12 padding-0' style={{marginTop: '0px'}}>
+                {
+                  aiAssistantConfigured &&
+                    <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '8px'}}>
+                      <Tooltip arrow title={generateCommentTooltip}>
+                        <span>
+                          <IconButton
+                            color='secondary'
+                            size='small'
+                            onClick={this.generateChangeComment}
+                            disabled={!canGenerateComment}
+                            aria-label={t('concept.generate_comment_aria')}
+                          >
+                            {
+                              generatingChangeComment ?
+                                <CircularProgress size={18} color='inherit' /> :
+                                <AutoAwesomeIcon fontSize='small' />
+                            }
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                    </div>
+                }
+                <TextField
+                  id="comment"
+                  label={t('common.comment')}
+                  variant="outlined"
+                  fullWidth
+                  onChange={event => this.setFieldValue('comment', event.target.value || '')}
+                  value={fields.comment.value}
+                  required
+                  rows={3}
+                  maxRows={4}
+                  multiline
+                  helperText={fields.comment.errors[0]}
+                  error={Boolean(fields.comment.errors[0])}
+                />
+              </div>
             </CardSection>
         }
 
         <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
           <Button label={t('common.submit')} sx={{backgroundColor: 'surface.s90'}} onClick={this.handleSubmit} />
         </div>
+        <QuotaDialog
+          open={Boolean(quotaError)}
+          onClose={() => this.setState({quotaError: null})}
+          meter={quotaError?.meter}
+          surface='tbv3_change_comment'
+          usage={quotaError?.usage}
+        />
       </div>
     )
   }

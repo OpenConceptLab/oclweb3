@@ -50,6 +50,8 @@ export const OCL_CLIENT = `oclweb3/${packageJson.version}`;
 export const OCL_CLIENT_HEADERS = {
   'X-OCL-CLIENT': OCL_CLIENT,
 };
+// X-OCL-Request-Source names the surface, from a fixed vocabulary; the client and its version go in X-OCL-CLIENT
+export const OCL_REQUEST_SOURCE = 'termbrowser';
 export const OWNER_TYPES = ['orgs', 'users'];
 export const REPO_TYPES = ['sources', 'collections'];
 export const OCL_SERVERS_GROUP = 'ocl_servers';

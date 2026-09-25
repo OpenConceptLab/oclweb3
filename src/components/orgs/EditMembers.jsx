@@ -16,6 +16,22 @@ import { debounce } from 'lodash'
 import APIService from '../../services/APIService';
 
 
+const normalizeErrorDetail = detail => {
+  if(Array.isArray(detail))
+    return detail.join(' ')
+  if(detail && typeof detail === 'object')
+    return Object.values(detail).flat().join(' ')
+  return detail
+}
+
+const getErrorDetail = response => normalizeErrorDetail(
+  response?.response?.data?.detail ||
+  response?.response?.data?.error ||
+  response?.response?.data?.__all__ ||
+  response?.response?.data ||
+  response?.message
+)
+
 const EditMembers = ({onClose, org, members, fetchMembers}) => {
   const { t } = useTranslation()
   const { setAlert } = React.useContext(OperationsContext);
@@ -58,28 +74,47 @@ const EditMembers = ({onClose, org, members, fetchMembers}) => {
   const newMembers = selectedMembers.filter(member => !members.map(user => user.username).includes(member.username))
   const deletedMembers = members.filter(member => !selectedMembers.map(user => user.username).includes(member.username))
 
-  const onSubmit = () => {
-    let totalCount = newMembers.length + deletedMembers.length
-    let updated = 0
-    newMembers.forEach(member => {
-      APIService.new().overrideURL(org.url).appendToUrl(`members/${member.username}/`).put().then(() => {
-        updated += 1
-        if(updated === totalCount) {
-          setAlert({message: t('org.updated_members'), severity: 'success', duration: 1000})
-          fetchMembers()
-        }
-      })
+  const updateMember = async (member, method) => {
+    try {
+      const response = await APIService.new()
+        .overrideURL(org.url)
+        .appendToUrl(`members/${member.username}/`)
+        [method](null, null, {}, null, true)
+      const error = response?.response || !response ? getErrorDetail(response) || t('common.generic_error') : null
+      return {member, error}
+    } catch(error) {
+      return {member, error: getErrorDetail(error) || t('common.generic_error')}
+    }
+  }
+
+  const getMemberError = (member, action, detail) => (
+    t(`org.member_${action}_failed`, {user: member.username, detail})
+  )
+
+  const onSubmit = async () => {
+    const failures = []
+
+    const addResults = await Promise.all(newMembers.map(member => updateMember(member, 'put')))
+    addResults.forEach(({member, error}) => {
+      if(error)
+        failures.push(getMemberError(member, 'add', error))
     })
-    deletedMembers.forEach(member => {
-      APIService.new().overrideURL(org.url).appendToUrl(`members/${member.username}/`).delete().then(() => {
-        updated += 1
-        if(updated === totalCount) {
-          setAlert({message: t('org.updated_members'), severity: 'success', duration: 1000})
-          fetchMembers()
-        }
-      })
+
+    const removeResults = await Promise.all(deletedMembers.map(member => updateMember(member, 'delete')))
+    removeResults.forEach(({member, error}) => {
+      if(error)
+        failures.push(getMemberError(member, 'remove', error))
     })
-    onClose()
+
+    if(failures.length) {
+      setAlert({message: failures.join('\n'), severity: 'error', duration: 5000})
+    } else if(newMembers.length || deletedMembers.length) {
+      setAlert({message: t('org.updated_members'), severity: 'success', duration: 1000})
+    }
+
+    fetchMembers()
+    if(!failures.length)
+      onClose()
   }
 
   return (
