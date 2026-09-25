@@ -23,6 +23,8 @@ import LocaleForm from './LocaleForm'
 import ParentConceptsForm from './ParentConceptsForm'
 import ConceptDatatypeSection, { getDatatypeExtraKeys } from './ConceptDatatypeSection'
 import Breadcrumbs from '../common/Breadcrumbs'
+import QuotaDialog from '../common/QuotaDialog'
+import { getQuotaError } from '../common/quotaErrors'
 import CustomAttributesForm from '../common/CustomAttributesForm'
 import { required } from '../../common/validators';
 import { OCL_REQUEST_SOURCE } from '../../common/constants';
@@ -67,6 +69,7 @@ class ConceptForm extends FormComponent  {
       parentConceptURLsLoaded: false,
       parentConceptURLsChanged: false,
       generatingChangeComment: false,
+      quotaError: null,
       fields: {
         id: {...mandatoryFieldStruct, validators: autoAssignedId ? [] : [required()]},
         concept_class: {...mandatoryFieldStruct},
@@ -215,6 +218,11 @@ class ConceptForm extends FormComponent  {
 
       this.setFieldValue('comment', output)
     } catch (error) {
+      const quotaError = getQuotaError(error)
+      if(quotaError) {
+        this.setState({quotaError})
+        return
+      }
       const status = error?.response?.status
       const message = status === 429 ?
         t('concept.try_again_in_a_moment') :
@@ -482,7 +490,7 @@ class ConceptForm extends FormComponent  {
 
   render() {
     const { t, edit, repoSummary, repo, concept, onClose, source } = this.props
-    const { conceptClasses, datatypes, locales, nameTypes, descriptionTypes, fields, generatingChangeComment, manualMnemonic } = this.state
+    const { conceptClasses, datatypes, locales, nameTypes, descriptionTypes, fields, generatingChangeComment, manualMnemonic, quotaError } = this.state
     const aiAssistantConfigured = Boolean(this.getAIAssistantURL())
     const hasConceptChanges = edit && this.hasConceptChanges()
     const canGenerateComment = edit && aiAssistantConfigured && hasConceptChanges && !generatingChangeComment
@@ -695,6 +703,13 @@ class ConceptForm extends FormComponent  {
         <div className='col-xs-12 padding-0' style={{marginTop: '16px'}}>
           <Button label={t('common.submit')} sx={{backgroundColor: 'surface.s90'}} onClick={this.handleSubmit} />
         </div>
+        <QuotaDialog
+          open={Boolean(quotaError)}
+          onClose={() => this.setState({quotaError: null})}
+          meter={quotaError?.meter}
+          surface='tbv3_change_comment'
+          usage={quotaError?.usage}
+        />
       </div>
     )
   }
