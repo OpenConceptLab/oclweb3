@@ -354,7 +354,7 @@ const SourceVersionsTab = ({
             ))}
             {!isLoading && sortedVersions.map(version => {
               const isHEAD = isHeadVersion(version);
-              const isPublic = (version.public_access || '').toLowerCase() === 'view';
+              const isPublic = ['view', 'edit'].includes((version.public_access || '').toLowerCase());
               const isRowMenuOpen = Boolean(menuState.anchorEl) &&
                 getVersionKey(menuState.version) === getVersionKey(version);
               return (
