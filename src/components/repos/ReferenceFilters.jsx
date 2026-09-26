@@ -105,7 +105,7 @@ const ReferenceFilters = ({ onChange, heightToSubtract }) => {
       <div
         className="col-xs-12 padding-0"
         style={{
-          height: `calc(100vh - ${heightToSubtract || 0}px - 56px)`,
+          height: `calc(var(--app-height) - ${heightToSubtract || 0}px - 56px)`,
           overflowY: "auto"
         }}
       >

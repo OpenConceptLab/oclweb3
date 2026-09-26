@@ -21,7 +21,7 @@ const ComparisonAttributes = ({attributes, open, onClose, onCheckboxClick, onDra
   const { t } = useTranslation()
 
   return (
-    <Drawer anchor='left' open={open} onClose={onClose} sx={{'.MuiPaper-root': {top: '64px'}}}>
+    <Drawer anchor='left' open={open} onClose={onClose} sx={{'.MuiPaper-root': {top: 'calc(64px + var(--announcement-height, 0px))'}}}>
       <div className='col-md-4' style={{width: '300px'}}>
         <h3>
           {t('common.toggle_attributes')}:

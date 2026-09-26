@@ -8,7 +8,7 @@ const Tasks = ({ tasks, isLoading, error, onRevoke, onDownload }) => {
   const [open, setOpen] = React.useState(null);
 
   return (
-    <div className='col-xs-12 padding-0' style={{height: 'calc(100vh - 266px)', overflow: 'auto'}}>
+    <div className='col-xs-12 padding-0' style={{height: 'calc(var(--app-height) - 266px)', overflow: 'auto'}}>
       {
         isLoading &&
         <div style={{textAlign: 'center'}}>

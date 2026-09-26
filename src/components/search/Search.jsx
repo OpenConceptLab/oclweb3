@@ -805,7 +805,7 @@ const Search = props => {
       </div>
       {
         !props.nested &&
-          <div className={'col-xs-5 padding-0' + (showItem ? ' split-appear' : '')} style={{marginLeft: '16px', width: showItem ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: COLORS.primary.contrastText, borderRadius: '10px', height: showItem ? 'calc(100vh - 100px)' : 0, opacity: showItem ? 1 : 0}}>
+          <div className={'col-xs-5 padding-0' + (showItem ? ' split-appear' : '')} style={{marginLeft: '16px', width: showItem ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: COLORS.primary.contrastText, borderRadius: '10px', height: showItem ? 'calc(var(--app-height) - 100px)' : 0, opacity: showItem ? 1 : 0}}>
             {
               showItem &&
                 <ConceptHome concept={showItem} url={getLastSelectedURL()} onClose={() => setShowItem(false)} />

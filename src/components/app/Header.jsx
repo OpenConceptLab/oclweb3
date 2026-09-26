@@ -44,8 +44,10 @@ const Header = props => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
+      <AnnouncementBanner />
       <AppBar position="fixed" open={open} sx={theme => ({
-        zIndex: theme.zIndex.drawer + 1
+        zIndex: theme.zIndex.drawer + 1,
+        top: 'var(--announcement-height, 0px)'
       })} style={{backgroundColor: COLORS.surface.n96, color: COLORS.surface.contrastText, boxShadow: 'none'}}>
         <Toolbar style={{paddingRight: '16px'}}>
           <div className='col-xs-12 padding-0 flex-vertical-center'>
@@ -76,8 +78,7 @@ const Header = props => {
         </Toolbar>
       </AppBar>
       <Box component="main" sx={{ flexGrow: 1, minWidth: 0, paddingTop: 0, paddingBottom: 1.25, paddingLeft: 2, paddingRight: 2 }}>
-        <DrawerHeader />
-        <AnnouncementBanner />
+        <DrawerHeader sx={{ marginTop: 'var(--announcement-height, 0px)' }} />
         {
           props.children
         }

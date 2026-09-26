@@ -14,7 +14,7 @@ const ErrorUI = ({message, error, errorInfo}) => {
   const errorDetails = get(errorInfo, 'componentStack') ? errorInfo.componentStack : JSON.stringify(errorInfo, undefined, 2);
   const errorMsg = isObject(error) ? error.toString() : error;
   return (
-    <div style={{display: 'flex', height: 'calc(100vh - 100px)', alignItems: 'center', justifyContent: 'center', textAlign: 'center', flexDirection: 'column', overflow: 'auto'}}>
+    <div style={{display: 'flex', height: 'calc(var(--app-height) - 100px)', alignItems: 'center', justifyContent: 'center', textAlign: 'center', flexDirection: 'column', overflow: 'auto'}}>
       <div className='col-xs-12'>
         <p style={{color: '#000', fontSize: '24px', margin: '16px 0'}}>
           {message || t('common.generic_error')}

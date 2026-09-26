@@ -829,7 +829,7 @@ const CollectionVersionsTab = ({
   };
 
   return (
-    <Box sx={{ height: 'calc(100vh - 268px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', backgroundColor: 'background.paper', borderBottomLeftRadius: '10px' }}>
+    <Box sx={{ height: 'calc(var(--app-height) - 268px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', backgroundColor: 'background.paper', borderBottomLeftRadius: '10px' }}>
       <Toolbar
         sx={{
           bgcolor: 'background.paper',

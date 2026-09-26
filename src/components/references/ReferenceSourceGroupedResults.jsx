@@ -267,7 +267,7 @@ const ReferenceSourceGroupedResults = ({ selected, results, loading, selectedToS
   const isItemShown = id => (selectedToShowItem?.version_url || selectedToShowItem?.url || selectedToShowItem?.id) === id
 
   return (
-    <TableContainer style={style || {height: 'calc(100vh - 263px)'}} className={className}>
+    <TableContainer style={style || {height: 'calc(var(--app-height) - 263px)'}} className={className}>
       <Table stickyHeader size={size || 'small'} sx={{'.MuiTableCell-head': {lineHeight: '1.2rem', padding: '3px 16px', fontSize: '12px'}}}>
         <TableHead>
           <TableRow sx={{background: '#FFF'}}>

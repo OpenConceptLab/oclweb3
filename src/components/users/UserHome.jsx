@@ -25,7 +25,7 @@ const UserHome = () => {
   const [events, setEvents] = React.useState(false)
   const [eventsPage, setEventsPage] = React.useState(0)
   const [haveMoreEvents, setHaveMoreEvents] = React.useState(false)
-  const height = 'calc(100vh - 95px)'
+  const height = 'calc(var(--app-height) - 95px)'
   const TABS = [
     {key: 'overview', label: t('common.overview')},
     {key: 'repos', label: t('repo.repos')},
@@ -120,7 +120,7 @@ const UserHome = () => {
                       nested
                       noTabs
                       filtersHeightToSubtract={baseHeightToDeduct}
-                      resultContainerStyle={{height: `calc(100vh - ${baseHeightToDeduct}px - 88px)`, overflow: 'auto'}}
+                      resultContainerStyle={{height: `calc(var(--app-height) - ${baseHeightToDeduct}px - 88px)`, overflow: 'auto'}}
                       containerStyle={{padding: 0}}
                       defaultFiltersOpen={false}
                       resultSize='medium'
@@ -133,7 +133,7 @@ const UserHome = () => {
                 }
               </div>
 
-              <Paper component='div' className='col-xs-12' sx={{height: 'calc(100vh - 96px)', width: '272px !important', borderLeft: '0.5px solid', borderTop: '0.5px solid', borderColor: 'surface.nv80', borderRadius: '0 10px 10px 0', boxShadow: 'none', padding: '16px', overflow: 'auto', backgroundColor: 'surface.n96'}}>
+              <Paper component='div' className='col-xs-12' sx={{height: 'calc(var(--app-height) - 96px)', width: '272px !important', borderLeft: '0.5px solid', borderTop: '0.5px solid', borderColor: 'surface.nv80', borderRadius: '0 10px 10px 0', boxShadow: 'none', padding: '16px', overflow: 'auto', backgroundColor: 'surface.n96'}}>
                 <UserSummary user={user} />
               </Paper>
             </div>
