@@ -49,7 +49,11 @@ const ResultStatus = ({ concept, equivalencyMapType, onPreviewClick }) => {
   const cloned = isSuccess ? getClonedConcept(concept, equivalencyMapType) : undefined
 
   if (!isSuccess)
-    return <Chip size='small' variant='outlined' color='error' label={t('cloneToSource.failed')} />
+    return (
+      <Tooltip title={get(concept, 'errors.detail') || ''} placement='top' arrow>
+        <Chip size='small' variant='outlined' color='error' label={t('cloneToSource.failed')} />
+      </Tooltip>
+    )
 
   return (
     <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>

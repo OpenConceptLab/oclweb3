@@ -10,12 +10,18 @@ import {
   Description as DocIcon
 } from '@mui/icons-material';
 import { Alert } from '@mui/material';
-import { cloneDeep, get } from 'lodash';
+import { cloneDeep, find, get, includes, round } from 'lodash';
 import APIService from '../../services/APIService';
+import { isStaffUser } from '../../common/utils';
 import JSONIcon from '../common/JSONIcon';
 import FileUploader from '../common/FileUploader';
+import QuotaDialog from '../common/QuotaDialog';
+import { getQuotaError } from '../common/quotaErrors';
 import { OperationsContext } from '../app/LayoutContext';
 import NamespaceDropdown from '../url-registry/NamespaceDropdown'
+
+// The API counts import sizes in KB of 1024 bytes: 500 -> '500 KB', 51200 -> '50 MB'
+const formatSizeKB = kb => kb >= 1024 ? `${round(kb / 1024, 1)} MB` : `${kb} KB`
 
 class NewImport extends React.Component {
   static contextType = OperationsContext;
@@ -36,13 +42,38 @@ class NewImport extends React.Component {
       type: 'upload',
       update_if_exists: true,
       isUploading: false,
+      quotaError: null,
+      sizeError: null,
     };
-    this.state = cloneDeep(this.defaultState)
+    // permissions and capabilities stay out of defaultState, so reset() after an upload keeps them
+    this.state = {...cloneDeep(this.defaultState), permissions: [], capabilities: []}
+  }
+
+  componentDidMount() {
+    APIService.user().get(null, null, {includeCapabilities: true}).then(response => {
+      if(response?.status === 200)
+        this.setState({permissions: response.data.permissions || [], capabilities: response.data.capabilities || []})
+    })
   }
 
   reset = () => this.setState(cloneDeep({...this.defaultState, type: this.state.type}))
 
-  onTypeClick = type => this.setState({type: type})
+  canUseAdvanced = () => isStaffUser() || includes(this.state.permissions, 'users.bulk_import_advanced')
+
+  getSizeLimitKB = () => {
+    const limit = get(find(this.state.capabilities, {name: 'imports.file_size_kb'}), 'limit')
+    return limit > 0 ? limit : null
+  }
+
+  onFileSelected = file => {
+    const limitKB = this.getSizeLimitKB()
+    if(file && limitKB && file.size > limitKB * 1024)
+      this.setState({file: null, sizeError: this.props.t('import.file_too_large', {limit: formatSizeKB(limitKB)})})
+    else
+      this.setState({file, sizeError: null})
+  }
+
+  onTypeClick = type => this.setState({type: type, sizeError: null})
 
   getButton = (type, icon, tooltip) => {
     const isSelected = this.state.type === type;
@@ -59,7 +90,9 @@ class NewImport extends React.Component {
   setFieldValue = (id, value) => this.setState({[id]: value})
 
   canUpload() {
-    const { type, fileURL, npmPackageName, npmPackageVersion, json, file } = this.state
+    const { type, fileURL, npmPackageName, npmPackageVersion, json, file, sizeError } = this.state
+    if(sizeError)
+      return false
     if(type === 'upload')
       return Boolean(file)
     if(type === 'url')
@@ -136,14 +169,17 @@ class NewImport extends React.Component {
     const { t } = this.props
     this.setState({isUploading: true}, () => {
       this.getService().post(this.getPayload(), null, this.getHeaders()).then(res => {
-        this.setState({isUploading: false}, () => {
+        const quotaError = getQuotaError(res)
+        this.setState({isUploading: false, quotaError}, () => {
           setTimeout(this.props.onUploadSuccess, 2500)
+          if(quotaError)
+            return
           if(res.status === 202) {
             this.reset()
             setAlert({severity: 'success', message: t('success.queued')})
           }
           else
-            setAlert({severity: 'error', message: get(res, 'exception') || t('errors.generic')})
+            setAlert({severity: 'error', message: get(res, 'detail') || get(res, 'exception') || t('errors.generic')})
         })
       })
     })
@@ -151,13 +187,15 @@ class NewImport extends React.Component {
 
   render() {
     const { type, queue, fileURL, npmPackageName, npmPackageVersion,
-            json, update_if_exists, isUploading, hierarchy } = this.state;
+            json, update_if_exists, isUploading, hierarchy, quotaError, sizeError } = this.state;
     const { t } = this.props
     const isUpload = type === 'upload';
     const isURL = type === 'url';
     const isJSON = type === 'json';
     const isNPM = type === 'npm';
     const canUpload = this.canUpload();
+    const canUseAdvanced = this.canUseAdvanced();
+    const sizeLimitKB = this.getSizeLimitKB();
 
     return (
       <React.Fragment>
@@ -169,8 +207,8 @@ class NewImport extends React.Component {
             <ButtonGroup color='primary' size='small' disabled={isUploading}>
               { this.getButton('upload', <UploadIcon />, t('import.upload_file_tooltip')) }
               { this.getButton('json', <JSONIcon />, t('import.json_data_tooltip')) }
-              { this.getButton('url', <URLIcon />, t('import.url_tooltip')) }
-              { this.getButton('npm', <div>NPM</div>, t('import.npm_tooltip'))}
+              { canUseAdvanced && this.getButton('url', <URLIcon />, t('import.url_tooltip')) }
+              { canUseAdvanced && this.getButton('npm', <div>NPM</div>, t('import.npm_tooltip'))}
             </ButtonGroup>
           </span>
         </h3>
@@ -238,13 +276,13 @@ class NewImport extends React.Component {
                 isUpload &&
                   <FileUploader
                     uploadButton={false}
-                    onUpload={uploadedFile => this.setFieldValue('file', uploadedFile)}
-                    onLoading={() => this.setFieldValue('file', null)}
+                    onUpload={uploadedFile => this.onFileSelected(uploadedFile)}
+                    onLoading={() => this.setState({file: null, sizeError: null})}
                     accept={{
                       'application/json': ['.json'],
                       'application/x-ndjson': ['.ndjson', '.jsonl'],
                       'text/csv': ['.csv'],
-                      'application/zip': ['.zip'],
+                      ...(canUseAdvanced ? {'application/zip': ['.zip']} : {}),
                     }}
                   />
               }
@@ -315,8 +353,8 @@ class NewImport extends React.Component {
                            <div className='col-xs-12 padding-0'>
                              <FileUploader
                                uploadButton={false}
-                               onUpload={uploadedFile => this.setFieldValue('file', uploadedFile)}
-                               onLoading={() => this.setFieldValue('file', null)}
+                               onUpload={uploadedFile => this.onFileSelected(uploadedFile)}
+                               onLoading={() => this.setState({file: null, sizeError: null})}
                                accept={{
                                  'application/zip': ['.zip'],
                                  'application/gzip': ['.gz', '.tgz', '.tar.gz'],
@@ -340,6 +378,20 @@ class NewImport extends React.Component {
                     value={json}
                     onChange={event => this.setFieldValue('json', event.target.value)}
                   />
+              }
+              {
+                Boolean(sizeLimitKB) &&
+                  <div className='col-xs-12 padding-0'>
+                    <FormHelperText style={{marginLeft: '2px'}}>
+                      {t('import.size_limit_helper', {limit: formatSizeKB(sizeLimitKB)})}
+                    </FormHelperText>
+                  </div>
+              }
+              {
+                sizeError &&
+                  <div className='col-xs-12 padding-0' style={{marginTop: '10px'}}>
+                    <Alert severity='error'>{sizeError}</Alert>
+                  </div>
               }
             </div>
           </div>
@@ -366,6 +418,13 @@ class NewImport extends React.Component {
             </span>
           </Alert>
         </div>
+        <QuotaDialog
+          open={Boolean(quotaError)}
+          onClose={() => this.setState({quotaError: null})}
+          meter={quotaError?.meter}
+          surface='tbv3_import'
+          usage={quotaError?.usage}
+        />
       </React.Fragment>
   )
 }

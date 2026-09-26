@@ -15,7 +15,7 @@ import CodeIcon from '@mui/icons-material/CodeOutlined'
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import BackIcon from '@mui/icons-material/ArrowBackOutlined'
-import { compact, get, includes, isEmpty, map, toLower, uniqBy } from 'lodash'
+import { compact, find, get, includes, isEmpty, map, toLower, uniqBy } from 'lodash'
 import APIService from '../../services/APIService'
 import GAService from '../../services/GAService'
 import { getCurrentUserSources, dropVersion, toParentURI } from '../../common/utils'
@@ -25,6 +25,8 @@ import CloseIconButton from '../common/CloseIconButton'
 import GroupHeader from '../common/GroupHeader'
 import GroupItems from '../common/GroupItems'
 import AutocompleteLoading from '../common/AutocompleteLoading'
+import QuotaDialog from '../common/QuotaDialog'
+import { getQuotaError } from '../common/quotaErrors'
 import CloneCascadeParams from './CloneCascadeParams'
 import CloneConceptsTable from './CloneConceptsTable'
 import CloneToSourcePreview from './CloneToSourcePreview'
@@ -35,7 +37,7 @@ const DEFAULT_CLONE_PARAMS = {
   mapTypes: 'Q-AND-A,CONCEPT-SET',
   excludeMapTypes: '',
   returnMapTypes: '*',
-  cascadeLevels: '*',
+  cascadeLevels: '1',
   equivalencyMapType: 'SAME-AS',
 }
 
@@ -56,6 +58,7 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
   const [submitting, setSubmitting] = React.useState(false)
   const [result, setResult] = React.useState(null)
   const [error, setError] = React.useState(null)
+  const [quotaError, setQuotaError] = React.useState(null)
   const [previewConcept, setPreviewConcept] = React.useState(null)
   const [previewLoading, setPreviewLoading] = React.useState(false)
   const [previewResults, setPreviewResults] = React.useState({})
@@ -73,6 +76,7 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
     setShowPreview(false)
     setResult(null)
     setError(null)
+    setQuotaError(null)
     setPreviewConcept(null)
     setPreviewResults({})
     getCurrentUserSources(userSources => {
@@ -96,7 +100,7 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
     const response = result ? get(result, url) : null
     return {
       ...item,
-      ...(response ? { status: response.status, total: response?.bundle?.total || 0, bundle: response?.bundle } : {}),
+      ...(response ? { status: response.status, total: response?.bundle?.total || 0, bundle: response?.bundle, errors: response?.errors } : {}),
     }
   })
 
@@ -131,7 +135,16 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
       .post(payload)
       .then(response => {
         setSubmitting(false)
-        if (response?.status === 200) setResult(response.data)
+        const limitError = getQuotaError(response)
+        if (limitError) {
+          setQuotaError(limitError)
+          return
+        }
+        if (response?.status === 200) {
+          setResult(response.data)
+          const limitRow = find(response.data, row => get(row, 'errors.error_code') === 'clone_resources_per_call_limit_reached')
+          if (limitRow) setQuotaError(getQuotaError(limitRow.errors))
+        }
         else setError(response?.detail || response?.error || t('errors.generic'))
       })
   }
@@ -365,6 +378,13 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
           )}
         </DialogActions>
       )}
+      <QuotaDialog
+        open={Boolean(quotaError)}
+        onClose={() => setQuotaError(null)}
+        meter={quotaError?.meter}
+        surface='tbv3_clone'
+        usage={quotaError?.usage}
+      />
     </Dialog>
   )
 }
