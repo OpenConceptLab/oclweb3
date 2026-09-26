@@ -103,4 +103,4 @@ export const DEFAULT_CASCADE_PARAMS = {
 
 export const ALL = '*';
 export const URL_REGISTRY_DOC_LINK = 'https://docs.openconceptlab.org/en/latest/oclapi/apireference/urlregistry.html'
-export const TBV3_ANNOUNCEMENT_URL = 'https://preview.openconceptlab.org/blog'
+export const TBV3_ANNOUNCEMENT_URL = 'https://openconceptlab.org/blog?utm_source=tbv3&utm_medium=banner&utm_campaign=preview_launch'

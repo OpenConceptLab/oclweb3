@@ -14,7 +14,7 @@ import SearchInput from '../search/SearchInput';
 import './Header.scss';
 import HeaderControls from './HeaderControls';
 import LeftMenu from './LeftMenu'
-import AlphaBanner from './AlphaBanner';
+import AnnouncementBanner from './AnnouncementBanner';
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -77,7 +77,7 @@ const Header = props => {
       </AppBar>
       <Box component="main" sx={{ flexGrow: 1, minWidth: 0, paddingTop: 0, paddingBottom: 1.25, paddingLeft: 2, paddingRight: 2 }}>
         <DrawerHeader />
-        <AlphaBanner />
+        <AnnouncementBanner />
         {
           props.children
         }

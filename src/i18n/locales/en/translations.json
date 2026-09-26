@@ -168,9 +168,6 @@
     "click_here": "click here",
     "classic_termbrowser": "View in TBv2",
     "back_to_classic_termbrowser": "Back to the classic TermBrowser",
-    "alpha_banner_title": "You're using the public preview of the new OCL TermBrowser v3",
-    "learn_more": "Learn more",
-    "dismiss": "Dismiss",
     "already_exists": "Already exists",
     "comment": "Comment",
     "update_comment": "Update comment",
@@ -1069,6 +1066,12 @@
     "tooltip_num_asc": "Sort by {{field}}, lowest number first",
     "tooltip_num_desc": "Sort by {{field}}, highest number first",
     "clear": "Reset Sort"
+  },
+  "announcement": {
+    "title": "Welcome to the public preview of the new OCL TermBrowser v3!",
+    "text": "Your content is already here, and you can switch back to TBv2 any time.",
+    "link_label": "Learn more",
+    "dismiss": "Dismiss"
   },
   "quota": {
     "title_quota": "You've reached your quota",

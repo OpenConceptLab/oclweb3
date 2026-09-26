@@ -569,6 +569,12 @@
     "tooltip_num_desc": "Ordenar por {{field}}, del número mayor al menor",
     "clear": "Restablecer orden"
   },
+  "announcement": {
+    "title": "¡Te damos la bienvenida a la vista previa pública del nuevo OCL TermBrowser v3!",
+    "text": "Tu contenido ya está aquí, y puedes volver a TBv2 en cualquier momento.",
+    "link_label": "Más información",
+    "dismiss": "Descartar"
+  },
   "quota": {
     "title_quota": "Ha alcanzado su cuota",
     "title_cap": "Ha alcanzado su límite",
