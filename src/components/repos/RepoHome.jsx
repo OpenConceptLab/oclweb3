@@ -92,6 +92,8 @@ const RepoHome = () => {
   const [versionPending, setVersionPending] = React.useState(!route.version)
   const prevRouteRef = React.useRef(null)
   const versionCacheRef = React.useRef({})
+  // False once this page is gone (e.g. moved to another repository): its late responses must not navigate or set the context repo
+  const aliveRef = React.useRef(true)
 
   const [tab, setTab] = React.useState(route.tab || 'concepts')
   const { setAlert, setContextRepo } = React.useContext(OperationsContext);
@@ -149,6 +151,8 @@ const RepoHome = () => {
   }
 
   const applyRepoData = (_repo, newStatus, sameRepoAsBefore) => {
+    if(!aliveRef.current)
+      return
     if(route.version && (newStatus !== 200 || !_repo?.url)) {
       history.replace(buildRepoPath(route, {version: '', expansion: '', tab: '', resource: ''}))
       return
@@ -211,6 +215,8 @@ const RepoHome = () => {
       return
     }
     APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('latest/').get(null, null, {includeSummary: true, verbose: true, ...PROCESSING_QUERY_PARAMS}, true).then(response => {
+      if(!aliveRef.current)
+        return
       const latestStatus = response?.status || response?.response?.status
       const _latest = response?.data || response?.response?.data
       if(latestStatus === 200 && _latest?.url) {
@@ -288,8 +294,10 @@ const RepoHome = () => {
   }, [expansions, route.expansion])
 
   React.useEffect(() => {
+    aliveRef.current = true
     return () => {
       // runs on unmount
+      aliveRef.current = false
       setContextRepo(false);
     };
   }, []);
