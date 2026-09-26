@@ -13,7 +13,7 @@ const OrgOverview = ({ org, bookmarks, height, canPin, onBookmarkDelete }) => {
   const overviewBackgroundImage = org?.overview?.background?.image
 
   const emptyOverview = Boolean(org?.id && repos === 0) && (
-    <div className='col-xs-12 padding-0' style={{height: height || '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
+    <div className='col-xs-12 padding-0' style={{height: height || 'var(--app-height)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
       <EmptyOverview label={`${org.name} ${t('org.org_have_not_created_public_repos_suffix')}`} />
     </div>
   )

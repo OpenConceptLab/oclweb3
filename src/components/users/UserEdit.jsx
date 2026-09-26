@@ -5,7 +5,7 @@ import UserForm from './UserForm'
 
 const UserEdit = () => {
   const user = getCurrentUser()
-  const height = 'calc(100vh - 100px)'
+  const height = 'calc(var(--app-height) - 100px)'
   return (
     <div className='col-xs-12 padding-0'>
       <div className='col-xs-3' style={{height: height, padding: '24px 24px 24px 8px', maxWidth: '20%'}}>

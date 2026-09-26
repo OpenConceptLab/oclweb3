@@ -105,7 +105,7 @@ const HighlightCard = props => {
 const DashboardEvents = ({ events, highlight, sx, isLoading }) => {
   const { t } = useTranslation()
   return (
-    <div className='col-xs-12 padding-0' style={{maxHeight: '80vh', overflow: 'auto', ...sx}}>
+    <div className='col-xs-12 padding-0' style={{maxHeight: 'calc(80vh - var(--announcement-height, 0px))', overflow: 'auto', ...sx}}>
       {
         isLoading ?
           <>

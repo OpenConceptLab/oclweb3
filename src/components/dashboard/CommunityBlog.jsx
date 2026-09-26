@@ -38,7 +38,7 @@ const CommunityBlog = ({ sx }) => {
   }, [])
 
   return (
-    <Card variant='outlined' sx={{height: '298px', borderRadius: '10px', display: 'inline-block', width: '100%', overflow: 'auto', ...sx}}>
+    <Card variant='outlined' sx={{height: 'calc(298px - var(--announcement-height, 0px))', borderRadius: '10px', display: 'inline-block', width: '100%', overflow: 'auto', ...sx}}>
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: 'primary.main' }} aria-label="recipe">

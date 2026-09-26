@@ -89,7 +89,7 @@ const OrgHome = () => {
   React.useEffect(() => { fetchOrg() }, [params.org])
   React.useEffect(() => { setTab(params.tab || 'overview') }, [params.tab])
 
-  const height = 'calc(100vh - 300px)'
+  const height = 'calc(var(--app-height) - 300px)'
 
   return (
     <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
@@ -112,7 +112,7 @@ const OrgHome = () => {
                       nested
                       noTabs
                       filtersHeightToSubtract={280}
-                      resultContainerStyle={{height: 'calc(100vh - 368px)', overflow: 'auto'}}
+                      resultContainerStyle={{height: 'calc(var(--app-height) - 368px)', overflow: 'auto'}}
                       containerStyle={{padding: 0}}
                       excludedColumns={['owner']}
                     />
@@ -122,7 +122,7 @@ const OrgHome = () => {
                     <OrgOverview org={org} bookmarks={bookmarks} height={height} canPin={canPin} onBookmarkDelete={deletePin} />
                 }
               </div>
-              <Paper component='div' className='col-xs-12' sx={{height: 'calc(100vh - 228px)', width: '272px !important', borderLeft: '0.5px solid', borderTop: '0.5px solid', borderColor: 'surface.nv80', borderRadius: '0 0 10px 0', boxShadow: 'none', padding: '16px', overflow: 'auto', backgroundColor: 'default.main'}}>
+              <Paper component='div' className='col-xs-12' sx={{height: 'calc(var(--app-height) - 228px)', width: '272px !important', borderLeft: '0.5px solid', borderTop: '0.5px solid', borderColor: 'surface.nv80', borderRadius: '0 0 10px 0', boxShadow: 'none', padding: '16px', overflow: 'auto', backgroundColor: 'default.main'}}>
                 <OrgSummary org={org} members={members} />
               </Paper>
             </React.Fragment>

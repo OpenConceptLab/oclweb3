@@ -251,7 +251,7 @@ const CompareVersions = () => {
         />
         {
           identicalSelection ?
-            <div className='col-xs-12 padding-0' style={{height: 'calc(100vh - 270px)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+            <div className='col-xs-12 padding-0' style={{height: 'calc(var(--app-height) - 270px)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
               <Typography variant='body1' color='text.secondary'>
                 {t(isCollection ? 'repo.select_different_version_or_expansion' : 'repo.select_different_version')}
               </Typography>
@@ -275,7 +275,7 @@ const CompareVersions = () => {
             }
             {
               metric === 'json' &&
-                <div style={{height: 'calc(100vh - 270px)', overflow: 'auto', display: 'inline-block', width: '100%'}}>
+                <div style={{height: 'calc(var(--app-height) - 270px)', overflow: 'auto', display: 'inline-block', width: '100%'}}>
                   <ReactDiffViewer
                     oldValue={JSON.stringify(isCollection && expansion1 ? {...version1, expansion: expansion1} : version1, undefined, 2)}
                     newValue={JSON.stringify(isCollection && expansion2 ? {...version2, expansion: expansion2} : version2, undefined, 2)}

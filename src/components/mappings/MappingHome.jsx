@@ -216,7 +216,7 @@ const MappingHome = props => {
           <MappingTabs tab={tab} onTabChange={(event, newTab) => onTabChange(newTab)} />
           {
             tab === 'metadata' &&
-              <div className='col-xs-12' style={{padding: '16px 0', height: 'calc(100vh - 330px)', overflow: 'auto'}}>
+              <div className='col-xs-12' style={{padding: '16px 0', height: 'calc(var(--app-height) - 330px)', overflow: 'auto'}}>
                 <MappingDetails mapping={mapping} />
               </div>
           }

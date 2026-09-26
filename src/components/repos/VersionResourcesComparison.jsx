@@ -295,7 +295,7 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
 
   if(expansionsMissing) {
     return (
-      <div className='col-xs-12 padding-0' style={{height: 'calc(100vh - 270px)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+      <div className='col-xs-12 padding-0' style={{height: 'calc(var(--app-height) - 270px)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
         <Typography variant='body1' color='text.secondary'>
           {t('repo.select_expansions_to_compare')}
         </Typography>
@@ -304,9 +304,9 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
   }
 
   return (
-    <div className='col-xs-12 padding-0' style={{height: 'calc(100vh - 270px)'}}>
+    <div className='col-xs-12 padding-0' style={{height: 'calc(var(--app-height) - 270px)'}}>
       <>
-        <div className='col-xs-3 split' style={{width: '250px', padding: '0 8px', height: 'calc(100vh - 175px)', overflow: 'auto', borderRight: '0.3px solid', borderColor: COLORS.surface.n90}}>
+        <div className='col-xs-3 split' style={{width: '250px', padding: '0 8px', height: 'calc(var(--app-height) - 175px)', overflow: 'auto', borderRight: '0.3px solid', borderColor: COLORS.surface.n90}}>
           <DiffFilterList
             fieldOrder={diffOrder}
             filterDefinitions={sections}
@@ -341,7 +341,7 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
                 </Typography>
               </div> :
             <TableVirtuoso
-              style={{height: 'calc(100vh - 320px)'}}
+              style={{height: 'calc(var(--app-height) - 320px)'}}
               data={flatItems}
               components={VirtuosoTableComponents}
               fixedHeaderContent={fixedHeaderContent}

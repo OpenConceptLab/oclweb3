@@ -25,7 +25,7 @@ const ReferenceDetails = ({ reference, style }) => {
     return {}
   }
   return (
-    <div className='col-xs-12' style={{padding: '16px 0', height: 'calc(100vh - 280px)', overflow: 'auto', ...style}}>
+    <div className='col-xs-12' style={{padding: '16px 0', height: 'calc(var(--app-height) - 280px)', overflow: 'auto', ...style}}>
       <Paper className='col-xs-12 padding-0' sx={{boxShadow: 'none', border: '1px solid', borderColor: borderColor, borderRadius: '10px'}}>
         <Typography component='span' sx={{borderBottom: '1px solid', borderColor: borderColor, padding: '12px 16px', fontSize: '16px', color: 'surface.contrastText', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold'}}>
           {t('reference.details')}

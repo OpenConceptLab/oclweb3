@@ -157,7 +157,7 @@ const OrgCreate = () => {
   }, [])
 
   return (
-    <Paper component="div" className='col-xs-12' sx={{borderRadius: '10px', boxShadow: 'none', p: 2, backgroundColor: 'primary.99', height: 'calc(100vh - 100px)', overflow: 'auto'}}>
+    <Paper component="div" className='col-xs-12' sx={{borderRadius: '10px', boxShadow: 'none', p: 2, backgroundColor: 'primary.99', height: 'calc(var(--app-height) - 100px)', overflow: 'auto'}}>
       <RepoCreateFormHeader
         isEdit={isEdit}
         icon={<OrgIcon strict noTooltip noLink sx={{color: 'primary.main'}} />}

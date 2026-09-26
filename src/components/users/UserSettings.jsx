@@ -11,7 +11,7 @@ const UserSettings = () => {
   const [user, setUser] = React.useState({})
   const [status, setStatus] = React.useState(false)
   const params = useParams()
-  const height = 'calc(100vh - 100px)'
+  const height = 'calc(var(--app-height) - 100px)'
   const canAccess = getCurrentUser()?.username && canAccessUser(params.user)
 
   const fetchUser = () => {
