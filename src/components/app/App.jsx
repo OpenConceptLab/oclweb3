@@ -5,7 +5,7 @@ import {
   isLoggedIn, getCurrentUser, getLoginURL, isOtherOCLClientURL, isRedirectingToLoginViaReferrer
 } from '../../common/utils';
 import GAService from '../../services/GAService';
-import { REPO_ROUTE_PATHS } from '../../common/repoRoute';
+import { REPO_ROUTE_PATHS, getRepoKey } from '../../common/repoRoute';
 import Error404 from '../errors/Error404';
 import Error403 from '../errors/Error403';
 import Error401 from '../errors/Error401';
@@ -227,7 +227,8 @@ const App = props => {
               <AuthenticationRequiredRoute exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/edit/:step?`} component={RepoCreate} />
               <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/compare-versions`} component={CompareVersions} />
               <Route exact path={`/:ownerType(users|orgs)/:owner/:repoType(sources|collections)/:repo/edit`} component={RepoCreate} />
-              <Route exact path={REPO_ROUTE_PATHS} component={RepoHome} />
+              {/* Keyed by repository so moving to another one starts fresh instead of reusing the last one's state */}
+              <Route exact path={REPO_ROUTE_PATHS} render={({ location }) => <RepoHome key={getRepoKey(location.pathname)} />} />
               <AuthenticationRequiredRoute exact path='/url-registry' component={URLRegistry} />
               <AuthenticationRequiredRoute exact path='/orgs/:org/url-registry' component={URLRegistry} />
               <AuthenticationRequiredRoute exact path='/users/:user/url-registry' component={URLRegistry} />
@@ -236,7 +237,7 @@ const App = props => {
               <AuthenticationRequiredRoute path={`/users/:user/:tab(${orgTabsStr})?`} component={UserHome} />
               <AuthenticationRequiredRoute exact path='/orgs/new' component={OrgCreate} />
               <AuthenticationRequiredRoute exact path='/orgs/:org/edit' component={OrgCreate} />
-              <Route path={`/orgs/:org/:tab(${orgTabsStr})?`} component={OrgHome} />
+              <Route path={`/orgs/:org/:tab(${orgTabsStr})?`} render={({ match }) => <OrgHome key={match.params.org} />} />
               <Route exact path='/403' component={Error403} />
               <Route component={Error404} />
             </Switch>

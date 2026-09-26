@@ -80,6 +80,9 @@ export const buildRepoApiUrl = route => {
   return '/' + segments.filter(Boolean).join('/') + '/'
 }
 
+// A repository's identity, ignoring version/expansion/tab/resource -- e.g. /orgs/CIEL/sources/CIEL/
+export const getRepoKey = pathname => buildRepoApiUrl({...parseRepoPath(pathname), version: ''})
+
 export const isSameRepo = (prev, next) => Boolean(prev) && Boolean(next) &&
   prev.ownerType === next.ownerType &&
   prev.owner === next.owner &&
