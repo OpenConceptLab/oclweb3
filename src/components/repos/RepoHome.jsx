@@ -538,7 +538,7 @@ const RepoHome = () => {
                 {
                   _canRenderSearch &&
                     <Search
-                      key={`${tab}-${selectedExpansion?.mnemonic || ''}-${searchReloadKey}`}
+                      key={`${getSearchURL()}-${searchReloadKey}`}
                       loading={loading}
                       summary={repoSummary || repo?.summary}
                       resource={tab}
