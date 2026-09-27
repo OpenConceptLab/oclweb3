@@ -937,7 +937,14 @@
     "reset_default_filters_tooltip": "Discard applied filters and go back to the saved default filters",
     "default_filters_menu_tooltip": "Default filter options",
     "clear_filters_tooltip": "Remove all applied filters",
-    "clear_filters_with_defaults_tooltip": "Remove all applied filters including the default filters"
+    "clear_filters_with_defaults_tooltip": "Remove all applied filters including the default filters",
+    "select_all": "Select all",
+    "select_all_concepts": "Select all concepts",
+    "select_all_mappings": "Select all mappings",
+    "select_all_references": "Select all references",
+    "select_all_repos": "Select all repositories",
+    "select_all_orgs": "Select all organizations",
+    "select_all_users": "Select all users"
   },
   "url_registry": {
     "url_registry": "Canonical URL registry",
