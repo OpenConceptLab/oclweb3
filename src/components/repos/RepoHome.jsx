@@ -476,9 +476,6 @@ const RepoHome = () => {
     })
   }
 
-  const isConceptURL = tab === 'concepts'
-  const isMappingURL = tab === 'mappings'
-  const isReferenceURL = tab === 'references'
   const requiresExpansionSelection = isCollection && ['concepts', 'mappings'].includes(tab)
   const processingTargets = React.useMemo(() => (repo?.url || repo?.version_url) ? [repo] : [], [repo])
   const { versions: [liveRepo] = [] } = useProcessingVersions(processingTargets)
@@ -487,12 +484,15 @@ const RepoHome = () => {
   const canRenderSearch = !versionPending && (!requiresExpansionSelection || (!expansionsLoading && Boolean(selectedExpansion)))
   const expansionURL = (isCollection && selectedExpansion?.url) ? selectedExpansion.url : false
   const toExpansionURL = (resourceType, id) => (expansionURL && id) ? `${expansionURL}${resourceType}/${encodeURIComponent(id)}/` : false
-  const isExpansionReady = !versionPending && (!requiresExpansionSelection || Boolean(expansionURL))
-  const panelOpen = hasResourcePanel(route)
+  // The panel's resource type comes from the URL, like its id. The tab state only catches up a render
+  // later, so after "Add Mapping" routed to mappings/<id>/ it asked for concepts/<id>/ first.
+  const panelTab = hasResourcePanel(route) ? route.tab : ''
+  const panelRequiresExpansion = isCollection && ['concepts', 'mappings'].includes(panelTab)
+  const isPanelReady = !versionPending && (!panelRequiresExpansion || Boolean(expansionURL))
   const resourceReadURL = resourceType => toExpansionURL(resourceType, route.resource) || (getURL() + resourceType + '/' + encodeURIComponent(route.resource) + '/')
-  const showConceptURL = (panelOpen && isConceptURL && isExpansionReady) ? resourceReadURL('concepts') : false
-  const showMappingURL = (panelOpen && isMappingURL && isExpansionReady) ? resourceReadURL('mappings') : false
-  const showReferenceURL = (panelOpen && isReferenceURL) ? (getURL() + 'references/' + encodeURIComponent(route.resource) + '/') : false
+  const showConceptURL = (panelTab === 'concepts' && isPanelReady) ? resourceReadURL('concepts') : false
+  const showMappingURL = (panelTab === 'mappings' && isPanelReady) ? resourceReadURL('mappings') : false
+  const showReferenceURL = panelTab === 'references' ? (getURL() + 'references/' + encodeURIComponent(route.resource) + '/') : false
   const seed = (seedItem && String(seedItem.id) === String(route.resource)) ? seedItem : undefined
   const isSplitView = conceptForm || mappingForm || showConceptURL || showMappingURL || showReferenceURL || versionForm
 
