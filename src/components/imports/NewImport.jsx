@@ -205,7 +205,7 @@ class NewImport extends React.Component {
           </span>
           <span>
             <ButtonGroup color='primary' size='small' disabled={isUploading}>
-              { this.getButton('upload', <UploadIcon />, t('import.upload_file_tooltip')) }
+              { this.getButton('upload', <UploadIcon />, t(canUseAdvanced ? 'import.upload_file_tooltip' : 'import.upload_file_no_zip_tooltip')) }
               { this.getButton('json', <JSONIcon />, t('import.json_data_tooltip')) }
               { canUseAdvanced && this.getButton('url', <URLIcon />, t('import.url_tooltip')) }
               { canUseAdvanced && this.getButton('npm', <div>NPM</div>, t('import.npm_tooltip'))}

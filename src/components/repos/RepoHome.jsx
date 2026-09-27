@@ -150,7 +150,7 @@ const RepoHome = () => {
       versionCacheRef.current[versionCacheKey(_repo.version)] = _repo
   }
 
-  const applyRepoData = (_repo, newStatus, sameRepoAsBefore) => {
+  const applyRepoData = (_repo, newStatus, sameRepoAsBefore, hasReleasedVersion) => {
     if(!aliveRef.current)
       return
     if(route.version && (newStatus !== 200 || !_repo?.url)) {
@@ -185,14 +185,15 @@ const RepoHome = () => {
       if(route.resource)
         setVersionPending(false)
       else
-        resolveLatestVersion(_repo)
+        resolveLatestVersion(_repo, hasReleasedVersion)
     }
   }
 
   const fetchRepo = (sameRepoAsBefore = false, { forceRefresh = false } = {}) => {
+    const hasReleasedVersion = (route.version || route.resource) ? null : fetchHasReleasedVersion()
     const cached = !forceRefresh && versionCacheRef.current[versionCacheKey(route.version)]
     if(cached) {
-      applyRepoData(cached, 200, sameRepoAsBefore)
+      applyRepoData(cached, 200, sameRepoAsBefore, hasReleasedVersion)
       return
     }
     setLoading(true)
@@ -204,16 +205,36 @@ const RepoHome = () => {
       const _repo = response?.data || response?.response?.data || {}
       if(newStatus === 200)
         cacheVersion(_repo)
-      applyRepoData(_repo, newStatus, sameRepoAsBefore)
+      applyRepoData(_repo, newStatus, sameRepoAsBefore, hasReleasedVersion)
     })
   }
 
-  const resolveLatestVersion = _repo => {
-    const activeVersions = _repo?.summary?.active_versions
-    if(isNumber(activeVersions) && activeVersions <= 1) {
+  // latest/ is a 404 until a version is released, so a bare repo URL first asks whether one is: a one-row
+  // versions query, sent alongside HEAD rather than after it, so it adds no round trip for repos with a release
+  const fetchHasReleasedVersion = () => APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('versions/').get(null, null, {released: true, limit: 1}, true).then(response => {
+    const status = response?.status || response?.response?.status
+    return !(status === 200 && Array.isArray(response?.data) && !response.data.length)
+  })
+
+  const resolveLatestVersion = (_repo, hasReleasedVersion) => {
+    // HEAD's summary counts every version, HEAD included
+    const versionsCount = _repo?.summary?.versions
+    if(!_repo?.url || (isNumber(versionsCount) && versionsCount <= 1)) {
       setVersionPending(false)
       return
     }
+    const releaseCheck = hasReleasedVersion || fetchHasReleasedVersion()
+    releaseCheck.then(hasRelease => {
+      if(!aliveRef.current)
+        return
+      if(hasRelease)
+        fetchLatestVersion(_repo)
+      else
+        setVersionPending(false)
+    })
+  }
+
+  const fetchLatestVersion = _repo => {
     APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('latest/').get(null, null, {includeSummary: true, verbose: true, ...PROCESSING_QUERY_PARAMS}, true).then(response => {
       if(!aliveRef.current)
         return
@@ -476,9 +497,6 @@ const RepoHome = () => {
     })
   }
 
-  const isConceptURL = tab === 'concepts'
-  const isMappingURL = tab === 'mappings'
-  const isReferenceURL = tab === 'references'
   const requiresExpansionSelection = isCollection && ['concepts', 'mappings'].includes(tab)
   const processingTargets = React.useMemo(() => (repo?.url || repo?.version_url) ? [repo] : [], [repo])
   const { versions: [liveRepo] = [] } = useProcessingVersions(processingTargets)
@@ -487,12 +505,15 @@ const RepoHome = () => {
   const canRenderSearch = !versionPending && (!requiresExpansionSelection || (!expansionsLoading && Boolean(selectedExpansion)))
   const expansionURL = (isCollection && selectedExpansion?.url) ? selectedExpansion.url : false
   const toExpansionURL = (resourceType, id) => (expansionURL && id) ? `${expansionURL}${resourceType}/${encodeURIComponent(id)}/` : false
-  const isExpansionReady = !versionPending && (!requiresExpansionSelection || Boolean(expansionURL))
-  const panelOpen = hasResourcePanel(route)
+  // The panel's resource type comes from the URL, like its id. The tab state only catches up a render
+  // later, so after "Add Mapping" routed to mappings/<id>/ it asked for concepts/<id>/ first.
+  const panelTab = hasResourcePanel(route) ? route.tab : ''
+  const panelRequiresExpansion = isCollection && ['concepts', 'mappings'].includes(panelTab)
+  const isPanelReady = !versionPending && (!panelRequiresExpansion || Boolean(expansionURL))
   const resourceReadURL = resourceType => toExpansionURL(resourceType, route.resource) || (getURL() + resourceType + '/' + encodeURIComponent(route.resource) + '/')
-  const showConceptURL = (panelOpen && isConceptURL && isExpansionReady) ? resourceReadURL('concepts') : false
-  const showMappingURL = (panelOpen && isMappingURL && isExpansionReady) ? resourceReadURL('mappings') : false
-  const showReferenceURL = (panelOpen && isReferenceURL) ? (getURL() + 'references/' + encodeURIComponent(route.resource) + '/') : false
+  const showConceptURL = (panelTab === 'concepts' && isPanelReady) ? resourceReadURL('concepts') : false
+  const showMappingURL = (panelTab === 'mappings' && isPanelReady) ? resourceReadURL('mappings') : false
+  const showReferenceURL = panelTab === 'references' ? (getURL() + 'references/' + encodeURIComponent(route.resource) + '/') : false
   const seed = (seedItem && String(seedItem.id) === String(route.resource)) ? seedItem : undefined
   const isSplitView = conceptForm || mappingForm || showConceptURL || showMappingURL || showReferenceURL || versionForm
 

@@ -506,7 +506,14 @@
     "reset_default_filters_tooltip": "Descartar los filtros aplicados y volver a los filtros predeterminados guardados",
     "default_filters_menu_tooltip": "Opciones de filtros predeterminados",
     "clear_filters_tooltip": "Eliminar todos los filtros aplicados",
-    "clear_filters_with_defaults_tooltip": "Eliminar todos los filtros aplicados, incluidos los filtros predeterminados"
+    "clear_filters_with_defaults_tooltip": "Eliminar todos los filtros aplicados, incluidos los filtros predeterminados",
+    "select_all": "Seleccionar todo",
+    "select_all_concepts": "Seleccionar todos los conceptos",
+    "select_all_mappings": "Seleccionar todos los mapeos",
+    "select_all_references": "Seleccionar todas las referencias",
+    "select_all_repos": "Seleccionar todos los repositorios",
+    "select_all_orgs": "Seleccionar todas las organizaciones",
+    "select_all_users": "Seleccionar todos los usuarios"
   },
   "cloneToSource": {
     "title": "Clonar concepto(s) a una fuente",

@@ -22,9 +22,19 @@ import APIService from '../../services/APIService';
 import { SECONDARY_COLORS } from '../../common/colors';
 import { resolveColumns, isSameSortField } from './columns';
 
+// What screen readers announce for the select-all checkbox, per result type
+const SELECT_ALL_LABEL_KEYS = {
+  concepts: 'search.select_all_concepts',
+  mappings: 'search.select_all_mappings',
+  references: 'search.select_all_references',
+  repos: 'search.select_all_repos',
+  orgs: 'search.select_all_orgs',
+  users: 'search.select_all_users',
+}
+
 const EnhancedTableHead = props => {
   const { t } = useTranslation()
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, columns, refTranslation, setRefTranslation, hierarchical } = props;
+  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, columns, refTranslation, setRefTranslation, hierarchical, resource } = props;
   const createSortHandler = property => event => {
     onRequestSort(event, property);
   };
@@ -42,7 +52,7 @@ const EnhancedTableHead = props => {
                 onChange={onSelectAllClick}
                 slotProps={{
                   input: {
-                    'aria-label': 'select all desserts',
+                    'aria-label': t(SELECT_ALL_LABEL_KEYS[resource] || 'search.select_all'),
                   },
                 }}
               />

@@ -638,7 +638,14 @@
     "reset_default_filters_tooltip": "放弃已应用的筛选条件并恢复到已保存的默认筛选条件",
     "default_filters_menu_tooltip": "默认筛选选项",
     "clear_filters_tooltip": "清除所有已应用的筛选条件",
-    "clear_filters_with_defaults_tooltip": "清除所有已应用的筛选条件，包括默认筛选条件"
+    "clear_filters_with_defaults_tooltip": "清除所有已应用的筛选条件，包括默认筛选条件",
+    "select_all": "全选",
+    "select_all_concepts": "选择所有概念",
+    "select_all_mappings": "选择所有映射关系",
+    "select_all_references": "选择所有引用",
+    "select_all_repos": "选择所有存储库",
+    "select_all_orgs": "选择所有组织机构",
+    "select_all_users": "选择所有用户"
   },
   "url_registry": {
     "url_registry": "规范型 URL 注册库",
