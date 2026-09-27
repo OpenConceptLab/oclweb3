@@ -13,6 +13,14 @@ module.exports = (env) => {
     path.resolve(__dirname, 'src/common/plugins/usage-dashboard.stub.js');
   return {
     mode: env.NODE_ENV,
+    // Production bundle names carry a content hash, so a deploy that changes
+    // a bundle also changes its URL and nginx can cache the bundles for a
+    // year (nginx/default.conf.template). HtmlWebpackPlugin writes the hashed
+    // names into index.html. Dev keeps webpack's default [name].js / [id].js.
+    output: isProduction ? {
+      filename: '[name].[contenthash:8].js',
+      chunkFilename: '[name].[contenthash:8].js',
+    } : {},
     module: {
       rules: [
         {
