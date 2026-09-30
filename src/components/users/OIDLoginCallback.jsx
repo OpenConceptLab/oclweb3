@@ -39,7 +39,7 @@ class OIDLoginCallback extends React.Component {
         return
       }
       setAlert({message: this.props.t('auth.signing_in'), severity: 'info'})
-      // next is only set by sign-ins started before redirect_uri became fixed; new ones come back via returnTo.
+      // next still decides the redirect_uri sent for sign-ins that started before redirect_uri was fixed.
       this.setState({next: next && next !== '/' ? next : null, returnTo: returnTo }, () => {
         const redirectURL = this.state.next ? window.location.origin + this.state.next : (window.LOGIN_REDIRECT_URL || process.env.LOGIN_REDIRECT_URL)
         const clientId = window.OIDC_RP_CLIENT_ID || process.env.OIDC_RP_CLIENT_ID
@@ -89,10 +89,10 @@ class OIDLoginCallback extends React.Component {
 
   cacheUserData() {
     refreshCurrentUserCache(() => {
-      if(this.state.next)
-        window.location.hash = '#' + this.state.next
-      else if(this.state.returnTo)
+      if(this.state.returnTo)
         window.location.hash = '#' + this.state.returnTo
+      else if(this.state.next)
+        window.location.hash = '#' + this.state.next
       else {
         let returnToURL = '/'
         if(this.props?.location?.search) {

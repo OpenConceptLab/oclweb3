@@ -898,7 +898,7 @@ export const consumeAndValidateOAuthState = returnedState => {
 // always goes through LOGIN_REDIRECT_URL, and the page to come back to (its hash route) waits here, in this tab.
 const prepareOAuthReturnTo = returnTo => {
   const route = returnTo?.includes('#') ? returnTo.slice(returnTo.indexOf('#') + 1) : null
-  if(route?.startsWith('/') && !route.startsWith('/oidc/login'))
+  if(route?.startsWith('/') && !/^\/(oidc\/login|signin|signup)(\/|\?|$)/.test(route))
     sessionStorage.setItem(OAUTH_RETURN_TO_KEY, route)
   else
     sessionStorage.removeItem(OAUTH_RETURN_TO_KEY)
@@ -932,6 +932,7 @@ export const getResetPasswordURL = async returnTo => {
 
   redirectURL = redirectURL.replace(/([^:]\/)\/+/g, "$1");
 
+  prepareOAuthReturnTo()
   const codeChallenge = await preparePKCECodeChallenge()
 
   return `${getAPIURL()}/users/password/reset/?client_id=${oidClientID}&redirect_uri=${redirectURL}&code_challenge=${codeChallenge}&code_challenge_method=S256`
@@ -943,6 +944,7 @@ export const getRegisterURL = async returnTo => {
 
   redirectURL = redirectURL.replace(/([^:]\/)\/+/g, "$1");
 
+  prepareOAuthReturnTo()
   const codeChallenge = await preparePKCECodeChallenge()
   const state = prepareOAuthState(SIGNUP_STATE_PREFIX)
   const nonce = generateSecureRandomString(32)
