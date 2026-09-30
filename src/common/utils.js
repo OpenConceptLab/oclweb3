@@ -836,6 +836,7 @@ export const isDeprecatedBrowser = () => isIE() || isOpera();
 
 const PKCE_CODE_VERIFIER_KEY = 'pkce_code_verifier'
 const OAUTH_STATE_KEY = 'oauth_state'
+const OAUTH_RETURN_TO_KEY = 'oauth_return_to'
 
 const base64UrlEncode = buffer => {
   const bytes = new Uint8Array(buffer)
@@ -892,15 +893,30 @@ export const consumeAndValidateOAuthState = returnedState => {
   return !returnedState || returnedState === storedState
 }
 
+// Keycloak only redeems a code when the token request repeats the sign-in's redirect_uri exactly, and the
+// callback can't rebuild a page's query string (e.g. ?referrer= on links from openconceptlab.org). So sign-in
+// always goes through LOGIN_REDIRECT_URL, and the page to come back to (its hash route) waits here, in this tab.
+const prepareOAuthReturnTo = returnTo => {
+  const route = returnTo?.includes('#') ? returnTo.slice(returnTo.indexOf('#') + 1) : null
+  if(route?.startsWith('/') && !route.startsWith('/oidc/login'))
+    sessionStorage.setItem(OAUTH_RETURN_TO_KEY, route)
+  else
+    sessionStorage.removeItem(OAUTH_RETURN_TO_KEY)
+}
+
+export const consumeOAuthReturnTo = () => {
+  const route = sessionStorage.getItem(OAUTH_RETURN_TO_KEY)
+  sessionStorage.removeItem(OAUTH_RETURN_TO_KEY)
+  return route
+}
+
 export const getLoginURL = async returnTo => {
   const oidClientID = window.OIDC_RP_CLIENT_ID || process.env.OIDC_RP_CLIENT_ID
   let redirectURL = window.LOGIN_REDIRECT_URL || process.env.LOGIN_REDIRECT_URL
 
   redirectURL = redirectURL.replace(/([^:]\/)\/+/g, "$1");
 
-  if(returnTo && returnTo.includes('/#/') && returnTo.split('/#/')[1])
-    redirectURL = returnTo.replace('/#/', '/')
-
+  prepareOAuthReturnTo(returnTo)
   const codeChallenge = await preparePKCECodeChallenge()
   const state = prepareOAuthState()
   const nonce = generateSecureRandomString(32)
