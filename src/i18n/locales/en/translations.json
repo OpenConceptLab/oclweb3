@@ -1078,9 +1078,10 @@
     "clear": "Reset Sort"
   },
   "announcement": {
-    "title": "Welcome to the public preview of the new OCL TermBrowser v3!",
-    "text": "Your content is already here, and you can switch back to TBv2 any time.",
+    "title": "Subscriptions open November 1.",
+    "text": "Existing accounts using premium features have a grace period until December 1.",
     "link_label": "Learn more",
+    "pricing_label": "See pricing",
     "dismiss": "Dismiss"
   },
   "quota": {

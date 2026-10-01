@@ -6,14 +6,20 @@ import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined';
 import CloseIcon from '@mui/icons-material/Close';
-import { TBV3_ANNOUNCEMENT_URL } from '../../common/constants';
+import { TBV3_ANNOUNCEMENT_LETTER_URL, TBV3_ANNOUNCEMENT_PRICING_URL } from '../../common/constants';
 
 // OCL Online-wide announcement strip, fixed above the app bar and styled like
 // the community site's AnnouncementBanner, so it reads as sitting above the
 // tool rather than inside it. Same component in the Mapper and TBv2. Update
 // announcement.* in the locale bundles (and bump ANNOUNCEMENT_ID) to re-show a
 // new announcement to visitors who dismissed a previous one.
-const ANNOUNCEMENT_ID = 'tbv3-public-preview-2026-09-v2';
+const ANNOUNCEMENT_ID = 'subscription-dates-2026-10';
+
+// Shown in this order after announcement.text, separated by a middle dot.
+const ANNOUNCEMENT_LINKS = [
+  { labelKey: 'announcement.link_label', href: TBV3_ANNOUNCEMENT_LETTER_URL },
+  { labelKey: 'announcement.pricing_label', href: TBV3_ANNOUNCEMENT_PRICING_URL },
+];
 
 const DISMISSED_KEY = 'announcementDismissed';
 
@@ -95,10 +101,15 @@ const AnnouncementBanner = () => {
           {t('announcement.title')}
         </Typography>
         <Typography variant='body2' sx={{ color: 'surface.contrastText' }}>
-          {t('announcement.text')}{' '}
-          <Link href={TBV3_ANNOUNCEMENT_URL} target='_blank' rel='noopener noreferrer' sx={{ fontWeight: 600, '&:hover, &:focus': { color: 'primary.main' } }}>
-            {t('announcement.link_label')}
-          </Link>
+          {t('announcement.text')}
+          {ANNOUNCEMENT_LINKS.map(({ labelKey, href }, i) => (
+            <React.Fragment key={href}>
+              {i ? ' · ' : ' '}
+              <Link href={href} target='_blank' rel='noopener noreferrer' sx={{ fontWeight: 600, whiteSpace: 'nowrap', '&:hover, &:focus': { color: 'primary.main' } }}>
+                {t(labelKey)}
+              </Link>
+            </React.Fragment>
+          ))}
         </Typography>
       </Box>
       <IconButton size='small' aria-label={t('announcement.dismiss')} onClick={onClose}>
