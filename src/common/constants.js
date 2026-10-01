@@ -2,7 +2,8 @@ import packageJson from '../../package.json';
 
 export const LANGUAGES = [
   {locale: 'en', name: 'English'},
-  {locale: 'es', name: "Español"}
+  {locale: 'es', name: "Español"},
+  {locale: 'pt-BR', name: "Português (Brasil)"}
 ]
 
 
