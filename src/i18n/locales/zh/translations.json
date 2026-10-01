@@ -665,9 +665,10 @@
     "view_canonical_url_registry": "查看规范型 URL 注册库"
   },
   "announcement": {
-    "title": "欢迎体验全新 OCL TermBrowser v3 公开预览版！",
-    "text": "您的内容已在这里，并可随时切换回 TBv2。",
+    "title": "订阅将于 11 月 1 日开放。",
+    "text": "使用高级功能的现有账户可享受宽限期至 12 月 1 日。",
     "link_label": "了解更多",
+    "pricing_label": "查看价格",
     "dismiss": "关闭"
   },
   "quota": {

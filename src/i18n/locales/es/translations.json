@@ -577,9 +577,10 @@
     "clear": "Restablecer orden"
   },
   "announcement": {
-    "title": "¡Te damos la bienvenida a la vista previa pública del nuevo OCL TermBrowser v3!",
-    "text": "Tu contenido ya está aquí, y puedes volver a TBv2 en cualquier momento.",
+    "title": "Las suscripciones abren el 1 de noviembre.",
+    "text": "Las cuentas existentes que usan funciones premium tienen un periodo de gracia hasta el 1 de diciembre.",
     "link_label": "Más información",
+    "pricing_label": "Ver precios",
     "dismiss": "Descartar"
   },
   "quota": {
