@@ -48,6 +48,24 @@
     "create_from_ocl_url": "Criar a partir de URL do OCL",
     "created_on": "Criado em",
     "created_by": "Criado por",
+    "event_types": {
+      "created": "Criado",
+      "updated": "Atualizado",
+      "released": "Publicado",
+      "deleted": "Excluído",
+      "joined": "Entrou",
+      "source": "Fonte"
+    },
+    "object_types": {
+      "Source": "Fonte",
+      "Collection": "Coleção",
+      "Source Version": "Versão da Fonte",
+      "Collection Version": "Versão da Coleção",
+      "Organization": "Organização",
+      "Concept": "Conceito",
+      "Mapping": "Mapeamento",
+      "Repository": "Repositório"
+    },
     "version": "Versão",
     "versions": "Versões",
     "summary": "Resumo",

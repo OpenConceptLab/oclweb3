@@ -26,10 +26,11 @@ const EventCard = ({ event, highlight }) => {
   const getTitle = (event, object, includeSubtitle) => {
     let title = object?.id || object?.username || object?.name
     let subTitle = event?.event_type?.toLowerCase()
+    const translatedEventType = t(`common.event_types.${subTitle}`, { defaultValue: subTitle });
     if(event?.referenced_object?.type === 'Organization')
-      subTitle += ` ${t('common.an')} ${event.referenced_object?.type?.toLowerCase()}`
+      subTitle += ` ${t('common.an')} ${t(`common.object_types.${event.referenced_object?.type}`, { defaultValue: event.referenced_object?.type.toLowerCase() })}`
     else if(event?.referenced_object?.type)
-      subTitle += ` ${t('common.a')} ${event.referenced_object?.type?.toLowerCase()}`
+      subTitle += ` ${t('common.a')} ${t(`common.object_types.${event.referenced_object?.type}`, { defaultValue: event.referenced_object?.type.toLowerCase() })}`
     else
       subTitle += ` ${getSiteTitle()}`
     return (
@@ -40,7 +41,7 @@ const EventCard = ({ event, highlight }) => {
         {
           includeSubtitle &&
             <Typography component='span' sx={{marginLeft: '4px'}}>
-              {subTitle}
+              {translatedEventType} {subTitle}
             </Typography>
         }
       </span>
