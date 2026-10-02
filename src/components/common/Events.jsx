@@ -27,7 +27,7 @@ const EventDescription = ({ event, isFirst, isLast, isJoined }) => {
     let rel;
     if(event_type && !isEmpty(referenced_object)) {
       const translatedEventType = t(`common.event_types.${event_type.toLowerCase()}`, { defaultValue: event_type });
-      const translatedObjectType = referenced_object.type ? t(`common.object_types.${referenced_object.type}`, { defaultValue: referenced_object.type }) : '';
+      const translatedObjectType = referenced_object.type ? t(`common.event_object_types.${referenced_object.type}`, { defaultValue: referenced_object.type }) : '';
       eventDescription = `${translatedEventType} ${translatedObjectType} `
       if(['Source Version', 'Collection Version'].includes(referenced_object.type)) {
         rel = `${referenced_object.short_code}/${referenced_object.id}`

@@ -53,6 +53,8 @@
       "updated": "Updated",
       "released": "Released",
       "deleted": "Deleted",
+      "followed": "Followed",
+      "unfollowed": "Unfollowed",
       "joined": "Joined",
       "source": "Source"
     },
@@ -65,6 +67,16 @@
       "Concept": "Concept",
       "Mapping": "Mapping",
       "Repository": "Repository"
+    },
+    "event_object_types": {
+      "Source": "a Source",
+      "Collection": "a Collection",
+      "Source Version": "a Source Version",
+      "Collection Version": "a Collection Version",
+      "Organization": "an Organization",
+      "Concept": "a Concept",
+      "Mapping": "a Mapping",
+      "Repository": "a Repository"
     },
     "version": "Version",
     "versions": "Versions",
