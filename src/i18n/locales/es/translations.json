@@ -467,7 +467,9 @@
     "location": "Ubicación",
     "website": "Sitio web",
     "last_login": "Último inicio de sesión",
-    "name_and_description": "Nombre y descripción"
+    "name_and_description": "Nombre y descripción",
+    "own_recent_activity": "Tu actividad reciente",
+    "recent_activity_of": "Actividad reciente de {{name}}"
   },
   "search": {
     "filters": "Filtros",

@@ -1,6 +1,5 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next';
-import startCase from 'lodash/startCase'
 import DoneIcon from '@mui/icons-material/Done';
 import ButtonGroup from '@mui/material/ButtonGroup'
 import Button from '@mui/material/Button'
@@ -29,7 +28,7 @@ const EventsButtonGroup = ({ onClick, selected }) => {
     <ButtonGroup size="small" aria-label="Small button group" color='secondary'>
       <EventButton label={t('common.all')} selected={selected === 'all'} terminal onClick={() => onClick('all')} />
       <EventButton label={t('common.following')} selected={selected === 'following'} onClick={() => onClick('following')} />
-      <EventButton label={startCase(t('org.my'))} selected={selected === 'orgs'} terminal onClick={() => onClick('orgs')} />
+      <EventButton label={t('org.my')} selected={selected === 'orgs'} terminal onClick={() => onClick('orgs')} />
     </ButtonGroup>
   )
 }
