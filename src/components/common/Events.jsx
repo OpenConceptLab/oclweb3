@@ -108,7 +108,7 @@ const Events = ({ user, events, onLoadMore, showAvatar, maxHeight, dashboard }) 
           showAvatar &&
             <UserIcon noTooltip user={user} sx={{width: '40px', height: '40px', marginRight: '16px'}} color='primary' />
         }
-        {isSelf ? t('user.own_recent_activity') : t('user.recent_activity_of', {name: user.name})}
+        {isSelf ? t('user.own_recent_activity') : t('user.recent_activity_of', {name: user.name, interpolation: {escapeValue: false}})}
       </Typography>
       <Timeline
         id="events-timeline"
