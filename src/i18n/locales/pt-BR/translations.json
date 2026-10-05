@@ -180,7 +180,7 @@
       "warning": "Coisas ruins inesperadas acontecerão se você não ler isto!",
       "title": "Excluir {{resourceType}}: {{resourceId}}",
       "message": "Esta ação <0>não pode</0> ser desfeita! Isso excluirá o {{resourceType}} inteiro e todos os seus {{relationship}} {{associationsLabel}} (se houver).",
-      "confirmation_title": "Tem certeza de que deseja excluir permanentemente este {{resourceType}}?",
+      "confirmation_title": "Tem certeza de que deseja excluir permanentemente este {{resourceType}}",
       "confirmation_message": "Digite <0>{{resourceId}}</0> para confirmar.",
       "confirmation_button_label": "Entendo as consequências, excluir este {{resourceType}}"
     },
