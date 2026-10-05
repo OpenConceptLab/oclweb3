@@ -173,7 +173,8 @@
     "update_comment": "Update comment",
     "undo": "Undo",
     "advanced": "Advanced",
-    "type_to_search": "Type to search"
+    "type_to_search": "Type to search",
+    "error": "Error"
   },
   "errors": {
     "404": "Sorry your page could not be found.",
@@ -300,6 +301,8 @@
     "select_two_versions_to_compare": "Select 2 versions to compare",
     "success_create": "Successfully created concept",
     "success_update": "Successfully updated concept",
+    "success_retired": "Concept retired",
+    "success_unretired": "Concept reactivated",
     "error_create": "Couldn't create concept",
     "error_update": "Couldn't update concept",
     "view_in_source": "View concept in its source"
@@ -471,7 +474,8 @@
     "id_helper": "Each ID becomes {{path}}{id}/",
     "expression_hint": "Full reference expression. Seeded from the source / collection selector above; edit as needed.",
     "adding_references": "Adding references…",
-    "request_failed": "Request failed — check your network connection and try again."
+    "request_failed": "Request failed — check your network connection and try again.",
+    "unresolved": "Unresolved"
   },
   "checksums": {
     "standard": "Standard Checksum",
@@ -861,7 +865,8 @@
     "success_update": "Successfully updated organization",
     "success_create": "Successfully created organization",
     "delete_org": "Delete Organization",
-    "delete_accepted": "Organization Delete Accepted. This may take few minutes."
+    "delete_accepted": "Organization Delete Accepted. This may take few minutes.",
+    "success_delete": "Successfully deleted organization"
   },
   "user": {
     "users": "Users",

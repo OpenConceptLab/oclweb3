@@ -125,7 +125,20 @@
     "comment": "备注",
     "update_comment": "更新说明",
     "advanced": "高级",
-    "type_to_search": "输入以搜索"
+    "type_to_search": "输入以搜索",
+    "committed": "已提交",
+    "compare": "比较",
+    "copy_smart_checksum": "复制智能校验和",
+    "copy_standard_checksum": "复制标准校验和",
+    "details": "详情",
+    "false": "否",
+    "retire": "退役",
+    "true": "是",
+    "uid": "UID",
+    "undo": "撤销",
+    "unretire": "重新激活",
+    "view_resource_version": "查看资源版本",
+    "error": "错误"
   },
   "errors": {
     "network_error": "网络错误",
@@ -242,9 +255,13 @@
     "generate_comment_aria": "使用 AI 生成评论",
     "success_create": "概念创建成功",
     "success_update": "概念更新成功",
+    "success_retired": "概念已退役",
+    "success_unretired": "概念已重新激活",
     "error_create": "无法创建概念",
     "error_update": "无法更新概念",
-    "view_in_source": "在其来源中查看概念"
+    "view_in_source": "在其来源中查看概念",
+    "concept": "概念",
+    "select_two_versions_to_compare": "选择 2 个版本进行比较"
   },
   "mapping": {
     "mappings": "映射关系",
@@ -287,6 +304,8 @@
     "source_required": "请选择一个来源。",
     "success_create": "映射关系创建成功",
     "success_update": "映射关系更新成功",
+    "success_retired": "映射关系已退役",
+    "success_unretired": "映射关系已重新激活",
     "error_create": "无法创建映射关系",
     "error_update": "无法更新映射关系",
     "form": {
@@ -302,7 +321,29 @@
       }
     },
     "create_mapping": "创建映射",
-    "view_in_source": "在其来源中查看映射"
+    "view_in_source": "在其来源中查看映射",
+    "add_a_mapping": "添加映射关系",
+    "add_new_map_type_mapping": "添加新的 {{mapType}} 映射关系",
+    "add_new_mapping": "添加新的映射关系",
+    "assign_sort_weight": "分配排序权重",
+    "clear_sort_weight": "清除排序权重",
+    "compare_concepts": "比较概念",
+    "custom_sorting_applied": "已应用自定义排序",
+    "custom_sorting_applied_partial": "已对 {{total}} 个映射关系应用自定义排序。",
+    "edit_mapping": "编辑映射关系",
+    "has_child": "有子级",
+    "has_parent": "有父级",
+    "include_retired": "包含已退役",
+    "mapping": "映射关系",
+    "no_sort_weight": "映射关系未应用排序权重",
+    "open_from_concept": "打开源头概念",
+    "open_mapping_details": "打开映射关系详情",
+    "open_to_concept": "打开目标概念",
+    "reactivate_mapping": "重新激活映射关系",
+    "relationship_type": "关系类型",
+    "retire_mapping": "退役映射关系",
+    "sort_changes_warning": "已进行 {{total}} 处更改。保存后将创建新的映射关系版本。",
+    "sort_success": "映射关系更新成功。"
   },
   "checksums": {
     "standard": "标准校验和",
@@ -493,7 +534,8 @@
         "new_title": "新建{{resourceType}}版本：{{version}}",
         "edit_title": "编辑{{resourceType}}版本：{{version}}"
       }
-    }
+    },
+    "repo_version": "仓库版本"
   },
   "org": {
     "my": "我的组织机构",
@@ -514,7 +556,8 @@
     "error_update": "无法更新组织机构",
     "error_create": "无法创建组织机构",
     "success_update": "组织机构更新成功",
-    "success_create": "组织机构创建成功"
+    "success_create": "组织机构创建成功",
+    "success_delete": "组织机构删除成功"
   },
   "user": {
     "users": "用户",
@@ -598,7 +641,9 @@
     "id_helper": "每个 ID 变为 {{path}}{id}/",
     "expression_hint": "完整的参考表达式。由上方来源/集合选择器预填充；根据需要编辑。",
     "adding_references": "正在添加参考…",
-    "request_failed": "请求失败 — 请检查您的网络连接并重试。"
+    "request_failed": "请求失败 — 请检查您的网络连接并重试。",
+    "remove_success": "引用移除成功。",
+    "unresolved": "未解析"
   },
   "search": {
     "filters": "筛选项",
@@ -716,5 +761,8 @@
         "import": "超出限制的行会保留在项目中，但不会被匹配。"
       }
     }
+  },
+  "cloneToSource": {
+    "clone_to_source": "克隆到来源"
   }
 }

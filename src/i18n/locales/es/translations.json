@@ -91,7 +91,27 @@
     "submit": "Enviar",
     "update_comment": "Comentario de actualización",
     "advanced": "Avanzado",
-    "type_to_search": "Escribe para buscar"
+    "type_to_search": "Escribe para buscar",
+    "cancel": "Cancelar",
+    "committed": "confirmó",
+    "compare": "Comparar",
+    "copy_smart_checksum": "Copiar checksum inteligente",
+    "copy_standard_checksum": "Copiar checksum estándar",
+    "details": "Detalles",
+    "external_id": "ID externo",
+    "false": "Falso",
+    "from": "Origen",
+    "history": "Historial",
+    "last_updated": "Última actualización",
+    "retire": "Retirar",
+    "save": "Guardar",
+    "target": "Destino",
+    "true": "Verdadero",
+    "uid": "UID",
+    "undo": "Deshacer",
+    "unretire": "Reactivar",
+    "view_resource_version": "Ver versión del recurso",
+    "error": "Error"
   },
   "errors": {
     "401": "Se requiere iniciar sesión",
@@ -143,6 +163,8 @@
     "generate_comment_aria": "Generar comentario con IA",
     "success_create": "Concepto creado correctamente",
     "success_update": "Concepto actualizado correctamente",
+    "success_retired": "Concepto retirado",
+    "success_unretired": "Concepto reactivado",
     "error_create": "No se pudo crear el concepto",
     "error_update": "No se pudo actualizar el concepto",
     "form": {
@@ -190,7 +212,12 @@
       "parent_concepts_placeholder": "Buscar conceptos en esta fuente",
       "parent_concepts_help": "Conceptos bajo los cuales se ubica este concepto en la jerarquía. También puedes pegar la URL completa de un concepto."
     },
-    "view_in_source": "Ver concepto en su fuente"
+    "view_in_source": "Ver concepto en su fuente",
+    "associations": "Asociaciones",
+    "concept": "Concepto",
+    "edit_concept": "Editar concepto",
+    "namespace": "Espacio de nombres",
+    "select_two_versions_to_compare": "Seleccione 2 versiones para comparar"
   },
   "mapping": {
     "mappings": "Mapeos",
@@ -213,6 +240,8 @@
     "source_required": "Seleccione una fuente.",
     "success_create": "Mapeo creado correctamente",
     "success_update": "Mapeo actualizado correctamente",
+    "success_retired": "Mapeo retirado",
+    "success_unretired": "Mapeo reactivado",
     "error_create": "No se pudo crear el mapeo",
     "error_update": "No se pudo actualizar el mapeo",
     "form": {
@@ -228,7 +257,40 @@
       }
     },
     "create_mapping": "Crear mapeo",
-    "view_in_source": "Ver mapeo en su fuente"
+    "view_in_source": "Ver mapeo en su fuente",
+    "add_a_mapping": "Agregar un mapeo",
+    "add_new_map_type_mapping": "Agregar nuevo mapeo {{mapType}}",
+    "add_new_mapping": "Agregar nuevo mapeo",
+    "assign_sort_weight": "Asignar peso de orden",
+    "clear_sort_weight": "Borrar peso de orden",
+    "code": "Código",
+    "compare_concepts": "Comparar conceptos",
+    "custom_sorting_applied": "Se ha aplicado un orden personalizado",
+    "custom_sorting_applied_partial": "Se ha aplicado un orden personalizado a {{total}} mapeos.",
+    "direct_mappings": "Mapeos directos",
+    "edit_mapping": "Editar mapeo",
+    "from_concept_defined": "El concepto de origen está definido en OCL",
+    "from_concept_not_defined": "El concepto de origen no está definido en OCL",
+    "has_child": "Tiene hijo",
+    "has_parent": "Tiene padre",
+    "include_retired": "Incluir retirados",
+    "inverse_mappings": "Mapeos inversos",
+    "map_type": "Tipo de mapeo",
+    "mapping": "Mapeo",
+    "no_sort_weight": "El mapeo no tiene peso de orden asignado",
+    "open_from_concept": "Abrir concepto de origen",
+    "open_mapping_details": "Abrir detalles del mapeo",
+    "open_to_concept": "Abrir concepto de destino",
+    "reactivate_mapping": "Reactivar mapeo",
+    "relationship": "Relación",
+    "relationship_type": "Tipo de relación",
+    "retire_mapping": "Retirar mapeo",
+    "self_mappings": "Mapeos propios",
+    "sort_changes_warning": "{{total}} cambio(s) realizado(s). Al guardar se creará una nueva versión del mapeo.",
+    "sort_success": "Mapeos actualizados correctamente.",
+    "sort_weight": "Peso de orden",
+    "to_concept_defined": "El concepto de destino está definido en OCL",
+    "to_concept_not_defined": "El concepto de destino no está definido en OCL"
   },
   "reference": {
     "references": "Referencias",
@@ -287,7 +349,9 @@
     "transform_no_references_changed": "No se transformó ninguna referencia.",
     "transform_delete_failed": "Se agregaron {{count}} referencia(s) sin versión, pero no se pudieron eliminar las referencias fijadas anteriores. Actualiza y revisa la lista de referencias para detectar duplicados.",
     "already_non_versioned": "Ya está sin versión",
-    "unsupported_transform": "No compatible"
+    "unsupported_transform": "No compatible",
+    "remove_success": "Referencias eliminadas correctamente.",
+    "unresolved": "No resuelta"
   },
   "repo": {
     "repos": "Repositorios",
@@ -442,7 +506,8 @@
         "new_title": "Nueva versión de {{resourceType}}: {{version}}",
         "edit_title": "Editar versión de {{resourceType}}: {{version}}"
       }
-    }
+    },
+    "repo_version": "Versión del repositorio"
   },
   "org": {
     "my": "Mis organizaciones",
@@ -456,7 +521,8 @@
     "error_update": "No se pudo actualizar la organización",
     "error_create": "No se pudo crear la organización",
     "success_update": "Organización actualizada correctamente",
-    "success_create": "Organización creada correctamente"
+    "success_create": "Organización creada correctamente",
+    "success_delete": "Organización eliminada correctamente"
   },
   "user": {
     "users": "Usuarios",
@@ -628,5 +694,9 @@
         "import": "Las filas que superan su límite permanecen en el proyecto pero no se emparejan."
       }
     }
+  },
+  "checksums": {
+    "smart": "Checksum inteligente",
+    "standard": "Checksum estándar"
   }
 }
