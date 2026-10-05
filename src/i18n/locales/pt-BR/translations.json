@@ -1166,7 +1166,7 @@
         "default": "Divida o arquivo em importações menores, ou solicite mais acesso."
       },
       "clone_resources": {
-        "default": "Clone um conceito mais estreito ou menos níveis de cascata, ou solicite mais acesso."
+        "default": "Clone um conceito mais específico ou menos níveis de cascata, ou solicite mais acesso."
       }
     }
   }
