@@ -1127,7 +1127,7 @@
       "import_file_size": "{{requested}} KB, limite {{limit}} KB",
       "clone_resources": "Mais de {{limit}} conceitos e mapeamentos"
     },
-    "period_one_time": "Permissão de prévia única",
+    "period_one_time": "Cota única de prévia",
     "request_more_access": "Solicitar mais acesso",
     "view_pricing": "Ver preços",
     "meter": {
