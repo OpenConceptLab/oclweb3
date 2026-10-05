@@ -1141,7 +1141,7 @@
       "generic": "Uso"
     },
     "consequence": {
-      "generic": "Alguns recursos estão pausados até que sua permissão seja aumentada.",
+      "generic": "Alguns recursos estão pausados até que sua cota seja aumentada.",
       "ai_assistant_calls": {
         "default": "Recursos que usam o Assistente de IA do OCL estão pausados.",
         "auto_match": "Correspondência Automática continuará rodando sem recomendações do Assistente de IA do OCL."
