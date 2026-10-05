@@ -48,7 +48,7 @@ const EventDescription = ({ event, isFirst, isLast, isJoined }) => {
         {eventDescription}
         {
           rel ?
-            <Link href={'#' + (event.referenced_object?.version_url || event.referenced_object?.url)} label={rel} sx={{fontSize: '14px', paddingLeft: 0, minWidth: 'auto', paddingTop: '1px'}} /> :
+            <Link href={event.referenced_object?.version_url || event.referenced_object?.url} label={rel} sx={{fontSize: '14px', paddingLeft: 0, minWidth: 'auto', paddingTop: '1px'}} /> :
           null
         }
       </Typography>

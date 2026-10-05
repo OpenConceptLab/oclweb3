@@ -39,7 +39,7 @@ const MemberList = ({ members, open, onClose }) => {
           {
             map(members, (member, i) => (
               <React.Fragment key={i}>
-                <ListItemButton component='a' className='no-anchor-styles' alignItems="flex-start" key={member.url} sx={{padding: '8px 24px 8px 16px', cursor: 'pointer'}} href={`#${member.url}`}>
+                <ListItemButton component='a' className='no-anchor-styles' alignItems="flex-start" key={member.url} sx={{padding: '8px 24px 8px 16px', cursor: 'pointer'}} href={member.url}>
                   <ListItemAvatar sx={{marginTop: '4px', minWidth: 'auto', mr: 2}}>
                     <UserIcon user={member} sx={{width: '40px', height: '40px'}} />
                   </ListItemAvatar>

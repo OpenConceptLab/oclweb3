@@ -112,5 +112,5 @@ export const createSimilarRepoHref = repo => {
   const ownerURL = canUseRepoOwner ?
                    (repo?.owner_url || `/${isOrg ? 'orgs' : 'users'}/${repo.owner}/`) :
                    `/users/${username}/`
-  return `#${ownerURL}repos/new?copyFrom=${encodeURIComponent(repo.url)}`
+  return `${ownerURL}repos/new?copyFrom=${encodeURIComponent(repo.url)}`
 }

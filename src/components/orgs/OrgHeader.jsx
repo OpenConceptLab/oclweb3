@@ -107,7 +107,7 @@ const OrgHeader = ({ org, members, onDeleteClick, canDelete, fetchMembers }) => 
         open={Boolean(anchorEl)}
         onClose={handleManageClick}
       >
-        <MenuItem sx={{padding: '8px 12px'}} href={`#/${org.url}repos/new`} onClick={handleNewRepoCreateClick}>
+        <MenuItem sx={{padding: '8px 12px'}} href={`${org.url}repos/new`} onClick={handleNewRepoCreateClick}>
           <ListItemIcon>
             <RepoIcon noTooltip />
           </ListItemIcon>
@@ -119,7 +119,7 @@ const OrgHeader = ({ org, members, onDeleteClick, canDelete, fetchMembers }) => 
           </ListItemIcon>
           <ListItemText>{t('org.edit_members')}</ListItemText>
         </MenuItem>
-        <MenuItem sx={{padding: '8px 12px'}} href={`#/${org.url}edit`} onClick={() => history.push(`${org.url}edit`)}>
+        <MenuItem sx={{padding: '8px 12px'}} href={`${org.url}edit`} onClick={() => history.push(`${org.url}edit`)}>
           <ListItemIcon>
             <EditIcon />
           </ListItemIcon>

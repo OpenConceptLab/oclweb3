@@ -44,7 +44,7 @@ const CanonicalResolveResult = ({ result }) => {
                     icon={<RepoIcon sx={{color: 'surface.contrastText'}} />}
                     size='small'
                     sx={{margin: '0 4px'}}
-                    href={'#' + result?.result?.url}
+                    href={result?.result?.url}
                   />,
                   <HeaderChip
                     key={result.result.owner}
@@ -54,7 +54,7 @@ const CanonicalResolveResult = ({ result }) => {
                     icon={<OwnerIcon ownerType={result.result.ownerType} sx={{color: 'surface.contrastText'}} />}
                     size='small'
                     sx={{margin: '0 4px'}}
-                    href={'#' + result.result.owner_url}
+                    href={result.result.owner_url}
                   />,
                   isResolvedInGlobalRegistry ?
                     t('url_registry.global') :
@@ -66,7 +66,7 @@ const CanonicalResolveResult = ({ result }) => {
                       icon={<OwnerIcon ownerType={registryOwnerType} sx={{color: 'surface.contrastText'}} />}
                       size='small'
                       sx={{margin: '0 4px'}}
-                      href={'#' + registryNamespace}
+                      href={registryNamespace}
                     />,
                 ]}
                 shouldUnescape
@@ -86,7 +86,7 @@ const CanonicalResolveResult = ({ result }) => {
                     icon={<RepoIcon sx={{color: 'surface.contrastText'}} />}
                     size='small'
                     sx={{margin: '0 4px'}}
-                    href={'#' + result?.result?.url}
+                    href={result?.result?.url}
                   />,
                   <HeaderChip
                     key={result.result.owner}
@@ -96,7 +96,7 @@ const CanonicalResolveResult = ({ result }) => {
                     icon={<OwnerIcon ownerType={result.result.ownerType} sx={{color: 'surface.contrastText'}} />}
                     size='small'
                     sx={{margin: '0 4px'}}
-                    href={'#' + result.result.owner_url}
+                    href={result.result.owner_url}
                   />,
                   <HeaderChip
                     key={requestedNamespace}
@@ -106,7 +106,7 @@ const CanonicalResolveResult = ({ result }) => {
                     icon={<OwnerIcon ownerType={requestedNamespaceOwnerType} sx={{color: 'surface.contrastText'}} />}
                     size='small'
                     sx={{margin: '0 4px'}}
-                    href={'#' + requestedNamespace}
+                    href={requestedNamespace}
                   />,
                 ]}
                 shouldUnescape
@@ -128,7 +128,7 @@ const CanonicalResolveResult = ({ result }) => {
                       icon={<OwnerIcon ownerType={registryOwnerType} sx={{color: 'surface.contrastText'}} />}
                       size='small'
                       sx={{margin: '0 4px'}}
-                      href={'#' + registryNamespace}
+                      href={registryNamespace}
                     />,
                 ]}
                 shouldUnescape
@@ -156,7 +156,7 @@ const CanonicalResolveResult = ({ result }) => {
                     icon={<OwnerIcon ownerType={requestedNamespaceOwnerType} sx={{color: 'surface.contrastText'}} />}
                     size='small'
                     sx={{margin: '0 4px'}}
-                    href={'#' + requestedNamespace}
+                    href={requestedNamespace}
                   />
                 ]}
                 shouldUnescape

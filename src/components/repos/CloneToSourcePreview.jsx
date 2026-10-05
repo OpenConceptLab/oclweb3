@@ -18,7 +18,7 @@ const entityHref = entity => {
   const url = isVersionType(entity?.type)
     ? entity?.version_url || entity?.url
     : entity?.url || entity?.version_url
-  return url ? `#${url}` : undefined
+  return url || undefined
 }
 
 const MappingRow = ({ mapping }) => {

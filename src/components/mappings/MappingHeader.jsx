@@ -72,7 +72,7 @@ const MappingHeader = ({mapping, onClose, repoURL, nested, onEdit, onRetire, onC
                   size='small'
                   color='primary'
                   disabled={!detailsLoaded}
-                  href={detailsLoaded ? `#${mappingSourceURL}` : undefined}
+                  href={detailsLoaded ? mappingSourceURL : undefined}
                   target='_blank'
                   rel='noopener noreferrer'
                   onClick={event => {

@@ -18,9 +18,12 @@ module.exports = (env) => {
     // year (nginx/default.conf.template). HtmlWebpackPlugin writes the hashed
     // names into index.html. Dev keeps webpack's default [name].js / [id].js.
     output: isProduction ? {
+      publicPath: '/',
       filename: '[name].[contenthash:8].js',
       chunkFilename: '[name].[contenthash:8].js',
-    } : {},
+    } : {
+      publicPath: '/',
+    },
     module: {
       rules: [
         {
@@ -105,7 +108,8 @@ module.exports = (env) => {
       },
       allowedHosts: 'all',
       historyApiFallback: {
-        index: 'index.html',
+        index: '/index.html',
+        disableDotRule: true,
       },
       proxy: [
         {

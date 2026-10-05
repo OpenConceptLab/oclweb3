@@ -178,7 +178,7 @@ const BaseEntityChip = ({ entity, icon, hideType, hideRepoVersion, primary, size
       onClick={noLink ? undefined : event => {
         event.stopPropagation()
       }}
-      href={noLink ? undefined : '#' + (entity?.version_url || entity?.url)}
+      href={noLink ? undefined : entity?.version_url || entity?.url}
       component='a'
       {...rest}
     />

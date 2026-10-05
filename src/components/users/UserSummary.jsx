@@ -16,7 +16,7 @@ const UserSummary = ({ user }) => {
         <Following title={t('common.following')} following={user?.following || []} />
       </div>
       <div className='col-xs-12 padding-0'>
-        <Link label={t('url_registry.view_canonical_url_registry')} href={`#/users/${user.username}/url-registry`} sx={{fontSize: '12px'}} startIcon={<CanonicalURLIcon fontSize='inherit' />} />
+        <Link label={t('url_registry.view_canonical_url_registry')} href={`/users/${user.username}/url-registry`} sx={{fontSize: '12px'}} startIcon={<CanonicalURLIcon fontSize='inherit' />} />
       </div>
     </>
   )

@@ -30,7 +30,7 @@ const RepoVersionButton = ({icon, repo, repoType, version, repoLabelStyle, versi
         padding: 0
       }]}
       startIcon={icon}
-      href={href ? '#' + href : undefined}
+      href={href || undefined}
       component="button"
       size={size}
     >

@@ -10,7 +10,7 @@ const DEFAULT_MEMBERS_TO_SHOW = 12
 
 const Followed = ({ object }) => {
   return (
-    <IconButton href={`#${object.url}`} sx={{marginRight: '10px', padding: 0, marginBottom: '10px'}}>
+    <IconButton href={object.url} sx={{marginRight: '10px', padding: 0, marginBottom: '10px'}}>
       <EntityIcon noLink strict entity={object} isVersion={(object?.short_code && object?.version_url)} sx={{width: '32px', height: '32px'}} />
     </IconButton>
   )

@@ -103,7 +103,7 @@ const RepoContentSummary = ({ summary, stats, summaries, baseURL }) => {
               {...(baseURL ? {
                 // the stat opens the tab it counts, without also firing the row's click
                 component: Link,
-                href: `#${baseURL}${CONFIG[stat].tab}/`,
+                href: `${baseURL}${CONFIG[stat].tab}/`,
                 onClick: event => event.stopPropagation(),
                 underline: 'none',
                 color: 'inherit'

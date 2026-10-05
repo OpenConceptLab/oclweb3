@@ -32,9 +32,9 @@ const About = ({ title, text, style, expanded }) => {
             {title}
           </Typography>
       }
-      <div id='hidden-about' className='col-xs-12 padding-0 hidden' style={{display: 'none !important'}} dangerouslySetInnerHTML={{__html: text.replaceAll('href="/', 'href="/#/')}} />
+      <div id='hidden-about' className='col-xs-12 padding-0 hidden' style={{display: 'none !important'}} dangerouslySetInnerHTML={{__html: text}} />
       <Collapse in={showAll} collapsedSize={75}>
-        <div id='about-text' className='col-xs-12 padding-0 md-content' dangerouslySetInnerHTML={{__html: text.replaceAll('href="/', 'href="/#/')}} />
+        <div id='about-text' className='col-xs-12 padding-0 md-content' dangerouslySetInnerHTML={{__html: text}} />
       </Collapse>
       {
         showReadMoreButton &&

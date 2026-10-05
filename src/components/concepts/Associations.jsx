@@ -22,6 +22,7 @@ import AddIcon from '@mui/icons-material/Add';
 import WarnIcon from '@mui/icons-material/WarningAmber';
 import { get, isEmpty, forEach, map, find, compact, flatten, values, filter, without, uniqBy, orderBy } from 'lodash';
 import { generateRandomString, dropVersion, URIToParentParams, toParentURI, getResourceIdFromUrl } from '../../common/utils'
+import { navigate } from '../../common/history'
 import TagCountLabel from '../common/TagCountLabel'
 import RepoChip from '../repos/RepoChip'
 import AssociationMappingCells from '../mappings/AssociationMappingCells'
@@ -62,7 +63,7 @@ const AssociationRow = ({mappings, id, mapType, isSelf, isIndirect, isHierarchy,
     return {
       hover: true,
       sx: {...(hide ? {display: 'none'} : {}), cursor: targetURL ? 'pointer' : 'default'},
-      onClick: () => { if(targetURL) window.location.hash = targetURL }
+      onClick: () => { if(targetURL) navigate(targetURL) }
     }
   }
   return (

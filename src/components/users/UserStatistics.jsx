@@ -32,7 +32,7 @@ const UserStatistics = ({ user }) => {
       </Typography>
       <div style={{display: 'flex', alignItems: 'flex-start', flexDirection: 'column'}}>
         <List sx={{color: 'secondary.main', p: 0}}>
-          <ListItem disablePadding href={`#${user.url}repos`} sx={{cursor: 'pointer'}} onClick={onRepoStatsClick}>
+          <ListItem disablePadding href={`${user.url}repos`} sx={{cursor: 'pointer'}} onClick={onRepoStatsClick}>
             <ListItemIcon sx={{minWidth: 0, marginRight: '8px'}}>
               <RepoIcon noTooltip sx={{color: 'default.light', width: '20px', height: '20px'}} />
             </ListItemIcon>

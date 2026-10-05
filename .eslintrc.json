@@ -162,6 +162,7 @@
           "url",
           "urls",
           "href",
+          "hashchange",
           "xhr",
           "kwargs",
           "svg",
