@@ -26,7 +26,7 @@ const EventCard = ({ event, highlight }) => {
   const getTitle = (event, object, includeSubtitle) => {
     let title = object?.id || object?.username || object?.name
     const eventType = event?.event_type?.toLowerCase()
-    const translatedEventType = t(`common.event_types.${eventType}`, { defaultValue: eventType });
+    const translatedEventType = t(`common.event_types.${eventType}`, { defaultValue: eventType }).toLowerCase();
     let subTitle
     if(event?.referenced_object?.type)
       subTitle = t(`common.event_object_types.${event.referenced_object.type}`, { defaultValue: event.referenced_object.type.toLowerCase() })
