@@ -28,9 +28,10 @@ const CommunityBlog = ({ sx }) => {
 
   const fetchFeed = () => {
     fetch(window.location.href.includes('https://') ? 'https://openconceptlab.org/feed/' : '/api/feed/')
-      .then(response => response.text())
+      .then(response => response.ok ? response.text() : Promise.reject(response.status))
       .then(res => rssParser.parse(res))
-      .then(rss => setFeed(rss));
+      .then(rss => setFeed(rss))
+      .catch(() => setFeed(false));
   }
 
   React.useEffect(() => {
