@@ -1156,8 +1156,8 @@
         "tbv3_match": "Busca continuará funcionando, mas $match com Busca Semântica do OCL está pausado."
       },
       "projects": {
-        "default": "Seus projetos existentes permanecem abertos; delete um para liberar um espaço para um novo.",
-        "new_project": "Seus projetos existentes permanecem abertos; delete um para liberar um espaço para um novo."
+        "default": "Seus projetos existentes permanecem abertos; exclua um para liberar espaço para um novo.",
+        "new_project": "Seus projetos existentes permanecem abertos; exclua um para liberar espaço para um novo."
       },
       "rows": {
         "default": "Linhas além do seu limite permanecem no projeto mas não são correspondidas.",
