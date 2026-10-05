@@ -23,13 +23,14 @@ import LocaleForm from './LocaleForm'
 import ParentConceptsForm from './ParentConceptsForm'
 import ConceptDatatypeSection, { getDatatypeExtraKeys } from './ConceptDatatypeSection'
 import Breadcrumbs from '../common/Breadcrumbs'
+import { PRIMARY_COLORS } from '../../common/colors'
 import QuotaDialog from '../common/QuotaDialog'
 import { getQuotaError } from '../common/quotaErrors'
 import CustomAttributesForm from '../common/CustomAttributesForm'
 import { required } from '../../common/validators';
 import { OCL_REQUEST_SOURCE } from '../../common/constants';
 
-const ANCHOR_UNDERLINE_STYLES = {textDecoration: 'underline', cursor: 'pointer'}
+const ANCHOR_UNDERLINE_STYLES = {color: PRIMARY_COLORS.main, textDecoration: 'underline', cursor: 'pointer'}
 
 const TOP_LEVEL_PROMPT_EXCLUSIONS = [
   'uuid', 'type', 'url', 'version', 'version_url', 'versions_url', 'versioned_object_id', 'created_on',
@@ -54,7 +55,6 @@ class ConceptForm extends FormComponent  {
     super(props);
     const mandatoryFieldStruct = this.getMandatoryFieldStruct()
     const fieldStruct = this.getFieldStruct()
-    const autoAssignedId = Boolean(props.source?.autoid_concept_mnemonic)
     this.state = {
       locales: [],
       conceptClasses: [],
@@ -71,7 +71,7 @@ class ConceptForm extends FormComponent  {
       generatingChangeComment: false,
       quotaError: null,
       fields: {
-        id: {...mandatoryFieldStruct, validators: autoAssignedId ? [] : [required()]},
+        id: {...mandatoryFieldStruct, validators: this.getIdValidators(props.source, false)},
         concept_class: {...mandatoryFieldStruct},
         datatype: {...mandatoryFieldStruct},
         external_id: {...fieldStruct},
@@ -86,6 +86,8 @@ class ConceptForm extends FormComponent  {
       }
     }
   }
+
+  getIdValidators = (source, manualMnemonic) => source?.autoid_concept_mnemonic && !manualMnemonic ? [] : [required()]
 
   // eslint-disable-next-line no-undef
   getAIAssistantURL = () => window.AI_ASSISTANT_API_URL || process.env.AI_ASSISTANT_API_URL
@@ -410,15 +412,40 @@ class ConceptForm extends FormComponent  {
   toggleManualMnemonic = () => {
     const newManualMnemonic = !this.state.manualMnemonic
     const newState = {...this.state}
-    const autoAssignedId = Boolean(this.props.source?.autoid_concept_mnemonic) && !newManualMnemonic
     newState.fields.id = {
       ...newState.fields.id,
       value: newManualMnemonic ? newState.fields.id.value : '',
-      validators: autoAssignedId ? [] : [required()],
+      validators: this.getIdValidators(this.props.source, newManualMnemonic),
       errors: []
     }
     newState.manualMnemonic = newManualMnemonic
     this.setState(newState)
+  }
+
+  getIdHelperText = source => {
+    const { t } = this.props
+    const { fields } = this.state
+    return (
+      <span>
+        <a style={ANCHOR_UNDERLINE_STYLES} onClick={this.toggleManualMnemonic}>{t('concept.form.id_auto_assign_back')}</a><br/>
+        {
+          source.autoid_concept_mnemonic === 'sequential' &&
+            <React.Fragment>
+              <span>{t('concept.form.id_optional_sequential')}</span><br/>
+            </React.Fragment>
+        }
+        {
+          source.autoid_concept_mnemonic === 'uuid' &&
+            <React.Fragment>
+              <span>{t('concept.form.id_optional_uuid')}</span><br/>
+            </React.Fragment>
+        }
+        <span>{t('concept.form.id_live_at')} <br />
+          { `${window.location.origin}/#${source.url}concepts/` }
+        </span>
+        <span><b>{fields.id.value || '[concept-id]'}</b>/</span>
+      </span>
+    )
   }
 
   onChange = (id, value) => this.setFieldValue(id, value)
@@ -506,7 +533,7 @@ class ConceptForm extends FormComponent  {
               ownerURL={repo.owner_url}
               owner={repo.owner}
               ownerType={repo.owner_type}
-              repo={repo.id}
+              repo={repo.short_code || repo.id}
               repoType={repo.type}
               id={concept?.id || fields.id.value || '[concept-id]'}
               repoURL={repo?.url}
@@ -536,7 +563,7 @@ class ConceptForm extends FormComponent  {
                   value={fields.id.value}
                   disabled={edit}
                   error={Boolean(fields.id.errors.length)}
-                  helperText={fields.id.errors[0]}
+                  helperText={fields.id.errors[0] || (!edit && source?.autoid_concept_mnemonic && manualMnemonic ? this.getIdHelperText(source) : undefined)}
                 />
             }
           </div>

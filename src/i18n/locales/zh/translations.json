@@ -217,6 +217,10 @@
       "locale_preferred": "首选",
       "id_auto_assign": "概念 ID 将自动分配",
       "id_auto_assign_override": "以手动输入方式覆盖",
+      "id_auto_assign_back": "自动分配",
+      "id_optional_sequential": "此项为可选，因为父存储库已设置为自动生成 ID。ID 将按顺序生成下一个编号。",
+      "id_optional_uuid": "此项为可选，因为父存储库已设置为自动生成 ID。ID 将以 UUID 格式 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx 生成。",
+      "id_live_at": "您的新概念将位于：",
       "concept_details": {
         "header": "概念详情"
       },
@@ -434,6 +438,7 @@
     "ids": "ID",
     "external_ids": "外部 ID",
     "auto_id_manual": "手动输入",
+    "auto_id_manual_short": "手动",
     "auto_id_manual_description": "每次创建新资源时都必须手动输入 ID。",
     "auto_id_uuid": "UUID",
     "auto_id_uuid_description": "ID 以 UUID 格式自动分配：xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",

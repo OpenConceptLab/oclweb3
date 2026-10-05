@@ -99,6 +99,7 @@ const RepoHome = () => {
   const { setAlert, setContextRepo } = React.useContext(OperationsContext);
 
   const getURL = () => buildRepoApiUrl(route)
+  const getRepoFetchURL = () => route.version === 'HEAD' ? dropVersion(getURL()) : getURL()
   const getSearchURL = () => {
     if(isCollection && selectedExpansion?.url && ['concepts', 'mappings'].includes(tab))
       return `${selectedExpansion.url}${tab}/`
@@ -200,7 +201,7 @@ const RepoHome = () => {
     setStatus(false)
     setExpansions([])
     setSelectedExpansion(false)
-    APIService.new().overrideURL(getURL()).get(null, null, {includeSummary: true, verbose: true, ...PROCESSING_QUERY_PARAMS}, true).then(response => {
+    APIService.new().overrideURL(getRepoFetchURL()).get(null, null, {includeSummary: true, verbose: true, ...PROCESSING_QUERY_PARAMS}, true).then(response => {
       const newStatus = response?.status || response?.response?.status
       const _repo = response?.data || response?.response?.data || {}
       if(newStatus === 200)

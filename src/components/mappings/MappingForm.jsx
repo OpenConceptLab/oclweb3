@@ -18,13 +18,14 @@ import {
   required, matchPattern
 } from '../../common/validators';
 import Breadcrumbs from '../common/Breadcrumbs'
+import { PRIMARY_COLORS } from '../../common/colors'
 import CustomAttributesForm from '../common/CustomAttributesForm'
 import CloseIconButton from '../common/CloseIconButton';
 import Button from '../common/Button'
 import ConceptSearchAutocomplete from '../common/ConceptSearchAutocomplete'
 import SourceSearchAutocomplete from '../common/SourceSearchAutocomplete'
 
-const ANCHOR_UNDERLINE_STYLES = {textDecoration: 'underline', cursor: 'pointer'}
+const ANCHOR_UNDERLINE_STYLES = {color: PRIMARY_COLORS.main, textDecoration: 'underline', cursor: 'pointer'}
 const OPTIONAL_BLANK_FIELDS = [
   'id', 'external_id', 'from_concept_url', 'from_concept_code', 'from_concept_name', 'from_source_url', 'from_source_version',
   'to_concept_url', 'to_concept_code', 'to_concept_name', 'to_source_url', 'to_source_version'
@@ -38,8 +39,6 @@ class MappingForm extends FormComponent {
 
     const mandatoryFieldStruct = this.getMandatoryFieldStruct()
     const fieldStruct = this.getFieldStruct()
-    const autoAssignedId = Boolean(props.source?.autoid_mapping_mnemonic)
-
     this.state = {
       manualMnemonic: false,
       manualExternalId: false,
@@ -51,7 +50,7 @@ class MappingForm extends FormComponent {
       mapTypes: [],
       parent: null,
       fields: {
-        id: {...mandatoryFieldStruct, validators: autoAssignedId ? [matchPattern(ID_REGEX)] : [required(), matchPattern(ID_REGEX)]},
+        id: {...mandatoryFieldStruct, validators: this.getIdValidators(props.source, false)},
         map_type: {...mandatoryFieldStruct},
         external_id: {...fieldStruct},
         from_concept_url: {...fieldStruct},
@@ -82,6 +81,8 @@ class MappingForm extends FormComponent {
     if(!this.props.edit)
       this.setState(state => ({parent: this.props.source, fromSource: state.fromSource || this.props.source || null}))
   }
+
+  getIdValidators = (source, manualMnemonic) => source?.autoid_mapping_mnemonic && !manualMnemonic ? [matchPattern(ID_REGEX)] : [required(), matchPattern(ID_REGEX)]
 
   buildSource = (url, name) => {
     if(!url)
@@ -299,7 +300,7 @@ class MappingForm extends FormComponent {
             </React.Fragment>
         }
         {
-          source.autoid_mapping_external_id === 'sequence' &&
+          source.autoid_mapping_external_id === 'sequential' &&
             <span>This is optional since the parent repository is set to take care of generating the External ID. The External ID will be generated to next in sequence.</span>
         }
         {
@@ -407,11 +408,10 @@ class MappingForm extends FormComponent {
   toggleManualMnemonic = () => {
     const newManualMnemonic = !this.state.manualMnemonic
     const newState = {...this.state}
-    const autoAssignedId = Boolean(this.props.source?.autoid_mapping_mnemonic) && !newManualMnemonic
     newState.fields.id = {
       ...newState.fields.id,
       value: newManualMnemonic ? newState.fields.id.value : '',
-      validators: autoAssignedId ? [matchPattern(ID_REGEX)] : [required(), matchPattern(ID_REGEX)],
+      validators: this.getIdValidators(this.props.source, newManualMnemonic),
       errors: []
     }
     newState.manualMnemonic = newManualMnemonic
@@ -438,7 +438,7 @@ class MappingForm extends FormComponent {
               ownerURL={repo.owner_url}
               owner={repo.owner}
               ownerType={repo.owner_type}
-              repo={repo.id}
+              repo={repo.short_code || repo.id}
               repoType={repo.type}
               id={mapping?.id || fields.id.value || '[mapping-id]'}
               repoURL={repo?.url}

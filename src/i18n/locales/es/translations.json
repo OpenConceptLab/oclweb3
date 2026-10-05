@@ -148,6 +148,10 @@
     "form": {
       "id_auto_assign": "El ID del concepto se asignará automáticamente",
       "id_auto_assign_override": "para anular con entrada manual",
+      "id_auto_assign_back": "Asignar automáticamente",
+      "id_optional_sequential": "Esto es opcional porque el repositorio principal está configurado para generar el ID. El ID se generará con el siguiente número de la secuencia.",
+      "id_optional_uuid": "Esto es opcional porque el repositorio principal está configurado para generar el ID. El ID se generará en formato UUID xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.",
+      "id_live_at": "Su nuevo concepto estará en:",
       "id": "ID del concepto",
       "external_id": "ID externo",
       "concept_class": "Clase de concepto",
@@ -382,6 +386,7 @@
     "ids": "ID",
     "external_ids": "ID externos",
     "auto_id_manual": "Introducir manualmente",
+    "auto_id_manual_short": "Manual",
     "auto_id_manual_description": "El ID debe introducirse manualmente cada vez que se crea un nuevo recurso.",
     "auto_id_uuid": "UUID",
     "auto_id_uuid_description": "El ID se asigna automáticamente en formato UUID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",

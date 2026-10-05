@@ -274,6 +274,10 @@
       "locale_preferred": "Preferred",
       "id_auto_assign": "Concept ID will be auto-assigned",
       "id_auto_assign_override": "to override with manual entry",
+      "id_auto_assign_back": "Auto-assign",
+      "id_optional_sequential": "This is optional since the parent repository is set to take care of generating the ID. The ID will be generated to next in sequence.",
+      "id_optional_uuid": "This is optional since the parent repository is set to take care of generating the ID. The ID will be generated in UUID format xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.",
+      "id_live_at": "Your new concept will live at:",
       "concept_details": {
         "header": "Concept details"
       },
@@ -665,6 +669,7 @@
     "ids": "IDs",
     "external_ids": "External IDs",
     "auto_id_manual": "Enter Manually",
+    "auto_id_manual_short": "Manual",
     "auto_id_manual_description": "The ID must be entered manually each time you create a new resource.",
     "auto_id_uuid": "UUID",
     "auto_id_uuid_description": "The ID is auto-assigned in the UUID format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",

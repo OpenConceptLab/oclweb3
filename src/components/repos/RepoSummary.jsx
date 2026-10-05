@@ -22,6 +22,7 @@ import { uniq, compact, isEmpty } from 'lodash'
 import APIService from '../../services/APIService'
 import { currentUserHasAccess, pluralize, formatDate } from '../../common/utils'
 import { PRIMARY_COLORS } from '../../common/colors';
+import { AUTO_ID_SEQUENTIAL, AUTO_ID_UUID } from '../../common/constants';
 import { OperationsContext } from '../app/LayoutContext';
 import AccessChip from '../common/AccessChip'
 import EntityAttributesDialog from '../common/EntityAttributesDialog'
@@ -47,6 +48,7 @@ const RepoSummary = ({ repo, summary, show, onShow }) => {
   const { t } = useTranslation()
   const { setAlert } = React.useContext(OperationsContext);
   const [viewAll, setViewAll] = React.useState(false)
+  const isSourceHEAD = (repo?.type || '').startsWith('Source') && (!repo?.version || repo.version === 'HEAD')
 
   const repoSubType = repo?.source_type || repo?.collection_type
   const isLoaded = isEmpty(summary)
@@ -73,6 +75,25 @@ const RepoSummary = ({ repo, summary, show, onShow }) => {
     }
     return repo
   }
+
+  const getAutoIDField = (field, startFromField) => {
+    const value = repo[field]
+    let label = t('repo.auto_id_manual_short')
+    if(value === AUTO_ID_UUID)
+      label = t('repo.auto_id_uuid')
+    else if(value === AUTO_ID_SEQUENTIAL)
+      label = startFromField ? `${t('repo.auto_id_sequential')} (${t('repo.auto_id_start_from')}: ${repo?.[startFromField] || 1})` : t('repo.auto_id_sequential')
+    return {label: t(`repo.${field}`), value: label}
+  }
+
+  const autoIDFields = isSourceHEAD ? {
+    autoid_concept_mnemonic: getAutoIDField('autoid_concept_mnemonic', 'autoid_concept_mnemonic_start_from'),
+    autoid_concept_external_id: getAutoIDField('autoid_concept_external_id', 'autoid_concept_external_id_start_from'),
+    autoid_concept_name_external_id: getAutoIDField('autoid_concept_name_external_id'),
+    autoid_concept_description_external_id: getAutoIDField('autoid_concept_description_external_id'),
+    autoid_mapping_mnemonic: getAutoIDField('autoid_mapping_mnemonic', 'autoid_mapping_mnemonic_start_from'),
+    autoid_mapping_external_id: getAutoIDField('autoid_mapping_external_id', 'autoid_mapping_external_id_start_from'),
+  } : {}
 
   const buttonSx = {
     background: '#FFF',
@@ -348,12 +369,7 @@ const RepoSummary = ({ repo, summary, show, onShow }) => {
           hierarchy_meaning: {label: t('repo.hierarchy_meaning')},
           compositional: {label: t('repo.compositional')},
           version_needed: {label: t('repo.version_needed')},
-          autoid_concept_mnemonic: {label: t('repo.autoid_concept_mnemonic')},
-          autoid_concept_external_id: {label: t('repo.autoid_concept_external_id')},
-          autoid_concept_name_external_id: {label: t('repo.autoid_concept_name_external_id')},
-          autoid_concept_description_external_id: {label: t('repo.autoid_concept_description_external_id')},
-          autoid_mapping_mnemonic: {label: t('repo.autoid_mapping_mnemonic')},
-          autoid_mapping_external_id: {label: t('repo.autoid_mapping_external_id')},
+          ...autoIDFields,
           'checksums.standard': {label: t('checksums.standard')},
           'checksums.smart': {label: t('checksums.smart')},
           extras: {label: t('custom_attributes.label'), type: 'json'},
