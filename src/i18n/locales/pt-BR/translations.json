@@ -1018,7 +1018,7 @@
     "npm_tooltip": "Importar pacote NPM",
     "queue_id_label": "ID da Fila",
     "queue_id_placeholder": "ex.: minha-fila",
-    "queue_id_helper_text": "Imports que compartilham o mesmo ID da fila são processados em sequência",
+    "queue_id_helper_text": "Importações que compartilham o mesmo ID da fila são processados em sequência",
     "update_if_exists_label": "Atualizar se Existir",
     "update_if_exists_helper_text": "Atualizar se conceito/mapeamento existente encontrado",
     "hierarchy_helper_text": "Importante marcar isto se o conteúdo da importação tem hierarquia",
