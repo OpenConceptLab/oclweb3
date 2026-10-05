@@ -571,7 +571,7 @@
     "summary_mappings_references": "{{count}} referências de mapeamentos",
     "refresh_summary": "Atualizar resumo",
     "repo_version_summary": "Resumo da Versão do Repositório",
-    "repo_summary_is_calculando": "Resumo do repositório está sendo calculado, por favor verifique novamente após algum tempo.",
+    "repo_summary_is_calculating": "Resumo do repositório está sendo calculado, por favor verifique novamente após algum tempo.",
     "no_overview": "O proprietário não criou uma página de Visão Geral para este repositório",
     "create_a_repo": "Criar um repositório",
     "create_a_repo_description": "Repositórios são contêineres ou pastas para seu conteúdo. <0>Saiba mais.</0>",
