@@ -876,7 +876,7 @@
     "updated_members": "Membros Atualizados",
     "member_add_failed": "Não foi possível adicionar {{user}}: {{detail}}",
     "member_remove_failed": "Não foi possível remover {{user}}: {{detail}}",
-    "org_have_not_created_public_repos_suffix": "não criaram nenhum repositório público",
+    "org_have_not_created_public_repos_suffix": "não criou nenhum repositório público",
     "browse_members": "Navegar membros",
     "member_of": "Membro de",
     "create_an_org": "Criar uma Organização",
