@@ -166,7 +166,9 @@ const RepoHome = () => {
       setContextRepo(_repo)
     if(!sameRepoAsBefore)
       fetchOwner()
-    fetchRepoSummary()
+    const resolvingLatestVersion = !route.version && !route.resource
+    if(!resolvingLatestVersion)
+      fetchRepoSummary()
     setTabs(getRepoTabs())
     if(isCollection) {
       let expansionURL = _repo?.expansions_url
@@ -180,14 +182,17 @@ const RepoHome = () => {
     }
     if(!route.version || route.version === 'HEAD')
       setHeadVersion(toVersionObject(_repo))
-    else
-      fetchHeadVersion()
     if(!route.version) {
       if(route.resource)
         setVersionPending(false)
       else
         resolveLatestVersion(_repo, hasReleasedVersion)
     }
+  }
+
+  const stayOnHEAD = () => {
+    setVersionPending(false)
+    fetchRepoSummary()
   }
 
   const fetchRepo = (sameRepoAsBefore = false, { forceRefresh = false } = {}) => {
@@ -221,7 +226,7 @@ const RepoHome = () => {
     // HEAD's summary counts every version, HEAD included
     const versionsCount = _repo?.summary?.versions
     if(!_repo?.url || (isNumber(versionsCount) && versionsCount <= 1)) {
-      setVersionPending(false)
+      stayOnHEAD()
       return
     }
     const releaseCheck = hasReleasedVersion || fetchHasReleasedVersion()
@@ -231,7 +236,7 @@ const RepoHome = () => {
       if(hasRelease)
         fetchLatestVersion(_repo)
       else
-        setVersionPending(false)
+        stayOnHEAD()
     })
   }
 
@@ -248,11 +253,16 @@ const RepoHome = () => {
         if(!isSameAsCurrent && onVersionChange(_latest, false))
           return
       }
-      setVersionPending(false)
+      stayOnHEAD()
     })
   }
 
   const fetchHeadVersion = () => {
+    const cachedHead = versionCacheRef.current[versionCacheKey('HEAD')]
+    if(cachedHead) {
+      setHeadVersion(toVersionObject(cachedHead))
+      return
+    }
     APIService.new().overrideURL(dropVersion(getURL())).appendToUrl('HEAD/').get(null, null, {includeSummary: true, verbose: true, ...PROCESSING_QUERY_PARAMS}, true).then(response => {
       const headStatus = response?.status || response?.response?.status
       const _head = response?.data || response?.response?.data
@@ -306,6 +316,13 @@ const RepoHome = () => {
     if(!sameRepoAsBefore)
       fetchVersions()
   }, [location.pathname])
+
+  React.useEffect(() => {
+    if(!route.version || route.version === 'HEAD' || !isRepoForRoute || headVersion || versionsLoading)
+      return
+    if(!find(versions || [], version => (version.version || version.id) === 'HEAD'))
+      fetchHeadVersion()
+  }, [route.version, isRepoForRoute, headVersion, versionsLoading, versions])
 
   React.useEffect(() => {
     if(!isCollection || !expansions?.length)
