@@ -76,7 +76,8 @@
       "Organization": "uma Organização",
       "Concept": "um Conceito",
       "Mapping": "um Mapeamento",
-      "Repository": "um Repositório"
+      "Repository": "um Repositório",
+      "User": "um Usuário"
     },
     "version": "Versão",
     "versions": "Versões",
