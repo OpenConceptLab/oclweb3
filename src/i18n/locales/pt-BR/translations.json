@@ -32,9 +32,9 @@
     "go_back_or_to_your_dashboard": "Você pode <0/> ou ir para o seu <1/>.",
     "for_a_new_account": "para criar uma nova conta",
     "back": "voltar",
-    "retired": "Aposentado",
-    "retire": "Aposentar",
-    "unretire": "Reativar",
+    "retired": "Descontinuado",
+    "retire": "Descontinuar",
+    "unretire": "Restaurar",
     "id": "ID",
     "uid": "UID",
     "name": "Nome",
@@ -263,7 +263,7 @@
   "concept": {
     "concept": "Conceito",
     "concepts": "Conceitos",
-    "retired_concepts": "Conceitos aposentados",
+    "retired_concepts": "Conceitos descontinuados",
     "display_name": "Nome de exibição",
     "concept_class": "Classe do conceito",
     "datatype": "Tipo de dado",
@@ -298,7 +298,7 @@
         "plain": "Texto simples",
         "structured": "Estruturado (ex.: JSON)"
       },
-      "locale": "Localidade",
+      "locale": "Idioma",
       "name": "Nome",
       "description": "Descrição",
       "type": "Tipo",
@@ -335,7 +335,7 @@
     "mapping": "Mapeamento",
     "mappings": "Mapeamentos",
     "same_as_mappings": "Mapeamentos (SAME-AS)",
-    "retired_mappings": "Mapeamentos aposentados",
+    "retired_mappings": "Mapeamentos descontinuados",
     "fromConcept": "Conceito de origem",
     "toConcept": "Conceito de destino",
     "fromConceptName": "Nome do conceito de origem",
@@ -379,7 +379,7 @@
     "success_update": "Mapeamento atualizado com sucesso",
     "error_create": "Não foi possível criar o mapeamento",
     "error_update": "Não foi possível atualizar o mapeamento",
-    "include_retired": "Incluir aposentados",
+    "include_retired": "Incluir descontinuados",
     "associations_info": "A seção associações lista associações de hierarquia e mapeamento para este conceito.",
     "has_child": "Tem filho",
     "has_parent": "Tem pai",
@@ -387,10 +387,10 @@
     "open_from_concept": "Abrir conceito de origem",
     "open_to_concept": "Abrir conceito de destino",
     "compare_concepts": "Comparar conceitos",
-    "retire_mapping": "Aposentar mapeamento",
-    "reactivate_mapping": "Reativar mapeamento",
-    "success_retired": "Mapeamento aposentado",
-    "success_unretired": "Mapeamento reativado",
+    "retire_mapping": "Descontinuar mapeamento",
+    "reactivate_mapping": "Restaurar mapeamento",
+    "success_retired": "Mapeamento descontinuado",
+    "success_unretired": "Mapeamento restaurado",
     "add_new_mapping": "Adicionar novo mapeamento",
     "add_a_mapping": "Adicionar um mapeamento",
     "add_new_map_type_mapping": "Adicionar novo mapeamento {{mapType}}",
@@ -527,8 +527,8 @@
     "compare_expansions_of_version": "Comparar expansões desta versão",
     "compare": "Comparar",
     "visibility": "Visibilidade",
-    "locales": "Localidades",
-    "locale": "Localidade",
+    "locales": "Idiomas",
+    "locale": "Idioma",
     "identifier": "Identificador",
     "contact": "Contato",
     "jurisdiction": "Jurisdição",
@@ -552,8 +552,8 @@
     "short_code": "Código curto",
     "full_name": "Nome completo",
     "short_name": "Nome curto",
-    "default_locale": "Localidade padrão",
-    "supported_locales": "Localidades suportadas",
+    "default_locale": "Idioma padrão",
+    "supported_locales": "Idiomas suportados",
     "additional_meta_data": "Metadados adicionais",
     "publisher_information": "Informações do publicador",
     "autoid_concept_mnemonic": "Atribuição automática de ID de conceito",
@@ -565,8 +565,8 @@
     "custom_validation_schema": "Schema de validação personalizado",
     "compare_origin_version_disabled_tooltip": "Você deve selecionar uma versão mais antiga para comparar",
     "compare_destination_version_disabled_tooltip": "Você deve selecionar uma versão mais nova para comparar",
-    "summary_active_concepts_from_total": "{{active}} conceitos ativos ({{retired}} aposentados)",
-    "summary_active_mappings_from_total": "{{active}} mapeamentos ativos ({{retired}} aposentados)",
+    "summary_active_concepts_from_total": "{{active}} conceitos ativos ({{retired}} descontinuados)",
+    "summary_active_mappings_from_total": "{{active}} mapeamentos ativos ({{retired}} descontinuados)",
     "summary_released_versions_from_total": "{{released}} versões publicadas ({{unreleased}} não publicadas)",
     "summary_concepts_references": "{{count}} referências de conceitos",
     "summary_mappings_references": "{{count}} referências de mapeamentos",
@@ -766,7 +766,7 @@
           },
           "activeOnly": {
             "label": "activeOnly",
-            "tooltip": "Selecione isto para incluir apenas conceitos e mapeamentos não aposentados"
+            "tooltip": "Selecione isto para incluir apenas conceitos e mapeamentos não descontinuados"
           },
           "date": {
             "label": "data",
@@ -1144,7 +1144,7 @@
       "generic": "Alguns recursos estão pausados até que sua cota seja aumentada.",
       "ai_assistant_calls": {
         "default": "Recursos que usam o Assistente de IA do OCL estão pausados.",
-        "auto_match": "Correspondência automática continuará rodando sem recomendações do Assistente de IA do OCL."
+        "auto_match": "Auto Match continuará rodando sem recomendações do Assistente de IA do OCL."
       },
       "ai_assistant_change_comments": {
         "default": "Você ainda pode escrever o comentário de atualização sozinho, sem um rascunho do Assistente de IA do OCL.",
@@ -1152,7 +1152,7 @@
       },
       "match_operations": {
         "default": "Correspondência está pausada.",
-        "auto_match": "Você ainda pode revisar, editar e exportar seus projetos, mas a correspondência automática está pausada.",
+        "auto_match": "Você ainda pode revisar, editar e exportar seus projetos, mas o Auto Match está pausado.",
         "tbv3_match": "Busca continuará funcionando, mas $match com busca semântica do OCL está pausado."
       },
       "projects": {
