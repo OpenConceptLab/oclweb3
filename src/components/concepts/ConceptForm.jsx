@@ -306,7 +306,7 @@ class ConceptForm extends FormComponent  {
           name_type: this.getMandatoryFieldStruct(name.name_type),
           locale_preferred: this.getFieldStruct(name.locale_preferred || false),
           name: this.getMandatoryFieldStruct(name.name),
-          external_id: this.getFieldStruct(name.external_id || ''),
+          external_id: this.getFieldStruct(copyFrom?.id ? '' : (name.external_id || '')),
         })
       })
     }
@@ -318,7 +318,7 @@ class ConceptForm extends FormComponent  {
           description_type: this.getMandatoryFieldStruct(desc.description_type),
           locale_preferred: this.getFieldStruct(desc.locale_preferred || false),
           description: this.getMandatoryFieldStruct(desc.description),
-          external_id: this.getFieldStruct(desc.external_id || ''),
+          external_id: this.getFieldStruct(copyFrom?.id ? '' : (desc.external_id || '')),
         })
       })
     }
