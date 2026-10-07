@@ -18,6 +18,7 @@ import Link from '../common/Link'
 import UserIcon from '../users/UserIcon'
 
 const EventDescription = ({ event, isFirst, isLast, isJoined }) => {
+  const { t } = useTranslation()
   const { event_type, description, referenced_object} = event;
   const getDescription = () => {
     let eventDescription = description
@@ -25,7 +26,9 @@ const EventDescription = ({ event, isFirst, isLast, isJoined }) => {
       eventDescription += ' ' + getSiteTitle()
     let rel;
     if(event_type && !isEmpty(referenced_object)) {
-      eventDescription = `${event_type} ${referenced_object.type} `
+      const translatedEventType = t(`common.event_types.${event_type.toLowerCase()}`, { defaultValue: event_type });
+      const translatedObjectType = referenced_object.type ? t(`common.event_object_types.${referenced_object.type}`, { defaultValue: referenced_object.type }) : '';
+      eventDescription = `${translatedEventType} ${translatedObjectType} `
       if(['Source Version', 'Collection Version'].includes(referenced_object.type)) {
         rel = `${referenced_object.short_code}/${referenced_object.id}`
       } else
@@ -105,7 +108,7 @@ const Events = ({ user, events, onLoadMore, showAvatar, maxHeight, dashboard }) 
           showAvatar &&
             <UserIcon noTooltip user={user} sx={{width: '40px', height: '40px', marginRight: '16px'}} color='primary' />
         }
-        {`${isSelf ? t('user.your') : (user.name + "'s")} ${t('user.recent_activity')}`}
+        {isSelf ? t('user.own_recent_activity') : t('user.recent_activity_of', {name: user.name, interpolation: {escapeValue: false}})}
       </Typography>
       <Timeline
         id="events-timeline"
