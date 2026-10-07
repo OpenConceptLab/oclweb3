@@ -28,7 +28,7 @@ const RepoVersionList = ({ title, versions = [], emptyLabel }) => (
               `${version.owner}-${version.short_code}-${version.version}`
             }
           >
-            <a href={`#${version.version_url}`}>
+            <a href={version.version_url}>
               {`${version.owner} / ${version.short_code}:${version.version}`}
             </a>
           </li>

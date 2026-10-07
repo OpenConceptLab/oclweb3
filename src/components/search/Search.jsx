@@ -160,12 +160,12 @@ const Search = props => {
     let queryStr = url.replace('?&', '?').split('?')[1]
     queryStr = queryStr ? '?' + queryStr : ''
 
-    return window.location.hash.replace('#', '').split('?')[0] + queryStr;
+    return window.location.pathname + queryStr;
   }
 
 
   const getFiltersFromQueryParams = () => {
-    const queryParams = new URLSearchParams(window.location.hash.split('?')[1])
+    const queryParams = new URLSearchParams(window.location.search)
     let _filters = false
     if(resource === 'references') {
       _filters = {};
@@ -189,7 +189,7 @@ const Search = props => {
   }
 
   const setQueryParamsInState = (mustFetch, includeRepoDefaultFilters) => {
-    const queryParams = new URLSearchParams(window.location.hash.split('?')[1])
+    const queryParams = new URLSearchParams(window.location.search)
     const value = queryParams.get('q') || ''
     const isMatch = queryParams.get('$match') === 'true'
     const isDiffFromPrevInput = value !== input

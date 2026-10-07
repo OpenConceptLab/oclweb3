@@ -266,12 +266,12 @@ const VersionResourcesComparison = ({version1, version2, resource, isCollection,
               : sectionDefinition?.label || startCase(section)}
         </TableCell>
         <TableCell>
-          <Button type='text' href={'#' + getViewURL(change, section)} size='small' startIcon={<ConceptIcon selected noTooltip fontSize='inherit' />} target='_blank' sx={{textTransform: 'none'}}>
+          <Button type='text' href={getViewURL(change, section)} size='small' startIcon={<ConceptIcon selected noTooltip fontSize='inherit' />} target='_blank' sx={{textTransform: 'none'}}>
             View
           </Button>
           {
             ['changed_retired', 'changed_major', 'changed_minor'].includes(section) &&
-              <Button color='warning' type='text' href={'#' + getChangeURL(change)} size='small' startIcon={<DiffIcon fontSize='inherit' />} target='_blank' sx={{textTransform: 'none', marginLeft: '12px'}}>
+              <Button color='warning' type='text' href={getChangeURL(change)} size='small' startIcon={<DiffIcon fontSize='inherit' />} target='_blank' sx={{textTransform: 'none', marginLeft: '12px'}}>
                 Compare
               </Button>
           }

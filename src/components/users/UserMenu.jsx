@@ -63,7 +63,7 @@ const UserMenu = ({ isOpen, onClose }) => {
           {
             authenticated ?
               <List>
-                <ListItemButton sx={{p: 1, borderRadius: '100px'}} component='a' className='no-anchor-styles' href={`#${user?.url}`} onClick={onClose} disabled={!user?.url} selected={location.pathname === user?.url}>
+                <ListItemButton sx={{p: 1, borderRadius: '100px'}} component='a' className='no-anchor-styles' href={user?.url} onClick={onClose} disabled={!user?.url} selected={location.pathname === user?.url}>
                   <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
                     <ProfileIcon />
                   </ListItemIcon>
@@ -97,7 +97,7 @@ const UserMenu = ({ isOpen, onClose }) => {
                 }
               </List>
             </Collapse>
-            <ListItemButton component='a' className='no-anchor-styles' sx={{p: 1, borderRadius: '100px'}} href={`#${user?.url}settings`} onClick={onClose} disabled={!user?.url} selected={location.pathname === user?.url + 'settings'}>
+            <ListItemButton component='a' className='no-anchor-styles' sx={{p: 1, borderRadius: '100px'}} href={`${user?.url}settings`} onClick={onClose} disabled={!user?.url} selected={location.pathname === user?.url + 'settings'}>
               <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
                 <SettingsIcon />
               </ListItemIcon>

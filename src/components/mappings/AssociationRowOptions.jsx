@@ -16,6 +16,7 @@ import RetireIcon from '@mui/icons-material/Delete'
 import compact from 'lodash/compact'
 import isNumber from 'lodash/isNumber'
 import { dropVersion } from '../../common/utils'
+import { navigate } from '../../common/history'
 
 const AssociationRowOptions = ({ mapping, concept, isIndirect, canAct, canSort, disabled, onAddNewClick, onAssignSortWeight, onClearSortWeight, onRetireClick }) => {
   const { t } = useTranslation()
@@ -26,13 +27,13 @@ const AssociationRowOptions = ({ mapping, concept, isIndirect, canAct, canSort, 
   const fromConceptURL = mapping.from_concept_url || (mapping.to_concept_url ? conceptURL : undefined)
   const toConceptURL = mapping.to_concept_url || (mapping.from_concept_url ? conceptURL : undefined)
 
-  const navigate = href => () => { window.location.hash = href }
+  const openURL = href => () => navigate(href)
 
   const options = compact([
-    {label: t('mapping.open_mapping_details'), icon: <OpenIcon fontSize='small' />, onClick: navigate(dropVersion(mapping.url))},
-    fromConceptURL && fromConceptURL !== conceptURL && {label: t('mapping.open_from_concept'), icon: <OpenIcon fontSize='small' />, onClick: navigate(fromConceptURL)},
-    toConceptURL && toConceptURL !== conceptURL && {label: t('mapping.open_to_concept'), icon: <OpenIcon fontSize='small' />, onClick: navigate(toConceptURL)},
-    fromConceptURL && toConceptURL && {label: t('mapping.compare_concepts'), icon: <CompareIcon fontSize='small' />, divider: true, onClick: navigate(`/concepts/compare?lhs=${fromConceptURL}&rhs=${toConceptURL}`)},
+    {label: t('mapping.open_mapping_details'), icon: <OpenIcon fontSize='small' />, onClick: openURL(dropVersion(mapping.url))},
+    fromConceptURL && fromConceptURL !== conceptURL && {label: t('mapping.open_from_concept'), icon: <OpenIcon fontSize='small' />, onClick: openURL(fromConceptURL)},
+    toConceptURL && toConceptURL !== conceptURL && {label: t('mapping.open_to_concept'), icon: <OpenIcon fontSize='small' />, onClick: openURL(toConceptURL)},
+    fromConceptURL && toConceptURL && {label: t('mapping.compare_concepts'), icon: <CompareIcon fontSize='small' />, divider: true, onClick: openURL(`/concepts/compare?lhs=${fromConceptURL}&rhs=${toConceptURL}`)},
     canAct && onAddNewClick && {label: t('mapping.add_new_map_type_mapping', {mapType: mapTypeLabel}), icon: <AddIcon fontSize='small' />, divider: true, onClick: () => onAddNewClick(mapping.map_type)},
     canSort && (
       isNumber(mapping.sort_weight) ?

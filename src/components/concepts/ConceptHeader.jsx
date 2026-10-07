@@ -90,7 +90,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
                     size='small'
                     color='primary'
                     disabled={!detailsLoaded}
-                    href={detailsLoaded ? `#${conceptSourceURL}` : undefined}
+                    href={detailsLoaded ? conceptSourceURL : undefined}
                     target='_blank'
                     rel='noopener noreferrer'
                     onClick={event => {

@@ -10,6 +10,7 @@ import {
 import APIService from '../../services/APIService';
 import GAService from '../../services/GAService';
 import { arrayToObject, toParentURI, URIToParentParams } from '../../common/utils';
+import { navigate } from '../../common/history';
 import { fetchMapTypes } from './utils';
 import { OperationsContext } from '../app/LayoutContext';
 import FormComponent, { CardSection } from '../common/FormComponent'
@@ -278,7 +279,7 @@ class MappingForm extends FormComponent {
           parentURL &&
             <span>
               <span>Your new mapping will live at: <br />
-                { `${window.location.origin}/#${parentURL}mappings/` }
+                { `${window.location.origin}${parentURL}mappings/` }
               </span>
               <span><b>{id}</b>/</span>
             </span>
@@ -392,7 +393,7 @@ class MappingForm extends FormComponent {
     if(response.status === 201 || response.status === 200) { // success
       setAlert({duration: 2000, message: edit ? t('mapping.success_update') : t('mapping.success_create'), severity: 'success'})
       onClose(response.data);
-      window.location.hash = response.data.url
+      navigate(response.data.url)
     } else if (response?.status === 208) {
       let error = get(response?.data, '__all__.0') || t('common.already_exists')
       setAlert({duration: 10000, message: `${response.status}: ${error}`, severity: 'error'})

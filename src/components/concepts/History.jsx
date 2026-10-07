@@ -47,7 +47,7 @@ const VersionMenu = ({version, repoVersion, onClose, anchorEl, resource, icon}) 
       onClose={onClose}
       sx={{'.MuiPaper-root': {backgroundColor: 'surface.n94'}}}
     >
-      <ListItemButton id='view_resource_version' href={`#${url}`} sx={{padding: '4px 10px', '&:hover': {color: 'inherit'}, '&:focus': {outline: 'none', textDecoration: 'none', color: 'inherit'}}} onClick={onClick}>
+      <ListItemButton id='view_resource_version' href={url} sx={{padding: '4px 10px', '&:hover': {color: 'inherit'}, '&:focus': {outline: 'none', textDecoration: 'none', color: 'inherit'}}} onClick={onClick}>
         <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
           {icon}
         </ListItemIcon>
@@ -101,7 +101,7 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
     if(compareSelection.length !== 2)
       return undefined
     const [older, newer] = orderBy(compareSelection, 'version_created_on')
-    return `#/concepts/compare?lhs=${older.version_url}&rhs=${newer.version_url}`
+    return `/concepts/compare?lhs=${older.version_url}&rhs=${newer.version_url}`
   }, [compareSelection])
   const onCompareClick = () => {
     if(compareSelection.length !== 2)

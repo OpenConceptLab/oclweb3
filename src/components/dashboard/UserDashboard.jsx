@@ -85,7 +85,7 @@ const UsageWidget = ({ username }) => {
             )}
             <Button
               size="small"
-              href={`#/users/${username}/usage`}
+              href={`/users/${username}/usage`}
               sx={{ textTransform: 'none', mt: 0.5, alignSelf: 'flex-start', p: 0 }}
             >
               View full dashboard

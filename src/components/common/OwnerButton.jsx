@@ -29,7 +29,7 @@ const Owner = ({owner, ownerType, ownerURL, noIcons, sx, ...rest}) => {
         padding: '0 8px'
       }]}
       startIcon={!noIcons && <OwnerIcon noTooltip ownerType={ownerType} {...iconProps} />}
-      href={ownerURL ? '#' + ownerURL : undefined}
+      href={ownerURL || undefined}
       component="button"
       {...rest}
     >

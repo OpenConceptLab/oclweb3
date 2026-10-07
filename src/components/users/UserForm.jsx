@@ -120,7 +120,7 @@ const UserForm = ({ user }) => {
             />
             <Typography component="div" sx={{width: 'calc(30% - 10px - 16px)', fontSize: '12px', marginLeft: '16px'}}>
               <span style={{opacity: 0.7}}>Your URL will be:</span><br />
-              <span style={{display: 'flex', flexWrap: 'wrap'}}>{window.location.origin}/#/users/<b>{user.username}</b>/</span>
+              <span style={{display: 'flex', flexWrap: 'wrap'}}>{window.location.origin}/users/<b>{user.username}</b>/</span>
             </Typography>
           </div>
           <div className='col-xs-12' style={{padding: '24px 0 0 0', display: 'flex', alignItems: 'center'}}>

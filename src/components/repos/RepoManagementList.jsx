@@ -13,7 +13,7 @@ import GAService from '../../services/GAService';
 const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id, isVersion, hasAccess, createSimilarHref }) => {
   const { t } = useTranslation()
   const url = isVersion ? repo.version_url : repo.url
-  let editParams = isVersion ? {onClick: () => onClick('editVersion')} : {href: `#${url}edit`}
+  let editParams = isVersion ? {onClick: () => onClick('editVersion')} : {href: `${url}edit`}
   return (
     <Menu
       id={id}

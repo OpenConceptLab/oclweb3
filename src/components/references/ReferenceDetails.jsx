@@ -122,7 +122,7 @@ const ReferenceDetails = ({ reference, style }) => {
         </Typography>
         <Typography component='span' sx={{display: 'inline-flex', alignItems: 'center', padding: 0, fontSize: '12px', color: 'surface.contrastText', width: '100%', }}>
           {t('common.created_on')} {
-            <>{formatDateTime(reference.created_at)} {t('common.by')} <Link sx={{fontSize: '12px', justifyContent: 'flex-start', padding: '0 0 0 2px', lineHeight: 'normal'}} href={`#/users/${reference.created_by}`} label={reference.created_by} /></>
+            <>{formatDateTime(reference.created_at)} {t('common.by')} <Link sx={{fontSize: '12px', justifyContent: 'flex-start', padding: '0 0 0 2px', lineHeight: 'normal'}} href={`/users/${reference.created_by}`} label={reference.created_by} /></>
           }
         </Typography>
 

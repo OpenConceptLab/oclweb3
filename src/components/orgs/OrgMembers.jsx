@@ -10,7 +10,7 @@ const DEFAULT_MEMBERS_TO_SHOW = 12
 
 const Member = ({ member }) => {
   return (
-    <IconButton href={`#${member.url}`} sx={{marginRight: '10px', padding: 0, marginBottom: '10px'}}>
+    <IconButton href={member.url} sx={{marginRight: '10px', padding: 0, marginBottom: '10px'}}>
       <UserIcon user={member} sx={{width: '32px', height: '32px'}} />
     </IconButton>
   )

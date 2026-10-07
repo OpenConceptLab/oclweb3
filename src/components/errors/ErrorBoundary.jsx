@@ -59,8 +59,7 @@ class ErrorBoundary extends React.Component {
   }
 
   isDebugMode() {
-    const debug = new URLSearchParams(window.location.search).get('debug') ||
-                  new URLSearchParams(window.location.hash.split('?')[1] || '').get('debug')
+    const debug = new URLSearchParams(window.location.search).get('debug')
     return debug === 'true' || debug === '1'
   }
 

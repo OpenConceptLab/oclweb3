@@ -31,7 +31,7 @@ const HeaderControls = () => {
       {
         authenticated &&
           <>
-            <IconButton sx={{marginRight: '8px'}} href="#/imports">
+            <IconButton sx={{marginRight: '8px'}} href="/imports">
               <ImportIcon />
             </IconButton>
           <IconButton sx={{marginRight: '8px'}} onClick={onAddMenuOpen}>

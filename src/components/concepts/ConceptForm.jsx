@@ -16,6 +16,7 @@ import {
   fetchDatatypes, fetchNameTypes, fetchDescriptionTypes, fetchConceptClasses, fetchLocales
 } from './utils';
 import { toParentURI, dropVersion } from '../../common/utils'
+import { navigate } from '../../common/history'
 import { OperationsContext } from '../app/LayoutContext';
 import Button from '../common/Button'
 import AutocompleteGroupByRepoSummary from '../common/AutocompleteGroupByRepoSummary'
@@ -441,7 +442,7 @@ class ConceptForm extends FormComponent  {
             </React.Fragment>
         }
         <span>{t('concept.form.id_live_at')} <br />
-          { `${window.location.origin}/#${source.url}concepts/` }
+          { `${window.location.origin}${source.url}concepts/` }
         </span>
         <span><b>{fields.id.value || '[concept-id]'}</b>/</span>
       </span>
@@ -499,7 +500,7 @@ class ConceptForm extends FormComponent  {
         if([200, 201].includes(response?.status)) {
           setAlert({duration: 2000, message: this.props.edit ? this.props.t('concept.success_update') : this.props.t('concept.success_create'), severity: 'success'})
           this.props.onClose(response.data)
-          window.location.hash = response.data.url
+          navigate(response.data.url)
         } else if (response?.status === 208) {
           let error = get(response?.data, '__all__.0') || this.props.t('common.already_exists')
           setAlert({duration: 10000, message: `${response.status}: ${error}`, severity: 'error'})

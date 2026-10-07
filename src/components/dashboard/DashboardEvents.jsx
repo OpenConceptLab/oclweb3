@@ -35,7 +35,7 @@ const EventCard = ({ event, highlight }) => {
     return (
       <span style={{display: 'flex', alignItems: 'center'}}>
         <Typography component='span' sx={{fontWeight: 'bold'}}>
-          <Link label={title} href={'#' + object.url} sx={{color: 'secondary.main', fontSize: '16px', fontWeight: 'bold', minWidth: 'auto'}} />
+          <Link label={title} href={object.url} sx={{color: 'secondary.main', fontSize: '16px', fontWeight: 'bold', minWidth: 'auto'}} />
         </Typography>
         {
           includeSubtitle &&

@@ -17,6 +17,7 @@ import WarningIcon from '@mui/icons-material/WarningAmber'
 import { map, get, forEach, orderBy, filter, find, isNumber, has, some, maxBy } from 'lodash';
 
 import { toParentURI, getSiblings } from '../../common/utils'
+import { navigate } from '../../common/history'
 import AssociationMappingCells from './AssociationMappingCells'
 import AssociationRowOptions from './AssociationRowOptions'
 
@@ -142,7 +143,7 @@ const SortableAssociationRow = ({ concept, mappings, mapType, isSelf, isIndirect
                               <TableRow
                                 hover
                                 sx={{cursor: targetURL ? 'pointer' : 'default'}}
-                                onClick={() => { if(targetURL) window.location.hash = targetURL }}
+                                onClick={() => { if(targetURL) navigate(targetURL) }}
                               >
                                 <TableCell align='left' sx={{...cellSx, verticalAlign: 'top', paddingLeft: '8px'}}>
                                   {

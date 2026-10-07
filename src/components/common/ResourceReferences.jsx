@@ -31,7 +31,7 @@ const ResourceReferences = ({ references, resourceType }) => {
           <ListItem key={reference.id || reference.uri} divider disablePadding>
             <ListItemButton
               component={reference.uri ? 'a' : 'div'}
-              href={reference.uri ? '#' + reference.uri : undefined}
+              href={reference.uri || undefined}
               disableRipple={!reference.uri}
               sx={{padding: '4px 16px', color: 'inherit'}}
             >

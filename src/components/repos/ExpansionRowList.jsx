@@ -50,7 +50,7 @@ const RepoVersionList = ({ versions, emptyLabel }) => (
           '& a:hover': { textDecoration: 'underline' }
         }}
       >
-        <a href={`#${version.version_url}`} target="_blank" rel="noreferrer">
+        <a href={version.version_url} target="_blank" rel="noreferrer">
           {renderRepoVersionLabel(version)}
         </a>
       </Typography>
@@ -192,7 +192,7 @@ const ExpansionRowList = ({
                   </Typography>
                 </Stack>
                 {Object.entries(repoUpdates).map(([oldUrl, newUrl]) => {
-                  const compareUrl = `#${dropVersion(newUrl)}compare-versions?version1=${newUrl}&version2=${oldUrl}`;
+                  const compareUrl = `${dropVersion(newUrl)}compare-versions?version1=${newUrl}&version2=${oldUrl}`;
                   return (
                     <Typography
                       key={oldUrl}
@@ -207,9 +207,9 @@ const ExpansionRowList = ({
                         '& a:hover': { textDecoration: 'underline' }
                       }}
                     >
-                      <a href={`#${oldUrl}`} target="_blank" rel="noreferrer">{labelFromVersionUrl(oldUrl)}</a>
+                      <a href={oldUrl} target="_blank" rel="noreferrer">{labelFromVersionUrl(oldUrl)}</a>
                       {' → '}
-                      <a href={`#${newUrl}`} target="_blank" rel="noreferrer">{labelFromVersionUrl(newUrl)}</a>
+                      <a href={newUrl} target="_blank" rel="noreferrer">{labelFromVersionUrl(newUrl)}</a>
                       <a href={compareUrl} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
                         ({t('common.compare')} <OpenInNewIcon sx={{ fontSize: '12px' }} />)
                       </a>

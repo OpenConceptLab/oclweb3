@@ -551,7 +551,7 @@ const RepoHome = () => {
                 isVersion={isVersion}
                 owner={owner}
                 repo={currentRepo}
-                repoHref={'#' + buildRepoPath(route, {version: 'HEAD', expansion: '', tab: '', resource: ''})}
+                repoHref={buildRepoPath(route, {version: 'HEAD', expansion: '', tab: '', resource: ''})}
                 versions={versions}
                 versionsLoading={versionsLoading}
                 previewVersions={compact([headVersion, latestVersion])}

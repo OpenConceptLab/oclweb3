@@ -108,7 +108,7 @@ const UserProfile = ({ user }) => {
           <div style={{paddingLeft: '12px'}}>
             <Link
               label={t('user.edit_my_profile')}
-              href={`#${user.url}edit`}
+              href={`${user.url}edit`}
               sx={{fontSize: '12px', fontWeight: 'bold', marginTop: '16px'}}
               startIcon={<PersonOutlineOutlinedIcon fontSize='inherit' />}
             />

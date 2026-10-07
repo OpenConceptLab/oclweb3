@@ -63,7 +63,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
         <ListItem disablePadding sx={{ display: 'block' }}>
           <ListItemButton
             onClick={onClose}
-            href="/#/"
+            href="/"
             className='no-anchor-styles'
             selected={location.pathname === '/'}
             sx={{
@@ -94,7 +94,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
               px: 2,
               borderRadius: '100px'
             }}
-            href={`#${user?.url}repos`}
+            href={`${user?.url}repos`}
             className='no-anchor-styles'
             selected={location.pathname === (user?.url + 'repos')}
           >
@@ -172,7 +172,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
                   padding: '0px 16px',
                   borderRadius: '100px'
                 }}
-                href={`#${org?.url}`}
+                href={org?.url}
                 className='no-anchor-styles'
                 selected={location.pathname === org?.url}
               >
@@ -220,7 +220,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
                   padding: '0px 16px',
                   borderRadius: '100px'
                 }}
-                href={`#${followed.url}`}
+                href={followed.url}
                 className='no-anchor-styles'
                 selected={location.pathname === followed?.url}
               >
