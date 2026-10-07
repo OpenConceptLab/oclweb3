@@ -18,11 +18,33 @@ import GAService from '../../services/GAService';
 import { OperationsContext } from '../app/LayoutContext';
 import { formatError, getVersionLabel, getVersionURL } from './versionsTab.styles';
 
+const getFilenameFromContentDisposition = contentDisposition => {
+  if(!contentDisposition) return null;
+  const filenameMatch = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i) || contentDisposition.match(/filename="?([^";]+)"?/i);
+  return filenameMatch?.[1] ? decodeURIComponent(filenameMatch[1].replace(/"/g, '').trim()) : null;
+};
+
+const getFilenameFromURL = url => {
+  if(!url) return null;
+  try {
+    const parsedURL = new URL(url);
+    const filename = getFilenameFromContentDisposition(parsedURL.searchParams.get('response-content-disposition'));
+    if(filename) return filename;
+    const lastSegment = parsedURL.pathname.split('/').filter(Boolean).pop();
+    return lastSegment ? decodeURIComponent(lastSegment) : null;
+  } catch (e) {
+    const lastSegment = url.split('?')[0].split('/').filter(Boolean).pop();
+    return lastSegment ? decodeURIComponent(lastSegment) : null;
+  }
+};
+
 export const downloadBlob = (response, fallbackName) => {
   const contentType = get(response, 'headers.content-type') || get(response, 'data.type') || 'application/octet-stream';
-  const contentDisposition = get(response, 'headers.content-disposition', '');
-  const filenameMatch = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i) || contentDisposition.match(/filename="?([^";]+)"?/i);
-  const filename = filenameMatch?.[1] ? decodeURIComponent(filenameMatch[1].replace(/"/g, '').trim()) : fallbackName;
+  const filename = getFilenameFromContentDisposition(get(response, 'headers.content-disposition')) ||
+        fallbackName ||
+        getFilenameFromURL(get(response, 'headers.location')) ||
+        getFilenameFromURL(get(response, 'request.responseURL')) ||
+        'export.zip';
   const blob = response.data instanceof Blob ? response.data : new Blob([response.data], { type: contentType });
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -53,7 +75,7 @@ const VersionExportDialog = ({ version, open, onClose, titleKey = 'repo.export_s
           GAService.recordActionEvent('Version Export', 'export_version_download', version?.short_code || version?.id, {
             version: getVersionURL(version)
           });
-          downloadBlob(response, `${version.short_code || version.id}-${getVersionLabel(version)}.zip`);
+          downloadBlob(response);
           setState('downloaded');
         } else if(response.status === 204) {
           setState('missing');
