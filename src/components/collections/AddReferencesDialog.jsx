@@ -310,7 +310,7 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
               label={t('reference.open_repo', { name: seed.name || seed.id })}
               variant="outlined"
               clickable
-              onClick={() => window.open(window.location.origin + '/#' + seed.url, '_blank')}
+              onClick={() => window.open(window.location.origin + seed.url, '_blank')}
               sx={{ fontSize: '0.7rem', whiteSpace: 'nowrap' }}
             />
           )}
