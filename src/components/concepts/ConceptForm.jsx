@@ -1,7 +1,7 @@
 /*eslint no-process-env: 0*/
 /*global process*/
 import React from 'react';
-import { compact, map, isEmpty, flatten, values, keys, get, isArray, cloneDeep, isEqual, omit } from 'lodash';
+import { compact, map, isEmpty, flatten, values, keys, get, isArray, cloneDeep, isEqual, omit, uniqueId, findIndex, isPlainObject } from 'lodash';
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
@@ -241,6 +241,7 @@ class ConceptForm extends FormComponent  {
     const mandatoryFieldStruct = this.getMandatoryFieldStruct()
     const fieldStruct = this.getFieldStruct()
     return {
+      key: uniqueId('name-'),
       locale: {...mandatoryFieldStruct, value: this.props.source?.default_locale || this.state.parent?.default_locale || ''},
       name_type: {...mandatoryFieldStruct, value: 'Fully-Specified'},
       name: {...mandatoryFieldStruct},
@@ -254,6 +255,7 @@ class ConceptForm extends FormComponent  {
     const fieldStruct = this.getFieldStruct()
 
     return {
+      key: uniqueId('description-'),
       locale: {...mandatoryFieldStruct, value: this.props.source?.default_locale || this.state.parent?.default_locale || ''},
       description_type: {...mandatoryFieldStruct, value: 'Definition'},
       description: {...mandatoryFieldStruct},
@@ -303,6 +305,7 @@ class ConceptForm extends FormComponent  {
       newState.fields.names = []
       instance.names?.forEach(name => {
         newState.fields.names.push({
+          key: uniqueId('name-'),
           locale: this.getMandatoryFieldStruct(name.locale),
           name_type: this.getMandatoryFieldStruct(name.name_type),
           locale_preferred: this.getFieldStruct(name.locale_preferred || false),
@@ -315,6 +318,7 @@ class ConceptForm extends FormComponent  {
       newState.fields.descriptions = []
       instance.descriptions?.forEach(desc => {
         newState.fields.descriptions.push({
+          key: uniqueId('description-'),
           locale: this.getMandatoryFieldStruct(desc.locale),
           description_type: this.getMandatoryFieldStruct(desc.description_type),
           locale_preferred: this.getFieldStruct(desc.locale_preferred || false),
@@ -409,6 +413,13 @@ class ConceptForm extends FormComponent  {
     })
   }
 
+  onDeleteNameLocale = index => this.setState(state => ({
+    fields: {...state.fields, names: state.fields.names.filter((name, i) => i !== index)}
+  }))
+
+  onDeleteDescriptionLocale = index => this.setState(state => ({
+    fields: {...state.fields, descriptions: state.fields.descriptions.filter((description, i) => i !== index)}
+  }))
 
   toggleManualMnemonic = () => {
     const newManualMnemonic = !this.state.manualMnemonic
@@ -453,6 +464,8 @@ class ConceptForm extends FormComponent  {
 
   getConceptValues = () => {
     const result = this.getValues()
+    result.names = map(result.names, name => omit(name, 'key'))
+    result.descriptions = map(result.descriptions, description => omit(description, 'key'))
     result.extras = this.getExtrasWithDatatypeDefaults(result.datatype, result.extras)
     return result
   }
@@ -473,6 +486,17 @@ class ConceptForm extends FormComponent  {
         extras.push({key, value})
       return {fields: {...state.fields, extras}}
     })
+  }
+
+  getNestedErrorMessage = (response, payload) => {
+    const field = get(keys(response), 0)
+    const errors = get(response, field)
+    const index = isArray(errors) ? findIndex(errors, error => isPlainObject(error) && !isEmpty(error)) : -1
+    if(index === -1)
+      return null
+    const attribute = get(keys(errors[index]), 0)
+    const label = get(payload, `${field}.${index}.name`) || get(payload, `${field}.${index}.description`)
+    return `${field}${label ? ` (${label})` : ''} › ${attribute}: ${flatten([errors[index][attribute]]).join(' ')}`
   }
 
   handleSubmit = event => {
@@ -505,6 +529,11 @@ class ConceptForm extends FormComponent  {
           let error = get(response?.data, '__all__.0') || this.props.t('common.already_exists')
           setAlert({duration: 10000, message: `${response.status}: ${error}`, severity: 'error'})
         } else {
+          const nestedError = this.getNestedErrorMessage(response, payload)
+          if(nestedError) {
+            setAlert({duration: 10000, message: nestedError, severity: 'error'})
+            return
+          }
           let error = compact(flatten(values(response)))
           let field = get(keys(response), 0)
           if(isArray(error) && error[0] && field)
@@ -623,13 +652,14 @@ class ConceptForm extends FormComponent  {
                 return (
                   <LocaleForm
                     locales={locales}
-                    key={index}
+                    key={name.key}
                     index={index}
                     localeType='name'
                     field={name}
                     idPrefix={`names.${index}`}
                     localeTypes={nameTypes}
-                    onChange={(id, value) => this.setFieldValue(id, value?.id ? value.id : value || '')}
+                    onChange={(id, value) => this.setFieldValue(id, value?.id ?? value ?? '')}
+                    onDelete={fields.names.length > 1 ? () => this.onDeleteNameLocale(index) : undefined}
                     repoSummary={repoSummary}
                     repo={repo}
                     divider={index !== (fields.names.length - 1)}
@@ -648,13 +678,14 @@ class ConceptForm extends FormComponent  {
                 return (
                   <LocaleForm
                     locales={locales}
-                    key={index}
+                    key={description.key}
                     index={index}
                     localeType='description'
                     field={description}
                     idPrefix={`descriptions.${index}`}
                     localeTypes={descriptionTypes}
-                    onChange={(id, value) => this.setFieldValue(id, value || '')}
+                    onChange={(id, value) => this.setFieldValue(id, value ?? '')}
+                    onDelete={() => this.onDeleteDescriptionLocale(index)}
                     repoSummary={repoSummary}
                     repo={repo}
                     divider={index !== (fields.descriptions.length - 1)}

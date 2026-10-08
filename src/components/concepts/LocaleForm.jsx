@@ -9,11 +9,13 @@ import compact from 'lodash/compact'
 import fromPairs from 'lodash/fromPairs'
 import uniq from 'lodash/uniq'
 import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import DropDownChip from '../common/DropDownChip'
 import ExternalIdIcon from '../common/ExternalIdIcon'
 
 
-const LocaleForm = ({index, locales, repo, idPrefix, localeType, field, localeTypes, onChange, divider}) => {
+const LocaleForm = ({index, locales, repo, idPrefix, localeType, field, localeTypes, onChange, onDelete, divider}) => {
   const { t } = useTranslation()
   const [showExternalID, setShowExternalID] = React.useState(Boolean(field.external_id.value))
   const localeNames = React.useMemo(
@@ -42,7 +44,7 @@ const LocaleForm = ({index, locales, repo, idPrefix, localeType, field, localeTy
   return (
     <div className='col-xs-12 padding-0' key={index}>
       <div className='col-xs-12' style={{marginTop: '24px', padding: 0, display: 'flex', alignItems: 'center', gap: '8px'}}>
-        <div className='col-xs-10 padding-0' style={{display: 'flex', alignItems: 'flex-start', gap: '8px'}}>
+        <div className='padding-0' style={{display: 'flex', alignItems: 'flex-start', gap: '8px', flex: 1, minWidth: 0}}>
           <DropDownChip
             id={`${idPrefix}.locale`}
             label={t('concept.form.locale')}
@@ -80,7 +82,7 @@ const LocaleForm = ({index, locales, repo, idPrefix, localeType, field, localeTy
             error={get(field, `${localeType}_type.errors.0`)}
           />
         </div>
-        <div className='col-xs-2 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <div className='padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0}}>
         <FormControlLabel
           sx={{ml: 1, mr: 0.5, '.MuiFormControlLabel-label': {fontSize: '12px'}}}
           labelPlacement="top"
@@ -100,7 +102,12 @@ const LocaleForm = ({index, locales, repo, idPrefix, localeType, field, localeTy
         />
           <IconButton sx={{marginLeft: 0}} color={showExternalID ? 'primary' : 'secondary'} onClick={() => setShowExternalID(field.external_id.value ? true : !showExternalID)}>
             <ExternalIdIcon fontSize='inherit' />
-    </IconButton>
+          </IconButton>
+          <Tooltip title={t('common.remove')}>
+              <IconButton id={`${idPrefix}.delete`} color='error' disabled={!onDelete} onClick={onDelete}>
+                <DeleteIcon fontSize='inherit' />
+              </IconButton>
+          </Tooltip>
         </div>
       </div>
       {
