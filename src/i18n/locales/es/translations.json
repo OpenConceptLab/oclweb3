@@ -676,7 +676,7 @@
       "generic": "Algunas funciones están en pausa hasta que se amplíe su asignación.",
       "ai_assistant_calls": {
         "default": "Las funciones que usan el asistente de IA de OCL están en pausa.",
-        "auto_match": "La coincidencia automática seguirá funcionando sin recomendaciones del asistente de IA de OCL."
+        "auto_match": "AutoMatch seguirá funcionando sin recomendaciones del asistente de IA de OCL."
       },
       "ai_assistant_change_comments": {
         "default": "Aún puede escribir el comentario de actualización usted mismo, sin un borrador del asistente de IA de OCL.",
@@ -684,7 +684,7 @@
       },
       "match_operations": {
         "default": "La coincidencia está en pausa.",
-        "auto_match": "Aún puede revisar, editar y exportar sus proyectos, pero la coincidencia automática está en pausa.",
+        "auto_match": "Aún puede revisar, editar y exportar sus proyectos, pero AutoMatch está en pausa.",
         "tbv3_match": "La búsqueda seguirá funcionando, pero $match con la búsqueda semántica de OCL está en pausa."
       },
       "projects": {

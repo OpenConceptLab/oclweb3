@@ -743,7 +743,7 @@
       "generic": "在提高额度之前，部分功能已暂停。",
       "ai_assistant_calls": {
         "default": "使用 OCL AI 助手的功能已暂停。",
-        "auto_match": "自动匹配将继续运行，但不再提供 OCL AI 助手的推荐。"
+        "auto_match": "AutoMatch 将继续运行，但不再提供 OCL AI 助手的推荐。"
       },
       "ai_assistant_change_comments": {
         "default": "您仍可自行撰写更新备注，只是没有 OCL AI 助手的草稿。",
@@ -751,7 +751,7 @@
       },
       "match_operations": {
         "default": "匹配已暂停。",
-        "auto_match": "您仍可查看、编辑和导出项目，但自动匹配已暂停。",
+        "auto_match": "您仍可查看、编辑和导出项目，但 AutoMatch 已暂停。",
         "tbv3_match": "搜索将继续可用，但使用 OCL 语义搜索的 $match 已暂停。"
       },
       "projects": {
