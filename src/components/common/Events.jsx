@@ -100,7 +100,7 @@ const Event = ({ event, isFirst, isLast }) => {
 const Events = ({ user, events, onLoadMore, showAvatar, maxHeight, dashboard }) => {
   const { t } = useTranslation()
   const currentUser = getCurrentUser()
-  const isSelf = Boolean(currentUser?.username && currentUser?.username === user.username)
+  const isSelf = Boolean(currentUser?.username && currentUser?.username === user?.username)
   return (
     <div className='col-xs-12 padding-0'>
       <Typography component='h3' sx={{margin: '16px 0 0 0', fontWeight: 'bold', display: 'flex', alignItems: 'center'}}>
@@ -108,7 +108,7 @@ const Events = ({ user, events, onLoadMore, showAvatar, maxHeight, dashboard }) 
           showAvatar &&
             <UserIcon noTooltip user={user} sx={{width: '40px', height: '40px', marginRight: '16px'}} color='primary' />
         }
-        {isSelf ? t('user.own_recent_activity') : t('user.recent_activity_of', {name: user.name, interpolation: {escapeValue: false}})}
+        {isSelf ? t('user.own_recent_activity') : t('user.recent_activity_of', {name: user?.name, interpolation: {escapeValue: false}})}
       </Typography>
       <Timeline
         id="events-timeline"
