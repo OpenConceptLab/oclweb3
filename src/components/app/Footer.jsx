@@ -12,11 +12,8 @@ import './Footer.scss';
 
 const DEFAULT_FOOTER_TEXT = `${new Date().getFullYear()} Open Concept Lab`;
 
-// On every page, signed in or not: using TBv3 means accepting the Terms of Use.
-const LEGAL_LINKS = [
-  { labelKey: 'common.terms_of_use', href: TERMS_OF_USE_URL },
-  { labelKey: 'common.privacy_policy', href: PRIVACY_POLICY_URL },
-];
+// Bootstrap's a:hover and a:focus color would otherwise win over MUI's
+const LEGAL_LINK_SX = { whiteSpace: 'nowrap', '&:hover, &:focus': { color: 'primary.main' } };
 
 // The footer's height in Footer.scss while it fits on one row. Narrower
 // screens stack it onto more rows, and --app-height in index.scss subtracts
@@ -32,8 +29,6 @@ const Footer = () => {
 
   React.useLayoutEffect(() => {
     const el = ref.current;
-    if (!el)
-      return;
     const root = document.documentElement.style;
     const update = () => root.setProperty(EXTRA_HEIGHT_VAR, `${Math.max(0, el.offsetHeight - ROW_HEIGHT)}px`);
     update();
@@ -47,16 +42,11 @@ const Footer = () => {
 
   return (
     <footer ref={ref} className='col-sm-12 footer-container flex-vertical-center' style={{textAlign: 'right'}}>
+      {/* On every page, signed in or not: using TBv3 means accepting the Terms of Use */}
       <div className='footer-legal flex-vertical-center'>
-        {LEGAL_LINKS.map(({ labelKey, href }, i) => (
-          <React.Fragment key={href}>
-            {i > 0 && <Divider orientation='vertical' className='footer-divider-vertical' />}
-            {/* Bootstrap's a:hover and a:focus color would otherwise win over MUI's */}
-            <Link href={href} target='_blank' rel='noopener noreferrer' underline='hover' sx={{ whiteSpace: 'nowrap', '&:hover, &:focus': { color: 'primary.main' } }}>
-              {t(labelKey)}
-            </Link>
-          </React.Fragment>
-        ))}
+        <Link href={TERMS_OF_USE_URL} target='_blank' rel='noopener noreferrer' underline='hover' sx={LEGAL_LINK_SX}>{t('common.terms_of_use')}</Link>
+        <Divider orientation='vertical' className='footer-divider-vertical' />
+        <Link href={PRIVACY_POLICY_URL} target='_blank' rel='noopener noreferrer' underline='hover' sx={LEGAL_LINK_SX}>{t('common.privacy_policy')}</Link>
       </div>
       <Divider orientation='vertical' className='footer-divider-vertical' />
       <span className='flex-vertical-center'>
