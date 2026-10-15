@@ -6,6 +6,7 @@ import APIService from '../../services/APIService';
 import { isFHIRServer, toFullAPIURL } from '../../common/utils';
 import packageJson from '../../../package.json';
 import config from '../../../config.json';
+import { COLORS } from '../../common/colors'
 
 const VERSION = `${packageJson.version}-${config.build}`
 const SWAGGER_URL = toFullAPIURL('/swagger/')
@@ -43,12 +44,12 @@ class AppVersions extends React.Component {
         {
           this.state.version &&
             <React.Fragment>
-          <Divider orientation='vertical' className='footer-divider-vertical' />
+              <Divider orientation='vertical' className='footer-divider-vertical' />
 
-          <a href={SWAGGER_URL} target='_blank' rel="noopener noreferrer">
-            <AppVersionChip tooltip='API Version' label='API-' version={this.state.version} />
-          </a>
-          </React.Fragment>
+              <a href={SWAGGER_URL} target='_blank' rel="noopener noreferrer" style={{color: COLORS.primary.main}}>
+                <AppVersionChip tooltip='API Version' label='API-' version={this.state.version} />
+              </a>
+            </React.Fragment>
         }
       </React.Fragment>
     )
