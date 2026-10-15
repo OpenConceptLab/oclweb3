@@ -14,6 +14,8 @@ ENV ERRBIT_KEY=${ERRBIT_KEY}
 ENV HOTJAR_ID=${HOTJAR_ID}
 ENV LOGIN_REDIRECT_URL=${LOGIN_REDIRECT_URL}
 ENV OIDC_RP_CLIENT_ID=${OIDC_RP_CLIENT_ID}
+ENV OIDC_SERVER_URL=${OIDC_SERVER_URL}
+ENV OIDC_REALM=${OIDC_REALM}
 ENV ANALYTICS_API=${ANALYTICS_API}
 ENV AI_ASSISTANT_API_URL=${AI_ASSISTANT_API_URL}
 RUN mkdir /app
@@ -56,6 +58,7 @@ RUN ["bash", "-c", "./set_build_version.sh"]
 RUN npm run build
 RUN cp public/bootstrap.min.css dist/
 RUN cp public/favicon.ico dist/
+RUN cp public/silent-sso.html dist/
 RUN cp public/favicon.svg dist/
 RUN cp public/dark-favicon.svg dist/
 RUN cp public/light-favicon.svg dist/

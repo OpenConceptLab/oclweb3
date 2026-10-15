@@ -2,9 +2,10 @@
 import React from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import {
-  isLoggedIn, getCurrentUser, getLoginURL, isOtherOCLClientURL, isRedirectingToLoginViaReferrer
+  isLoggedIn, refreshCurrentUserCache, getCurrentUser, getLoginURL, isOtherOCLClientURL, isRedirectingToLoginViaReferrer
 } from '../../common/utils';
 import GAService from '../../services/GAService';
+import { silentSignIn, isSSOSessionEnabled } from '../../common/ssoSession';
 import { REPO_ROUTE_PATHS, getRepoKey } from '../../common/repoRoute';
 import Error404 from '../errors/Error404';
 import Error403 from '../errors/Error403';
@@ -89,6 +90,8 @@ const SelfOrStaffRoute = ({component: Component, componentProps={}, ...rest}) =>
 const App = props => {
   const [networkError, setNetworkError] = React.useState(false)
   const { alert, setAlert, setToggles } = React.useContext(OperationsContext);
+  const [authVersion, setAuthVersion] = React.useState(0)
+  const silentCheckRunning = React.useRef(false)
   const setupHotJar = () => {
     /*eslint no-undef: 0*/
     const HID = window.HOTJAR_ID || process.env.HOTJAR_ID
@@ -139,6 +142,33 @@ const App = props => {
     }
   }
 
+  const trySilentSignIn = () => {
+    if(silentCheckRunning.current || isLoggedIn() || !isSSOSessionEnabled())
+      return
+    if(/^\/(oidc\/login|signin|signup)(\/|$)/i.test(window.location.pathname))
+      return
+    silentCheckRunning.current = true
+    silentSignIn(body => APIService.users().appendToUrl('oidc/code-exchange/').post(body).then(res => res.data)).then(tokens => {
+      if(!tokens || isLoggedIn())
+        return
+      localStorage.removeItem('server_configs')
+      localStorage.setItem('token', tokens.access_token)
+      localStorage.setItem('id_token', tokens.id_token)
+      sessionStorage.removeItem('session_expired')
+      refreshCurrentUserCache(() => setAuthVersion(version => version + 1))
+    }).finally(() => { silentCheckRunning.current = false })
+  }
+
+  React.useEffect(() => {
+    trySilentSignIn()
+    const onVisible = () => {
+      if(document.visibilityState === 'visible')
+        trySilentSignIn()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [])
+
   React.useEffect(() => {
     forceLoginUser()
     fetchToggles()
@@ -160,7 +190,7 @@ const App = props => {
   const orgTabsStr = orgTabs.join('|')
 
   return (
-    <div>
+    <div key={authVersion}>
       <DocumentTitle/>
       <Header>
         <ErrorBoundary>
