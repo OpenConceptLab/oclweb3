@@ -9,3 +9,14 @@ export async function loadUsageDashboard() {
     return null;
   }
 }
+
+// A component the private package renders under the name on a user's profile, or null without the package
+export async function loadUserProfileExtension() {
+  try {
+    /*eslint no-undef: 0*/
+    const mod = await import("ocl-analytics-web");
+    return mod.UserProfileExtension || null;
+  } catch (e) {
+    return null;
+  }
+}
