@@ -527,6 +527,25 @@
     "success_delete": "Organización eliminada correctamente"
   },
   "user": {
+    "plan": {
+      "heading": "Plan",
+      "community": "Comunidad",
+      "community_subtitle": "Plan gratuito",
+      "early_access": "Acceso anticipado",
+      "early_access_subtitle": "Gratis durante el acceso anticipado",
+      "pro": "Pro",
+      "team": "Equipo",
+      "paid_subtitle": "Plan de pago",
+      "core": "Core",
+      "core_subtitle": "Equipo central de OCL: sin límites de plan",
+      "manage_billing": "Gestionar facturación",
+      "see_plans": "Ver planes",
+      "view_usage": "Ver uso",
+      "view_usage_staff": "Ver uso (staff)",
+      "billing_questions": "Preguntas de facturación: {{email}}",
+      "staff_badge": "Staff",
+      "test_badge": "Cuenta de prueba"
+    },
     "users": "Usuarios",
     "user": "Usuario",
     "my_profile": "Mi perfil",

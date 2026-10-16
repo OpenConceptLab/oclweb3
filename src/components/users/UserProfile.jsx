@@ -20,7 +20,10 @@ import Link from '../common/Link'
 import { OperationsContext } from '../app/LayoutContext';
 import APIService from '../../services/APIService';
 import FollowActionButton from '../common/FollowActionButton'
+import { loadUserProfileExtension } from '../../common/plugins/loader'
 
+// eslint-disable-next-line no-undef, no-process-env
+const ANALYTICS_URL = window.ANALYTICS_API || process.env.ANALYTICS_API
 
 const UserProperty = ({icon, value, label}) => {
   return value ? (
@@ -45,6 +48,7 @@ const UserProfile = ({ user }) => {
   const { t } = useTranslation()
   const params = useParams()
   const [apiToken, setApiToken] = React.useState(undefined)
+  const [ProfileExtension, setProfileExtension] = React.useState(null)
   const { setAlert } = React.useContext(OperationsContext);
   const iconStyle = {fontSize: '20px', color: 'secondary.main'}
   const userOrgs = sortOrgs(user?.subscribed_orgs || [])
@@ -60,6 +64,9 @@ const UserProfile = ({ user }) => {
   React.useEffect(() => {
     fetchAPIToken()
   }, [params.user])
+  React.useEffect(() => {
+    loadUserProfileExtension().then(component => component && setProfileExtension(() => component))
+  }, [])
   const currentUser = getCurrentUser()
   const isCurrentUser = Boolean(currentUser?.username && currentUser?.username == params.user)
   return (
@@ -71,6 +78,10 @@ const UserProfile = ({ user }) => {
       <Typography component='h3' sx={{color: 'surface.light', display: 'flex', alignItems: 'center'}}>
         {user?.username}
       </Typography>
+      {
+        ProfileExtension &&
+          <ProfileExtension user={user} currentUser={currentUser} APIService={APIService} ANALYTICS_URL={ANALYTICS_URL} t={t} />
+      }
       <List sx={{color: 'secondary.main', marginTop: '8px'}}>
         <UserProperty icon={<LocationIcon sx={iconStyle} />} value={user?.location} />
         <UserProperty icon={<CompanyIcon sx={iconStyle} />} value={user?.company} />
