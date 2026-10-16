@@ -472,19 +472,6 @@ export const getFHIRServerConfigFromCurrentContext = () => {
     return getLocalFHIRServerConfig() || getDefaultFHIRServerConfig();
 }
 
-// Groups that can switch servers: the OCL and FHIR server groups.
-const SERVER_SWITCH_GROUPS = [OCL_SERVERS_GROUP, OCL_FHIR_SERVERS_GROUP, HAPI_FHIR_SERVERS_GROUP];
-
-export const canSwitchServer = () => {
-  const user = getCurrentUser();
-
-  return Boolean(
-    getSelectedServerConfig() ||
-    get(user, 'is_superuser') ||
-      SERVER_SWITCH_GROUPS.some(group => hasAuthGroup(user, group))
-  );
-}
-
 export { hasAuthGroup } from './authGroups';
 
 export const canViewOperationsPanel = () => {
