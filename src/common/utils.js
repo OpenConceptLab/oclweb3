@@ -16,6 +16,7 @@ import {
 import APIService from '../services/APIService';
 import GAService from '../services/GAService';
 import { ensureIdToken } from './ssoSession';
+import { hasAuthGroup } from './authGroups';
 import { SERVER_CONFIGS } from './serverConfigs';
 import { legacyHashRoute, isSameSitePath } from './history';
 
@@ -471,17 +472,20 @@ export const getFHIRServerConfigFromCurrentContext = () => {
     return getLocalFHIRServerConfig() || getDefaultFHIRServerConfig();
 }
 
+// Groups that can switch servers: the OCL and FHIR server groups.
+const SERVER_SWITCH_GROUPS = [OCL_SERVERS_GROUP, OCL_FHIR_SERVERS_GROUP, HAPI_FHIR_SERVERS_GROUP];
+
 export const canSwitchServer = () => {
   const user = getCurrentUser();
 
   return Boolean(
     getSelectedServerConfig() ||
     get(user, 'is_superuser') ||
-      hasAuthGroup(user, 'server')
+      SERVER_SWITCH_GROUPS.some(group => hasAuthGroup(user, group))
   );
 }
 
-export const hasAuthGroup = (user, groupName) => Boolean(find(user?.auth_groups, group => group.includes(groupName)))
+export { hasAuthGroup } from './authGroups';
 
 export const canViewOperationsPanel = () => {
   const user = getCurrentUser()
