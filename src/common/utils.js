@@ -16,7 +16,6 @@ import {
 import APIService from '../services/APIService';
 import GAService from '../services/GAService';
 import { ensureIdToken } from './ssoSession';
-import { hasAuthGroup } from './authGroups';
 import { SERVER_CONFIGS } from './serverConfigs';
 import { legacyHashRoute, isSameSitePath } from './history';
 
@@ -472,7 +471,7 @@ export const getFHIRServerConfigFromCurrentContext = () => {
     return getLocalFHIRServerConfig() || getDefaultFHIRServerConfig();
 }
 
-export { hasAuthGroup } from './authGroups';
+export const hasAuthGroup = (user, groupName) => Boolean(user?.auth_groups?.includes(groupName))
 
 export const canViewOperationsPanel = () => {
   const user = getCurrentUser()
