@@ -1,4 +1,3 @@
-/*eslint no-process-env: 0*/
 import React from 'react';
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -23,7 +22,7 @@ import APIService from '../../services/APIService';
 import FollowActionButton from '../common/FollowActionButton'
 import { loadUserProfileExtension } from '../../common/plugins/loader'
 
-// eslint-disable-next-line no-undef
+// eslint-disable-next-line no-undef, no-process-env
 const ANALYTICS_URL = window.ANALYTICS_API || process.env.ANALYTICS_API
 
 const UserProperty = ({icon, value, label}) => {
@@ -81,7 +80,7 @@ const UserProfile = ({ user }) => {
       </Typography>
       {
         ProfileExtension &&
-          <ProfileExtension user={user} currentUser={currentUser} APIService={APIService} ANALYTICS_URL={ANALYTICS_URL} />
+          <ProfileExtension user={user} currentUser={currentUser} APIService={APIService} ANALYTICS_URL={ANALYTICS_URL} t={t} />
       }
       <List sx={{color: 'secondary.main', marginTop: '8px'}}>
         <UserProperty icon={<LocationIcon sx={iconStyle} />} value={user?.location} />
