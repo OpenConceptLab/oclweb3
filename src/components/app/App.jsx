@@ -5,7 +5,7 @@ import {
   isLoggedIn, refreshCurrentUserCache, getCurrentUser, getLoginURL, isOtherOCLClientURL, isRedirectingToLoginViaReferrer
 } from '../../common/utils';
 import GAService from '../../services/GAService';
-import { silentSignIn, isSSOSessionEnabled } from '../../common/ssoSession';
+import { silentSignIn, isSSOSessionEnabled, settleForcedSignOut } from '../../common/ssoSession';
 import { REPO_ROUTE_PATHS, getRepoKey } from '../../common/repoRoute';
 import Error404 from '../errors/Error404';
 import Error403 from '../errors/Error403';
@@ -154,7 +154,7 @@ const App = props => {
       localStorage.removeItem('server_configs')
       localStorage.setItem('token', tokens.access_token)
       localStorage.setItem('id_token', tokens.id_token)
-      sessionStorage.removeItem('session_expired')
+      settleForcedSignOut()
       refreshCurrentUserCache(() => setAuthVersion(version => version + 1))
     }).finally(() => { silentCheckRunning.current = false })
   }
