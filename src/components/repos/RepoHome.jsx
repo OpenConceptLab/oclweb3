@@ -364,7 +364,7 @@ const RepoHome = () => {
     setSelectedExpansion(expansion)
     if(!expansion?.mnemonic)
       return
-    replacePath({expansion: (expansion.default && !route.expansion) ? '' : expansion.mnemonic, resource: ''})
+    replacePath({tab, expansion: (expansion.default && !route.expansion) ? '' : expansion.mnemonic, resource: ''})
   }
 
   // Opening a version from the versions tab means "go look at this version", so it
