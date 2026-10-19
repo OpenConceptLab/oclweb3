@@ -369,10 +369,6 @@ const Search = props => {
       params.verbose = true
     if(__resource === 'references')
       params.includeResolvedRepoVersions = true
-    if(['concepts', 'mappings'].includes(__resource) && props.url?.includes('/collections/')) {
-      params.includeReferences = true
-      params.includeResolvedRepoVersions = true
-    }
     if(__resource === 'repos') {
       // fills the latest version and content summary columns
       params.includeLatestReleasedVersion = true
