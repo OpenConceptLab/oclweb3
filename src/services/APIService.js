@@ -1,7 +1,7 @@
 /*eslint no-process-env: 0*/
 import axios from 'axios';
 import {get, omit, isPlainObject, isString, defaults } from 'lodash';
-import { currentUserToken, getAPIURL, logoutUser } from '../common/utils';
+import { currentUserToken, getAPIURL, renewOrSignOut } from '../common/utils';
 import { OCL_CLIENT_HEADERS } from '../common/constants';
 
 const APIServiceProvider = {};
@@ -83,7 +83,7 @@ class APIService {
       .then(response => response || null)
       .catch(error => {
         if(error?.response?.status === 401) {
-          logoutUser(true, true)
+          renewOrSignOut()
         } else {
           if(raw)
             return error;
