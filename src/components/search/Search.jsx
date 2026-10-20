@@ -136,10 +136,12 @@ const Search = props => {
       if(newHierarchy !== hierarchy) {
         setHierarchy(newHierarchy)
         setPage(1)
-        if(!newHierarchy && pendingRepoDefaultFilters.current && !getFiltersFromQueryParams()) {
+        const applyRepoDefaultFilters = !newHierarchy && pendingRepoDefaultFilters.current && !getFiltersFromQueryParams()
+        if(!newHierarchy)
           pendingRepoDefaultFilters.current = false
+        if(applyRepoDefaultFilters)
           history.replace(getCurrentLayoutURL(getQueryParams(input, 1, pageSize, getAppliedFacetFromQueryParam(props.repoDefaultFilters), orderBy, order, false)))
-        } else
+        else
           fetchResults(getQueryParams(input, 1, pageSize, filters, orderBy, order, newHierarchy), true)
       }
     }
@@ -156,7 +158,7 @@ const Search = props => {
       _resource = 'orgs'
     let url = '/search/?'
     if(q)
-      url += `&q=${q || ''}`
+      url += `&q=${encodeURIComponent(q || '')}`
     if(_resource !== 'concepts')
       url += `&type=${_resource}`
     if(limit !== DEFAULT_LIMIT)
