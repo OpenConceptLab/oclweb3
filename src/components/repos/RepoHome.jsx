@@ -60,7 +60,7 @@ const RepoHome = () => {
   const [tabs, setTabs] = React.useState(getRepoTabs)
 
   const [status, setStatus] = React.useState(false)
-  const [repo, setRepo] = React.useState(false)
+  const [{repo, repoRoute}, setRepoState] = React.useState({repo: false, repoRoute: null})
   const [owner, setOwner] = React.useState(false)
   const [repoSummary, setRepoSummary] = React.useState(false)
   const [versions, setVersions] = React.useState(false)
@@ -151,7 +151,7 @@ const RepoHome = () => {
       versionCacheRef.current[versionCacheKey(_repo.version)] = _repo
   }
 
-  const applyRepoData = (_repo, newStatus, sameRepoAsBefore, hasReleasedVersion) => {
+  const applyRepoData = (_repo, newStatus, sameRepoAsBefore, hasReleasedVersion, fetchedRoute) => {
     if(!aliveRef.current)
       return
     if(route.version && (newStatus !== 200 || !_repo?.url)) {
@@ -161,7 +161,7 @@ const RepoHome = () => {
 
     setStatus(newStatus)
     setLoading(false)
-    setRepo(_repo)
+    setRepoState({repo: _repo, repoRoute: fetchedRoute})
     if(!isCollection)
       setContextRepo(_repo)
     if(!sameRepoAsBefore)
@@ -196,10 +196,11 @@ const RepoHome = () => {
   }
 
   const fetchRepo = (sameRepoAsBefore = false, { forceRefresh = false } = {}) => {
+    const fetchedRoute = route
     const hasReleasedVersion = (route.version || route.resource) ? null : fetchHasReleasedVersion()
     const cached = !forceRefresh && versionCacheRef.current[versionCacheKey(route.version)]
     if(cached) {
-      applyRepoData(cached, 200, sameRepoAsBefore, hasReleasedVersion)
+      applyRepoData(cached, 200, sameRepoAsBefore, hasReleasedVersion, fetchedRoute)
       return
     }
     setLoading(true)
@@ -211,7 +212,7 @@ const RepoHome = () => {
       const _repo = response?.data || response?.response?.data || {}
       if(newStatus === 200)
         cacheVersion(_repo)
-      applyRepoData(_repo, newStatus, sameRepoAsBefore, hasReleasedVersion)
+      applyRepoData(_repo, newStatus, sameRepoAsBefore, hasReleasedVersion, fetchedRoute)
     })
   }
 
@@ -510,7 +511,7 @@ const RepoHome = () => {
       return
     let meta = {...repo?.meta, display: {...repo?.meta?.display, default_filter: appliedFilters}}
     APIService.new().overrideURL(repo.version_url || repo.url).patch({meta: meta}).then(() => {
-      setRepo({...repo, meta: meta})
+      setRepoState({repo: {...repo, meta: meta}, repoRoute})
       setAlert({severity: 'success', message: t('common.success_update')})
     })
   }
@@ -539,8 +540,7 @@ const RepoHome = () => {
   const onReleaseVersionClick = () => isVersion && setReleaseTarget(repo)
   // References are collection-only, so never query them on a source.
   // Search reads the repo's saved defaults when it mounts, so wait for the version the route asks for
-  const isRepoVersionForRoute = isRepoForRoute && (!route.version || (repo?.version || 'HEAD') === route.version)
-  const _canRenderSearch = repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && (tab !== 'references' || isCollection) && canRenderSearch && isRepoVersionForRoute
+  const _canRenderSearch = repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && (tab !== 'references' || isCollection) && canRenderSearch && isRepoForRoute && isSameRepoScope(repoRoute, route)
   const showProcessingBanner = _canRenderSearch && isVersionProcessing(currentRepo)
   const heightTakenInProcessingBanner = showProcessingBanner ? 43 : 0
   return (
