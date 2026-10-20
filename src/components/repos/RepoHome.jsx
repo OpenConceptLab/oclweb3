@@ -151,7 +151,7 @@ const RepoHome = () => {
       versionCacheRef.current[versionCacheKey(_repo.version)] = _repo
   }
 
-  const applyRepoData = (_repo, newStatus, sameRepoAsBefore, hasReleasedVersion, fetchedRoute) => {
+  const applyRepoData = (_repo, newStatus, sameRepoAsBefore, hasReleasedVersion) => {
     if(!aliveRef.current)
       return
     if(route.version && (newStatus !== 200 || !_repo?.url)) {
@@ -161,7 +161,7 @@ const RepoHome = () => {
 
     setStatus(newStatus)
     setLoading(false)
-    setRepoState({repo: _repo, repoRoute: fetchedRoute})
+    setRepoState({repo: _repo, repoRoute: route})
     if(!isCollection)
       setContextRepo(_repo)
     if(!sameRepoAsBefore)
@@ -196,11 +196,10 @@ const RepoHome = () => {
   }
 
   const fetchRepo = (sameRepoAsBefore = false, { forceRefresh = false } = {}) => {
-    const fetchedRoute = route
     const hasReleasedVersion = (route.version || route.resource) ? null : fetchHasReleasedVersion()
     const cached = !forceRefresh && versionCacheRef.current[versionCacheKey(route.version)]
     if(cached) {
-      applyRepoData(cached, 200, sameRepoAsBefore, hasReleasedVersion, fetchedRoute)
+      applyRepoData(cached, 200, sameRepoAsBefore, hasReleasedVersion)
       return
     }
     setLoading(true)
@@ -212,7 +211,7 @@ const RepoHome = () => {
       const _repo = response?.data || response?.response?.data || {}
       if(newStatus === 200)
         cacheVersion(_repo)
-      applyRepoData(_repo, newStatus, sameRepoAsBefore, hasReleasedVersion, fetchedRoute)
+      applyRepoData(_repo, newStatus, sameRepoAsBefore, hasReleasedVersion)
     })
   }
 
