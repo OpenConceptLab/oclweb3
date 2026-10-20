@@ -515,6 +515,18 @@
     "smart": "Smart Checksum"
   },
   "repo": {
+    "display": "Display",
+    "display_description": "How the Concepts tab opens for visitors",
+    "default_view": "Default view",
+    "default_view_table_description": "Rows with sortable columns",
+    "default_view_card_description": "One card per concept",
+    "default_view_hierarchy_description": "Tree from the hierarchy root",
+    "default_view_help": "Visitors can still switch views",
+    "default_view_needs_root": "Set a hierarchy root to open in Hierarchy. Until then, visitors see Table.",
+    "default_view_invalid_meta": "Fix the JSON in the Meta field to change this",
+    "default_filters": "Default filters (Table and Card)",
+    "default_filters_none": "None",
+    "default_filters_help": "Set these with \"Save as Default Filters\" in the filter panel on the Concepts tab. The Hierarchy view always shows the full tree.",
     "repos": "Repositories",
     "repo": "Repository",
     "new_repo": "New Repository",

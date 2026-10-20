@@ -41,6 +41,7 @@ import RepoCreateLanguages from './RepoCreateLanguages'
 import RepoCreateAdditionalMetadata from './RepoCreateAdditionalMetadata'
 import RepoCreatePublisher from './RepoCreatePublisher'
 import RepoCreateHierarchy from './RepoCreateHierarchy'
+import RepoCreateDisplay from './RepoCreateDisplay'
 import RepoCreateIDAutoAssignment from './RepoCreateIDAutoAssignment'
 import { parseRepoURL } from './utils'
 
@@ -544,6 +545,9 @@ const RepoCreate = () => {
                   <RepoCreateHierarchy sourceURL={isEdit ? repo?.url : ''} onChange={onChange} hierarchyRootURL={model.hierarchyRootURL} hierarchyMeaning={model.hierarchyMeaning} />
                 </FormSection>
             }
+            <FormSection sx={{marginTop: '16px'}}>
+              <RepoCreateDisplay isSource={Boolean(selectedTab.hierarchy)} meta={model.meta} hierarchyRootURL={model.hierarchyRootURL} onChange={onChange} />
+            </FormSection>
             {
               selectedTab.autoAssignIDs &&
                 <FormSection sx={{marginTop: '16px'}}>
