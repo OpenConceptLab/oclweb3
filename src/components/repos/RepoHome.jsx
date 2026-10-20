@@ -538,7 +538,9 @@ const RepoHome = () => {
   const onVersionEditClick = () => isVersion && setVersionForm({edit: true, version: repo, expansions: []})
   const onReleaseVersionClick = () => isVersion && setReleaseTarget(repo)
   // References are collection-only, so never query them on a source.
-  const _canRenderSearch = repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && (tab !== 'references' || isCollection) && canRenderSearch
+  // Search reads the repo's saved defaults when it mounts, so wait for the version the route asks for
+  const isRepoVersionForRoute = isRepoForRoute && (!route.version || (repo?.version || 'HEAD') === route.version)
+  const _canRenderSearch = repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && (tab !== 'references' || isCollection) && canRenderSearch && isRepoVersionForRoute
   const showProcessingBanner = _canRenderSearch && isVersionProcessing(currentRepo)
   const heightTakenInProcessingBanner = showProcessingBanner ? 43 : 0
   return (
@@ -585,7 +587,7 @@ const RepoHome = () => {
                 {
                   _canRenderSearch &&
                     <Search
-                      key={`${getSearchURL()}-${repo?.version_url || repo?.url}-${searchReloadKey}`}
+                      key={`${getSearchURL()}-${searchReloadKey}`}
                       loading={loading}
                       summary={repoSummary || repo?.summary}
                       resource={tab}
