@@ -510,7 +510,7 @@ const RepoHome = () => {
       return
     let meta = {...repo?.meta, display: {...repo?.meta?.display, default_filter: appliedFilters}}
     APIService.new().overrideURL(repo.version_url || repo.url).patch({meta: meta}).then(() => {
-      setRepoState({repo: {...repo, meta: meta}, repoRoute})
+      setRepoState(prev => prev.repo?.version_url === repo.version_url ? {...prev, repo: {...prev.repo, meta: meta}} : prev)
       setAlert({severity: 'success', message: t('common.success_update')})
     })
   }
