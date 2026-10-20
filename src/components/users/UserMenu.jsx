@@ -28,7 +28,7 @@ const UserMenu = ({ isOpen, onClose }) => {
   const { t, i18n } = useTranslation()
   const location = useLocation()
   const [languageOpen, setLanguageOpen] = React.useState(false)
-  const selectedLanguage = find(LANGUAGES, {locale: i18n.language})
+  const selectedLanguage = find(LANGUAGES, {locale: i18n.language}) || {locale: i18n.language, name: i18n.language}
   const authenticated = isLoggedIn()
   const user = getCurrentUser()
   const onLanguageSelect = locale => {

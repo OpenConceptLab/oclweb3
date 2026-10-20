@@ -3,6 +3,7 @@ import IconButton from '@mui/material/IconButton'
 import AddIcon from '@mui/icons-material/Add'
 import ImportIcon from '@mui/icons-material/Publish';
 import UserMenu from '../users/UserMenu';
+import ErrorBoundary from '../errors/ErrorBoundary';
 import UserProfileButton from '../users/UserProfileButton';
 import AddMenuList from '../users/AddMenuList'
 import { isLoggedIn } from '../../common/utils';
@@ -40,7 +41,9 @@ const HeaderControls = () => {
         </>
       }
       <UserProfileButton onClick={() => setUserMenu(true)} />
-      <UserMenu isOpen={userMenu} onClose={() => setUserMenu(false)} />
+      <ErrorBoundary fallback={null}>
+        <UserMenu isOpen={userMenu} onClose={() => setUserMenu(false)} />
+      </ErrorBoundary>
       {
         authenticated &&
         <AddMenuList open={addMenu} onClose={onAddMenuClose} anchorEl={addMenuAnchorEl} />
