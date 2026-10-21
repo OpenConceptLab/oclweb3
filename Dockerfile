@@ -28,16 +28,20 @@ ADD .npmrc /app/
 
 RUN npm ci --production=false
 
-# OPTIONAL: install private premium UI package during image build
-# Example installs a package from a private repo/subdir
+# OPTIONAL: install the private ocl-analytics-web package during image build
+# PRIVATE_PACKAGES_GIT is an npm install spec, e.g. a git+ssh URL. Without it
+# webpack.config.js uses the open stub. GitHub's SSH host keys are pinned
+# (https://api.github.com/meta).
 ARG PRIVATE_PACKAGES_GIT
 ARG SOURCE_COMMIT
 RUN --mount=type=ssh \
-  mkdir -p /root/.ssh && \
-  ssh-keyscan github.com >> /root/.ssh/known_hosts && \
   if [ -n "$PRIVATE_PACKAGES_GIT" ]; then \
-    echo "Installing premium UI packages (oclweb3 commit $SOURCE_COMMIT):" $PRIVATE_PACKAGES_GIT && \
-    npm i $PRIVATE_PACKAGES_GIT --no-save --production=false; \
+    mkdir -p /root/.ssh && \
+    echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" >> /root/.ssh/known_hosts && \
+    echo "github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=" >> /root/.ssh/known_hosts && \
+    echo "Installing private UI packages (oclweb3 commit $SOURCE_COMMIT)" && \
+    npm i $PRIVATE_PACKAGES_GIT --no-save --production=false && \
+    node -e "const p = require('./node_modules/.package-lock.json').packages['node_modules/ocl-analytics-web']; if(!p) { console.error('The private UI package did not install as ocl-analytics-web'); process.exit(1) } console.log('Installed', p.version, p.resolved)"; \
   fi
 
 ADD webpack.config.js /app/
