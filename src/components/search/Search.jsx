@@ -15,7 +15,7 @@ import UserIcon from '@mui/icons-material/Person';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import TransformIcon from '@mui/icons-material/Transform';
 import DownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { forEach, keys, pickBy, isEmpty, find, uniq, has, orderBy as sortBy, uniqBy, omit, max, isEqual, isBoolean } from 'lodash';
+import { forEach, keys, pick, pickBy, isEmpty, find, uniq, has, orderBy as sortBy, uniqBy, omit, max, isEqual, isBoolean } from 'lodash';
 import { COLORS } from '../../common/colors';
 import { dropVersion, highlightTexts, isLoggedIn, getCurrentUserUsername } from '../../common/utils';
 import usePins, { PIN_RESOURCES, MAX_PINS_ALLOWED } from '../../hooks/usePins';
@@ -41,6 +41,10 @@ import { getQuotaError } from '../common/quotaErrors'
 const DEFAULT_LIMIT = 25;
 const FILTERS_WIDTH = 250
 const FILTERABLE_RESOURCES = ['concepts', 'mappings', 'repos', 'sources', 'collections', 'references']
+const HIERARCHY_QUERY_PARAMS = ['q', 'page', 'limit', 'includeSearchMeta', 'onlyHierarchyRoot']
+
+// Facet filters force the API onto the search-index path, which ignores onlyHierarchyRoot.
+const toRequestParams = params => params.onlyHierarchyRoot ? pick(params, HIERARCHY_QUERY_PARAMS) : params
 
 const getBaseCollectionUrl = url => {
   const match = (url || '').match(/^(.*\/collections\/[^/]+\/)(?:[^/]+\/)?(?:concepts|mappings|references)\/?$/)
@@ -71,6 +75,19 @@ const Search = props => {
   const [page, setPage] = React.useState(0);
   const [pageSize, setPageSize] = React.useState(DEFAULT_LIMIT);
   const [resource, setResource] = React.useState(false)
+  const isHierarchySupported = Boolean(props.nested && props.repo?.hierarchy_root_url && (resource || props.resource) === 'concepts')
+  const getDefaultDisplay = () => {
+    if(!props.nested || !props.repo || (resource || props.resource) !== 'concepts')
+      return undefined
+    const savedDisplay = props.repo.meta?.display?.default_view
+    const queryParams = new URLSearchParams(window.location.search)
+    if(savedDisplay === 'hierarchy' && isHierarchySupported && !queryParams.has('filters') && !queryParams.get('q'))
+      return 'hierarchy'
+    if(savedDisplay === 'card' && !props.noCardDisplay)
+      return 'card'
+    return 'table'
+  }
+  const [defaultDisplay] = React.useState(getDefaultDisplay)
   const [result, setResult] = React.useState({})
   const [filters, setFilters] = React.useState({})
   const [selected, setSelected] = React.useState([])
@@ -85,11 +102,12 @@ const Search = props => {
   const [transformingReferences, setTransformingReferences] = React.useState(false)
   const [bulkRemoveOpen, setBulkRemoveOpen] = React.useState(false)
   const [bulkRemoving, setBulkRemoving] = React.useState(false)
-  const [hierarchy, setHierarchy] = React.useState(false)
+  const [hierarchy, setHierarchy] = React.useState(defaultDisplay === 'hierarchy')
 
   const didMount = React.useRef(false);
+  const pendingRepoDefaultFilters = React.useRef(false)
   const isFilterable = _resource => FILTERABLE_RESOURCES.includes(_resource)
-  const isHierarchySupported = Boolean(props.nested && props.repo?.hierarchy_root_url && (resource || props.resource) === 'concepts')
+  const isHierarchyView = isHierarchySupported && hierarchy
 
   React.useEffect(() => {
     if(!props.url)
@@ -118,7 +136,13 @@ const Search = props => {
       if(newHierarchy !== hierarchy) {
         setHierarchy(newHierarchy)
         setPage(1)
-        fetchResults(getQueryParams(input, 1, pageSize, filters, orderBy, order, newHierarchy), true)
+        const applyRepoDefaultFilters = !newHierarchy && pendingRepoDefaultFilters.current && !getFiltersFromQueryParams()
+        if(!newHierarchy)
+          pendingRepoDefaultFilters.current = false
+        if(applyRepoDefaultFilters)
+          history.replace(getCurrentLayoutURL(getQueryParams(input, 1, pageSize, getAppliedFacetFromQueryParam(props.repoDefaultFilters), orderBy, order, false)))
+        else
+          fetchResults(getQueryParams(input, 1, pageSize, filters, orderBy, order, newHierarchy), true)
       }
     }
     input && setTimeout(highlight, 100)
@@ -134,7 +158,7 @@ const Search = props => {
       _resource = 'orgs'
     let url = '/search/?'
     if(q)
-      url += `&q=${q || ''}`
+      url += `&q=${encodeURIComponent(q || '')}`
     if(_resource !== 'concepts')
       url += `&type=${_resource}`
     if(limit !== DEFAULT_LIMIT)
@@ -216,7 +240,10 @@ const Search = props => {
       _fetch = true
       _fetchFacets = true
     }
-    if(includeRepoDefaultFilters && !_filters && !isEmpty(props.repoDefaultFilters)) {
+    // The saved defaults are list filters: opening in Hierarchy leaves them for the first switch to Table or Card.
+    if(includeRepoDefaultFilters && !_filters && !isEmpty(props.repoDefaultFilters) && isHierarchyView)
+      pendingRepoDefaultFilters.current = true
+    else if(includeRepoDefaultFilters && !_filters && !isEmpty(props.repoDefaultFilters)) {
       _filters = getAppliedFacetFromQueryParam(props.repoDefaultFilters)
       // Write the defaults into the URL so it stays the single source of truth --
       // otherwise the next location.search-driven sync sees no `filters` param and
@@ -326,7 +353,7 @@ const Search = props => {
 
   const isSearchIndexQuery = () => {
     const params = omit(
-      getQueryParams(input, page, pageSize, filters, orderBy, order),
+      toRequestParams(getQueryParams(input, page, pageSize, filters, orderBy, order)),
       ['page', 'limit', 'includeSearchMeta', 'onlyHierarchyRoot']
     )
     return Object.values(params).some(Boolean)
@@ -357,6 +384,7 @@ const Search = props => {
   }
 
   const fetchResults = (params, facets=true, _resource=undefined) => {
+    params = toRequestParams(params)
     let __resource = _resource || resource
     if(!__resource)
       return
@@ -393,7 +421,7 @@ const Search = props => {
         return {...result, [__resource]: resourceResult}
       })
       setLoading(false)
-      if(facets && isFilterable(__resource) && __resource !== 'references')
+      if(facets && !params.onlyHierarchyRoot && isFilterable(__resource) && __resource !== 'references')
         fetchFacets(params, resourceResult, __resource)
     })
   }
@@ -512,7 +540,7 @@ const Search = props => {
   }
 
   const noResults = !loading && input && !(result[resource]?.results || []).length
-  const showFilters = openFilters && !noResults && isFilterable(resource)
+  const showFilters = openFilters && !noResults && isFilterable(resource) && !isHierarchyView
 
   const getSearchResultsWidth = () => {
     let toSubtract = 0;
@@ -756,6 +784,7 @@ const Search = props => {
             <div className='col-xs-9 split' style={{width: getSearchResultsWidth(), paddingRight: 0, paddingLeft: 0, float: 'right', height: '100%'}}>
               <div className='col-xs-12 padding-0' style={{height: '100%'}}>
                 <SearchResults
+                  display={defaultDisplay}
                   loading={loading}
                   noCardDisplay={props.noCardDisplay}
                   order={order}
@@ -764,7 +793,7 @@ const Search = props => {
                   nested={props.nested}
                   openFilters={showFilters}
                   appliedFilters={filters}
-                  isFilterable={isFilterable(resource)}
+                  isFilterable={isFilterable(resource) && !isHierarchyView}
                   noResults={noResults}
                   searchedText={input}
                   bgColor={searchBgColor}

@@ -507,6 +507,18 @@
     "smart": "Checksum inteligente"
   },
   "repo": {
+    "display": "Exibição",
+    "display_description": "Como a aba Conceitos é aberta para os visitantes",
+    "default_view": "Visualização padrão",
+    "default_view_table_description": "Linhas com colunas que podem ser ordenadas",
+    "default_view_card_description": "Um cartão por conceito",
+    "default_view_hierarchy_description": "Árvore a partir da raiz da hierarquia",
+    "default_view_help": "Os visitantes ainda podem alternar entre as visualizações",
+    "default_view_needs_root": "Defina uma raiz de hierarquia para abrir na visualização Hierarquia. Até lá, os visitantes verão a visualização Tabela.",
+    "default_view_invalid_meta": "Corrija o JSON no campo Meta para alterar esta opção",
+    "default_filters": "Filtros padrão (Tabela e Cartão)",
+    "default_filters_none": "Nenhum",
+    "default_filters_help": "Configure-os com \"Salvar como filtros padrão\" no painel de filtros da aba Conceitos. A visualização Hierarquia sempre mostra a árvore completa.",
     "repos": "Repositórios",
     "repo": "Repositório",
     "new_repo": "Novo repositório",

@@ -356,6 +356,18 @@
     "unresolved": "No resuelta"
   },
   "repo": {
+    "display": "Visualización",
+    "display_description": "Cómo se abre la pestaña Conceptos para los visitantes",
+    "default_view": "Vista predeterminada",
+    "default_view_table_description": "Filas con columnas que se pueden ordenar",
+    "default_view_card_description": "Una tarjeta por concepto",
+    "default_view_hierarchy_description": "Árbol desde la raíz de la jerarquía",
+    "default_view_help": "Los visitantes pueden cambiar de vista",
+    "default_view_needs_root": "Establezca una raíz de jerarquía para abrir en la vista Jerarquía. Hasta entonces, los visitantes verán la vista Tabla.",
+    "default_view_invalid_meta": "Corrija el JSON del campo Meta para cambiar esta opción",
+    "default_filters": "Filtros predeterminados (Tabla y Tarjeta)",
+    "default_filters_none": "Ninguno",
+    "default_filters_help": "Configúrelos con \"Guardar como Filtros Predeterminados\" en el panel de filtros de la pestaña Conceptos. La vista Jerarquía siempre muestra el árbol completo.",
     "repos": "Repositorios",
     "repo": "Repositorio",
     "repo_type": "Tipo de Repositorio",

@@ -60,7 +60,7 @@ const RepoHome = () => {
   const [tabs, setTabs] = React.useState(getRepoTabs)
 
   const [status, setStatus] = React.useState(false)
-  const [repo, setRepo] = React.useState(false)
+  const [{repo, repoRoute}, setRepoState] = React.useState({repo: false, repoRoute: null})
   const [owner, setOwner] = React.useState(false)
   const [repoSummary, setRepoSummary] = React.useState(false)
   const [versions, setVersions] = React.useState(false)
@@ -161,7 +161,7 @@ const RepoHome = () => {
 
     setStatus(newStatus)
     setLoading(false)
-    setRepo(_repo)
+    setRepoState({repo: _repo, repoRoute: route})
     if(!isCollection)
       setContextRepo(_repo)
     if(!sameRepoAsBefore)
@@ -510,7 +510,7 @@ const RepoHome = () => {
       return
     let meta = {...repo?.meta, display: {...repo?.meta?.display, default_filter: appliedFilters}}
     APIService.new().overrideURL(repo.version_url || repo.url).patch({meta: meta}).then(() => {
-      setRepo({...repo, meta: meta})
+      setRepoState(prev => prev.repo?.version_url === repo.version_url ? {...prev, repo: {...prev.repo, meta: meta}} : prev)
       setAlert({severity: 'success', message: t('common.success_update')})
     })
   }
@@ -538,7 +538,8 @@ const RepoHome = () => {
   const onVersionEditClick = () => isVersion && setVersionForm({edit: true, version: repo, expansions: []})
   const onReleaseVersionClick = () => isVersion && setReleaseTarget(repo)
   // References are collection-only, so never query them on a source.
-  const _canRenderSearch = repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && (tab !== 'references' || isCollection) && canRenderSearch
+  // Search reads the repo's saved defaults when it mounts, so wait for the version the route asks for
+  const _canRenderSearch = repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && (tab !== 'references' || isCollection) && canRenderSearch && isRepoForRoute && isSameRepoScope(repoRoute, route)
   const showProcessingBanner = _canRenderSearch && isVersionProcessing(currentRepo)
   const heightTakenInProcessingBanner = showProcessingBanner ? 43 : 0
   return (
