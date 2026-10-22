@@ -7,6 +7,7 @@ import TextField from '@mui/material/TextField'
 import FormHelperText from '@mui/material/FormHelperText'
 import MenuItem from '@mui/material/MenuItem'
 import merge from 'lodash/merge'
+import find from 'lodash/find'
 import APIService from '../../services/APIService'
 import GAService from '../../services/GAService'
 import { OperationsContext } from '../app/LayoutContext';
@@ -31,7 +32,7 @@ const UserForm = ({ user }) => {
   const [company, setCompany] = React.useState(user.company || '')
   const [location, setLocation] = React.useState(user.location || '')
   const [website, setWebsite] = React.useState(user.website || '')
-  const [preferredLocale, setPreferredLocale] = React.useState(user.preferred_locale || 'en')
+  const [preferredLocale, setPreferredLocale] = React.useState(find(LANGUAGES, {locale: user.preferred_locale}) ? user.preferred_locale : 'en')
   const [isLogoUpdated, setIsLogoUpdated] = React.useState(false)
 
   const getPayload = () => ({

@@ -120,7 +120,7 @@ module.exports = (env) => {
         },
       ],
     },
-    devtool: env.NODE_ENV == 'production' ? "source-map" : "cheap-module-source-map",
+    devtool: env.NODE_ENV == 'production' ? "nosources-source-map" : "cheap-module-source-map",
     plugins: [
       new HtmlWebpackPlugin({
         template: './public/index.html',

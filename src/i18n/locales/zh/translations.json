@@ -352,6 +352,18 @@
     "smart": "智能校验和"
   },
   "repo": {
+    "display": "显示",
+    "display_description": "访客打开“概念”选项卡时的显示方式",
+    "default_view": "默认视图",
+    "default_view_table_description": "按行显示，可按列排序",
+    "default_view_card_description": "每个概念显示为一张卡片",
+    "default_view_hierarchy_description": "从层级根节点展开的树形结构",
+    "default_view_help": "访客仍可切换视图",
+    "default_view_needs_root": "设置层级根节点后才能默认打开层级视图。在此之前，访客将看到表格视图。",
+    "default_view_invalid_meta": "请修正 Meta 字段中的 JSON 后再更改此选项",
+    "default_filters": "默认筛选条件（表格和卡片）",
+    "default_filters_none": "无",
+    "default_filters_help": "在“概念”选项卡的筛选面板中，使用“另存为默认筛选条件”进行设置。层级视图始终显示完整的树形结构。",
     "repos": "存储库",
     "repo": "存储库",
     "repo_type": "存储库类型",
