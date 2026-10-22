@@ -168,7 +168,12 @@
   "bookmarks": {
     "name": "书签",
     "pinned": "已钉住",
-    "pinned_repos": "已钉住的存储库"
+    "pinned_repos": "已钉住的存储库",
+    "max_pins_reached": "最多可以钉住 {{max}} 个存储库。请先从 {{owner}} 概述中移除一个已钉住的项。",
+    "pin_to_owner_overview": "钉到 {{owner}} 概述",
+    "unpin_from_owner_overview": "从 {{owner}} 概述中取消钉住",
+    "pinned_to_owner_overview": "已钉到 {{owner}} 概述",
+    "unpinned_from_owner_overview": "已从 {{owner}} 概述中取消钉住"
   },
   "auth": {
     "sign_in": "登录",

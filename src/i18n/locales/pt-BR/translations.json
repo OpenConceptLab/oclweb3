@@ -240,9 +240,12 @@
     "name": "Favoritos",
     "pinned": "Fixados",
     "pinned_repos": "Repositórios fixados",
-    "pin": "Fixar",
     "unpin": "Remover fixação",
-    "max_pins_reached": "Máximo de 4 itens podem ser fixados"
+    "max_pins_reached": "Você pode fixar até {{max}} repositórios. Remova primeiro uma fixação da visão geral de {{owner}}.",
+    "pin_to_owner_overview": "Fixar na visão geral de {{owner}}",
+    "unpin_from_owner_overview": "Remover fixação da visão geral de {{owner}}",
+    "pinned_to_owner_overview": "Fixado na visão geral de {{owner}}",
+    "unpinned_from_owner_overview": "Fixação removida da visão geral de {{owner}}"
   },
   "auth": {
     "sign_in": "Entrar",

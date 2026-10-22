@@ -241,9 +241,12 @@
     "name": "Bookmarks",
     "pinned": "Pinned",
     "pinned_repos": "Pinned repositories",
-    "pin": "Pin",
     "unpin": "Remove pin",
-    "max_pins_reached": "Maximum 4 items can be pinned"
+    "max_pins_reached": "You can pin up to {{max}} repositories. Remove a pin from the {{owner}} overview first.",
+    "pin_to_owner_overview": "Pin to {{owner}} overview",
+    "unpin_from_owner_overview": "Unpin from {{owner}} overview",
+    "pinned_to_owner_overview": "Pinned to the {{owner}} overview",
+    "unpinned_from_owner_overview": "Unpinned from the {{owner}} overview"
   },
   "auth": {
     "sign_in": "Sign in",

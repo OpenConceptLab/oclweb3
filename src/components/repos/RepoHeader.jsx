@@ -10,12 +10,16 @@ import ProcessingFlag from './ProcessingFlag';
 import RepoChip from './RepoChip'
 import OwnerChip from '../common/OwnerChip';
 import { copyURL, currentUserHasAccess, toFullAPIURL } from '../../common/utils';
+import { getRepoPinOwner, getRepoPinTarget } from '../../common/pins';
+import usePins, { canActOnPins } from '../../hooks/usePins';
 import RepoManagementList from './RepoManagementList';
 import { createSimilarRepoHref } from './utils';
 import FollowActionButton from '../common/FollowActionButton'
+import { OperationsContext } from '../app/LayoutContext';
 
 const RepoHeader = ({repo, owner, versions, versionsLoading, previewVersions, hasMoreVersions, onLoadMoreVersions, onVersionChange, repoHref, onCreateConceptClick, onCreateMappingClick, onVersionEditClick, onCreateVersionClick, onDeleteRepoClick, isVersion, onReleaseVersionClick, hideActions}) => {
   const { t } = useTranslation()
+  const { setAlert } = React.useContext(OperationsContext)
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
   const onMenuOpen = event => {
@@ -26,6 +30,16 @@ const RepoHeader = ({repo, owner, versions, versionsLoading, previewVersions, ha
     setMenuAnchorEl(false)
     setMenu(false)
   }
+
+  // Pins highlight the repo on its owner's overview, for those who can pin for that owner.
+  const pinOwner = hideActions ? false : getRepoPinOwner(repo)
+  const { pins, canPin, findPin, togglePin } = usePins(canActOnPins(pinOwner) ? pinOwner : false)
+  const pinTarget = getRepoPinTarget(repo)
+  const pinned = Boolean(findPin(pinTarget))
+  const onPinToggle = () => togglePin(pinTarget).then(saved => {
+    if(saved)
+      setAlert({severity: 'success', message: t(pinned ? 'bookmarks.unpinned_from_owner_overview' : 'bookmarks.pinned_to_owner_overview', {owner: pinOwner.id, interpolation: {escapeValue: false}})})
+  })
 
   const onManageOptionClick = option => {
     onMenuClose()
@@ -43,6 +57,8 @@ const RepoHeader = ({repo, owner, versions, versionsLoading, previewVersions, ha
       onReleaseVersionClick()
     else if (option === 'copyURL')
       copyURL(toFullAPIURL(repo.url))
+    else if (option === 'pin')
+      onPinToggle()
   }
 
   const hasAccess = currentUserHasAccess()
@@ -71,7 +87,7 @@ const RepoHeader = ({repo, owner, versions, versionsLoading, previewVersions, ha
                     <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='repo-actions'>
                       {t('common.actions')}
                     </Button>
-                    <RepoManagementList isVersion={isVersion} hasAccess={hasAccess} createSimilarHref={createSimilarHref} anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-actions' onClick={onManageOptionClick} repo={repo} />
+                    <RepoManagementList isVersion={isVersion} hasAccess={hasAccess} createSimilarHref={createSimilarHref} anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='repo-actions' onClick={onManageOptionClick} repo={repo} pin={(canPin && pins !== false) ? {owner: pinOwner.id, pinned} : false} />
                   </React.Fragment>
               }
             </span>

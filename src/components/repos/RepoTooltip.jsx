@@ -7,7 +7,6 @@ import has from 'lodash/has'
 import startCase from 'lodash/startCase'
 import MUIBasicTooltip from '@mui/material/Tooltip'
 import HTMLTooltip from '../common/HTMLTooltip'
-import FollowActionButton from '../common/FollowActionButton'
 import OwnerButton from '../common/OwnerButton'
 import RepoVersionButton from './RepoVersionButton'
 import { URIToOwnerParams, formatDate } from '../../common/utils'
@@ -82,7 +81,6 @@ const TooltipTitle = ({ repo }) => {
             }}
           />
         </span>
-        <FollowActionButton iconButton entity={entity} sx={{mr: 0, ml: 1.5}} size='small' />
       </div>
       <div style={{width: '100%', fontSize: '14px', marginTop: '6px'}}>
         <span style={{color: '#000', cursor: 'pointer'}} onClick={() => history.push(url)}>

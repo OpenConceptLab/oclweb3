@@ -28,7 +28,7 @@ const OrgHome = () => {
   const [tab, setTab] = React.useState(findTab)
   const [defaultFiltersOpen, onFiltersOpenChange] = useDefaultFiltersOpen()
   const { setAlert } = React.useContext(OperationsContext);
-  const { pins: bookmarks, canPin, togglePin, deletePin } = usePins(params?.org ? {type: 'org', id: params.org} : false)
+  const { pins: bookmarks, canPin, deletePin } = usePins(params?.org ? {type: 'org', id: params.org} : false)
 
   const TABS = [
     {key: 'overview', label: t('common.overview')},
@@ -107,9 +107,6 @@ const OrgHome = () => {
                     <Search
                       resource={tab}
                       url={org.url + tab + '/'}
-                      pins={bookmarks}
-                      canPin={canPin}
-                      onPinToggle={togglePin}
                       defaultFiltersOpen={defaultFiltersOpen}
                       onFiltersOpenChange={onFiltersOpenChange}
                       nested

@@ -1,13 +1,12 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import APIService from '../services/APIService';
-import {
-  getCurrentUserUsername, isAdminUser, isCurrentUserMemberOf
-} from '../common/utils';
+import { getCurrentUser } from '../common/utils';
+import { canUserPinFor } from '../common/pins';
 import { OperationsContext } from '../components/app/LayoutContext';
 
 // Pins (a.k.a. bookmarks) are owned either by a user or by an org.
 // owner is {type: 'user'|'org', id: <username|mnemonic>} or false when nothing is pinnable.
-export const PIN_RESOURCES = ['repos', 'orgs'];
 export const MAX_PINS_ALLOWED = 4;
 
 const getService = (owner, pinId) => {
@@ -17,15 +16,7 @@ const getService = (owner, pinId) => {
   return service.pins(pinId)
 }
 
-export const canActOnPins = owner => {
-  if(!owner?.id || !getCurrentUserUsername())
-    return false
-  if(isAdminUser())
-    return true
-  return owner.type === 'org' ?
-    isCurrentUserMemberOf(owner.id) :
-    getCurrentUserUsername() === owner.id
-}
+export const canActOnPins = owner => canUserPinFor(getCurrentUser(), owner)
 
 // The pin API needs the resource's numeric PK, which list payloads don't carry.
 const resolveResourceId = item => {
@@ -47,6 +38,7 @@ const getErrorMessage = response => {
 }
 
 const usePins = owner => {
+  const { t } = useTranslation()
   const [pins, setPins] = React.useState(false)
   const [error, setError] = React.useState(false)
   const { setAlert } = React.useContext(OperationsContext) || {}
@@ -72,33 +64,43 @@ const usePins = owner => {
 
   const findPin = item => (pins || []).find(pin => pin.resource_uri === item?.url)
 
+  const fail = message => {
+    setError(message || t('common.generic_error'))
+    return false
+  }
+  const limitMessage = () => t('bookmarks.max_pins_reached', {max: MAX_PINS_ALLOWED, owner: ownerId, interpolation: {escapeValue: false}})
+
+  // createPin and deletePin resolve to true once the change is saved.
   const createPin = item => {
     if(!canPin || !item?.url)
-      return
+      return Promise.resolve(false)
     if((pins || []).length >= MAX_PINS_ALLOWED)
-      return setError(`Can only keep max ${MAX_PINS_ALLOWED} items pinned`)
-    resolveResourceId(item).then(resourceId => {
+      return Promise.resolve(fail(limitMessage()))
+    return resolveResourceId(item).then(resourceId => {
       if(!resourceId)
-        return setError('Could not resolve the resource to pin')
-      getService({type: ownerType, id: ownerId})
+        return fail()
+      return getService({type: ownerType, id: ownerId})
         .post({resource_type: item.type || item.repo_type, resource_id: resourceId})
         .then(response => {
-          if(response?.status === 201 && response?.data?.id)
+          if(response?.status === 201 && response?.data?.id) {
             setPins(existing => [...(existing || []), response.data])
-          else
-            setError(getErrorMessage(response) || 'Something went wrong while pinning')
+            return true
+          }
+          // The API answers {error: [...]} only when the owner already has the most pins allowed.
+          return fail(response?.error ? limitMessage() : getErrorMessage(response))
         })
     })
   }
 
   const deletePin = pinId => {
     if(!canPin || !pinId)
-      return
-    getService({type: ownerType, id: ownerId}, pinId).delete().then(response => {
-      if(response?.status === 204)
+      return Promise.resolve(false)
+    return getService({type: ownerType, id: ownerId}, pinId).delete().then(response => {
+      if(response?.status === 204) {
         setPins(existing => (existing || []).filter(pin => pin.id !== pinId))
-      else
-        setError(getErrorMessage(response) || 'Something went wrong while removing the pin')
+        return true
+      }
+      return fail(getErrorMessage(response))
     })
   }
 
