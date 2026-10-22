@@ -8,6 +8,7 @@ import { COLORS } from '../../common/colors'
 import APIService from '../../services/APIService'
 import CommonTabs from '../common/CommonTabs';
 import Search from '../search/Search';
+import useDefaultFiltersOpen from '../../hooks/useDefaultFiltersOpen';
 import Error40X from '../errors/Error40X';
 import UserOverview from './UserOverview';
 import UserSummary from './UserSummary'
@@ -19,6 +20,7 @@ const UserHome = () => {
   const params = useParams()
   const history = useHistory()
   const [tab, setTab] = React.useState(findTab || 'overview')
+  const [defaultFiltersOpen, onFiltersOpenChange] = useDefaultFiltersOpen()
   const [user, setUser] = React.useState({})
   const [status, setStatus] = React.useState(false)
   const { pins: bookmarks, canPin, togglePin, deletePin } = usePins(params?.user ? {type: 'user', id: params.user} : false)
@@ -122,7 +124,8 @@ const UserHome = () => {
                       filtersHeightToSubtract={baseHeightToDeduct}
                       resultContainerStyle={{height: `calc(var(--app-height) - ${baseHeightToDeduct}px - 88px)`, overflow: 'auto'}}
                       containerStyle={{padding: 0}}
-                      defaultFiltersOpen={false}
+                      defaultFiltersOpen={defaultFiltersOpen}
+                      onFiltersOpenChange={onFiltersOpenChange}
                       resultSize='medium'
                       excludedColumns={['owner']}
                     />

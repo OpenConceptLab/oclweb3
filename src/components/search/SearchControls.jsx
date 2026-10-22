@@ -25,13 +25,13 @@ const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, on
     <div className='col-xs-12 padding-0' style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center'}}>
       {
       hasSortOptions(sortConfig) &&
-          <Button disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none'}} endIcon={<DownIcon fontSize='inherit' />} onClick={onSortClick}>
+          <Button disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none', whiteSpace: 'nowrap'}} endIcon={<DownIcon fontSize='inherit' />} onClick={onSortClick}>
             {t('search.sort_by')}
           </Button>
       }
       {
       showDisplayControl &&
-          <Button id="display-menu" disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none', marginLeft: '8px'}} endIcon={<DownIcon fontSize='inherit' />} onClick={onDisplayClick}>
+          <Button id="display-menu" disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none', whiteSpace: 'nowrap', marginLeft: '8px'}} endIcon={<DownIcon fontSize='inherit' />} onClick={onDisplayClick}>
             {t('search.display')}
           </Button>
       }

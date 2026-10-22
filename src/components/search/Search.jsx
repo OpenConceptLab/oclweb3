@@ -804,7 +804,10 @@ const Search = props => {
                   onSelect={newSelected => onSelectItem(newSelected)}
                   selectedToShow={showItem}
                   onShowItemSelect={onShowItemSelect}
-                  onFiltersToggle={() => setOpenFilters(!openFilters)}
+                  onFiltersToggle={() => {
+                    setOpenFilters(!openFilters)
+                    props.onFiltersOpenChange?.(!openFilters)
+                  }}
                   onDisplayChange={onDisplayChange}
                   resultContainerStyle={props.resultContainerStyle}
                   resultSize={props.resultSize}
