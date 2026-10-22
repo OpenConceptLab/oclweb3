@@ -11,7 +11,7 @@ import RepeatIcon from '@mui/icons-material/Repeat';
 import CloneIcon from '@mui/icons-material/ControlPointDuplicate';
 import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
-import { isNumber, isNaN, flatten, values, uniqBy, compact, pick, keys } from 'lodash'
+import { isNumber, isNaN, flatten, values, uniqBy, compact, pick, keys, omit } from 'lodash'
 import SearchControls from './SearchControls';
 import NoResults from './NoResults';
 import TableResults from './TableResults';
@@ -22,6 +22,7 @@ import CloneToSourceDialog from '../repos/CloneToSourceDialog';
 import MappingIcon from '../mappings/MappingIcon';
 import GAService from '../../services/GAService';
 import { getSortConfig } from './sortConfig'
+import { EXCLUDE_FILTER_KEY } from './ResultConstants'
 import { resolveColumns } from './columns'
 import { isLoggedIn, currentUserHasAccess } from '../../common/utils';
 import { createSimilarRepoHref } from '../repos/utils';
@@ -30,8 +31,9 @@ import { MAX_SEARCH_RESULT_WINDOW } from '../../common/constants';
 const ResultsToolbar = props => {
   const { t } = useTranslation()
   const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortConfig, noCardDisplay, toolbarControl, appliedFilters, availableFilterFields, openFilters, bulkActions, leftControls, displayOptions, resource } = props;
-  const countableFilters = availableFilterFields ? pick(appliedFilters, availableFilterFields) : appliedFilters
-  const filtersCount = resource === 'references' ? flatten(values(countableFilters))?.length : flatten(values(countableFilters).map(v => values(v))).length
+  // Reference searches fetch no facets, so their filters can't be narrowed to facet fields.
+  const countableFilters = (availableFilterFields && resource !== 'references') ? pick(appliedFilters, availableFilterFields) : appliedFilters
+  const filtersCount = resource === 'references' ? flatten(values(countableFilters))?.length : flatten(values(countableFilters).map(v => values(omit(v, EXCLUDE_FILTER_KEY)))).length
   return (
     <Toolbar
       sx={[{
