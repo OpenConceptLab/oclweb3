@@ -40,7 +40,7 @@ const EnhancedTableHead = props => {
   };
   return (
     <TableHead sx={{background: props.bgColor}}>
-      <TableRow sx={{background: '#FFF'}}>
+      <TableRow sx={{bgcolor: 'surface.s90'}}>
         {
           onSelectAllClick &&
             <TableCell padding="checkbox" sx={{background: 'inherit'}}>
@@ -296,7 +296,7 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
       <Table
         stickyHeader
         size={size || 'small'}
-        sx={{'.MuiTableCell-head': {lineHeight: '1.2rem', padding: '3px 16px', fontSize: '12px'}}}
+        sx={{'.MuiTableCell-head': {lineHeight: '1.2rem', padding: '3px 16px', fontSize: '12px', borderBottom: 1, borderBottomColor: 'surface.nv80'}}}
       >
         <EnhancedTableHead
           size={size}

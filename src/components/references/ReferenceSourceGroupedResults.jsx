@@ -268,9 +268,9 @@ const ReferenceSourceGroupedResults = ({ selected, results, loading, selectedToS
 
   return (
     <TableContainer style={style || {height: 'calc(var(--app-height) - 263px)'}} className={className}>
-      <Table stickyHeader size={size || 'small'} sx={{'.MuiTableCell-head': {lineHeight: '1.2rem', padding: '3px 16px', fontSize: '12px'}}}>
+      <Table stickyHeader size={size || 'small'} sx={{'.MuiTableCell-head': {lineHeight: '1.2rem', padding: '3px 16px', fontSize: '12px', borderBottom: 1, borderBottomColor: 'surface.nv80'}}}>
         <TableHead>
-          <TableRow sx={{background: '#FFF'}}>
+          <TableRow sx={{bgcolor: 'surface.s90'}}>
             <TableCell padding='checkbox' sx={{background: 'inherit'}} />
             <TableCell padding='checkbox' sx={{background: 'inherit'}} />
             <TableCell sx={{background: 'inherit'}}><b>{t('reference.reference')}</b></TableCell>
