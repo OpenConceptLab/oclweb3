@@ -40,7 +40,8 @@ const ResultsToolbar = props => {
         borderRadius: 0,
         pl: { sm: 1 },
         pr: { xs: 1, sm: 1 },
-        borderBottom: (disabled || display === 'card') ? 'none': '1px solid rgba(224, 224, 224, 1)',
+        borderBottom: (disabled || display === 'card') ? 'none': 1,
+        borderBottomColor: 'surface.nv80',
         minHeight: '48px !important'
       }, numSelected > 0 && {
         bgcolor: (theme) =>
