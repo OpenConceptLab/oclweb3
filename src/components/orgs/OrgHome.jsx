@@ -10,6 +10,7 @@ import { OperationsContext } from '../app/LayoutContext';
 import CommonTabs from '../common/CommonTabs';
 import DeleteEntityDialog from '../common/DeleteEntityDialog'
 import Search from '../search/Search';
+import useDefaultFiltersOpen from '../../hooks/useDefaultFiltersOpen';
 import Error40X from '../errors/Error40X';
 import OrgOverview from './OrgOverview';
 import OrgSummary from './OrgSummary';
@@ -25,6 +26,7 @@ const OrgHome = () => {
   const [members, setMembers] = React.useState([])
   const [deleteOrg, setDeleteOrg] = React.useState(false)
   const [tab, setTab] = React.useState(findTab)
+  const [defaultFiltersOpen, onFiltersOpenChange] = useDefaultFiltersOpen()
   const { setAlert } = React.useContext(OperationsContext);
   const { pins: bookmarks, canPin, togglePin, deletePin } = usePins(params?.org ? {type: 'org', id: params.org} : false)
 
@@ -108,7 +110,8 @@ const OrgHome = () => {
                       pins={bookmarks}
                       canPin={canPin}
                       onPinToggle={togglePin}
-                      defaultFiltersOpen={false}
+                      defaultFiltersOpen={defaultFiltersOpen}
+                      onFiltersOpenChange={onFiltersOpenChange}
                       nested
                       noTabs
                       filtersHeightToSubtract={280}

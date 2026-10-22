@@ -2,10 +2,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import Badge from '@mui/material/Badge';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import AddIcon from '@mui/icons-material/PlaylistAddOutlined';
@@ -30,6 +28,7 @@ import { createSimilarRepoHref } from '../repos/utils';
 import { MAX_SEARCH_RESULT_WINDOW } from '../../common/constants';
 
 const ResultsToolbar = props => {
+  const { t } = useTranslation()
   const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortConfig, noCardDisplay, toolbarControl, appliedFilters, availableFilterFields, openFilters, bulkActions, leftControls, displayOptions, resource } = props;
   const countableFilters = availableFilterFields ? pick(appliedFilters, availableFilterFields) : appliedFilters
   const filtersCount = resource === 'references' ? flatten(values(countableFilters))?.length : flatten(values(countableFilters).map(v => values(v))).length
@@ -49,11 +48,9 @@ const ResultsToolbar = props => {
     >
       {
         isFilterable &&
-          <IconButton style={{marginRight: '4px', ...(filtersCount > 0 ? {backgroundColor: 'rgba(73, 69, 79, 0.12)'} : {})}} onClick={onFiltersToggle} disabled={Boolean(disabled)}>
-            <Badge badgeContent={openFilters ? undefined : filtersCount} color='primary'>
-              <FilterListIcon sx={{color: '#000'}} />
-            </Badge>
-        </IconButton>
+          <Button disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none', whiteSpace: 'nowrap', flexShrink: 0, marginRight: '4px'}} startIcon={<FilterListIcon fontSize='inherit' />} onClick={onFiltersToggle} aria-expanded={Boolean(openFilters)}>
+            {t('search.filters')}{filtersCount > 0 ? ` (${filtersCount})` : ''}
+          </Button>
       }
       {
         leftControls?.length > 0 &&
@@ -405,6 +402,7 @@ const SearchResults = props => {
             numSelected={selected.length}
             title={getTitle()}
             onFiltersToggle={props.onFiltersToggle}
+            openFilters={props.openFilters}
             disabled={props.noResults}
             isFilterable={props.isFilterable}
             onDisplayChange={onDisplayChange}

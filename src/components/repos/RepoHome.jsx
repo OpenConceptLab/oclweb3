@@ -21,6 +21,7 @@ import { WHITE } from '../../common/colors';
 import { OperationsContext } from '../app/LayoutContext';
 import CommonTabs from '../common/CommonTabs';
 import Search from '../search/Search';
+import useDefaultFiltersOpen from '../../hooks/useDefaultFiltersOpen';
 import DeleteEntityDialog from '../common/DeleteEntityDialog'
 import ConceptHome from '../concepts/ConceptHome';
 import MappingHome from '../mappings/MappingHome';
@@ -86,6 +87,7 @@ const RepoHome = () => {
   const [showSummary, setShowSummary] = React.useState(true)
   const [addReferencesOpen, setAddReferencesOpen] = React.useState(false)
   const [searchReloadKey, setSearchReloadKey] = React.useState(0)
+  const [defaultFiltersOpen, onFiltersOpenChange] = useDefaultFiltersOpen()
   const [expansions, setExpansions] = React.useState([])
   const [expansionsLoading, setExpansionsLoading] = React.useState(false)
   const [selectedExpansion, setSelectedExpansion] = React.useState(false)
@@ -591,7 +593,8 @@ const RepoHome = () => {
                       summary={repoSummary || repo?.summary}
                       resource={tab}
                       url={getSearchURL()}
-                      defaultFiltersOpen={false}
+                      defaultFiltersOpen={defaultFiltersOpen}
+                      onFiltersOpenChange={onFiltersOpenChange}
                       nested
                       repo={repo}
                       noTabs
