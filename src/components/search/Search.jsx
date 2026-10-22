@@ -17,9 +17,7 @@ import TransformIcon from '@mui/icons-material/Transform';
 import DownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { forEach, keys, pick, pickBy, isEmpty, find, uniq, has, orderBy as sortBy, uniqBy, omit, max, isEqual, isBoolean } from 'lodash';
 import { COLORS } from '../../common/colors';
-import { dropVersion, highlightTexts, isLoggedIn, getCurrentUserUsername } from '../../common/utils';
-import usePins, { PIN_RESOURCES, MAX_PINS_ALLOWED } from '../../hooks/usePins';
-import PinActionButton from '../common/PinActionButton';
+import { dropVersion, highlightTexts, isLoggedIn } from '../../common/utils';
 import APIService from '../../services/APIService';
 import RepoIcon from '../repos/RepoIcon';
 import ConceptIcon from '../concepts/ConceptIcon';
@@ -56,14 +54,6 @@ const getCollectionLookupUrl = url => (url || '').replace(/\/(concepts|mappings|
 
 const Search = props => {
   const { setAlert, contextRepo } = React.useContext(OperationsContext);
-
-  // Pins: the owning page (org/user home) supplies them; a standalone search pins to the current user.
-  const hasPinsFromProps = Boolean(props.onPinToggle)
-  const currentUsername = getCurrentUserUsername()
-  const ownPins = usePins((hasPinsFromProps || props.nested || !currentUsername) ? false : {type: 'user', id: currentUsername})
-  const pins = hasPinsFromProps ? props.pins : ownPins.pins
-  const canPin = hasPinsFromProps ? props.canPin : ownPins.canPin
-  const onPinToggle = hasPinsFromProps ? props.onPinToggle : ownPins.togglePin
   const { t } = useTranslation()
   const history = useHistory();
   const location = useLocation();
@@ -714,27 +704,6 @@ const Search = props => {
       setShowItem(false)
   }, [location.search])
 
-  const findPinFor = item => (pins || []).find(pin => pin.resource_uri === item?.url)
-  const pinLimitReached = (pins || []).length >= MAX_PINS_ALLOWED
-  const pinColumn = (canPin && PIN_RESOURCES.includes(resource)) ? {
-    id: 'pin',
-    label: '',
-    sortable: false,
-    align: 'right',
-    sx: {width: '48px', padding: '0 8px'},
-    renderer: item => {
-      const pin = findPinFor(item)
-      return (
-        <PinActionButton
-          item={item}
-          pin={pin}
-          onToggle={onPinToggle}
-          disabled={!pin && pinLimitReached}
-        />
-      )
-    }
-  } : null
-
   return (
     <div className='col-xs-12 padding-0'>
       <div className={!props.nested && showItem?.id ? 'col-xs-7 split' : 'col-xs-12 split'} style={{backgroundColor: searchBgColor, borderRadius: '10px', height: '100%', ...(props.containerStyle || {})}}>
@@ -812,7 +781,7 @@ const Search = props => {
                   resultContainerStyle={props.resultContainerStyle}
                   resultSize={props.resultSize}
                   excludedColumns={props.excludedColumns}
-                  extraColumns={[...(props.extraColumns || []), pinColumn].filter(Boolean)}
+                  extraColumns={props.extraColumns}
                   properties={props.properties}
                   propertyDefinition={props.propertyDefinition}
                   propertyFilters={props.propertyFilters}

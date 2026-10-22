@@ -33,11 +33,6 @@ export const BROWSE_CONFIG = {
         getItems: () => getCurrentUserOrgs(),
       },
       {
-        key: 'bookmarked',
-        titleKey: 'search.bookmarked_organizations',
-        getItems: () => filter(getCurrentUser()?.pins, pin => isOrg(pin.resource)).map(pin => pin.resource),
-      },
-      {
         key: 'following',
         titleKey: 'search.following_organizations',
         getItems: () => filter(getCurrentUser()?.following, following => isOrg(following.object)).map(following => following.object),
@@ -55,11 +50,6 @@ export const BROWSE_CONFIG = {
         getItems: fetchMyRepos,
       },
       {
-        key: 'bookmarked',
-        titleKey: 'search.bookmarked_repositories',
-        getItems: () => filter(getCurrentUser()?.pins, pin => isRepo(pin.resource)).map(pin => pin.resource),
-      },
-      {
         key: 'following',
         titleKey: 'search.following_repositories',
         getItems: () => filter(getCurrentUser()?.following, following => isRepo(following.object)).map(following => following.object),
@@ -71,11 +61,6 @@ export const BROWSE_CONFIG = {
     emptyMessageKey: 'search.no_users_found',
     getSubtitle: item => item.username,
     sections: [
-      {
-        key: 'bookmarked',
-        titleKey: 'search.bookmarked_users',
-        getItems: () => filter(getCurrentUser()?.pins, pin => isUser(pin.resource)).map(pin => pin.resource),
-      },
       {
         key: 'following',
         titleKey: 'search.following_users',

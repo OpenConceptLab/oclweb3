@@ -9,8 +9,9 @@ import ReleaseIcon from '@mui/icons-material/NewReleases';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import CopyIcon from '@mui/icons-material/ContentCopy';
 import GAService from '../../services/GAService';
+import PinIcon from '../common/PinIcon';
 
-const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id, isVersion, hasAccess, createSimilarHref }) => {
+const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id, isVersion, hasAccess, createSimilarHref, pin }) => {
   const { t } = useTranslation()
   const url = isVersion ? repo.version_url : repo.url
   let editParams = isVersion ? {onClick: () => onClick('editVersion')} : {href: `${url}edit`}
@@ -81,6 +82,15 @@ const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id, isVers
               <RepeatIcon />
             </ListItemIcon>
             <ListItemText primary={t('repo.create_similar')} />
+          </ListItemButton>
+      }
+      {
+        Boolean(pin) &&
+          <ListItemButton id='pin' onClick={() => onClick('pin')} sx={{padding: '8px 12px'}}>
+            <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+              <PinIcon pinned={pin.pinned} />
+            </ListItemIcon>
+            <ListItemText primary={t(pin.pinned ? 'bookmarks.unpin_from_owner_overview' : 'bookmarks.pin_to_owner_overview', {owner: pin.owner, interpolation: {escapeValue: false}})} />
           </ListItemButton>
       }
       {

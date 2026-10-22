@@ -168,7 +168,12 @@
   "bookmarks": {
     "name": "书签",
     "pinned": "已钉住",
-    "pinned_repos": "已钉住的存储库"
+    "pinned_repos": "已钉住的存储库",
+    "max_pins_reached": "最多可以钉住 {{max}} 个存储库。请先从 {{owner}} 概述中移除一个已钉住的项。",
+    "pin_to_owner_overview": "钉到 {{owner}} 概述",
+    "unpin_from_owner_overview": "从 {{owner}} 概述中取消钉住",
+    "pinned_to_owner_overview": "已钉到 {{owner}} 概述",
+    "unpinned_from_owner_overview": "已从 {{owner}} 概述中取消钉住"
   },
   "auth": {
     "sign_in": "登录",
@@ -698,13 +703,10 @@
     "filtered_by": "筛选条件为",
     "class": "类别",
     "map_type": "映射类型",
-    "bookmarked_organizations": "已收藏的组织架构",
     "following_organizations": "关注的组织架构",
     "no_organizations_found": "未找到组织架构",
-    "bookmarked_repositories": "已收藏的存储库",
     "following_repositories": "关注的存储库",
     "no_repositories_found": "未找到存储库",
-    "bookmarked_users": "已收藏的用户",
     "following_users": "关注的用户",
     "no_users_found": "未找到用户",
     "table": "表格",

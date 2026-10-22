@@ -7,7 +7,6 @@ import Avatar from '@mui/material/Avatar'
 import Skeleton from '@mui/material/Skeleton'
 import has from 'lodash/has'
 import HTMLTooltip from '../common/HTMLTooltip'
-import FollowActionButton from '../common/FollowActionButton'
 import RepoIcon from '../repos/RepoIcon';
 import APIService from '../../services/APIService'
 
@@ -37,7 +36,6 @@ const TooltipTitle = ({ org }) => {
               <OrganizationIcon sx={{width: '24px', height: '24px'}}  />
             </Avatar>
         }
-        <FollowActionButton iconButton entity={entity} sx={{mr: 0, ml: 1.5}} size='small' />
       </div>
       <div style={{width: '100%', fontSize: '14px', marginTop: '6px'}}>
         {

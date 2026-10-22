@@ -134,7 +134,12 @@
     "create_repository": "Crear Repositorio"
   },
   "bookmarks": {
-    "name": "Marcadores"
+    "name": "Marcadores",
+    "max_pins_reached": "Puede fijar hasta {{max}} repositorios. Primero quite un elemento fijado de la vista general de {{owner}}.",
+    "pin_to_owner_overview": "Fijar en la vista general de {{owner}}",
+    "unpin_from_owner_overview": "Quitar de la vista general de {{owner}}",
+    "pinned_to_owner_overview": "Fijado en la vista general de {{owner}}",
+    "unpinned_from_owner_overview": "Quitado de la vista general de {{owner}}"
   },
   "auth": {
     "sign_in": "Iniciar sesión",
@@ -593,13 +598,10 @@
     "filtered_by": "filtrado por",
     "class": "Clase",
     "map_type": "Tipo de mapeo",
-    "bookmarked_organizations": "Organizaciones guardadas",
     "following_organizations": "Organizaciones que sigues",
     "no_organizations_found": "No se encontraron organizaciones",
-    "bookmarked_repositories": "Repositorios guardados",
     "following_repositories": "Repositorios que sigues",
     "no_repositories_found": "No se encontraron repositorios",
-    "bookmarked_users": "Usuarios guardados",
     "following_users": "Usuarios que sigues",
     "no_users_found": "No se encontraron usuarios",
     "table": "Tabla",

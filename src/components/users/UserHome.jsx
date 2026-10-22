@@ -23,7 +23,7 @@ const UserHome = () => {
   const [defaultFiltersOpen, onFiltersOpenChange] = useDefaultFiltersOpen()
   const [user, setUser] = React.useState({})
   const [status, setStatus] = React.useState(false)
-  const { pins: bookmarks, canPin, togglePin, deletePin } = usePins(params?.user ? {type: 'user', id: params.user} : false)
+  const { pins: bookmarks, canPin, deletePin } = usePins(params?.user ? {type: 'user', id: params.user} : false)
   const [events, setEvents] = React.useState(false)
   const [eventsPage, setEventsPage] = React.useState(0)
   const [haveMoreEvents, setHaveMoreEvents] = React.useState(false)
@@ -116,9 +116,6 @@ const UserHome = () => {
                     <Search
                       resource='repos'
                       url={user?.url + 'repos/'}
-                      pins={bookmarks}
-                      canPin={canPin}
-                      onPinToggle={togglePin}
                       nested
                       noTabs
                       filtersHeightToSubtract={baseHeightToDeduct}
