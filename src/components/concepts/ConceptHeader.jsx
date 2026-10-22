@@ -128,7 +128,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
       !loading &&
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
-          {hasAccess && (
+          {isLoggedIn() && (
             <Button
               startIcon={<AddIcon fontSize='inherit' />}
               variant='text'
@@ -137,7 +137,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
               sx={{textTransform: 'none'}}
               onClick={() => setAddToCollectionOpen(true)}
             >
-              Add to Collection
+              {t('addToCollection.add_to_collection')}
             </Button>
           )}
           {hasAccess && isSource && (

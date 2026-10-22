@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Card from '@mui/material/Card';
 import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button'
@@ -10,6 +11,7 @@ import ConceptListItem from './ConceptListItem'
 import AddToCollectionDialog from '../common/AddToCollectionDialog'
 
 const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isShown, firstChild }) => {
+  const { t } = useTranslation()
   const id = concept.version_url || concept.url || concept.id
   const isChecked = isSelected(id)
   const isSelectedToShow = isShown(id)
@@ -65,7 +67,7 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
             sx={{textTransform: 'none', whiteSpace: 'nowrap', flexShrink: 0}}
             onClick={event => { event.stopPropagation(); setAddToCollectionOpen(true) }}
           >
-            Add to Collection
+            {t('addToCollection.add_to_collection')}
           </Button>
         )}
       </div>
