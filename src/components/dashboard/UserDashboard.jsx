@@ -9,6 +9,7 @@ import CardContent from '@mui/material/CardContent'
 import Stack from '@mui/material/Stack'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
+import Skeleton from '@mui/material/Skeleton'
 import APIService from '../../services/APIService'
 import { WHITE, SURFACE_COLORS } from '../../common/colors'
 import Events from '../common/Events'
@@ -108,7 +109,8 @@ const UserDashboard = ({ user }) => {
   const [orgsEvents, setOrgsEvents] = React.useState({events: [], headers: {}})
   const [scope, setScope] = React.useState('all')
   const [loading, setLoading] = React.useState(true)
-  const getService = (scope, page, limit=10) => APIService.users(user.username).appendToUrl('events/').get(null, null, {scopes: scope, limit: limit, page: page})
+  const username = user?.username
+  const getService = (scope, page, limit=10) => APIService.users(username).appendToUrl('events/').get(null, null, {scopes: scope, limit: limit, page: page})
   const fetchEventsForSelf = () => {
     getService('self', parseInt(selfEvents.headers.page_number || '0') + 1, 5).then(response => {
       setSelfEvents({events: [...selfEvents.events, ...response.data], headers: response.headers})
@@ -147,9 +149,11 @@ const UserDashboard = ({ user }) => {
       !orgsEvents.events.length && fetchEventsForOrgs()
   }
   React.useEffect(() => {
+    if(!username)
+      return
     fetchEventsForAll()
     fetchEventsForSelf()
-  }, [])
+  }, [username])
   const getScopeEvents = () => {
     if(scope === 'orgs')
       return orgsEvents.events
@@ -170,7 +174,11 @@ const UserDashboard = ({ user }) => {
       </div>
       <div className='col-xs-3 padding-0' style={{minWidth: '360px', minHeight: '370px'}}>
         <div className='col-xs-12' style={{background: WHITE, borderRadius: '10px', border: `1px solid ${SURFACE_COLORS.nv80}`}}>
-          <Events user={user} events={selfEvents.events} onLoadMore={selfEvents.headers?.next ? fetchEventsForSelf : false} showAvatar maxHeight="245px" dashboard />
+          {
+            user ?
+              <Events user={user} events={selfEvents.events} onLoadMore={selfEvents.headers?.next ? fetchEventsForSelf : false} showAvatar maxHeight="245px" dashboard /> :
+              <Skeleton variant='rectangular' height={245} sx={{margin: '16px', borderRadius: '10px'}} />
+          }
         </div>
         <div className='col-xs-12 padding-0' style={{marginTop: '8px'}}>
           <UsageWidget username={user?.username} />
