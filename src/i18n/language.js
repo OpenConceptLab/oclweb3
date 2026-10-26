@@ -16,9 +16,9 @@ export const matchLanguage = (tag, supported) => {
     supported.find(locale => baseOf(locale.toLowerCase()) === baseOf(normalized))
 }
 
-export const getStoredLanguage = (storage, key, supported) => {
+export const getStoredLanguage = (getStorage, key, supported) => {
   try {
-    const stored = storage.getItem(key)
+    const stored = getStorage().getItem(key)
     return supported.includes(stored) ? stored : undefined
   } catch(_) {
     return undefined // storage unavailable (e.g. blocked or private mode)

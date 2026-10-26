@@ -16,7 +16,7 @@ const getInitialLanguage = () => {
     return DEFAULT_LANGUAGE
 
   return resolveLanguage([
-    () => getStoredLanguage(window.localStorage, LANGUAGE_STORAGE_KEY, SUPPORTED_LANGUAGES),
+    () => getStoredLanguage(() => window.localStorage, LANGUAGE_STORAGE_KEY, SUPPORTED_LANGUAGES),
     () => getBrowserLanguage(window.navigator, SUPPORTED_LANGUAGES)
   ])
 }
