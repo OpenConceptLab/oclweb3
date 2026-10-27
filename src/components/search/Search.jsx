@@ -866,9 +866,9 @@ const Search = props => {
       <QuotaDialog
         open={Boolean(quotaError)}
         onClose={() => setQuotaError(null)}
+        errorCode={quotaError?.errorCode}
         meter={quotaError?.meter}
         surface='tbv3_match'
-        usage={quotaError?.usage}
       />
     </div>
   )

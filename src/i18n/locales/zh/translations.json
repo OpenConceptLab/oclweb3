@@ -763,21 +763,8 @@
   "quota": {
     "title_quota": "您已达到配额上限",
     "title_cap": "您已达到使用上限",
-    "your_plan": "您的套餐",
-    "used_of": "已使用 {{used}} / {{limit}}",
-    "period_one_time": "一次性预览额度",
-    "request_more_access": "申请更多权限",
-    "view_pricing": "查看价格",
-    "meter": {
-      "match_operations": "匹配操作",
-      "ai_assistant_calls": "OCL AI 助手调用",
-      "ai_assistant_change_comments": "OCL AI 助手更新备注",
-      "projects": "映射项目",
-      "rows": "每个项目的行数",
-      "generic": "用量"
-    },
     "consequence": {
-      "generic": "在提高额度之前，部分功能已暂停。",
+      "generic": "部分功能已暂停。",
       "ai_assistant_calls": {
         "default": "使用 OCL AI 助手的功能已暂停。",
         "auto_match": "AutoMatch 将继续运行，但不再提供 OCL AI 助手的推荐。"

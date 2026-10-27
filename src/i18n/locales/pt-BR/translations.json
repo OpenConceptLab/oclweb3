@@ -1155,28 +1155,8 @@
     "title_quota": "Você atingiu sua cota",
     "title_cap": "Você atingiu seu limite",
     "title_limit": "Isso está acima do seu limite",
-    "your_plan": "Seu plano",
-    "used_of": "{{used}} de {{limit}} usado(s)",
-    "requested_of": {
-      "generic": "{{requested}} solicitado(s), limite {{limit}}",
-      "import_file_size": "{{requested}} KB, limite {{limit}} KB",
-      "clone_resources": "Mais de {{limit}} conceitos e mapeamentos"
-    },
-    "period_one_time": "Cota única de prévia",
-    "request_more_access": "Solicitar mais acesso",
-    "view_pricing": "Ver preços",
-    "meter": {
-      "match_operations": "Operações de correspondência",
-      "ai_assistant_calls": "Chamadas do Assistente de IA do OCL",
-      "ai_assistant_change_comments": "Comentários de atualização do Assistente de IA do OCL",
-      "projects": "Projetos de mapeamento",
-      "rows": "Linhas por projeto",
-      "import_file_size": "Tamanho da importação",
-      "clone_resources": "Conceitos e mapeamentos por clonagem",
-      "generic": "Uso"
-    },
     "consequence": {
-      "generic": "Alguns recursos estão pausados até que sua cota seja aumentada.",
+      "generic": "Alguns recursos estão pausados.",
       "ai_assistant_calls": {
         "default": "Recursos que usam o Assistente de IA do OCL estão pausados.",
         "auto_match": "AutoMatch continuará rodando sem recomendações do Assistente de IA do OCL."
@@ -1199,10 +1179,10 @@
         "import": "Linhas além do seu limite permanecem no projeto mas não são correspondidas."
       },
       "import_file_size": {
-        "default": "Divida o arquivo em importações menores, ou solicite mais acesso."
+        "default": "Divida o arquivo em importações menores."
       },
       "clone_resources": {
-        "default": "Clone um conceito mais específico ou menos níveis de cascata, ou solicite mais acesso."
+        "default": "Clone um conceito mais específico ou menos níveis de cascata."
       }
     }
   }
