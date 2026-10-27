@@ -40,7 +40,7 @@ const Item = props => {
         </div>
     </div>
       <div className='col-xs-12 padding-0' style={{textAlign: 'center', marginTop: '16px'}}>
-        <Chip sx={{minHeight: '40px', fontSize: '14px', fontWeight: '500', backgroundColor: 'primary.dark', color: 'primary.20', width: '100%', borderRadius: '100px'}} label={t('dashboard.take_a_tour')} onClick={() => {}}/>
+        <Chip sx={{minHeight: '40px', fontSize: '14px', fontWeight: '500', backgroundColor: 'primary.80', color: 'primary.20', width: '100%', borderRadius: '100px'}} label={t('dashboard.take_a_tour')} onClick={() => {}}/>
     </div>
     </div>
   )

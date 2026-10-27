@@ -630,7 +630,7 @@ const RepoHome = () => {
                                   size="small"
                                   startIcon={<AddIcon />}
                                   onClick={() => setAddReferencesOpen(true)}
-                                  sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}}}
+                                  sx={{textTransform: 'none', whiteSpace: 'nowrap'}}
                                 >
                                   {t('reference.add_references')}
                                 </Button>
