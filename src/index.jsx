@@ -8,7 +8,8 @@ import { ThemeProvider, StyledEngineProvider, createTheme } from '@mui/material/
 import App from './components/app/App';
 import LayoutContext from './components/app/LayoutContext';
 import './index.scss';
-import { COLORS } from './common/colors';
+import { COLORS, WHITE } from './common/colors';
+import { buttonFocus } from './common/buttonFocus';
 import './i18n/config';
 import { setAppHistory, handleLinkClick, keepLinkClickBubbling, legacyHashRoute, redirectLegacyHashRoute } from './common/history';
 import { takeSigninToResume } from './common/ssoSession';
@@ -72,6 +73,7 @@ const v5Theme = createTheme(theme, {
       }
     },
     MuiButton: {
+      ...buttonFocus({ inner: WHITE, outer: COLORS.primary['30'] }),
       variants: [
         {
           props: { variant: "contained", color: COLORS.surface.n96 },
