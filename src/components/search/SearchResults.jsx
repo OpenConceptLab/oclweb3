@@ -30,7 +30,7 @@ import { MAX_SEARCH_RESULT_WINDOW } from '../../common/constants';
 
 const ResultsToolbar = props => {
   const { t } = useTranslation()
-  const { numSelected, title, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortConfig, noCardDisplay, toolbarControl, appliedFilters, availableFilterFields, openFilters, bulkActions, leftControls, displayOptions, resource } = props;
+  const { numSelected, title, titleInfo, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortConfig, noCardDisplay, toolbarControl, appliedFilters, availableFilterFields, openFilters, bulkActions, leftControls, displayOptions, resource } = props;
   // Reference searches fetch no facets, so their filters can't be narrowed to facet fields.
   const countableFilters = (availableFilterFields && resource !== 'references') ? pick(appliedFilters, availableFilterFields) : appliedFilters
   const filtersCount = resource === 'references' ? flatten(values(countableFilters))?.length : flatten(values(countableFilters).map(v => values(omit(v, EXCLUDE_FILTER_KEY)))).length
@@ -92,6 +92,7 @@ const ResultsToolbar = props => {
             component="div"
           >
             {title}
+            {titleInfo}
           </Typography> :
         <div style={{flex: '1 1 100%', marginLeft: isFilterable ? '8px' : 0}}>
           <Skeleton variant="text" sx={{ fontSize: '1rem', width: '15%' }} />
@@ -404,6 +405,7 @@ const SearchResults = props => {
           <ResultsToolbar
             numSelected={selected.length}
             title={getTitle()}
+            titleInfo={props.titleInfo}
             onFiltersToggle={props.onFiltersToggle}
             openFilters={props.openFilters}
             disabled={props.noResults}

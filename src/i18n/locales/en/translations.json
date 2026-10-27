@@ -1020,7 +1020,9 @@
     "select_all_references": "Select all references",
     "select_all_repos": "Select all repositories",
     "select_all_orgs": "Select all organizations",
-    "select_all_users": "Select all users"
+    "select_all_users": "Select all users",
+    "release_search_tooltip": "Global search only shows results from each source's latest released version. <0>Learn more</0>",
+    "release_search_tooltip_label": "How global search works"
   },
   "url_registry": {
     "url_registry": "Canonical URL registry",

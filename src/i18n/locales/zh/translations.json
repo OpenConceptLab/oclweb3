@@ -732,7 +732,9 @@
     "select_all_references": "选择所有引用",
     "select_all_repos": "选择所有存储库",
     "select_all_orgs": "选择所有组织机构",
-    "select_all_users": "选择所有用户"
+    "select_all_users": "选择所有用户",
+    "release_search_tooltip": "全局搜索仅显示每个来源最新发布版本中的结果。<0>了解更多</0>",
+    "release_search_tooltip_label": "全局搜索的工作原理"
   },
   "url_registry": {
     "url_registry": "规范型 URL 注册库",
