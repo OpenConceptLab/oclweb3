@@ -622,8 +622,8 @@
     "select_all_repos": "Seleccionar todos los repositorios",
     "select_all_orgs": "Seleccionar todas las organizaciones",
     "select_all_users": "Seleccionar todos los usuarios",
-    "release_search_tooltip": "Se busca en el contenido publicado. No se incluyen las fuentes sin una versión publicada.",
-    "release_search_tooltip_label": "Acerca de los resultados de búsqueda"
+    "release_search_tooltip": "La búsqueda global solo muestra resultados de la última versión publicada de cada fuente. <0>Más información</0>",
+    "release_search_tooltip_label": "Cómo funciona la búsqueda global"
   },
   "cloneToSource": {
     "title": "Clonar concepto(s) a una fuente",

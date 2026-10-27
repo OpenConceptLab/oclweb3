@@ -22,5 +22,6 @@ LOCALES.forEach(locale => {
   test(`${locale} has the info icon's tooltip and label`, () => {
     const { search } = JSON.parse(readFileSync(new URL(`../../../i18n/locales/${locale}/translations.json`, import.meta.url)))
     INFO_KEYS.forEach(key => assert.ok(search[key]?.trim(), `search.${key}`))
+    assert.match(search.release_search_tooltip, /<0>[^<]+<\/0>/, 'the tooltip keeps its docs link')
   })
 })
