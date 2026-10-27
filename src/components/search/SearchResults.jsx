@@ -287,7 +287,7 @@ const SearchResults = props => {
         startIcon={<AddIcon fontSize='inherit' />}
         variant='contained'
         size='small'
-        sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}}}
+        sx={{textTransform: 'none', whiteSpace: 'nowrap'}}
         onClick={() => setAddToCollectionOpen(true)}
       >
         {t('addToCollection.add_to_collection')}
@@ -301,7 +301,7 @@ const SearchResults = props => {
         startIcon={<CloneIcon fontSize='inherit' />}
         variant='contained'
         size='small'
-        sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}, marginLeft: '8px'}}
+        sx={{textTransform: 'none', whiteSpace: 'nowrap', marginLeft: '8px'}}
         onClick={() => setCloneToSourceOpen(true)}
       >
         {t('cloneToSource.clone_to_source')}
@@ -315,7 +315,7 @@ const SearchResults = props => {
         startIcon={<RepeatIcon fontSize='inherit' />}
         variant='contained'
         size='small'
-        sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}, marginLeft: '8px'}}
+        sx={{textTransform: 'none', whiteSpace: 'nowrap', marginLeft: '8px'}}
         onClick={() => {
           GAService.recordActionEvent('Create Similar', `create_similar_${props.resource.slice(0, -1)}`, selectedRows[0]?.id || selectedRows[0]?.url, {
             resource: props.resource,
@@ -339,7 +339,7 @@ const SearchResults = props => {
         startIcon={<RepeatIcon fontSize='inherit' />}
         variant='contained'
         size='small'
-        sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}, marginLeft: '8px'}}
+        sx={{textTransform: 'none', whiteSpace: 'nowrap', marginLeft: '8px'}}
         href={createSimilarRepoLink}
         onClick={() => GAService.recordActionEvent('Create Similar', 'create_similar_repo', selectedRows[0]?.short_code || selectedRows[0]?.id, {
           resource: props.resource,
@@ -359,7 +359,7 @@ const SearchResults = props => {
         startIcon={<MappingIcon fontSize='inherit' />}
         variant='contained'
         size='small'
-        sx={{textTransform: 'none', whiteSpace: 'nowrap', bgcolor: 'primary.60', color: '#fff', '&:hover': {bgcolor: 'primary.50'}, marginLeft: '8px'}}
+        sx={{textTransform: 'none', whiteSpace: 'nowrap', marginLeft: '8px'}}
         onClick={() => props.onCreateMappingClick(orderedSelectedRows)}
       >
         {t('mapping.create_mapping')}
