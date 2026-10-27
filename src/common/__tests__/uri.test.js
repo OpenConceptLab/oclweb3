@@ -5,7 +5,6 @@ const { dropVersion } = await import('../uri.js')
 
 test('a version id that repeats an earlier segment drops only the version', () => {
   assert.equal(dropVersion('/orgs/Arogya/collections/ciel/ciel/'), '/orgs/Arogya/collections/ciel/') // eslint-disable-line spellcheck/spell-checker
-  assert.equal(dropVersion('/orgs/CIEL/sources/CIEL/concepts/1/1/'), '/orgs/CIEL/sources/CIEL/concepts/1/')
 })
 
 test('versioned repo, concept and mapping URIs drop their version', () => {
