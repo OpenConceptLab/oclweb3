@@ -1010,7 +1010,9 @@
     "select_all_references": "Selecionar todas as referências",
     "select_all_repos": "Selecionar todos os repositórios",
     "select_all_orgs": "Selecionar todas as organizações",
-    "select_all_users": "Selecionar todos os usuários"
+    "select_all_users": "Selecionar todos os usuários",
+    "release_search_tooltip": "Buscando em conteúdo publicado. Sources sem versão publicada não são incluídos.",
+    "release_search_tooltip_label": "Sobre os resultados da busca"
   },
   "url_registry": {
     "url_registry": "Registro de URL canônica",

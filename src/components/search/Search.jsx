@@ -24,6 +24,8 @@ import ConceptIcon from '../concepts/ConceptIcon';
 import ConceptHome from '../concepts/ConceptHome';
 import SearchResults from './SearchResults';
 import SearchFilters from './SearchFilters'
+import ReleaseSearchInfo from './ReleaseSearchInfo'
+import { isReleaseOnlySearch } from './releaseOnlySearch'
 import { OperationsContext } from '../app/LayoutContext';
 import ReferenceFilters from '../repos/ReferenceFilters'
 import { EXCLUDE_FILTER_KEY } from './ResultConstants'
@@ -768,6 +770,7 @@ const Search = props => {
                   bgColor={searchBgColor}
                   results={result[resource]}
                   resource={resource}
+                  titleInfo={isReleaseOnlySearch({nested: props.nested, resource, isMatch: isMatchOp}) && <ReleaseSearchInfo />}
                   onPageChange={onPageChange}
                   selected={selected}
                   onSelect={newSelected => onSelectItem(newSelected)}
