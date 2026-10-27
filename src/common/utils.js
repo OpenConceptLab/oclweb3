@@ -17,6 +17,7 @@ import {
 import APIService from '../services/APIService';
 import GAService from '../services/GAService';
 import { ensureIdToken, prepareSignOut, settleForcedSignOut, renewSessionSilently } from './ssoSession';
+import { getEnv } from './env';
 import { SERVER_CONFIGS } from './serverConfigs';
 import { legacyHashRoute, isSameSitePath } from './history';
 
@@ -557,25 +558,6 @@ export const arrayToSentence = (arr, separator, lastSeparator=' and ') => {
 }
 
 export const generateRandomString = () => Math.random().toString(36).substring(7);
-
-export const getEnv = forURL => {
-  const fqdn = window.location.origin;
-
-  if(fqdn.match('app.staging.openconceptlab'))
-    return 'staging';
-  if(fqdn.match('app.qa.openconceptlab'))
-    return 'qa';
-  if(fqdn.match('app.demo.openconceptlab'))
-    return 'demo';
-  if(fqdn.match('app.dev.openconceptlab'))
-    return 'dev';
-  if(fqdn.match('app.staging.who.openconceptlab'))
-    return forURL ? 'staging.who' : 'staging-who';
-  if(fqdn.match('app.openconceptlab'))
-    return forURL ? '' : 'production';
-
-  return 'development';
-}
 
 export const getOpenMRSURL = () => {
   let env = getEnv(true);
