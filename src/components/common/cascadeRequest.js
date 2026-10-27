@@ -21,7 +21,6 @@ export const PRESETS = [
   {
     id: 'custom',
     labelKey: 'common.custom',
-    params: null,
   },
 ]
 

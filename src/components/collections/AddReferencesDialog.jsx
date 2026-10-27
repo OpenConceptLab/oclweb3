@@ -121,7 +121,6 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
       setIds('')
       setExpression('')
       setIncludeExclude('include')
-      setCascadeRequest({})
       setResults(null)
       setError(null)
     }

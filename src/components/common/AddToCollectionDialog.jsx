@@ -94,7 +94,6 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
       setSelected(null)
       setResults(null)
       setError(null)
-      setCascadeRequest({})
       const seen = new Set()
       getCurrentUserCollections(batch => {
         setCollections(prev => {

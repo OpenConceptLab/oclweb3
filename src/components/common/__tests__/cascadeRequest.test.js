@@ -17,11 +17,8 @@ test('every preset is covered', () => {
 })
 
 Object.entries(SENT).forEach(([presetId, cascade]) => {
-  test(`${presetId} sends its cascade in the body, with no query params`, () => {
+  test(`${presetId} sends its cascade in the body, and Transform asks for extensional references`, () => {
     assert.deepEqual(getCascadeRequest(presetId, DEFAULT_CUSTOM_PARAMS, false), {cascade, queryParams: undefined})
-  })
-
-  test(`${presetId} with Transform asks for extensional references`, () => {
     assert.deepEqual(
       getCascadeRequest(presetId, DEFAULT_CUSTOM_PARAMS, true),
       {cascade, queryParams: {transformReferences: 'extensional'}}
