@@ -41,6 +41,18 @@ test('a focused button in a ButtonGroup keeps the ring over the group\'s own but
   })
 })
 
+test('a contained link-button keeps its text color, with no underline, under Bootstrap\'s a:hover and a:focus', () => {
+  // public/index.html loads Bootstrap 3, whose a:hover, a:focus (0,1,1) beats MUI's contained color (0,1,0).
+  const html = render(createElement(Button, {variant: 'contained', href: '/search/'}, 'Create similar'))
+  const [, linkClass] = html.match(/<a class="[^"]* (css-[\w-]+)"/)
+  ;['hover', 'focus'].forEach(state => {
+    const [, declarations = ''] = html.match(new RegExp(`a\\.${linkClass}\\.MuiButton-contained:${state}[^{]*\\{([^}]*)\\}`)) || []
+    const style = Object.fromEntries(declarations.split(';').filter(Boolean).map(declaration => declaration.split(':')))
+    assert.equal(style.color, 'var(--variant-containedColor)', state)
+    assert.equal(style['text-decoration'], 'none', state)
+  })
+})
+
 test('buttons have no focus ripple, in a ButtonGroup too', () => {
   assert.equal(theme.components.MuiButton?.defaultProps?.disableFocusRipple, true)
   // A Button takes a ButtonGroup's context over the theme's defaults, so the group must leave disableFocusRipple unset.

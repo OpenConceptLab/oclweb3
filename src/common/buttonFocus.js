@@ -13,6 +13,11 @@ export const buttonFocus = ({ inner, outer }) => {
       styleOverrides: {
         root: {
           '&.Mui-focusVisible': ring,
+          // Bootstrap 3's a:hover, a:focus would turn a contained link-button's label #23527c and underlined.
+          'a&.MuiButton-contained:hover, a&.MuiButton-contained:focus': {
+            color: 'var(--variant-containedColor)',
+            textDecoration: 'none',
+          },
         },
       },
     },
