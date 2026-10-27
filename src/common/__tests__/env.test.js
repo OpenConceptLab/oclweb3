@@ -2,13 +2,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-globalThis.window = {location: {origin: ''}}
-
 const { getEnv } = await import('../env.js')
 
-// [getEnv(), getEnv(true)] for a page served from origin
 const envAt = origin => {
-  window.location.origin = origin
+  globalThis.window = {location: {origin}}
   return [getEnv(), getEnv(true)]
 }
 
