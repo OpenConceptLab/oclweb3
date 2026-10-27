@@ -421,6 +421,7 @@ class NewImport extends React.Component {
         <QuotaDialog
           open={Boolean(quotaError)}
           onClose={() => this.setState({quotaError: null})}
+          errorCode={quotaError?.errorCode}
           meter={quotaError?.meter}
           surface='tbv3_import'
           usage={quotaError?.usage}

@@ -765,6 +765,7 @@ class ConceptForm extends FormComponent  {
         <QuotaDialog
           open={Boolean(quotaError)}
           onClose={() => this.setState({quotaError: null})}
+          errorCode={quotaError?.errorCode}
           meter={quotaError?.meter}
           surface='tbv3_change_comment'
           usage={quotaError?.usage}

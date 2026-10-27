@@ -381,6 +381,7 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
       <QuotaDialog
         open={Boolean(quotaError)}
         onClose={() => setQuotaError(null)}
+        errorCode={quotaError?.errorCode}
         meter={quotaError?.meter}
         surface='tbv3_clone'
         usage={quotaError?.usage}
