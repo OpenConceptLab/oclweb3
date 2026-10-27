@@ -7,7 +7,7 @@ import { Tooltip } from '@mui/material';
 import {
   filter, difference, compact, find, reject, intersectionBy, size, keys, omitBy, isEmpty,
   get, includes, map, isArray, values, pick, sortBy, zipObject, orderBy, isObject, merge,
-  uniqBy, cloneDeep, isEqual, without, capitalize, last, nth, uniq, flatten, pickBy, upperFirst
+  uniqBy, cloneDeep, isEqual, without, capitalize, last, uniq, flatten, pickBy, upperFirst
 } from 'lodash';
 import {
   DATE_FORMAT, TIME_FORMAT, DATETIME_FORMAT, OCL_SERVERS_GROUP, OCL_FHIR_SERVERS_GROUP, HAPI_FHIR_SERVERS_GROUP,
@@ -20,6 +20,8 @@ import { ensureIdToken, prepareSignOut, settleForcedSignOut, renewSessionSilentl
 import { getEnv } from './env';
 import { SERVER_CONFIGS } from './serverConfigs';
 import { legacyHashRoute, isSameSitePath } from './history';
+
+export { dropVersion } from './uri';
 
 export const currentPath = () => window.location.pathname;
 
@@ -809,25 +811,6 @@ export const sourceVersionOf = resource => {
     return resource?.latest_source_version
   const version = latestResolvedRepoVersion(resource)?.version
   return version === 'HEAD' ? undefined : version
-}
-
-export const dropVersion = uri => {
-  if(!uri)
-    return uri
-
-  const parts = uri.split('/')
-
-  if (parts.length <= 4)
-    return uri
-
-  const resource = nth(parts, -4)
-  const name = nth(parts, -3)
-  const version = nth(parts, -2)
-  if (['concepts', 'mappings', 'sources', 'collections'].includes(resource) && name && version)
-    return parts.splice(0, parts.indexOf(nth(parts, -2))).join('/') + '/'
-
-  return uri
-
 }
 
 // Internet Explorer 6-11
