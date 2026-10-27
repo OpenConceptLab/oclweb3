@@ -65,10 +65,15 @@ class NewImport extends React.Component {
     return limit > 0 ? limit : null
   }
 
+  // A file over the size limit is refused here, before upload, so it opens the same dialog as the server's refusal.
   onFileSelected = file => {
     const limitKB = this.getSizeLimitKB()
     if(file && limitKB && file.size > limitKB * 1024)
-      this.setState({file: null, sizeError: this.props.t('import.file_too_large', {limit: formatSizeKB(limitKB)})})
+      this.setState({
+        file: null,
+        sizeError: this.props.t('import.file_too_large', {limit: formatSizeKB(limitKB)}),
+        quotaError: getQuotaError({error_code: 'imports_file_size_limit_reached'}),
+      })
     else
       this.setState({file, sizeError: null})
   }
