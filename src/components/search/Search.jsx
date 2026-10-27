@@ -869,7 +869,6 @@ const Search = props => {
         errorCode={quotaError?.errorCode}
         meter={quotaError?.meter}
         surface='tbv3_match'
-        usage={quotaError?.usage}
       />
     </div>
   )

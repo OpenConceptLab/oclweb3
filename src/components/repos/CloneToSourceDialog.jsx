@@ -384,7 +384,6 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
         errorCode={quotaError?.errorCode}
         meter={quotaError?.meter}
         surface='tbv3_clone'
-        usage={quotaError?.usage}
       />
     </Dialog>
   )

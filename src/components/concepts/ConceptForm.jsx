@@ -768,7 +768,6 @@ class ConceptForm extends FormComponent  {
           errorCode={quotaError?.errorCode}
           meter={quotaError?.meter}
           surface='tbv3_change_comment'
-          usage={quotaError?.usage}
         />
       </div>
     )

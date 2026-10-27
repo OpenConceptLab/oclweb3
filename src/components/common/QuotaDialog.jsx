@@ -4,7 +4,6 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-import LinearProgress from '@mui/material/LinearProgress'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 
 import Dialog from './Dialog'
@@ -13,16 +12,10 @@ import CloseIconButton from './CloseIconButton'
 import { isCapMeter, isLimitMeter } from './quotaErrors'
 import useLimitAction from './useLimitAction'
 
-const QuotaDialog = ({open, onClose, errorCode, meter, surface, usage}) => {
+const QuotaDialog = ({open, onClose, errorCode, meter, surface}) => {
   const { t } = useTranslation()
   const { action, onActionClick } = useLimitAction(open, errorCode)
-  const isCap = isCapMeter(meter)
-  const isLimit = isLimitMeter(meter)
-  const { used, limit, requested } = usage || {}
-  const hasCount = !isLimit && Number.isFinite(used) && Number.isFinite(limit) && limit > 0
-  const hasRequested = isLimit && Number.isFinite(requested) && Number.isFinite(limit) && limit > 0
-  const progress = hasCount ? Math.min(100, (used / limit) * 100) : 100
-  const title = isLimit ? 'quota.title_limit' : (isCap ? 'quota.title_cap' : 'quota.title_quota')
+  const title = isLimitMeter(meter) ? 'quota.title_limit' : (isCapMeter(meter) ? 'quota.title_cap' : 'quota.title_quota')
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth='sm' fullWidth>
@@ -34,22 +27,6 @@ const QuotaDialog = ({open, onClose, errorCode, meter, surface, usage}) => {
         <Typography variant='body1' sx={{my: 2}}>
           {t([`quota.consequence.${meter}.${surface}`, `quota.consequence.${meter}.default`, 'quota.consequence.generic'])}
         </Typography>
-        <div style={{backgroundColor: '#fff', borderRadius: '20px', padding: '16px 20px'}}>
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px'}}>
-            <Typography variant='body1'>{t(`quota.meter.${meter}`, {defaultValue: t('quota.meter.generic')})}</Typography>
-            {
-              hasCount &&
-                <Typography variant='body1' sx={{fontWeight: 600}}>{t('quota.used_of', {used, limit})}</Typography>
-            }
-            {
-              hasRequested &&
-                <Typography variant='body1' sx={{fontWeight: 600}}>
-                  {t(`quota.requested_of.${meter}`, {requested, limit, defaultValue: t('quota.requested_of.generic', {requested, limit})})}
-                </Typography>
-            }
-          </div>
-          <LinearProgress variant='determinate' value={progress} sx={{my: 1, height: 8, borderRadius: '4px'}} />
-        </div>
         {
           action?.message &&
             <Typography variant='body1' sx={{mt: 2}}>{action.message}</Typography>

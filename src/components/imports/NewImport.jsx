@@ -424,7 +424,6 @@ class NewImport extends React.Component {
           errorCode={quotaError?.errorCode}
           meter={quotaError?.meter}
           surface='tbv3_import'
-          usage={quotaError?.usage}
         />
       </React.Fragment>
   )
