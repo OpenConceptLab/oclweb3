@@ -8,13 +8,15 @@ import { ThemeProvider, StyledEngineProvider, createTheme } from '@mui/material/
 import App from './components/app/App';
 import LayoutContext from './components/app/LayoutContext';
 import './index.scss';
-import { COLORS } from './common/colors';
+import { COLORS, WHITE } from './common/colors';
+import { buttonFocus } from './common/buttonFocus';
 import './i18n/config';
 import { setAppHistory, handleLinkClick, keepLinkClickBubbling, legacyHashRoute, redirectLegacyHashRoute } from './common/history';
 import { takeSigninToResume } from './common/ssoSession';
 import { isLoggedIn, getLoginURL } from './common/utils';
 
 const theme = createTheme();
+const buttonFocusComponents = buttonFocus({ inner: WHITE, outer: COLORS.primary['30'] })
 const v5Theme = createTheme(theme, {
   palette: {
     ...COLORS,
@@ -72,6 +74,7 @@ const v5Theme = createTheme(theme, {
       }
     },
     MuiButton: {
+      ...buttonFocusComponents.MuiButton,
       variants: [
         {
           props: { variant: "contained", color: COLORS.surface.n96 },
@@ -119,7 +122,8 @@ const v5Theme = createTheme(theme, {
           }
         }
       ]
-    }
+    },
+    MuiButtonGroup: buttonFocusComponents.MuiButtonGroup
   }
 })
 
