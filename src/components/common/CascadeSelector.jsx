@@ -14,50 +14,9 @@ import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutlined'
 import CodeIcon from '@mui/icons-material/CodeOutlined'
+import { PRESETS, DEFAULT_CUSTOM_PARAMS, getCascadeRequest } from './cascadeRequest'
 
-const PRESETS = [
-  {
-    id: 'none',
-    labelKey: 'common.none',
-    params: {},
-  },
-  {
-    id: 'sourcemappings',
-    labelKey: 'reference.source_mappings',
-    params: { method: 'sourcemappings' },
-  },
-  {
-    id: 'sourcetoconcepts',
-    labelKey: 'reference.all_source_concepts_and_mappings',
-    params: { method: 'sourcetoconcepts', mapTypes: 'Q-AND-A,CONCEPT-SET', cascadeLevels: '*', returnMapTypes: '*' },
-  },
-  {
-    id: 'custom',
-    labelKey: 'common.custom',
-    params: null,
-  },
-]
-
-const DEFAULT_CUSTOM_PARAMS = {
-  method: 'sourcetoconcepts',
-  mapTypes: '',
-  excludeMapTypes: '',
-  cascadeLevels: '*',
-  returnMapTypes: '*',
-}
-
-const buildQueryString = (params, transform) => {
-  if (!params || Object.keys(params).length === 0) return ''
-  const parts = []
-  if (params.method) parts.push(`method=${params.method}`)
-  if (params.mapTypes) parts.push(`mapTypes=${params.mapTypes}`)
-  if (params.excludeMapTypes) parts.push(`excludeMapTypes=${params.excludeMapTypes}`)
-  if (params.cascadeLevels) parts.push(`cascadeLevels=${params.cascadeLevels}`)
-  if (params.returnMapTypes) parts.push(`returnMapTypes=${params.returnMapTypes}`)
-  if (transform) parts.push('transformReferences=openmrs_concept_reference')
-  return parts.length ? `?${parts.join('&')}` : ''
-}
-
+// onChange gets {cascade, queryParams}: the request body's cascade and the query params to send
 const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefault = false }) => {
   const { t } = useTranslation()
   const [selectedPresetId, setSelectedPresetId] = React.useState('none')
@@ -66,25 +25,21 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
   const [showPreview, setShowPreview] = React.useState(showPreviewDefault)
   const [showAdvanced, setShowAdvanced] = React.useState(false)
 
-  const selectedPreset = PRESETS.find(p => p.id === selectedPresetId)
-  const baseParams = selectedPresetId === 'custom' ? customParams : (selectedPreset.params || {})
-  const currentParams = transform
-    ? { ...baseParams, transformReferences: 'openmrs_concept_reference' }
-    : baseParams
+  const request = getCascadeRequest(selectedPresetId, customParams, transform)
 
   React.useEffect(() => {
-    if (onChange) onChange(currentParams)
+    if (onChange) onChange(request)
   }, [onChange, selectedPresetId, customParams, transform])
 
   const handleCustomParamChange = field => event => {
     setCustomParams(prev => ({ ...prev, [field]: event.target.value }))
   }
 
-  const queryString = buildQueryString(baseParams, transform)
+  const queryString = request.queryParams ? `?${new URLSearchParams(request.queryParams)}` : ''
   const collectionBase = (collectionUrl || '/:owner/collections/:collection').replace(/\/$/, '')
   const endpoint = `${collectionBase}/references/${queryString}`
   const conceptExpr = conceptUrl || '/:owner/sources/:source/concepts/:id/'
-  const requestBody = JSON.stringify({ data: { expressions: [conceptExpr] }, cascade: baseParams.method || '' }, null, 2)
+  const requestBody = JSON.stringify({ data: { expressions: [conceptExpr] }, cascade: request.cascade }, null, 2)
 
   return (
     <Box>
@@ -132,8 +87,8 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
             size="small"
             label="Map Types"
             placeholder="e.g. Q-AND-A,CONCEPT-SET"
-            value={customParams.mapTypes}
-            onChange={handleCustomParamChange('mapTypes')}
+            value={customParams.map_types}
+            onChange={handleCustomParamChange('map_types')}
             helperText="Comma-separated map types to follow during traversal"
             fullWidth
           />
@@ -142,8 +97,8 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
             size="small"
             label="Exclude Map Types"
             placeholder="e.g. SAME-AS"
-            value={customParams.excludeMapTypes}
-            onChange={handleCustomParamChange('excludeMapTypes')}
+            value={customParams.exclude_map_types}
+            onChange={handleCustomParamChange('exclude_map_types')}
             helperText="Comma-separated map types to exclude"
             fullWidth
           />
@@ -152,8 +107,8 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
             size="small"
             label="Cascade Levels"
             placeholder="* or a number"
-            value={customParams.cascadeLevels}
-            onChange={handleCustomParamChange('cascadeLevels')}
+            value={customParams.cascade_levels}
+            onChange={handleCustomParamChange('cascade_levels')}
             helperText="Number of traversal hops; * = unlimited"
             fullWidth
           />
@@ -162,8 +117,8 @@ const CascadeSelector = ({ onChange, conceptUrl, collectionUrl, showPreviewDefau
             size="small"
             label="Return Map Types"
             placeholder="* or specific types"
-            value={customParams.returnMapTypes}
-            onChange={handleCustomParamChange('returnMapTypes')}
+            value={customParams.return_map_types}
+            onChange={handleCustomParamChange('return_map_types')}
             helperText="Which map types to include in results"
             fullWidth
           />

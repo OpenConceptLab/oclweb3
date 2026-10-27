@@ -100,7 +100,7 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
   const [ids, setIds] = React.useState('')
   const [expression, setExpression] = React.useState('')
   const [includeExclude, setIncludeExclude] = React.useState('include')
-  const [cascadeParams, setCascadeParams] = React.useState({})
+  const [cascadeRequest, setCascadeRequest] = React.useState({})
 
   // Submission state
   const [submitting, setSubmitting] = React.useState(false)
@@ -121,7 +121,7 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
       setIds('')
       setExpression('')
       setIncludeExclude('include')
-      setCascadeParams({})
+      setCascadeRequest({})
       setResults(null)
       setError(null)
     }
@@ -202,16 +202,15 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
     setSubmitting(true)
     setError(null)
     setResults(null)
-    const queryParams = Object.keys(cascadeParams).length ? cascadeParams : undefined
     // CollectionVersionReferencesView (matched by /HEAD/references/) is read-only;
     // strip any version segment so the request hits CollectionReferencesView which handles PUT.
     const refsUrl = collectionUrl.replace(/\/HEAD\//i, '/') + 'references/'
     APIService.new().overrideURL(refsUrl)
       .put(
-        { data: { expressions: expressionList, ...(includeExclude === 'exclude' && { exclude: true }) }, cascade: cascadeParams.method || '' },
+        { data: { expressions: expressionList, ...(includeExclude === 'exclude' && { exclude: true }) }, cascade: cascadeRequest.cascade },
         null,
         {},
-        queryParams
+        cascadeRequest.queryParams
       )
       .then(response => {
         setSubmitting(false)
@@ -445,7 +444,7 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
 
         {/* Cascade selector */}
         <CascadeSelector
-          onChange={setCascadeParams}
+          onChange={setCascadeRequest}
           collectionUrl={collectionUrl}
         />
 

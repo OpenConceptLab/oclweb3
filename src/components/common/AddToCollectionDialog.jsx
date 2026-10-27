@@ -83,7 +83,7 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
   const [selected, setSelected] = React.useState(null)
   const [input, setInput] = React.useState('')
   const [loadingCollections, setLoadingCollections] = React.useState(false)
-  const [cascadeParams, setCascadeParams] = React.useState({})
+  const [cascadeRequest, setCascadeRequest] = React.useState({})
   const [submitting, setSubmitting] = React.useState(false)
   const [results, setResults] = React.useState(null) // array of { added, expression, message }
   const [error, setError] = React.useState(null)
@@ -94,7 +94,7 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
       setSelected(null)
       setResults(null)
       setError(null)
-      setCascadeParams({})
+      setCascadeRequest({})
       const seen = new Set()
       getCurrentUserCollections(batch => {
         setCollections(prev => {
@@ -141,18 +141,15 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
     setResults(null)
 
     const collectionOwnerType = selected.owner_type && selected.owner_type.toLowerCase() === 'organization' ? 'orgs' : 'users'
-    const queryParams = Object.keys(cascadeParams).length
-      ? cascadeParams
-      : undefined
 
     APIService[collectionOwnerType](selected.owner)
       .collections(selected.short_code || selected.id)
       .appendToUrl('references/')
       .put(
-        { data: { expressions: conceptUrls }, cascade: cascadeParams.method || '' },
+        { data: { expressions: conceptUrls }, cascade: cascadeRequest.cascade },
         null,
         {},
-        queryParams
+        cascadeRequest.queryParams
       )
       .then(response => {
         setSubmitting(false)
@@ -261,7 +258,7 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
 
         {/* Cascade selector */}
         <CascadeSelector
-          onChange={setCascadeParams}
+          onChange={setCascadeRequest}
           conceptUrl={conceptUrls.length === 1 ? conceptUrls[0] : null}
           collectionUrl={selected ? selected.url : null}
         />
