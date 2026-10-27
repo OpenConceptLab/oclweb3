@@ -5,27 +5,34 @@ import es from './locales/es/translations.json'
 import zh from './locales/zh/translations.json'
 import ptBR from './locales/pt-BR/translations.json'
 
+import { getStoredLanguage, getBrowserLanguage, resolveLanguage, DEFAULT_LANGUAGE } from './language'
+
 const LANGUAGE_STORAGE_KEY = 'ocl.language'
 const SUPPORTED_LANGUAGES = ['en', 'es', 'zh', 'pt-BR']
 
+// Priority: manual choice (localStorage) > browser preference > default.
 const getInitialLanguage = () => {
   if(typeof window === 'undefined')
-    return 'en'
+    return DEFAULT_LANGUAGE
 
-  try {
-    const storedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY)
-    return SUPPORTED_LANGUAGES.includes(storedLanguage) ? storedLanguage : 'en'
-  } catch(_) {
-    return 'en'
-  }
+  return resolveLanguage([
+    () => getStoredLanguage(() => window.localStorage, LANGUAGE_STORAGE_KEY, SUPPORTED_LANGUAGES),
+    () => getBrowserLanguage(window.navigator, SUPPORTED_LANGUAGES)
+  ])
 }
 
+// Registered after init, so only user-triggered changes are persisted, not the detected initial language.
 const persistLanguage = language => {
   try {
     window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language)
   } catch(_) {
     // Keep i18n usable when browser storage is unavailable.
   }
+}
+
+const applyDocumentLanguage = language => {
+  if(typeof document !== 'undefined')
+    document.documentElement.lang = language
 }
 
 i18n.use(initReactI18next).init({
@@ -50,6 +57,8 @@ i18n.use(initReactI18next).init({
 });
 
 i18n.languages = SUPPORTED_LANGUAGES;
+applyDocumentLanguage(i18n.language)
 i18n.on('languageChanged', persistLanguage)
+i18n.on('languageChanged', applyDocumentLanguage)
 
 export default i18n;
