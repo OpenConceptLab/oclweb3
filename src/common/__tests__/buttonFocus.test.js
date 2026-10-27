@@ -1,27 +1,24 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createElement } from 'react'
+import { createElement, useContext } from 'react'
 import { renderToString } from 'react-dom/server'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import Button from '@mui/material/Button'
-import ButtonGroup from '@mui/material/ButtonGroup'
+import ButtonGroup, { ButtonGroupContext } from '@mui/material/ButtonGroup'
 
 import { buttonFocus } from '../buttonFocus.js'
 
 // index.jsx passes WHITE and COLORS.primary['30'] from colors.jsx, which Node can't import.
-const theme = createTheme(createTheme(), {components: {MuiButton: buttonFocus({inner: '#FFF', outer: '#2d00e5'})}})
+const theme = createTheme(createTheme(), {components: buttonFocus({inner: '#FFF', outer: '#2d00e5'})})
 const RING = '0 0 0 2px #FFF,0 0 0 4px #2d00e5'
 
-// Server-renders with the theme and returns the HTML, with the CSS MUI generates for it, and the first button's style class.
-const render = element => {
-  const html = renderToString(createElement(ThemeProvider, {theme}, element))
-  const [, buttonClass] = html.match(/<button class="[^"]* (css-[\w-]+)"/)
-  return {html, buttonClass}
-}
+// Server-renders with the theme: the HTML, with the CSS MUI generates for it.
+const render = element => renderToString(createElement(ThemeProvider, {theme}, element))
 
 // The box-shadows a button's CSS gives it under .Mui-focusVisible, in cascade order: the last one is what a keyboard-focused button shows.
 const focusShadows = button => {
-  const {html, buttonClass} = render(button)
+  const html = render(button)
+  const [, buttonClass] = html.match(/<button class="[^"]* (css-[\w-]+)"/)
   return [...html.matchAll(new RegExp(`\\.${buttonClass}\\.Mui-focusVisible\\{[^}]*?box-shadow:([^;}]*)`, 'g'))].map(([, shadow]) => shadow)
 }
 
@@ -31,12 +28,24 @@ test('a focused contained, outlined or text button shows the two-tone ring in pl
   })
 })
 
-test('a focused button in a ButtonGroup keeps the ring and is drawn above its neighbors', () => {
-  // A contained group sets its buttons' shadow with a selector as specific as .Mui-focusVisible, so the ring needs one more class.
-  const {html, buttonClass} = render(createElement(ButtonGroup, {variant: 'contained'}, createElement(Button, null, 'Save'), createElement(Button, null, 'More')))
-  assert.ok(html.includes(`.${buttonClass}.MuiButtonGroup-grouped.Mui-focusVisible{box-shadow:${RING};z-index:1;}`))
+test('a focused button in a ButtonGroup keeps the ring over the group\'s own button shadows and is drawn above its neighbors', () => {
+  ['contained', 'outlined'].forEach(variant => {
+    const html = render(createElement(ButtonGroup, {variant}, createElement(Button, null, 'Save'), createElement(Button, null, 'More')))
+    const [, groupClass, groupCSS] = html.match(/<style data-emotion="css ([\w-]+-MuiButtonGroup-root)">([^<]*)/)
+    // The group sets its buttons' shadow (and, when contained, clears it on hover too) under selectors at least as specific as the ring's.
+    // The ring wins by coming after them in the group's own CSS.
+    const grouped = `.css-${groupClass} .MuiButtonGroup-grouped`
+    const ring = groupCSS.lastIndexOf(`${grouped}.Mui-focusVisible{box-shadow:${RING};z-index:1;}`)
+    assert.ok(ring > -1, variant)
+    assert.ok(ring > groupCSS.lastIndexOf(`${grouped}:hover{box-shadow:`) && ring > groupCSS.lastIndexOf(`${grouped}{box-shadow:`), variant)
+  })
 })
 
-test('buttons have no focus ripple', () => {
+test('buttons have no focus ripple, in a ButtonGroup too', () => {
   assert.equal(theme.components.MuiButton?.defaultProps?.disableFocusRipple, true)
+  // A Button takes a ButtonGroup's context over the theme's defaults, so the group must leave disableFocusRipple unset.
+  let context
+  const ReadContext = () => { context = useContext(ButtonGroupContext); return null }
+  render(createElement(ButtonGroup, null, createElement(ReadContext)))
+  assert.equal(context.disableFocusRipple, undefined)
 })

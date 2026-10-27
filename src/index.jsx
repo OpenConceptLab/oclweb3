@@ -16,6 +16,7 @@ import { takeSigninToResume } from './common/ssoSession';
 import { isLoggedIn, getLoginURL } from './common/utils';
 
 const theme = createTheme();
+const buttonFocusComponents = buttonFocus({ inner: WHITE, outer: COLORS.primary['30'] })
 const v5Theme = createTheme(theme, {
   palette: {
     ...COLORS,
@@ -73,7 +74,7 @@ const v5Theme = createTheme(theme, {
       }
     },
     MuiButton: {
-      ...buttonFocus({ inner: WHITE, outer: COLORS.primary['30'] }),
+      ...buttonFocusComponents.MuiButton,
       variants: [
         {
           props: { variant: "contained", color: COLORS.surface.n96 },
@@ -121,7 +122,8 @@ const v5Theme = createTheme(theme, {
           }
         }
       ]
-    }
+    },
+    MuiButtonGroup: buttonFocusComponents.MuiButtonGroup
   }
 })
 
