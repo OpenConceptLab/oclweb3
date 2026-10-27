@@ -14,7 +14,6 @@ const ReleaseSearchInfo = () => {
     <ClickAwayListener onClickAway={() => setOpen(false)}>
       <span>
         <Tooltip
-          arrow
           describeChild
           disableTouchListener
           open={open}
@@ -23,7 +22,6 @@ const ReleaseSearchInfo = () => {
           title={t('search.release_search_tooltip')}
         >
           <IconButton
-            size='small'
             aria-label={t('search.release_search_tooltip_label')}
             onClick={() => setOpen(true)}
             sx={{marginLeft: '4px', padding: '4px', fontSize: '1rem', verticalAlign: 'text-bottom'}}
