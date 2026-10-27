@@ -3,7 +3,8 @@ import React from 'react';
 import StackTrace from "stacktrace-js";
 import { Notifier } from '@airbrake/browser';
 import { map, isString } from 'lodash';
-import { getCurrentUser, getEnv } from '../../common/utils';
+import { getCurrentUser } from '../../common/utils';
+import { getEnv } from '../../common/env';
 import ErrorUI from './ErrorUI';
 
 class ErrorBoundary extends React.Component {
