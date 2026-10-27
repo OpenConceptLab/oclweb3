@@ -1,8 +1,8 @@
 name: PR checks
 
-# Runs build.yml's "Eslint" job on every pull request, so a PR shows the
-# result before it merges (OpenConceptLab/ocl_issues#2838). Keep these steps
-# the same as that job's.
+# Runs build.yml's "Lint and test" job on every pull request, so a PR shows
+# the result before it merges (OpenConceptLab/ocl_issues#2838). Keep these
+# steps the same as that job's.
 
 on:
   pull_request:
@@ -15,8 +15,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  eslint:
-    name: Eslint
+  lint-and-test:
+    name: Lint and test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -29,10 +29,13 @@ jobs:
           echo "If this is intentionally public (like a DSN-style key), add it to ALLOWLIST above. Otherwise remove it."
           exit 1
         fi
-    - name: Run linting rules
+    - name: Setup Node
       uses: actions/setup-node@v3
       with:
         node-version: 22
         cache: 'npm'
     - run: npm ci
-    - run: ./node_modules/eslint/bin/eslint.js --ext .jsx,.js src/
+    - name: Eslint
+      run: ./node_modules/eslint/bin/eslint.js src --ext .jsx,.js
+    - name: Test
+      run: npm test

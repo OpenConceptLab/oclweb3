@@ -19,8 +19,8 @@ env:
 
 
 jobs:
-  eslint:
-    name: Eslint
+  lint-and-test:
+    name: Lint and test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -33,16 +33,19 @@ jobs:
           echo "If this is intentionally public (like a DSN-style key), add it to ALLOWLIST above. Otherwise remove it."
           exit 1
         fi
-    - name: Run linting rules
+    - name: Setup Node
       uses: actions/setup-node@v3
       with:
         node-version: 22
         cache: 'npm'
     - run: npm ci
-    - run: ./node_modules/eslint/bin/eslint.js --ext .jsx,.js src/
+    - name: Eslint
+      run: ./node_modules/eslint/bin/eslint.js src --ext .jsx,.js
+    - name: Test
+      run: npm test
 
   build:
-    needs: [eslint]
+    needs: [lint-and-test]
     name: Build and push image
     runs-on: ubuntu-latest
 
@@ -78,7 +81,7 @@ jobs:
   # No cache is written, so no layer with the package lands in this repo's
   # Actions cache.
   build-private:
-    needs: [eslint]
+    needs: [lint-and-test]
     name: Build and push deploy image
     runs-on: ubuntu-latest
     environment: private-packages
