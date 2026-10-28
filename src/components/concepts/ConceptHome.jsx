@@ -91,7 +91,7 @@ const ConceptHome = props => {
   const getRepoURL = _concept => {
     if(isInCollection) {
       const sourceURL = toParentURI((props.concept?.id ? props.concept : concept)?.url || '')
-      const version = sourceVersionOf(_concept)
+      const version = sourceVersionOf(_concept || concept)
       return version ? sourceURL + version + '/' : sourceURL
     }
     const parentURL = toParentURI(_concept?.version_url || _concept?.url || props?.url || '')

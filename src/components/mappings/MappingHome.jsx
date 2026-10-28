@@ -74,7 +74,7 @@ const MappingHome = props => {
   const getRepoURL = _mapping => {
     if(isInCollection) {
       const sourceURL = toParentURI((props.mapping?.id ? props.mapping : mapping)?.url || '')
-      const version = sourceVersionOf(_mapping)
+      const version = sourceVersionOf(_mapping || mapping)
       return version ? sourceURL + version + '/' : sourceURL
     }
     if(props?.repo?.id)
