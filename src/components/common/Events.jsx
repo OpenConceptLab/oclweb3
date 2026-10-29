@@ -126,6 +126,9 @@ const Events = ({ user, events, onLoadMore, showAvatar, maxHeight, dashboard, is
             p: '0 !important'
           },
           p: 0,
+          // The dashboard card's bottom padding sits at the end of the list,
+          // so the list scrolls right to the card's bottom border
+          paddingBottom: dashboard ? '16px' : 0,
           marginTop: 0,
           maxHeight: maxHeight || '420px',
           overflow: 'auto'

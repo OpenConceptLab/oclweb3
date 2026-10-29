@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Typography from '@mui/material/Typography'
 import APIService from '../../services/APIService'
-import DashboardEvents from './DashboardEvents';
+import DashboardEvents, { DASHBOARD_COLUMN_STYLE, DASHBOARD_SIDE_COLUMN_STYLE } from './DashboardEvents';
 import EventsButtonGroup from './EventsButtonGroup';
 import DashboardBanners from './DashboardBanners'
 import CommunityBlog from './CommunityBlog'
@@ -29,20 +29,20 @@ const GuestDashboard = () => {
 
   return (
     <div className='col-xs-12 padding-0'>
-      <div className='col-xs-9' style={{maxWidth: 'calc(100% - 360px)', minWidth: '500px'}}>
-        <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+      <div className='col-xs-9' style={{maxWidth: 'calc(100% - 360px)', minWidth: '500px', ...DASHBOARD_COLUMN_STYLE}}>
+        <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0}}>
           <Typography sx={{fontSize: '22px', color: 'secondary.main'}}>
             {(t('dashboard.anonymous_heading'))}
           </Typography>
           <EventsButtonGroup communityOnly onClick={() => {}} />
         </div>
-        <DashboardEvents events={allEvents.events} sx={{marginTop: '8px', maxHeight: 'calc(var(--app-height) - 151px)'}} highlight isLoading={loading} />
+        <DashboardEvents events={allEvents.events} sx={{marginTop: '8px'}} highlight isLoading={loading} />
       </div>
-      <div className='col-xs-3 padding-0' style={{minWidth: '360px'}}>
-        <DashboardBanners />
-        <div className='col-xs-12 padding-0' style={{marginTop: '8px'}}>
-          <CommunityBlog />
+      <div className='col-xs-3 padding-0' style={DASHBOARD_SIDE_COLUMN_STYLE}>
+        <div className='col-xs-12 padding-0' style={{flexShrink: 0}}>
+          <DashboardBanners />
         </div>
+        <CommunityBlog sx={{marginTop: '8px'}} />
       </div>
     </div>
   )
