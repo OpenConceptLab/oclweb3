@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import upperFirst from 'lodash/upperFirst'
+import isArray from 'lodash/isArray'
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -110,7 +111,9 @@ const UserDashboard = ({ user }) => {
   const [allEvents, setAllEvents] = React.useState({events: [], headers: {}})
   const [followingEvents, setFollowingEvents] = React.useState({events: [], headers: {}})
   const [orgsEvents, setOrgsEvents] = React.useState({events: [], headers: {}})
+  const [communityEvents, setCommunityEvents] = React.useState({events: [], headers: {}})
   const [scope, setScope] = React.useState('all')
+  const scopePicked = React.useRef(false)
   const [feedMaxHeight, setFeedMaxHeight] = React.useState(null)
   const leftRef = React.useRef(null)
   const [loading, setLoading] = React.useState(true)
@@ -123,11 +126,22 @@ const UserDashboard = ({ user }) => {
       setSelfLoading(false)
     }).catch(() => setSelfLoading(false))
   }
+  const fetchEventsForCommunity = () => {
+    setLoading(true)
+    APIService.new().overrideURL('/events/').get(false, null, {limit: 10, page: parseInt(communityEvents.headers.page_number || '0') + 1}).then(response => {
+      setCommunityEvents({events: [...communityEvents.events, ...(isArray(response?.data) ? response.data : [])], headers: response?.headers || {}})
+      setLoading(false)
+    })
+  }
   const fetchEventsForAll = () => {
     setLoading(true)
     getService('following,orgs', parseInt(allEvents.headers.page_number || '0') + 1).then(response => {
       setAllEvents({events: [...allEvents.events, ...response.data], headers: response.headers})
-      setLoading(false)
+      if(!response.data?.length && !scopePicked.current) {
+        setScope('community')
+        fetchEventsForCommunity()
+      } else
+        setLoading(false)
     })
   }
   const fetchEventsForFollowing = () => {
@@ -145,9 +159,12 @@ const UserDashboard = ({ user }) => {
     })
   }
   const onScopeChange = newScope => {
+    scopePicked.current = true
     if(newScope === scope)
       return
     setScope(newScope)
+    if(newScope === 'community')
+      !communityEvents.events.length && fetchEventsForCommunity()
     if(newScope === 'all')
       !allEvents.events.length && fetchEventsForAll()
     if(newScope === 'following')
@@ -174,6 +191,8 @@ const UserDashboard = ({ user }) => {
     return () => window.removeEventListener('resize', measure)
   }, [])
   const getScopeEvents = () => {
+    if(scope === 'community')
+      return communityEvents.events
     if(scope === 'orgs')
       return orgsEvents.events
     if(scope === 'following')
@@ -183,13 +202,13 @@ const UserDashboard = ({ user }) => {
   return (
     <div className='col-xs-12 padding-0'>
       <div ref={leftRef} className='col-xs-9' style={{maxWidth: 'calc(100% - 360px)', minWidth: '500px'}}>
-        <div className='col-xs-12 padding-0' style={{marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+        <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
           <Typography sx={{fontSize: '22px', color: 'secondary.main'}}>
             {upperFirst(t('dashboard.anonymous_heading'))}
           </Typography>
-          <EventsButtonGroup selected={scope} onClick={onScopeChange} />
+          <EventsButtonGroup selected={scope} onClick={onScopeChange} community />
         </div>
-        <DashboardEvents isLoading={loading} events={getScopeEvents()} sx={feedMaxHeight === null ? {maxHeight: 'calc(var(--app-height) - 160px)'} : {maxHeight: `${feedMaxHeight}px`}} />
+        <DashboardEvents isLoading={loading} events={getScopeEvents()} highlight={scope === 'community'} sx={{...(feedMaxHeight === null ? {maxHeight: 'calc(var(--app-height) - 160px)'} : {maxHeight: `${feedMaxHeight}px`}), ...(scope === 'community' ? {marginTop: '8px'} : {})}} />
       </div>
       <div className='col-xs-3 padding-0' style={{minWidth: '360px', minHeight: '370px'}}>
         <div className='col-xs-12' style={{background: WHITE, borderRadius: '10px', border: `1px solid ${SURFACE_COLORS.nv80}`, maxHeight: `${SIDE_CARD_MAX_HEIGHT}px`, overflow: 'hidden'}}>

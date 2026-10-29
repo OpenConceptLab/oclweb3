@@ -6,15 +6,11 @@ import DashboardEvents from './DashboardEvents';
 import EventsButtonGroup from './EventsButtonGroup';
 import DashboardBanners from './DashboardBanners'
 import CommunityBlog from './CommunityBlog'
-import EmptyOverview from '../repos/RepoEmptyOverview'
-import Button from '../common/Button';
-import { getLoginURL } from '../../common/utils'
 
 
 const GuestDashboard = () => {
   const { t } = useTranslation()
   const [allEvents, setAllEvents] = React.useState({events: [], headers: {}})
-  const [scope, setScope] = React.useState('all')
   const [loading, setLoading] = React.useState(true)
 
   const getService = (page, limit=10) => APIService.new().overrideURL('/events/').get(null, null, {limit: limit, page: page})
@@ -27,28 +23,9 @@ const GuestDashboard = () => {
     })
   }
 
-  const onScopeChange = newScope => {
-    if(newScope === scope)
-      return
-    setScope(newScope)
-
-    if(newScope === 'all')
-      !allEvents.events.length && fetchEvents()
-  }
-
-
   React.useEffect(() => {
     fetchEvents()
   }, [])
-
-  const getScopeEvents = () => {
-    if(scope === 'orgs')
-      return []
-    if(scope === 'following')
-      return []
-    return allEvents.events
-  }
-
 
   return (
     <div className='col-xs-12 padding-0'>
@@ -57,20 +34,9 @@ const GuestDashboard = () => {
           <Typography sx={{fontSize: '22px', color: 'secondary.main'}}>
             {(t('dashboard.anonymous_heading'))}
           </Typography>
-          <EventsButtonGroup selected={scope} onClick={onScopeChange} />
+          <EventsButtonGroup communityOnly onClick={() => {}} />
         </div>
-        {
-          ['all', 'highlights'].includes(scope) ?
-            <DashboardEvents events={getScopeEvents()} sx={{marginTop: '16px', maxHeight: 'calc(var(--app-height) - 151px)'}} highlight isLoading={loading} />:
-          <div className='col-xs-12 padding-0' style={{height: 'calc(86vh - var(--announcement-height, 0px))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
-            <EmptyOverview
-              label={t('dashboard.events_scope_sign_in')}
-              action={
-                <Button className='no-anchor-styles' label={t('auth.sign_in')} sx={{ backgroundColor: 'primary.main', maxWidth: '100%', minWidth: '92px', color: '#FFF !important', marginTop: '16px' }} href='#' onClick={e => { e.preventDefault(); getLoginURL().then(url => { window.location.href = url }) }} component='a' />
-              }
-            />
-          </div>
-        }
+        <DashboardEvents events={allEvents.events} sx={{marginTop: '8px', maxHeight: 'calc(var(--app-height) - 151px)'}} highlight isLoading={loading} />
       </div>
       <div className='col-xs-3 padding-0' style={{minWidth: '360px'}}>
         <DashboardBanners />

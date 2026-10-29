@@ -55,7 +55,7 @@ const EventCard = ({ event, highlight }) => {
     }, highlight ? {
       margin: '0 0 16px 0'
     } : {
-      margin: '16px 0'
+      margin: '8px 0 16px 0'
     }]}>
       <CardHeader
         avatar={
@@ -105,7 +105,7 @@ const HighlightCard = props => {
 const DashboardEvents = ({ events, highlight, sx, isLoading }) => {
   const { t } = useTranslation()
   const containerStyle = {maxHeight: 'calc(80vh - var(--announcement-height, 0px))', overflow: 'auto', ...sx}
-  const loadingStyle = isLoading ? {display: 'flex', flexDirection: 'column', gap: '16px', paddingTop: '16px', height: containerStyle.maxHeight, overflow: 'hidden'} : {}
+  const loadingStyle = isLoading ? {display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '8px', height: containerStyle.maxHeight, overflow: 'hidden'} : {}
   return (
     <div className='col-xs-12 padding-0' style={{...containerStyle, ...loadingStyle}}>
       {
