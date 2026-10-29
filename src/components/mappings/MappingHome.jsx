@@ -6,7 +6,7 @@ import Fade from '@mui/material/Fade';
 
 import APIService from '../../services/APIService';
 import GAService from '../../services/GAService';
-import { toParentURI, dropVersion, getResourceIdFromUrl, latestResolvedRepoVersion } from '../../common/utils'
+import { toParentURI, dropVersion, getResourceIdFromUrl, sourceVersionOf } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
@@ -49,7 +49,7 @@ const MappingHome = props => {
     setErrorStatus(false)
     setMapping(props.mapping || {})
     setVersions([])
-    const queryParams = isInCollection ? { includeReferences: true, includeResolvedRepoVersions: true } : {}
+    const queryParams = isInCollection ? { includeReferences: true } : {}
     getService().get(null, null, queryParams, true).then(response => {
       const status = response?.status || response?.response?.status
       if(status && status !== 200) {
@@ -72,9 +72,11 @@ const MappingHome = props => {
   const fetchRepo = _mapping => props?.repo?.id ? setRepo(props.repo) : APIService.new().overrideURL(getRepoURL(_mapping)).get().then(response => setRepo(response.data))
 
   const getRepoURL = _mapping => {
-    if(isInCollection)
-      return latestResolvedRepoVersion(mapping)?.version_url ||
-             toParentURI((props.mapping?.id ? props.mapping : mapping)?.url || '')
+    if(isInCollection) {
+      const sourceURL = toParentURI((props.mapping?.id ? props.mapping : mapping)?.url || '')
+      const version = sourceVersionOf(_mapping || mapping)
+      return version ? sourceURL + version + '/' : sourceURL
+    }
     if(props?.repo?.id)
       return props?.repo?.version_url || props?.repo?.url
     if(props?.repoURL)

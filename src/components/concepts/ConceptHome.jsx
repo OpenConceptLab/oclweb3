@@ -6,7 +6,7 @@ import Skeleton from '@mui/material/Skeleton';
 
 import APIService from '../../services/APIService';
 import GAService from '../../services/GAService';
-import { toParentURI, dropVersion, getResourceIdFromUrl, currentUserHasAccess, latestResolvedRepoVersion } from '../../common/utils'
+import { toParentURI, dropVersion, getResourceIdFromUrl, currentUserHasAccess, sourceVersionOf } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
@@ -67,7 +67,7 @@ const ConceptHome = props => {
     setErrorStatus(false)
     setConcept(props.concept || {})
     setVersions([])
-    const queryParams = isInCollection ? { includeReferences: true, includeResolvedRepoVersions: true } : {}
+    const queryParams = isInCollection ? { includeReferences: true } : {}
     getService().get(null, null, queryParams, true).then(response => {
       const status = response?.status || response?.response?.status
       if(status && status !== 200) {
@@ -89,9 +89,11 @@ const ConceptHome = props => {
   const fetchRepo = _concept => props?.repo?.id ? setRepo(props.repo) : APIService.new().overrideURL(getRepoURL(_concept)).get().then(response => setRepo(response.data))
 
   const getRepoURL = _concept => {
-    if(isInCollection)
-      return latestResolvedRepoVersion(concept)?.version_url ||
-             toParentURI((props.concept?.id ? props.concept : concept)?.url || '')
+    if(isInCollection) {
+      const sourceURL = toParentURI((props.concept?.id ? props.concept : concept)?.url || '')
+      const version = sourceVersionOf(_concept || concept)
+      return version ? sourceURL + version + '/' : sourceURL
+    }
     const parentURL = toParentURI(_concept?.version_url || _concept?.url || props?.url || '')
     const repoURL = props?.repo?.version_url || props?.repo?.url || props?.repoURL
     if(repoURL && (!parentURL || dropVersion(repoURL) === parentURL))

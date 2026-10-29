@@ -798,20 +798,7 @@ export const getParamsFromObject = item => {
   return params;
 }
 
-export const latestResolvedRepoVersion = resource => orderBy(
-  compact(flatten(map(resource?.references || [], 'resolved_repo_versions'))),
-  'created_at',
-  'desc'
-)[0]
-
-export const sourceVersionOf = resource => {
-  if(!resource?.references)
-    return resource?.latest_source_version
-  if(resource?.references?.length && !resource.references[0]?.resolved_repo_versions)
-    return resource?.latest_source_version
-  const version = latestResolvedRepoVersion(resource)?.version
-  return version === 'HEAD' ? undefined : version
-}
+export const sourceVersionOf = resource => resource?.latest_source_version || undefined
 
 // Internet Explorer 6-11
 export const isIE = () => /*@cc_on!@*/false || !!document.documentMode;
