@@ -20,6 +20,7 @@ import SearchInputText from './SearchInputText'
 import FilterTypeChips from './FilterTypeChips'
 import EntityBrowseList from './EntityBrowseList'
 import { BROWSE_CONFIG, FACET_FILTER_CONFIG, getFacetFilterURL } from './browseConfig'
+import { getModeForFilterType } from './searchlightMode'
 
 const Icon = ({ icon, style }) => (
   <span style={{display: 'flex', padding: '4px', background: '#FFF', color: '#47464f', boxShadow: '0 0 5px 0 rgba(120, 118, 128, 0.6)', borderRadius: '4px', ...(style || {})}}>
@@ -87,13 +88,9 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
   const chipsRef = React.useRef();
   const browseRef = React.useRef();
 
-  // Only auto-advance mode when a filter becomes active from outside this component (e.g.
-  // re-derived from the URL after a hard reload). Clearing activeFilterType is handled
-  // explicitly wherever it happens, each picking its own target mode (see onKeyPress's
-  // backspace handling below, which steps back to 'typeSelect' rather than straight to 'query').
+  // SearchInput can set or clear the filter without this drawer; see getModeForFilterType.
   React.useEffect(() => {
-    if(activeFilterType && mode === 'query')
-      setMode('typeBrowse')
+    setMode(getModeForFilterType(mode, activeFilterType))
   }, [activeFilterType])
 
   const user = getCurrentUser()
