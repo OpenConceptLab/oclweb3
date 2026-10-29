@@ -1057,6 +1057,7 @@
     "add_to_collection": "Add to Collection"
   },
   "import": {
+    "bulk_import": "Bulk Import",
     "upload_file_tooltip": "Upload JSON/CSV/ZIP File",
     "upload_file_no_zip_tooltip": "Upload JSON/CSV File",
     "json_data_tooltip": "Submit JSON Data",

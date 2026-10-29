@@ -8,13 +8,14 @@ import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
-import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemAvatar from '@mui/material/ListItemAvatar'
 import Avatar from '@mui/material/Avatar'
-import CategoryIcon from '@mui/icons-material/Category';
+import Box from '@mui/material/Box'
 
 import isArray from 'lodash/isArray'
 import get from 'lodash/get'
 import map from 'lodash/map'
+import find from 'lodash/find'
 
 import OCLLogo from '../common/OCLLogo'
 import ItemSkeletons from '../common/ItemSkeletons'
@@ -22,14 +23,18 @@ import { WHITE } from '../../common/colors'
 import { formatDate } from '../../common/utils'
 
 
-const FOOTER_HEIGHT = 30
+// The site's feed carries each post's card image as an enclosure. A post
+// without one, or whose image fails to load, shows the Avatar's fallback:
+// the OCL mark on the brand color, like the site's own default card.
+const getImage = item => find(item.enclosures, enclosure => enclosure.mimeType?.startsWith('image/'))?.url
 
+// Fills what the dashboard column has left, even while loading or with a
+// short feed, so the column always ends on the shared bottom line; the list
+// scrolls inside.
 const CommunityBlog = ({ sx }) => {
   const { t } = useTranslation()
   const [feed, setFeed] = React.useState(false)
   const [loading, setLoading] = React.useState(true)
-  const [available, setAvailable] = React.useState(null)
-  const cardRef = React.useRef(null)
 
 
   const fetchFeed = () => {
@@ -45,25 +50,8 @@ const CommunityBlog = ({ sx }) => {
     fetchFeed()
   }, [])
 
-  React.useLayoutEffect(() => {
-    const measure = () => {
-      if(!cardRef.current)
-        return
-      const footerExtra = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--footer-extra-height')) || 0
-      setAvailable(Math.max(window.innerHeight - cardRef.current.getBoundingClientRect().top - FOOTER_HEIGHT - footerExtra - 8, 160))
-    }
-    measure()
-    window.addEventListener('resize', measure)
-    const observer = new ResizeObserver(measure)
-    observer.observe(cardRef.current.parentElement)
-    return () => {
-      window.removeEventListener('resize', measure)
-      observer.disconnect()
-    }
-  }, [feed])
-
   return (
-    <Card ref={cardRef} variant='outlined' sx={{maxHeight: available === null ? 'none' : `${available}px`, borderRadius: '10px', display: 'flex', flexDirection: 'column', width: '100%', overflow: 'hidden', ...sx}}>
+    <Card variant='outlined' sx={{borderRadius: '10px', borderColor: 'surface.nv80', display: 'flex', flexDirection: 'column', width: '100%', flex: 1, minHeight: '160px', overflow: 'hidden', ...sx}}>
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: 'primary.main', width: '40px', height: '40px' }} aria-label="recipe">
@@ -73,21 +61,25 @@ const CommunityBlog = ({ sx }) => {
         title={t('dashboard.community_blog')}
         sx={{paddingBottom: 0, flexShrink: 0, '.MuiCardHeader-avatar': {marginRight: '16px'}, '.MuiCardHeader-title': {color: 'surface.dark', fontWeight: 'bold'}}}
       />
-      <CardContent sx={{padding: '0px 16px', margin: '0 0 16px 0', flex: 1, minHeight: 0, overflow: 'auto', '&:last-child': {paddingBottom: 0}}}>
+      <CardContent sx={{padding: '0px 16px', flex: 1, minHeight: 0, overflow: 'auto', '&:last-child': {paddingBottom: 0}}}>
         {
           loading &&
-            <ItemSkeletons count={3} circleSize={24} lines={3} sx={{padding: '8px 8px 8px 10px'}} />
+            <Box sx={{paddingBottom: '16px'}}>
+              <ItemSkeletons count={3} circleSize={24} lines={3} sx={{padding: '8px 8px 8px 10px'}} />
+            </Box>
         }
         {
           isArray(feed?.items) && feed?.items?.length > 0 &&
-            <List dense sx={{padding: 0}}>
+            <List dense sx={{padding: '0 0 16px 0'}}>
               {
                 map(feed.items, (item, index) => (
                   <ListItem disablePadding key={index}>
                     <ListItemButton sx={{padding: '4px 8px', alignItems: 'flex-start'}} href={get(item, 'links.0.url') || 'undefined'} target='_blank' rel='noreferrer noopener'>
-                      <ListItemIcon sx={{minWidth: '44px', marginTop: '8px'}}>
-                        <CategoryIcon />
-                      </ListItemIcon>
+                      <ListItemAvatar sx={{minWidth: '84px', marginTop: '6px'}}>
+                        <Avatar variant='rounded' src={getImage(item)} alt='' sx={{width: '72px', height: '40px', borderRadius: '6px', bgcolor: 'primary.main'}}>
+                          <OCLLogo noLink color={WHITE} width="36px" height="14px" />
+                        </Avatar>
+                      </ListItemAvatar>
                       <ListItemText
                         primary={item.title}
                         secondary={formatDate(item.published)}

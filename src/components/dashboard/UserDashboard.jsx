@@ -14,7 +14,7 @@ import Skeleton from '@mui/material/Skeleton'
 import APIService from '../../services/APIService'
 import { WHITE, SURFACE_COLORS } from '../../common/colors'
 import Events from '../common/Events'
-import DashboardEvents from './DashboardEvents';
+import DashboardEvents, { DASHBOARD_COLUMN_STYLE, DASHBOARD_SIDE_COLUMN_STYLE } from './DashboardEvents';
 import EventsButtonGroup from './EventsButtonGroup';
 import CommunityBlog from './CommunityBlog'
 
@@ -49,11 +49,7 @@ const UsageWidget = ({ username }) => {
   const topOp = summary?.top_operations?.[0]
 
   return (
-    <Card
-      sx={{ borderRadius: '10px', border: `1px solid ${"var(--SURFACE_COLORS-nv80)"}`, mb: 1 }}
-      style={{
-        "--SURFACE_COLORS-nv80": SURFACE_COLORS.nv80
-      }}>
+    <Card variant='outlined' sx={{ borderRadius: '10px', borderColor: 'surface.nv80' }}>
       <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
         <Typography
           variant="subtitle2"
@@ -102,7 +98,6 @@ const UsageWidget = ({ username }) => {
     </Card>
   );
 }
-const FOOTER_HEIGHT = 30
 const SIDE_CARD_MAX_HEIGHT = 323
 
 const UserDashboard = ({ user }) => {
@@ -114,8 +109,6 @@ const UserDashboard = ({ user }) => {
   const [communityEvents, setCommunityEvents] = React.useState({events: [], headers: {}})
   const [scope, setScope] = React.useState('all')
   const scopePicked = React.useRef(false)
-  const [feedMaxHeight, setFeedMaxHeight] = React.useState(null)
-  const leftRef = React.useRef(null)
   const [loading, setLoading] = React.useState(true)
   const [selfLoading, setSelfLoading] = React.useState(true)
   const username = user?.username
@@ -178,18 +171,6 @@ const UserDashboard = ({ user }) => {
     fetchEventsForAll()
     fetchEventsForSelf()
   }, [username])
-  React.useLayoutEffect(() => {
-    const measure = () => {
-      const feed = leftRef.current?.lastElementChild
-      if(!feed)
-        return
-      const footerExtra = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--footer-extra-height')) || 0
-      setFeedMaxHeight(Math.max(window.innerHeight - feed.getBoundingClientRect().top - FOOTER_HEIGHT - footerExtra - 8, 200))
-    }
-    measure()
-    window.addEventListener('resize', measure)
-    return () => window.removeEventListener('resize', measure)
-  }, [])
   const getScopeEvents = () => {
     if(scope === 'community')
       return communityEvents.events
@@ -201,24 +182,25 @@ const UserDashboard = ({ user }) => {
   }
   return (
     <div className='col-xs-12 padding-0'>
-      <div ref={leftRef} className='col-xs-9' style={{maxWidth: 'calc(100% - 360px)', minWidth: '500px'}}>
-        <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+      <div className='col-xs-9' style={{maxWidth: 'calc(100% - 360px)', minWidth: '500px', ...DASHBOARD_COLUMN_STYLE}}>
+        <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0}}>
           <Typography sx={{fontSize: '22px', color: 'secondary.main'}}>
             {upperFirst(t('dashboard.anonymous_heading'))}
           </Typography>
           <EventsButtonGroup selected={scope} onClick={onScopeChange} community />
         </div>
-        <DashboardEvents isLoading={loading} events={getScopeEvents()} highlight={scope === 'community'} sx={{...(feedMaxHeight === null ? {maxHeight: 'calc(var(--app-height) - 160px)'} : {maxHeight: `${feedMaxHeight}px`}), ...(scope === 'community' ? {marginTop: '8px'} : {})}} />
+        <DashboardEvents isLoading={loading} events={getScopeEvents()} highlight={scope === 'community'} sx={scope === 'community' ? {marginTop: '8px'} : {}} />
       </div>
-      <div className='col-xs-3 padding-0' style={{minWidth: '360px', minHeight: '370px'}}>
-        <div className='col-xs-12' style={{background: WHITE, borderRadius: '10px', border: `1px solid ${SURFACE_COLORS.nv80}`, maxHeight: `${SIDE_CARD_MAX_HEIGHT}px`, overflow: 'hidden'}}>
+      <div className='col-xs-3 padding-0' style={DASHBOARD_SIDE_COLUMN_STYLE}>
+        <div className='col-xs-12' style={{background: WHITE, borderRadius: '10px', border: `1px solid ${SURFACE_COLORS.nv80}`, maxHeight: `${SIDE_CARD_MAX_HEIGHT}px`, overflow: 'hidden', flexShrink: 0}}>
           {
+            // The list runs to the card's bottom border: less the 56px heading and 2px of border
             user ?
-              <Events user={user} isLoading={selfLoading} events={selfEvents.events} onLoadMore={selfEvents.headers?.next ? fetchEventsForSelf : false} showAvatar maxHeight="245px" dashboard /> :
+              <Events user={user} isLoading={selfLoading} events={selfEvents.events} onLoadMore={selfEvents.headers?.next ? fetchEventsForSelf : false} showAvatar maxHeight={`${SIDE_CARD_MAX_HEIGHT - 58}px`} dashboard /> :
               <Skeleton variant='rectangular' height={245} sx={{margin: '16px', borderRadius: '10px'}} />
           }
         </div>
-        <div className='col-xs-12 padding-0' style={{marginTop: '8px'}}>
+        <div className='col-xs-12 padding-0' style={{marginTop: '8px', flexShrink: 0}}>
           <UsageWidget username={user?.username} />
         </div>
         <CommunityBlog sx={{marginTop: '8px'}} />

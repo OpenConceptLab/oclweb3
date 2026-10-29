@@ -1,7 +1,6 @@
 import React from 'react';
 import IconButton from '@mui/material/IconButton'
 import AddIcon from '@mui/icons-material/Add'
-import ImportIcon from '@mui/icons-material/Publish';
 import UserMenu from '../users/UserMenu';
 import ErrorBoundary from '../errors/ErrorBoundary';
 import UserProfileButton from '../users/UserProfileButton';
@@ -31,14 +30,9 @@ const HeaderControls = () => {
       <ClassicTermBrowserButton />
       {
         authenticated &&
-          <>
-            <IconButton sx={{marginRight: '8px'}} href="/imports">
-              <ImportIcon />
-            </IconButton>
           <IconButton sx={{marginRight: '8px'}} onClick={onAddMenuOpen}>
             <AddIcon />
-        </IconButton>
-        </>
+          </IconButton>
       }
       <UserProfileButton onClick={() => setUserMenu(true)} />
       <ErrorBoundary fallback={null}>
