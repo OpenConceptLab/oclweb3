@@ -15,6 +15,7 @@ import MoreIcon from '@mui/icons-material/ExpandCircleDownOutlined';
 import { getCurrentUser, getSiteTitle } from '../../common/utils'
 import EntityIcon from '../common/EntityIcon';
 import Link from '../common/Link'
+import ItemSkeletons from '../common/ItemSkeletons'
 import UserIcon from '../users/UserIcon'
 
 const EventDescription = ({ event, isFirst, isLast, isJoined }) => {
@@ -97,7 +98,7 @@ const Event = ({ event, isFirst, isLast }) => {
     </TimelineItem>
   );
 }
-const Events = ({ user, events, onLoadMore, showAvatar, maxHeight, dashboard }) => {
+const Events = ({ user, events, onLoadMore, showAvatar, maxHeight, dashboard, isLoading }) => {
   const { t } = useTranslation()
   const currentUser = getCurrentUser()
   const isSelf = Boolean(currentUser?.username && currentUser?.username === user?.username)
@@ -110,6 +111,9 @@ const Events = ({ user, events, onLoadMore, showAvatar, maxHeight, dashboard }) 
         }
         {isSelf ? t('user.own_recent_activity') : t('user.recent_activity_of', {name: user?.name, interpolation: {escapeValue: false}})}
       </Typography>
+      {
+        isLoading ?
+          <div style={{boxSizing: 'content-box', margin: '16px 0 0 0', paddingBottom: '16px', height: `calc(${maxHeight || '420px'} - 10px)`, overflow: 'hidden'}}><ItemSkeletons count={4} circleSize={36} lines={2} sx={{padding: '8px 0'}} /></div> :
       <Timeline
         id="events-timeline"
         sx={{
@@ -146,6 +150,7 @@ const Events = ({ user, events, onLoadMore, showAvatar, maxHeight, dashboard }) 
             </TimelineItem>
         }
       </Timeline>
+      }
     </div>
   );
 }

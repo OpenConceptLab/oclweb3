@@ -104,16 +104,18 @@ const HighlightCard = props => {
 
 const DashboardEvents = ({ events, highlight, sx, isLoading }) => {
   const { t } = useTranslation()
+  const containerStyle = {maxHeight: 'calc(80vh - var(--announcement-height, 0px))', overflow: 'auto', ...sx}
+  const loadingStyle = isLoading ? {display: 'flex', flexDirection: 'column', gap: '16px', paddingTop: '16px', height: containerStyle.maxHeight, overflow: 'hidden'} : {}
   return (
-    <div className='col-xs-12 padding-0' style={{maxHeight: 'calc(80vh - var(--announcement-height, 0px))', overflow: 'auto', ...sx}}>
+    <div className='col-xs-12 padding-0' style={{...containerStyle, ...loadingStyle}}>
       {
         isLoading ?
           <>
-            <Skeleton height={174} sx={{margin: '16px 0', height: '174px', '-webkit-transform': 'none', 'transform': 'none'}} />
-            <Skeleton height={174} sx={{margin: '16px 0', height: '174px', '-webkit-transform': 'none', 'transform': 'none'}} />
-            <Skeleton height={174} sx={{margin: '16px 0', height: '174px', '-webkit-transform': 'none', 'transform': 'none'}} />
-            <Skeleton height={174} sx={{margin: '16px 0', height: '174px', '-webkit-transform': 'none', 'transform': 'none'}} />
-            <Skeleton height={174} sx={{margin: '16px 0', height: '174px', '-webkit-transform': 'none', 'transform': 'none'}} />
+            <Skeleton sx={{flex: '1 1 0', minHeight: '120px', height: 'auto', margin: 0, '-webkit-transform': 'none', 'transform': 'none'}} />
+            <Skeleton sx={{flex: '1 1 0', minHeight: '120px', height: 'auto', margin: 0, '-webkit-transform': 'none', 'transform': 'none'}} />
+            <Skeleton sx={{flex: '1 1 0', minHeight: '120px', height: 'auto', margin: 0, '-webkit-transform': 'none', 'transform': 'none'}} />
+            <Skeleton sx={{flex: '1 1 0', minHeight: '120px', height: 'auto', margin: 0, '-webkit-transform': 'none', 'transform': 'none'}} />
+            <Skeleton sx={{flex: '1 1 0', minHeight: '120px', height: 'auto', margin: 0, '-webkit-transform': 'none', 'transform': 'none'}} />
             </>
             :
         (

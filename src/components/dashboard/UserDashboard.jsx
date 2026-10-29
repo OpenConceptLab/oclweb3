@@ -101,6 +101,9 @@ const UsageWidget = ({ username }) => {
     </Card>
   );
 }
+const FOOTER_HEIGHT = 30
+const SIDE_CARD_MAX_HEIGHT = 323
+
 const UserDashboard = ({ user }) => {
   const { t } = useTranslation()
   const [selfEvents, setSelfEvents] = React.useState({events: [], headers: {}})
@@ -108,13 +111,17 @@ const UserDashboard = ({ user }) => {
   const [followingEvents, setFollowingEvents] = React.useState({events: [], headers: {}})
   const [orgsEvents, setOrgsEvents] = React.useState({events: [], headers: {}})
   const [scope, setScope] = React.useState('all')
+  const [feedMaxHeight, setFeedMaxHeight] = React.useState(null)
+  const leftRef = React.useRef(null)
   const [loading, setLoading] = React.useState(true)
+  const [selfLoading, setSelfLoading] = React.useState(true)
   const username = user?.username
   const getService = (scope, page, limit=10) => APIService.users(username).appendToUrl('events/').get(null, null, {scopes: scope, limit: limit, page: page})
   const fetchEventsForSelf = () => {
     getService('self', parseInt(selfEvents.headers.page_number || '0') + 1, 5).then(response => {
       setSelfEvents({events: [...selfEvents.events, ...response.data], headers: response.headers})
-    })
+      setSelfLoading(false)
+    }).catch(() => setSelfLoading(false))
   }
   const fetchEventsForAll = () => {
     setLoading(true)
@@ -154,6 +161,18 @@ const UserDashboard = ({ user }) => {
     fetchEventsForAll()
     fetchEventsForSelf()
   }, [username])
+  React.useLayoutEffect(() => {
+    const measure = () => {
+      const feed = leftRef.current?.lastElementChild
+      if(!feed)
+        return
+      const footerExtra = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--footer-extra-height')) || 0
+      setFeedMaxHeight(Math.max(window.innerHeight - feed.getBoundingClientRect().top - FOOTER_HEIGHT - footerExtra - 8, 200))
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [])
   const getScopeEvents = () => {
     if(scope === 'orgs')
       return orgsEvents.events
@@ -163,20 +182,20 @@ const UserDashboard = ({ user }) => {
   }
   return (
     <div className='col-xs-12 padding-0'>
-      <div className='col-xs-9' style={{maxWidth: 'calc(100% - 360px)', minWidth: '500px'}}>
+      <div ref={leftRef} className='col-xs-9' style={{maxWidth: 'calc(100% - 360px)', minWidth: '500px'}}>
         <div className='col-xs-12 padding-0' style={{marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
           <Typography sx={{fontSize: '22px', color: 'secondary.main'}}>
             {upperFirst(t('dashboard.anonymous_heading'))}
           </Typography>
           <EventsButtonGroup selected={scope} onClick={onScopeChange} />
         </div>
-        <DashboardEvents isLoading={loading} events={getScopeEvents()} />
+        <DashboardEvents isLoading={loading} events={getScopeEvents()} sx={feedMaxHeight === null ? {maxHeight: 'calc(var(--app-height) - 160px)'} : {maxHeight: `${feedMaxHeight}px`}} />
       </div>
       <div className='col-xs-3 padding-0' style={{minWidth: '360px', minHeight: '370px'}}>
-        <div className='col-xs-12' style={{background: WHITE, borderRadius: '10px', border: `1px solid ${SURFACE_COLORS.nv80}`}}>
+        <div className='col-xs-12' style={{background: WHITE, borderRadius: '10px', border: `1px solid ${SURFACE_COLORS.nv80}`, maxHeight: `${SIDE_CARD_MAX_HEIGHT}px`, overflow: 'hidden'}}>
           {
             user ?
-              <Events user={user} events={selfEvents.events} onLoadMore={selfEvents.headers?.next ? fetchEventsForSelf : false} showAvatar maxHeight="245px" dashboard /> :
+              <Events user={user} isLoading={selfLoading} events={selfEvents.events} onLoadMore={selfEvents.headers?.next ? fetchEventsForSelf : false} showAvatar maxHeight="245px" dashboard /> :
               <Skeleton variant='rectangular' height={245} sx={{margin: '16px', borderRadius: '10px'}} />
           }
         </div>

@@ -61,7 +61,7 @@ const GuestDashboard = () => {
         </div>
         {
           ['all', 'highlights'].includes(scope) ?
-            <DashboardEvents events={getScopeEvents()} sx={{marginTop: '16px'}} highlight isLoading={loading} />:
+            <DashboardEvents events={getScopeEvents()} sx={{marginTop: '16px', maxHeight: 'calc(var(--app-height) - 151px)'}} highlight isLoading={loading} />:
           <div className='col-xs-12 padding-0' style={{height: 'calc(86vh - var(--announcement-height, 0px))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
             <EmptyOverview
               label={t('dashboard.events_scope_sign_in')}
@@ -74,7 +74,9 @@ const GuestDashboard = () => {
       </div>
       <div className='col-xs-3 padding-0' style={{minWidth: '360px'}}>
         <DashboardBanners />
-        <CommunityBlog sx={{marginTop: '8px'}} />
+        <div className='col-xs-12 padding-0' style={{marginTop: '8px'}}>
+          <CommunityBlog />
+        </div>
       </div>
     </div>
   )
