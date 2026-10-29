@@ -35,6 +35,7 @@ import ReleaseVersion from './ReleaseVersion'
 import RepoHeader from './RepoHeader';
 import CollectionVersionsTab from './CollectionVersionsTab';
 import SourceVersionsTab from './SourceVersionsTab';
+import { getVersionChange } from './versionChange';
 import ReferenceHome from '../references/ReferenceHome'
 import AddReferencesDialog from '../collections/AddReferencesDialog'
 import ExpansionDropDown from './ExpansionDropDown';
@@ -345,19 +346,18 @@ const RepoHome = () => {
 
 
   const onVersionChange = (version, reload=true, targetTab=null) => {
-    const nextTab = targetTab || route.tab || 'concepts'
-    const versionId = version?.version || version?.id || ''
-    const isHead = versionId === 'HEAD'
-    const nextVersion = isHead ? (reload ? 'HEAD' : '') : versionId
-    const nextPath = buildRepoPath(route, {version: nextVersion, expansion: '', tab: nextTab, resource: ''})
+    const next = getVersionChange(route, version, {reload, tab: targetTab})
+    const nextPath = buildRepoPath(route, {version: next.version, expansion: '', tab: next.tab, resource: ''})
     if(nextPath === location.pathname)
       return false
-    setExpansions([])
-    setSelectedExpansion(false)
-    if(reload)
-      setLoading(true)
-    if(nextTab !== tab)
-      setTab(nextTab)
+    if(next.reloads) {
+      setExpansions([])
+      setSelectedExpansion(false)
+      if(reload)
+        setLoading(true)
+    }
+    if(next.tab !== tab)
+      setTab(next.tab)
     history.push(nextPath + (location.search || ''))
     return true
   }
