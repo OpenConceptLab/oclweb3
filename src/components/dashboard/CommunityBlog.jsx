@@ -28,8 +28,9 @@ import { formatDate } from '../../common/utils'
 // the OCL mark on the brand color, like the site's own default card.
 const getImage = item => find(item.enclosures, enclosure => enclosure.mimeType?.startsWith('image/'))?.url
 
-// Fills what the dashboard column has left, scrolling its list inside; the
-// column is a flex column, so the card ends on the column's bottom line.
+// Fills what the dashboard column has left, even while loading or with a
+// short feed, so the column always ends on the shared bottom line; the list
+// scrolls inside.
 const CommunityBlog = ({ sx }) => {
   const { t } = useTranslation()
   const [feed, setFeed] = React.useState(false)
@@ -50,7 +51,7 @@ const CommunityBlog = ({ sx }) => {
   }, [])
 
   return (
-    <Card variant='outlined' sx={{borderRadius: '10px', borderColor: 'surface.nv80', display: 'flex', flexDirection: 'column', width: '100%', minHeight: '160px', overflow: 'hidden', ...sx}}>
+    <Card variant='outlined' sx={{borderRadius: '10px', borderColor: 'surface.nv80', display: 'flex', flexDirection: 'column', width: '100%', flex: 1, minHeight: '160px', overflow: 'hidden', ...sx}}>
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: 'primary.main', width: '40px', height: '40px' }} aria-label="recipe">
