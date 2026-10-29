@@ -39,25 +39,25 @@ const CommunityBlog = ({ sx }) => {
   }, [])
 
   return (
-    <Card variant='outlined' sx={{height: 'calc(298px - var(--announcement-height, 0px))', borderRadius: '10px', display: 'inline-block', width: '100%', overflow: 'auto', ...sx}}>
+    <Card variant='outlined' sx={{height: 'calc(298px - var(--announcement-height, 0px))', borderRadius: '10px', display: 'flex', flexDirection: 'column', width: '100%', overflow: 'hidden', ...sx}}>
       <CardHeader
         avatar={
-          <Avatar sx={{ bgcolor: 'primary.main' }} aria-label="recipe">
+          <Avatar sx={{ bgcolor: 'primary.main', width: '40px', height: '40px' }} aria-label="recipe">
             <OCLLogo color={WHITE} width="30px" height="16px" />
           </Avatar>
         }
         title={t('dashboard.community_blog')}
-        sx={{paddingBottom: 0, '.MuiCardHeader-title': {color: 'surface.dark', fontWeight: 'bold'}}}
+        sx={{paddingBottom: 0, flexShrink: 0, '.MuiCardHeader-avatar': {marginRight: '16px'}, '.MuiCardHeader-title': {color: 'surface.dark', fontWeight: 'bold'}}}
       />
-      <CardContent sx={{padding: '0px 16px 16px 16px'}}>
+      <CardContent sx={{padding: '0px 16px', margin: '0 0 16px 0', flex: 1, minHeight: 0, overflow: 'auto', '&:last-child': {paddingBottom: 0}}}>
         {
           isArray(feed?.items) && feed?.items?.length > 0 &&
             <List dense sx={{padding: 0}}>
               {
                 map(feed.items, (item, index) => (
                   <ListItem disablePadding key={index}>
-                    <ListItemButton sx={{padding: '4px 8px'}} href={get(item, 'links.0.url') || 'undefined'} target='_blank' rel='noreferrer noopener'>
-                      <ListItemIcon sx={{minWidth: '44px'}}>
+                    <ListItemButton sx={{padding: '4px 8px', alignItems: 'flex-start'}} href={get(item, 'links.0.url') || 'undefined'} target='_blank' rel='noreferrer noopener'>
+                      <ListItemIcon sx={{minWidth: '44px', marginTop: '8px'}}>
                         <CategoryIcon />
                       </ListItemIcon>
                       <ListItemText
