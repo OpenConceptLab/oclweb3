@@ -12,11 +12,11 @@ import omitBy from 'lodash/omitBy'
 import fromPairs from 'lodash/fromPairs'
 import sortBy from 'lodash/sortBy'
 import toPairs from 'lodash/toPairs'
-import isBoolean from 'lodash/isBoolean'
 import compact from 'lodash/compact'
 import keys from 'lodash/keys'
 import find from 'lodash/find'
 import startCase from 'lodash/startCase'
+import AttributeValue from '../common/AttributeValue'
 
 const getRawProperties = concept => {
   const rawProperties = {}
@@ -82,7 +82,7 @@ const ConceptProperties = ({ concept, viewRaw }) => {
                   <ListItemText primary={definition.label} secondary={definition.label !== definition.code ? definition.code : undefined} sx={{margin: 0, '.MuiListItemText-primary': {fontSize: '0.875rem'}, '.MuiListItemText-secondary': {fontSize: '0.75rem'}}} />
                 </TableCell>
                 <TableCell sx={{fontSize: '0.875rem', verticalAlign: 'top'}} className='searchable'>
-                  {isBoolean(definition.value) ? definition.value.toString() : definition.value}
+                  <AttributeValue value={definition.value} />
                 </TableCell>
               </TableRow>
             )
@@ -115,7 +115,7 @@ const ConceptProperties = ({ concept, viewRaw }) => {
                   />
                 </TableCell>
                 <TableCell sx={{ fontSize: '0.875rem' }}>
-                  {isBoolean(cellValue) ? cellValue.toString() : cellValue}
+                  <AttributeValue value={cellValue} />
                 </TableCell>
               </TableRow>
             )

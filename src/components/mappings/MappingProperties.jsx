@@ -8,6 +8,7 @@ import Chip from '@mui/material/Chip';
 import map from 'lodash/map'
 import isNumber from 'lodash/isNumber'
 import ExternalIdLabel from '../common/ExternalIdLabel'
+import AttributeValue from '../common/AttributeValue'
 
 const MappingProperties = ({ mapping }) => {
   const { t } = useTranslation()
@@ -70,7 +71,7 @@ const MappingProperties = ({ mapping }) => {
                 />
               </TableCell>
               <TableCell sx={{ fontSize: '0.875rem' }}>
-                {value}
+                <AttributeValue value={value} />
               </TableCell>
             </TableRow>
           ))
