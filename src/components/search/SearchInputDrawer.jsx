@@ -69,7 +69,7 @@ const Option = ({ placeholder, selected, onClick, nested, onKeyDown, text, id, i
   )
 }
 
-const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, isMatchOp, activeFilterType, setActiveFilterType, activeFilterValue, setActiveFilterValue, setInput}) => {
+const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, isMatchOp, activeFilterType, setActiveFilterType, activeFilterValue, setActiveFilterValue, removeFilter, setInput}) => {
   const { t } = useTranslation()
   const inputRef = React.createRef()
   const location = useLocation()
@@ -105,8 +105,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
     initiateSearch(event, !nested, event?.currentTarget?.id === 'match_repo' && canMatchSemantic)
   }
   const onRemoveFilter = () => {
-    setActiveFilterType(null)
-    setActiveFilterValue(null)
+    removeFilter()
     setMode('query')
   }
 
@@ -199,8 +198,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
 
       if(event.key === 'Backspace' && !input) {
         event.preventDefault()
-        setActiveFilterType(null)
-        setActiveFilterValue(null)
+        removeFilter()
         setMode('typeSelect')
         return
       }
