@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import SearchInputText from './SearchInputText';
 import SearchInputDrawer from './SearchInputDrawer';
 import { BROWSE_CONFIG, FACET_FILTER_CONFIG } from './browseConfig';
+import { getURLWithoutFacetFilter } from './facetFilterURL';
 
 
 const SearchInput = props => {
@@ -14,13 +15,21 @@ const SearchInput = props => {
   const [activeFilterValue, setActiveFilterValue] = React.useState(null)
   const history = useHistory();
   const location = useLocation()
+  const keepInputRef = React.useRef(false)
 
   const getActiveFilterLabelKey = () => BROWSE_CONFIG[activeFilterType]?.labelKey || FACET_FILTER_CONFIG[activeFilterType]?.labelKey
 
+  // Every way of removing the chip comes through here (the closed bar's chip, and the drawer's
+  // chip, Escape and Backspace), so a Class/Map Type filter always leaves the URL with it.
   const onRemoveFilter = event => {
     event?.stopPropagation?.()
+    const url = getURLWithoutFacetFilter(location.pathname, location.search, FACET_FILTER_CONFIG[activeFilterType]?.facetField)
     setActiveFilterType(null)
     setActiveFilterValue(null)
+    if(url) {
+      keepInputRef.current = true
+      history.push(url)
+    }
   }
 
   // Class/Map Type filters can involve a full page reload (see SearchInputDrawer's
@@ -58,8 +67,12 @@ const SearchInput = props => {
     // The typed term always mirrors whatever `q` is in the current URL - true for the global
     // search results page, a plain repo-context keyword search, and a facet-filtered search
     // alike. Restricting this to only the `/search/` page used to wipe a repo-context search
-    // term back to empty right after applying it.
-    setInput(queryParams.get('q') || '')
+    // term back to empty right after applying it. Removing a chip (onRemoveFilter) is the
+    // exception: it changes the URL without a new search, so whatever is typed stays.
+    if(keepInputRef.current)
+      keepInputRef.current = false
+    else
+      setInput(queryParams.get('q') || '')
   }, [location.pathname, location.search])
 
   const handleInputChange = event => {
@@ -196,6 +209,7 @@ const SearchInput = props => {
         setActiveFilterType={setActiveFilterType}
         activeFilterValue={activeFilterValue}
         setActiveFilterValue={setActiveFilterValue}
+        removeFilter={onRemoveFilter}
         setInput={setInput}
       />
     </React.Fragment>
