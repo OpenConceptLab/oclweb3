@@ -102,17 +102,14 @@ const HighlightCard = props => {
   )
 }
 
-// Each home-page column runs from below the header to 8px above the footer
-// (--app-height already leaves out the announcement banner and the extra
-// rows of a stacked footer). Both columns share it so their bottoms line up.
+// Both home-page columns: below the header to 8px above the footer
+// (--app-height already leaves out the banner and a stacked footer)
 export const DASHBOARD_COLUMN_STYLE = {height: 'calc(var(--app-height) - 102px)', display: 'flex', flexDirection: 'column'}
-// On short screens the side column's cards can't all fit at their minimum
-// heights; the column then scrolls rather than running behind the footer.
+// Scrolls when its cards can't all fit at their minimum heights
 export const DASHBOARD_SIDE_COLUMN_STYLE = {...DASHBOARD_COLUMN_STYLE, minWidth: '360px', overflowY: 'auto'}
 
 const DashboardEvents = ({ events, highlight, sx, isLoading }) => {
   const { t } = useTranslation()
-  // Fills the rest of its DASHBOARD_COLUMN_STYLE column
   const containerStyle = {flex: 1, minHeight: 0, overflow: 'auto', ...sx}
   const loadingStyle = isLoading ? {display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '8px', overflow: 'hidden'} : {}
   return (

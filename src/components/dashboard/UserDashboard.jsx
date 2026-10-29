@@ -99,9 +99,6 @@ const UsageWidget = ({ username }) => {
   );
 }
 const SIDE_CARD_MAX_HEIGHT = 323
-// The activity list runs to the card's bottom border: the card less its
-// 56px heading and 2px of border
-const ACTIVITY_LIST_MAX_HEIGHT = `${SIDE_CARD_MAX_HEIGHT - 58}px`
 
 const UserDashboard = ({ user }) => {
   const { t } = useTranslation()
@@ -197,8 +194,9 @@ const UserDashboard = ({ user }) => {
       <div className='col-xs-3 padding-0' style={DASHBOARD_SIDE_COLUMN_STYLE}>
         <div className='col-xs-12' style={{background: WHITE, borderRadius: '10px', border: `1px solid ${SURFACE_COLORS.nv80}`, maxHeight: `${SIDE_CARD_MAX_HEIGHT}px`, overflow: 'hidden', flexShrink: 0}}>
           {
+            // The list runs to the card's bottom border: less the 56px heading and 2px of border
             user ?
-              <Events user={user} isLoading={selfLoading} events={selfEvents.events} onLoadMore={selfEvents.headers?.next ? fetchEventsForSelf : false} showAvatar maxHeight={ACTIVITY_LIST_MAX_HEIGHT} dashboard /> :
+              <Events user={user} isLoading={selfLoading} events={selfEvents.events} onLoadMore={selfEvents.headers?.next ? fetchEventsForSelf : false} showAvatar maxHeight={`${SIDE_CARD_MAX_HEIGHT - 58}px`} dashboard /> :
               <Skeleton variant='rectangular' height={245} sx={{margin: '16px', borderRadius: '10px'}} />
           }
         </div>
