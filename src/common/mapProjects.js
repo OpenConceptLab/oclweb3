@@ -25,3 +25,12 @@ export const canSeeMapProjects = (currentUser, ownerType, owner) => {
     return Boolean(currentUser.subscribed_orgs?.some(org => org?.id === owner))
   return false
 }
+
+// The API can't search mapping projects, so the profile tab filters the
+// list it loaded, by name and ID.
+export const filterProjects = (projects, query) => {
+  const term = (query || '').trim().toLowerCase()
+  if(!term || !Array.isArray(projects))
+    return projects
+  return projects.filter(project => [project.name, project.id].some(value => String(value ?? '').toLowerCase().includes(term)))
+}

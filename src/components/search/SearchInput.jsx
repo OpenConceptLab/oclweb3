@@ -5,6 +5,7 @@ import SearchInputText from './SearchInputText';
 import SearchInputDrawer from './SearchInputDrawer';
 import { BROWSE_CONFIG, FACET_FILTER_CONFIG } from './browseConfig';
 import { getURLWithoutFacetFilter } from './facetFilterURL';
+import { getOwnerSearchScope } from './ownerSearch';
 
 
 const SearchInput = props => {
@@ -120,6 +121,9 @@ const SearchInput = props => {
   }
 
   const applyURLRules = URL => {
+    // The Mapping Projects tab filters its own list (see ownerSearch.js)
+    if(getOwnerSearchScope(URL) === 'map-projects')
+      return URL
     if((URL.startsWith('/orgs/') || URL.startsWith('/users/')) && !URL.includes('/sources/') && !URL.includes('/collections/') && !URL.includes('/repos/') && !URL.endsWith('/repos')) {
       if(URL.includes('/edit'))
         URL = URL.replace('/edit', '/repos')

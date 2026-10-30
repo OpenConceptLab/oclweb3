@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-const { mergeProjects, projectCount, canSeeMapProjects } = await import('../mapProjects.js')
+const { mergeProjects, projectCount, canSeeMapProjects, filterProjects } = await import('../mapProjects.js')
 
 test('mergeProjects combines user and organization projects without duplicates', () => {
   const merged = mergeProjects(
@@ -42,4 +42,12 @@ test('canSeeMapProjects shows staff every profile\'s projects', () => {
 test('canSeeMapProjects hides projects when signed out', () => {
   assert.equal(canSeeMapProjects(null, 'users', 'member'), false)
   assert.equal(canSeeMapProjects({}, 'orgs', 'CIEL'), false)
+})
+
+test('filterProjects matches name or ID, ignoring case and spaces around the term', () => {
+  const projects = [{id: 181, name: 'Malaria labs'}, {id: 182, name: 'Kenya HIV'}, {id: 1818, name: 'Other'}]
+  assert.deepEqual(filterProjects(projects, ' malaria ').map(p => p.id), [181])
+  assert.deepEqual(filterProjects(projects, '181').map(p => p.id), [181, 1818])
+  assert.equal(filterProjects(projects, ''), projects)
+  assert.equal(filterProjects(null, 'x'), null)
 })
