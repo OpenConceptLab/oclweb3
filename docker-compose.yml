@@ -21,3 +21,4 @@ services:
       - ERRBIT_URL
       - ERRBIT_KEY
       - HOTJAR_ID
+      - ANNOUNCEMENT

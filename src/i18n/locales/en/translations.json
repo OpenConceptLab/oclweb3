@@ -1157,13 +1157,6 @@
     "tooltip_num_desc": "Sort by {{field}}, highest number first",
     "clear": "Reset Sort"
   },
-  "announcement": {
-    "title": "Subscriptions open November 1.",
-    "text": "Existing accounts using premium features have a grace period until December 1.",
-    "link_label": "Learn more",
-    "pricing_label": "See pricing",
-    "dismiss": "Dismiss"
-  },
   "quota": {
     "title_quota": "You've reached your quota",
     "title_cap": "You've reached your limit",
