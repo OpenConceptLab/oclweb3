@@ -1,10 +1,6 @@
 export const mergeProjects = (...lists) => {
-  const byUrl = new Map()
-  lists.forEach(list => {
-    if(Array.isArray(list))
-      list.forEach(project => { if(!byUrl.has(project.url)) byUrl.set(project.url, project) })
-  })
-  return [...byUrl.values()]
+  const seen = new Set()
+  return lists.flat().filter(project => !seen.has(project.url) && seen.add(project.url))
 }
 
 export const projectCount = (...responses) => responses.reduce(

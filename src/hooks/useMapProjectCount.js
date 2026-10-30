@@ -9,12 +9,9 @@ const useMapProjectCount = (owner, enabled, ownerType = 'users') => {
     if(!enabled || !owner)
       return
     let active = true
-    const requests = ownerType === 'orgs' ?
-      [APIService.orgs(owner).appendToUrl('map-projects/').get(null, null, {limit: 1}, true)] :
-      [
-        APIService.users(owner).appendToUrl('map-projects/').get(null, null, {limit: 1}, true),
-        APIService.users(owner).appendToUrl('orgs/map-projects/').get(null, null, {limit: 1}, true),
-      ]
+    const requests = [APIService[ownerType](owner).appendToUrl('map-projects/').get(null, null, {limit: 1}, true)]
+    if(ownerType === 'users')
+      requests.push(APIService.users(owner).appendToUrl('orgs/map-projects/').get(null, null, {limit: 1}, true))
     Promise.all(requests).then(responses => {
       if(active)
         setCount(projectCount(...responses))
