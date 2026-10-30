@@ -9,12 +9,17 @@ import ListItemText from '@mui/material/ListItemText';
 import RepoIcon from '../repos/RepoIcon';
 import OrgIcon from '../orgs/OrgIcon'
 import About from '../common/About';
+import { getCurrentUser, hasMapper, pluralize } from '../../common/utils';
+import { canSeeMapProjects } from '../../common/mapProjects';
+import useMapProjectCount from '../../hooks/useMapProjectCount';
 
 const UserStatistics = ({ user }) => {
   const { t } = useTranslation()
   const repos = user.public_sources + user.public_collections
   const history = useHistory()
   const onRepoStatsClick = () => history.push(user.url + 'repos')
+  const showMapProjects = hasMapper() && canSeeMapProjects(getCurrentUser(), 'users', user.username)
+  const mapProjectCount = useMapProjectCount(user.username, showMapProjects)
   return (
     <div className='col-xs-12 padding-0' style={{margin: `0 0 24px 0`}}>
       {
@@ -41,6 +46,18 @@ const UserStatistics = ({ user }) => {
               primary={`${repos} ${t('common.public').toLowerCase()} ${t('repo.repos').toLowerCase()}`}
             />
           </ListItem>
+          {
+            showMapProjects && mapProjectCount !== null &&
+              <ListItem disablePadding sx={{cursor: 'pointer'}} onClick={() => history.push(user.url + 'map-projects')}>
+                <ListItemIcon sx={{minWidth: 0, width: '20px', marginRight: '8px', justifyContent: 'center', color: 'default.light'}}>
+                  <i className='fa-solid fa-diagram-project' style={{fontSize: '14px'}} />
+                </ListItemIcon>
+                <ListItemText
+                  sx={{color: 'default.light', '.MuiListItemText-primary': {fontSize: '12px'}}}
+                  primary={pluralize(mapProjectCount, t('map_project.mapping_project').toLowerCase(), t('map_project.mapping_projects').toLowerCase())}
+                />
+              </ListItem>
+          }
           <ListItem disablePadding >
             <ListItemIcon sx={{minWidth: 0, marginRight: '8px'}}>
               <OrgIcon noTooltip strict noLink sx={{color: 'default.light', width: '20px', height: '20px'}} />

@@ -8,7 +8,9 @@ import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import DateIcon from '@mui/icons-material/Today';
-import { formatDate, pluralize } from '../../common/utils'
+import { formatDate, pluralize, getCurrentUser, hasMapper } from '../../common/utils'
+import { canSeeMapProjects } from '../../common/mapProjects'
+import useMapProjectCount from '../../hooks/useMapProjectCount'
 import RepoIcon from '../repos/RepoIcon';
 import MemberList from './MemberList'
 
@@ -18,6 +20,8 @@ const OrgStatistics = ({ org, members }) => {
   const repos = org.public_sources + org.public_collections
   const history = useHistory()
   const onRepoStatsClick = () => history.push(org.url + 'repos')
+  const showMapProjects = hasMapper() && canSeeMapProjects(getCurrentUser(), 'orgs', org.id)
+  const mapProjectCount = useMapProjectCount(org.id, showMapProjects, 'orgs')
   return (
     <div className='col-xs-12 padding-0' style={{margin: `0 0 24px 0`}}>
       <Typography component='h3' sx={{marginBottom: '16px', fontWeight: 'bold'}}>
@@ -34,6 +38,18 @@ const OrgStatistics = ({ org, members }) => {
               primary={pluralize(repos, t('common.public').toLowerCase() + ' ' + t('repo.repo').toLowerCase(), t('common.public').toLowerCase() + ' ' + t('repo.repos').toLowerCase())}
             />
           </ListItem>
+          {
+            showMapProjects && mapProjectCount !== null &&
+              <ListItem disablePadding sx={{marginTop: '8px', cursor: 'pointer'}} onClick={() => history.push(org.url + 'map-projects')}>
+                <ListItemIcon sx={{minWidth: 0, width: '20px', marginRight: '8px', justifyContent: 'center', color: 'default.light'}}>
+                  <i className='fa-solid fa-diagram-project' style={{fontSize: '14px'}} />
+                </ListItemIcon>
+                <ListItemText
+                  sx={{color: 'default.light', '.MuiListItemText-primary': {fontSize: '12px'}}}
+                  primary={pluralize(mapProjectCount, t('map_project.mapping_project').toLowerCase(), t('map_project.mapping_projects').toLowerCase())}
+                />
+              </ListItem>
+          }
           <ListItem disablePadding sx={{marginTop: '8px', cursor: 'pointer'}} onClick={() => setMembersOpen(true)}>
             <ListItemIcon sx={{minWidth: 0, marginRight: '8px'}}>
               <PersonIcon sx={{color: 'default.light', width: '20px', height: '20px'}} />
