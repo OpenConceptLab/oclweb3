@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { loadProfileTabs } from '../common/plugins/loader';
 import { getCurrentUser, hasMapper } from '../common/utils';
+import { canSeeMapProjects } from '../common/mapProjects';
 
 let pluginTabsPromise
 
@@ -26,7 +27,7 @@ const useProfileTabs = (ownerType, owner) => {
   const { t } = useTranslation()
   const pluginTabs = usePluginTabs()
   return React.useMemo(() => [
-    ...(hasMapper() ? [{key: 'map-projects', label: t('map_project.mapping_projects')}] : []),
+    ...(hasMapper() && canSeeMapProjects(getCurrentUser(), ownerType, owner) ? [{key: 'map-projects', label: t('map_project.mapping_projects')}] : []),
     ...pluginTabs.filter(tab => isOwnerTab(tab, ownerType, owner))
   ], [pluginTabs, ownerType, owner, t])
 }

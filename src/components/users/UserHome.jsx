@@ -101,7 +101,8 @@ const UserHome = () => {
       reset()
     }, [params.user]
   )
-  React.useEffect(() => { setTab(params.tab || 'overview') }, [params.tab])
+  // A tab this viewer doesn't get (someone else's Mapping Projects) shows Overview instead
+  React.useEffect(() => { setTab(findTab()) }, [params.tab, TAB_KEYS.join()])
 
   const baseHeightToDeduct = 150
   return (
