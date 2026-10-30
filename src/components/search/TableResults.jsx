@@ -296,7 +296,12 @@ const TableResults = ({selected, bgColor, handleClick, handleRowClick, handleSel
       <Table
         stickyHeader
         size={size || 'small'}
-        sx={{'.MuiTableCell-head': {lineHeight: '1.2rem', padding: '3px 16px', fontSize: '12px', borderBottom: 1, borderBottomColor: 'surface.nv80'}}}
+        sx={{
+          '.MuiTableCell-head': {lineHeight: '1.2rem', padding: '3px 16px', fontSize: '12px', borderBottom: 1, borderBottomColor: 'surface.nv80'},
+          // The padding above is right for a small table's select-all box; a medium one
+          // lines it up with each row's box below it
+          '.MuiTableCell-head.MuiTableCell-paddingCheckbox.MuiTableCell-sizeMedium': {paddingLeft: '4px', paddingRight: 0}
+        }}
       >
         <EnhancedTableHead
           size={size}
