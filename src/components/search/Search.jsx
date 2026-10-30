@@ -122,6 +122,13 @@ const Search = props => {
     highlight()
   }, [result])
 
+  // A page that sizes the filter panel to its space (useDefaultFiltersOpen) changes this
+  // as the window is resized, until the person opens or closes the panel themselves
+  React.useEffect(() => {
+    if(has(props, 'defaultFiltersOpen'))
+      setOpenFilters(props.defaultFiltersOpen)
+  }, [props.defaultFiltersOpen])
+
   const onDisplayChange = newDisplay => {
     if(isHierarchySupported) {
       const newHierarchy = newDisplay === 'hierarchy'

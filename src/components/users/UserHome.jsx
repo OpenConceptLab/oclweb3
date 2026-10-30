@@ -8,7 +8,7 @@ import { COLORS } from '../../common/colors'
 import APIService from '../../services/APIService'
 import CommonTabs from '../common/CommonTabs';
 import Search from '../search/Search';
-import useDefaultFiltersOpen from '../../hooks/useDefaultFiltersOpen';
+import useDefaultFiltersOpen, { PROFILE_LIST_MIN_WIDTH } from '../../hooks/useDefaultFiltersOpen';
 import Error40X from '../errors/Error40X';
 import UserOverview from './UserOverview';
 import UserSummary from './UserSummary'
@@ -22,7 +22,7 @@ const UserHome = () => {
   const params = useParams()
   const history = useHistory()
   const [tab, setTab] = React.useState(findTab || 'overview')
-  const [defaultFiltersOpen, onFiltersOpenChange] = useDefaultFiltersOpen()
+  const [defaultFiltersOpen, onFiltersOpenChange, listRef] = useDefaultFiltersOpen(PROFILE_LIST_MIN_WIDTH)
   const [user, setUser] = React.useState({})
   const [status, setStatus] = React.useState(false)
   const { pins: bookmarks, canPin, deletePin } = usePins(params?.user ? {type: 'user', id: params.user} : false)
@@ -114,10 +114,10 @@ const UserHome = () => {
               <UserProfile user={user} />
             </div>
             <div className='col-xs-10 padding-0' style={{backgroundColor: COLORS.primary.contrastText, borderRadius: '10px', height: height, maxWidth: '80%', border: `1px solid ${COLORS.surface.nv80}`, borderTop: 'none'}}>
-              <div className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
+              <div ref={listRef} className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
                 <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} sx={{borderTopLeftRadius: '10px'}} />
                 {
-                  tab === 'repos' &&
+                  tab === 'repos' && defaultFiltersOpen !== null &&
                     <Search
                       resource='repos'
                       url={user?.url + 'repos/'}
