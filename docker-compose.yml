@@ -18,7 +18,7 @@ services:
       - ANALYTICS_API=${ANALYTICS_API-}
       - AI_ASSISTANT_API_URL=${AI_ASSISTANT_API_URL-}
       - OCL_ONLINE_API_URL=${OCL_ONLINE_API_URL-}
-      - MAPPER_URL=${MAPPER_URL-http://localhost:4004}
+      - MAPPER_URL=${MAPPER_URL-}
       - ERRBIT_URL
       - ERRBIT_KEY
       - HOTJAR_ID
