@@ -12,11 +12,13 @@ import ListItemText from '@mui/material/ListItemText';
 import Button from '@mui/material/Button';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
+import CommunityIcon from '@mui/icons-material/GroupsOutlined';
 import Divider from '@mui/material/Divider';
 import map from 'lodash/map'
 import { getCurrentUser, refreshCurrentUserCache, getCurrentUserOrgs, hasMapper, isInWaitlist} from '../../common/utils';
 import { trayItems, isTrayItemSelected } from '../../common/navigation';
 import { PRIMARY_COLORS } from '../../common/colors';
+import { COMMUNITY_SITE_URL } from '../../common/constants';
 import useMapProjectCount from '../../hooks/useMapProjectCount';
 import Drawer from '../common/Drawer';
 import OrgIcon from '../orgs/OrgIcon';
@@ -217,6 +219,35 @@ const LeftMenu = ({ isOpen, onClose }) => {
             </ListItem>
           ))
         }
+      </List>
+      <Divider style={{width: '100%'}} />
+      <List sx={{p: 0}}>
+        <ListItem disablePadding sx={{ display: 'block' }}>
+          <ListItemButton
+            onClick={onClose}
+            href={COMMUNITY_SITE_URL}
+            target='_blank'
+            rel='noopener noreferrer'
+            className='no-anchor-styles'
+            sx={{
+              minHeight: 56,
+              justifyContent: 'initial',
+              px: 2,
+              borderRadius: '100px'
+            }}
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                mr: 1.75,
+                justifyContent: 'center',
+              }}
+            >
+              <CommunityIcon />
+            </ListItemIcon>
+            <ListItemText primary={t('common.community_website')} />
+          </ListItemButton>
+        </ListItem>
       </List>
     </Drawer>
   );
