@@ -14,11 +14,19 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
 import Divider from '@mui/material/Divider';
 import map from 'lodash/map'
-import { getCurrentUser, refreshCurrentUserCache, getCurrentUserOrgs, toMapperURL, isInWaitlist} from '../../common/utils';
+import { getCurrentUser, refreshCurrentUserCache, getCurrentUserOrgs, hasMapper, isInWaitlist} from '../../common/utils';
+import { trayItems } from '../../common/navigation';
+import { PRIMARY_COLORS } from '../../common/colors';
 import Drawer from '../common/Drawer';
 import OrgIcon from '../orgs/OrgIcon';
 import EntityIcon from '../common/EntityIcon'
 
+
+const TRAY_ICONS = {
+  dashboard: selected => <DashboardIcon color={selected ? 'primary' : undefined} />,
+  repos: selected => <FolderOpenIcon color={selected ? 'primary' : undefined} />,
+  'map-projects': selected => <i style={{fontSize: '1.25rem', color: selected ? PRIMARY_COLORS.main : undefined}} className="fa-solid fa-diagram-project"></i>
+}
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -60,85 +68,46 @@ const LeftMenu = ({ isOpen, onClose }) => {
         </Typography>
       </DrawerHeader>
       <List sx={{p: 0}}>
-        <ListItem disablePadding sx={{ display: 'block' }}>
-          <ListItemButton
-            onClick={onClose}
-            href="/"
-            className='no-anchor-styles'
-            selected={location.pathname === '/'}
-            sx={{
-              minHeight: 56,
-              justifyContent: 'initial',
-              px: 2,
-              borderRadius: '100px'
-            }}
-          >
-            <ListItemIcon
-              sx={{
-                minWidth: 0,
-                mr: 1.75,
-                justifyContent: 'center',
-              }}
-            >
-              <DashboardIcon color={location.pathname === '/' ? 'primary' : undefined} />
-            </ListItemIcon>
-            <ListItemText primary={t('dashboard.my')} />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding sx={{ display: 'block' }}>
-          <ListItemButton
-            onClick={onClose}
-            sx={{
-              minHeight: 56,
-              justifyContent: 'initial',
-              px: 2,
-              borderRadius: '100px'
-            }}
-            href={`${user?.url}repos`}
-            className='no-anchor-styles'
-            selected={location.pathname === (user?.url + 'repos')}
-          >
-            <ListItemIcon
-              sx={{
-                minWidth: 0,
-                mr: 1.75,
-                justifyContent: 'center',
-              }}
-            >
-              <FolderOpenIcon color={location.pathname === (user?.url + 'repos') ? 'primary' : undefined} />
-            </ListItemIcon>
-            <ListItemText primary={t('user.my_repositories')} />
-            <span><b>{((user?.collections || 0) + (user?.sources + 0)).toLocaleString()}</b></span>
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding sx={{ display: 'block' }}>
-          <ListItemButton
-            onClick={onClose}
-            sx={{
-              minHeight: 56,
-              justifyContent: 'initial',
-              px: 2,
-              borderRadius: '100px'
-            }}
-            href={toMapperURL()}
-            className='no-anchor-styles'
-          >
-            <ListItemIcon
-              sx={{
-                minWidth: 0,
-                mr: 1.75,
-                justifyContent: 'center',
-              }}
-            >
-              <i style={{fontSize: '1.25rem'}} className="fa-solid fa-diagram-project"></i>
-            </ListItemIcon>
-            <ListItemText primary={t('user.my_mapping_projects')} />
-            {
-              isInWaitlist() &&
-                <Chip size='small' variant='contained' label='Waitlist' color='primary' />
-            }
-          </ListItemButton>
-        </ListItem>
+        {
+          trayItems(user, hasMapper()).map(item => {
+            const selected = location.pathname === item.path
+            return (
+              <ListItem key={item.key} disablePadding sx={{ display: 'block' }}>
+                <ListItemButton
+                  onClick={onClose}
+                  href={item.path}
+                  className='no-anchor-styles'
+                  selected={selected}
+                  sx={{
+                    minHeight: 56,
+                    justifyContent: 'initial',
+                    px: 2,
+                    borderRadius: '100px'
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: 1.75,
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {TRAY_ICONS[item.key](selected)}
+                  </ListItemIcon>
+                  <ListItemText primary={t(item.labelKey)} />
+                  {
+                    item.key === 'repos' &&
+                      <span><b>{((user?.collections || 0) + (user?.sources + 0)).toLocaleString()}</b></span>
+                  }
+                  {
+                    item.key === 'map-projects' && isInWaitlist() &&
+                      <Chip size='small' variant='contained' label='Waitlist' color='primary' />
+                  }
+                </ListItemButton>
+              </ListItem>
+            )
+          })
+        }
       </List>
       <Divider style={{width: '100%', marginTop: '16px'}} />
       <List sx={{maxHeight: '300px', overflow: 'auto', p: 0}} dense>
@@ -146,7 +115,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
           disablePadding
           sx={{ display: 'block', padding: 1, borderRadius: '100px' }}
           secondaryAction={
-            <Button edge="end" aria-label="delete" variant='text' color='primary' sx={{textTransform: 'none'}}>
+            <Button edge="end" aria-label={t('common.create')} variant='text' color='primary' href='/orgs/new' onClick={onClose} sx={{textTransform: 'none'}}>
               <b>{t('common.create')}</b>
             </Button>
           }

@@ -82,8 +82,6 @@
     "location": "Ubicación",
     "generic_error": "Algo salió mal.",
     "click_here": "haz clic aquí",
-    "classic_termbrowser": "Ver en TBv2",
-    "back_to_classic_termbrowser": "Volver al TermBrowser clásico",
     "all": "Todos",
     "add": "Agregar",
     "already_exists": "Ya existe",
@@ -724,5 +722,11 @@
   "checksums": {
     "smart": "Checksum inteligente",
     "standard": "Checksum estándar"
+  },
+  "map_project": {
+    "mapping_project": "Proyecto de mapeo",
+    "mapping_projects": "Proyectos de Mapeo",
+    "project_name": "Nombre del Proyecto",
+    "no_projects_found": "Aún no hay proyectos de mapeo."
   }
 }

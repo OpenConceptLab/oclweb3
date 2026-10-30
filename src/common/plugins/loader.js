@@ -17,3 +17,7 @@ export function loadUsageDashboard() {
 export function loadUserProfileExtension() {
   return loadPrivateExport("UserProfileExtension");
 }
+
+export function loadProfileTabs() {
+  return loadPrivateExport("ProfileTabs");
+}

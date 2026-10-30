@@ -13,6 +13,8 @@ import Error40X from '../errors/Error40X';
 import UserOverview from './UserOverview';
 import UserSummary from './UserSummary'
 import UserProfile from './UserProfile'
+import useProfileTabs from '../../hooks/useProfileTabs'
+import ProfileTabContent from '../common/ProfileTabContent'
 
 
 const UserHome = () => {
@@ -28,9 +30,11 @@ const UserHome = () => {
   const [eventsPage, setEventsPage] = React.useState(0)
   const [haveMoreEvents, setHaveMoreEvents] = React.useState(false)
   const height = 'calc(var(--app-height) - 95px)'
+  const extraTabs = useProfileTabs('users', params?.user)
   const TABS = [
     {key: 'overview', label: t('common.overview')},
     {key: 'repos', label: t('repo.repos')},
+    ...extraTabs.map(({key, label}) => ({key, label}))
   ]
   const TAB_KEYS = TABS.map(tab => tab.key)
   const findTab = () => TAB_KEYS.includes(params?.tab) ? params.tab : 'overview'
@@ -126,6 +130,11 @@ const UserHome = () => {
                       resultSize='medium'
                       excludedColumns={['owner']}
                     />
+                }
+                {
+                  extraTabs.filter(extra => extra.key === tab).map(extra => (
+                    <ProfileTabContent key={extra.key} tab={extra} ownerType='users' owner={params.user} height={`calc(var(--app-height) - ${baseHeightToDeduct}px - 88px)`} />
+                  ))
                 }
                 {
                   tab === 'overview' &&

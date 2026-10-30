@@ -199,8 +199,6 @@
     "suggested": "Suggested",
     "rest": "Rest",
     "click_here": "click here",
-    "classic_termbrowser": "View in TBv2",
-    "back_to_classic_termbrowser": "Back to the classic TermBrowser",
     "already_exists": "Already exists",
     "comment": "Comment",
     "update_comment": "Update comment",
@@ -1198,5 +1196,11 @@
         "default": "Clone a narrower concept or fewer cascade levels."
       }
     }
+  },
+  "map_project": {
+    "mapping_project": "Mapping project",
+    "mapping_projects": "Mapping Projects",
+    "project_name": "Project Name",
+    "no_projects_found": "No mapping projects yet."
   }
 }

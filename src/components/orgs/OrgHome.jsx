@@ -15,6 +15,8 @@ import Error40X from '../errors/Error40X';
 import OrgOverview from './OrgOverview';
 import OrgSummary from './OrgSummary';
 import OrgHeader from './OrgHeader'
+import useProfileTabs from '../../hooks/useProfileTabs'
+import ProfileTabContent from '../common/ProfileTabContent'
 
 const OrgHome = () => {
   const { t } = useTranslation()
@@ -30,9 +32,11 @@ const OrgHome = () => {
   const { setAlert } = React.useContext(OperationsContext);
   const { pins: bookmarks, canPin, deletePin } = usePins(params?.org ? {type: 'org', id: params.org} : false)
 
+  const extraTabs = useProfileTabs('orgs', params?.org)
   const TABS = [
     {key: 'overview', label: t('common.overview')},
     {key: 'repos', label: t('repo.repos')},
+    ...extraTabs.map(({key, label}) => ({key, label}))
   ]
   const TAB_KEYS = TABS.map(tab => tab.key)
   const findTab = () => TAB_KEYS.includes(params?.tab) ? params.tab : 'overview'
@@ -116,6 +120,11 @@ const OrgHome = () => {
                       containerStyle={{padding: 0}}
                       excludedColumns={['owner']}
                     />
+                }
+                {
+                  extraTabs.filter(extra => extra.key === tab).map(extra => (
+                    <ProfileTabContent key={extra.key} tab={extra} ownerType='orgs' owner={params.org} height='calc(var(--app-height) - 368px)' />
+                  ))
                 }
                 {
                   tab === 'overview' && org?.id &&

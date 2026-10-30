@@ -199,8 +199,6 @@
     "suggested": "Sugeridos",
     "rest": "Restante",
     "click_here": "clique aqui",
-    "classic_termbrowser": "Ver no TBv2",
-    "back_to_classic_termbrowser": "Voltar para o TermBrowser clássico",
     "already_exists": "Já existe",
     "comment": "Comentário",
     "update_comment": "Comentário de atualização",
@@ -1187,5 +1185,11 @@
         "default": "Clone um conceito mais específico ou menos níveis de cascata."
       }
     }
+  },
+  "map_project": {
+    "mapping_project": "Projeto de mapeamento",
+    "mapping_projects": "Projetos de Mapeamento",
+    "project_name": "Nome do Projeto",
+    "no_projects_found": "Ainda não há projetos de mapeamento."
   }
 }
