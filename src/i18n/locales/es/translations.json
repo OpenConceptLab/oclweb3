@@ -82,8 +82,6 @@
     "location": "Ubicación",
     "generic_error": "Algo salió mal.",
     "click_here": "haz clic aquí",
-    "classic_termbrowser": "Ver en TBv2",
-    "back_to_classic_termbrowser": "Volver al TermBrowser clásico",
     "all": "Todos",
     "add": "Agregar",
     "already_exists": "Ya existe",
@@ -567,6 +565,7 @@
     "user": "Usuario",
     "my_profile": "Mi perfil",
     "my_repositories": "Mis repositorios",
+    "my_mapping_projects": "Mis proyectos de mapeo",
     "my_organizations": "Mis organizaciones",
     "my_bookmarks": "Mis marcadores",
     "username": "Nombre de usuario",
@@ -608,6 +607,10 @@
     "card": "Tarjeta",
     "search_all_site": "Buscar en todo OCL para ",
     "search_this_repository": "Buscar en este repositorio",
+    "search_owner_repos": "Buscar \"<1>{{query}}</1>\" en los repositorios de <0>{{owner}}</0>",
+    "search_owner_map_projects": "Buscar \"<1>{{query}}</1>\" en los proyectos de mapeo de <0>{{owner}}</0>",
+    "search_repositories": "Buscar repositorios",
+    "search_mapping_projects": "Buscar proyectos de mapeo",
     "search_all_concepts": "Buscar todos los conceptos",
     "save_default_filters": "Guardar como Filtros Predeterminados",
     "reset_default_filters": "Restablecer a Filtros Predeterminados",
@@ -724,5 +727,13 @@
   "checksums": {
     "smart": "Checksum inteligente",
     "standard": "Checksum estándar"
+  },
+  "map_project": {
+    "mapping_project": "Proyecto de mapeo",
+    "mapping_projects": "Proyectos de Mapeo",
+    "project_name": "Nombre del Proyecto",
+    "no_projects_found": "Aún no hay proyectos de mapeo.",
+    "could_not_load_projects": "No se pudieron cargar los proyectos de mapeo.",
+    "try_again": "Intentar de nuevo"
   }
 }

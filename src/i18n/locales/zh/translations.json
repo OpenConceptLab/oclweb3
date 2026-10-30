@@ -121,8 +121,6 @@
     "something_went_wrong": "出了些问题",
     "no_results": "无结果",
     "click_here": "点击此处",
-    "classic_termbrowser": "在 TBv2 中查看",
-    "back_to_classic_termbrowser": "返回经典版 TermBrowser",
     "already_exists": "已存在",
     "comment": "备注",
     "update_comment": "更新说明",
@@ -584,6 +582,7 @@
     "user": "用户",
     "my_profile": "我的个人资料",
     "my_repositories": "我的存储库",
+    "my_mapping_projects": "我的映射项目",
     "my_organizations": "我的组织机构",
     "my_bookmarks": "我的书签",
     "username": "用户名",
@@ -715,6 +714,10 @@
     "hierarchy": "层级",
     "search_all_site": "搜索全部符合搜索条件的 OCL 内容： ",
     "search_this_repository": "搜索该存储库",
+    "search_owner_repos": "在 <0>{{owner}}</0> 的存储库中搜索“<1>{{query}}</1>”",
+    "search_owner_map_projects": "在 <0>{{owner}}</0> 的映射项目中搜索“<1>{{query}}</1>”",
+    "search_repositories": "搜索存储库",
+    "search_mapping_projects": "搜索映射项目",
     "search_this_url_registry": "搜索该 URL 注册库： ",
     "search_all_concepts": "搜索全部的概念",
     "url_registry": "条目",
@@ -791,5 +794,13 @@
   },
   "cloneToSource": {
     "clone_to_source": "克隆到来源"
+  },
+  "map_project": {
+    "mapping_project": "映射项目",
+    "mapping_projects": "映射项目",
+    "project_name": "项目名称",
+    "no_projects_found": "还没有映射项目。",
+    "could_not_load_projects": "无法加载映射项目。",
+    "try_again": "重试"
   }
 }

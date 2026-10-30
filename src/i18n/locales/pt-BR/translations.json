@@ -199,8 +199,6 @@
     "suggested": "Sugeridos",
     "rest": "Restante",
     "click_here": "clique aqui",
-    "classic_termbrowser": "Ver no TBv2",
-    "back_to_classic_termbrowser": "Voltar para o TermBrowser clássico",
     "already_exists": "Já existe",
     "comment": "Comentário",
     "update_comment": "Comentário de atualização",
@@ -993,6 +991,10 @@
     "hierarchy": "Hierarquia",
     "search_all_site": "Buscar em todo o OCL por ",
     "search_this_repository": "Buscar neste repositório",
+    "search_owner_repos": "Buscar \"<1>{{query}}</1>\" nos repositórios de <0>{{owner}}</0>",
+    "search_owner_map_projects": "Buscar \"<1>{{query}}</1>\" nos projetos de mapeamento de <0>{{owner}}</0>",
+    "search_repositories": "Buscar repositórios",
+    "search_mapping_projects": "Buscar projetos de mapeamento",
     "search_this_url_registry": "Buscar neste registro de URL por ",
     "search_all_concepts": "Buscar todos os conceitos",
     "url_registry": "entradas",
@@ -1187,5 +1189,13 @@
         "default": "Clone um conceito mais específico ou menos níveis de cascata."
       }
     }
+  },
+  "map_project": {
+    "mapping_project": "Projeto de mapeamento",
+    "mapping_projects": "Projetos de Mapeamento",
+    "project_name": "Nome do Projeto",
+    "no_projects_found": "Ainda não há projetos de mapeamento.",
+    "could_not_load_projects": "Não foi possível carregar os projetos de mapeamento.",
+    "try_again": "Tentar novamente"
   }
 }

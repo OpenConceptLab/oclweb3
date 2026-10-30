@@ -8,11 +8,13 @@ import { COLORS } from '../../common/colors'
 import APIService from '../../services/APIService'
 import CommonTabs from '../common/CommonTabs';
 import Search from '../search/Search';
-import useDefaultFiltersOpen from '../../hooks/useDefaultFiltersOpen';
+import useDefaultFiltersOpen, { PROFILE_LIST_MIN_WIDTH } from '../../hooks/useDefaultFiltersOpen';
 import Error40X from '../errors/Error40X';
 import UserOverview from './UserOverview';
 import UserSummary from './UserSummary'
 import UserProfile from './UserProfile'
+import useProfileTabs from '../../hooks/useProfileTabs'
+import ProfileTabContent from '../common/ProfileTabContent'
 
 
 const UserHome = () => {
@@ -20,7 +22,7 @@ const UserHome = () => {
   const params = useParams()
   const history = useHistory()
   const [tab, setTab] = React.useState(findTab || 'overview')
-  const [defaultFiltersOpen, onFiltersOpenChange] = useDefaultFiltersOpen()
+  const [defaultFiltersOpen, onFiltersOpenChange, listRef] = useDefaultFiltersOpen(PROFILE_LIST_MIN_WIDTH)
   const [user, setUser] = React.useState({})
   const [status, setStatus] = React.useState(false)
   const { pins: bookmarks, canPin, deletePin } = usePins(params?.user ? {type: 'user', id: params.user} : false)
@@ -28,9 +30,11 @@ const UserHome = () => {
   const [eventsPage, setEventsPage] = React.useState(0)
   const [haveMoreEvents, setHaveMoreEvents] = React.useState(false)
   const height = 'calc(var(--app-height) - 95px)'
+  const extraTabs = useProfileTabs('users', params?.user)
   const TABS = [
     {key: 'overview', label: t('common.overview')},
     {key: 'repos', label: t('repo.repos')},
+    ...extraTabs.map(({key, label}) => ({key, label}))
   ]
   const TAB_KEYS = TABS.map(tab => tab.key)
   const findTab = () => TAB_KEYS.includes(params?.tab) ? params.tab : 'overview'
@@ -97,7 +101,8 @@ const UserHome = () => {
       reset()
     }, [params.user]
   )
-  React.useEffect(() => { setTab(params.tab || 'overview') }, [params.tab])
+  // A tab this viewer doesn't get (someone else's Mapping Projects) shows Overview instead
+  React.useEffect(() => { setTab(findTab()) }, [params.tab, TAB_KEYS.join()])
 
   const baseHeightToDeduct = 150
   return (
@@ -109,10 +114,10 @@ const UserHome = () => {
               <UserProfile user={user} />
             </div>
             <div className='col-xs-10 padding-0' style={{backgroundColor: COLORS.primary.contrastText, borderRadius: '10px', height: height, maxWidth: '80%', border: `1px solid ${COLORS.surface.nv80}`, borderTop: 'none'}}>
-              <div className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
+              <div ref={listRef} className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
                 <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} sx={{borderTopLeftRadius: '10px'}} />
                 {
-                  tab === 'repos' &&
+                  tab === 'repos' && defaultFiltersOpen !== null &&
                     <Search
                       resource='repos'
                       url={user?.url + 'repos/'}
@@ -126,6 +131,11 @@ const UserHome = () => {
                       resultSize='medium'
                       excludedColumns={['owner']}
                     />
+                }
+                {
+                  extraTabs.filter(extra => extra.key === tab).map(extra => (
+                    <ProfileTabContent key={extra.key} tab={extra} ownerType='users' owner={params.user} height={`calc(var(--app-height) - ${baseHeightToDeduct}px - 88px)`} />
+                  ))
                 }
                 {
                   tab === 'overview' &&

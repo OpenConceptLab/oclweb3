@@ -2,7 +2,7 @@
 import React from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import {
-  isLoggedIn, refreshCurrentUserCache, getCurrentUser, getLoginURL, isOtherOCLClientURL, isRedirectingToLoginViaReferrer
+  isLoggedIn, refreshCurrentUserCache, getCurrentUser, hasMapper, getLoginURL, isOtherOCLClientURL, isRedirectingToLoginViaReferrer
 } from '../../common/utils';
 import GAService from '../../services/GAService';
 import { silentSignIn, isSSOSessionEnabled, settleForcedSignOut } from '../../common/ssoSession';
@@ -39,6 +39,7 @@ import ConceptsComparison from '../concepts/ConceptsComparison'
 import MappingsComparison from '../mappings/MappingsComparison'
 import CheckAuth from './CheckAuth'
 import { loadUsageDashboard } from "../../common/plugins/loader";
+import { usePluginTabs } from "../../hooks/useProfileTabs";
 import UserChip from '../users/UserChip'
 import UserTooltip from '../users/UserTooltip'
 
@@ -186,7 +187,8 @@ const App = props => {
       })
   }, []);
 
-  const orgTabs = ['repos']
+  const pluginTabs = usePluginTabs()
+  const orgTabs = ['repos', ...(hasMapper() ? ['map-projects'] : []), ...pluginTabs.map(tab => tab.key)]
   const orgTabsStr = orgTabs.join('|')
 
   return (

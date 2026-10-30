@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'
+import { useTranslation, Trans } from 'react-i18next'
 import Drawer from '@mui/material/Drawer'
 import Divider from '@mui/material/Divider'
 import ListItemButton from '@mui/material/ListItemButton';
@@ -21,6 +21,7 @@ import FilterTypeChips from './FilterTypeChips'
 import EntityBrowseList from './EntityBrowseList'
 import { BROWSE_CONFIG, FACET_FILTER_CONFIG, getFacetFilterURL } from './browseConfig'
 import { getModeForFilterType } from './searchlightMode'
+import { getOwnerSearchScope } from './ownerSearch'
 
 const Icon = ({ icon, style }) => (
   <span style={{display: 'flex', padding: '4px', background: '#FFF', color: '#47464f', boxShadow: '0 0 5px 0 rgba(120, 118, 128, 0.6)', borderRadius: '4px', ...(style || {})}}>
@@ -83,6 +84,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
   const isURLRegistry = location?.pathname?.endsWith('/url-registry') || location?.pathname?.endsWith('/settings')
   const isNested = Boolean(location.pathname !== '/search/' && location.pathname !== '/' && owner && ownerType) || isURLRegistry
   const isRepoContext = Boolean(repoType && repo)
+  const isMapProjectsScope = getOwnerSearchScope(location.pathname) === 'map-projects'
   const [focus, setFocus] = React.useState(1);
   const [mode, setMode] = React.useState(activeFilterType ? 'typeBrowse' : 'query'); // 'query' | 'typeSelect' | 'typeBrowse'
   const chipsRef = React.useRef();
@@ -376,7 +378,17 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
                   id='search_owner'
                   nested
                   index={1}
-                  placeholder={<span>{t('common.search')} <b>{owner}</b> {repoType} {t('common.for')} "<b>{inputPlaceholder}</b>"</span>}
+                  placeholder={
+                    <span>
+                      <Trans
+                        i18nKey={isMapProjectsScope ? 'search.search_owner_map_projects' : 'search.search_owner_repos'}
+                        values={{owner, query: inputPlaceholder}}
+                        components={[<b key='owner' />, <b key='query' />]}
+                        shouldUnescape
+                      />
+                    </span>
+                  }
+                  text={t(isMapProjectsScope ? 'search.search_mapping_projects' : 'search.search_repositories')}
                   icon
                   selected={focus == 1}
                   onClick={onClickOption}

@@ -44,6 +44,9 @@ fi
 if [[ ! -z "${AI_ASSISTANT_API_URL}" ]]; then
     echo "var AI_ASSISTANT_API_URL = \"${AI_ASSISTANT_API_URL}\";" >> ${ENV_FILE}
 fi
+if [[ ! -z "${MAPPER_URL}" ]]; then
+    echo "var MAPPER_URL = \"${MAPPER_URL}\";" >> ${ENV_FILE}
+fi
 if [[ ! -z "${OCL_ONLINE_API_URL}" ]]; then
     echo "var OCL_ONLINE_API_URL = \"${OCL_ONLINE_API_URL}\";" >> ${ENV_FILE}
 fi

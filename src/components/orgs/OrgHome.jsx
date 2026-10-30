@@ -10,11 +10,13 @@ import { OperationsContext } from '../app/LayoutContext';
 import CommonTabs from '../common/CommonTabs';
 import DeleteEntityDialog from '../common/DeleteEntityDialog'
 import Search from '../search/Search';
-import useDefaultFiltersOpen from '../../hooks/useDefaultFiltersOpen';
+import useDefaultFiltersOpen, { PROFILE_LIST_MIN_WIDTH } from '../../hooks/useDefaultFiltersOpen';
 import Error40X from '../errors/Error40X';
 import OrgOverview from './OrgOverview';
 import OrgSummary from './OrgSummary';
 import OrgHeader from './OrgHeader'
+import useProfileTabs from '../../hooks/useProfileTabs'
+import ProfileTabContent from '../common/ProfileTabContent'
 
 const OrgHome = () => {
   const { t } = useTranslation()
@@ -26,13 +28,15 @@ const OrgHome = () => {
   const [members, setMembers] = React.useState([])
   const [deleteOrg, setDeleteOrg] = React.useState(false)
   const [tab, setTab] = React.useState(findTab)
-  const [defaultFiltersOpen, onFiltersOpenChange] = useDefaultFiltersOpen()
+  const [defaultFiltersOpen, onFiltersOpenChange, listRef] = useDefaultFiltersOpen(PROFILE_LIST_MIN_WIDTH)
   const { setAlert } = React.useContext(OperationsContext);
   const { pins: bookmarks, canPin, deletePin } = usePins(params?.org ? {type: 'org', id: params.org} : false)
 
+  const extraTabs = useProfileTabs('orgs', params?.org)
   const TABS = [
     {key: 'overview', label: t('common.overview')},
     {key: 'repos', label: t('repo.repos')},
+    ...extraTabs.map(({key, label}) => ({key, label}))
   ]
   const TAB_KEYS = TABS.map(tab => tab.key)
   const findTab = () => TAB_KEYS.includes(params?.tab) ? params.tab : 'overview'
@@ -89,7 +93,8 @@ const OrgHome = () => {
   }
 
   React.useEffect(() => { fetchOrg() }, [params.org])
-  React.useEffect(() => { setTab(params.tab || 'overview') }, [params.tab])
+  // A tab this viewer doesn't get (someone else's Mapping Projects) shows Overview instead
+  React.useEffect(() => { setTab(findTab()) }, [params.tab, TAB_KEYS.join()])
 
   const height = 'calc(var(--app-height) - 300px)'
 
@@ -100,10 +105,10 @@ const OrgHome = () => {
           org?.id &&
             <React.Fragment>
               <OrgHeader org={org} members={members} canDelete={canDelete} onDeleteClick={() => setDeleteOrg(true)} fetchMembers={fetchMembers} />
-              <div className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
+              <div ref={listRef} className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
                 <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
                 {
-                  tab === 'repos' &&
+                  tab === 'repos' && defaultFiltersOpen !== null &&
                     <Search
                       resource={tab}
                       url={org.url + tab + '/'}
@@ -116,6 +121,11 @@ const OrgHome = () => {
                       containerStyle={{padding: 0}}
                       excludedColumns={['owner']}
                     />
+                }
+                {
+                  extraTabs.filter(extra => extra.key === tab).map(extra => (
+                    <ProfileTabContent key={extra.key} tab={extra} ownerType='orgs' owner={params.org} height='calc(var(--app-height) - 368px)' />
+                  ))
                 }
                 {
                   tab === 'overview' && org?.id &&

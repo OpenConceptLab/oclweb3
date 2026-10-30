@@ -11,8 +11,7 @@ import {
 } from 'lodash';
 import {
   DATE_FORMAT, TIME_FORMAT, DATETIME_FORMAT, OCL_SERVERS_GROUP, OCL_FHIR_SERVERS_GROUP, HAPI_FHIR_SERVERS_GROUP,
-  OPENMRS_URL, DEFAULT_FHIR_SERVER_FOR_LOCAL_ID, OPERATIONS_PANEL_GROUP, ID_REGEX,
-  RESERVED_ROUTE_KEYWORDS, OCL_CLIENT_HEADERS
+  OPENMRS_URL, DEFAULT_FHIR_SERVER_FOR_LOCAL_ID, OPERATIONS_PANEL_GROUP, OCL_CLIENT_HEADERS
 } from './constants';
 import APIService from '../services/APIService';
 import GAService from '../services/GAService';
@@ -20,6 +19,7 @@ import { ensureIdToken, prepareSignOut, settleForcedSignOut, renewSessionSilentl
 import { getEnv } from './env';
 import { SERVER_CONFIGS } from './serverConfigs';
 import { legacyHashRoute, isSameSitePath } from './history';
+import { resolveMapperURL } from './appUrls';
 
 export { dropVersion } from './uri';
 
@@ -1088,100 +1088,18 @@ export const handleLookupValuesResponse = (data, callback, attr) => {
   callback(orderBy(uniqBy(map(data, cc => ({id: get(cc, _attr), name: get(cc, _attr)})), 'name')), 'name');
 }
 
+export const getMapperURL = () => resolveMapperURL(window.MAPPER_URL || process.env.MAPPER_URL, window.location.origin)
+
+export const hasMapper = () => Boolean(getMapperURL())
+
 export const toMapperURL = path => {
-  let url = 'https://map.openconceptlab.org'
-  if(window.location.host?.includes('localhost'))
-    url = 'http://localhost:4004'
-  if(['app.v3.qa.openconceptlab.org', 'app.v3.demo.openconceptlab.org'].includes(window.location.host))
-    url = 'https://map.qa.openconceptlab.org'
-  if(window.location.host.match('app.v3.*.openconceptlab.org'))
-    url = window.location.origin.replace('//app.v3.', '//map.')
+  const url = getMapperURL()
 
   let referrerParams = `referrer=${window.location.href}`
   if(isLoggedIn())
     referrerParams += '?auth=true'
-
 
   return `${url}/#${path || '/'}?${referrerParams}`
-}
-
-const SHARED_REPO_TABS = ['concepts', 'mappings', 'references', 'versions', 'about']
-const EXPANSION_SCOPED_TABS = ['concepts', 'mappings']
-const RESERVED_REPO_SEGMENTS = [...SHARED_REPO_TABS, ...RESERVED_ROUTE_KEYWORDS, 'edit', 'compare-versions']
-const SHARED_ROOT_PATHS = ['/search', '/imports', '/concepts/compare', '/mappings/compare']
-const SHARED_OWNER_PATHS = {users: ['settings'], orgs: ['edit']}
-
-const isRouteId = segment => Boolean(segment) && ID_REGEX.test(segment)
-
-export const toV2Path = path => {
-  const segments = (path || '').split('?')[0].split('/').filter(Boolean)
-
-  if(segments.length === 0)
-    return '/'
-
-  const fullPath = '/' + segments.join('/')
-  if(SHARED_ROOT_PATHS.includes(fullPath))
-    return fullPath
-
-  const [ownerType, owner, repoType, repo] = segments
-
-  if(!['users', 'orgs'].includes(ownerType) || !isRouteId(owner))
-    return '/'
-
-  const ownerHome = `/${ownerType}/${owner}`
-
-  if(segments.length === 2)
-    return ownerHome
-
-  if(segments.length === 3 && SHARED_OWNER_PATHS[ownerType].includes(segments[2]))
-    return fullPath
-
-  if(!['sources', 'collections'].includes(repoType) || !isRouteId(repo))
-    return ownerHome
-
-  let repoHome = `${ownerHome}/${repoType}/${repo}`
-  let rest = segments.slice(4)
-  let hasVersion = false
-
-  if(rest.length > 0 && !RESERVED_REPO_SEGMENTS.includes(rest[0])) {
-    if(!isRouteId(rest[0]))
-      return repoHome
-    repoHome = `${repoHome}/${rest[0]}`
-    rest = rest.slice(1)
-    hasVersion = true
-  }
-
-  let expansion = ''
-  if(rest[0] === 'expansions' && isRouteId(rest[1])) {
-    expansion = rest[1]
-    rest = rest.slice(2)
-  }
-
-  const expansionBase = expansion ? `${repoHome}${hasVersion ? '' : '/HEAD'}/expansions/${expansion}` : repoHome
-
-  if(rest.length === 0)
-    return expansionBase
-
-  if(!SHARED_REPO_TABS.includes(rest[0]))
-    return repoHome
-
-  const tabPath = `${EXPANSION_SCOPED_TABS.includes(rest[0]) ? expansionBase : repoHome}/${rest[0]}`
-
-  return isRouteId(rest[1]) ? `${tabPath}/${rest[1]}` : tabPath
-}
-
-export const toV2URL = path => {
-  let url = 'https://app.openconceptlab.org'
-  if(window.location.host?.includes('localhost'))
-    url = 'http://localhost:4000'
-  if(window.location.host.match('app.v3.*.openconceptlab.org'))
-    url = window.location.origin.replace('//app.v3.', '//app.')
-
-  let referrerParams = `referrer=${window.location.href}`
-  if(isLoggedIn())
-    referrerParams += '?auth=true'
-
-  return `${url}/#${toV2Path(path)}?${referrerParams}`
 }
 
 export const isMapperURL = url => {
