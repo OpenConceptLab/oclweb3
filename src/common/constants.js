@@ -108,6 +108,6 @@ export const URL_REGISTRY_DOC_LINK = 'https://docs.openconceptlab.org/en/latest/
 export const GLOBAL_SEARCH_DOC_LINK = 'https://docs.openconceptlab.org/en/latest/oclweb/global-search.html'
 export const TBV3_ANNOUNCEMENT_LETTER_URL = 'https://openconceptlab.org/blog/letter-to-the-ocl-community?utm_source=tbv3&utm_medium=banner&utm_campaign=subscription_dates'
 export const TBV3_ANNOUNCEMENT_PRICING_URL = 'https://openconceptlab.org/pricing?utm_source=tbv3&utm_medium=banner&utm_campaign=subscription_dates'
-export const COMMUNITY_SITE_URL = 'https://openconceptlab.org'
 export const TERMS_OF_USE_URL = 'https://openconceptlab.org/terms-of-use'
 export const PRIVACY_POLICY_URL = 'https://openconceptlab.org/privacy-policy'
+export const COMMUNITY_SITE_URL = 'https://openconceptlab.org'

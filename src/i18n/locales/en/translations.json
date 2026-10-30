@@ -1205,6 +1205,8 @@
     "mapping_project": "Mapping project",
     "mapping_projects": "Mapping Projects",
     "project_name": "Project Name",
-    "no_projects_found": "No mapping projects yet."
+    "no_projects_found": "No mapping projects yet.",
+    "could_not_load_projects": "Could not load mapping projects.",
+    "try_again": "Try again"
   }
 }

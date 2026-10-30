@@ -34,3 +34,12 @@ export const filterProjects = (projects, query) => {
     return projects
   return projects.filter(project => [project.name, project.id].some(value => String(value ?? '').toLowerCase().includes(term)))
 }
+
+// Loads every page of a mapping-project list (up to maxPages). A page that fails
+// rejects the whole load, so a partial list never shows as if it were complete.
+export const fetchAllPages = (getPage, maxPages, page = 1, loaded = []) => getPage(page).then(response => {
+  if(!(response?.status >= 200 && response.status < 300))
+    throw new Error(`Mapping projects page ${page} could not be loaded`)
+  const all = [...loaded, ...(Array.isArray(response.data) ? response.data : [])]
+  return response.headers?.next && page < maxPages ? fetchAllPages(getPage, maxPages, page + 1, all) : all
+})

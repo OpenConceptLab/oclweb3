@@ -16,38 +16,41 @@ import SearchIcon from '@mui/icons-material/Search';
 import times from 'lodash/times';
 import APIService from '../../services/APIService';
 import { toMapperURL, pluralize } from '../../common/utils';
-import { mergeProjects, filterProjects } from '../../common/mapProjects';
+import { mergeProjects, filterProjects, fetchAllPages } from '../../common/mapProjects';
 
 const COLUMN_COUNT = 5
 const PAGE_SIZE = 100
 const MAX_PAGES = 20
 
 // The API pages its lists, and the tab filters on the client, so it loads every page
-const fetchAllPages = (getService, page = 1, loaded = []) => getService().get(null, null, {limit: PAGE_SIZE, page}).then(response => {
-  const all = [...loaded, ...(Array.isArray(response?.data) ? response.data : [])]
-  return response?.headers?.next && page < MAX_PAGES ? fetchAllPages(getService, page + 1, all) : all
-})
+const loadAll = getService => fetchAllPages(page => getService().get(null, null, {limit: PAGE_SIZE, page}), MAX_PAGES)
 
 const MapProjects = ({ ownerType, owner, height }) => {
   const { t } = useTranslation()
   const history = useHistory()
   const location = useLocation()
   const [projects, setProjects] = React.useState(null)
+  const [failed, setFailed] = React.useState(false)
+  const [attempt, setAttempt] = React.useState(0)
   const query = new URLSearchParams(location.search).get('q') || ''
   const shown = filterProjects(projects, query)
 
   React.useEffect(() => {
     let active = true
     setProjects(null)
-    const requests = [fetchAllPages(() => APIService[ownerType](owner).appendToUrl('map-projects/'))]
+    setFailed(false)
+    const requests = [loadAll(() => APIService[ownerType](owner).appendToUrl('map-projects/'))]
     if(ownerType === 'users')
-      requests.push(fetchAllPages(() => APIService.users(owner).appendToUrl('orgs/map-projects/')))
+      requests.push(loadAll(() => APIService.users(owner).appendToUrl('orgs/map-projects/')))
     Promise.all(requests).then(lists => {
       if(active)
         setProjects(mergeProjects(...lists))
+    }, () => {
+      if(active)
+        setFailed(true)
     })
     return () => { active = false }
-  }, [ownerType, owner])
+  }, [ownerType, owner, attempt])
 
   const onClearQuery = () => history.push(location.pathname)
 
@@ -55,7 +58,7 @@ const MapProjects = ({ ownerType, owner, height }) => {
     <div style={{height: height, display: 'flex', flexDirection: 'column'}}>
       <div style={{display: 'flex', alignItems: 'center', gap: '8px', minHeight: '56px', padding: '0 16px'}}>
         {
-          shown === null ?
+          failed ? null : shown === null ?
             <Skeleton variant='text' sx={{fontSize: '1rem', width: '15%'}} /> :
             <Typography variant='h7' component='div' sx={{color: 'rgba(0, 0, 0, 0.7)'}}>
               {pluralize(shown.length, t('map_project.mapping_project').toLowerCase(), t('map_project.mapping_projects').toLowerCase())}
@@ -79,7 +82,17 @@ const MapProjects = ({ ownerType, owner, height }) => {
           </TableHead>
           <TableBody>
             {
-              shown === null &&
+              failed &&
+                <TableRow>
+                  <TableCell colSpan={COLUMN_COUNT} align='center' sx={{borderBottom: 'none', padding: '48px 16px'}}>
+                    <Typography sx={{color: 'surface.dark'}}>
+                      {t('map_project.could_not_load_projects')} <Link component='button' onClick={() => setAttempt(count => count + 1)} sx={{verticalAlign: 'baseline'}}>{t('map_project.try_again')}</Link>
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+            }
+            {
+              !failed && shown === null &&
                 times(5, i => (
                   <TableRow key={i}>
                     {times(COLUMN_COUNT, ci => <TableCell key={ci}><Skeleton height={48} sx={{WebkitTransform: 'none', transform: 'none'}} /></TableCell>)}

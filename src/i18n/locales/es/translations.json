@@ -732,6 +732,8 @@
     "mapping_project": "Proyecto de mapeo",
     "mapping_projects": "Proyectos de Mapeo",
     "project_name": "Nombre del Proyecto",
-    "no_projects_found": "Aún no hay proyectos de mapeo."
+    "no_projects_found": "Aún no hay proyectos de mapeo.",
+    "could_not_load_projects": "No se pudieron cargar los proyectos de mapeo.",
+    "try_again": "Intentar de nuevo"
   }
 }

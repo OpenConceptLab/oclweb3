@@ -799,6 +799,8 @@
     "mapping_project": "映射项目",
     "mapping_projects": "映射项目",
     "project_name": "项目名称",
-    "no_projects_found": "还没有映射项目。"
+    "no_projects_found": "还没有映射项目。",
+    "could_not_load_projects": "无法加载映射项目。",
+    "try_again": "重试"
   }
 }
