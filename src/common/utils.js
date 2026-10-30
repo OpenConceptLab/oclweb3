@@ -19,6 +19,7 @@ import { ensureIdToken, prepareSignOut, settleForcedSignOut, renewSessionSilentl
 import { getEnv } from './env';
 import { SERVER_CONFIGS } from './serverConfigs';
 import { legacyHashRoute, isSameSitePath } from './history';
+import { resolveMapperURL } from './appUrls';
 
 export { dropVersion } from './uri';
 
@@ -1087,14 +1088,7 @@ export const handleLookupValuesResponse = (data, callback, attr) => {
   callback(orderBy(uniqBy(map(data, cc => ({id: get(cc, _attr), name: get(cc, _attr)})), 'name')), 'name');
 }
 
-export const getMapperURL = () => {
-  const configured = (window.MAPPER_URL || process.env.MAPPER_URL || '').trim().replace(/\/+$/, '')
-  if(configured)
-    return configured
-  if(/^https:\/\/app\.(v3\.)?([a-z]+\.)*openconceptlab\.org$/.test(window.location.origin))
-    return window.location.origin.replace(/\/\/app\.(v3\.)?/, '//map.')
-  return ''
-}
+export const getMapperURL = () => resolveMapperURL(window.MAPPER_URL || process.env.MAPPER_URL, window.location.origin)
 
 export const hasMapper = () => Boolean(getMapperURL())
 

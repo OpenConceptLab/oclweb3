@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography';
 import times from 'lodash/times';
 import APIService from '../../services/APIService';
 import { toMapperURL } from '../../common/utils';
+import { mergeProjects } from '../../common/mapProjects';
 
 const COLUMN_COUNT = 5
 
@@ -23,9 +24,12 @@ const MapProjects = ({ ownerType, owner, height }) => {
   React.useEffect(() => {
     let active = true
     setProjects(null)
-    APIService[ownerType](owner).appendToUrl('map-projects/').get().then(response => {
+    const requests = [APIService[ownerType](owner).appendToUrl('map-projects/').get()]
+    if(ownerType === 'users')
+      requests.push(APIService.users(owner).appendToUrl('orgs/map-projects/').get())
+    Promise.all(requests).then(responses => {
       if(active)
-        setProjects(Array.isArray(response?.data) ? response.data : [])
+        setProjects(mergeProjects(...responses.map(response => response?.data)))
     })
     return () => { active = false }
   }, [ownerType, owner])

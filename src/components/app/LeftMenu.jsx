@@ -15,8 +15,9 @@ import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
 import Divider from '@mui/material/Divider';
 import map from 'lodash/map'
 import { getCurrentUser, refreshCurrentUserCache, getCurrentUserOrgs, hasMapper, isInWaitlist} from '../../common/utils';
-import { trayItems } from '../../common/navigation';
+import { trayItems, isTrayItemSelected } from '../../common/navigation';
 import { PRIMARY_COLORS } from '../../common/colors';
+import useMapProjectCount from '../../hooks/useMapProjectCount';
 import Drawer from '../common/Drawer';
 import OrgIcon from '../orgs/OrgIcon';
 import EntityIcon from '../common/EntityIcon'
@@ -44,6 +45,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
 
   const formatFollowing = following => map(following, 'object') || []
 
+  const mapProjectCount = useMapProjectCount(user?.username, isOpen && hasMapper())
   const [orgs, setOrgs] = React.useState(getCurrentUserOrgs())
   const [following, setFollowing] = React.useState(formatFollowing(user?.following))
 
@@ -70,7 +72,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
       <List sx={{p: 0}}>
         {
           trayItems(user, hasMapper()).map(item => {
-            const selected = location.pathname === item.path
+            const selected = isTrayItemSelected(item, location.pathname)
             return (
               <ListItem key={item.key} disablePadding sx={{ display: 'block' }}>
                 <ListItemButton
@@ -98,6 +100,10 @@ const LeftMenu = ({ isOpen, onClose }) => {
                   {
                     item.key === 'repos' &&
                       <span><b>{((user?.collections || 0) + (user?.sources + 0)).toLocaleString()}</b></span>
+                  }
+                  {
+                    item.key === 'map-projects' && mapProjectCount !== null &&
+                      <span><b>{mapProjectCount.toLocaleString()}</b></span>
                   }
                   {
                     item.key === 'map-projects' && isInWaitlist() &&
