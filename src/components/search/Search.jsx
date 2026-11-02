@@ -26,6 +26,7 @@ import SearchResults from './SearchResults';
 import SearchFilters from './SearchFilters'
 import ReleaseSearchInfo from './ReleaseSearchInfo'
 import { isReleaseOnlySearch } from './releaseOnlySearch'
+import { getOwnerScopeFilters } from './ownerScopeFilters'
 import { OperationsContext } from '../app/LayoutContext';
 import ReferenceFilters from '../repos/ReferenceFilters'
 import { EXCLUDE_FILTER_KEY } from './ResultConstants'
@@ -361,9 +362,10 @@ const Search = props => {
   const handleResourceChange = (event, newTab) => {
     event.preventDefault()
     event.stopPropagation()
-    setFilters({})
+    const ownerScope = getAppliedFacetFromQueryParam(getOwnerScopeFilters(location.search, newTab))
+    setFilters(ownerScope)
 
-    history.push(getCurrentLayoutURL(getQueryParams(input, page, pageSize, {}), newTab))
+    history.push(getCurrentLayoutURL(getQueryParams(input, page, pageSize, ownerScope), newTab))
   }
 
   const getURL = __resource => {
