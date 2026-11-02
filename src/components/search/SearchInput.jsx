@@ -94,17 +94,17 @@ const SearchInput = props => {
     return false
   }
 
-  const initiateSearch = (event, global, isMatch, forcedType) => {
-    performSearch(event, input, global, isMatch, forcedType)
+  const initiateSearch = (event, global, isMatch, forcedType, ownerScope) => {
+    performSearch(event, input, global, isMatch, forcedType, ownerScope)
     setOpen(false)
     setTimeout(blurInput, 1000)
   }
 
-  const performSearch = (event, value, global, isMatch, forcedType) => {
+  const performSearch = (event, value, global, isMatch, forcedType, ownerScope) => {
     event.preventDefault()
     event.stopPropagation()
 
-    props.onSearch ? props.onSearch(value) : moveToSearchPage(value, global, isMatch, forcedType)
+    props.onSearch ? props.onSearch(value) : moveToSearchPage(value, global, isMatch, forcedType, ownerScope)
   }
 
   const blurInput = () => {
@@ -133,7 +133,7 @@ const SearchInput = props => {
     return URL
   }
 
-  const moveToSearchPage = (value, global, isMatch, forcedType) => {
+  const moveToSearchPage = (value, global, isMatch, forcedType, ownerScope) => {
     if(!props.nested || global) {
       let _input = value || '';
       const queryParams = new URLSearchParams(location.search)
@@ -143,6 +143,8 @@ const SearchInput = props => {
       // A facet filter (Class/Map Type) from a prior Searchlight search is unrelated to
       // this new query - drop it so it doesn't silently carry over.
       queryParams.delete('filters')
+      if(ownerScope)
+        queryParams.set('filters', JSON.stringify(ownerScope))
       // A new search term means a different result set -- start over from the first page.
       queryParams.delete('page')
       if(isMatch)

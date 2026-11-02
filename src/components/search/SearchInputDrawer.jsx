@@ -98,13 +98,21 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
   const user = getCurrentUser()
   const canMatchSemantic = Boolean(isNested && (contextRepo?.version || version) !== 'HEAD' && contextRepo?.match_algorithms?.includes('llm') && user?.username && (!resource || resource === 'concepts')) && hasAuthGroup(user, 'mapper-approved') && hasAuthGroup(user, 'core_user')
 
-  let lastIndex = isNested ? 2 : 1
+  const ownerScope = {owner, ownerType: ownerType === 'orgs' ? 'Organization' : 'User'}
+  const canSearchOwnerConcepts = Boolean(isNested && (ownerType === 'orgs' || ownerType === 'users') && owner && !isURLRegistry)
+  const ownerConceptsIndex = canSearchOwnerConcepts ? 2 : null
+  const globalIndex = isNested ? (canSearchOwnerConcepts ? 3 : 2) : 1
+  const matchIndex = globalIndex + 1
+  let lastIndex = globalIndex
   if (canMatchSemantic)
     lastIndex += 1
   const inputPlaceholder = input || '...'
   const onClickOption = (event, nested) => {
     event.persist()
-    initiateSearch(event, !nested, event?.currentTarget?.id === 'match_repo' && canMatchSemantic)
+    if(event?.currentTarget?.id === 'search_owner_concepts')
+      initiateSearch(event, true, false, 'concepts', ownerScope)
+    else
+      initiateSearch(event, !nested, event?.currentTarget?.id === 'match_repo' && canMatchSemantic)
   }
   const onRemoveFilter = () => {
     removeFilter()
@@ -229,7 +237,11 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
       inputRef.current.blur()
       if(focus === 1)
         inputProps.handleKeyPress(event)
-      else if(focus === 3 && canMatchSemantic) {
+      else if(focus === ownerConceptsIndex) {
+        setFocus(1)
+        initiateSearch(event, true, false, 'concepts', ownerScope)
+      }
+      else if(focus === matchIndex && canMatchSemantic) {
         initiateSearch(event, false, true)
       }
       else {
@@ -408,25 +420,47 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
                   onKeyDown={event => onItemKeyDown(event, 1)}
                 />
             }
+            {
+              canSearchOwnerConcepts &&
+                <Option
+                  id='search_owner_concepts'
+                  index={ownerConceptsIndex}
+                  placeholder={
+                    <span>
+                      <Trans
+                        i18nKey='search.search_owner_concepts'
+                        values={{owner, query: inputPlaceholder}}
+                        components={[<b key='owner' />, <b key='query' />]}
+                        shouldUnescape
+                      />
+                    </span>
+                  }
+                  text={t('search.concepts')}
+                  icon
+                  selected={focus === ownerConceptsIndex}
+                  onClick={onClickOption}
+                  onKeyDown={event => onItemKeyDown(event, ownerConceptsIndex)}
+                />
+            }
             <Option
               id='search_global'
-              index={2}
+              index={globalIndex}
               placeholder={<span>{t('search.search_all_site')}"<b>{inputPlaceholder}</b>"</span>}
-              selected={focus ===  (isNested ? 2 : 1)}
+              selected={focus === globalIndex}
               icon
               onClick={onClickOption}
-              onKeyDown={event => onItemKeyDown(event, isNested ? 2 :1)}
+              onKeyDown={event => onItemKeyDown(event, globalIndex)}
             />
             {
               isNested && repoType && repo && !isURLRegistry && canMatchSemantic &&
                 <Option
                   id='match_repo'
                   nested
-                  index={3}
+                  index={matchIndex}
                   placeholder={<span>{t('common.match')} "<b>{inputPlaceholder}</b>" {t('common.to_concepts_in')} <b>{repo}</b></span>}
-                  selected={focus == 3}
+                  selected={focus === matchIndex}
                   onClick={onClickOption}
-                  onKeyDown={event => onItemKeyDown(event, 3)}
+                  onKeyDown={event => onItemKeyDown(event, matchIndex)}
                   text={t('common.run_match')}
                   isMatchOp
                 />
