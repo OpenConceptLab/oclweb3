@@ -434,6 +434,8 @@ class ConceptForm extends FormComponent  {
     this.setState(newState)
   }
 
+  getExternalIDHelperText = autoAssign => !this.props.edit && ['sequential', 'uuid'].includes(autoAssign) ? this.props.t(`concept.form.external_id_optional_${autoAssign}`) : undefined
+
   getIdHelperText = source => {
     const { t } = this.props
     const { fields } = this.state
@@ -636,6 +638,7 @@ class ConceptForm extends FormComponent  {
               size='small'
               onChange={event => this.setFieldValue('external_id', event.target.value || '')}
               value={fields.external_id.value}
+              helperText={this.getExternalIDHelperText(source?.autoid_concept_external_id)}
             />
           </div>
         </CardSection>
@@ -655,6 +658,7 @@ class ConceptForm extends FormComponent  {
                     key={name.key}
                     index={index}
                     localeType='name'
+                    autoAssignExternalID={edit ? undefined : source?.autoid_concept_name_external_id}
                     field={name}
                     idPrefix={`names.${index}`}
                     localeTypes={nameTypes}
@@ -681,6 +685,7 @@ class ConceptForm extends FormComponent  {
                     key={description.key}
                     index={index}
                     localeType='description'
+                    autoAssignExternalID={edit ? undefined : source?.autoid_concept_description_external_id}
                     field={description}
                     idPrefix={`descriptions.${index}`}
                     localeTypes={descriptionTypes}

@@ -178,6 +178,8 @@
       "id_auto_assign_back": "Asignar automáticamente",
       "id_optional_sequential": "Esto es opcional porque el repositorio principal está configurado para generar el ID. El ID se generará con el siguiente número de la secuencia.",
       "id_optional_uuid": "Esto es opcional porque el repositorio principal está configurado para generar el ID. El ID se generará en formato UUID xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.",
+      "external_id_optional_sequential": "Opcional. Si se deja en blanco, el repositorio principal generará el ID externo en la siguiente secuencia.",
+      "external_id_optional_uuid": "Opcional. Si se deja en blanco, el repositorio principal generará el ID externo en formato UUID xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.",
       "id_live_at": "Su nuevo concepto estará en:",
       "id": "ID del concepto",
       "external_id": "ID externo",

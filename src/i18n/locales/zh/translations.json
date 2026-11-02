@@ -239,6 +239,8 @@
       "id_auto_assign_back": "自动分配",
       "id_optional_sequential": "此项为可选，因为父存储库已设置为自动生成 ID。ID 将按顺序生成下一个编号。",
       "id_optional_uuid": "此项为可选，因为父存储库已设置为自动生成 ID。ID 将以 UUID 格式 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx 生成。",
+      "external_id_optional_sequential": "可选。如果留空，父存储库将按顺序生成下一个外部 ID。",
+      "external_id_optional_uuid": "可选。如果留空，父存储库将以 UUID 格式 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx 生成外部 ID。",
       "id_live_at": "您的新概念将位于：",
       "concept_details": {
         "header": "概念详情"

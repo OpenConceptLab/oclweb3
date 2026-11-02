@@ -313,6 +313,8 @@
       "id_auto_assign_back": "Auto-assign",
       "id_optional_sequential": "This is optional since the parent repository is set to take care of generating the ID. The ID will be generated to next in sequence.",
       "id_optional_uuid": "This is optional since the parent repository is set to take care of generating the ID. The ID will be generated in UUID format xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.",
+      "external_id_optional_sequential": "Optional. If left blank, the parent repository will generate the External ID to next in sequence.",
+      "external_id_optional_uuid": "Optional. If left blank, the parent repository will generate the External ID in UUID format xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.",
       "id_live_at": "Your new concept will live at:",
       "concept_details": {
         "header": "Concept details"

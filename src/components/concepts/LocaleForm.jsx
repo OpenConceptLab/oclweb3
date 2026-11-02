@@ -15,7 +15,7 @@ import DropDownChip from '../common/DropDownChip'
 import ExternalIdIcon from '../common/ExternalIdIcon'
 
 
-const LocaleForm = ({index, locales, repo, idPrefix, localeType, field, localeTypes, onChange, onDelete, divider}) => {
+const LocaleForm = ({index, locales, repo, idPrefix, localeType, field, localeTypes, onChange, onDelete, divider, autoAssignExternalID}) => {
   const { t } = useTranslation()
   const [showExternalID, setShowExternalID] = React.useState(Boolean(field.external_id.value))
   const localeNames = React.useMemo(
@@ -78,7 +78,7 @@ const LocaleForm = ({index, locales, repo, idPrefix, localeType, field, localeTy
             defaultValue={get(field, `${localeType}_type.value`)}
             label={t('concept.form.type')}
             required
-            freeSolo
+            freeSolo={repo?.custom_validation_schema !== 'OpenMRS'}
             error={get(field, `${localeType}_type.errors.0`)}
           />
         </div>
@@ -121,6 +121,7 @@ const LocaleForm = ({index, locales, repo, idPrefix, localeType, field, localeTy
               variant='outlined'
               size='small'
               onChange={event => onChange(event.target.id, event.target.value || '')}
+              helperText={autoAssignExternalID ? t(`concept.form.external_id_optional_${autoAssignExternalID}`) : undefined}
             />
           </div>
       }

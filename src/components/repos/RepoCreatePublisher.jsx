@@ -43,6 +43,13 @@ const RepoCreatePublisher = ({ onChange, config, validationErrors, ...rest }) =>
               </div> :
             null
           }
+          {
+            fields.find(field => field.id === 'lockedDate') ?
+              <div className='col-xs-6' style={{padding: '0 0 0 10px'}}>
+                <TextField label={t('repo.locked_date')} fullWidth type='date' value={rest.lockedDate || ''} onChange={event => onChange('lockedDate', event.target.value)} slotProps={{inputLabel: {shrink: true}}} />
+              </div> :
+            null
+          }
         </div>
         {
           JSON_FIELDS.map(field => (
