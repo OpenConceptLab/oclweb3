@@ -134,7 +134,7 @@ const UserHome = () => {
                 }
                 {
                   extraTabs.filter(extra => extra.key === tab).map(extra => (
-                    <ProfileTabContent key={extra.key} tab={extra} ownerType='users' owner={params.user} height={`calc(var(--app-height) - ${baseHeightToDeduct}px - 88px)`} />
+                    <ProfileTabContent key={extra.key} tab={extra} ownerType='users' owner={params.user} height={`calc(var(--app-height) - ${baseHeightToDeduct}px)`} />
                   ))
                 }
                 {
