@@ -43,8 +43,11 @@ const MapProjects = ({ ownerType, owner, height }) => {
     const fit = () => {
       const root = rootRef.current
       const panel = root?.parentElement?.parentElement
-      if(root && panel)
-        setFitHeight(Math.max(panel.getBoundingClientRect().bottom - root.getBoundingClientRect().top - 1, 240))
+      if(root && panel) {
+        const top = root.getBoundingClientRect().top
+        const bottom = Math.min(panel.getBoundingClientRect().bottom - 1, window.innerHeight - 16)
+        setFitHeight(Math.max(bottom - top, 240))
+      }
     }
     fit()
     window.addEventListener('resize', fit)
