@@ -21,6 +21,8 @@ import { fetchProjectsPage } from '../../common/mapProjects';
 
 const COLUMN_COUNT = 5
 const DEFAULT_PAGE_SIZE = 25
+// Room for the search chip row and the pagination bar plus a few table rows, so they never collapse
+const MIN_HEIGHT = 160
 
 const listSource = (getService, q) => (page, limit) => getService().get(null, null, {limit, page, ...(q ? {q} : {})})
 
@@ -46,7 +48,7 @@ const MapProjects = ({ ownerType, owner, height }) => {
       if(root && panel) {
         const top = root.getBoundingClientRect().top
         const bottom = Math.min(panel.getBoundingClientRect().bottom - 1, window.innerHeight - 16)
-        setFitHeight(Math.max(bottom - top, 0))
+        setFitHeight(Math.max(bottom - top, MIN_HEIGHT))
       }
     }
     fit()

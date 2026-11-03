@@ -2,17 +2,16 @@ import React from 'react';
 import APIService from '../services/APIService';
 import { projectCount } from '../common/mapProjects';
 
-const CACHE_MS = 10000
-const recent = {}
+const inFlight = {}
 
-// The summary, left menu and remounts ask for the same counts, so one request serves them for a few seconds
+// The summary and left menu ask for the same counts at once, so they share one request until it settles
 const requestCount = (service, key) => {
-  const cached = recent[key]
-  if(cached && Date.now() - cached.at < CACHE_MS)
-    return cached.request
+  if(inFlight[key])
+    return inFlight[key]
   const request = service().get(null, null, {limit: 1}, true)
-  recent[key] = {at: Date.now(), request}
-  request.catch(() => { delete recent[key] })
+  inFlight[key] = request
+  const clear = () => { delete inFlight[key] }
+  request.then(clear, clear)
   return request
 }
 
