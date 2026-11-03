@@ -140,7 +140,7 @@ export const originOf = url => {
   }
 }
 
-export const toAPIOrigin = origin => origin.replace('://app.v3.', '://api.').replace('://app.', '://api.')
+export { toAPIOrigin } from './appUrls';
 
 export const fetchRepoFromURL = parsed => {
   if(parsed.isExternal)
