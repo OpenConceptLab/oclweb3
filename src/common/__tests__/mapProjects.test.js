@@ -1,15 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-const { mergeProjects, projectCount, canSeeMapProjects, fetchAllPages } = await import('../mapProjects.js')
-
-test('mergeProjects combines user and organization projects without duplicates', () => {
-  const merged = mergeProjects(
-    [{url: '/users/a/map-projects/1/'}, {url: '/users/a/map-projects/2/'}],
-    [{url: '/orgs/o/map-projects/3/'}, {url: '/users/a/map-projects/2/'}]
-  )
-  assert.deepEqual(merged.map(p => p.url), ['/users/a/map-projects/1/', '/users/a/map-projects/2/', '/orgs/o/map-projects/3/'])
-})
+const { projectCount, canSeeMapProjects, fetchProjectsPage } = await import('../mapProjects.js')
 
 test('projectCount sums num_found across user and organization lists', () => {
   assert.equal(projectCount({headers: {num_found: '4'}}, {headers: {num_found: '3'}}), 7)
@@ -40,24 +32,29 @@ test('canSeeMapProjects hides projects when signed out', () => {
   assert.equal(canSeeMapProjects({}, 'orgs', 'CIEL'), false)
 })
 
-const page = (data, next) => ({status: 200, data, headers: next ? {next: 'yes'} : {}})
+const source = (rows) => (page, limit) => Promise.resolve({
+  status: 200, data: rows.slice((page - 1) * limit, page * limit), headers: {num_found: String(rows.length)}
+})
+const ids = result => result.projects.map(p => p.id)
 
-test('fetchAllPages loads every page until there is no next one', async () => {
-  const pages = {1: page([{url: 'a'}], true), 2: page([{url: 'b'}], true), 3: page([{url: 'c'}])}
-  const all = await fetchAllPages(n => Promise.resolve(pages[n]), 20)
-  assert.deepEqual(all.map(p => p.url), ['a', 'b', 'c'])
+test('fetchProjectsPage passes a single source straight through', async () => {
+  const result = await fetchProjectsPage([source([{id: 1}, {id: 2}, {id: 3}])], 2, 2)
+  assert.deepEqual(ids(result), [3])
+  assert.equal(result.total, 3)
 })
 
-test('fetchAllPages rejects when any page fails, so a partial list never looks complete', async () => {
-  // APIService resolves a failed request with the error body, not a response
-  const pages = {1: page([{url: 'a'}], true), 2: {detail: 'Server error'}}
-  await assert.rejects(fetchAllPages(n => Promise.resolve(pages[n]), 20))
-  await assert.rejects(fetchAllPages(() => Promise.resolve(undefined), 20))
+test('fetchProjectsPage pages across sources as one list', async () => {
+  const sources = [source([{id: 1}, {id: 2}, {id: 3}]), source([{id: 4}, {id: 5}, {id: 6}])]
+  assert.deepEqual(ids(await fetchProjectsPage(sources, 1, 2)), [1, 2])
+  assert.deepEqual(ids(await fetchProjectsPage(sources, 2, 2)), [3, 4])
+  assert.deepEqual(ids(await fetchProjectsPage(sources, 3, 2)), [5, 6])
+  assert.deepEqual(ids(await fetchProjectsPage(sources, 4, 2)), [])
+  assert.equal((await fetchProjectsPage(sources, 1, 2)).total, 6)
 })
 
-test('fetchAllPages stops at maxPages', async () => {
-  const requested = []
-  const all = await fetchAllPages(n => { requested.push(n); return Promise.resolve(page([{url: String(n)}], true)) }, 2)
-  assert.deepEqual(requested, [1, 2])
-  assert.equal(all.length, 2)
+test('fetchProjectsPage rejects when a request fails, so a partial page never looks complete', async () => {
+  const failing = () => Promise.resolve({status: 500})
+  await assert.rejects(fetchProjectsPage([failing], 1, 25))
+  await assert.rejects(fetchProjectsPage([source([{id: 1}]), failing], 1, 25))
+  await assert.rejects(fetchProjectsPage([() => Promise.resolve(undefined)], 1, 25))
 })

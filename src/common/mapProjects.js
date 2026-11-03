@@ -1,8 +1,3 @@
-export const mergeProjects = (...lists) => {
-  const seen = new Set()
-  return lists.flat().filter(project => !seen.has(project.url) && seen.add(project.url))
-}
-
 export const projectCount = (...responses) => responses.reduce(
   (total, response) => total + (parseInt(response?.headers?.num_found) || 0),
   0
@@ -22,11 +17,42 @@ export const canSeeMapProjects = (currentUser, ownerType, owner) => {
   return false
 }
 
-// Loads every page of a mapping-project list (up to maxPages). A page that fails
-// rejects the whole load, so a partial list never shows as if it were complete.
-export const fetchAllPages = (getPage, maxPages, page = 1, loaded = []) => getPage(page).then(response => {
+const ensureOK = response => {
   if(!(response?.status >= 200 && response.status < 300))
-    throw new Error(`Mapping projects page ${page} could not be loaded`)
-  const all = [...loaded, ...(Array.isArray(response.data) ? response.data : [])]
-  return response.headers?.next && page < maxPages ? fetchAllPages(getPage, maxPages, page + 1, all) : all
-})
+    throw new Error('Mapping projects could not be loaded')
+  return response
+}
+
+const totalOf = response => parseInt(response.headers?.num_found) || 0
+
+// Loads one page of the projects from the given list endpoints, treating them as a single list
+// (first source first). A source is (page, limit) => Promise<response>.
+export const fetchProjectsPage = async (sources, page, size) => {
+  if(sources.length === 1) {
+    const response = ensureOK(await sources[0](page, size))
+    return {projects: Array.isArray(response.data) ? response.data : [], total: totalOf(response)}
+  }
+  const totals = []
+  for(const source of sources)
+    totals.push(totalOf(ensureOK(await source(1, 1))))
+  const start = (page - 1) * size
+  const end = start + size
+  let offset = 0
+  let projects = []
+  for(let i = 0; i < sources.length; i++) {
+    const from = Math.max(start, offset) - offset
+    const to = Math.min(end, offset + totals[i]) - offset
+    offset += totals[i]
+    if(to <= from)
+      continue
+    const firstPage = Math.floor(from / size) + 1
+    const lastPage = Math.floor((to - 1) / size) + 1
+    const responses = []
+    for(let n = firstPage; n <= lastPage; n++)
+      responses.push(ensureOK(await sources[i](n, size)))
+    const rows = responses.flatMap(response => Array.isArray(response.data) ? response.data : [])
+    const base = (firstPage - 1) * size
+    projects = projects.concat(rows.slice(from - base, to - base))
+  }
+  return {projects, total: totals.reduce((sum, count) => sum + count, 0)}
+}
