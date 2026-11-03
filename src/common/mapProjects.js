@@ -32,27 +32,27 @@ export const fetchProjectsPage = async (sources, page, size) => {
     const response = ensureOK(await sources[0](page, size))
     return {projects: Array.isArray(response.data) ? response.data : [], total: totalOf(response)}
   }
-  const totals = []
-  for(const source of sources)
-    totals.push(totalOf(ensureOK(await source(1, 1))))
+  const totals = (await Promise.all(sources.map(source => source(1, 1)))).map(response => totalOf(ensureOK(response)))
   const start = (page - 1) * size
   const end = start + size
   let offset = 0
-  let projects = []
-  for(let i = 0; i < sources.length; i++) {
+  const requests = sources.map((source, i) => {
     const from = Math.max(start, offset) - offset
     const to = Math.min(end, offset + totals[i]) - offset
     offset += totals[i]
     if(to <= from)
-      continue
+      return Promise.resolve([])
     const firstPage = Math.floor(from / size) + 1
     const lastPage = Math.floor((to - 1) / size) + 1
-    const responses = []
+    const pages = []
     for(let n = firstPage; n <= lastPage; n++)
-      responses.push(ensureOK(await sources[i](n, size)))
-    const rows = responses.flatMap(response => Array.isArray(response.data) ? response.data : [])
+      pages.push(source(n, size))
     const base = (firstPage - 1) * size
-    projects = projects.concat(rows.slice(from - base, to - base))
-  }
+    return Promise.all(pages).then(responses => responses.flatMap(response => {
+      const data = ensureOK(response).data
+      return Array.isArray(data) ? data : []
+    }).slice(from - base, to - base))
+  })
+  const projects = (await Promise.all(requests)).flat()
   return {projects, total: totals.reduce((sum, count) => sum + count, 0)}
 }
