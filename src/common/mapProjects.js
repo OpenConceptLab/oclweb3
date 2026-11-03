@@ -22,15 +22,6 @@ export const canSeeMapProjects = (currentUser, ownerType, owner) => {
   return false
 }
 
-// The API can't search mapping projects, so the profile tab filters the
-// list it loaded, by name and ID.
-export const filterProjects = (projects, query) => {
-  const term = (query || '').trim().toLowerCase()
-  if(!term || !Array.isArray(projects))
-    return projects
-  return projects.filter(project => [project.name, project.id].some(value => String(value ?? '').toLowerCase().includes(term)))
-}
-
 // Loads every page of a mapping-project list (up to maxPages). A page that fails
 // rejects the whole load, so a partial list never shows as if it were complete.
 export const fetchAllPages = (getPage, maxPages, page = 1, loaded = []) => getPage(page).then(response => {

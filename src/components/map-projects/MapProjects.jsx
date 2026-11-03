@@ -16,14 +16,15 @@ import SearchIcon from '@mui/icons-material/Search';
 import times from 'lodash/times';
 import APIService from '../../services/APIService';
 import { toMapperURL, pluralize } from '../../common/utils';
-import { mergeProjects, filterProjects, fetchAllPages } from '../../common/mapProjects';
+import { mergeProjects, fetchAllPages } from '../../common/mapProjects';
 
 const COLUMN_COUNT = 5
 const PAGE_SIZE = 100
 const MAX_PAGES = 20
 
-// The API pages its lists, and the tab filters on the client, so it loads every page
-const loadAll = getService => fetchAllPages(page => getService().get(null, null, {limit: PAGE_SIZE, page}), MAX_PAGES)
+const loadAll = (getService, q) => fetchAllPages(
+  page => getService().get(null, null, {limit: PAGE_SIZE, page, ...(q ? {q} : {})}), MAX_PAGES
+)
 
 const MapProjects = ({ ownerType, owner, height }) => {
   const { t } = useTranslation()
@@ -33,15 +34,15 @@ const MapProjects = ({ ownerType, owner, height }) => {
   const [failed, setFailed] = React.useState(false)
   const [attempt, setAttempt] = React.useState(0)
   const query = new URLSearchParams(location.search).get('q') || ''
-  const shown = filterProjects(projects, query)
+  const shown = projects
 
   React.useEffect(() => {
     let active = true
     setProjects(null)
     setFailed(false)
-    const requests = [loadAll(() => APIService[ownerType](owner).appendToUrl('map-projects/'))]
+    const requests = [loadAll(() => APIService[ownerType](owner).appendToUrl('map-projects/'), query)]
     if(ownerType === 'users')
-      requests.push(loadAll(() => APIService.users(owner).appendToUrl('orgs/map-projects/')))
+      requests.push(loadAll(() => APIService.users(owner).appendToUrl('orgs/map-projects/'), query))
     Promise.all(requests).then(lists => {
       if(active)
         setProjects(mergeProjects(...lists))
@@ -50,7 +51,7 @@ const MapProjects = ({ ownerType, owner, height }) => {
         setFailed(true)
     })
     return () => { active = false }
-  }, [ownerType, owner, attempt])
+  }, [ownerType, owner, query, attempt])
 
   const onClearQuery = () => history.push(location.pathname)
 
