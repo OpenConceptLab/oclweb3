@@ -124,7 +124,7 @@ const OrgHome = () => {
                 }
                 {
                   extraTabs.filter(extra => extra.key === tab).map(extra => (
-                    <ProfileTabContent key={extra.key} tab={extra} ownerType='orgs' owner={params.org} height='calc(var(--app-height) - 368px)' />
+                    <ProfileTabContent key={extra.key} tab={extra} ownerType='orgs' owner={params.org} height='calc(var(--app-height) - 352px)' />
                   ))
                 }
                 {

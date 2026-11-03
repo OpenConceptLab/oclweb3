@@ -8,6 +8,7 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
 import Link from '@mui/material/Link';
 import Chip from '@mui/material/Chip';
@@ -16,52 +17,76 @@ import SearchIcon from '@mui/icons-material/Search';
 import times from 'lodash/times';
 import APIService from '../../services/APIService';
 import { toMapperURL, pluralize } from '../../common/utils';
-import { mergeProjects, filterProjects, fetchAllPages } from '../../common/mapProjects';
+import { fetchProjectsPage } from '../../common/mapProjects';
 
 const COLUMN_COUNT = 5
-const PAGE_SIZE = 100
-const MAX_PAGES = 20
+const DEFAULT_PAGE_SIZE = 25
+// The pagination bar is the last thing to give up room, the count row and table shrink first
+const MIN_HEIGHT = 40
 
-// The API pages its lists, and the tab filters on the client, so it loads every page
-const loadAll = getService => fetchAllPages(page => getService().get(null, null, {limit: PAGE_SIZE, page}), MAX_PAGES)
+const listSource = (getService, q) => (page, limit) => getService().get(null, null, {limit, page, ...(q ? {q} : {})})
 
 const MapProjects = ({ ownerType, owner, height }) => {
   const { t } = useTranslation()
   const history = useHistory()
   const location = useLocation()
   const [projects, setProjects] = React.useState(null)
+  const [total, setTotal] = React.useState(0)
+  const [page, setPage] = React.useState(1)
+  const [pageSize, setPageSize] = React.useState(DEFAULT_PAGE_SIZE)
   const [failed, setFailed] = React.useState(false)
   const [attempt, setAttempt] = React.useState(0)
+  const rootRef = React.useRef(null)
+  const [fitHeight, setFitHeight] = React.useState(null)
   const query = new URLSearchParams(location.search).get('q') || ''
-  const shown = filterProjects(projects, query)
+  const shown = projects
+
+  React.useLayoutEffect(() => {
+    const fit = () => {
+      const root = rootRef.current
+      const panel = root?.parentElement?.parentElement
+      if(root && panel) {
+        const top = root.getBoundingClientRect().top
+        const bottom = Math.min(panel.getBoundingClientRect().bottom - 1, window.innerHeight - 16)
+        setFitHeight(Math.max(bottom - top, MIN_HEIGHT))
+      }
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [])
+
+  React.useEffect(() => setPage(1), [ownerType, owner, query])
 
   React.useEffect(() => {
     let active = true
     setProjects(null)
     setFailed(false)
-    const requests = [loadAll(() => APIService[ownerType](owner).appendToUrl('map-projects/'))]
+    const sources = [listSource(() => APIService[ownerType](owner).appendToUrl('map-projects/'), query)]
     if(ownerType === 'users')
-      requests.push(loadAll(() => APIService.users(owner).appendToUrl('orgs/map-projects/')))
-    Promise.all(requests).then(lists => {
-      if(active)
-        setProjects(mergeProjects(...lists))
+      sources.push(listSource(() => APIService.users(owner).appendToUrl('orgs/map-projects/'), query))
+    fetchProjectsPage(sources, page, pageSize).then(result => {
+      if(active) {
+        setProjects(result.projects)
+        setTotal(result.total)
+      }
     }, () => {
       if(active)
         setFailed(true)
     })
     return () => { active = false }
-  }, [ownerType, owner, attempt])
+  }, [ownerType, owner, query, page, pageSize, attempt])
 
   const onClearQuery = () => history.push(location.pathname)
 
   return (
-    <div style={{height: height, display: 'flex', flexDirection: 'column'}}>
-      <div style={{display: 'flex', alignItems: 'center', gap: '8px', minHeight: '56px', padding: '0 16px'}}>
+    <div ref={rootRef} style={{height: fitHeight || height, display: 'flex', flexDirection: 'column'}}>
+      <div style={{display: 'flex', alignItems: 'center', gap: '8px', flex: '0 1 56px', minHeight: 0, overflow: 'hidden', padding: '0 16px'}}>
         {
           failed ? null : shown === null ?
             <Skeleton variant='text' sx={{fontSize: '1rem', width: '15%'}} /> :
             <Typography variant='h7' component='div' sx={{color: 'rgba(0, 0, 0, 0.7)'}}>
-              {pluralize(shown.length, t('map_project.mapping_project').toLowerCase(), t('map_project.mapping_projects').toLowerCase())}
+              {pluralize(total, t('map_project.mapping_project').toLowerCase(), t('map_project.mapping_projects').toLowerCase())}
             </Typography>
         }
         {
@@ -135,6 +160,26 @@ const MapProjects = ({ ownerType, owner, height }) => {
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 50, 100]}
+        component='div'
+        count={total}
+        rowsPerPage={pageSize}
+        page={Math.max(page - 1, 0)}
+        onPageChange={(event, index) => setPage(index + 1)}
+        onRowsPerPageChange={event => { setPageSize(parseInt(event.target.value, 10)); setPage(1) }}
+        showFirstButton
+        showLastButton
+        sx={{
+          width: '100%',
+          flexShrink: 0,
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          '.MuiToolbar-root': {height: '40px', minHeight: '40px'},
+          '& .MuiTablePagination-actions svg': {color: 'surface.contrastText'},
+          '& .MuiTablePagination-actions .Mui-disabled.MuiIconButton-root svg': {color: 'rgba(0, 0, 0, 0.26)'}
+        }}
+      />
     </div>
   )
 }
