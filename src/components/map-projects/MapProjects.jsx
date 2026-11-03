@@ -21,8 +21,8 @@ import { fetchProjectsPage } from '../../common/mapProjects';
 
 const COLUMN_COUNT = 5
 const DEFAULT_PAGE_SIZE = 25
-// Room for the search chip row and the pagination bar plus a few table rows, so they never collapse
-const MIN_HEIGHT = 160
+// The pagination bar is the last thing to give up room, the count row and table shrink first
+const MIN_HEIGHT = 40
 
 const listSource = (getService, q) => (page, limit) => getService().get(null, null, {limit, page, ...(q ? {q} : {})})
 
@@ -81,7 +81,7 @@ const MapProjects = ({ ownerType, owner, height }) => {
 
   return (
     <div ref={rootRef} style={{height: fitHeight || height, display: 'flex', flexDirection: 'column'}}>
-      <div style={{display: 'flex', alignItems: 'center', gap: '8px', minHeight: '56px', padding: '0 16px'}}>
+      <div style={{display: 'flex', alignItems: 'center', gap: '8px', flex: '0 1 56px', minHeight: 0, overflow: 'hidden', padding: '0 16px'}}>
         {
           failed ? null : shown === null ?
             <Skeleton variant='text' sx={{fontSize: '1rem', width: '15%'}} /> :
@@ -172,6 +172,7 @@ const MapProjects = ({ ownerType, owner, height }) => {
         showLastButton
         sx={{
           width: '100%',
+          flexShrink: 0,
           borderTop: '1px solid',
           borderColor: 'divider',
           '.MuiToolbar-root': {height: '40px', minHeight: '40px'},
