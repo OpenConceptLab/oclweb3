@@ -98,7 +98,8 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
   const user = getCurrentUser()
   const canMatchSemantic = Boolean(isNested && (contextRepo?.version || version) !== 'HEAD' && contextRepo?.match_algorithms?.includes('llm') && user?.username && (!resource || resource === 'concepts')) && hasAuthGroup(user, 'mapper-approved') && hasAuthGroup(user, 'core_user')
 
-  const ownerScope = {owner, ownerType: ownerType === 'orgs' ? 'Organization' : 'User'}
+  const isOrgOwner = ownerType === 'orgs'
+  const ownerScope = {owner, ownerType: isOrgOwner ? 'Organization' : 'User'}
   const canSearchOwnerConcepts = Boolean(isNested && (ownerType === 'orgs' || ownerType === 'users') && owner && !isURLRegistry)
   const ownerConceptsIndex = canSearchOwnerConcepts ? 2 : null
   const globalIndex = isNested ? (canSearchOwnerConcepts ? 3 : 2) : 1
@@ -428,14 +429,14 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
                   placeholder={
                     <span>
                       <Trans
-                        i18nKey='search.search_owner_concepts'
+                        i18nKey={isOrgOwner ? 'search.search_org_concepts' : 'search.search_user_concepts'}
                         values={{owner, query: inputPlaceholder}}
                         components={[<b key='owner' />, <b key='query' />]}
                         shouldUnescape
                       />
                     </span>
                   }
-                  text={t('search.concepts')}
+                  text={t(isOrgOwner ? 'search.search_this_org' : 'search.search_this_user')}
                   icon
                   selected={focus === ownerConceptsIndex}
                   onClick={onClickOption}
