@@ -34,8 +34,22 @@ const MapProjects = ({ ownerType, owner, height }) => {
   const [pageSize, setPageSize] = React.useState(DEFAULT_PAGE_SIZE)
   const [failed, setFailed] = React.useState(false)
   const [attempt, setAttempt] = React.useState(0)
+  const rootRef = React.useRef(null)
+  const [fitHeight, setFitHeight] = React.useState(null)
   const query = new URLSearchParams(location.search).get('q') || ''
   const shown = projects
+
+  React.useLayoutEffect(() => {
+    const fit = () => {
+      const root = rootRef.current
+      const panel = root?.parentElement?.parentElement
+      if(root && panel)
+        setFitHeight(Math.max(panel.getBoundingClientRect().bottom - root.getBoundingClientRect().top - 1, 240))
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [])
 
   React.useEffect(() => setPage(1), [ownerType, owner, query])
 
@@ -61,7 +75,7 @@ const MapProjects = ({ ownerType, owner, height }) => {
   const onClearQuery = () => history.push(location.pathname)
 
   return (
-    <div style={{height: height, display: 'flex', flexDirection: 'column'}}>
+    <div ref={rootRef} style={{height: fitHeight || height, display: 'flex', flexDirection: 'column'}}>
       <div style={{display: 'flex', alignItems: 'center', gap: '8px', minHeight: '56px', padding: '0 16px'}}>
         {
           failed ? null : shown === null ?
