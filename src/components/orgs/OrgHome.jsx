@@ -4,8 +4,8 @@ import { useParams, useHistory } from 'react-router-dom'
 import Paper from '@mui/material/Paper'
 import APIService from '../../services/APIService'
 import GAService from '../../services/GAService'
-import { getCurrentUser, refreshCurrentUserCache } from '../../common/utils';
-import { canAdministerOrg } from '../../common/orgRoles';
+import { getCurrentUser, isAdminUser, refreshCurrentUserCache } from '../../common/utils';
+import { ROLE_ADMIN } from '../../common/orgRoles';
 import usePins from '../../hooks/usePins';
 import { OperationsContext } from '../app/LayoutContext';
 import CommonTabs from '../common/CommonTabs';
@@ -73,7 +73,7 @@ const OrgHome = () => {
     }
   }
 
-  const canAdminister = canAdministerOrg(user, org)
+  const canAdminister = isAdminUser() || org.user_role === ROLE_ADMIN
   const canDelete = org.id !== 'OCL' && canAdminister
   const onDelete = () => {
     if(!canDelete)
@@ -172,10 +172,7 @@ const OrgHome = () => {
             warning
           />
       }
-      {
-        org?.id &&
-          <LeaveOrgDialog open={leaveOrg} org={org} onClose={() => setLeaveOrg(false)} onSubmit={onLeave} />
-      }
+      <LeaveOrgDialog open={leaveOrg} org={org} onClose={() => setLeaveOrg(false)} onSubmit={onLeave} />
     </div>
   )
 }

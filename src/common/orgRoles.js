@@ -3,29 +3,24 @@
 export const ROLE_ADMIN = 'admin'
 export const ROLE_MEMBER = 'member'
 
-// Staff and the org's admins can edit or delete it and manage its members. Any member can work on its repositories.
-export const canAdministerOrg = (user, org) => Boolean(
-  user?.is_staff || user?.is_superuser || org?.user_role === ROLE_ADMIN
-)
-
 const findMember = (members, username) => members.find(member => member.username === username)
 
-// The role picked in the members dialog, or else the member's own. A member selected from a user search carries none.
-export const getMemberRole = (member, members, roles) => (
-  (Object.hasOwn(roles, member.username) && roles[member.username]) || findMember(members, member.username)?.role || ROLE_MEMBER
+// A role picked in the members dialog is on the selected member. One selected from a user search carries none.
+export const getMemberRole = (member, members) => (
+  member.role || findMember(members, member.username)?.role || ROLE_MEMBER
 )
 
 // What saving the members dialog has to send, as batches to run in order: what gives rights, then what takes them away,
 // so that an org doesn't run out of admins half way through, and last the requester's own loss of rights, which could
 // stop them sending the rest.
-export const getMemberChanges = (members, selected, roles, username) => {
+export const getMemberChanges = (members, selected, username) => {
   const grants = []
   const revocations = []
   const ownRevocations = []
   const revoke = change => (change.member.username === username ? ownRevocations : revocations).push(change)
   selected.forEach(member => {
     const current = findMember(members, member.username)
-    const role = getMemberRole(member, members, roles)
+    const role = getMemberRole(member, members)
     if(!current)
       grants.push({member, action: 'add', role})
     else if(role !== (current.role || ROLE_MEMBER)) {

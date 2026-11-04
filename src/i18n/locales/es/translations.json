@@ -548,6 +548,7 @@
     "orgs": "Organizaciones",
     "org": "Organización",
     "member_add_failed": "No se pudo agregar {{user}}: {{detail}}",
+    "member": "Miembro",
     "member_remove_failed": "No se pudo eliminar {{user}}: {{detail}}",
     "member_role_failed": "No se pudo cambiar el rol de {{user}}: {{detail}}",
     "admin": "Administrador",

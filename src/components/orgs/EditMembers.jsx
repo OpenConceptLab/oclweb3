@@ -48,7 +48,6 @@ const EditMembers = ({onClose, org, members, fetchOrg}) => {
   const [open, setOpen] = React.useState(false)
   const [users, setUsers] = React.useState([])
   const [selectedMembers, setSelectedMembers] = React.useState([])
-  const [roles, setRoles] = React.useState({})
 
   const minLength = 2
   const isSearchable = input && input.length >= minLength;
@@ -79,28 +78,23 @@ const EditMembers = ({onClose, org, members, fetchOrg}) => {
   }, [])
 
 
-  const batches = getMemberChanges(members, selectedMembers, roles, getCurrentUser()?.username)
+  const batches = getMemberChanges(members, selectedMembers, getCurrentUser()?.username)
   const changes = batches.flat()
   const newMembers = changes.filter(({action}) => action === 'add').map(({member}) => member)
   const deletedMembers = changes.filter(({action}) => action === 'remove').map(({member}) => member)
 
   const updateMember = async ({member, action, role}) => {
-    const send = data => APIService.new()
-      .overrideURL(org.url)
-      .appendToUrl(`members/${member.username}/`)
-      [action === 'remove' ? 'delete' : 'put'](data, null, {}, null, true)
     try {
-      const response = await send(role ? {role} : null)
+      const response = await APIService.new()
+        .overrideURL(org.url)
+        .appendToUrl(`members/${member.username}/`)
+        [action === 'remove' ? 'delete' : 'put'](role ? {role} : null, null, {}, null, true)
       const error = response?.response || !response ? getErrorDetail(response) || t('common.generic_error') : null
       return {member, action, error}
     } catch(error) {
       return {member, action, error: getErrorDetail(error) || t('common.generic_error')}
     }
   }
-
-  const getMemberError = (member, action, detail) => (
-    t(`org.member_${action}_failed`, {user: member.username, detail})
-  )
 
   const onSubmit = async () => {
     const results = []
@@ -109,7 +103,9 @@ const EditMembers = ({onClose, org, members, fetchOrg}) => {
       if(!results.some(({error}) => error))
         results.push(...await Promise.all(batch.map(updateMember)))
     }
-    const failures = results.filter(({error}) => error).map(({member, action, error}) => getMemberError(member, action, error))
+    const failures = results.filter(({error}) => error).map(({member, action, error}) => (
+      t(`org.member_${action}_failed`, {user: member.username, detail: error})
+    ))
 
     if(failures.length) {
       setAlert({message: failures.join('\n'), severity: 'error', duration: 5000})
@@ -186,25 +182,21 @@ const EditMembers = ({onClose, org, members, fetchOrg}) => {
         <List dense sx={{p: 0}}>
           {
             selectedMembers.map(member => (
-              <ListItem
-                key={member.username}
-                disableGutters
-                sx={{paddingRight: '128px !important'}}
-                secondaryAction={
-                  <Select
-                    size='small'
-                    variant='standard'
-                    sx={{width: '112px', fontSize: '14px'}}
-                    inputProps={{'aria-label': `${t('org.role')}: ${member.username}`}}
-                    value={getMemberRole(member, members, roles)}
-                    onChange={event => setRoles(prev => ({...prev, [member.username]: event.target.value}))}
-                  >
-                    <MenuItem value={ROLE_ADMIN}>{t('org.admin')}</MenuItem>
-                    <MenuItem value={ROLE_MEMBER}>{t('org.member')}</MenuItem>
-                  </Select>
-                }
-              >
+              <ListItem key={member.username} disableGutters>
                 <ListItemText primary={getMemberDisplayName(member)} />
+                <Select
+                  size='small'
+                  variant='standard'
+                  sx={{width: '112px', fontSize: '14px'}}
+                  inputProps={{'aria-label': `${t('org.role')}: ${member.username}`}}
+                  value={getMemberRole(member, members)}
+                  onChange={event => setSelectedMembers(prev => prev.map(
+                    selected => selected.username === member.username ? {...selected, role: event.target.value} : selected
+                  ))}
+                >
+                  <MenuItem value={ROLE_ADMIN}>{t('org.admin')}</MenuItem>
+                  <MenuItem value={ROLE_MEMBER}>{t('org.member')}</MenuItem>
+                </Select>
               </ListItem>
             ))
           }
