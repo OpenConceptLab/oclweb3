@@ -8,12 +8,18 @@ import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
 import FormHelperText from '@mui/material/FormHelperText'
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 
 import Link from '../common/Link'
 import { OperationsContext } from '../app/LayoutContext';
 
 import { debounce } from 'lodash'
 import APIService from '../../services/APIService';
+import { ROLE_ADMIN, ROLE_MEMBER, getMemberChanges } from '../../common/orgRoles';
 
 
 const normalizeErrorDetail = detail => {
@@ -32,7 +38,7 @@ const getErrorDetail = response => normalizeErrorDetail(
   response?.message
 )
 
-const EditMembers = ({onClose, org, members, fetchMembers}) => {
+const EditMembers = ({onClose, org, members, fetchOrg}) => {
   const { t } = useTranslation()
   const { setAlert } = React.useContext(OperationsContext);
 
@@ -41,6 +47,7 @@ const EditMembers = ({onClose, org, members, fetchMembers}) => {
   const [open, setOpen] = React.useState(false)
   const [users, setUsers] = React.useState([])
   const [selectedMembers, setSelectedMembers] = React.useState([])
+  const [roles, setRoles] = React.useState({})
 
   const minLength = 2
   const isSearchable = input && input.length >= minLength;
@@ -71,19 +78,21 @@ const EditMembers = ({onClose, org, members, fetchMembers}) => {
   }, [])
 
 
-  const newMembers = selectedMembers.filter(member => !members.map(user => user.username).includes(member.username))
-  const deletedMembers = members.filter(member => !selectedMembers.map(user => user.username).includes(member.username))
+  const [grants, revocations] = getMemberChanges(members, selectedMembers, roles)
+  const newMembers = grants.filter(({action}) => action === 'add').map(({member}) => member)
+  const deletedMembers = revocations.filter(({action}) => action === 'remove').map(({member}) => member)
 
-  const updateMember = async (member, method) => {
+  const updateMember = async ({member, action, role}) => {
+    const send = data => APIService.new()
+      .overrideURL(org.url)
+      .appendToUrl(`members/${member.username}/`)
+      [action === 'remove' ? 'delete' : 'put'](data, null, {}, null, true)
     try {
-      const response = await APIService.new()
-        .overrideURL(org.url)
-        .appendToUrl(`members/${member.username}/`)
-        [method](null, null, {}, null, true)
+      const response = await send(role ? {role} : null)
       const error = response?.response || !response ? getErrorDetail(response) || t('common.generic_error') : null
-      return {member, error}
+      return {member, action, error}
     } catch(error) {
-      return {member, error: getErrorDetail(error) || t('common.generic_error')}
+      return {member, action, error: getErrorDetail(error) || t('common.generic_error')}
     }
   }
 
@@ -92,27 +101,19 @@ const EditMembers = ({onClose, org, members, fetchMembers}) => {
   )
 
   const onSubmit = async () => {
-    const failures = []
-
-    const addResults = await Promise.all(newMembers.map(member => updateMember(member, 'put')))
-    addResults.forEach(({member, error}) => {
-      if(error)
-        failures.push(getMemberError(member, 'add', error))
-    })
-
-    const removeResults = await Promise.all(deletedMembers.map(member => updateMember(member, 'delete')))
-    removeResults.forEach(({member, error}) => {
-      if(error)
-        failures.push(getMemberError(member, 'remove', error))
-    })
+    const results = [
+      ...await Promise.all(grants.map(updateMember)),
+      ...await Promise.all(revocations.map(updateMember)),
+    ]
+    const failures = results.filter(({error}) => error).map(({member, action, error}) => getMemberError(member, action, error))
 
     if(failures.length) {
       setAlert({message: failures.join('\n'), severity: 'error', duration: 5000})
-    } else if(newMembers.length || deletedMembers.length) {
+    } else if(results.length) {
       setAlert({message: t('org.updated_members'), severity: 'success', duration: 1000})
     }
 
-    fetchMembers()
+    fetchOrg()
     if(!failures.length)
       onClose()
   }
@@ -178,6 +179,32 @@ const EditMembers = ({onClose, org, members, fetchMembers}) => {
           }
           sx={{'.MuiInputBase-root': {backgroundColor: 'surface.n92'}, marginBottom: '8px'}}
         />
+        <List dense sx={{p: 0}}>
+          {
+            selectedMembers.map(member => (
+              <ListItem
+                key={member.username}
+                disableGutters
+                sx={{paddingRight: '128px !important'}}
+                secondaryAction={
+                  <Select
+                    size='small'
+                    variant='standard'
+                    sx={{width: '112px', fontSize: '14px'}}
+                    inputProps={{'aria-label': `${t('org.role')}: ${member.username}`}}
+                    value={roles[member.username] || member.role || ROLE_MEMBER}
+                    onChange={event => setRoles(prev => ({...prev, [member.username]: event.target.value}))}
+                  >
+                    <MenuItem value={ROLE_ADMIN}>{t('org.admin')}</MenuItem>
+                    <MenuItem value={ROLE_MEMBER}>{t('org.member')}</MenuItem>
+                  </Select>
+                }
+              >
+                <ListItemText primary={getMemberDisplayName(member)} />
+              </ListItem>
+            ))
+          }
+        </List>
         {
           newMembers?.length > 0 &&
             <div className='col-xs-12' style={{marginTop: '4px'}}>

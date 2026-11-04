@@ -4,7 +4,8 @@ import { useParams, useHistory } from 'react-router-dom'
 import Paper from '@mui/material/Paper'
 import APIService from '../../services/APIService'
 import GAService from '../../services/GAService'
-import { getCurrentUser, isAdminUser } from '../../common/utils';
+import { getCurrentUser, refreshCurrentUserCache } from '../../common/utils';
+import { canAdministerOrg } from '../../common/orgRoles';
 import usePins from '../../hooks/usePins';
 import { OperationsContext } from '../app/LayoutContext';
 import CommonTabs from '../common/CommonTabs';
@@ -15,6 +16,7 @@ import Error40X from '../errors/Error40X';
 import OrgOverview from './OrgOverview';
 import OrgSummary from './OrgSummary';
 import OrgHeader from './OrgHeader'
+import LeaveOrgDialog from './LeaveOrgDialog'
 import useProfileTabs from '../../hooks/useProfileTabs'
 import ProfileTabContent from '../common/ProfileTabContent'
 
@@ -27,6 +29,7 @@ const OrgHome = () => {
   const [status, setStatus] = React.useState(false)
   const [members, setMembers] = React.useState([])
   const [deleteOrg, setDeleteOrg] = React.useState(false)
+  const [leaveOrg, setLeaveOrg] = React.useState(false)
   const [tab, setTab] = React.useState(findTab)
   const [defaultFiltersOpen, onFiltersOpenChange, listRef] = useDefaultFiltersOpen(PROFILE_LIST_MIN_WIDTH)
   const { setAlert } = React.useContext(OperationsContext);
@@ -52,7 +55,7 @@ const OrgHome = () => {
     })
   }
   const fetchMembers = () => {
-    APIService.orgs(params.org).appendToUrl('members/?verbose=true').get().then(response => {
+    APIService.orgs(params.org).appendToUrl('members/?verbose=true&limit=100').get().then(response => {
       if(Array.isArray(response?.data)) {
         setMembers(response.data)
         setOrg(prev => ({...prev, members: response.data.length}))
@@ -70,7 +73,8 @@ const OrgHome = () => {
     }
   }
 
-  const canDelete = org.id !== 'OCL' && (isAdminUser() || (org?.created_by === user?.username))
+  const canAdminister = canAdministerOrg(user, org)
+  const canDelete = org.id !== 'OCL' && canAdminister
   const onDelete = () => {
     if(!canDelete)
       return
@@ -92,6 +96,20 @@ const OrgHome = () => {
     })
   }
 
+  const onLeave = () => {
+    APIService.orgs(org.id).appendToUrl(`members/${user.username}/`).delete(null, null, {}, null, true).then(response => {
+      if(response?.status === 204) {
+        refreshCurrentUserCache(() => {
+          setAlert({severity: 'success', message: t('org.success_leave')})
+          history.push(user.url)
+        })
+      } else {
+        setLeaveOrg(false)
+        setAlert({severity: 'error', message: response?.response?.data?.detail || t('common.generic_error')})
+      }
+    })
+  }
+
   React.useEffect(() => { fetchOrg() }, [params.org])
   // A tab this viewer doesn't get (someone else's Mapping Projects) shows Overview instead
   React.useEffect(() => { setTab(findTab()) }, [params.tab, TAB_KEYS.join()])
@@ -104,7 +122,7 @@ const OrgHome = () => {
         {
           org?.id &&
             <React.Fragment>
-              <OrgHeader org={org} members={members} canDelete={canDelete} onDeleteClick={() => setDeleteOrg(true)} fetchMembers={fetchMembers} />
+              <OrgHeader org={org} members={members} canAdminister={canAdminister} canDelete={canDelete} onDeleteClick={() => setDeleteOrg(true)} onLeaveClick={() => setLeaveOrg(true)} fetchOrg={fetchOrg} />
               <div ref={listRef} className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
                 <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
                 {
@@ -152,7 +170,10 @@ const OrgHome = () => {
             relationship={t('repo.repos').toLowerCase()}
             warning
           />
-
+      }
+      {
+        org?.id &&
+          <LeaveOrgDialog open={leaveOrg} org={org} onClose={() => setLeaveOrg(false)} onSubmit={onLeave} />
       }
     </div>
   )

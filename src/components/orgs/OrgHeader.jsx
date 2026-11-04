@@ -16,6 +16,7 @@ import LinkIcon from '@mui/icons-material/LinkOutlined';
 import CompanyIcon from '@mui/icons-material/Business';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import LeaveIcon from '@mui/icons-material/Logout';
 
 import { formatWebsiteLink, currentUserHasAccess, isLoggedIn } from '../../common/utils'
 import Link from '../common/Link'
@@ -40,7 +41,7 @@ const Property = ({icon, value, label}) => {
   ) : null
 }
 
-const OrgHeader = ({ org, members, onDeleteClick, canDelete, fetchMembers }) => {
+const OrgHeader = ({ org, members, onDeleteClick, onLeaveClick, canAdminister, canDelete, fetchOrg }) => {
   const { t } = useTranslation()
   const history = useHistory()
 
@@ -113,30 +114,48 @@ const OrgHeader = ({ org, members, onDeleteClick, canDelete, fetchMembers }) => 
           </ListItemIcon>
           <ListItemText>{t('repo.new_repo')}</ListItemText>
         </MenuItem>
-        <MenuItem sx={{padding: '8px 12px'}} onClick={() => setEditMembers(!editMembers)}>
-          <ListItemIcon>
-            <UserIcon />
-          </ListItemIcon>
-          <ListItemText>{t('org.edit_members')}</ListItemText>
-        </MenuItem>
-        <MenuItem sx={{padding: '8px 12px'}} href={`${org.url}edit`} onClick={() => history.push(`${org.url}edit`)}>
-          <ListItemIcon>
-            <EditIcon />
-          </ListItemIcon>
-          <ListItemText>{t('common.edit')}</ListItemText>
-        </MenuItem>
-        <Divider />
-        <MenuItem sx={{padding: '8px 12px'}} disabled={!canDelete} onClick={onDeleteClick}>
-          <ListItemIcon>
-            <DeleteIcon color='error' />
-          </ListItemIcon>
-          <ListItemText sx={{color: 'error.main'}}>{t('common.delete_label')}</ListItemText>
-        </MenuItem>
+        {
+          canAdminister &&
+            <MenuItem sx={{padding: '8px 12px'}} onClick={() => setEditMembers(!editMembers)}>
+              <ListItemIcon>
+                <UserIcon />
+              </ListItemIcon>
+              <ListItemText>{t('org.edit_members')}</ListItemText>
+            </MenuItem>
+        }
+        {
+          canAdminister &&
+            <MenuItem sx={{padding: '8px 12px'}} href={`${org.url}edit`} onClick={() => history.push(`${org.url}edit`)}>
+              <ListItemIcon>
+                <EditIcon />
+              </ListItemIcon>
+              <ListItemText>{t('common.edit')}</ListItemText>
+            </MenuItem>
+        }
+        {
+          org.user_role &&
+            <MenuItem sx={{padding: '8px 12px'}} onClick={() => { handleManageClick(); onLeaveClick() }}>
+              <ListItemIcon>
+                <LeaveIcon />
+              </ListItemIcon>
+              <ListItemText>{t('org.leave_org')}</ListItemText>
+            </MenuItem>
+        }
+        {canAdminister && <Divider />}
+        {
+          canAdminister &&
+            <MenuItem sx={{padding: '8px 12px'}} disabled={!canDelete} onClick={onDeleteClick}>
+              <ListItemIcon>
+                <DeleteIcon color='error' />
+              </ListItemIcon>
+              <ListItemText sx={{color: 'error.main'}}>{t('common.delete_label')}</ListItemText>
+            </MenuItem>
+        }
       </Menu>
       {
         editMembers &&
           <EditMembers
-            fetchMembers={fetchMembers}
+            fetchOrg={fetchOrg}
             org={org}
             members={members}
             onClose={() => {
