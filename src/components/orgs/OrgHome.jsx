@@ -99,10 +99,11 @@ const OrgHome = () => {
   const onLeave = () => {
     APIService.orgs(org.id).appendToUrl(`members/${user.username}/`).delete(null, null, {}, null, true).then(response => {
       if(response?.status === 204) {
-        refreshCurrentUserCache(() => {
+        const onLeft = () => {
           setAlert({severity: 'success', message: t('org.success_leave')})
           history.push(user.url)
-        })
+        }
+        refreshCurrentUserCache(onLeft, onLeft)
       } else {
         setLeaveOrg(false)
         setAlert({severity: 'error', message: response?.response?.data?.detail || t('common.generic_error')})

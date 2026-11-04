@@ -19,7 +19,8 @@ import { OperationsContext } from '../app/LayoutContext';
 
 import { debounce } from 'lodash'
 import APIService from '../../services/APIService';
-import { ROLE_ADMIN, ROLE_MEMBER, getMemberChanges } from '../../common/orgRoles';
+import { getCurrentUser } from '../../common/utils';
+import { ROLE_ADMIN, ROLE_MEMBER, getMemberChanges, getMemberRole } from '../../common/orgRoles';
 
 
 const normalizeErrorDetail = detail => {
@@ -78,9 +79,10 @@ const EditMembers = ({onClose, org, members, fetchOrg}) => {
   }, [])
 
 
-  const [grants, revocations] = getMemberChanges(members, selectedMembers, roles)
-  const newMembers = grants.filter(({action}) => action === 'add').map(({member}) => member)
-  const deletedMembers = revocations.filter(({action}) => action === 'remove').map(({member}) => member)
+  const batches = getMemberChanges(members, selectedMembers, roles, getCurrentUser()?.username)
+  const changes = batches.flat()
+  const newMembers = changes.filter(({action}) => action === 'add').map(({member}) => member)
+  const deletedMembers = changes.filter(({action}) => action === 'remove').map(({member}) => member)
 
   const updateMember = async ({member, action, role}) => {
     const send = data => APIService.new()
@@ -101,10 +103,12 @@ const EditMembers = ({onClose, org, members, fetchOrg}) => {
   )
 
   const onSubmit = async () => {
-    const results = [
-      ...await Promise.all(grants.map(updateMember)),
-      ...await Promise.all(revocations.map(updateMember)),
-    ]
+    const results = []
+    for(const batch of batches) {
+      // A batch can rely on the ones before it, so a failure stops the rest, and saving again retries them.
+      if(!results.some(({error}) => error))
+        results.push(...await Promise.all(batch.map(updateMember)))
+    }
     const failures = results.filter(({error}) => error).map(({member, action, error}) => getMemberError(member, action, error))
 
     if(failures.length) {
@@ -192,7 +196,7 @@ const EditMembers = ({onClose, org, members, fetchOrg}) => {
                     variant='standard'
                     sx={{width: '112px', fontSize: '14px'}}
                     inputProps={{'aria-label': `${t('org.role')}: ${member.username}`}}
-                    value={roles[member.username] || member.role || ROLE_MEMBER}
+                    value={getMemberRole(member, members, roles)}
                     onChange={event => setRoles(prev => ({...prev, [member.username]: event.target.value}))}
                   >
                     <MenuItem value={ROLE_ADMIN}>{t('org.admin')}</MenuItem>
