@@ -381,7 +381,7 @@ const ConceptHome = props => {
             !edit && !createSimilar &&
               <>
                 <div className='col-xs-12 padding-0'>
-                  <ConceptHeader concept={concept} detailsLoaded={detailsLoaded} onClose={props.onClose} repoURL={getRepoURL()} onEdit={() => setEdit(true)} onCreateSimilar={() => setCreateSimilar(true)} repo={repo} browsedRepo={props.repo} nested={props.nested} loading={loading} onRetire={() => setRetireDialog(true)} isInCollection={isInCollection} onRemoveFromCollection={() => setRemoveFromCollectionDialog(true)} />
+                  <ConceptHeader concept={concept} detailsLoaded={detailsLoaded} onClose={props.onClose} repoURL={getRepoURL()} onEdit={() => setEdit(true)} onCreateSimilar={() => setCreateSimilar(true)} repo={repo} nested={props.nested} loading={loading} onRetire={() => setRetireDialog(true)} isInCollection={isInCollection} onRemoveFromCollection={() => setRemoveFromCollectionDialog(true)} />
                 </div>
                 <ConceptTabs tab={tab} onTabChange={(event, newTab) => onTabChange(newTab)} loading={loading} />
                 {

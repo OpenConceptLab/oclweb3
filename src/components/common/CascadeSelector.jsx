@@ -17,7 +17,7 @@ import CodeIcon from '@mui/icons-material/CodeOutlined'
 import { PRESETS, DEFAULT_CUSTOM_PARAMS, getCascadeRequest } from './cascadeRequest'
 
 // onChange gets {cascade, queryParams}: the request body's cascade and the query params to send
-const CascadeSelector = ({ onChange, expressions, collectionUrl, showPreviewDefault = false }) => {
+const CascadeSelector = ({ onChange, expressions = ['/:owner/sources/:source/concepts/:id/'], collectionUrl, showPreviewDefault = false }) => {
   const { t } = useTranslation()
   const [selectedPresetId, setSelectedPresetId] = React.useState('none')
   const [transform, setTransform] = React.useState(false)
@@ -38,8 +38,7 @@ const CascadeSelector = ({ onChange, expressions, collectionUrl, showPreviewDefa
   const queryString = request.queryParams ? `?${new URLSearchParams(request.queryParams)}` : ''
   const collectionBase = (collectionUrl || '/:owner/collections/:collection').replace(/\/$/, '')
   const endpoint = `${collectionBase}/references/${queryString}`
-  const previewExpressions = expressions?.length ? expressions : ['/:owner/sources/:source/concepts/:id/']
-  const requestBody = JSON.stringify({ data: { expressions: previewExpressions }, cascade: request.cascade }, null, 2)
+  const requestBody = JSON.stringify({ data: { expressions }, cascade: request.cascade }, null, 2)
 
   return (
     <Box>

@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next'
 import APIService from '../../services/APIService'
 import { getCurrentUserCollections, toRepoVersionURI } from '../../common/utils'
 import GAService from '../../services/GAService'
+import { OperationsContext } from '../app/LayoutContext'
 import Dialog from './Dialog'
 import DialogTitle from './DialogTitle'
 import CloseIconButton from './CloseIconButton'
@@ -76,9 +77,9 @@ const formatErrorMessage = message => {
   return allErrors.length ? allErrors.join('\n') : JSON.stringify(message)
 }
 
-// repo is the repo version being browsed, if any: expressions name it, or the API resolves them to the latest version
-const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp, repo }) => {
+const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp }) => {
   const { t } = useTranslation()
+  const { contextRepo } = React.useContext(OperationsContext)
   const concepts = conceptsProp || (concept ? [concept] : [])
   const [collections, setCollections] = React.useState([])
   const [selected, setSelected] = React.useState(null)
@@ -128,7 +129,8 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp,
     )
   }
 
-  const conceptUrls = concepts.map(c => toRepoVersionURI(c.url, repo)).filter(Boolean)
+  // Without the source version being browsed, the API resolves an expression to the latest version
+  const conceptUrls = concepts.map(c => toRepoVersionURI(c.url, contextRepo)).filter(Boolean)
 
   const handleSubmit = () => {
     if (!selected || !conceptUrls.length) return

@@ -3,7 +3,7 @@ import { map, times } from 'lodash';
 import ConceptCard from '../concepts/ConceptCard';
 import Skeleton from '@mui/material/Skeleton'
 
-const CardResults = ({bgColor, handleClick, handleRowClick, results, resource, isSelected, isItemShown, className, isSplitView, style, loading, repo}) => {
+const CardResults = ({bgColor, handleClick, handleRowClick, results, resource, isSelected, isItemShown, className, isSplitView, style, loading}) => {
   const rows = results?.results || []
   return (
     <div className={'col-xs-12 ' + (className || '')} style={style || {height: 'calc(var(--app-height) - 275px)', overflowX: 'auto'}}>
@@ -25,7 +25,6 @@ const CardResults = ({bgColor, handleClick, handleRowClick, results, resource, i
                   onSelect={handleClick}
                   onCardClick={handleRowClick}
                   isSplitView={isSplitView}
-                  repo={repo}
                 />
               )
             })

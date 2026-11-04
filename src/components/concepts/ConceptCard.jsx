@@ -10,7 +10,7 @@ import { isAtGlobalSearch, isLoggedIn } from '../../common/utils';
 import ConceptListItem from './ConceptListItem'
 import AddToCollectionDialog from '../common/AddToCollectionDialog'
 
-const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isShown, firstChild, repo }) => {
+const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isShown, firstChild }) => {
   const { t } = useTranslation()
   const id = concept.version_url || concept.url || concept.id
   const isChecked = isSelected(id)
@@ -75,7 +75,6 @@ const ConceptCard = ({ concept, onSelect, isSelected, onCardClick, bgColor, isSh
         open={addToCollectionOpen}
         onClose={() => setAddToCollectionOpen(false)}
         concept={concept}
-        repo={repo}
       />
     </Card>
   );
