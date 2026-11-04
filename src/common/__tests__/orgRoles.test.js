@@ -35,6 +35,13 @@ test('an existing admin selected again from a user search stays an admin', () =>
   assert.deepEqual(getMemberChanges([first], [fromSearch], {}), [[], [], []])
 })
 
+test('a username that names an object property is still just a username', () => {
+  const constructor = {username: 'constructor', role: 'admin'}
+
+  assert.equal(getMemberRole(constructor, [constructor], {}), 'admin')
+  assert.deepEqual(getMemberChanges([constructor], [constructor], {}), [[], [], []])
+})
+
 test('nothing to send when nothing changed', () => {
   assert.deepEqual(getMemberChanges([first, second], [first, second], {}), [[], [], []])
   assert.deepEqual(getMemberChanges([first, second], [first, second], {first: 'admin', second: 'member'}), [[], [], []])

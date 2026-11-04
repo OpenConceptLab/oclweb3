@@ -12,7 +12,7 @@ const findMember = (members, username) => members.find(member => member.username
 
 // The role picked in the members dialog, or else the member's own. A member selected from a user search carries none.
 export const getMemberRole = (member, members, roles) => (
-  roles[member.username] || findMember(members, member.username)?.role || ROLE_MEMBER
+  (Object.hasOwn(roles, member.username) && roles[member.username]) || findMember(members, member.username)?.role || ROLE_MEMBER
 )
 
 // What saving the members dialog has to send, as batches to run in order: what gives rights, then what takes them away,
