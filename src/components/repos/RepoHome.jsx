@@ -98,6 +98,8 @@ const RepoHome = () => {
   const versionCacheRef = React.useRef({})
   // False once this page is gone (e.g. moved to another repository): its late responses must not navigate or set the context repo
   const aliveRef = React.useRef(true)
+  // True in a response that comes back after the page moved to another version: prevRouteRef is the route it's on by then
+  const hasLeftVersion = () => !isSameRepoScope(prevRouteRef.current, route)
 
   const [tab, setTab] = React.useState(route.tab || 'concepts')
   const { setAlert, setContextRepo } = React.useContext(OperationsContext);
@@ -132,6 +134,8 @@ const RepoHome = () => {
 
     setExpansionsLoading(true)
     return APIService.new().overrideURL(url).get(null, null, {includeSummary: true, verbose: true}, true).then(response => {
+      if(hasLeftVersion())
+        return []
       let versionExpansions = Array.isArray(response?.data) ? response.data : []
       versionExpansions = orderBy(versionExpansions, ['created_on', 'id'], ['desc', 'desc']).map(expansion => ({...expansion, default: expansion.url === version?.expansion_url}))
       setExpansions(versionExpansions)
@@ -156,7 +160,7 @@ const RepoHome = () => {
   }
 
   const applyRepoData = (_repo, newStatus, sameRepoAsBefore, hasReleasedVersion) => {
-    if(!aliveRef.current)
+    if(!aliveRef.current || hasLeftVersion())
       return
     if(route.version && (newStatus !== 200 || !_repo?.url)) {
       history.replace(buildRepoPath(route, {version: '', expansion: '', tab: '', resource: ''}))
