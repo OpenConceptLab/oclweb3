@@ -61,6 +61,15 @@ const ConceptHome = props => {
 
   const getActiveConceptId = () => getResourceIdFromUrl(props.url, 'concepts') || concept?.id
 
+  // False once the panel has closed, e.g. the route moved to another version: a late response must not ask that version for more
+  const aliveRef = React.useRef(true)
+  React.useEffect(() => {
+    aliveRef.current = true
+    return () => {
+      aliveRef.current = false
+    }
+  }, [])
+
   React.useEffect(() => {
     setLoading(true)
     setDetailsLoaded(false)
@@ -69,6 +78,8 @@ const ConceptHome = props => {
     setVersions([])
     const queryParams = isInCollection ? { includeReferences: true } : {}
     getService().get(null, null, queryParams, true).then(response => {
+      if(!aliveRef.current)
+        return
       const status = response?.status || response?.response?.status
       if(status && status !== 200) {
         setErrorStatus(status)
@@ -172,6 +183,8 @@ const ConceptHome = props => {
         }
       )
       .then(response => {
+        if(!aliveRef.current)
+          return
         setMappings(withoutSelfEntry(response?.data?.entry?.entries, concept))
         if(directOnly)
           setTimeout(() => setLoading(false), 300)
