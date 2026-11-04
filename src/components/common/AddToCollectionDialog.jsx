@@ -13,7 +13,7 @@ import TableCell from '@mui/material/TableCell'
 import { includes, toLower } from 'lodash'
 import { useTranslation } from 'react-i18next'
 import APIService from '../../services/APIService'
-import { getCurrentUserCollections, dropVersion } from '../../common/utils'
+import { getCurrentUserCollections, toRepoVersionURI } from '../../common/utils'
 import GAService from '../../services/GAService'
 import Dialog from './Dialog'
 import DialogTitle from './DialogTitle'
@@ -76,7 +76,8 @@ const formatErrorMessage = message => {
   return allErrors.length ? allErrors.join('\n') : JSON.stringify(message)
 }
 
-const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp }) => {
+// repo is the repo version being browsed, if any: expressions name it, or the API resolves them to the latest version
+const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp, repo }) => {
   const { t } = useTranslation()
   const concepts = conceptsProp || (concept ? [concept] : [])
   const [collections, setCollections] = React.useState([])
@@ -127,7 +128,7 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
     )
   }
 
-  const conceptUrls = concepts.map(c => dropVersion(c.url) || c.url).filter(Boolean)
+  const conceptUrls = concepts.map(c => toRepoVersionURI(c.url, repo)).filter(Boolean)
 
   const handleSubmit = () => {
     if (!selected || !conceptUrls.length) return
@@ -258,7 +259,7 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
         {/* Cascade selector */}
         <CascadeSelector
           onChange={setCascadeRequest}
-          conceptUrl={conceptUrls.length === 1 ? conceptUrls[0] : null}
+          expressions={conceptUrls}
           collectionUrl={selected ? selected.url : null}
         />
 

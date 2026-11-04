@@ -21,7 +21,7 @@ import { SERVER_CONFIGS } from './serverConfigs';
 import { legacyHashRoute, isSameSitePath } from './history';
 import { resolveMapperURL } from './appUrls';
 
-export { dropVersion } from './uri';
+export { dropVersion, toRepoVersionURI } from './uri';
 
 export const currentPath = () => window.location.pathname;
 

@@ -801,6 +801,7 @@ const Search = props => {
                   searchIndexQuery={isSearchIndexQuery()}
                   hierarchySupported={isHierarchySupported}
                   baseURL={props.url}
+                  repo={props.repo}
                   toolbarControl={<>{props.toolbarControl}{referenceActionsControl}</>}
                   extraBulkActions={[bulkRemoveFromCollectionAction, props.extraBulkActions]}
                   onCreateSimilarClick={props.onCreateSimilarClick}

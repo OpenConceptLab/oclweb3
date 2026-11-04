@@ -21,7 +21,9 @@ import AddToCollectionDialog from '../common/AddToCollectionDialog'
 import CloneToSourceDialog from '../repos/CloneToSourceDialog'
 import Retired from '../common/Retired'
 
-const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCreateSimilar, nested, loading, isInCollection, detailsLoaded}) => {
+// browsedRepo is the repo version the user is on. Global search has none, while repo is still set there, to the
+// concept's latest source version.
+const ConceptHeader = ({concept, repo, browsedRepo, onClose, repoURL, onEdit, onRetire, onCreateSimilar, nested, loading, isInCollection, detailsLoaded}) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -170,6 +172,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
         open={addToCollectionOpen}
         onClose={() => setAddToCollectionOpen(false)}
         concept={concept}
+        repo={browsedRepo}
       />
       <CloneToSourceDialog
         open={cloneToSourceOpen}

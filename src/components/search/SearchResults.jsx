@@ -437,7 +437,7 @@ const SearchResults = props => {
                 onSelectedChange={handleSelectedChange}
               /> :
             isCardDisplay ?
-              <CardResults {...resultsProps} className={cardDisplayAnimation} /> :
+              <CardResults {...resultsProps} repo={props.repo} className={cardDisplayAnimation} /> :
             <TableResults
               {...resultsProps}
               className={tableDisplayAnimation}
@@ -476,6 +476,7 @@ const SearchResults = props => {
         open={addToCollectionOpen}
         onClose={() => setAddToCollectionOpen(false)}
         concepts={selectedRows}
+        repo={props.repo}
       />
       <CloneToSourceDialog
         open={cloneToSourceOpen}
