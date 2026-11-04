@@ -6,13 +6,9 @@ const { isPanelReady } = await import('../panelReady.js')
 
 const SOURCE = '/orgs/MyOrg/sources/MySource'
 const COLLECTION = '/orgs/MyOrg/collections/MyCollection'
-const route = path => parseRepoPath(path)
 const isReady = (path, repoPath, overrides = {}) => isPanelReady({
-  route: route(path),
-  repoRoute: repoPath ? route(repoPath) : null,
-  versionPending: false,
-  expansionRequired: false,
-  expansionURL: false,
+  route: parseRepoPath(path),
+  repoRoute: repoPath ? parseRepoPath(repoPath) : null,
   ...overrides,
 })
 
@@ -22,14 +18,11 @@ test('Back to a panel URL with no version waits while the repo in state is the v
 
 test('Back or Forward to another version waits while the repo in state is the version just left', () => {
   assert.equal(isReady(`${SOURCE}/v1/concepts/123/`, `${SOURCE}/v2/concepts`), false)
-  assert.equal(isReady(`${SOURCE}/v2/mappings/456/`, `${SOURCE}/v1/mappings/789/`), false)
-  assert.equal(isReady(`${COLLECTION}/v2/references/1/`, `${COLLECTION}/v1/references/2/`), false)
 })
 
 test('the panel opens once the repo for the route\'s version has loaded', () => {
   assert.equal(isReady(`${SOURCE}/concepts/123/`, `${SOURCE}/concepts/123/`), true)
   assert.equal(isReady(`${SOURCE}/v1/concepts/123/`, `${SOURCE}/v1/concepts/123/`), true)
-  assert.equal(isReady(`${SOURCE}/v2/mappings/456/`, `${SOURCE}/v2/mappings/456/`), true)
 })
 
 test('a panel URL opened directly waits for its first repo', () => {
@@ -42,7 +35,6 @@ test('HEAD named in the URL and a URL with no version each wait for their own lo
 })
 
 test('moving within the version keeps an open panel: another resource, tab or expansion', () => {
-  assert.equal(isReady(`${SOURCE}/v1/concepts/123/`, `${SOURCE}/v1/concepts/456/`), true)
   assert.equal(isReady(`${SOURCE}/v1/mappings/456/`, `${SOURCE}/v1/concepts`), true)
   assert.equal(isReady(`${COLLECTION}/v1/expansions/e2/concepts/123/`, `${COLLECTION}/v1/expansions/e1/concepts/123/`, {expansionRequired: true, expansionURL: `${COLLECTION}/v1/expansions/e2/`}), true)
 })

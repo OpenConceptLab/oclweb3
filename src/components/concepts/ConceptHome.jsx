@@ -65,9 +65,7 @@ const ConceptHome = props => {
   const aliveRef = React.useRef(true)
   React.useEffect(() => {
     aliveRef.current = true
-    return () => {
-      aliveRef.current = false
-    }
+    return () => { aliveRef.current = false }
   }, [])
 
   React.useEffect(() => {
@@ -183,12 +181,10 @@ const ConceptHome = props => {
         }
       )
       .then(response => {
-        if(!aliveRef.current)
-          return
         setMappings(withoutSelfEntry(response?.data?.entry?.entries, concept))
         if(directOnly)
           setTimeout(() => setLoading(false), 300)
-        !directOnly && getInverseMappings(concept, includeRetired)
+        !directOnly && aliveRef.current && getInverseMappings(concept, includeRetired)
       })
   }
 
