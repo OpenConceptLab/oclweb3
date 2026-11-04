@@ -1,4 +1,7 @@
-import { RESERVED_ROUTE_KEYWORDS } from './constants';
+const RESERVED_ROUTE_KEYWORDS = [
+  'concepts', 'mappings', 'repos', 'members', 'versions', 'expansions', 'users', 'orgs',
+  'references', 'about', 'summary'
+]
 
 export const REPO_TABS = ['concepts', 'mappings', 'versions', 'summary', 'about', 'references']
 

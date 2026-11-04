@@ -36,6 +36,7 @@ import RepoHeader from './RepoHeader';
 import CollectionVersionsTab from './CollectionVersionsTab';
 import SourceVersionsTab from './SourceVersionsTab';
 import { getVersionChange } from './versionChange';
+import { isPanelReady } from './panelReady';
 import ReferenceHome from '../references/ReferenceHome'
 import AddReferencesDialog from '../collections/AddReferencesDialog'
 import ExpansionDropDown from './ExpansionDropDown';
@@ -529,11 +530,11 @@ const RepoHome = () => {
   // later, so after "Add Mapping" routed to mappings/<id>/ it asked for concepts/<id>/ first.
   const panelTab = hasResourcePanel(route) ? route.tab : ''
   const panelRequiresExpansion = isCollection && ['concepts', 'mappings'].includes(panelTab)
-  const isPanelReady = !versionPending && (!panelRequiresExpansion || Boolean(expansionURL))
+  const panelReady = isPanelReady({route, repoRoute, versionPending, expansionRequired: panelRequiresExpansion, expansionURL})
   const resourceReadURL = resourceType => toExpansionURL(resourceType, route.resource) || (getURL() + resourceType + '/' + encodeURIComponent(route.resource) + '/')
-  const showConceptURL = (panelTab === 'concepts' && isPanelReady) ? resourceReadURL('concepts') : false
-  const showMappingURL = (panelTab === 'mappings' && isPanelReady) ? resourceReadURL('mappings') : false
-  const showReferenceURL = panelTab === 'references' ? (getURL() + 'references/' + encodeURIComponent(route.resource) + '/') : false
+  const showConceptURL = (panelTab === 'concepts' && panelReady) ? resourceReadURL('concepts') : false
+  const showMappingURL = (panelTab === 'mappings' && panelReady) ? resourceReadURL('mappings') : false
+  const showReferenceURL = (panelTab === 'references' && panelReady) ? (getURL() + 'references/' + encodeURIComponent(route.resource) + '/') : false
   const seed = (seedItem && String(seedItem.id) === String(route.resource)) ? seedItem : undefined
   const isSplitView = conceptForm || mappingForm || showConceptURL || showMappingURL || showReferenceURL || versionForm
 
