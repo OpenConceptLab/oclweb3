@@ -759,6 +759,15 @@
         "new_title": "Nova versão de {{resourceType}}: {{version}}",
         "edit_title": "Editar versão de {{resourceType}}: {{version}}"
       },
+      "expansion_dialog": {
+        "title": "Expansão para esta versão",
+        "copy": "Copiar a expansão do HEAD",
+        "copy_help": "Mantém o que a expansão do HEAD contém agora: as mesmas versões de repositório e os mesmos membros.",
+        "generate": "Gerar uma nova expansão",
+        "generate_help": "Cria uma nova expansão a partir das referências desta versão, resolvendo as versões de repositório como estão agora.",
+        "none": "Sem expansão",
+        "none_help": "Cria a versão sem expansão. Você pode adicionar uma depois."
+      },
       "update_dialog": {
         "title": "Atualizar {{resourceType}}: {{resourceId}}",
         "message": "Tem certeza de que deseja {{action}} este {{resourceType}} {{repoId}}?"

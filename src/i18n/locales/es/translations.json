@@ -524,6 +524,15 @@
       "form": {
         "new_title": "Nueva versión de {{resourceType}}: {{version}}",
         "edit_title": "Editar versión de {{resourceType}}: {{version}}"
+      },
+      "expansion_dialog": {
+        "title": "Expansión para esta versión",
+        "copy": "Copiar la expansión de HEAD",
+        "copy_help": "Conserva lo que contiene ahora la expansión de HEAD: las mismas versiones de repositorio y los mismos miembros.",
+        "generate": "Generar una nueva expansión",
+        "generate_help": "Crea una nueva expansión a partir de las referencias de esta versión, resolviendo las versiones de repositorio tal como están ahora.",
+        "none": "Sin expansión",
+        "none_help": "Crea la versión sin expansión. Puede agregar una más tarde."
       }
     },
     "repo_version": "Versión del repositorio"

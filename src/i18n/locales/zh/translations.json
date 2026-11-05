@@ -553,6 +553,15 @@
       "form": {
         "new_title": "新建{{resourceType}}版本：{{version}}",
         "edit_title": "编辑{{resourceType}}版本：{{version}}"
+      },
+      "expansion_dialog": {
+        "title": "此版本的扩展",
+        "copy": "复制 HEAD 的扩展",
+        "copy_help": "保留 HEAD 扩展当前的内容：相同的存储库版本和成员。",
+        "generate": "生成新的扩展",
+        "generate_help": "根据此版本的引用生成新的扩展，并按当前状态解析存储库版本。",
+        "none": "不扩展",
+        "none_help": "创建不带扩展的版本。之后可以再添加。"
       }
     },
     "repo_version": "仓库版本"

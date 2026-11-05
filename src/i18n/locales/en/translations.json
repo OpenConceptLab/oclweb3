@@ -770,6 +770,15 @@
         "new_title": "New {{resourceType}} Version: {{version}}",
         "edit_title": "Edit {{resourceType}} Version: {{version}}"
       },
+      "expansion_dialog": {
+        "title": "Expansion for this version",
+        "copy": "Copy HEAD's expansion",
+        "copy_help": "Keeps what HEAD's expansion holds now: the same repository versions and members.",
+        "generate": "Generate a new expansion",
+        "generate_help": "Builds a new expansion from this version's references, resolving repository versions as they are now.",
+        "none": "No expansion",
+        "none_help": "Creates the version without an expansion. You can add one later."
+      },
       "update_dialog": {
         "title": "Update {{resourceType}}: {{resourceId}}",
         "message": "Are you sure you want to {{action}} this {{resourceType}} {{repoId}}?"
