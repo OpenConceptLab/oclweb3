@@ -773,7 +773,7 @@
       "expansion_dialog": {
         "title": "Expansion for this version",
         "lock": "Lock repo versions",
-        "lock_help": "Uses the same repository versions as HEAD's expansion. They're saved in the new expansion's parameters, so a rebuild gives the same result.",
+        "lock_help": "Uses the same repository versions as HEAD's expansion. Source versions are saved in the new expansion's parameters, so a rebuild keeps them. Value sets referenced without a version can resolve again on a rebuild.",
         "latest": "Evaluate from scratch",
         "latest_help": "Evaluates every reference again. References without a version use each repository's latest released version, or its HEAD if it has no release.",
         "none": "No expansion",

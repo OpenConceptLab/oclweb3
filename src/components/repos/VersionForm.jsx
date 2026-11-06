@@ -16,6 +16,9 @@ import CloseIconButton from '../common/CloseIconButton';
 import Dialog from '../common/Dialog'
 import DialogTitle from '../common/DialogTitle'
 import { ID_REGEX } from '../../common/constants'
+import {
+  shouldAskForExpansion, shouldShowAutoexpand, getExpansionChoices, getDefaultExpansion, getExpansionPayload
+} from './versionExpansion'
 
 
 class VersionForm extends FormComponent {
@@ -63,18 +66,19 @@ class VersionForm extends FormComponent {
 
   isCollectionVersion = () => (this.props.resource || this.props.resourceType) === 'collection'
 
-  isLockToggleOn = () => Boolean(this.context?.toggles?.EXPANSION_LOCKED_REPO_VERSION_TOGGLE)
-
-  canLockRepoVersions = () => Boolean(this.isLockToggleOn() && this.props.version?.expansion_url)
-
-  getExpansionChoices = () => this.canLockRepoVersions() ? ['lock', 'latest', 'none'] : ['latest', 'none']
+  getExpansionArgs = () => ({
+    edit: Boolean(this.props.edit),
+    isCollection: this.isCollectionVersion(),
+    lockToggle: Boolean(this.context?.toggles?.EXPANSION_LOCKED_REPO_VERSION_TOGGLE),
+    headExpansionURL: this.props.version?.expansion_url,
+  })
 
   onSubmit = event => {
     event.preventDefault();
     event.stopPropagation();
     if(this.setAllFieldsErrors()) {
-      if(!this.props.edit && this.isCollectionVersion() && this.isLockToggleOn())
-        this.setState({expansionDialog: true, expansion: this.canLockRepoVersions() ? 'lock' : 'latest'})
+      if(shouldAskForExpansion(this.getExpansionArgs()))
+        this.setState({expansionDialog: true, expansion: getDefaultExpansion(this.getExpansionArgs())})
       else
         this.submit()
     }
@@ -101,10 +105,7 @@ class VersionForm extends FormComponent {
       if(isCollectionVersion) {
         payload.autoexpand = isBoolean(this.state.fields.autoexpand.value) ? this.state.fields.autoexpand.value : false
         payload.expansion_url = this.state.fields.expansion_url.value || null
-        if(expansion) {
-          payload.expansion = expansion
-          payload.autoexpand = expansion !== 'none'
-        }
+        Object.assign(payload, getExpansionPayload(expansion))
       } else {
         delete payload.autoexpand
         delete payload.expansion_url
@@ -233,7 +234,7 @@ class VersionForm extends FormComponent {
               />
             </div>
             {
-              resource === 'collection' && (edit || !this.isLockToggleOn()) &&
+              resource === 'collection' && shouldShowAutoexpand(this.getExpansionArgs()) &&
               <div className='col-xs-12' style={{width: '100%', marginTop: '15px'}}>
                 <FormControlLabel
                   control={<Checkbox checked={Boolean(fields.autoexpand.value)} onChange={this.onCheckboxChange} name="autoexpand" />}
@@ -252,7 +253,7 @@ class VersionForm extends FormComponent {
           <DialogContent sx={{padding: '16px 0 0 0 !important'}}>
             <RadioGroup value={this.state.expansion || ''} onChange={event => this.setState({expansion: event.target.value})}>
               {
-                map(this.getExpansionChoices(), choice => (
+                map(getExpansionChoices(this.getExpansionArgs()), choice => (
                   <FormControlLabel
                     key={choice}
                     value={choice}

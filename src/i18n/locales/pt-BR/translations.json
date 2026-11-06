@@ -762,7 +762,7 @@
       "expansion_dialog": {
         "title": "Expansão para esta versão",
         "lock": "Fixar versões de repositório",
-        "lock_help": "Usa as mesmas versões de repositório da expansão do HEAD. Elas ficam salvas nos parâmetros da nova expansão, então uma reconstrução dá o mesmo resultado.",
+        "lock_help": "Usa as mesmas versões de repositório da expansão do HEAD. As versões de fontes ficam salvas nos parâmetros da nova expansão, então uma reconstrução as mantém. Conjuntos de valores referenciados sem versão podem ser resolvidos de novo ao reconstruir.",
         "latest": "Avaliar do zero",
         "latest_help": "Avalia todas as referências novamente. Referências sem versão usam a versão publicada mais recente de cada repositório, ou o HEAD se não houver nenhuma.",
         "none": "Sem expansão",
