@@ -770,6 +770,15 @@
         "new_title": "New {{resourceType}} Version: {{version}}",
         "edit_title": "Edit {{resourceType}} Version: {{version}}"
       },
+      "expansion_dialog": {
+        "title": "Expansion for this version",
+        "lock": "Lock repo versions",
+        "lock_help": "Uses the same repository versions as HEAD's expansion. Source versions are saved in the new expansion's parameters, so a rebuild keeps them. Value sets referenced without a version can resolve again on a rebuild.",
+        "latest": "Evaluate from scratch",
+        "latest_help": "Evaluates every reference again. References without a version use each repository's latest released version, or its HEAD if it has no release.",
+        "none": "No expansion",
+        "none_help": "Creates the version without an expansion. You can add one later."
+      },
       "update_dialog": {
         "title": "Update {{resourceType}}: {{resourceId}}",
         "message": "Are you sure you want to {{action}} this {{resourceType}} {{repoId}}?"

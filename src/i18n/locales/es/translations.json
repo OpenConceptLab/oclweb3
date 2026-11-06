@@ -524,6 +524,15 @@
       "form": {
         "new_title": "Nueva versión de {{resourceType}}: {{version}}",
         "edit_title": "Editar versión de {{resourceType}}: {{version}}"
+      },
+      "expansion_dialog": {
+        "title": "Expansión para esta versión",
+        "lock": "Fijar versiones de repositorio",
+        "lock_help": "Usa las mismas versiones de repositorio que la expansión de HEAD. Las versiones de fuentes se guardan en los parámetros de la nueva expansión, así que una reconstrucción las conserva. Los conjuntos de valores referenciados sin versión pueden resolverse de nuevo al reconstruir.",
+        "latest": "Evaluar desde cero",
+        "latest_help": "Evalúa de nuevo todas las referencias. Las referencias sin versión usan la última versión publicada de cada repositorio, o su HEAD si no tiene ninguna.",
+        "none": "Sin expansión",
+        "none_help": "Crea la versión sin expansión. Puede agregar una más tarde."
       }
     },
     "repo_version": "Versión del repositorio"

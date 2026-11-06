@@ -759,6 +759,15 @@
         "new_title": "Nova versão de {{resourceType}}: {{version}}",
         "edit_title": "Editar versão de {{resourceType}}: {{version}}"
       },
+      "expansion_dialog": {
+        "title": "Expansão para esta versão",
+        "lock": "Fixar versões de repositório",
+        "lock_help": "Usa as mesmas versões de repositório da expansão do HEAD. As versões de fontes ficam salvas nos parâmetros da nova expansão, então uma reconstrução as mantém. Conjuntos de valores referenciados sem versão podem ser resolvidos de novo ao reconstruir.",
+        "latest": "Avaliar do zero",
+        "latest_help": "Avalia todas as referências novamente. Referências sem versão usam a versão publicada mais recente de cada repositório, ou o HEAD se não houver nenhuma.",
+        "none": "Sem expansão",
+        "none_help": "Cria a versão sem expansão. Você pode adicionar uma depois."
+      },
       "update_dialog": {
         "title": "Atualizar {{resourceType}}: {{resourceId}}",
         "message": "Tem certeza de que deseja {{action}} este {{resourceType}} {{repoId}}?"
