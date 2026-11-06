@@ -761,10 +761,10 @@
       },
       "expansion_dialog": {
         "title": "Expansão para esta versão",
-        "copy": "Copiar a expansão do HEAD",
-        "copy_help": "Mantém o que a expansão do HEAD contém agora: as mesmas versões de repositório e os mesmos membros.",
-        "generate": "Gerar uma nova expansão",
-        "generate_help": "Cria uma nova expansão a partir das referências desta versão, resolvendo as versões de repositório como estão agora.",
+        "lock": "Fixar versões de repositório",
+        "lock_help": "Usa as mesmas versões de repositório da expansão do HEAD. Elas ficam salvas nos parâmetros da nova expansão, então uma reconstrução dá o mesmo resultado.",
+        "latest": "Avaliar do zero",
+        "latest_help": "Avalia todas as referências novamente. Referências sem versão usam a versão publicada mais recente de cada repositório, ou o HEAD se não houver nenhuma.",
         "none": "Sem expansão",
         "none_help": "Cria a versão sem expansão. Você pode adicionar uma depois."
       },

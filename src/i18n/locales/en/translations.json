@@ -772,10 +772,10 @@
       },
       "expansion_dialog": {
         "title": "Expansion for this version",
-        "copy": "Copy HEAD's expansion",
-        "copy_help": "Keeps what HEAD's expansion holds now: the same repository versions and members.",
-        "generate": "Generate a new expansion",
-        "generate_help": "Builds a new expansion from this version's references, resolving repository versions as they are now.",
+        "lock": "Lock repo versions",
+        "lock_help": "Uses the same repository versions as HEAD's expansion. They're saved in the new expansion's parameters, so a rebuild gives the same result.",
+        "latest": "Evaluate from scratch",
+        "latest_help": "Evaluates every reference again. References without a version use each repository's latest released version, or its HEAD if it has no release.",
         "none": "No expansion",
         "none_help": "Creates the version without an expansion. You can add one later."
       },

@@ -63,14 +63,18 @@ class VersionForm extends FormComponent {
 
   isCollectionVersion = () => (this.props.resource || this.props.resourceType) === 'collection'
 
-  canCopyHeadExpansion = () => Boolean(this.context?.toggles?.EXPANSION_LOCKED_REPO_VERSION_TOGGLE && this.props.version?.expansion_url)
+  isLockToggleOn = () => Boolean(this.context?.toggles?.EXPANSION_LOCKED_REPO_VERSION_TOGGLE)
+
+  canLockRepoVersions = () => Boolean(this.isLockToggleOn() && this.props.version?.expansion_url)
+
+  getExpansionChoices = () => this.canLockRepoVersions() ? ['lock', 'latest', 'none'] : ['latest', 'none']
 
   onSubmit = event => {
     event.preventDefault();
     event.stopPropagation();
     if(this.setAllFieldsErrors()) {
-      if(!this.props.edit && this.isCollectionVersion())
-        this.setState({expansionDialog: true, expansion: this.canCopyHeadExpansion() ? 'copy' : 'generate'})
+      if(!this.props.edit && this.isCollectionVersion() && this.isLockToggleOn())
+        this.setState({expansionDialog: true, expansion: this.canLockRepoVersions() ? 'lock' : 'latest'})
       else
         this.submit()
     }
@@ -229,7 +233,7 @@ class VersionForm extends FormComponent {
               />
             </div>
             {
-              resource === 'collection' && edit &&
+              resource === 'collection' && (edit || !this.isLockToggleOn()) &&
               <div className='col-xs-12' style={{width: '100%', marginTop: '15px'}}>
                 <FormControlLabel
                   control={<Checkbox checked={Boolean(fields.autoexpand.value)} onChange={this.onCheckboxChange} name="autoexpand" />}
@@ -248,7 +252,7 @@ class VersionForm extends FormComponent {
           <DialogContent sx={{padding: '16px 0 0 0 !important'}}>
             <RadioGroup value={this.state.expansion || ''} onChange={event => this.setState({expansion: event.target.value})}>
               {
-                map(this.canCopyHeadExpansion() ? ['copy', 'generate', 'none'] : ['generate', 'none'], choice => (
+                map(this.getExpansionChoices(), choice => (
                   <FormControlLabel
                     key={choice}
                     value={choice}
