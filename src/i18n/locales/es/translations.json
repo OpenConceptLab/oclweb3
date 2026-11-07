@@ -526,7 +526,10 @@
         "edit_title": "Editar versión de {{resourceType}}: {{version}}"
       }
     },
-    "repo_version": "Versión del repositorio"
+    "repo_version": "Versión del repositorio",
+    "versioning_mode": "Modo de versionado",
+    "versioning_mode_carry_forward": "Continuar desde HEAD",
+    "versioning_mode_isolated": "Aislado"
   },
   "org": {
     "my": "Mis organizaciones",
