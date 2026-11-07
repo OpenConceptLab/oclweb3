@@ -52,6 +52,7 @@ const VERSION_ATTRIBUTE_LABEL_KEYS = {
   autoexpand: 'repo.autoexpand',
   expansion_url: 'repo.expansion_url',
   revision_date: 'repo.revision_date',
+  versioning_mode: 'repo.versioning_mode',
   extras: 'custom_attributes.label',
   'checksums.standard': 'checksums.standard',
   'checksums.smart': 'checksums.smart',
@@ -95,6 +96,7 @@ const VERSION_ATTRIBUTE_ORDER = [
   'autoexpand',
   'expansion_url',
   'revision_date',
+  'versioning_mode',
   'extras',
   'checksums.standard',
   'checksums.smart',
@@ -126,6 +128,8 @@ export const getVersionAttributeFields = (version, t) => {
     // the dialog renders a value only when it is truthy, so true/false needs a string
     if(isBoolean(value))
       info.value = value.toString();
+    if(field === 'versioning_mode' && value)
+      info.value = t(`repo.versioning_mode_${value}`, {defaultValue: startCase(value)});
     fields[field] = info;
   });
   return fields;

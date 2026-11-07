@@ -555,7 +555,10 @@
         "edit_title": "编辑{{resourceType}}版本：{{version}}"
       }
     },
-    "repo_version": "仓库版本"
+    "repo_version": "仓库版本",
+    "versioning_mode": "版本模式",
+    "versioning_mode_carry_forward": "沿用 HEAD",
+    "versioning_mode_isolated": "独立"
   },
   "org": {
     "my": "我的组织机构",
