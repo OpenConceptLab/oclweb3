@@ -762,13 +762,25 @@
     "resolved_repo_updates_available": "New releases are available for some resolved repo versions in this expansion:",
     "version": {
       "vectorized_for_mapper": "Concepts vectorization is enabled for this repository version",
+      "semantic_search": {
+        "turn_on": "Turn On OCL Semantic Search",
+        "turn_off": "Turn Off OCL Semantic Search",
+        "turn_on_message": "Turn on OCL Semantic Search for {{repoId}}? Its concepts are vectorized in the background, reusing the vectors other versions already have. A large version can take hours, and until it finishes, semantic $match on this version finds only the concepts already vectorized.",
+        "turn_off_message": "Turn off OCL Semantic Search for {{repoId}}? Semantic $match on this version stops, including in Mapper projects that use it. Vectors that no other semantic version uses are removed, and turning it back on adds them again.",
+        "concept_count": "Concepts in this version: {{count}}",
+        "turned_on": "OCL Semantic Search is on for {{repoId}}. Its concepts are being vectorized in the background.",
+        "turned_off": "OCL Semantic Search is off for {{repoId}}.",
+        "sync_vectors": "Sync Vectors",
+        "sync_vectors_message": "Sync vectors for {{repoId}}? This adds the vectors its concepts are missing and removes those that no semantic version uses. It doesn't turn OCL Semantic Search on or off."
+      },
       "form": {
         "id": {
           "label": "ID",
           "helper_text": "Alphanumeric characters, @, hyphens, periods, and underscores are allowed."
         },
         "new_title": "New {{resourceType}} Version: {{version}}",
-        "edit_title": "Edit {{resourceType}} Version: {{version}}"
+        "edit_title": "Edit {{resourceType}} Version: {{version}}",
+        "semantic_search": "OCL Semantic Search (vectorize this version's concepts)"
       },
       "expansion_dialog": {
         "title": "Expansion for this version",

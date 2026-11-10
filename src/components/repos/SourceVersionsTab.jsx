@@ -41,8 +41,10 @@ import {
   Newspaper as ChangelogIcon,
   OpenInNew as OpenInNewIcon,
   LayersClear as ClearProcessingIcon,
+  ManageSearch as SemanticSearchIcon,
   QueryStats as ReindexIcon,
   Summarize as SummaryIcon,
+  Sync as SyncVectorsIcon,
   Visibility as VisibilityIcon
 } from '@mui/icons-material';
 import get from 'lodash/get';
@@ -69,6 +71,8 @@ import ProcessingFlag from './ProcessingFlag';
 import RepoContentSummary, { VERSION_STATS } from './RepoContentSummary';
 import ProcessingProgress from './ProcessingProgress';
 import ReindexVersionDialog from './ReindexVersionDialog';
+import SemanticSearchDialog from './SemanticSearchDialog';
+import { isSemanticVersion } from './semanticSearch';
 import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
 import GAService from '../../services/GAService';
@@ -173,6 +177,7 @@ const SourceVersionsTab = ({
   const [attributesVersion, setAttributesVersion] = React.useState(null);
   const [changelogVersion, setChangelogVersion] = React.useState(null);
   const [reindexTarget, setReindexTarget] = React.useState(null);
+  const [semanticSearchVersion, setSemanticSearchVersion] = React.useState(null);
   const [clearProcessingVersion, setClearProcessingVersion] = React.useState(null);
   const [reindexWip, setReindexWip] = React.useState({});
   const [headVersion, setHeadVersion] = React.useState(isHeadVersion(repo) ? repo : null);
@@ -279,13 +284,17 @@ const SourceVersionsTab = ({
   const onExternalExportsChange = updatedVersion => {
     if(onDataChange) onDataChange(updatedVersion);
   };
-  const getReindexKey = (version, contentType) => `${getVersionKey(version)}:${contentType}`;
+  const getReindexKey = (version, key) => `${getVersionKey(version)}:${key}`;
   const closeReindexDialog = result => {
     const target = reindexTarget;
     setReindexTarget(null);
     if(!target || !result) return;
     if(result.taskId || result.status === 409)
-      setReindexWip(prev => ({ ...prev, [getReindexKey(target.version, target.contentType)]: { taskId: result.taskId } }));
+      setReindexWip(prev => ({ ...prev, [getReindexKey(target.version, target.key)]: { taskId: result.taskId } }));
+  };
+  const closeSemanticSearchDialog = changed => {
+    setSemanticSearchVersion(null);
+    if(changed && onDataChange) onDataChange();
   };
   const menuVersion = menuState.version
     ? sortedVersions.find(version => getVersionKey(version) === getVersionKey(menuState.version)) || menuState.version
@@ -471,26 +480,37 @@ const SourceVersionsTab = ({
         {hasAccess && <GatedMenuItem onClick={() => withClose(onReleaseVersion)} disabled={isHeadVersion(menuState.version) || menuVersionProcessing} reason={processingReason}><ReleaseIcon fontSize="small" sx={{ mr: 1 }} />{menuState.version?.released ? t('repo.unrelease_version') : t('repo.release_version')}</GatedMenuItem>}
         {hasAccess && <GatedMenuItem onClick={() => withClose(computeSummary)} disabled={menuVersionProcessing} reason={processingReason}><SummaryIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.recompute_summary')}</GatedMenuItem>}
         {hasAccess && isStaffUser() && [
-          { contentType: 'concepts', label: t('repo.reindex_concepts') },
-          { contentType: 'mappings', label: t('repo.reindex_mappings') }
-        ].map(({ contentType, label }) => {
-          const wip = menuState.version ? reindexWip[getReindexKey(menuState.version, contentType)] : null;
+          { key: 'concepts', contentType: 'concepts', label: t('repo.reindex_concepts') },
+          { key: 'mappings', contentType: 'mappings', label: t('repo.reindex_mappings') },
+          ...(isSemanticVersion(menuVersion) ? [
+            { key: 'vectors', contentType: 'concepts', syncVectors: true, label: t('repo.version.semantic_search.sync_vectors') }
+          ] : [])
+        ].map(({ key, contentType, syncVectors, label }) => {
+          const wip = menuState.version ? reindexWip[getReindexKey(menuState.version, key)] : null;
           const tooltip = wip
             ? (wip.taskId ? t('repo.reindex_in_progress_tooltip_with_id', { id: wip.taskId }) : t('repo.reindex_in_progress_tooltip'))
             : (menuVersionProcessing ? processingReason : '');
+          const Icon = syncVectors ? SyncVectorsIcon : ReindexIcon;
           return (
-            <Tooltip key={contentType} title={tooltip} placement="left">
+            <Tooltip key={key} title={tooltip} placement="left">
               <span style={{ display: 'block' }}>
                 <MenuItem
                   disabled={Boolean(wip) || menuVersionProcessing}
-                  onClick={() => withClose(version => setReindexTarget({ version, contentType }))}
+                  onClick={() => withClose(version => setReindexTarget({ version, key, contentType, syncVectors, label }))}
                 >
-                  <ReindexIcon fontSize="small" sx={{ mr: 1 }} />{label}
+                  <Icon fontSize="small" sx={{ mr: 1 }} />{label}
                 </MenuItem>
               </span>
             </Tooltip>
           );
         })}
+        {
+          hasAccess && isStaffUser() && !isHeadVersion(menuState.version) &&
+            <GatedMenuItem onClick={() => withClose(() => setSemanticSearchVersion(menuVersion))} disabled={menuVersionProcessing} reason={processingReason}>
+              <SemanticSearchIcon fontSize="small" sx={{ mr: 1 }} />
+              {t(isSemanticVersion(menuVersion) ? 'repo.version.semantic_search.turn_off' : 'repo.version.semantic_search.turn_on')}
+            </GatedMenuItem>
+        }
         {
           isStaffUser() && menuVersionProcessing && [
             <Divider key="clear-processing-divider" sx={{margin: '8px 0'}} />,
@@ -540,8 +560,16 @@ const SourceVersionsTab = ({
           targetUrl={getVersionURL(reindexTarget.version)}
           repoId={`${reindexTarget.version.short_code || reindexTarget.version.id} [${getVersionLabel(reindexTarget.version)}]`}
           contentType={reindexTarget.contentType}
-          label={reindexTarget.contentType === 'mappings' ? t('repo.reindex_mappings') : t('repo.reindex_concepts')}
+          label={reindexTarget.label}
+          syncVectors={reindexTarget.syncVectors}
           onClose={closeReindexDialog}
+        />
+      )}
+      {Boolean(semanticSearchVersion) && (
+        <SemanticSearchDialog
+          version={semanticSearchVersion}
+          repoId={`${semanticSearchVersion.short_code || semanticSearchVersion.id} [${getVersionLabel(semanticSearchVersion)}]`}
+          onClose={closeSemanticSearchDialog}
         />
       )}
     </Box>
