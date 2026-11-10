@@ -29,7 +29,7 @@ import { copyURL, toFullAPIURL } from '../../common/utils';
 import GAService from '../../services/GAService'
 import UserChip from '../users/UserChip'
 import RepoChip from '../repos/RepoChip'
-import { groupVersionsByRepoVersion, toRepoVersion } from './historyGroups'
+import { createdOn, groupVersionsByRepoVersion, toRepoVersion } from './historyGroups'
 
 const VersionMenu = ({version, repoVersion, onClose, anchorEl, resource, icon}) => {
   const url = repoVersion.version_url + resource + '/' + version.id + '/'
@@ -233,8 +233,8 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
                           {t('repo.repo_version')}
                           <RepoChip hideType key={repoVersion} repo={repoVersion} size='small' sx={{padding: '4px', '.MuiChip-label': {padding: '0 2px 0 0'}, margin: '0 4px'}} />
                           {
-                            (repoVersion.created_on || repoVersion.created_at) &&
-                              <>{t('common.created_on').toLowerCase()} {moment(repoVersion.created_on || repoVersion.created_at).format('L')}</>
+                            createdOn(repoVersion) &&
+                              <>{t('common.created_on').toLowerCase()} {moment(createdOn(repoVersion)).format('L')}</>
                           }
                         </span>
                       </div>

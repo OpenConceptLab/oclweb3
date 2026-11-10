@@ -7,7 +7,7 @@ const HEAD = 'HEAD'
 // /orgs/CIEL/sources/CIEL/concepts/1/2/ and /orgs/CIEL/sources/CIEL/v1/ both belong to /orgs/CIEL/sources/CIEL/
 const repoOf = uri => uri.split('/').slice(0, 5).join('/') + '/'
 
-const createdOn = repoVersion => repoVersion?.created_on || repoVersion?.created_at
+export const createdOn = repoVersion => repoVersion?.created_on || repoVersion?.created_at
 
 const timeOf = date => (date ? Date.parse(date) : NaN)
 
@@ -78,9 +78,7 @@ export const groupVersionsByRepoVersion = (versions, repoVersions) => {
     const time = timeOf(createdOn(group))
     return isNaN(time) ? Math.max(...group.resourceVersions.map(version => timeOf(version.version_created_on))) : time
   }
-  const result = [...groups.values()].map(group => ({...group, resourceVersions: newestFirst(group.resourceVersions)}))
-  return [
-    ...result.filter(isHead),
-    ...result.filter(group => !isHead(group)).sort((a, b) => sortTime(b) - sortTime(a))
-  ]
+  return [...groups.values()]
+    .map(group => ({...group, resourceVersions: newestFirst(group.resourceVersions)}))
+    .sort((a, b) => (Number(isHead(b)) - Number(isHead(a))) || (sortTime(b) - sortTime(a)))
 }
