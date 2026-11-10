@@ -125,7 +125,9 @@ const MappingHome = props => {
       return
     }
     APIService.new().overrideURL(url).appendToUrl('versions/').get(null, null, {limit: 1000}).then(response => {
-      setRepoVersions({url, versions: response.data || []})
+      // kept only when the request worked, so a failed one is tried again
+      if(Array.isArray(response?.data))
+        setRepoVersions({url, versions: response.data})
       setLoading(false)
     })
   }
