@@ -23,5 +23,13 @@ test('turning semantic search off removes only llm', () => {
 test('with no other algorithm left, es is kept, as the API defaults', () => {
   assert.deepEqual(withSemanticSearch(['llm'], false), ['es'])
   assert.deepEqual(withSemanticSearch(null, false), ['es'])
+})
+
+test('no algorithms means es, as the API stores it', () => {
   assert.deepEqual(withSemanticSearch([], true), ['es', 'llm'])
+  assert.deepEqual(withSemanticSearch(null, true), ['es', 'llm'])
+})
+
+test('a semantic-only setting stays semantic-only when semantic search stays on', () => {
+  assert.deepEqual(withSemanticSearch(['llm'], true), ['llm'])
 })

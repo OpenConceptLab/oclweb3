@@ -77,6 +77,7 @@ import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
 import GAService from '../../services/GAService';
 import { useProcessingVersions } from '../../hooks/useProcessingState';
+import useQueuedTasks from '../../hooks/useQueuedTasks';
 import { PROCESSING_QUERY_PARAMS, areSeedStagesComplete, isChangelogAvailable, isExportAvailable, isVersionProcessing } from './processingStages';
 import {
   REPO_VERSIONS_PAGE_SIZE,
@@ -179,7 +180,7 @@ const SourceVersionsTab = ({
   const [reindexTarget, setReindexTarget] = React.useState(null);
   const [semanticSearchVersion, setSemanticSearchVersion] = React.useState(null);
   const [clearProcessingVersion, setClearProcessingVersion] = React.useState(null);
-  const [reindexWip, setReindexWip] = React.useState({});
+  const { tasks: reindexWip, add: addReindexWip, check: checkReindexWip } = useQueuedTasks();
   const [headVersion, setHeadVersion] = React.useState(isHeadVersion(repo) ? repo : null);
   const [versions, setVersions] = React.useState([]);
   const [totalCount, setTotalCount] = React.useState(0);
@@ -290,7 +291,11 @@ const SourceVersionsTab = ({
     setReindexTarget(null);
     if(!target || !result) return;
     if(result.taskId || result.status === 409)
-      setReindexWip(prev => ({ ...prev, [getReindexKey(target.version, target.key)]: { taskId: result.taskId } }));
+      addReindexWip(getReindexKey(target.version, target.key), result.taskId);
+  };
+  const openMenu = (event, version) => {
+    setMenuState({ anchorEl: event.currentTarget, version });
+    checkReindexWip(['concepts', 'mappings', 'vectors'].map(key => getReindexKey(version, key)));
   };
   const closeSemanticSearchDialog = changed => {
     setSemanticSearchVersion(null);
@@ -418,7 +423,7 @@ const SourceVersionsTab = ({
                   </TableCell>
                   <TableCell align="right" sx={bodyCellSx}>
                     <Tooltip title={t('common.actions')}>
-                      <IconButton size="small" onClick={event => setMenuState({ anchorEl: event.currentTarget, version })}>
+                      <IconButton size="small" onClick={event => openMenu(event, version)}>
                         <MoreVertIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>

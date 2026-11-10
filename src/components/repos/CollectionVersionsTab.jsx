@@ -76,6 +76,7 @@ import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
 import GAService from '../../services/GAService';
 import { PROCESSING_POLL_INTERVAL_MS, useProcessingVersions } from '../../hooks/useProcessingState';
+import useQueuedTasks from '../../hooks/useQueuedTasks';
 import { PROCESSING_QUERY_PARAMS, areSeedStagesComplete, isExportAvailable, isProcessing as isExpansionProcessing, isVersionProcessing } from './processingStages';
 import {
   REPO_VERSIONS_PAGE_SIZE,
@@ -186,7 +187,7 @@ const CollectionVersionsTab = ({
   const [rebuildExpansion, setRebuildExpansion] = React.useState(null);
   const [reindexTarget, setReindexTarget] = React.useState(null);
   const [clearProcessingVersion, setClearProcessingVersion] = React.useState(null);
-  const [reindexWip, setReindexWip] = React.useState({});
+  const { tasks: reindexWip, add: addReindexWip, check: checkReindexWip } = useQueuedTasks();
   const [expandedVersionKeys, setExpandedVersionKeys] = React.useState(new Set());
   const [rowMenu, setRowMenu] = React.useState({ anchorEl: null, version: null });
   const [expansionMenu, setExpansionMenu] = React.useState({ anchorEl: null, version: null, expansion: null });
@@ -559,7 +560,7 @@ const CollectionVersionsTab = ({
     setReindexTarget(null);
     if (!target || !result) return;
     if (result.taskId || result.status === 409)
-      setReindexWip(prev => ({ ...prev, [getReindexKey(target.targetUrl, target.contentType)]: { taskId: result.taskId } }));
+      addReindexWip(getReindexKey(target.targetUrl, target.contentType), result.taskId);
   };
 
   const toggleVersionExpand = version => {
@@ -574,7 +575,10 @@ const CollectionVersionsTab = ({
 
   const openRowMenu = (event, version) => setRowMenu({ anchorEl: event.currentTarget, version });
   const closeRowMenu = () => setRowMenu({ anchorEl: null, version: null });
-  const openExpansionMenu = (event, version, expansion) => setExpansionMenu({ anchorEl: event.currentTarget, version, expansion });
+  const openExpansionMenu = (event, version, expansion) => {
+    setExpansionMenu({ anchorEl: event.currentTarget, version, expansion });
+    checkReindexWip(['concepts', 'mappings'].map(contentType => getReindexKey(expansion.url, contentType)));
+  };
   const closeExpansionMenu = () => setExpansionMenu({ anchorEl: null, version: null, expansion: null });
 
   const buildRowMenuItems = version => {
