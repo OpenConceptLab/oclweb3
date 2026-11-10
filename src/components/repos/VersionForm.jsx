@@ -2,7 +2,7 @@ import React from 'react';
 import { withTranslation } from 'react-i18next';
 import moment from 'moment';
 
-import { TextField, FormControlLabel, Checkbox, Autocomplete } from '@mui/material';
+import { TextField, FormControlLabel, Checkbox, Autocomplete, DialogContent, RadioGroup, Radio, Typography } from '@mui/material';
 import { set, get, startCase, isBoolean, isObject, values, map } from 'lodash';
 import APIService from '../../services/APIService';
 import GAService from '../../services/GAService';
@@ -13,7 +13,12 @@ import {
 } from '../../common/validators';
 import Button from '../common/Button'
 import CloseIconButton from '../common/CloseIconButton';
+import Dialog from '../common/Dialog'
+import DialogTitle from '../common/DialogTitle'
 import { ID_REGEX } from '../../common/constants'
+import {
+  shouldAskForExpansion, shouldShowAutoexpand, getExpansionChoices, getDefaultExpansion, getExpansionPayload
+} from './versionExpansion'
 
 
 class VersionForm extends FormComponent {
@@ -35,6 +40,8 @@ class VersionForm extends FormComponent {
         expansion_url: {...fieldStruct},
         revision_date: {...fieldStruct},
       },
+      expansionDialog: false,
+      expansion: null,
     }
   }
 
@@ -57,37 +64,58 @@ class VersionForm extends FormComponent {
 
   onCheckboxChange = event => this.setFieldValue(event.target.name, event.target.checked)
 
+  isCollectionVersion = () => (this.props.resource || this.props.resourceType) === 'collection'
+
+  getExpansionArgs = () => ({
+    edit: Boolean(this.props.edit),
+    isCollection: this.isCollectionVersion(),
+    lockToggle: Boolean(this.context?.toggles?.EXPANSION_LOCKED_REPO_VERSION_TOGGLE),
+    headExpansionURL: this.props.version?.expansion_url,
+  })
+
   onSubmit = event => {
     event.preventDefault();
     event.stopPropagation();
-    const isValid = this.setAllFieldsErrors()
-    if(isValid) {
-      const { version, edit, resource, resourceType } = this.props
-      if(version?.url) {
-        const isCollectionVersion = (resource || resourceType) === 'collection'
-        const payload = this.getValues()
+    if(this.setAllFieldsErrors()) {
+      if(shouldAskForExpansion(this.getExpansionArgs()))
+        this.setState({expansionDialog: true, expansion: getDefaultExpansion(this.getExpansionArgs())})
+      else
+        this.submit()
+    }
+  }
 
-        if(isBoolean(this.state.fields.released.value))
-          payload.released = this.state.fields.released.value
-        if(this.state.fields.revision_date.value)
-          payload.revision_date = moment(payload.revision_date).utc().format('YYYY-MM-DD HH:mm:ss')
-        else
-          delete payload.revision_date
+  onExpansionSubmit = () => {
+    this.setState({expansionDialog: false})
+    this.submit(this.state.expansion)
+  }
 
-        if(isCollectionVersion) {
-          payload.autoexpand = isBoolean(this.state.fields.autoexpand.value) ? this.state.fields.autoexpand.value : false
-          payload.expansion_url = this.state.fields.expansion_url.value || null
-        } else {
-          delete payload.autoexpand
-          delete payload.expansion_url
-        }
+  submit = expansion => {
+    const { version, edit } = this.props
+    if(version?.url) {
+      const isCollectionVersion = this.isCollectionVersion()
+      const payload = this.getValues()
 
-        const url = edit ? version.version_url : version.url
-        GAService.recordUpsertEvent(isCollectionVersion ? 'Collection Version' : 'Source Version', edit)
-        let service = APIService.new().overrideURL(url)
-        service = edit ? service.put(payload) : service.appendToUrl('versions/').post(payload)
-        service.then(response => this.handleSubmitResponse(response))
+      if(isBoolean(this.state.fields.released.value))
+        payload.released = this.state.fields.released.value
+      if(this.state.fields.revision_date.value)
+        payload.revision_date = moment(payload.revision_date).utc().format('YYYY-MM-DD HH:mm:ss')
+      else
+        delete payload.revision_date
+
+      if(isCollectionVersion) {
+        payload.autoexpand = isBoolean(this.state.fields.autoexpand.value) ? this.state.fields.autoexpand.value : false
+        payload.expansion_url = this.state.fields.expansion_url.value || null
+        Object.assign(payload, getExpansionPayload(expansion))
+      } else {
+        delete payload.autoexpand
+        delete payload.expansion_url
       }
+
+      const url = edit ? version.version_url : version.url
+      GAService.recordUpsertEvent(isCollectionVersion ? 'Collection Version' : 'Source Version', edit)
+      let service = APIService.new().overrideURL(url)
+      service = edit ? service.put(payload) : service.appendToUrl('versions/').post(payload)
+      service.then(response => this.handleSubmitResponse(response))
     }
   }
 
@@ -206,7 +234,7 @@ class VersionForm extends FormComponent {
               />
             </div>
             {
-              resource === 'collection' &&
+              resource === 'collection' && shouldShowAutoexpand(this.getExpansionArgs()) &&
               <div className='col-xs-12' style={{width: '100%', marginTop: '15px'}}>
                 <FormControlLabel
                   control={<Checkbox checked={Boolean(fields.autoexpand.value)} onChange={this.onCheckboxChange} name="autoexpand" />}
@@ -220,6 +248,30 @@ class VersionForm extends FormComponent {
             </div>
           </form>
         </div>
+        <Dialog open={this.state.expansionDialog} onClose={() => this.setState({expansionDialog: false})} fullWidth maxWidth='xs'>
+          <DialogTitle>{t('repo.version.expansion_dialog.title')}</DialogTitle>
+          <DialogContent sx={{padding: '16px 0 0 0 !important'}}>
+            <RadioGroup value={this.state.expansion || ''} onChange={event => this.setState({expansion: event.target.value})}>
+              {
+                map(getExpansionChoices(this.getExpansionArgs()), choice => (
+                  <FormControlLabel
+                    key={choice}
+                    value={choice}
+                    control={<Radio />}
+                    sx={{alignItems: 'flex-start', marginBottom: '8px', '& .MuiRadio-root': {paddingTop: '2px'}}}
+                    label={
+                      <span>
+                        <Typography component='span' sx={{display: 'block'}}>{t(`repo.version.expansion_dialog.${choice}`)}</Typography>
+                        <Typography component='span' variant='body2' sx={{display: 'block', color: 'text.secondary'}}>{t(`repo.version.expansion_dialog.${choice}_help`)}</Typography>
+                      </span>
+                    }
+                  />
+                ))
+              }
+            </RadioGroup>
+            <Button sx={{marginTop: '16px'}} color='primary' label={t('common.submit')} onClick={this.onExpansionSubmit} />
+          </DialogContent>
+        </Dialog>
       </div>
     )
   }
