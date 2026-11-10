@@ -36,7 +36,7 @@ const ConceptHome = props => {
   const [versions, setVersions] = React.useState([])
 
   const [repo, setRepo] = React.useState(props.repo || {})
-  const [repoVersions, setRepoVersions] = React.useState(props.repoVersions || [])
+  const [repoVersions, setRepoVersions] = React.useState({url: null, versions: []})
   const [tab, setTab] = React.useState('metadata')
   const [edit, setEdit] = React.useState(false)
   const [createSimilar, setCreateSimilar] = React.useState(false)
@@ -142,22 +142,22 @@ const ConceptHome = props => {
       const service = APIService.new().overrideURL(_conceptURL)
       service.appendToUrl('versions/').get(null, null, {includeCollectionVersions: true, includeSourceVersions: true}).then(response => {
         setVersions(response.data || [])
-        if(!repoVersions?.length)
-          fetchRepoVersions(_conceptURL)
-        else
-          setLoading(false)
+        fetchRepoVersions(_conceptURL)
       })
     }
   }
 
+  // History needs every version of the concept's own source, not a page of the repo being viewed
   const fetchRepoVersions = conceptURL => {
-    if(repoVersions.length === 0 && conceptURL) {
-      let url = dropVersion(toParentURI(conceptURL))
-      APIService.new().overrideURL(url).appendToUrl('versions/').get().then(response => {
-        setRepoVersions(response.data || [])
-        setLoading(false)
-      })
-    } else setLoading(false)
+    const url = dropVersion(toParentURI(conceptURL))
+    if(url === repoVersions.url) {
+      setLoading(false)
+      return
+    }
+    APIService.new().overrideURL(url).appendToUrl('versions/').get(null, null, {limit: 1000}).then(response => {
+      setRepoVersions({url, versions: response.data || []})
+      setLoading(false)
+    })
   }
 
   const onTabChange = newTab => {
@@ -420,7 +420,7 @@ const ConceptHome = props => {
                 {
                   tab === 'history' &&
                     <History
-                      repoVersions={repoVersions}
+                      repoVersions={repoVersions.versions}
                       versions={versions}
                       loading={loading}
                       resource='concepts'
