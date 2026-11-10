@@ -13,7 +13,7 @@ import Switch from '@mui/material/Switch';
 import Checkbox from '@mui/material/Checkbox';
 import Skeleton from '@mui/material/Skeleton'
 import IconButton from '@mui/material/IconButton';
-import CircularProgress from '@mui/material/CircularProgress';
+import Button from '@mui/material/Button';
 import RightIcon from '@mui/icons-material/KeyboardArrowRight';
 import DownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { visuallyHidden } from '@mui/utils';
@@ -130,11 +130,16 @@ const getChildrenURL = (row, baseURL) => {
   const conceptSuffix = row.url.replace(/^.*\/concepts\//, 'concepts/').replace(/\/$/, '')
   return baseURL.replace(/concepts\/.*$/, '') + conceptSuffix + '/children/';
 }
-const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, isSelected, isItemShown, size, hierarchical, level, baseURL, onRowsLoaded}) => {
+const CHILDREN_PAGE_SIZE = 25
+const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, isSelected, isItemShown, size, hierarchical, level, baseURL, onRowsLoaded, hidden}) => {
+  const { t } = useTranslation()
   const [open, setOpen] = React.useState(false)
   const [children, setChildren] = React.useState([])
   const [fetched, setFetched] = React.useState(false)
   const [loadingChildren, setLoadingChildren] = React.useState(false)
+  const [childrenPage, setChildrenPage] = React.useState(0)
+  const [childrenTotal, setChildrenTotal] = React.useState(0)
+  const [childrenError, setChildrenError] = React.useState(null)
   const id = row.version_url || row.url || row.id
   const isItemSelected = isSelected(id)
   const isItemSelectedToShow = isItemShown(id)
@@ -142,20 +147,40 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
   const color = row.retired ? SECONDARY_COLORS.main : 'none'
   let bgColor = isItemSelectedToShow ? 'primary.90' : ''
   const colSpan = columns.length + (handleClick ? 1 : 0) + 1
-  const fetchChildren = () => {
-    if(fetched)
+  // Children load a page at a time; a failed page can be retried without losing the pages already shown
+  const fetchChildrenPage = page => {
+    if(loadingChildren)
       return
     setLoadingChildren(true)
-    APIService.new().overrideURL(getChildrenURL(row, baseURL)).get().then(response => {
+    setChildrenError(null)
+    APIService.new().overrideURL(getChildrenURL(row, baseURL)).get(null, null, {limit: CHILDREN_PAGE_SIZE, page: page}).then(response => {
       setLoadingChildren(false)
       if(Array.isArray(response?.data)) {
-        setChildren(response.data)
+        setChildren(prev => page === 1 ? response.data : [...prev, ...response.data])
+        setChildrenPage(page)
+        setChildrenTotal(parseInt(response?.headers?.num_found) || 0)
         setFetched(true)
         if(onRowsLoaded)
           onRowsLoaded(response.data)
+      } else {
+        setChildrenError(response?.detail || t('common.could_not_load'))
       }
     })
   }
+  const fetchChildren = () => {
+    if(!fetched)
+      fetchChildrenPage(1)
+  }
+  // "Show more" and "Try again" both load the page after the last one shown
+  const onLoadNextChildren = event => {
+    event.preventDefault()
+    event.stopPropagation()
+    fetchChildrenPage(childrenPage + 1)
+  }
+  const hasMoreChildren = fetched && children.length < childrenTotal
+  const showChildren = hierarchical && open && !hidden
+  // up to 5 placeholder rows while a page loads, fewer when fewer children are left
+  const skeletonRows = Math.max(Math.min(5, fetched ? childrenTotal - children.length : 5), 1)
   const onExpandClick = event => {
     event.preventDefault()
     event.stopPropagation()
@@ -175,6 +200,7 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
         selected={isItemSelectedToShow}
         className={isItemSelectedToShow ? 'show-item' : ''}
         sx={[{
+          display: hidden ? 'none' : undefined,
           cursor: 'pointer',
           backgroundColor: '#FFF',
           '&.Mui-selected': {
@@ -239,15 +265,8 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
         }
       </TableRow>
       {
-        hierarchical && open && loadingChildren &&
-          <TableRow>
-            <TableCell colSpan={colSpan} sx={{paddingLeft: `${28 + (level * 24)}px`}}>
-              <CircularProgress size={16} />
-            </TableCell>
-          </TableRow>
-      }
-      {
-        hierarchical && open && !loadingChildren &&
+        // fetched children stay mounted while collapsed, so they keep their own pages and expansions
+        hierarchical && fetched &&
           children.map((child, i) => (
             <ResultRow
               key={child.version_url || child.url || child.uuid || i}
@@ -264,8 +283,44 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
               level={level + 1}
               baseURL={baseURL}
               onRowsLoaded={onRowsLoaded}
+              hidden={!showChildren}
             />
           ))
+      }
+      {
+        showChildren && loadingChildren &&
+          times(skeletonRows, i => (
+            <TableRow key={`skeleton-${i}`}>
+              {handleClick && <TableCell padding="checkbox" />}
+              <TableCell padding='none' />
+              {
+                columns.map((column, idx) => (
+                  <TableCell key={idx}>
+                    <Skeleton variant='text' />
+                  </TableCell>
+                ))
+              }
+            </TableRow>
+          ))
+      }
+      {
+        showChildren && !loadingChildren && (childrenError || hasMoreChildren) &&
+          <TableRow>
+            <TableCell colSpan={colSpan} align='right' sx={{paddingTop: '2px', paddingBottom: '2px'}}>
+              {
+                childrenError ?
+                  <span style={{color: SECONDARY_COLORS.main, marginRight: '8px'}}>{childrenError}</span> :
+                  null
+              }
+              <Button size='small' onClick={onLoadNextChildren} sx={{textTransform: 'none'}}>
+                {
+                  childrenError ?
+                    t('common.try_again') :
+                    t('common.show_more_of', {shown: children.length.toLocaleString(), total: childrenTotal.toLocaleString()})
+                }
+              </Button>
+            </TableCell>
+          </TableRow>
       }
     </React.Fragment>
   );
