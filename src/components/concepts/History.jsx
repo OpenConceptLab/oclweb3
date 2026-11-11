@@ -22,15 +22,14 @@ import VersionIcon from '@mui/icons-material/AccountTreeOutlined';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import DiffIcon from '@mui/icons-material/Difference';
 
-import compact from 'lodash/compact'
 import map from 'lodash/map'
 import orderBy from 'lodash/orderBy'
-import uniqBy from 'lodash/uniqBy'
 
 import { copyURL, toFullAPIURL } from '../../common/utils';
 import GAService from '../../services/GAService'
 import UserChip from '../users/UserChip'
 import RepoChip from '../repos/RepoChip'
+import { createdOn, groupVersionsByRepoVersion, toRepoVersion } from './historyGroups'
 
 const VersionMenu = ({version, repoVersion, onClose, anchorEl, resource, icon}) => {
   const url = repoVersion.version_url + resource + '/' + version.id + '/'
@@ -125,44 +124,7 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
     setSelectedVersion(false)
     setSelectedRepoVersion(false)
   }
-  const getRepoDetails = uri => {
-    const parts = compact(uri.split('/'))
-    return {
-      ownerType: parts[0],
-      owner: parts[1],
-      type: parts[2] === 'sources' ? 'Source Version' : (parts[2] === 'collections' ? 'Collection Version' : parts[2]),
-      id: parts[3],
-      version: parts[4],
-      uri: uri,
-      version_url: uri
-    }
-  }
-  const getVersions = () => {
-    let result = []
-    let traversed = []
-    repoVersions.forEach(repoVersion => {
-      const versionCreatedAt = moment(repoVersion.created_on || repoVersion.created_at)
-      repoVersion.resourceVersions = []
-      versions.forEach(version => {
-        if(!traversed.includes(version.uuid)) {
-          const resourceVersionCreatedAt = moment(version.version_created_on)
-          if((version.source_versions.includes(repoVersion.version_url)) || (resourceVersionCreatedAt.isBefore(versionCreatedAt) && !version.source_versions.length)) {
-            repoVersion.resourceVersions.push(version)
-            traversed.push(version.uuid)
-          }
-        }
-      })
-      repoVersion.resourceVersions = sortResourceVersions(repoVersion.resourceVersions)
-      result.push(repoVersion)
-    })
-    const headVersion = result[repoVersions.length - 1]
-    if(traversed.length !== versions.length && headVersion?.id) {
-      headVersion.resourceVersions = sortResourceVersions([...headVersion.resourceVersions, ...versions.filter(version => !traversed.includes(version.uuid))])
-    }
-    return compact([headVersion, ...result.filter(version=> version.id !== 'HEAD')])
-  }
-  const sortResourceVersions = resourceVersions => orderBy(uniqBy(resourceVersions, 'version_url'), version => moment(version.version_created_on), 'desc')
-  let mergedVersions = getVersions()
+  const mergedVersions = groupVersionsByRepoVersion(versions, repoVersions)
 
 
   return (
@@ -270,7 +232,10 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
                         <span style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start', fontSize: '12px'}}>
                           {t('repo.repo_version')}
                           <RepoChip hideType key={repoVersion} repo={repoVersion} size='small' sx={{padding: '4px', '.MuiChip-label': {padding: '0 2px 0 0'}, margin: '0 4px'}} />
-                          {t('common.created_on').toLowerCase()} {moment(repoVersion.created_on).format('L')}
+                          {
+                            createdOn(repoVersion) &&
+                              <>{t('common.created_on').toLowerCase()} {moment(createdOn(repoVersion)).format('L')}</>
+                          }
                         </span>
                       </div>
                       {
@@ -322,7 +287,7 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
                                           </Typography>
                                           {
                                             map(version.source_versions, repoVersion => {
-                                              const repo = getRepoDetails(repoVersion)
+                                              const repo = toRepoVersion(repoVersion)
                                               return (
                                                 <RepoChip hideType key={repoVersion} repo={repo} size='small' sx={{padding: '4px', '.MuiChip-label': {padding: '0 2px 0 0'}, margin: '2px 0'}} />
                                               )
@@ -343,7 +308,7 @@ const History = ({ versions, repoVersions, loading, icon, resource }) => {
                                           </Typography>
                                           {
                                             map(version.collection_versions, repoVersion => {
-                                              const repo = getRepoDetails(repoVersion)
+                                              const repo = toRepoVersion(repoVersion)
                                               return (
                                                 <RepoChip hideType key={repoVersion} repo={repo} size='small' sx={{padding: '4px', '.MuiChip-label': {padding: '0 2px 0 0'}, margin: '2px 0'}} />
                                               )

@@ -26,7 +26,7 @@ const MappingHome = props => {
   const [mapping, setMapping] = React.useState(props.mapping || {})
   const [versions, setVersions] = React.useState([])
   const [repo, setRepo] = React.useState(props.repo || {})
-  const [repoVersions, setRepoVersions] = React.useState(props.repoVersions || [])
+  const [repoVersions, setRepoVersions] = React.useState({url: null, versions: []})
   const [tab, setTab] = React.useState('metadata')
   const [edit, setEdit] = React.useState(false)
   const [createSimilar, setCreateSimilar] = React.useState(false)
@@ -112,21 +112,24 @@ const MappingHome = props => {
       const service = APIService.new().overrideURL(_url)
       service.appendToUrl('versions/').get(null, null, {includeCollectionVersions: true, includeSourceVersions: true}).then(response => {
         setVersions(response.data || [])
-        if(!repoVersions?.length)
-          fetchRepoVersions(_url)
-        else
-          setLoading(false)
+        fetchRepoVersions(_url)
       })
     }
   }
 
-  const fetchRepoVersions = url => {
-    if(repoVersions.length === 0 && url) {
-      APIService.new().overrideURL(dropVersion(toParentURI(url))).appendToUrl('versions/').get().then(response => {
-        setRepoVersions(response.data || [])
-        setLoading(false)
-      })
-    } else setLoading(false)
+  // History needs every version of the mapping's own source, not a page of the repo being viewed
+  const fetchRepoVersions = mappingURL => {
+    const url = dropVersion(toParentURI(mappingURL))
+    if(url === repoVersions.url) {
+      setLoading(false)
+      return
+    }
+    APIService.new().overrideURL(url).appendToUrl('versions/').get(null, null, {limit: 1000}).then(response => {
+      // kept only when the request worked, so a failed one is tried again
+      if(Array.isArray(response?.data))
+        setRepoVersions({url, versions: response.data})
+      setLoading(false)
+    })
   }
 
 
@@ -229,7 +232,7 @@ const MappingHome = props => {
                 loading={loading}
                 resource='mappings'
                 icon={<MappingIcon color='primary' fontSize='small' />}
-                repoVersions={repoVersions}
+                repoVersions={repoVersions.versions}
               />
           }
           <RetireConfirmDialog

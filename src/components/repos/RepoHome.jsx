@@ -715,11 +715,11 @@ const RepoHome = () => {
       <div className={'col-xs-5 padding-0' + (isSplitView ? ' split-appear' : '')} style={{marginLeft: '16px', width: isSplitView ? 'calc(41.66666667% - 16px)' : 0, backgroundColor: WHITE, borderRadius: '10px', height: isSplitView ? 'calc(var(--app-height) - 102px)' : 0, opacity: isSplitView ? 1 : 0, overflow: 'auto'}}>
         {
           Boolean(showConceptURL && !conceptForm) &&
-            <ConceptHome repoSummary={repoSummary} repo={repo} repoURL={getURL()} url={showConceptURL} expansionURL={expansionURL} concept={seed} onClose={closeItem} repoVersions={versions} nested />
+            <ConceptHome repoSummary={repoSummary} repo={repo} repoURL={getURL()} url={showConceptURL} expansionURL={expansionURL} concept={seed} onClose={closeItem} nested />
         }
         {
           Boolean(showMappingURL && !mappingForm) &&
-            <MappingHome repoSummary={repoSummary} repo={repo} repoURL={getURL()} url={showMappingURL} expansionURL={expansionURL} mapping={seed} onClose={closeItem} repoVersions={versions} nested />
+            <MappingHome repoSummary={repoSummary} repo={repo} repoURL={getURL()} url={showMappingURL} expansionURL={expansionURL} mapping={seed} onClose={closeItem} nested />
         }
         {
           showReferenceURL &&
