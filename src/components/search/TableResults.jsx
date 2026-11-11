@@ -13,14 +13,15 @@ import Switch from '@mui/material/Switch';
 import Checkbox from '@mui/material/Checkbox';
 import Skeleton from '@mui/material/Skeleton'
 import IconButton from '@mui/material/IconButton';
-import CircularProgress from '@mui/material/CircularProgress';
+import Button from '@mui/material/Button';
 import RightIcon from '@mui/icons-material/KeyboardArrowRight';
 import DownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { visuallyHidden } from '@mui/utils';
 import { get, map, times } from 'lodash'
 import APIService from '../../services/APIService';
-import { SECONDARY_COLORS } from '../../common/colors';
+import { SECONDARY_COLORS, ERROR_COLORS } from '../../common/colors';
 import { resolveColumns, isSameSortField } from './columns';
+import { CHILDREN_PAGE_SIZE, initialChildrenState, childrenReducer, needsFetchOnExpand, nextChildrenPage } from './childrenPaging';
 
 // What screen readers announce for the select-all checkbox, per result type
 const SELECT_ALL_LABEL_KEYS = {
@@ -130,11 +131,11 @@ const getChildrenURL = (row, baseURL) => {
   const conceptSuffix = row.url.replace(/^.*\/concepts\//, 'concepts/').replace(/\/$/, '')
   return baseURL.replace(/concepts\/.*$/, '') + conceptSuffix + '/children/';
 }
-const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, isSelected, isItemShown, size, hierarchical, level, baseURL, onRowsLoaded}) => {
+const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, isSelected, isItemShown, size, hierarchical, level, baseURL, onRowsLoaded, hidden}) => {
+  const { t } = useTranslation()
   const [open, setOpen] = React.useState(false)
-  const [children, setChildren] = React.useState([])
-  const [fetched, setFetched] = React.useState(false)
-  const [loadingChildren, setLoadingChildren] = React.useState(false)
+  const [childrenState, dispatchChildren] = React.useReducer(childrenReducer, initialChildrenState)
+  const {children, total: childrenTotal, hasMore: moreChildren, fetched, loading: loadingChildren, failed: childrenFailed} = childrenState
   const id = row.version_url || row.url || row.id
   const isItemSelected = isSelected(id)
   const isItemSelectedToShow = isItemShown(id)
@@ -142,20 +143,34 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
   const color = row.retired ? SECONDARY_COLORS.main : 'none'
   let bgColor = isItemSelectedToShow ? 'primary.90' : ''
   const colSpan = columns.length + (handleClick ? 1 : 0) + 1
-  const fetchChildren = () => {
-    if(fetched)
+  // Children load a page at a time; a failed page can be retried without losing the pages already shown
+  const fetchChildrenPage = page => {
+    if(loadingChildren)
       return
-    setLoadingChildren(true)
-    APIService.new().overrideURL(getChildrenURL(row, baseURL)).get().then(response => {
-      setLoadingChildren(false)
+    dispatchChildren({type: 'loading'})
+    APIService.new().overrideURL(getChildrenURL(row, baseURL)).get(null, null, {limit: CHILDREN_PAGE_SIZE, page: page}).then(response => {
       if(Array.isArray(response?.data)) {
-        setChildren(response.data)
-        setFetched(true)
+        dispatchChildren({type: 'loaded', page: page, rows: response.data, total: parseInt(response?.headers?.num_found) || 0, hasMore: Boolean(response?.headers?.next)})
         if(onRowsLoaded)
           onRowsLoaded(response.data)
+      } else {
+        dispatchChildren({type: 'failed'})
       }
     })
   }
+  const fetchChildren = () => {
+    if(needsFetchOnExpand(childrenState))
+      fetchChildrenPage(1)
+  }
+  // "Show more" and "Try again" both load the page after the last one shown
+  const onLoadNextChildren = event => {
+    event.preventDefault()
+    event.stopPropagation()
+    fetchChildrenPage(nextChildrenPage(childrenState))
+  }
+  const showChildren = hierarchical && open && !hidden
+  // up to 5 placeholder rows while a page loads, fewer when fewer children are left
+  const skeletonRows = Math.max(Math.min(5, fetched ? childrenTotal - children.length : 5), 1)
   const onExpandClick = event => {
     event.preventDefault()
     event.stopPropagation()
@@ -166,88 +181,85 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
   }
   return (
     <React.Fragment>
-      <TableRow
-        hover
-        role="checkbox"
-        aria-checked={isItemSelectedToShow}
-        tabIndex={-1}
-        onClick={event => handleRowClick(event, id)}
-        selected={isItemSelectedToShow}
-        className={isItemSelectedToShow ? 'show-item' : ''}
-        sx={[{
-          cursor: 'pointer',
-          backgroundColor: '#FFF',
-          '&.Mui-selected': {
-            backgroundColor: bgColor
-          }
-        }, isItemSelectedToShow ? {
-          '&.MuiTableRow-hover:hover': {
-            backgroundColor: bgColor
-          }
-        } : {
-          '&.MuiTableRow-hover:hover': {
-            backgroundColor: 'primary.95'
-          }
-        }]}
-      >
-        {
-          handleClick &&
-            <TableCell padding="checkbox" onClick={event => handleClick(event, id)} style={{color: color}}>
-              <Checkbox
-                size={size || 'medium'}
-                color="primary"
-                checked={isItemSelected}
-                slotProps={{
-                  input: {
-                    'aria-labelledby': labelId,
-                  },
-                }}
-              />
-            </TableCell>
-        }
-        {
-          hierarchical &&
-            <TableCell padding='none' sx={{width: '40px', paddingLeft: `${4 + (level * 24)}px`, whiteSpace: 'nowrap'}}>
-              {
-                row.has_children ?
-                  <IconButton size='small' onClick={onExpandClick}>
-                    { open ? <DownIcon fontSize='inherit' /> : <RightIcon fontSize='inherit' /> }
-                  </IconButton> :
-                null
-              }
-            </TableCell>
-        }
-        {
-          columns.map((column, idx) => {
-            const value = getValue(row, column)
-            return idx === 0  ?
-              <TableCell
-                key={idx}
-                component="th"
-                id={labelId}
-                scope="row"
-                padding="normal"
-                className={column.className}
-                sx={{color: color, ...column.sx}}
-              >
-                {value}
-              </TableCell>:
-            <TableCell key={idx} align={column.align || "left"} className={column.className} sx={{color: color, ...column.sx}}>
-              {value}
-            </TableCell>
-          })
-        }
-      </TableRow>
       {
-        hierarchical && open && loadingChildren &&
-          <TableRow>
-            <TableCell colSpan={colSpan} sx={{paddingLeft: `${28 + (level * 24)}px`}}>
-              <CircularProgress size={16} />
-            </TableCell>
+        // a hidden row renders nothing of its own but stays mounted, keeping its children and expansion
+        !hidden &&
+          <TableRow
+            hover
+            role="checkbox"
+            aria-checked={isItemSelectedToShow}
+            tabIndex={-1}
+            onClick={event => handleRowClick(event, id)}
+            selected={isItemSelectedToShow}
+            className={isItemSelectedToShow ? 'show-item' : ''}
+            sx={[{
+              cursor: 'pointer',
+              backgroundColor: '#FFF',
+              '&.Mui-selected': {
+                backgroundColor: bgColor
+              }
+            }, isItemSelectedToShow ? {
+              '&.MuiTableRow-hover:hover': {
+                backgroundColor: bgColor
+              }
+            } : {
+              '&.MuiTableRow-hover:hover': {
+                backgroundColor: 'primary.95'
+              }
+            }]}
+          >
+            {
+              handleClick &&
+                <TableCell padding="checkbox" onClick={event => handleClick(event, id)} style={{color: color}}>
+                  <Checkbox
+                    size={size || 'medium'}
+                    color="primary"
+                    checked={isItemSelected}
+                    slotProps={{
+                      input: {
+                        'aria-labelledby': labelId,
+                      },
+                    }}
+                  />
+                </TableCell>
+            }
+            {
+              hierarchical &&
+                <TableCell padding='none' sx={{width: '40px', paddingLeft: `${4 + (level * 24)}px`, whiteSpace: 'nowrap'}}>
+                  {
+                    row.has_children ?
+                      <IconButton size='small' onClick={onExpandClick}>
+                        { open ? <DownIcon fontSize='inherit' /> : <RightIcon fontSize='inherit' /> }
+                      </IconButton> :
+                    null
+                  }
+                </TableCell>
+            }
+            {
+              columns.map((column, idx) => {
+                const value = getValue(row, column)
+                return idx === 0  ?
+                  <TableCell
+                    key={idx}
+                    component="th"
+                    id={labelId}
+                    scope="row"
+                    padding="normal"
+                    className={column.className}
+                    sx={{color: color, ...column.sx}}
+                  >
+                    {value}
+                  </TableCell>:
+                <TableCell key={idx} align={column.align || "left"} className={column.className} sx={{color: color, ...column.sx}}>
+                  {value}
+                </TableCell>
+              })
+            }
           </TableRow>
       }
       {
-        hierarchical && open && !loadingChildren &&
+        // fetched children stay mounted while collapsed, so they keep their own pages and expansions
+        hierarchical && fetched &&
           children.map((child, i) => (
             <ResultRow
               key={child.version_url || child.url || child.uuid || i}
@@ -264,8 +276,44 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
               level={level + 1}
               baseURL={baseURL}
               onRowsLoaded={onRowsLoaded}
+              hidden={!showChildren}
             />
           ))
+      }
+      {
+        showChildren && loadingChildren &&
+          times(skeletonRows, i => (
+            <TableRow key={`skeleton-${i}`}>
+              {handleClick && <TableCell padding="checkbox" />}
+              <TableCell padding='none' />
+              {
+                columns.map((column, idx) => (
+                  <TableCell key={idx}>
+                    <Skeleton variant='text' />
+                  </TableCell>
+                ))
+              }
+            </TableRow>
+          ))
+      }
+      {
+        showChildren && !loadingChildren && (childrenFailed || moreChildren) &&
+          <TableRow>
+            <TableCell colSpan={colSpan} align='right' sx={{paddingTop: '2px', paddingBottom: '2px'}}>
+              {
+                childrenFailed ?
+                  <span style={{color: ERROR_COLORS.main, marginRight: '8px'}}>{t('common.could_not_load')}</span> :
+                  null
+              }
+              <Button size='small' onClick={onLoadNextChildren} sx={{textTransform: 'none'}}>
+                {
+                  childrenFailed ?
+                    t('common.try_again') :
+                    t('common.show_more_of', {shown: children.length.toLocaleString(), total: childrenTotal.toLocaleString()})
+                }
+              </Button>
+            </TableCell>
+          </TableRow>
       }
     </React.Fragment>
   );

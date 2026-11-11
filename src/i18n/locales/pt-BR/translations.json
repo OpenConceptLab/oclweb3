@@ -166,6 +166,9 @@
     "processing": "Processando",
     "processed": "Processado",
     "load_more": "Carregar mais",
+    "show_more_of": "Mostrar mais ({{shown}} de {{total}})",
+    "could_not_load": "Não foi possível carregar esta lista.",
+    "try_again": "Tentar novamente",
     "generate_with_ai": "Gerar com o Assistente de IA do OCL",
     "release": "Publicar",
     "unrelease": "Despublicar",
@@ -1202,7 +1205,6 @@
     "mapping_projects": "Projetos de Mapeamento",
     "project_name": "Nome do Projeto",
     "no_projects_found": "Ainda não há projetos de mapeamento.",
-    "could_not_load_projects": "Não foi possível carregar os projetos de mapeamento.",
-    "try_again": "Tentar novamente"
+    "could_not_load_projects": "Não foi possível carregar os projetos de mapeamento."
   }
 }

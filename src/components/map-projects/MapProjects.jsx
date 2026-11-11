@@ -111,7 +111,7 @@ const MapProjects = ({ ownerType, owner, height }) => {
                 <TableRow>
                   <TableCell colSpan={COLUMN_COUNT} align='center' sx={{borderBottom: 'none', padding: '48px 16px'}}>
                     <Typography sx={{color: 'surface.dark'}}>
-                      {t('map_project.could_not_load_projects')} <Link component='button' onClick={() => setAttempt(count => count + 1)} sx={{verticalAlign: 'baseline'}}>{t('map_project.try_again')}</Link>
+                      {t('map_project.could_not_load_projects')} <Link component='button' onClick={() => setAttempt(count => count + 1)} sx={{verticalAlign: 'baseline'}}>{t('common.try_again')}</Link>
                     </Typography>
                   </TableCell>
                 </TableRow>

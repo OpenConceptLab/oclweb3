@@ -73,6 +73,9 @@
     "create_from_ocl_url": "Crear desde URL de OCL",
     "api_url": "URL de la API",
     "load_more": "Cargar más",
+    "show_more_of": "Mostrar más ({{shown}} de {{total}})",
+    "could_not_load": "No se pudo cargar esta lista.",
+    "try_again": "Intentar de nuevo",
     "generate_with_ai": "Generar con el asistente de IA de OCL",
     "logo": "Logo",
     "about_page": "Página Acerca de",
@@ -741,7 +744,6 @@
     "mapping_projects": "Proyectos de Mapeo",
     "project_name": "Nombre del Proyecto",
     "no_projects_found": "Aún no hay proyectos de mapeo.",
-    "could_not_load_projects": "No se pudieron cargar los proyectos de mapeo.",
-    "try_again": "Intentar de nuevo"
+    "could_not_load_projects": "No se pudieron cargar los proyectos de mapeo."
   }
 }
