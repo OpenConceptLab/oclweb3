@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-const { getRepoPinOwner, getRepoPinTarget, canUserPinFor } = await import('../pins.js')
+const { getRepoPinOwner, getRepoPinTarget, canUserPinFor, canUserViewPinsOf } = await import('../pins.js')
 
 const member = {username: 'tester', subscribed_orgs: [{id: 'CIEL'}]}
 
@@ -39,4 +39,14 @@ test('nobody pins without a signed-in user or an owner', () => {
   assert.equal(canUserPinFor(null, {type: 'org', id: 'CIEL'}), false)
   assert.equal(canUserPinFor({is_staff: true}, {type: 'org', id: 'CIEL'}), false)
   assert.equal(canUserPinFor(member, false), false)
+})
+
+test("a user's pins are listed to that user and staff only, an org's to anyone", () => {
+  const owner = {type: 'user', id: 'tester'}
+  assert.equal(canUserViewPinsOf(member, owner), true)
+  assert.equal(canUserViewPinsOf({username: 'staff', is_staff: true}, owner), true)
+  assert.equal(canUserViewPinsOf({username: 'bob'}, owner), false)
+  assert.equal(canUserViewPinsOf(undefined, owner), false)
+  assert.equal(canUserViewPinsOf(undefined, {type: 'org', id: 'CIEL'}), true)
+  assert.equal(canUserViewPinsOf(member, false), false)
 })

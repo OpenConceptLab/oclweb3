@@ -14,9 +14,9 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
 import CommunityIcon from '@mui/icons-material/GroupsOutlined';
 import Divider from '@mui/material/Divider';
-import map from 'lodash/map'
 import { getCurrentUser, refreshCurrentUserCache, getCurrentUserOrgs, hasMapper, isInWaitlist} from '../../common/utils';
 import { trayItems, isTrayItemSelected } from '../../common/navigation';
+import { getFollowedObjects } from '../../common/following';
 import { PRIMARY_COLORS } from '../../common/colors';
 import { COMMUNITY_SITE_URL } from '../../common/constants';
 import useMapProjectCount from '../../hooks/useMapProjectCount';
@@ -45,7 +45,7 @@ const LeftMenu = ({ isOpen, onClose }) => {
   const location = useLocation()
   const user = getCurrentUser()
 
-  const formatFollowing = following => map(following, 'object') || []
+  const formatFollowing = following => getFollowedObjects(following)
 
   const mapProjectCount = useMapProjectCount(user?.username, isOpen && hasMapper())
   const [orgs, setOrgs] = React.useState(getCurrentUserOrgs())
