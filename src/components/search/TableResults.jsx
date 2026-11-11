@@ -19,8 +19,9 @@ import DownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { visuallyHidden } from '@mui/utils';
 import { get, map, times } from 'lodash'
 import APIService from '../../services/APIService';
-import { SECONDARY_COLORS } from '../../common/colors';
+import { SECONDARY_COLORS, ERROR_COLORS } from '../../common/colors';
 import { resolveColumns, isSameSortField } from './columns';
+import { CHILDREN_PAGE_SIZE, initialChildrenState, childrenReducer, needsFetchOnExpand, nextChildrenPage } from './childrenPaging';
 
 // What screen readers announce for the select-all checkbox, per result type
 const SELECT_ALL_LABEL_KEYS = {
@@ -130,16 +131,11 @@ const getChildrenURL = (row, baseURL) => {
   const conceptSuffix = row.url.replace(/^.*\/concepts\//, 'concepts/').replace(/\/$/, '')
   return baseURL.replace(/concepts\/.*$/, '') + conceptSuffix + '/children/';
 }
-const CHILDREN_PAGE_SIZE = 25
 const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, isSelected, isItemShown, size, hierarchical, level, baseURL, onRowsLoaded, hidden}) => {
   const { t } = useTranslation()
   const [open, setOpen] = React.useState(false)
-  const [children, setChildren] = React.useState([])
-  const [fetched, setFetched] = React.useState(false)
-  const [loadingChildren, setLoadingChildren] = React.useState(false)
-  const [childrenPage, setChildrenPage] = React.useState(0)
-  const [childrenTotal, setChildrenTotal] = React.useState(0)
-  const [childrenError, setChildrenError] = React.useState(null)
+  const [childrenState, dispatchChildren] = React.useReducer(childrenReducer, initialChildrenState)
+  const {children, total: childrenTotal, hasMore: moreChildren, fetched, loading: loadingChildren, failed: childrenFailed} = childrenState
   const id = row.version_url || row.url || row.id
   const isItemSelected = isSelected(id)
   const isItemSelectedToShow = isItemShown(id)
@@ -151,33 +147,27 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
   const fetchChildrenPage = page => {
     if(loadingChildren)
       return
-    setLoadingChildren(true)
-    setChildrenError(null)
+    dispatchChildren({type: 'loading'})
     APIService.new().overrideURL(getChildrenURL(row, baseURL)).get(null, null, {limit: CHILDREN_PAGE_SIZE, page: page}).then(response => {
-      setLoadingChildren(false)
       if(Array.isArray(response?.data)) {
-        setChildren(prev => page === 1 ? response.data : [...prev, ...response.data])
-        setChildrenPage(page)
-        setChildrenTotal(parseInt(response?.headers?.num_found) || 0)
-        setFetched(true)
+        dispatchChildren({type: 'loaded', page: page, rows: response.data, total: parseInt(response?.headers?.num_found) || 0, hasMore: Boolean(response?.headers?.next)})
         if(onRowsLoaded)
           onRowsLoaded(response.data)
       } else {
-        setChildrenError(response?.detail || t('common.could_not_load'))
+        dispatchChildren({type: 'failed'})
       }
     })
   }
   const fetchChildren = () => {
-    if(!fetched)
+    if(needsFetchOnExpand(childrenState))
       fetchChildrenPage(1)
   }
   // "Show more" and "Try again" both load the page after the last one shown
   const onLoadNextChildren = event => {
     event.preventDefault()
     event.stopPropagation()
-    fetchChildrenPage(childrenPage + 1)
+    fetchChildrenPage(nextChildrenPage(childrenState))
   }
-  const hasMoreChildren = fetched && children.length < childrenTotal
   const showChildren = hierarchical && open && !hidden
   // up to 5 placeholder rows while a page loads, fewer when fewer children are left
   const skeletonRows = Math.max(Math.min(5, fetched ? childrenTotal - children.length : 5), 1)
@@ -191,79 +181,82 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
   }
   return (
     <React.Fragment>
-      <TableRow
-        hover
-        role="checkbox"
-        aria-checked={isItemSelectedToShow}
-        tabIndex={-1}
-        onClick={event => handleRowClick(event, id)}
-        selected={isItemSelectedToShow}
-        className={isItemSelectedToShow ? 'show-item' : ''}
-        sx={[{
-          display: hidden ? 'none' : undefined,
-          cursor: 'pointer',
-          backgroundColor: '#FFF',
-          '&.Mui-selected': {
-            backgroundColor: bgColor
-          }
-        }, isItemSelectedToShow ? {
-          '&.MuiTableRow-hover:hover': {
-            backgroundColor: bgColor
-          }
-        } : {
-          '&.MuiTableRow-hover:hover': {
-            backgroundColor: 'primary.95'
-          }
-        }]}
-      >
-        {
-          handleClick &&
-            <TableCell padding="checkbox" onClick={event => handleClick(event, id)} style={{color: color}}>
-              <Checkbox
-                size={size || 'medium'}
-                color="primary"
-                checked={isItemSelected}
-                slotProps={{
-                  input: {
-                    'aria-labelledby': labelId,
-                  },
-                }}
-              />
-            </TableCell>
-        }
-        {
-          hierarchical &&
-            <TableCell padding='none' sx={{width: '40px', paddingLeft: `${4 + (level * 24)}px`, whiteSpace: 'nowrap'}}>
-              {
-                row.has_children ?
-                  <IconButton size='small' onClick={onExpandClick}>
-                    { open ? <DownIcon fontSize='inherit' /> : <RightIcon fontSize='inherit' /> }
-                  </IconButton> :
-                null
+      {
+        // a hidden row renders nothing of its own but stays mounted, keeping its children and expansion
+        !hidden &&
+          <TableRow
+            hover
+            role="checkbox"
+            aria-checked={isItemSelectedToShow}
+            tabIndex={-1}
+            onClick={event => handleRowClick(event, id)}
+            selected={isItemSelectedToShow}
+            className={isItemSelectedToShow ? 'show-item' : ''}
+            sx={[{
+              cursor: 'pointer',
+              backgroundColor: '#FFF',
+              '&.Mui-selected': {
+                backgroundColor: bgColor
               }
-            </TableCell>
-        }
-        {
-          columns.map((column, idx) => {
-            const value = getValue(row, column)
-            return idx === 0  ?
-              <TableCell
-                key={idx}
-                component="th"
-                id={labelId}
-                scope="row"
-                padding="normal"
-                className={column.className}
-                sx={{color: color, ...column.sx}}
-              >
-                {value}
-              </TableCell>:
-            <TableCell key={idx} align={column.align || "left"} className={column.className} sx={{color: color, ...column.sx}}>
-              {value}
-            </TableCell>
-          })
-        }
-      </TableRow>
+            }, isItemSelectedToShow ? {
+              '&.MuiTableRow-hover:hover': {
+                backgroundColor: bgColor
+              }
+            } : {
+              '&.MuiTableRow-hover:hover': {
+                backgroundColor: 'primary.95'
+              }
+            }]}
+          >
+            {
+              handleClick &&
+                <TableCell padding="checkbox" onClick={event => handleClick(event, id)} style={{color: color}}>
+                  <Checkbox
+                    size={size || 'medium'}
+                    color="primary"
+                    checked={isItemSelected}
+                    slotProps={{
+                      input: {
+                        'aria-labelledby': labelId,
+                      },
+                    }}
+                  />
+                </TableCell>
+            }
+            {
+              hierarchical &&
+                <TableCell padding='none' sx={{width: '40px', paddingLeft: `${4 + (level * 24)}px`, whiteSpace: 'nowrap'}}>
+                  {
+                    row.has_children ?
+                      <IconButton size='small' onClick={onExpandClick}>
+                        { open ? <DownIcon fontSize='inherit' /> : <RightIcon fontSize='inherit' /> }
+                      </IconButton> :
+                    null
+                  }
+                </TableCell>
+            }
+            {
+              columns.map((column, idx) => {
+                const value = getValue(row, column)
+                return idx === 0  ?
+                  <TableCell
+                    key={idx}
+                    component="th"
+                    id={labelId}
+                    scope="row"
+                    padding="normal"
+                    className={column.className}
+                    sx={{color: color, ...column.sx}}
+                  >
+                    {value}
+                  </TableCell>:
+                <TableCell key={idx} align={column.align || "left"} className={column.className} sx={{color: color, ...column.sx}}>
+                  {value}
+                </TableCell>
+              })
+            }
+          </TableRow>
+      }
       {
         // fetched children stay mounted while collapsed, so they keep their own pages and expansions
         hierarchical && fetched &&
@@ -304,17 +297,17 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
           ))
       }
       {
-        showChildren && !loadingChildren && (childrenError || hasMoreChildren) &&
+        showChildren && !loadingChildren && (childrenFailed || moreChildren) &&
           <TableRow>
             <TableCell colSpan={colSpan} align='right' sx={{paddingTop: '2px', paddingBottom: '2px'}}>
               {
-                childrenError ?
-                  <span style={{color: SECONDARY_COLORS.main, marginRight: '8px'}}>{childrenError}</span> :
+                childrenFailed ?
+                  <span style={{color: ERROR_COLORS.main, marginRight: '8px'}}>{t('common.could_not_load')}</span> :
                   null
               }
               <Button size='small' onClick={onLoadNextChildren} sx={{textTransform: 'none'}}>
                 {
-                  childrenError ?
+                  childrenFailed ?
                     t('common.try_again') :
                     t('common.show_more_of', {shown: children.length.toLocaleString(), total: childrenTotal.toLocaleString()})
                 }
