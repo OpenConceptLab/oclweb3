@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import APIService from '../services/APIService';
 import { getCurrentUser } from '../common/utils';
-import { canUserPinFor } from '../common/pins';
+import { canUserPinFor, canUserViewPinsOf } from '../common/pins';
 import { OperationsContext } from '../components/app/LayoutContext';
 
 // Pins (a.k.a. bookmarks) are owned either by a user or by an org.
@@ -57,6 +57,9 @@ const usePins = owner => {
     const service = getService({type: ownerType, id: ownerId})
     if(!service)
       return setPins(false)
+    // the API refuses others' user pins, and a 401 would send an anonymous visitor to sign in
+    if(!canUserViewPinsOf(getCurrentUser(), {type: ownerType, id: ownerId}))
+      return setPins([])
     service.get().then(response => setPins(response?.data?.length ? response.data : []))
   }, [ownerType, ownerId])
 

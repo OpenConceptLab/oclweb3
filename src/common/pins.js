@@ -24,3 +24,12 @@ export const canUserPinFor = (user, owner) => {
     (user.subscribed_orgs || []).some(org => org?.id === owner.id) :
     user.username === owner.id
 }
+
+// An org's pins are listed to anyone who can view it; a user's only to that user and staff.
+export const canUserViewPinsOf = (user, owner) => {
+  if(!owner?.id)
+    return false
+  if(owner.type === 'org')
+    return true
+  return Boolean(user?.username && (user.is_staff || user.is_superuser || user.username === owner.id))
+}

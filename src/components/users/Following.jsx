@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton';
 import EntityIcon from '../common/EntityIcon';
 import Link from '../common/Link';
+import { getFollowsWithObject } from '../../common/following';
 
 const DEFAULT_MEMBERS_TO_SHOW = 12
 
@@ -16,8 +17,9 @@ const Followed = ({ object }) => {
   )
 }
 
-const Following = ({ following, title }) => {
+const Following = ({ following: allFollowing, title }) => {
   const { t } = useTranslation()
+  const following = getFollowsWithObject(allFollowing)
   const [more, setMore] = React.useState(false)
   const ordered = [
     ...orderBy(filter(following, 'object.logo_url'), 'object.name'), ...orderBy(reject(following, 'object.logo_url'), 'object.name'),
