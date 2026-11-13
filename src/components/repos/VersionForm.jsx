@@ -16,9 +16,11 @@ import CloseIconButton from '../common/CloseIconButton';
 import Dialog from '../common/Dialog'
 import DialogTitle from '../common/DialogTitle'
 import { ID_REGEX } from '../../common/constants'
+import { isStaffUser } from '../../common/utils'
 import {
   shouldAskForExpansion, shouldShowAutoexpand, getExpansionChoices, getDefaultExpansion, getExpansionPayload
 } from './versionExpansion'
+import { isSemanticVersion, withSemanticSearch } from './semanticSearch'
 
 
 class VersionForm extends FormComponent {
@@ -39,6 +41,7 @@ class VersionForm extends FormComponent {
         autoexpand: {...fieldStruct, value: true},
         expansion_url: {...fieldStruct},
         revision_date: {...fieldStruct},
+        semantic: {...fieldStruct, value: isSemanticVersion(props.version)},
       },
       expansionDialog: false,
       expansion: null,
@@ -65,6 +68,9 @@ class VersionForm extends FormComponent {
   onCheckboxChange = event => this.setFieldValue(event.target.name, event.target.checked)
 
   isCollectionVersion = () => (this.props.resource || this.props.resourceType) === 'collection'
+
+  // A new source version's OCL Semantic Search, which staff choose and which starts as HEAD's (`version` is HEAD here).
+  canChooseSemanticSearch = () => !this.props.edit && !this.isCollectionVersion() && isStaffUser()
 
   getExpansionArgs = () => ({
     edit: Boolean(this.props.edit),
@@ -110,6 +116,10 @@ class VersionForm extends FormComponent {
         delete payload.autoexpand
         delete payload.expansion_url
       }
+
+      delete payload.semantic
+      if(this.canChooseSemanticSearch())
+        payload.match_algorithms = withSemanticSearch(version.match_algorithms, Boolean(this.state.fields.semantic.value))
 
       const url = edit ? version.version_url : version.url
       GAService.recordUpsertEvent(isCollectionVersion ? 'Collection Version' : 'Source Version', edit)
@@ -233,6 +243,15 @@ class VersionForm extends FormComponent {
                 label={t('common.release')}
               />
             </div>
+            {
+              this.canChooseSemanticSearch() &&
+              <div className='col-xs-12' style={{width: '100%', marginTop: '15px'}}>
+                <FormControlLabel
+                  control={<Checkbox checked={Boolean(fields.semantic.value)} onChange={this.onCheckboxChange} name="semantic" />}
+                  label={t('repo.version.form.semantic_search')}
+                />
+              </div>
+            }
             {
               resource === 'collection' && shouldShowAutoexpand(this.getExpansionArgs()) &&
               <div className='col-xs-12' style={{width: '100%', marginTop: '15px'}}>
