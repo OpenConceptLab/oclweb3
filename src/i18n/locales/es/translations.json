@@ -527,9 +527,8 @@
       }
     },
     "repo_version": "Versión del repositorio",
-    "versioning_mode": "Modo de versionado",
-    "versioning_mode_carry_forward": "Continuar desde HEAD",
-    "versioning_mode_isolated": "Aislado"
+    "seeded_from": "Creada a partir de",
+    "seeded_from_import": "Importación"
   },
   "org": {
     "my": "Mis organizaciones",

@@ -556,9 +556,8 @@
       }
     },
     "repo_version": "仓库版本",
-    "versioning_mode": "版本模式",
-    "versioning_mode_carry_forward": "沿用 HEAD",
-    "versioning_mode_isolated": "独立"
+    "seeded_from": "创建来源",
+    "seeded_from_import": "导入"
   },
   "org": {
     "my": "我的组织机构",

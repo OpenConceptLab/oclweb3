@@ -880,9 +880,8 @@
     "export_not_ready_tooltip": "Exportação ainda está sendo gerada para esta versão",
     "expansion_processing_tooltip": "Esta expansão ainda está sendo construída",
     "suggested_sources": "Sources sugeridos",
-    "versioning_mode": "Modo de versionamento",
-    "versioning_mode_carry_forward": "Continuar a partir do HEAD",
-    "versioning_mode_isolated": "Isolado"
+    "seeded_from": "Criada a partir de",
+    "seeded_from_import": "Importação"
   },
   "org": {
     "my": "Minhas organizações",

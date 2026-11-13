@@ -891,9 +891,8 @@
     "export_not_ready_tooltip": "Export is still being generated for this version",
     "expansion_processing_tooltip": "This expansion is still being built",
     "suggested_sources": "Suggested Sources",
-    "versioning_mode": "Versioning Mode",
-    "versioning_mode_carry_forward": "Carry Forward",
-    "versioning_mode_isolated": "Isolated"
+    "seeded_from": "Seeded From",
+    "seeded_from_import": "Import"
   },
   "org": {
     "my": "My Organizations",
