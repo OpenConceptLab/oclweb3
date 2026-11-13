@@ -6,8 +6,8 @@ const { getSeededFromLabel } = await import('../seededFrom.js')
 const t = key => ({'repo.seeded_from_import': 'Import'})[key]
 
 test('a version seeded from HEAD or another version shows that version', () => {
-  assert.equal(getSeededFromLabel({type: 'repo_version', url: '/orgs/Regenstrief/sources/LOINC/HEAD/'}, t), 'HEAD')
-  assert.equal(getSeededFromLabel({type: 'repo_version', url: '/orgs/Regenstrief/sources/LOINC/2.82/'}, t), '2.82')
+  assert.equal(getSeededFromLabel({type: 'repo_version', url: '/orgs/MyOrg/sources/MySource/HEAD/'}, t), 'HEAD')
+  assert.equal(getSeededFromLabel({type: 'repo_version', url: '/orgs/MyOrg/sources/MySource/2.82/'}, t), '2.82')
 })
 
 test('a version seeded from an import shows Import', () => {
