@@ -538,7 +538,9 @@
         "none_help": "Crea la versión sin expansión. Puede agregar una más tarde."
       }
     },
-    "repo_version": "Versión del repositorio"
+    "repo_version": "Versión del repositorio",
+    "seeded_from": "Creada a partir de",
+    "seeded_from_import": "Importación"
   },
   "org": {
     "my": "Mis organizaciones",

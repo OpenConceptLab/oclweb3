@@ -567,7 +567,9 @@
         "none_help": "创建不带扩展的版本。之后可以再添加。"
       }
     },
-    "repo_version": "仓库版本"
+    "repo_version": "仓库版本",
+    "seeded_from": "创建来源",
+    "seeded_from_import": "导入"
   },
   "org": {
     "my": "我的组织机构",

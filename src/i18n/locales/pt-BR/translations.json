@@ -891,7 +891,9 @@
     "could_not_clear_processing": "Não foi possível limpar o estado de processamento",
     "export_not_ready_tooltip": "Exportação ainda está sendo gerada para esta versão",
     "expansion_processing_tooltip": "Esta expansão ainda está sendo construída",
-    "suggested_sources": "Sources sugeridos"
+    "suggested_sources": "Sources sugeridos",
+    "seeded_from": "Criada a partir de",
+    "seeded_from_import": "Importação"
   },
   "org": {
     "my": "Minhas organizações",
