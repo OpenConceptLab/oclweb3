@@ -1157,6 +1157,4 @@ export const toCamelCase = str => {
     .replace(/^(.)/, (m) => m.toLowerCase());
 }
 
-export const isInWaitlist = () => getCurrentUser()?.auth_groups?.includes('mapper-waitlist')
-
 export const hashString = value => (value || '').split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)

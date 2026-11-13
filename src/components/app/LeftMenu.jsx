@@ -3,7 +3,6 @@ import { styled } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom';
 import Typography from '@mui/material/Typography'
-import Chip from '@mui/material/Chip';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -14,7 +13,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
 import CommunityIcon from '@mui/icons-material/GroupsOutlined';
 import Divider from '@mui/material/Divider';
-import { getCurrentUser, refreshCurrentUserCache, getCurrentUserOrgs, hasMapper, isInWaitlist} from '../../common/utils';
+import { getCurrentUser, refreshCurrentUserCache, getCurrentUserOrgs, hasMapper} from '../../common/utils';
 import { trayItems, isTrayItemSelected } from '../../common/navigation';
 import { getFollowedObjects } from '../../common/following';
 import { PRIMARY_COLORS } from '../../common/colors';
@@ -106,10 +105,6 @@ const LeftMenu = ({ isOpen, onClose }) => {
                   {
                     item.key === 'map-projects' && mapProjectCount !== null &&
                       <span><b>{mapProjectCount.toLocaleString()}</b></span>
-                  }
-                  {
-                    item.key === 'map-projects' && isInWaitlist() &&
-                      <Chip size='small' variant='contained' label='Waitlist' color='primary' />
                   }
                 </ListItemButton>
               </ListItem>
