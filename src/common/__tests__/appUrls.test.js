@@ -80,10 +80,11 @@ test('TBv2 path: pages TBv2 lacks fall back to the nearest page it has', () => {
   assert.equal(toTBv2Path('/orgs/CIEL/sources/CIEL/v%201/concepts'), '/orgs/CIEL/sources/CIEL')
 })
 
-test('TBv2 path: expansions carry over only under a version, and only for concepts and mappings', () => {
-  assert.equal(toTBv2Path('/orgs/o/collections/c/expansions/e1/concepts/1066'), '/orgs/o/collections/c/concepts/1066')
+test('TBv2 path: expansions carry over for concepts and mappings, under HEAD when no version is named', () => {
+  assert.equal(toTBv2Path('/orgs/o/collections/c/expansions/e1/concepts/1066'), '/orgs/o/collections/c/HEAD/expansions/e1/concepts/1066')
   assert.equal(toTBv2Path('/orgs/o/collections/c/v1/expansions/e1/mappings'), '/orgs/o/collections/c/v1/expansions/e1/mappings')
   assert.equal(toTBv2Path('/orgs/o/collections/c/v1/expansions/e1/references'), '/orgs/o/collections/c/v1/references')
+  assert.equal(toTBv2Path('/orgs/o/collections/c/expansions/e1/references'), '/orgs/o/collections/c/references')
   assert.equal(toTBv2Path('/orgs/o/collections/c/v1/expansions/e1/summary'), '/orgs/o/collections/c/v1')
 })
 

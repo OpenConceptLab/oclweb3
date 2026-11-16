@@ -32,7 +32,7 @@ const isRouteId = segment => Boolean(segment) && ROUTE_ID.test(segment)
 const SHARED_ROOT_PATHS = ['/search', '/imports', '/concepts/compare', '/mappings/compare']
 const SHARED_OWNER_PATHS = {users: ['settings'], orgs: ['edit']}
 const SHARED_REPO_TABS = ['concepts', 'mappings', 'references', 'versions', 'about']
-// The only tabs TBv2 opens a resource in, and the only ones it scopes to a (versioned) expansion.
+// The only tabs TBv2 opens a resource in, and the only ones it scopes to an expansion.
 const RESOURCE_TABS = ['concepts', 'mappings']
 // What TBv3 may put right after a repository. Anything else there is a version.
 const REPO_KEYWORDS = [...SHARED_REPO_TABS, 'summary', 'edit', 'compare-versions', 'expansions']
@@ -81,7 +81,8 @@ export const toTBv2Path = path => {
   if(!RESOURCE_TABS.includes(tab))
     return `${base}/${tab}`
 
-  const tabPath = version && isRouteId(expansion) ? `${base}/expansions/${expansion}/${tab}` : `${base}/${tab}`
+  // TBv2 scopes an expansion to a version, so one without names HEAD
+  const tabPath = isRouteId(expansion) ? `${base}${version ? '' : '/HEAD'}/expansions/${expansion}/${tab}` : `${base}/${tab}`
   const resource = rest[index + 1]
 
   return isRouteId(resource) ? `${tabPath}/${resource}` : tabPath
