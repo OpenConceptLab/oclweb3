@@ -148,6 +148,7 @@ module.exports = (env) => {
         'process.env.ANALYTICS_API': JSON.stringify(env.ANALYTICS_API || ''),
         'process.env.AI_ASSISTANT_API_URL': JSON.stringify(env.AI_ASSISTANT_API_URL || ''),
         'process.env.MAPPER_URL': JSON.stringify(env.MAPPER_URL || ''),
+        'process.env.TBV2_URL': JSON.stringify(env.TBV2_URL || ''),
         'process.env.OCL_ONLINE_API_URL': JSON.stringify(env.OCL_ONLINE_API_URL || ''),
       }),
       new IgnorePlugin({ resourceRegExp: /moment\/locale\// })

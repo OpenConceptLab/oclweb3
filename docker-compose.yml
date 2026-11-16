@@ -19,6 +19,7 @@ services:
       - AI_ASSISTANT_API_URL=${AI_ASSISTANT_API_URL-}
       - OCL_ONLINE_API_URL=${OCL_ONLINE_API_URL-}
       - MAPPER_URL=${MAPPER_URL-}
+      - TBV2_URL=${TBV2_URL-}
       - ERRBIT_URL
       - ERRBIT_KEY
       - HOTJAR_ID

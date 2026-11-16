@@ -19,7 +19,7 @@ import { ensureIdToken, prepareSignOut, settleForcedSignOut, renewSessionSilentl
 import { getEnv } from './env';
 import { SERVER_CONFIGS } from './serverConfigs';
 import { legacyHashRoute, isSameSitePath } from './history';
-import { resolveMapperURL } from './appUrls';
+import { resolveMapperURL, resolveTBv2URL, toTBv2Path } from './appUrls';
 
 export { dropVersion } from './uri';
 
@@ -1100,6 +1100,20 @@ export const toMapperURL = path => {
     referrerParams += '?auth=true'
 
   return `${url}/#${path || '/'}?${referrerParams}`
+}
+
+// The same page in TBv2, or '' when this deployment has no TBv2
+export const toTBv2URL = path => {
+  const url = resolveTBv2URL(window.TBV2_URL || process.env.TBV2_URL, window.location.origin)
+  if(!url)
+    return ''
+
+  // TBv2 reads auth only from the segment after the first '?' in the referrer, so drop this page's own query
+  let referrerParams = `referrer=${window.location.href.split(/[?#]/)[0]}`
+  if(isLoggedIn())
+    referrerParams += '?auth=true'
+
+  return `${url}/#${toTBv2Path(path)}?${referrerParams}`
 }
 
 export const isMapperURL = url => {
