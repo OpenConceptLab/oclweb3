@@ -115,6 +115,7 @@
     "uid": "UID",
     "undo": "Deshacer",
     "unretire": "Reactivar",
+    "checking_auth": "Verificando la autenticación...",
     "view_resource_version": "Ver versión del recurso",
     "error": "Error"
   },
