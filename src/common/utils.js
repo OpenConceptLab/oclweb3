@@ -1092,33 +1092,30 @@ export const getMapperURL = () => resolveMapperURL(window.MAPPER_URL || process.
 
 export const hasMapper = () => Boolean(getMapperURL())
 
-export const toMapperURL = path => {
-  const url = getMapperURL()
+export const getTBv2URL = () => resolveTBv2URL(window.TBV2_URL || process.env.TBV2_URL, window.location.origin)
 
-  let referrerParams = `referrer=${window.location.href}`
-  if(isLoggedIn())
-    referrerParams += '?auth=true'
-
-  return `${url}/#${path || '/'}?${referrerParams}`
-}
-
-// The same page in TBv2, or '' when this deployment has no TBv2
-export const toTBv2URL = path => {
-  const url = resolveTBv2URL(window.TBV2_URL || process.env.TBV2_URL, window.location.origin)
-  if(!url)
-    return ''
-
-  // TBv2 reads auth only from the segment after the first '?' in the referrer, so drop this page's own query
+const toSiblingAppURL = (url, path) => {
   let referrerParams = `referrer=${window.location.href.split(/[?#]/)[0]}`
   if(isLoggedIn())
     referrerParams += '?auth=true'
 
-  return `${url}/#${toTBv2Path(path)}?${referrerParams}`
+  return `${url}/#${path}?${referrerParams}`
 }
+
+export const toMapperURL = path => toSiblingAppURL(getMapperURL(), path || '/')
+
+export const toTBv2URL = path => {
+  const url = getTBv2URL()
+  return url ? toSiblingAppURL(url, toTBv2Path(path)) : ''
+}
+
+const isUnder = (url, base) => Boolean(base) && (url === base || url.startsWith(`${base}/`))
 
 export const isMapperURL = url => {
   if(!url)
     return false
+  if(isUnder(url, getMapperURL()))
+    return true
   if(url.startsWith('http://localhost:4004'))
     return true
   if(!url.includes('.openconceptlab.org'))
@@ -1131,6 +1128,8 @@ export const isMapperURL = url => {
 export const isV2URL = url => {
   if(!url)
     return false
+  if(isUnder(url, getTBv2URL()))
+    return true
   if(url.startsWith('http://localhost:4000'))
     return true
   if(!url.includes('.openconceptlab.org'))

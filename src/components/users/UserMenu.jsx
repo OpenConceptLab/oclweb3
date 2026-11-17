@@ -16,17 +16,19 @@ import CommunityIcon from '@mui/icons-material/GroupsOutlined';
 import SettingsIcon from '@mui/icons-material/SettingsOutlined';
 import find from 'lodash/find';
 import { useLocation } from 'react-router-dom'
-import { getCurrentUser, logoutUser, isLoggedIn, getLoginURL, getRegisterURL } from '../../common/utils'
+import { getCurrentUser, logoutUser, isLoggedIn, getLoginURL, getRegisterURL, toTBv2URL } from '../../common/utils'
 import { LANGUAGES, COMMUNITY_SITE_URL } from '../../common/constants';
 import Button from '../common/Button';
 import Link from '../common/Link';
 import Drawer from '../common/Drawer';
 import UserProfileButton from './UserProfileButton';
 import CloseIconButton from '../common/CloseIconButton';
+import ClassicOCLLogo from '../common/ClassicOCLLogo';
 
 const UserMenu = ({ isOpen, onClose }) => {
   const { t, i18n } = useTranslation()
   const location = useLocation()
+  const tbv2URL = toTBv2URL(location.pathname)
   const [languageOpen, setLanguageOpen] = React.useState(false)
   const selectedLanguage = find(LANGUAGES, {locale: i18n.language}) || {locale: i18n.language, name: i18n.language}
   const authenticated = isLoggedIn()
@@ -108,6 +110,15 @@ const UserMenu = ({ isOpen, onClose }) => {
         <Divider style={{width: '100%'}} />
         <div className='col-xs-12 padding-0'>
           <List>
+            {
+              tbv2URL &&
+                <ListItemButton sx={{p: 1, borderRadius: '100px', display: {xs: 'flex', sm: 'none'}}} component='a' className='no-anchor-styles' href={tbv2URL}>
+                  <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px', '& img': {margin: '0 3px'}}}>
+                    <ClassicOCLLogo />
+                  </ListItemIcon>
+                  <ListItemText primary={t('common.classic_termbrowser')} />
+                </ListItemButton>
+            }
             <ListItemButton sx={{p: 1, borderRadius: '100px'}} component='a' className='no-anchor-styles' href={COMMUNITY_SITE_URL} target='_blank' rel='noopener noreferrer'>
               <ListItemIcon sx={{minWidth: 'auto', paddingRight: '14px'}}>
                 <CommunityIcon />

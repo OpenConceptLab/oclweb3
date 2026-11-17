@@ -18,12 +18,13 @@ const ClassicTermBrowserButton = () => {
     return null;
 
   return (
-    <Tooltip title={t('common.back_to_classic_termbrowser')} arrow>
+    <Tooltip title={t('common.back_to_classic_termbrowser')} describeChild arrow>
       <Chip
         variant='outlined'
         clickable
         component='a'
         href={href}
+        aria-label={t('common.classic_termbrowser')}
         icon={<ClassicOCLLogo />}
         label={t('common.classic_termbrowser')}
         // The header's right column can't fit the chip beside + and the account button on a phone, nor its

@@ -1,3 +1,5 @@
+import { parseRepoPath } from './repoRoute.js'
+
 const OFFICIAL_ORIGIN = /^https:\/\/app\.(v3\.)?([a-z]+\.)*openconceptlab\.org$/
 
 // TBv3 is at app.v3.<env> and TBv2 at app.v2.<env> (OpenConceptLab/ocl_online#236); app.<env> serves one of them.
@@ -31,22 +33,25 @@ const isRouteId = segment => Boolean(segment) && ROUTE_ID.test(segment)
 
 const SHARED_ROOT_PATHS = ['/search', '/imports', '/concepts/compare', '/mappings/compare']
 const SHARED_OWNER_PATHS = {users: ['settings'], orgs: ['edit']}
-const SHARED_REPO_TABS = ['concepts', 'mappings', 'references', 'versions', 'about']
-// The only tabs TBv2 opens a resource in, and the only ones it scopes to an expansion.
-const RESOURCE_TABS = ['concepts', 'mappings']
-// What TBv3 may put right after a repository. Anything else there is a version.
-const REPO_KEYWORDS = [...SHARED_REPO_TABS, 'summary', 'edit', 'compare-versions', 'expansions']
+const TBV3_ONLY_OWNER_IDS = ['new']
+const TBV3_ONLY_REPO_PAGES = ['edit', 'compare-versions']
+const TBV2_REPO_TABS = {
+  sources: ['concepts', 'mappings', 'versions', 'about', 'summary'],
+  collections: ['concepts', 'mappings', 'references', 'versions', 'about'],
+}
+const TBV2_RESOURCE_TABS = ['concepts', 'mappings']
 
 export const toTBv2Path = path => {
-  const segments = (path || '').split(/[?#]/)[0].split('/').filter(Boolean)
+  const pathname = (path || '').split(/[?#]/)[0]
+  const segments = pathname.split('/').filter(Boolean)
   const fullPath = '/' + segments.join('/')
 
   if(SHARED_ROOT_PATHS.includes(fullPath))
     return fullPath
 
-  const [ownerType, owner, repoType, repo, ...rest] = segments
+  const [ownerType, owner, repoType, repo] = segments
 
-  if(!['users', 'orgs'].includes(ownerType) || !isRouteId(owner))
+  if(!['users', 'orgs'].includes(ownerType) || !isRouteId(owner) || TBV3_ONLY_OWNER_IDS.includes(owner))
     return '/'
 
   const ownerHome = `/${ownerType}/${owner}`
@@ -57,33 +62,22 @@ export const toTBv2Path = path => {
   if(!['sources', 'collections'].includes(repoType) || !isRouteId(repo))
     return ownerHome
 
-  let base = `${ownerHome}/${repoType}/${repo}`
-  let index = 0
+  const route = parseRepoPath(pathname)
+  const repoHome = `${ownerHome}/${repoType}/${repo}`
 
-  const version = rest[index] && !REPO_KEYWORDS.includes(rest[index]) ? rest[index] : ''
-  if(version) {
-    if(!isRouteId(version))
-      return base
-    base = `${base}/${version}`
-    index += 1
-  }
+  if(TBV3_ONLY_REPO_PAGES.includes(route.version) || (route.version && !isRouteId(route.version)))
+    return repoHome
 
-  let expansion = ''
-  if(rest[index] === 'expansions') {
-    expansion = rest[index + 1]
-    index += 2
-  }
+  const base = route.version ? `${repoHome}/${route.version}` : repoHome
 
-  const tab = rest[index]
-  if(!SHARED_REPO_TABS.includes(tab))
+  if(!TBV2_REPO_TABS[repoType].includes(route.tab))
     return base
 
-  if(!RESOURCE_TABS.includes(tab))
-    return `${base}/${tab}`
+  if(!TBV2_RESOURCE_TABS.includes(route.tab))
+    return `${base}/${route.tab}`
 
-  // TBv2 scopes an expansion to a version, so one without names HEAD
-  const tabPath = isRouteId(expansion) ? `${base}${version ? '' : '/HEAD'}/expansions/${expansion}/${tab}` : `${base}/${tab}`
-  const resource = rest[index + 1]
+  const scope = isRouteId(route.expansion) ? `${route.version ? base : `${repoHome}/HEAD`}/expansions/${route.expansion}` : base
+  const tabPath = `${scope}/${route.tab}`
 
-  return isRouteId(resource) ? `${tabPath}/${resource}` : tabPath
+  return isRouteId(route.resource) ? `${tabPath}/${route.resource}` : tabPath
 }

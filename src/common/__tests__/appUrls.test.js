@@ -54,6 +54,8 @@ test('TBv2 path: shared pages keep their path', () => {
     '/orgs/CIEL/sources/CIEL/concepts/1066',
     '/orgs/CIEL/sources/CIEL/v2026-10-01/mappings/123',
     '/orgs/CIEL/sources/CIEL/about',
+    '/orgs/CIEL/sources/CIEL/summary',
+    '/orgs/CIEL/sources/CIEL/v1/summary',
     '/users/admin/collections/vs/references',
     '/users/admin/collections/vs/v1/expansions/autoexpand-v1/concepts/1066',
   ]
@@ -73,9 +75,11 @@ test('TBv2 path: pages TBv2 lacks fall back to the nearest page it has', () => {
   assert.equal(toTBv2Path('/orgs/CIEL/url-registry'), '/orgs/CIEL')
   assert.equal(toTBv2Path('/users/admin/map-projects'), '/users/admin')
   assert.equal(toTBv2Path('/users/admin/usage'), '/users/admin')
-  assert.equal(toTBv2Path('/orgs/CIEL/sources/CIEL/summary'), '/orgs/CIEL/sources/CIEL')
-  assert.equal(toTBv2Path('/orgs/CIEL/sources/CIEL/v1/summary'), '/orgs/CIEL/sources/CIEL/v1')
+  assert.equal(toTBv2Path('/orgs/new'), '/')
+  assert.equal(toTBv2Path('/orgs/o/collections/c/summary'), '/orgs/o/collections/c')
+  assert.equal(toTBv2Path('/orgs/o/collections/c/v1/summary'), '/orgs/o/collections/c/v1')
   assert.equal(toTBv2Path('/orgs/CIEL/sources/CIEL/edit'), '/orgs/CIEL/sources/CIEL')
+  assert.equal(toTBv2Path('/orgs/CIEL/sources/CIEL/edit/2'), '/orgs/CIEL/sources/CIEL')
   assert.equal(toTBv2Path('/orgs/CIEL/sources/CIEL/compare-versions'), '/orgs/CIEL/sources/CIEL')
   assert.equal(toTBv2Path('/orgs/CIEL/sources/CIEL/v%201/concepts'), '/orgs/CIEL/sources/CIEL')
 })
