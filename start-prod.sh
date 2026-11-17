@@ -47,6 +47,9 @@ fi
 if [[ ! -z "${MAPPER_URL}" ]]; then
     echo "var MAPPER_URL = \"${MAPPER_URL}\";" >> ${ENV_FILE}
 fi
+if [[ ! -z "${TBV2_URL}" ]]; then
+    echo "var TBV2_URL = \"${TBV2_URL}\";" >> ${ENV_FILE}
+fi
 if [[ ! -z "${OCL_ONLINE_API_URL}" ]]; then
     echo "var OCL_ONLINE_API_URL = \"${OCL_ONLINE_API_URL}\";" >> ${ENV_FILE}
 fi
