@@ -142,6 +142,7 @@
     "uid": "UID",
     "undo": "撤销",
     "unretire": "重新激活",
+    "checking_auth": "正在验证身份...",
     "view_resource_version": "查看资源版本",
     "error": "错误"
   },
