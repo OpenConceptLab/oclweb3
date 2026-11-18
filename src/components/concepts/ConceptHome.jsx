@@ -6,7 +6,7 @@ import Skeleton from '@mui/material/Skeleton';
 
 import APIService from '../../services/APIService';
 import GAService from '../../services/GAService';
-import { toParentURI, dropVersion, getResourceIdFromUrl, currentUserHasAccess, sourceVersionOf } from '../../common/utils'
+import { toParentURI, dropVersion, currentUserHasAccess, sourceVersionOf } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
@@ -19,6 +19,7 @@ import ConceptForm from './ConceptForm'
 import ConceptIcon from './ConceptIcon'
 import ConceptDetails from './ConceptDetails'
 import History from './History'
+import { getRequestedConceptId, getRequestedRepoVersion } from './conceptPanelRequest'
 
 // Repo version segment of a resource URL, e.g. /orgs/CIEL/sources/CIEL/v2026/concepts/1/ -> 'v2026'
 const repoVersionFromURL = url => {
@@ -59,7 +60,7 @@ const ConceptHome = props => {
 
   const isInCollection = Boolean(props.repo?.type?.includes('Collection') || props.url?.includes('/collections/'))
 
-  const getActiveConceptId = () => getResourceIdFromUrl(props.url, 'concepts') || concept?.id
+  const getActiveConceptId = () => getRequestedConceptId(props.url, props.concept, concept)
 
   // False once the panel has closed, e.g. the route moved to another version: a late response must not ask that version for more
   const aliveRef = React.useRef(true)
@@ -109,8 +110,7 @@ const ConceptHome = props => {
       return repoURL
     if(!parentURL)
       return ''
-    const isStateConceptOfParent = toParentURI(concept?.url || '') === parentURL
-    const repoVersion = _concept?.latest_source_version || (isStateConceptOfParent ? concept?.latest_source_version : undefined)
+    const repoVersion = _concept?.latest_source_version || getRequestedRepoVersion(parentURL, props.concept, concept)
     return repoVersion ? parentURL + repoVersion + '/' : parentURL
   }
 
