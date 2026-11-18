@@ -6,7 +6,7 @@ import Skeleton from '@mui/material/Skeleton';
 
 import APIService from '../../services/APIService';
 import GAService from '../../services/GAService';
-import { toParentURI, dropVersion, getResourceIdFromUrl, currentUserHasAccess, sourceVersionOf } from '../../common/utils'
+import { toParentURI, dropVersion, currentUserHasAccess, sourceVersionOf } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
@@ -19,6 +19,7 @@ import ConceptForm from './ConceptForm'
 import ConceptIcon from './ConceptIcon'
 import ConceptDetails from './ConceptDetails'
 import History from './History'
+import { createSelectionGuard, getRequestedConceptId, getRequestedRepoVersion } from './conceptPanelRequest'
 
 // Repo version segment of a resource URL, e.g. /orgs/CIEL/sources/CIEL/v2026/concepts/1/ -> 'v2026'
 const repoVersionFromURL = url => {
@@ -59,14 +60,10 @@ const ConceptHome = props => {
 
   const isInCollection = Boolean(props.repo?.type?.includes('Collection') || props.url?.includes('/collections/'))
 
-  const getActiveConceptId = () => getResourceIdFromUrl(props.url, 'concepts') || concept?.id
+  const getActiveConceptId = () => getRequestedConceptId(props.url, props.concept, concept)
 
-  // False once the panel has closed, e.g. the route moved to another version: a late response must not ask that version for more
-  const aliveRef = React.useRef(true)
-  React.useEffect(() => {
-    aliveRef.current = true
-    return () => { aliveRef.current = false }
-  }, [])
+  // A late response must not replace the concept now selected, or ask a version the panel has moved away from for more
+  const [{ forCurrentSelection, onSelectionChange }] = React.useState(createSelectionGuard)
 
   React.useEffect(() => {
     setLoading(true)
@@ -74,10 +71,13 @@ const ConceptHome = props => {
     setErrorStatus(false)
     setConcept(props.concept || {})
     setVersions([])
+    setMappings([])
+    setReverseMappings([])
+    setOwnerMappings([])
+    setReverseOwnerMappings([])
+    setLoadingOwnerMappings(null)
     const queryParams = isInCollection ? { includeReferences: true } : {}
-    getService().get(null, null, queryParams, true).then(response => {
-      if(!aliveRef.current)
-        return
+    getService().get(null, null, queryParams, true).then(forCurrentSelection(response => {
       const status = response?.status || response?.response?.status
       if(status && status !== 200) {
         setErrorStatus(status)
@@ -92,10 +92,11 @@ const ConceptHome = props => {
       getMappings(resource)
       if(tab === 'history')
         fetchVersions(resource?.url)
-    })
+    }))
+    return onSelectionChange
   }, [props.concept?.id, props.url])
 
-  const fetchRepo = _concept => props?.repo?.id ? setRepo(props.repo) : APIService.new().overrideURL(getRepoURL(_concept)).get().then(response => setRepo(response.data))
+  const fetchRepo = _concept => props?.repo?.id ? setRepo(props.repo) : APIService.new().overrideURL(getRepoURL(_concept)).get().then(forCurrentSelection(response => setRepo(response.data)))
 
   const getRepoURL = _concept => {
     if(isInCollection) {
@@ -109,8 +110,7 @@ const ConceptHome = props => {
       return repoURL
     if(!parentURL)
       return ''
-    const isStateConceptOfParent = toParentURI(concept?.url || '') === parentURL
-    const repoVersion = _concept?.latest_source_version || (isStateConceptOfParent ? concept?.latest_source_version : undefined)
+    const repoVersion = _concept?.latest_source_version || getRequestedRepoVersion(parentURL, props.concept, concept)
     return repoVersion ? parentURL + repoVersion + '/' : parentURL
   }
 
@@ -140,10 +140,10 @@ const ConceptHome = props => {
         return
       setLoading(true)
       const service = APIService.new().overrideURL(_conceptURL)
-      service.appendToUrl('versions/').get(null, null, {includeCollectionVersions: true, includeSourceVersions: true}).then(response => {
+      service.appendToUrl('versions/').get(null, null, {includeCollectionVersions: true, includeSourceVersions: true}).then(forCurrentSelection(response => {
         setVersions(response.data || [])
         fetchRepoVersions(_conceptURL)
-      })
+      }))
     }
   }
 
@@ -154,12 +154,12 @@ const ConceptHome = props => {
       setLoading(false)
       return
     }
-    APIService.new().overrideURL(url).appendToUrl('versions/').get(null, null, {limit: 1000}).then(response => {
+    APIService.new().overrideURL(url).appendToUrl('versions/').get(null, null, {limit: 1000}).then(forCurrentSelection(response => {
       // kept only when the request worked, so a failed one is tried again
       if(Array.isArray(response?.data))
         setRepoVersions({url, versions: response.data})
       setLoading(false)
-    })
+    }))
   }
 
   const onTabChange = newTab => {
@@ -182,12 +182,12 @@ const ConceptHome = props => {
           includeRetired: includeRetired,
         }
       )
-      .then(response => {
+      .then(forCurrentSelection(response => {
         setMappings(withoutSelfEntry(response?.data?.entry?.entries, concept))
         if(directOnly)
-          setTimeout(() => setLoading(false), 300)
-        !directOnly && aliveRef.current && getInverseMappings(concept, includeRetired)
-      })
+          setTimeout(forCurrentSelection(() => setLoading(false)), 300)
+        !directOnly && getInverseMappings(concept, includeRetired)
+      }))
   }
 
   const getInverseMappings = (concept, includeRetired = includeRetiredAssociations) => {
@@ -204,10 +204,10 @@ const ConceptHome = props => {
           reverse: true,
           includeRetired: includeRetired,
         })
-      .then(response => {
+      .then(forCurrentSelection(response => {
         setReverseMappings(withoutSelfEntry(response?.data?.entry?.entries, concept))
-        setTimeout(() => setLoading(false), 300)
-      })
+        setTimeout(forCurrentSelection(() => setLoading(false)), 300)
+      }))
   }
 
   const getOwnerMappings = (concept, directOnly) => {
@@ -223,12 +223,12 @@ const ConceptHome = props => {
         brief: true,
         pageSize: 1000
       })
-      .then(response => {
+      .then(forCurrentSelection(response => {
         setOwnerMappings(response?.data || [])
         if(directOnly)
-          setTimeout(() => setLoadingOwnerMappings(false), 300)
+          setTimeout(forCurrentSelection(() => setLoadingOwnerMappings(false)), 300)
         !directOnly && getInverseOwnerMappings(concept)
-      })
+      }))
   }
 
   const getInverseOwnerMappings = concept => {
@@ -243,10 +243,10 @@ const ConceptHome = props => {
         brief: true,
         pageSize: 1000
       })
-      .then(response => {
+      .then(forCurrentSelection(response => {
         setReverseOwnerMappings(response?.data || [])
-        setTimeout(() => setLoadingOwnerMappings(false), 300)
-      })
+        setTimeout(forCurrentSelection(() => setLoadingOwnerMappings(false)), 300)
+      }))
   }
 
   const canManageMappings = !isInCollection && concept?.id && currentUserHasAccess()

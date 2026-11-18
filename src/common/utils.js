@@ -20,8 +20,9 @@ import { getEnv } from './env';
 import { SERVER_CONFIGS } from './serverConfigs';
 import { legacyHashRoute, isSameSitePath } from './history';
 import { resolveMapperURL, resolveTBv2URL, toTBv2Path } from './appUrls';
+import { toParentURI } from './uri';
 
-export { dropVersion } from './uri';
+export { dropVersion, toParentURI, getResourceIdFromUrl } from './uri';
 
 export const currentPath = () => window.location.pathname;
 
@@ -166,15 +167,7 @@ export const copyToClipboard = copyText => {
 
 export const copyURL = url => copyToClipboard(url, 'Copied URL to clipboard!');
 
-export const toParentURI = uri => (uri || '').split('/').splice(0, 5).join('/') + '/';
-
 export const toOwnerURI = uri => uri && uri.split('/').splice(0, 3).join('/') + '/';
-
-// Extracts the trailing id from a `.../<resourceType>/<id>/` URL
-export const getResourceIdFromUrl = (url, resourceType) => {
-  const match = (url || '').replace(/\/$/, '').match(new RegExp(`/${resourceType}/([^/]+)$`))
-  return match ? decodeURIComponent(match[1]) : undefined
-}
 
 // True when only the trailing resource-id segment was added, removed, or swapped
 export const headFirst = versions => compact([find(versions, version => (version.version || version.id) === 'HEAD'), ...reject(versions, version => (version.version || version.id) === 'HEAD')]);

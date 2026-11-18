@@ -16,3 +16,11 @@ export const dropVersion = uri => {
   return uri
 
 }
+
+export const toParentURI = uri => (uri || '').split('/').splice(0, 5).join('/') + '/';
+
+// Extracts the trailing id from a `.../<resourceType>/<id>/` URL
+export const getResourceIdFromUrl = (url, resourceType) => {
+  const match = (url || '').replace(/\/$/, '').match(new RegExp(`/${resourceType}/([^/]+)$`))
+  return match ? decodeURIComponent(match[1]) : undefined
+}
