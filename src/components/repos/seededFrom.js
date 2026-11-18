@@ -8,3 +8,10 @@ export const getSeededFromLabel = (seededFrom, t) => {
     return seededFrom.url.replace(/\/+$/, '').split('/').pop()
   return undefined
 }
+
+// The version details row for a seed, or undefined to leave the row out: with no value, the dialog
+// would fall back to the raw seed object, which React can't render.
+export const getSeededFromAttribute = (seededFrom, label, t) => {
+  const value = getSeededFromLabel(seededFrom, t)
+  return value ? { label, value } : undefined
+}

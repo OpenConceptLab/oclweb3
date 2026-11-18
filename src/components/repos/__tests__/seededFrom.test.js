@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-const { getSeededFromLabel } = await import('../seededFrom.js')
+const { getSeededFromLabel, getSeededFromAttribute } = await import('../seededFrom.js')
 
 const t = key => ({'repo.seeded_from_import': 'Import'})[key]
 
@@ -19,4 +19,12 @@ test('no seed, or one this page does not know, shows nothing rather than raw JSO
   assert.equal(getSeededFromLabel(null, t), undefined)
   assert.equal(getSeededFromLabel({type: 'repo_version', url: null}, t), undefined)
   assert.equal(getSeededFromLabel({type: 'other'}, t), undefined)
+})
+
+test('the details row shows the label, and is left out when there is none', () => {
+  assert.deepEqual(
+    getSeededFromAttribute({type: 'import', task: 'task-id'}, 'Seeded From', t), {label: 'Seeded From', value: 'Import'})
+  assert.equal(getSeededFromAttribute({type: 'repo_version', url: null}, 'Seeded From', t), undefined)
+  assert.equal(getSeededFromAttribute({type: 'other'}, 'Seeded From', t), undefined)
+  assert.equal(getSeededFromAttribute(null, 'Seeded From', t), undefined)
 })

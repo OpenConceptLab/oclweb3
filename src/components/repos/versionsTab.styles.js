@@ -4,7 +4,7 @@ import isNumber from 'lodash/isNumber';
 import isObject from 'lodash/isObject';
 import keys from 'lodash/keys';
 import startCase from 'lodash/startCase';
-import { getSeededFromLabel } from './seededFrom';
+import { getSeededFromAttribute } from './seededFrom';
 
 export const REPO_VERSIONS_PAGE_SIZE = 25;
 
@@ -123,15 +123,18 @@ export const getVersionAttributeFields = (version, t) => {
     const labelKey = VERSION_ATTRIBUTE_LABEL_KEYS[field];
     const value = get(version, field);
     const info = { label: labelKey ? t(labelKey) : startCase(field) };
-    // the seed is shown as a label, never as raw JSON
-    const type = field === 'seeded_from' ? undefined : VERSION_ATTRIBUTE_TYPES[field] || (isObject(value) ? 'json' : undefined);
+    if(field === 'seeded_from') {  // shown as a label, never as raw JSON
+      const seed = getSeededFromAttribute(value, info.label, t);
+      if(seed)
+        fields[field] = seed;
+      return;
+    }
+    const type = VERSION_ATTRIBUTE_TYPES[field] || (isObject(value) ? 'json' : undefined);
     if(type)
       info.type = type;
     // the dialog renders a value only when it is truthy, so true/false needs a string
     if(isBoolean(value))
       info.value = value.toString();
-    if(field === 'seeded_from')
-      info.value = getSeededFromLabel(value, t);
     fields[field] = info;
   });
   return fields;
