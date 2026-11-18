@@ -71,6 +71,8 @@ const ConceptHome = props => {
     setErrorStatus(false)
     setConcept(props.concept || {})
     setVersions([])
+    setMappings([])
+    setReverseMappings([])
     setOwnerMappings([])
     setReverseOwnerMappings([])
     setLoadingOwnerMappings(null)
