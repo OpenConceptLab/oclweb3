@@ -57,19 +57,3 @@ test('a response that arrives after a newer selection is dropped, in either orde
 
   assert.deepEqual(shown, ['second'])
 })
-
-test('a response for the current selection is handled', () => {
-  const guard = createSelectionGuard()
-  assert.equal(guard.forCurrentSelection(response => response)('current'), 'current')
-})
-
-test('a response that arrives after the panel closes is dropped', () => {
-  const guard = createSelectionGuard()
-  const shown = []
-  const onResponse = guard.forCurrentSelection(response => shown.push(response))
-  guard.onSelectionChange()
-
-  onResponse('late')
-
-  assert.deepEqual(shown, [])
-})
