@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-import { getRequestedConceptId, getRequestedRepoVersion } from '../conceptPanelRequest.js'
+import { createSelectionGuard, getRequestedConceptId, getRequestedRepoVersion } from '../conceptPanelRequest.js'
 
 const REPO = '/orgs/MyOrg/sources/MySource/'
 const OTHER_REPO = '/orgs/OtherOrg/sources/OtherSource/'
@@ -11,6 +11,10 @@ const otherConcept = {id: '9499', url: `${OTHER_REPO}concepts/9499/`, latest_sou
 
 test('a search result opened by its version URL asks for its own id, not the one shown before', () => {
   assert.equal(getRequestedConceptId(`${OTHER_REPO}concepts/9499/5437596/`, otherConcept, concept), '9499')
+})
+
+test('a selected concept whose id is "concepts" keeps its id', () => {
+  assert.equal(getRequestedConceptId(`${REPO}concepts/concepts/123/`, {id: 'concepts'}, concept), 'concepts')
 })
 
 test('an id at the end of the URL is used as it is', () => {
@@ -39,4 +43,33 @@ test('the version of a concept in another repo is never used', () => {
 
 test('with no selection, the loaded concept of the same repo gives the version', () => {
   assert.equal(getRequestedRepoVersion(REPO, undefined, concept), 'v2')
+})
+
+test('a response that arrives after a newer selection is dropped, in either order', () => {
+  const guard = createSelectionGuard()
+  const shown = []
+  const onFirst = guard.forCurrentSelection(response => shown.push(response))
+  guard.onSelectionChange()
+  const onSecond = guard.forCurrentSelection(response => shown.push(response))
+
+  onSecond('second')
+  onFirst('first')
+
+  assert.deepEqual(shown, ['second'])
+})
+
+test('a response for the current selection is handled', () => {
+  const guard = createSelectionGuard()
+  assert.equal(guard.forCurrentSelection(response => response)('current'), 'current')
+})
+
+test('a response that arrives after the panel closes is dropped', () => {
+  const guard = createSelectionGuard()
+  const shown = []
+  const onResponse = guard.forCurrentSelection(response => shown.push(response))
+  guard.onSelectionChange()
+
+  onResponse('late')
+
+  assert.deepEqual(shown, [])
 })
