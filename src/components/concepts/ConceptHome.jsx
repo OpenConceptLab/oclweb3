@@ -71,6 +71,9 @@ const ConceptHome = props => {
     setErrorStatus(false)
     setConcept(props.concept || {})
     setVersions([])
+    setOwnerMappings([])
+    setReverseOwnerMappings([])
+    setLoadingOwnerMappings(null)
     const queryParams = isInCollection ? { includeReferences: true } : {}
     getService().get(null, null, queryParams, true).then(forCurrentSelection(response => {
       const status = response?.status || response?.response?.status
@@ -180,7 +183,7 @@ const ConceptHome = props => {
       .then(forCurrentSelection(response => {
         setMappings(withoutSelfEntry(response?.data?.entry?.entries, concept))
         if(directOnly)
-          setTimeout(() => setLoading(false), 300)
+          setTimeout(forCurrentSelection(() => setLoading(false)), 300)
         !directOnly && getInverseMappings(concept, includeRetired)
       }))
   }
@@ -201,7 +204,7 @@ const ConceptHome = props => {
         })
       .then(forCurrentSelection(response => {
         setReverseMappings(withoutSelfEntry(response?.data?.entry?.entries, concept))
-        setTimeout(() => setLoading(false), 300)
+        setTimeout(forCurrentSelection(() => setLoading(false)), 300)
       }))
   }
 
@@ -218,12 +221,12 @@ const ConceptHome = props => {
         brief: true,
         pageSize: 1000
       })
-      .then(response => {
+      .then(forCurrentSelection(response => {
         setOwnerMappings(response?.data || [])
         if(directOnly)
-          setTimeout(() => setLoadingOwnerMappings(false), 300)
+          setTimeout(forCurrentSelection(() => setLoadingOwnerMappings(false)), 300)
         !directOnly && getInverseOwnerMappings(concept)
-      })
+      }))
   }
 
   const getInverseOwnerMappings = concept => {
@@ -238,10 +241,10 @@ const ConceptHome = props => {
         brief: true,
         pageSize: 1000
       })
-      .then(response => {
+      .then(forCurrentSelection(response => {
         setReverseOwnerMappings(response?.data || [])
-        setTimeout(() => setLoadingOwnerMappings(false), 300)
-      })
+        setTimeout(forCurrentSelection(() => setLoadingOwnerMappings(false)), 300)
+      }))
   }
 
   const canManageMappings = !isInCollection && concept?.id && currentUserHasAccess()
