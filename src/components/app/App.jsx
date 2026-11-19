@@ -44,6 +44,10 @@ import UserChip from '../users/UserChip'
 import UserTooltip from '../users/UserTooltip'
 
 
+// Keyed by person, as OrgHome is by organization, so moving to another profile starts fresh: no answer about the
+// profile left behind lands on the next one
+const UserHomeByUser = ({ match }) => <UserHome key={match.params.user} />
+
 const AuthenticationRequiredRoute = ({component: Component, ...rest}) => (
   <Route
     {...rest}
@@ -268,7 +272,7 @@ const App = props => {
               <AuthenticationRequiredRoute exact path='/users/:user/url-registry' component={URLRegistry} />
               <SessionUserRoute exact path='/users/:user/edit' component={UserEdit} />
               <AuthenticationRequiredRoute path='/users/:user/settings' component={UserSettings} />
-              <AuthenticationRequiredRoute path={`/users/:user/:tab(${orgTabsStr})?`} component={UserHome} />
+              <AuthenticationRequiredRoute path={`/users/:user/:tab(${orgTabsStr})?`} component={UserHomeByUser} />
               <AuthenticationRequiredRoute exact path='/orgs/new' component={OrgCreate} />
               <AuthenticationRequiredRoute exact path='/orgs/:org/edit' component={OrgCreate} />
               <Route path={`/orgs/:org/:tab(${orgTabsStr})?`} render={({ match }) => <OrgHome key={match.params.org} />} />

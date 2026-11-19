@@ -40,9 +40,6 @@ const UserHome = () => {
   const findTab = () => TAB_KEYS.includes(params?.tab) ? params.tab : 'overview'
   const currentUser = getCurrentUser()
   const isCurrentUser = Boolean(currentUser?.username && currentUser?.username == params.user)
-  // The profile on screen. An answer about a profile left since doesn't land on this one.
-  const routeUser = React.useRef(params.user)
-  routeUser.current = params.user
 
   const reset = () => {
     setEvents(false)
@@ -57,10 +54,7 @@ const UserHome = () => {
       setUser(getCurrentUser())
       fetchEvents(reset)
     } else {
-      const requested = params.user
-      APIService.users(requested).get(null, null, {includeSubscribedOrgs: true, includeFollowing: true}, true).then(response => {
-        if(routeUser.current !== requested)
-          return
+      APIService.users(params.user).get(null, null, {includeSubscribedOrgs: true, includeFollowing: true}, true).then(response => {
         const newStatus = response?.status || response?.response?.status
         const data = response?.data || response?.response?.data || {}
         setStatus(newStatus)
@@ -75,10 +69,7 @@ const UserHome = () => {
   const fetchEvents = reset => {
     if(params?.user) {
       const isReset = reset === true
-      const requested = params.user
-      APIService.users(requested).appendToUrl('events/').get(null, null, {limit: 5, page: isReset ? 1 : (eventsPage + 1)}).then(response => {
-        if(routeUser.current !== requested)
-          return
+      APIService.users(params?.user).appendToUrl('events/').get(null, null, {limit: 5, page: isReset ? 1 : (eventsPage + 1)}).then(response => {
         setEvents([...(isReset ? [] : events || []), ...(response?.data?.length ? response.data : [])])
         setEventsPage(response?.headers?.page_number ? parseInt(response.headers.page_number) : 0)
         setHaveMoreEvents(Boolean(response?.headers?.next))
