@@ -82,7 +82,7 @@ const UserHome = () => {
         setEventsPage(response?.headers?.page_number ? parseInt(response.headers.page_number) : 0)
         setHaveMoreEvents(Boolean(response?.headers?.next))
         setTimeout(() => {
-          const el = document.getElementById('events-timeline')
+          const el = mounted.current && document.getElementById('events-timeline')
           if(el) {
             el.scrollTop = el.scrollHeight
           }
