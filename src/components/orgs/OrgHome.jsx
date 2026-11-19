@@ -120,8 +120,8 @@ const OrgHome = () => {
     })
   }
 
-  // After Edit Members saves: removing yourself there is leaving, a change to your own role changes what you can do
-  // here, and any other change only changes the members.
+  // After Edit Members saves: removing yourself there is leaving, adding yourself or changing your own role changes what
+  // you can do here, and any other change only changes the members.
   const onMembersSaved = ({left, ownRoleChanged}) => {
     if(left)
       return onLeft()

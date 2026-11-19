@@ -69,8 +69,9 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
         .overrideURL(org.url)
         .appendToUrl(`members/${member.username}/`)
         [action === 'remove' ? 'delete' : 'put'](role ? {role} : null, null, {}, null, true)
-      const error = response?.response || !response ? getErrorDetail(response) || t('common.generic_error') : null
-      return {member, action, error}
+      // Only a 2xx made the change: a refusal, or an error with no response at all, didn't
+      const done = response?.status >= 200 && response?.status < 300
+      return {member, action, error: done ? null : getErrorDetail(response) || t('common.generic_error')}
     } catch(error) {
       return {member, action, error: getErrorDetail(error) || t('common.generic_error')}
     }
@@ -100,21 +101,22 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
     }
 
     const ownChanges = results.filter(({member, error}) => !error && member.username === username)
-    if(!failures.length)
-      onClose()
-    // Submit stays off until the members are fetched again, so that saving again starts from what the API now has
+    // The dialog stays up, with Submit off, until the members are fetched again, so that neither saving again nor
+    // reopening it starts from a list the API has moved past
     if(results.length)
       await onSaved({
         left: ownChanges.some(({action}) => action === 'remove'),
-        ownRoleChanged: ownChanges.some(({action}) => action === 'role')
+        ownRoleChanged: ownChanges.some(({action}) => action !== 'remove')
       })
     setSaving(false)
+    if(!failures.length)
+      onClose()
   }
 
   return (
     <Dialog
       open
-      onClose={onClose}
+      onClose={saving ? undefined : onClose}
       scroll='paper'
       maxWidth="lg"
       sx={{
