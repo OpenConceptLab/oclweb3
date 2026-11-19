@@ -31,6 +31,7 @@ import Error40X from '../errors/Error40X';
 import RepoSummary from './RepoSummary'
 import RepoAbout from './RepoAbout'
 import { hasAboutContent } from './aboutSections'
+import { getFallbackTab } from './tabFallback'
 import VersionForm from './VersionForm'
 import ReleaseVersion from './ReleaseVersion'
 import RepoHeader from './RepoHeader';
@@ -385,12 +386,13 @@ const RepoHome = () => {
   // source, or it queries an endpoint that cannot exist there.
   // The About tab depends on the loaded version, so wait for it before deciding a tab is missing.
   React.useEffect(() => {
-    if(!isRepoForRoute || !tabs?.length || !tab || tabs.some(item => item.key === tab))
+    const fallbackTab = getFallbackTab({tabs, tab, route, repoRoute})
+    if(!fallbackTab)
       return
-    setTab(tabs[0].key)
+    setTab(fallbackTab)
     if(RESOURCE_TABS.includes(route.tab) || route.tab === 'about')
-      replacePath({tab: tabs[0].key, expansion: '', resource: ''})
-  }, [tabs, tab, isRepoForRoute])
+      replacePath({tab: fallbackTab, expansion: '', resource: ''})
+  }, [tabs, tab, repoRoute, location.pathname])
 
   const onTabChange = (event, newTab) => {
     if(newTab) {
@@ -684,7 +686,7 @@ const RepoHome = () => {
                     />
                 }
                 {
-                  tab === 'about' && isRepoForRoute &&
+                  tab === 'about' && isRepoForRoute && isSameRepoScope(repoRoute, route) &&
                     <RepoAbout repo={currentRepo} height='calc(var(--app-height) - 268px)' />
                 }
               </div>
