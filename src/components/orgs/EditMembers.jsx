@@ -58,13 +58,13 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
   const { t } = useTranslation()
   const { setAlert } = React.useContext(OperationsContext);
 
-  const [input, setInput] = React.useState('')
-  const [fetched, setFetched] = React.useState(false)
   const [open, setOpen] = React.useState(false)
   const [users, setUsers] = React.useState([])
   const [adding, setAdding] = React.useState(false)
+  // The search box shows only what the admin typed or picked: MUI's own resets, on blur or when the pick changes, are
+  // ignored, and typing drops the pick
+  const [search, setSearch] = React.useState('')
   const [newMember, setNewMember] = React.useState(null)
-  const [searchText, setSearchText] = React.useState('')
   const [newRole, setNewRole] = React.useState(ROLE_MEMBER)
   const [removing, setRemoving] = React.useState(null)
   const [saving, setSaving] = React.useState(false)
@@ -72,19 +72,33 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
   const username = React.useMemo(getCurrentUserUsername, [])
 
   const minLength = 2
-  const isSearchable = input && input.length >= minLength;
-  const loading = Boolean(open && !fetched && isSearchable && !users?.length)
-  const handleInputChange = debounce((event, value) => {
-    setInput(value || '')
-    setFetched(false)
-    if(value && value.length >= minLength)
-      fetchUsers(value)
-  }, 300)
+  const isSearchable = search.length >= minLength
+  const loading = Boolean(open && isSearchable && !users?.length)
 
-  const fetchUsers = searchStr => {
+  // One delayed search for the dialog's life. A response counts only while its query is still the one in the box, so
+  // a slow, older one can't replace newer results.
+  const query = React.useRef('')
+  const searchUsers = React.useMemo(() => debounce(q => {
     APIService.users()
-      .get(null, null, {q: searchStr})
-      .then(response => setUsers(response.data))
+      .get(null, null, {q})
+      .then(response => query.current === q && setUsers(response.data))
+  }, 300), [])
+  React.useEffect(() => () => searchUsers.cancel(), [searchUsers])
+
+  const onSearchChange = (event, value, reason) => {
+    if(!['input', 'clear'].includes(reason))
+      return
+    setSearch(value)
+    setNewMember(null)
+    query.current = value
+    if(value.length >= minLength)
+      searchUsers(value)
+    else
+      searchUsers.cancel()
+  }
+  const onPick = (event, user) => {
+    setNewMember(user)
+    setSearch(user ? getMemberDisplayName(user) : '')
   }
 
   const getMemberName = member => {
@@ -131,18 +145,16 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
       apply({member, action: 'role', role})
   }
 
-  // Add sends the picked user only while the search shows them, and never one who has become a member since, by this
-  // dialog or anyone else: adding them again would change their role
-  const picked = (newMember && searchText === getMemberDisplayName(newMember) && withoutMembers([newMember], members)[0]) || null
-  React.useEffect(() => {
-    if(newMember && !withoutMembers([newMember], members).length)
-      setNewMember(null)
-  }, [members, newMember])
+  // Never one who has become a member since being picked, by this dialog or anyone else: adding them again would change
+  // their role
+  const picked = (newMember && withoutMembers([newMember], members)[0]) || null
 
   const closeAdd = () => {
     setAdding(false)
     setNewMember(null)
-    setSearchText('')
+    setSearch('')
+    query.current = ''
+    searchUsers.cancel()
     setNewRole(ROLE_MEMBER)
   }
   const onAdd = () => picked && apply({member: picked, action: 'add', role: newRole}, done => done && closeAdd())
@@ -189,7 +201,8 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
                 onOpen={() => setOpen(true)}
                 onClose={() => setOpen(false)}
                 isOptionEqualToValue={(option, value) => option.username === value?.username}
-                value={newMember}
+                value={picked}
+                inputValue={search}
                 options={withoutMembers(users, members)}
                 loading={loading}
                 loadingText={loading ? 'Loading...' : `Type atleast ${minLength} characters to search`}
@@ -197,11 +210,8 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
                 getOptionLabel={getMemberDisplayName}
                 size='small'
                 disabled={saving}
-                onInputChange={(event, value) => {
-                  setSearchText(value || '')
-                  handleInputChange(event, value)
-                }}
-                onChange={(event, user) => setNewMember(user)}
+                onInputChange={onSearchChange}
+                onChange={onPick}
                 renderInput={
                   params => <TextField
                               {...params}
@@ -241,6 +251,8 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
                   primary={getMemberName(member) || member.username}
                   secondary={getMemberName(member) ? member.username : undefined}
                   sx={{
+                    minWidth: 0,
+                    overflowWrap: 'anywhere',
                     '.MuiListItemText-primary': {color: 'surface.dark', fontSize: '14px'},
                     '.MuiListItemText-secondary': {color: 'default.light', fontSize: '12px'}
                   }}
