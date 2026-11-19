@@ -49,10 +49,12 @@ const OrgHeader = ({ org, members, onDeleteClick, onLeaveClick, canAdminister, c
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [editMembers, setEditMembers] = React.useState(false)
 
-  // Edit Members closes when the requester stops being an admin, whoever made the change
+  // Edit Members and the Manage menu close when the requester stops being an admin, whoever made the change
   React.useEffect(() => {
-    if(!canAdminister)
+    if(!canAdminister) {
       setEditMembers(false)
+      setAnchorEl(null)
+    }
   }, [canAdminister])
 
   // Staff and the org's members, by the role the API gives the requester
