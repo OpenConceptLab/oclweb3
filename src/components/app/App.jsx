@@ -39,7 +39,7 @@ import ConceptsComparison from '../concepts/ConceptsComparison'
 import MappingsComparison from '../mappings/MappingsComparison'
 import CheckAuth from './CheckAuth'
 import { loadUsageDashboard } from "../../common/plugins/loader";
-import { usePluginTabs } from "../../hooks/useProfileTabs";
+import { loadPluginTabs, usePluginTabs } from "../../hooks/useProfileTabs";
 import UserChip from '../users/UserChip'
 import UserTooltip from '../users/UserTooltip'
 
@@ -181,14 +181,16 @@ const App = props => {
   const [UsageDashboard, setUsageDashboard] = React.useState(null);
 
   React.useEffect(() => {
+    // After the plugin's profile tabs, so a tab that takes over /users/:user/usage is known before that page loads
     if(ANALYTICS_URL)
-      loadUsageDashboard().then(comp => {
+      Promise.all([loadUsageDashboard(), loadPluginTabs()]).then(([comp]) => {
         setUsageDashboard(() => comp)
       })
   }, []);
 
   const pluginTabs = usePluginTabs()
-  const orgTabs = ['repos', ...(hasMapper() ? ['map-projects'] : []), ...pluginTabs.map(tab => tab.key)]
+  const pluginTabKeys = pluginTabs.map(tab => tab.key)
+  const orgTabs = ['repos', ...(hasMapper() ? ['map-projects'] : []), ...pluginTabKeys]
   const orgTabsStr = orgTabs.join('|')
 
   return (
@@ -237,8 +239,9 @@ const App = props => {
                     }}
                   />
               }
+              {/* A plugin's profile tab keyed `usage` serves this address instead, through the profile's route */}
               {
-                UsageDashboard &&
+                UsageDashboard && !pluginTabKeys.includes('usage') &&
                   <SelfOrStaffRoute
                     exact
                     path='/users/:user/usage'
