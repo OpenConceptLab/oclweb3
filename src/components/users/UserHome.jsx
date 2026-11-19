@@ -40,6 +40,12 @@ const UserHome = () => {
   const findTab = () => TAB_KEYS.includes(params?.tab) ? params.tab : 'overview'
   const currentUser = getCurrentUser()
   const isCurrentUser = Boolean(currentUser?.username && currentUser?.username == params.user)
+  // The page is keyed by person (App.jsx); a late answer for a profile that's gone doesn't touch the next one's page
+  const mounted = React.useRef(true)
+  React.useEffect(() => {
+    mounted.current = true
+    return () => { mounted.current = false }
+  }, [])
 
   const reset = () => {
     setEvents(false)
@@ -70,6 +76,8 @@ const UserHome = () => {
     if(params?.user) {
       const isReset = reset === true
       APIService.users(params?.user).appendToUrl('events/').get(null, null, {limit: 5, page: isReset ? 1 : (eventsPage + 1)}).then(response => {
+        if(!mounted.current)
+          return
         setEvents([...(isReset ? [] : events || []), ...(response?.data?.length ? response.data : [])])
         setEventsPage(response?.headers?.page_number ? parseInt(response.headers.page_number) : 0)
         setHaveMoreEvents(Boolean(response?.headers?.next))
