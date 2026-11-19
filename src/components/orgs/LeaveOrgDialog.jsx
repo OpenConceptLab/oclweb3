@@ -9,13 +9,13 @@ import DialogTitle from '../common/DialogTitle'
 const LeaveOrgDialog = ({ onSubmit, onClose, open, org, pending }) => {
   const { t } = useTranslation()
   return (
-    <Dialog open={Boolean(open)} onClose={onClose} fullWidth maxWidth='xs'>
+    <Dialog open={Boolean(open)} onClose={pending ? undefined : onClose} fullWidth maxWidth='xs'>
       <DialogTitle>{t('org.leave_org')}</DialogTitle>
       <DialogContent sx={{padding: '16px 0 0 0 !important'}}>
-        <p><Trans i18nKey='org.leave_org_message' values={{org: org.name}} /></p>
+        <p><Trans i18nKey='org.leave_org_message' values={{org: org.name}} shouldUnescape /></p>
       </DialogContent>
       <DialogActions sx={{p: 0}}>
-        <Button color='default' label={t('common.cancel')} onClick={onClose} />
+        <Button color='default' label={t('common.cancel')} onClick={onClose} disabled={Boolean(pending)} />
         <Button color='error' label={t('org.leave_org')} onClick={onSubmit} disabled={Boolean(pending)} />
       </DialogActions>
     </Dialog>

@@ -16,7 +16,7 @@ const RemoveMemberDialog = ({ member, org, onSubmit, onClose, pending }) => {
     <Dialog open={Boolean(member)} onClose={pending ? undefined : onClose} fullWidth maxWidth='xs'>
       <DialogTitle>{t('org.remove_member')}</DialogTitle>
       <DialogContent sx={{padding: '16px 0 0 0 !important'}}>
-        <p><Trans i18nKey='org.remove_member_message' values={{user: shown.current?.username, org: org.name}} /></p>
+        <p><Trans i18nKey='org.remove_member_message' values={{user: shown.current?.username, org: org.name}} shouldUnescape /></p>
       </DialogContent>
       <DialogActions sx={{p: 0}}>
         <Button color='default' label={t('common.cancel')} onClick={onClose} disabled={Boolean(pending)} />

@@ -130,12 +130,16 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
       apply({member, action: 'role', role})
   }
 
+  // A user picked to add who has since become a member, by this dialog or anyone else, is no longer picked: adding them
+  // again would change their role
+  const picked = withoutMembers(newMember ? [newMember] : [], members)[0] || null
+
   const closeAdd = () => {
     setAdding(false)
     setNewMember(null)
     setNewRole(ROLE_MEMBER)
   }
-  const onAdd = () => newMember && apply({member: newMember, action: 'add', role: newRole}, done => done && closeAdd())
+  const onAdd = () => picked && apply({member: picked, action: 'add', role: newRole}, done => done && closeAdd())
 
   const onRemove = () => removing && apply({member: removing, action: 'remove'}, () => setRemoving(null))
 
@@ -172,14 +176,14 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
       <DialogContent sx={{p: 0}}>
         {
           adding &&
-            <Box sx={{display: 'flex', alignItems: 'center', gap: 1, px: 3, pt: 1, pb: 2}}>
+            <Box sx={{display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, px: {xs: 2, sm: 3}, pt: 1, pb: 2}}>
               <Autocomplete
                 openOnFocus
                 open={open}
                 onOpen={() => setOpen(true)}
                 onClose={() => setOpen(false)}
                 isOptionEqualToValue={(option, value) => option.username === value?.username}
-                value={newMember}
+                value={picked}
                 options={withoutMembers(users, members)}
                 loading={loading}
                 loadingText={loading ? 'Loading...' : `Type atleast ${minLength} characters to search`}
@@ -187,7 +191,12 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
                 getOptionLabel={getMemberDisplayName}
                 size='small'
                 disabled={saving}
-                onInputChange={handleInputChange}
+                onInputChange={(event, value, reason) => {
+                  // Typing a new search drops the user picked before it, so that Add never sends someone the search no longer shows
+                  if(reason === 'input')
+                    setNewMember(null)
+                  handleInputChange(event, value)
+                }}
                 onChange={(event, user) => setNewMember(user)}
                 renderInput={
                   params => <TextField
@@ -210,18 +219,18 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
                               }}
                             />
                 }
-                sx={{flex: 1, '.MuiInputBase-root': {backgroundColor: 'surface.n92'}}}
+                sx={{flex: '1 1 240px', '.MuiInputBase-root': {backgroundColor: 'surface.n92'}}}
               />
               <RoleSelect value={newRole} options={ROLES} label={t('org.role')} disabled={saving} onChange={setNewRole} />
-              <Button color='primary' label={t('common.add')} onClick={onAdd} disabled={saving || !newMember} />
+              <Button color='primary' label={t('common.add')} onClick={onAdd} disabled={saving || !picked} />
               <Link sx={{fontSize: '14px', minWidth: 0}} label={t('common.cancel')} onClick={closeAdd} disabled={saving} />
             </Box>
         }
         <List sx={{p: 0}}>
           {
             (members || []).map(member => (
-              <ListItem key={member.username} divider sx={{px: 3, py: 1}}>
-                <ListItemAvatar sx={{minWidth: 'auto', mr: 2}}>
+              <ListItem key={member.username} divider sx={{px: {xs: 2, sm: 3}, py: 1}}>
+                <ListItemAvatar sx={{minWidth: 'auto', mr: 2, display: {xs: 'none', sm: 'block'}}}>
                   <UserIcon user={member} sx={{width: '40px', height: '40px'}} />
                 </ListItemAvatar>
                 <ListItemText
