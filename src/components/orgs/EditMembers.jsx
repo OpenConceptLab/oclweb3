@@ -148,6 +148,7 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
           noOptionsText={(isSearchable && !loading) ? "No results" : 'Start typing...'}
           getOptionLabel={getMemberDisplayName}
           fullWidth
+          disabled={saving}
           onInputChange={handleInputChange}
           onChange={(event, items) => setSelectedMembers(items)}
           renderInput={
@@ -186,6 +187,7 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
                     variant='standard'
                     sx={{width: '112px', fontSize: '14px'}}
                     inputProps={{'aria-label': `${t('org.role')}: ${member.username}`}}
+                    disabled={saving}
                     value={memberRole}
                     onChange={event => setSelectedMembers(prev => prev.map(
                       selected => selected.username === member.username ? {...selected, role: event.target.value} : selected

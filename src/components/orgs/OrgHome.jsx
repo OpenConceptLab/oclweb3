@@ -97,16 +97,19 @@ const OrgHome = () => {
     })
   }
 
-  const onLeft = () => {
+  // Resolves once the cached user is fresh and the page is on its way to the user's profile
+  const onLeft = () => new Promise(resolve => {
     const goToProfile = () => {
       setAlert({severity: 'success', message: t('org.success_leave')})
       history.push(user.url)
+      resolve()
     }
     refreshCurrentUserCache(goToProfile, goToProfile)
-  }
+  })
 
   const onLeave = () => {
-    if(leaving)
+    // The dialog's button stays clickable while it fades out after a refusal
+    if(leaving || !leaveOrg)
       return
     setLeaving(true)
     APIService.orgs(org.id).appendToUrl(`members/${user.username}/`).delete(null, null, {}, null, true).then(response => {
