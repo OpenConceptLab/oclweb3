@@ -148,6 +148,11 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
   // Never one who has become a member since being picked, by this dialog or anyone else: adding them again would change
   // their role
   const picked = (newMember && withoutMembers([newMember], members)[0]) || null
+  // and once dropped, it stays dropped, even if they leave again: Add needs a new pick
+  React.useEffect(() => {
+    if(newMember && !picked)
+      setNewMember(null)
+  }, [newMember, picked])
 
   const closeAdd = () => {
     setAdding(false)
