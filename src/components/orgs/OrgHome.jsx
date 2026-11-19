@@ -126,14 +126,10 @@ const OrgHome = () => {
     })
   }
 
-  // After Edit Members saves: removing yourself there is leaving, adding yourself or changing your own role changes what
-  // you can do here, and any other change only changes the members.
-  const onMembersSaved = ({left, ownRoleChanged}) => {
-    if(left)
-      return onLeft()
-    // The org first, so that the members' count is the last word, and the members even if the org request fails
-    return (ownRoleChanged ? fetchOrgDetails() : Promise.resolve()).then(() => fetchMembers())
-  }
+  // After Edit Members saves: removing yourself there is leaving. Otherwise the org comes first, for your own role, which
+  // this save or someone else may have changed, then the members, so that their count is the last word, even if the org
+  // request fails.
+  const onMembersSaved = ({left}) => left ? onLeft() : fetchOrgDetails().then(() => fetchMembers())
 
   React.useEffect(() => { fetchOrg() }, [params.org])
   // A tab this viewer doesn't get (someone else's Mapping Projects) shows Overview instead

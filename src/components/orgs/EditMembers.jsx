@@ -100,14 +100,11 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
       setAlert({message: t('org.updated_members'), severity: 'success', duration: 1000})
     }
 
-    const own = results.filter(({member}) => member.username === username)
     // The dialog stays up, with Submit off, until the members are fetched again, so that neither saving again nor
     // reopening it starts from a list the API has moved past
     if(results.length)
       await onSaved({
-        left: own.some(({action, error}) => !error && action === 'remove'),
-        // Tried, not only done: a request that lost its response may still have changed the role
-        ownRoleChanged: own.some(({action}) => action !== 'remove')
+        left: results.some(({member, action, error}) => !error && action === 'remove' && member.username === username)
       })
     setSaving(false)
     if(!failures.length)

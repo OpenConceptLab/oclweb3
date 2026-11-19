@@ -49,6 +49,12 @@ const OrgHeader = ({ org, members, onDeleteClick, onLeaveClick, canAdminister, c
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [editMembers, setEditMembers] = React.useState(false)
 
+  // Edit Members closes when the requester stops being an admin, whoever made the change
+  React.useEffect(() => {
+    if(!canAdminister)
+      setEditMembers(false)
+  }, [canAdminister])
+
   // Staff and the org's members, by the role the API gives the requester
   const canManage = isAdminUser() || Boolean(org.user_role)
   const style = org.logo_url ? {width: 'calc(100% - 112px)'} : {width: '100%'}
