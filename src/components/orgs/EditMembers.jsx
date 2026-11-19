@@ -32,6 +32,12 @@ import { getCurrentUserUsername, getErrorDetail } from '../../common/utils';
 import { ROLES, ROLE_MEMBER, getRoleLabel, getRoleOptions, withoutMembers } from '../../common/orgRoles';
 
 
+const getMemberName = member => {
+  const name = (member.name || '').trim()
+  return ['- -', '-'].includes(name) ? '' : name
+}
+const getMemberDisplayName = member => getMemberName(member) ? `${member.username} (${getMemberName(member)})` : member.username
+
 const RoleSelect = ({ value, options, label, disabled, onChange }) => {
   const { t } = useTranslation()
   return (
@@ -100,12 +106,6 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
     setNewMember(user)
     setSearch(user ? getMemberDisplayName(user) : '')
   }
-
-  const getMemberName = member => {
-    const name = (member.name || '').trim()
-    return ['- -', '-'].includes(name) ? '' : name
-  }
-  const getMemberDisplayName = member => getMemberName(member) ? `${member.username} (${getMemberName(member)})` : member.username
 
   const updateMember = async ({member, action, role}) => {
     try {
