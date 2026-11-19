@@ -126,7 +126,7 @@ const OrgHeader = ({ org, members, onDeleteClick, onLeaveClick, canAdminister, c
         </MenuItem>
         {
           canAdminister &&
-            <MenuItem sx={{padding: '8px 12px'}} onClick={() => setEditMembers(!editMembers)}>
+            <MenuItem sx={{padding: '8px 12px'}} onClick={() => { setAnchorEl(null); setEditMembers(true) }}>
               <ListItemIcon>
                 <UserIcon />
               </ListItemIcon>
