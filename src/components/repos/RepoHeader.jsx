@@ -7,6 +7,7 @@ import DownIcon from '@mui/icons-material/ArrowDropDown';
 import { has } from 'lodash'
 import RepoVersionChip from './RepoVersionChip';
 import ProcessingFlag from './ProcessingFlag';
+import VerifiedChip from './VerifiedChip';
 import RepoChip from './RepoChip'
 import OwnerChip from '../common/OwnerChip';
 import { copyURL, currentUserHasAccess, toFullAPIURL } from '../../common/utils';
@@ -76,6 +77,7 @@ const RepoHeader = ({repo, owner, versions, versionsLoading, previewVersions, ha
               <RepoVersionChip checkbox version={repo} versions={versions} versionsLoading={versionsLoading} previewVersions={previewVersions} hasMoreVersions={hasMoreVersions} onLoadMoreVersions={onLoadMoreVersions} sx={{marginLeft: '8px', borderRadius: '4px'}} onChange={onVersionChange} />
           }
           <ProcessingFlag entity={repo} sx={{marginLeft: '8px'}} />
+          <VerifiedChip version={repo} sx={{marginLeft: '8px'}} />
         </span>
         {
           !hideActions &&

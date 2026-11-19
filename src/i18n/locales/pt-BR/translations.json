@@ -893,7 +893,77 @@
     "could_not_clear_processing": "Não foi possível limpar o estado de processamento",
     "export_not_ready_tooltip": "Exportação ainda está sendo gerada para esta versão",
     "expansion_processing_tooltip": "Esta expansão ainda está sendo construída",
-    "suggested_sources": "Sources sugeridos"
+    "suggested_sources": "Sources sugeridos",
+    "about_tab": {
+      "on_this_page": "Nesta página",
+      "verification": "Verificação",
+      "overview": "Visão geral",
+      "source": "Origem e licença",
+      "link_to_section": "Link para a seção {{section}}",
+      "release_value": "{{version}}, publicada em {{date}}",
+      "fields": {
+        "publisher": "Editor",
+        "formal_name": "Nome formal",
+        "contact": "Contato",
+        "website": "Site",
+        "canonical_url": "URL canônica",
+        "oid": "OID",
+        "release": "Versão publicada",
+        "copyright": "Direitos autorais",
+        "hierarchy": "Hierarquia"
+      },
+      "hierarchy_meaning": {
+        "grouped-by": "Agrupado por",
+        "is-a": "É um",
+        "part-of": "Parte de",
+        "classified-with": "Classificado com"
+      }
+    },
+    "verification": {
+      "verified": "Verificado",
+      "chip_tooltip": "Corresponde à versão oficial do editor. Selecione para ver o que a OCL verificou.",
+      "what_verified_means": "O que significa Verificado",
+      "headline": "Esta versão corresponde à versão oficial do editor.",
+      "detail": "A OCL a comparou com a versão do editor, entrada por entrada, e todas as verificações passaram.",
+      "publisher": "Editor",
+      "release": "Versão",
+      "verified_at": "Verificado em",
+      "checks_label": "O que a OCL verificou",
+      "passed": "Aprovado",
+      "what_ocl_added": "O que a OCL adicionou",
+      "process": "Processo",
+      "record": "Registro",
+      "copy_record": "Copiar o SHA-256 do registro",
+      "record_copied": "SHA-256 do registro copiado",
+      "fine_print": "A verificação é uma checagem da OCL sobre esta versão, não um endosso do editor.",
+      "what_verified_covers": "O que Verificado abrange",
+      "checks": {
+        "from-the-publisher": {
+          "title": "Do editor",
+          "line": "Carregado da própria publicação do editor"
+        },
+        "license-and-citation": {
+          "title": "Licença e citação",
+          "line": "A licença e a citação do editor estão neste repositório e em toda exportação"
+        },
+        "correctly-identified": {
+          "title": "Identificado corretamente",
+          "line": "Nome, URL canônica e versão correspondem aos do editor"
+        },
+        "complete": {
+          "title": "Completo",
+          "line": "Todas as entradas da versão estão aqui"
+        },
+        "changes-listed": {
+          "title": "Alterações listadas",
+          "line": "Tudo o que a OCL adicionou está listado abaixo"
+        },
+        "checked-independently": {
+          "title": "Verificado de forma independente",
+          "line": "Reexecutado a partir da versão salva e revisado pela OCL"
+        }
+      }
+    }
   },
   "org": {
     "my": "Minhas organizações",

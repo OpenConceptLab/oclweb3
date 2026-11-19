@@ -541,7 +541,77 @@
         "none_help": "Crea la versión sin expansión. Puede agregar una más tarde."
       }
     },
-    "repo_version": "Versión del repositorio"
+    "repo_version": "Versión del repositorio",
+    "about_tab": {
+      "on_this_page": "En esta página",
+      "verification": "Verificación",
+      "overview": "Descripción general",
+      "source": "Origen y licencia",
+      "link_to_section": "Enlace a la sección {{section}}",
+      "release_value": "{{version}}, publicada el {{date}}",
+      "fields": {
+        "publisher": "Editor",
+        "formal_name": "Nombre formal",
+        "contact": "Contacto",
+        "website": "Sitio web",
+        "canonical_url": "URL canónica",
+        "oid": "OID",
+        "release": "Versión publicada",
+        "copyright": "Derechos de autor",
+        "hierarchy": "Jerarquía"
+      },
+      "hierarchy_meaning": {
+        "grouped-by": "Agrupado por",
+        "is-a": "Es un",
+        "part-of": "Parte de",
+        "classified-with": "Clasificado con"
+      }
+    },
+    "verification": {
+      "verified": "Verificado",
+      "chip_tooltip": "Coincide con la versión oficial del editor. Selecciona para ver qué comprobó OCL.",
+      "what_verified_means": "Qué significa Verificado",
+      "headline": "Esta versión coincide con la versión oficial del editor.",
+      "detail": "OCL la comparó con la versión del editor, entrada por entrada, y todas las comprobaciones se superaron.",
+      "publisher": "Editor",
+      "release": "Versión",
+      "verified_at": "Verificado",
+      "checks_label": "Qué comprobó OCL",
+      "passed": "Superado",
+      "what_ocl_added": "Qué añadió OCL",
+      "process": "Proceso",
+      "record": "Registro",
+      "copy_record": "Copiar el SHA-256 del registro",
+      "record_copied": "SHA-256 del registro copiado",
+      "fine_print": "La verificación es una comprobación de OCL de esta versión, no un respaldo del editor.",
+      "what_verified_covers": "Qué cubre Verificado",
+      "checks": {
+        "from-the-publisher": {
+          "title": "Del editor",
+          "line": "Cargado desde la propia publicación del editor"
+        },
+        "license-and-citation": {
+          "title": "Licencia y cita",
+          "line": "La licencia y la cita del editor están en este repositorio y en cada exportación"
+        },
+        "correctly-identified": {
+          "title": "Identificado correctamente",
+          "line": "El nombre, la URL canónica y la versión coinciden con los del editor"
+        },
+        "complete": {
+          "title": "Completo",
+          "line": "Todas las entradas de la versión están aquí"
+        },
+        "changes-listed": {
+          "title": "Cambios listados",
+          "line": "Todo lo que añadió OCL aparece a continuación"
+        },
+        "checked-independently": {
+          "title": "Comprobado de forma independiente",
+          "line": "Reejecutado desde la versión guardada y revisado por OCL"
+        }
+      }
+    }
   },
   "org": {
     "my": "Mis organizaciones",

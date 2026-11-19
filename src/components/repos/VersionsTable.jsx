@@ -24,6 +24,7 @@ import { formatDate, hasAccessToURL } from '../../common/utils'
 import { SURFACE_COLORS, BLACK } from '../../common/colors'
 import Button from '../common/Button';
 import ProcessingFlag from './ProcessingFlag';
+import VerifiedChip from './VerifiedChip';
 import { isSameVersion, hasMultipleExpansions, isCollectionURL } from './versionsTab.styles';
 
 const normalizeVersions = versions => {
@@ -57,6 +58,7 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
         }, (checkbox ? {} : {borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px'})]} onClick={isDisabled ? undefined : () => onVersionChange(version)}>
           {version.id}
           <ProcessingFlag entity={version} showLabel={false} sx={{ ml: 1 }} />
+          <VerifiedChip version={version} sx={{ ml: 1 }} />
           {
             version?.match_algorithms?.includes('llm') &&
               <Tooltip title={t('repo.version.vectorized_for_mapper')}>
