@@ -64,6 +64,7 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
   const [users, setUsers] = React.useState([])
   const [adding, setAdding] = React.useState(false)
   const [newMember, setNewMember] = React.useState(null)
+  const [searchText, setSearchText] = React.useState('')
   const [newRole, setNewRole] = React.useState(ROLE_MEMBER)
   const [removing, setRemoving] = React.useState(null)
   const [saving, setSaving] = React.useState(false)
@@ -130,13 +131,18 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
       apply({member, action: 'role', role})
   }
 
-  // A user picked to add who has since become a member, by this dialog or anyone else, is no longer picked: adding them
-  // again would change their role
-  const picked = withoutMembers(newMember ? [newMember] : [], members)[0] || null
+  // Add sends the picked user only while the search shows them, and never one who has become a member since, by this
+  // dialog or anyone else: adding them again would change their role
+  const picked = (newMember && searchText === getMemberDisplayName(newMember) && withoutMembers([newMember], members)[0]) || null
+  React.useEffect(() => {
+    if(newMember && !withoutMembers([newMember], members).length)
+      setNewMember(null)
+  }, [members, newMember])
 
   const closeAdd = () => {
     setAdding(false)
     setNewMember(null)
+    setSearchText('')
     setNewRole(ROLE_MEMBER)
   }
   const onAdd = () => picked && apply({member: picked, action: 'add', role: newRole}, done => done && closeAdd())
@@ -159,8 +165,8 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
         }
       }}
     >
-      <DialogTitle sx={{p: 3, color: 'surface.dark', fontSize: '22px', textAlign: 'left', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-        <span>{t('org.edit_members')} {t('common.of')} <b>{org.name}</b></span>
+      <DialogTitle sx={{p: 3, color: 'surface.dark', fontSize: '22px', textAlign: 'left', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1}}>
+        <span style={{minWidth: 0, overflowWrap: 'anywhere'}}>{t('org.edit_members')} {t('common.of')} <b>{org.name}</b></span>
         {
           !adding &&
             <Button
@@ -169,7 +175,7 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
               label={t('org.add_member')}
               onClick={() => setAdding(true)}
               disabled={saving}
-              sx={{ml: 2, flexShrink: 0}}
+              sx={{ml: 'auto', flexShrink: 0}}
             />
         }
       </DialogTitle>
@@ -183,7 +189,7 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
                 onOpen={() => setOpen(true)}
                 onClose={() => setOpen(false)}
                 isOptionEqualToValue={(option, value) => option.username === value?.username}
-                value={picked}
+                value={newMember}
                 options={withoutMembers(users, members)}
                 loading={loading}
                 loadingText={loading ? 'Loading...' : `Type atleast ${minLength} characters to search`}
@@ -191,10 +197,8 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
                 getOptionLabel={getMemberDisplayName}
                 size='small'
                 disabled={saving}
-                onInputChange={(event, value, reason) => {
-                  // Typing a new search drops the user picked before it, so that Add never sends someone the search no longer shows
-                  if(reason === 'input')
-                    setNewMember(null)
+                onInputChange={(event, value) => {
+                  setSearchText(value || '')
                   handleInputChange(event, value)
                 }}
                 onChange={(event, user) => setNewMember(user)}
