@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 
 const {
-  getAboutSections, getSourceRows, getVerification, getVerificationChecks, getVerificationNotes,
+  getAboutSections, getOverviewDescription, getSourceRows, getVerification, getVerificationChecks, getVerificationNotes,
   hasAboutContent, isVerified
 } = await import('../aboutSections.js')
 
@@ -56,6 +56,7 @@ test('each section shows only when it has content', () => {
   assert.deepEqual(getAboutSections({ text: '<p>About</p>' }), ['overview'])
   assert.deepEqual(getAboutSections({ publisher: 'Publisher name' }), ['source'])
   assert.deepEqual(getAboutSections({ id: 'HEAD', version: 'HEAD', text: '  ' }), [])
+  assert.deepEqual(getAboutSections({ description: 'WHO ICD-11 MMS, release 2026-01' }), ['overview'])
   assert.equal(hasAboutContent({ id: 'HEAD', version: 'HEAD' }), false)
   assert.equal(hasAboutContent(false), false)
 })
@@ -98,4 +99,9 @@ test('only http(s) URLs and plain email addresses become links', () => {
   assert.deepEqual(contact({ contact: [{ telecom: [{ system: 'email', value: 'a@b.org?subject=x' }] }] }), [{ text: 'a@b.org?subject=x', prefix: '' }])
   // eslint-disable-next-line no-script-url, spellcheck/spell-checker
   assert.deepEqual(website({ website: 'javascript:alert(1)' }), [{ text: 'javascript:alert(1)' }])
+})
+
+test('the Overview uses the description only when there is no About text', () => {
+  assert.equal(getOverviewDescription({ description: 'A description' }), 'A description')
+  assert.equal(getOverviewDescription({ text: '<p>About</p>', description: 'A description' }), '')
 })

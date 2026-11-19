@@ -5,7 +5,7 @@ import { Box, Chip, IconButton, Link, Stack, Tooltip, Typography } from '@mui/ma
 import LinkIcon from '@mui/icons-material/Link';
 import CopyIcon from '@mui/icons-material/ContentCopyOutlined';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import VerifiedIcon from '@mui/icons-material/GppGoodOutlined';
+import VerifiedIcon from '@mui/icons-material/GppGood';
 import PassedIcon from '@mui/icons-material/CheckCircle';
 
 import About from '../common/About';
@@ -14,8 +14,9 @@ import { OperationsContext } from '../app/LayoutContext';
 import { copyToClipboard, formatDate } from '../../common/utils';
 import {
   getAboutSections, getSourceRows, getOverviewText, getVerification, getVerificationChecks,
-  getVerificationNotes, VERIFIED_REPOSITORIES_DOCS_URL
+  getOverviewDescription, getVerificationNotes, VERIFIED_REPOSITORIES_DOCS_URL
 } from './aboutSections';
+import { VERIFIED_COLORS } from './verifiedColors';
 
 // eslint-disable-next-line spellcheck/spell-checker
 const CHECKS_GRID = 'repeat(3, minmax(0, 1fr))';
@@ -29,7 +30,7 @@ const SectionHeading = ({ id, title, color, variant = 'h2' }) => {
   return (
     <Stack direction="row" sx={{ alignItems: 'center', gap: 0.25 }}>
       <Typography component={variant} sx={{ fontSize: '20px', fontWeight: 500, color: color || 'surface.dark', m: 0 }}>{title}</Typography>
-      <IconButton component="a" href={`#${id}`} size="small" aria-label={t('repo.about_tab.link_to_section', { section: title })} sx={{ color: color || 'secondary.main' }}>
+      <IconButton component="a" href={`#${id}`} size="small" aria-label={t('repo.about_tab.link_to_section', { section: title })} sx={{ color: color || 'secondary.main', opacity: 0.8 }}>
         <LinkIcon fontSize="small" />
       </IconButton>
     </Stack>
@@ -58,13 +59,13 @@ const VerificationSection = ({ repo }) => {
   };
 
   return (
-    <Box component="section" id="verification" sx={{ ...SECTION_SX, borderColor: 'success.light' }}>
-      <Stack direction="row" sx={{ gap: 2, p: '20px 24px', bgcolor: 'rgba(46, 125, 50, 0.08)', alignItems: 'flex-start' }}>
-        <VerifiedIcon sx={{ fontSize: 44, color: 'success.main', flex: 'none' }} />
+    <Box component="section" id="verification" sx={{ ...SECTION_SX, borderColor: VERIFIED_COLORS.border }}>
+      <Stack direction="row" sx={{ gap: 2, p: '20px 24px', bgcolor: VERIFIED_COLORS.background, alignItems: 'flex-start' }}>
+        <VerifiedIcon sx={{ fontSize: 44, color: VERIFIED_COLORS.main, flex: 'none' }} />
         <Stack sx={{ gap: 0.75, minWidth: 0, flex: 1 }}>
           <Stack direction="row" sx={{ alignItems: 'center', flexWrap: 'wrap', columnGap: 1.5 }}>
-            <SectionHeading id="verification" title={t('repo.verification.verified')} color="success.dark" />
-            <ExternalLink href={VERIFIED_REPOSITORIES_DOCS_URL} sx={{ ml: 'auto', display: 'inline-flex', alignItems: 'center', gap: 0.75, color: 'success.dark', fontWeight: 500 }}>
+            <SectionHeading id="verification" title={t('repo.verification.verified')} color={VERIFIED_COLORS.dark} />
+            <ExternalLink href={VERIFIED_REPOSITORIES_DOCS_URL} sx={{ ml: 'auto', display: 'inline-flex', alignItems: 'center', gap: 0.75, color: VERIFIED_COLORS.dark, textDecorationColor: VERIFIED_COLORS.dark, fontWeight: 500 }}>
               {t('repo.verification.what_verified_means')}
               <OpenInNewIcon sx={{ fontSize: 16 }} />
             </ExternalLink>
@@ -77,7 +78,7 @@ const VerificationSection = ({ repo }) => {
                 {
                   facts.map(fact => (
                     <Stack direction="row" key={fact.key} sx={{ gap: 0.75 }}>
-                      <Box component="dt" sx={{ color: 'success.dark' }}>{t(`repo.verification.${fact.key}`)}</Box>
+                      <Box component="dt" sx={{ color: VERIFIED_COLORS.label }}>{t(`repo.verification.${fact.key}`)}</Box>
                       <Box component="dd" sx={{ m: 0, fontWeight: 500, color: 'surface.dark' }}>{fact.value}</Box>
                     </Stack>
                   ))
@@ -93,9 +94,9 @@ const VerificationSection = ({ repo }) => {
               {
                 checks.map(check => (
                   <Stack component="li" direction="row" key={check} sx={{ gap: 1.25, alignItems: 'flex-start' }}>
-                    <PassedIcon role="img" aria-label={t('repo.verification.passed')} sx={{ color: 'success.main', fontSize: 22, flex: 'none', mt: '1px' }} />
+                    <PassedIcon role="img" aria-label={t('repo.verification.passed')} sx={{ color: VERIFIED_COLORS.main, fontSize: 22, flex: 'none', mt: '1px' }} />
                     <Stack sx={{ gap: 0.25, minWidth: 0 }}>
-                      <ExternalLink href={`${VERIFIED_REPOSITORIES_DOCS_URL}#${check}`} sx={{ fontSize: '15px', fontWeight: 500, color: 'surface.dark' }}>
+                      <ExternalLink href={`${VERIFIED_REPOSITORIES_DOCS_URL}#${check}`} sx={{ fontSize: '15px', fontWeight: 500, color: 'surface.dark', textDecorationColor: '#c8c5d0', textUnderlineOffset: '3px' }}>
                         {t(`repo.verification.checks.${check}.title`)}
                       </ExternalLink>
                       <Typography sx={{ fontSize: '13.5px', overflowWrap: 'anywhere' }}>{t(`repo.verification.checks.${check}.line`)}</Typography>
@@ -147,7 +148,11 @@ const OverviewSection = ({ repo }) => {
   return (
     <Stack component="section" id="overview" sx={{ ...SECTION_SX, p: '20px 24px 24px', gap: 1.5 }}>
       <SectionHeading id="overview" title={t('repo.about_tab.overview')} />
-      <About text={getOverviewText(repo)} expanded style={{ marginTop: 0 }} />
+      {
+        getOverviewText(repo) ?
+          <About text={getOverviewText(repo)} expanded style={{ marginTop: 0 }} /> :
+          <Typography sx={{ fontSize: '15px', lineHeight: 1.6, color: 'surface.dark', whiteSpace: 'pre-line' }}>{getOverviewDescription(repo)}</Typography>
+      }
     </Stack>
   );
 };
@@ -219,7 +224,7 @@ const RepoAbout = ({ repo, height }) => {
               <Typography component="span" sx={{ color: 'secondary.main', mr: 0.5 }}>{t('repo.about_tab.on_this_page')}</Typography>
               {
                 sections.map(section => (
-                  <Chip key={section} component="a" href={`#${section}`} clickable color="primary" variant="outlined" label={t(`repo.about_tab.${section}`)} sx={{ fontWeight: 500 }} />
+                  <Chip key={section} component="a" href={`#${section}`} clickable label={t(`repo.about_tab.${section}`)} sx={{ height: '36px', borderRadius: '18px', px: '2px', fontSize: '14px', fontWeight: 500, color: '#1d00a5', backgroundColor: '#f2efff', textDecoration: 'none', '&:hover': { backgroundColor: '#e2dfff', textDecoration: 'none' } }} />
                 ))
               }
             </Stack>

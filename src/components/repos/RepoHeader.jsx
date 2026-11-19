@@ -77,7 +77,7 @@ const RepoHeader = ({repo, owner, versions, versionsLoading, previewVersions, ha
               <RepoVersionChip checkbox version={repo} versions={versions} versionsLoading={versionsLoading} previewVersions={previewVersions} hasMoreVersions={hasMoreVersions} onLoadMoreVersions={onLoadMoreVersions} sx={{marginLeft: '8px', borderRadius: '4px'}} onChange={onVersionChange} />
           }
           <ProcessingFlag entity={repo} sx={{marginLeft: '8px'}} />
-          <VerifiedChip version={repo} sx={{marginLeft: '8px'}} />
+          <VerifiedChip version={repo} size='large' sx={{marginLeft: '8px'}} />
         </span>
         {
           !hideActions &&

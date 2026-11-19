@@ -37,6 +37,9 @@ export const getVerificationNotes = version => asText(version?.extras?.verificat
 
 export const getOverviewText = repo => asText(repo?.text)
 
+// Until repositories carry About text, the Overview falls back to the repository's description
+export const getOverviewDescription = repo => (getOverviewText(repo) ? '' : asText(repo?.description))
+
 const getContactItems = contact => {
   const contacts = Array.isArray(contact) ? contact : (isPlainObject(contact) || typeof contact === 'string' ? [contact] : [])
   return contacts.flatMap(item => {
@@ -100,7 +103,7 @@ export const getAboutSections = repo => ABOUT_SECTIONS.filter(section => {
   if(section === 'verification')
     return isVerified(repo)
   if(section === 'overview')
-    return Boolean(getOverviewText(repo))
+    return Boolean(getOverviewText(repo) || getOverviewDescription(repo))
   return getSourceRows(repo).length > 0
 })
 
