@@ -13,7 +13,7 @@ import Chip from '@mui/material/Chip';
 import { map } from 'lodash'
 import UserIcon from '../users/UserIcon';
 import Link from '../common/Link'
-import { getRoleLabel } from '../../common/orgRoles'
+import { ROLE_ADMIN, getRoleLabel } from '../../common/orgRoles'
 
 const MemberList = ({ members, open, onClose }) => {
   const { t } = useTranslation()
@@ -55,7 +55,7 @@ const MemberList = ({ members, open, onClose }) => {
                   />
                   {
                     member.role &&
-                      <Chip size='small' variant='outlined' sx={{marginTop: '8px', marginLeft: '8px'}} label={getRoleLabel(member.role, t)} />
+                      <Chip size='small' variant='outlined' color={member.role === ROLE_ADMIN ? 'primary' : 'default'} sx={{marginTop: '8px', marginLeft: '8px'}} label={getRoleLabel(member.role, t)} />
                   }
                 </ListItemButton>
                 {

@@ -910,7 +910,7 @@
     "admin": "Administrador",
     "role": "Função",
     "leave_org": "Sair da organização",
-    "leave_org_message": "Você perderá o acesso aos repositórios privados de {{org}} até que um administrador adicione você novamente.",
+    "leave_org_message": "Você perderá o acesso aos repositórios privados de <strong>{{org}}</strong> até que um administrador adicione você novamente.",
     "success_leave": "Você saiu da organização",
     "org_have_not_created_public_repos_suffix": "não criou nenhum repositório público",
     "browse_members": "Navegar membros",

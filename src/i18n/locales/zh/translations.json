@@ -586,7 +586,7 @@
     "admin": "管理员",
     "role": "角色",
     "leave_org": "退出组织",
-    "leave_org_message": "在管理员重新添加你之前，你将无法访问 {{org}} 的私有存储库。",
+    "leave_org_message": "在管理员重新添加你之前，你将无法访问 <strong>{{org}}</strong> 的私有存储库。",
     "success_leave": "你已退出该组织",
     "org_have_not_created_public_repos_suffix": "尚未创建任何公开的存储库",
     "browse_members": "浏览成员",

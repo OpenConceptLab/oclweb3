@@ -554,7 +554,7 @@
     "admin": "Administrador",
     "role": "Rol",
     "leave_org": "Salir de la organización",
-    "leave_org_message": "Perderás el acceso a los repositorios privados de {{org}} hasta que un administrador te vuelva a añadir.",
+    "leave_org_message": "Perderás el acceso a los repositorios privados de <strong>{{org}}</strong> hasta que un administrador te vuelva a añadir.",
     "success_leave": "Has salido de la organización",
     "create_an_org": "Crear una organización",
     "create_an_org_description": "Organiza tu contenido y colaboradores. <0> Obtén más información sobre las organizaciones en OCL.</0>",

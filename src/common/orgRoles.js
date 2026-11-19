@@ -3,7 +3,7 @@
 export const ROLE_ADMIN = 'admin'
 export const ROLE_MEMBER = 'member'
 
-const ROLE_LABEL_KEYS = {[ROLE_ADMIN]: 'org.admin', [ROLE_MEMBER]: 'org.member'}
+const ROLE_LABEL_KEYS = {[ROLE_MEMBER]: 'org.member', [ROLE_ADMIN]: 'org.admin'}
 export const ROLES = Object.keys(ROLE_LABEL_KEYS)
 
 // A role this app doesn't know yet shows as the API sent it

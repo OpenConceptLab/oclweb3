@@ -11,10 +11,11 @@ import FormHelperText from '@mui/material/FormHelperText'
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import Link from '../common/Link'
+import UserChip from '../users/UserChip'
 import { OperationsContext } from '../app/LayoutContext';
 
 import { debounce } from 'lodash'
@@ -51,13 +52,11 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
       .then(response => setUsers(response.data))
   }
 
-  const getMemberDisplayName = member => {
-    let name = member.username
-    const memberName = (member.name || '').trim()
-    if(memberName && !['- -', '-'].includes(memberName))
-      name += ` (${memberName})`
-    return name
+  const getMemberName = member => {
+    const name = (member.name || '').trim()
+    return ['- -', '-'].includes(name) ? '' : name
   }
+  const getMemberDisplayName = member => getMemberName(member) ? `${member.username} (${getMemberName(member)})` : member.username
 
   const changes = getMemberChanges(members, selectedMembers, username).flat()
   const newMembers = changes.filter(({action}) => action === 'add').map(({member}) => member)
@@ -178,26 +177,31 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
             selectedMembers.map(member => {
               const memberRole = getMemberRole(member, members)
               return (
-                <ListItem key={member.username} disableGutters>
-                  <ListItemText primary={getMemberDisplayName(member)} />
-                  <Select
+                <ListItem key={member.username} disableGutters sx={{py: 0.5}}>
+                  <UserChip user={member} hideType noTooltip noLink size='small' />
+                  <ListItemText
+                    primary={getMemberName(member)}
+                    sx={{ml: 1.5, '.MuiListItemText-primary': {color: 'surface.dark', fontSize: '14px'}}}
+                  />
+                  <ToggleButtonGroup
+                    exclusive
                     size='small'
-                    variant='standard'
-                    sx={{width: '112px', fontSize: '14px'}}
-                    inputProps={{'aria-label': `${t('org.role')}: ${member.username}`}}
+                    color='primary'
+                    aria-label={`${t('org.role')}: ${member.username}`}
                     disabled={saving}
                     value={memberRole}
-                    onChange={event => setSelectedMembers(prev => prev.map(
-                      selected => selected.username === member.username ? {...selected, role: event.target.value} : selected
+                    onChange={(event, role) => role && setSelectedMembers(prev => prev.map(
+                      selected => selected.username === member.username ? {...selected, role} : selected
                     ))}
                   >
                     {
-                      // A role this app doesn't know yet shows, but can't be picked
-                      !ROLES.includes(memberRole) &&
-                        <MenuItem disabled value={memberRole}>{getRoleLabel(memberRole, t)}</MenuItem>
+                      ROLES.map(role => (
+                        <ToggleButton key={role} value={role} sx={{textTransform: 'none', fontSize: '13px', py: 0.25, px: 1.5}}>
+                          {getRoleLabel(role, t)}
+                        </ToggleButton>
+                      ))
                     }
-                    {ROLES.map(role => <MenuItem key={role} value={role}>{getRoleLabel(role, t)}</MenuItem>)}
-                  </Select>
+                  </ToggleButtonGroup>
                 </ListItem>
               )
             })
