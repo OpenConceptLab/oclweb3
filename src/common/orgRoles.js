@@ -3,6 +3,12 @@
 export const ROLE_ADMIN = 'admin'
 export const ROLE_MEMBER = 'member'
 
+const ROLE_LABEL_KEYS = {[ROLE_ADMIN]: 'org.admin', [ROLE_MEMBER]: 'org.member'}
+export const ROLES = Object.keys(ROLE_LABEL_KEYS)
+
+// A role this app doesn't know yet shows as the API sent it
+export const getRoleLabel = (role, t) => ROLE_LABEL_KEYS[role] ? t(ROLE_LABEL_KEYS[role]) : role
+
 const findMember = (members, username) => members.find(member => member.username === username)
 
 // A role picked in the members dialog is on the selected member. One selected from a user search carries none.

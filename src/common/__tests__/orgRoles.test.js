@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-const { getMemberRole, getMemberChanges } = await import('../orgRoles.js')
+const { getMemberRole, getMemberChanges, getRoleLabel } = await import('../orgRoles.js')
 
 const first = {username: 'first', role: 'admin'}
 const second = {username: 'second', role: 'member'}
@@ -62,4 +62,11 @@ test('the requester\'s own demotion or removal goes last, as it can take away th
     getMemberChanges([first, second], [second], 'first'),
     [[], [], [change(first, 'remove', undefined)]]
   )
+})
+
+test('a role shows its translated label, and one the app doesn\'t know shows as the API sent it', () => {
+  const t = key => `translated ${key}`
+  assert.equal(getRoleLabel('admin', t), 'translated org.admin')
+  assert.equal(getRoleLabel('member', t), 'translated org.member')
+  assert.equal(getRoleLabel('owner', t), 'owner')
 })

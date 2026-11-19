@@ -19,27 +19,11 @@ import { OperationsContext } from '../app/LayoutContext';
 
 import { debounce } from 'lodash'
 import APIService from '../../services/APIService';
-import { getCurrentUser } from '../../common/utils';
-import { ROLE_ADMIN, ROLE_MEMBER, getMemberChanges, getMemberRole } from '../../common/orgRoles';
+import { getCurrentUserUsername, getErrorDetail } from '../../common/utils';
+import { ROLES, getMemberChanges, getMemberRole, getRoleLabel } from '../../common/orgRoles';
 
 
-const normalizeErrorDetail = detail => {
-  if(Array.isArray(detail))
-    return detail.join(' ')
-  if(detail && typeof detail === 'object')
-    return Object.values(detail).flat().join(' ')
-  return detail
-}
-
-const getErrorDetail = response => normalizeErrorDetail(
-  response?.response?.data?.detail ||
-  response?.response?.data?.error ||
-  response?.response?.data?.__all__ ||
-  response?.response?.data ||
-  response?.message
-)
-
-const EditMembers = ({onClose, org, members, fetchOrg}) => {
+const EditMembers = ({onClose, org, members, onSaved}) => {
   const { t } = useTranslation()
   const { setAlert } = React.useContext(OperationsContext);
 
@@ -47,7 +31,9 @@ const EditMembers = ({onClose, org, members, fetchOrg}) => {
   const [fetched, setFetched] = React.useState(false)
   const [open, setOpen] = React.useState(false)
   const [users, setUsers] = React.useState([])
-  const [selectedMembers, setSelectedMembers] = React.useState([])
+  const [selectedMembers, setSelectedMembers] = React.useState(() => members || [])
+  const [saving, setSaving] = React.useState(false)
+  const username = React.useMemo(getCurrentUserUsername, [])
 
   const minLength = 2
   const isSearchable = input && input.length >= minLength;
@@ -67,19 +53,13 @@ const EditMembers = ({onClose, org, members, fetchOrg}) => {
 
   const getMemberDisplayName = member => {
     let name = member.username
-    const memberName = member.name.trim()
+    const memberName = (member.name || '').trim()
     if(memberName && !['- -', '-'].includes(memberName))
       name += ` (${memberName})`
     return name
   }
 
-  React.useEffect(() => {
-    setSelectedMembers(members || [])
-  }, [])
-
-
-  const batches = getMemberChanges(members, selectedMembers, getCurrentUser()?.username)
-  const changes = batches.flat()
+  const changes = getMemberChanges(members, selectedMembers, username).flat()
   const newMembers = changes.filter(({action}) => action === 'add').map(({member}) => member)
   const deletedMembers = changes.filter(({action}) => action === 'remove').map(({member}) => member)
 
@@ -97,11 +77,17 @@ const EditMembers = ({onClose, org, members, fetchOrg}) => {
   }
 
   const onSubmit = async () => {
+    if(saving)
+      return
+    setSaving(true)
     const results = []
-    for(const batch of batches) {
-      // A batch can rely on the ones before it, so a failure stops the rest, and saving again retries them.
-      if(!results.some(({error}) => error))
-        results.push(...await Promise.all(batch.map(updateMember)))
+    // One request at a time, in order, so that the API's last-admin check sees each change before the next. A change can
+    // rely on the ones before it, so a failure stops the rest, and saving again retries them.
+    for(const change of changes) {
+      const result = await updateMember(change)
+      results.push(result)
+      if(result.error)
+        break
     }
     const failures = results.filter(({error}) => error).map(({member, action, error}) => (
       t(`org.member_${action}_failed`, {user: member.username, detail: error})
@@ -113,9 +99,16 @@ const EditMembers = ({onClose, org, members, fetchOrg}) => {
       setAlert({message: t('org.updated_members'), severity: 'success', duration: 1000})
     }
 
-    fetchOrg()
+    const ownChanges = results.filter(({member, error}) => !error && member.username === username)
     if(!failures.length)
       onClose()
+    // Submit stays off until the members are fetched again, so that saving again starts from what the API now has
+    if(results.length)
+      await onSaved({
+        left: ownChanges.some(({action}) => action === 'remove'),
+        ownRoleChanged: ownChanges.some(({action}) => action === 'role')
+      })
+    setSaving(false)
   }
 
   return (
@@ -181,24 +174,31 @@ const EditMembers = ({onClose, org, members, fetchOrg}) => {
         />
         <List dense sx={{p: 0}}>
           {
-            selectedMembers.map(member => (
-              <ListItem key={member.username} disableGutters>
-                <ListItemText primary={getMemberDisplayName(member)} />
-                <Select
-                  size='small'
-                  variant='standard'
-                  sx={{width: '112px', fontSize: '14px'}}
-                  inputProps={{'aria-label': `${t('org.role')}: ${member.username}`}}
-                  value={getMemberRole(member, members)}
-                  onChange={event => setSelectedMembers(prev => prev.map(
-                    selected => selected.username === member.username ? {...selected, role: event.target.value} : selected
-                  ))}
-                >
-                  <MenuItem value={ROLE_ADMIN}>{t('org.admin')}</MenuItem>
-                  <MenuItem value={ROLE_MEMBER}>{t('org.member')}</MenuItem>
-                </Select>
-              </ListItem>
-            ))
+            selectedMembers.map(member => {
+              const memberRole = getMemberRole(member, members)
+              return (
+                <ListItem key={member.username} disableGutters>
+                  <ListItemText primary={getMemberDisplayName(member)} />
+                  <Select
+                    size='small'
+                    variant='standard'
+                    sx={{width: '112px', fontSize: '14px'}}
+                    inputProps={{'aria-label': `${t('org.role')}: ${member.username}`}}
+                    value={memberRole}
+                    onChange={event => setSelectedMembers(prev => prev.map(
+                      selected => selected.username === member.username ? {...selected, role: event.target.value} : selected
+                    ))}
+                  >
+                    {
+                      // A role this app doesn't know yet shows, but can't be picked
+                      !ROLES.includes(memberRole) &&
+                        <MenuItem disabled value={memberRole}>{getRoleLabel(memberRole, t)}</MenuItem>
+                    }
+                    {ROLES.map(role => <MenuItem key={role} value={role}>{getRoleLabel(role, t)}</MenuItem>)}
+                  </Select>
+                </ListItem>
+              )
+            })
           }
         </List>
         {
@@ -227,7 +227,7 @@ const EditMembers = ({onClose, org, members, fetchOrg}) => {
         }
       </DialogContent>
       <DialogActions>
-        <Link sx={{fontSize: '14px'}} label={t('common.submit')} onClick={onSubmit} />
+        <Link sx={{fontSize: '14px'}} label={t('common.submit')} onClick={onSubmit} disabled={saving} />
         </DialogActions>
     </Dialog>
   )

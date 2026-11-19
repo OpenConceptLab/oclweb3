@@ -18,7 +18,7 @@ import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import LeaveIcon from '@mui/icons-material/Logout';
 
-import { formatWebsiteLink, currentUserHasAccess, isLoggedIn } from '../../common/utils'
+import { formatWebsiteLink, isAdminUser, isLoggedIn } from '../../common/utils'
 import Link from '../common/Link'
 import EntityAttributesDialog from '../common/EntityAttributesDialog'
 import FollowActionButton from '../common/FollowActionButton'
@@ -41,7 +41,7 @@ const Property = ({icon, value, label}) => {
   ) : null
 }
 
-const OrgHeader = ({ org, members, onDeleteClick, onLeaveClick, canAdminister, canDelete, fetchOrg }) => {
+const OrgHeader = ({ org, members, onDeleteClick, onLeaveClick, canAdminister, canDelete, onMembersSaved }) => {
   const { t } = useTranslation()
   const history = useHistory()
 
@@ -49,6 +49,8 @@ const OrgHeader = ({ org, members, onDeleteClick, onLeaveClick, canAdminister, c
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [editMembers, setEditMembers] = React.useState(false)
 
+  // Staff and the org's members, by the role the API gives the requester
+  const canManage = isAdminUser() || Boolean(org.user_role)
   const style = org.logo_url ? {width: 'calc(100% - 112px)'} : {width: '100%'}
   const iconStyle = {fontSize: '24px', color: 'surface.contrastText'}
 
@@ -78,7 +80,7 @@ const OrgHeader = ({ org, members, onDeleteClick, onLeaveClick, canAdminister, c
             <div className='col-xs-4 padding-0' style={{textAlign: 'right'}}>
               <FollowActionButton iconButton entity={org} />
               {
-                currentUserHasAccess() &&
+                canManage &&
                   <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={handleManageClick}>
                     {t('common.manage')}
                   </Button>
@@ -155,7 +157,7 @@ const OrgHeader = ({ org, members, onDeleteClick, onLeaveClick, canAdminister, c
       {
         editMembers &&
           <EditMembers
-            fetchOrg={fetchOrg}
+            onSaved={onMembersSaved}
             org={org}
             members={members}
             onClose={() => {

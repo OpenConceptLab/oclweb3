@@ -4,7 +4,7 @@ import { useParams, useHistory } from 'react-router-dom'
 import Paper from '@mui/material/Paper'
 import APIService from '../../services/APIService'
 import GAService from '../../services/GAService'
-import { getCurrentUser, isAdminUser, refreshCurrentUserCache } from '../../common/utils';
+import { getCurrentUser, getErrorDetail, isAdminUser, refreshCurrentUserCache } from '../../common/utils';
 import { ROLE_ADMIN } from '../../common/orgRoles';
 import usePins from '../../hooks/usePins';
 import { OperationsContext } from '../app/LayoutContext';
@@ -30,6 +30,7 @@ const OrgHome = () => {
   const [members, setMembers] = React.useState([])
   const [deleteOrg, setDeleteOrg] = React.useState(false)
   const [leaveOrg, setLeaveOrg] = React.useState(false)
+  const [leaving, setLeaving] = React.useState(false)
   const [tab, setTab] = React.useState(findTab)
   const [defaultFiltersOpen, onFiltersOpenChange, listRef] = useDefaultFiltersOpen(PROFILE_LIST_MIN_WIDTH)
   const { setAlert } = React.useContext(OperationsContext);
@@ -43,25 +44,25 @@ const OrgHome = () => {
   ]
   const TAB_KEYS = TABS.map(tab => tab.key)
   const findTab = () => TAB_KEYS.includes(params?.tab) ? params.tab : 'overview'
-  const fetchOrg = () => {
+  const fetchOrg = () => (
     APIService.orgs(params.org).get(null, null, {includeOverview: true}, true).then(response => {
       const newStatus = response?.status || response?.response?.status
       const data = response?.data || response?.response?.data || {}
       setStatus(newStatus)
       if(newStatus === 200 && data?.id) {
         setOrg(data)
-        fetchMembers()
+        return fetchMembers()
       }
     })
-  }
-  const fetchMembers = () => {
+  )
+  const fetchMembers = () => (
     APIService.orgs(params.org).appendToUrl('members/?verbose=true&limit=100').get().then(response => {
       if(Array.isArray(response?.data)) {
         setMembers(response.data)
         setOrg(prev => ({...prev, members: response.data.length}))
       }
     })
-  }
+  )
   const onTabChange = (event, newTab) => {
     if(newTab) {
       setTab(newTab)
@@ -96,19 +97,35 @@ const OrgHome = () => {
     })
   }
 
+  const onLeft = () => {
+    const goToProfile = () => {
+      setAlert({severity: 'success', message: t('org.success_leave')})
+      history.push(user.url)
+    }
+    refreshCurrentUserCache(goToProfile, goToProfile)
+  }
+
   const onLeave = () => {
+    if(leaving)
+      return
+    setLeaving(true)
     APIService.orgs(org.id).appendToUrl(`members/${user.username}/`).delete(null, null, {}, null, true).then(response => {
-      if(response?.status === 204) {
-        const onLeft = () => {
-          setAlert({severity: 'success', message: t('org.success_leave')})
-          history.push(user.url)
-        }
-        refreshCurrentUserCache(onLeft, onLeft)
-      } else {
+      if(response?.status === 204)
+        onLeft()
+      else {
+        setLeaving(false)
         setLeaveOrg(false)
-        setAlert({severity: 'error', message: response?.response?.data?.detail || t('common.generic_error')})
+        setAlert({severity: 'error', message: getErrorDetail(response) || t('common.generic_error')})
       }
     })
+  }
+
+  // After Edit Members saves: removing yourself there is leaving, a change to your own role changes what you can do
+  // here, and any other change only changes the members.
+  const onMembersSaved = ({left, ownRoleChanged}) => {
+    if(left)
+      return onLeft()
+    return ownRoleChanged ? fetchOrg() : fetchMembers()
   }
 
   React.useEffect(() => { fetchOrg() }, [params.org])
@@ -123,7 +140,7 @@ const OrgHome = () => {
         {
           org?.id &&
             <React.Fragment>
-              <OrgHeader org={org} members={members} canAdminister={canAdminister} canDelete={canDelete} onDeleteClick={() => setDeleteOrg(true)} onLeaveClick={() => setLeaveOrg(true)} fetchOrg={fetchOrg} />
+              <OrgHeader org={org} members={members} canAdminister={canAdminister} canDelete={canDelete} onDeleteClick={() => setDeleteOrg(true)} onLeaveClick={() => setLeaveOrg(true)} onMembersSaved={onMembersSaved} />
               <div ref={listRef} className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
                 <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
                 {
@@ -172,7 +189,7 @@ const OrgHome = () => {
             warning
           />
       }
-      <LeaveOrgDialog open={leaveOrg} org={org} onClose={() => setLeaveOrg(false)} onSubmit={onLeave} />
+      <LeaveOrgDialog open={leaveOrg} org={org} onClose={() => setLeaveOrg(false)} onSubmit={onLeave} pending={leaving} />
     </div>
   )
 }

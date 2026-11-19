@@ -6,7 +6,7 @@ import Button from '../common/Button';
 import Dialog from '../common/Dialog'
 import DialogTitle from '../common/DialogTitle'
 
-const LeaveOrgDialog = ({ onSubmit, onClose, open, org }) => {
+const LeaveOrgDialog = ({ onSubmit, onClose, open, org, pending }) => {
   const { t } = useTranslation()
   return (
     <Dialog open={Boolean(open)} onClose={onClose} fullWidth maxWidth='xs'>
@@ -16,7 +16,7 @@ const LeaveOrgDialog = ({ onSubmit, onClose, open, org }) => {
       </DialogContent>
       <DialogActions sx={{p: 0}}>
         <Button color='default' label={t('common.cancel')} onClick={onClose} />
-        <Button color='primary' label={t('org.leave_org')} onClick={onSubmit} />
+        <Button color='primary' label={t('org.leave_org')} onClick={onSubmit} disabled={Boolean(pending)} />
       </DialogActions>
     </Dialog>
   )
