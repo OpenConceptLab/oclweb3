@@ -17,7 +17,8 @@ const SIZES = {
 
 // Sits next to a verified version's name and opens the Verification section of that version's About tab.
 // Its shield icon is its own: VerifiedOutlined means "released".
-const VerifiedChip = ({ version, size = 'small', sx }) => {
+// `onNavigate` runs when the chip is followed, for a parent (the version picker) that has to close first.
+const VerifiedChip = ({ version, size = 'small', sx, onNavigate }) => {
   const { t } = useTranslation();
   const location = useLocation();
 
@@ -37,7 +38,10 @@ const VerifiedChip = ({ version, size = 'small', sx }) => {
         component={RouterLink}
         to={href}
         clickable
-        onClick={event => event.stopPropagation()}
+        onClick={event => {
+          event.stopPropagation();
+          onNavigate?.();
+        }}
         sx={[{
           height: style.height,
           borderRadius: style.borderRadius,

@@ -116,6 +116,7 @@ const RepoVersionChip = ({ version, versions, versionsLoading, previewVersions, 
           hasMore={hasMoreVersions}
           loadingMore={versionsLoading && Boolean(normalizeVersions(versions).length)}
           onLoadMore={onLoadMoreVersions}
+          onNavigate={onClose}
         />
       </Menu>
     </React.Fragment>

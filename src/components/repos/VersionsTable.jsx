@@ -34,7 +34,7 @@ const normalizeVersions = versions => {
   return []
 }
 
-const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onVersionChange, originVersion }) => {
+const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onVersionChange, onNavigate, originVersion }) => {
   const { t } = useTranslation()
   const isPublic = ['view', 'edit'].includes(version.public_access?.toLowerCase())
   const tooltip = originVersion ? t('repo.compare_origin_version_disabled_tooltip') : t('repo.compare_destination_version_disabled_tooltip')
@@ -58,7 +58,7 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
         }, (checkbox ? {} : {borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px'})]} onClick={isDisabled ? undefined : () => onVersionChange(version)}>
           {version.id}
           <ProcessingFlag entity={version} showLabel={false} sx={{ ml: 1 }} />
-          <VerifiedChip version={version} sx={{ ml: 1 }} />
+          <VerifiedChip version={version} sx={{ ml: 1 }} onNavigate={onNavigate} />
           {
             version?.match_algorithms?.includes('llm') &&
               <Tooltip title={t('repo.version.vectorized_for_mapper')}>
@@ -130,7 +130,7 @@ const SkeletonRow = ({ checkbox, bgColor }) => (
   </TableRow>
 )
 
-const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabledFrom, disabledUntil, originVersion, loading, hasMore, loadingMore, onLoadMore }) => {
+const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabledFrom, disabledUntil, originVersion, loading, hasMore, loadingMore, onLoadMore, onNavigate }) => {
   const { t } = useTranslation()
   const history = useHistory()
   const [checked, setChecked] = React.useState([])
@@ -217,6 +217,7 @@ const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabl
                     onCheck={onCheck}
                     checked={checked}
                     onVersionChange={disabled ? () => {} : onChange}
+                    onNavigate={onNavigate}
                     originVersion={originVersion}
                   />
                 )
