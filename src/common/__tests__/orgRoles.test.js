@@ -69,4 +69,5 @@ test('a role shows its translated label, and one the app doesn\'t know shows as 
   assert.equal(getRoleLabel('admin', t), 'translated org.admin')
   assert.equal(getRoleLabel('member', t), 'translated org.member')
   assert.equal(getRoleLabel('owner', t), 'owner')
+  assert.equal(getRoleLabel('constructor', t), 'constructor')
 })
