@@ -23,13 +23,14 @@ import Button from '../common/Button'
 import Link from '../common/Link'
 import UserIcon from '../users/UserIcon'
 import { OperationsContext } from '../app/LayoutContext';
+import ChangeOwnRoleDialog from './ChangeOwnRoleDialog'
 import LeaveOrgDialog from './LeaveOrgDialog'
 import RemoveMemberDialog from './RemoveMemberDialog'
 
 import { debounce } from 'lodash'
 import APIService from '../../services/APIService';
 import { getCurrentUserUsername, getErrorDetail } from '../../common/utils';
-import { ROLES, ROLE_MEMBER, getRoleLabel, getRoleOptions, withoutMembers } from '../../common/orgRoles';
+import { ROLES, ROLE_MEMBER, demotesSelf, getRoleLabel, getRoleOptions, withoutMembers } from '../../common/orgRoles';
 
 
 const getMemberName = member => {
@@ -73,6 +74,7 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
   const [newMember, setNewMember] = React.useState(null)
   const [newRole, setNewRole] = React.useState(ROLE_MEMBER)
   const [removing, setRemoving] = React.useState(null)
+  const [demoting, setDemoting] = React.useState(null)
   const [saving, setSaving] = React.useState(false)
   const busy = React.useRef(false)
   const username = React.useMemo(getCurrentUserUsername, [])
@@ -140,10 +142,16 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
     setSaving(false)
   }
 
+  // Taking away your own admin rights is asked first: another admin would have to give them back
   const onRoleChange = (member, role) => {
-    if(role !== (member.role || ROLE_MEMBER))
+    if(role === (member.role || ROLE_MEMBER))
+      return
+    if(demotesSelf(member, role, username))
+      setDemoting({member, role})
+    else
       apply({member, action: 'role', role})
   }
+  const onDemote = () => demoting && apply({...demoting, action: 'role'}, () => setDemoting(null))
 
   // Never one who has become a member since being picked, by this dialog or anyone else: adding them again would change
   // their role
@@ -294,6 +302,7 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
           <LeaveOrgDialog open org={org} onSubmit={onRemove} onClose={() => setRemoving(null)} pending={saving} /> :
           <RemoveMemberDialog member={removing} org={org} onSubmit={onRemove} onClose={() => setRemoving(null)} pending={saving} />
       }
+      <ChangeOwnRoleDialog open={Boolean(demoting)} org={org} onSubmit={onDemote} onClose={() => setDemoting(null)} pending={saving} />
     </Dialog>
   )
 }

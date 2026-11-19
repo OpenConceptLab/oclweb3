@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-const { getRoleLabel, getRoleOptions, withoutMembers } = await import('../orgRoles.js')
+const { demotesSelf, getRoleLabel, getRoleOptions, withoutMembers } = await import('../orgRoles.js')
 
 test('a role shows its translated label, and one the app doesn\'t know shows as the API sent it', () => {
   const t = key => `translated ${key}`
@@ -20,6 +20,15 @@ test('the role dropdown offers the roles the app knows', () => {
 test('a member whose role the app doesn\'t know yet keeps it as an option', () => {
   assert.deepEqual(getRoleOptions('owner'), ['member', 'admin', 'owner'])
   assert.deepEqual(getRoleOptions('constructor'), ['member', 'admin', 'constructor'])
+})
+
+test('only an admin changing their own role away from admin is asked first', () => {
+  assert.equal(demotesSelf({username: 'first', role: 'admin'}, 'member', 'first'), true)
+  assert.equal(demotesSelf({username: 'first', role: 'admin'}, 'admin', 'first'), false)
+  assert.equal(demotesSelf({username: 'second', role: 'admin'}, 'member', 'first'), false)
+  assert.equal(demotesSelf({username: 'first', role: 'member'}, 'admin', 'first'), false)
+  assert.equal(demotesSelf({username: 'first'}, 'admin', 'first'), false)
+  assert.equal(demotesSelf({username: 'first', role: 'admin'}, 'member', undefined), false)
 })
 
 test('a user search offers only people who aren\'t members yet', () => {

@@ -558,6 +558,8 @@
     "add_member": "Añadir miembro",
     "remove_member": "Quitar miembro",
     "remove_member_message": "<strong>{{user}}</strong> perderá el acceso a los repositorios privados de <strong>{{org}}</strong>.",
+    "change_role": "Cambiar rol",
+    "change_own_role_message": "Perderás los permisos de administrador de <strong>{{org}}</strong>. Otro administrador tendrá que devolvértelos.",
     "search_users": "Buscar usuarios",
     "success_leave": "Has salido de la organización",
     "create_an_org": "Crear una organización",

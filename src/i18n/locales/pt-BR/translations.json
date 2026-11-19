@@ -914,6 +914,8 @@
     "add_member": "Adicionar membro",
     "remove_member": "Remover membro",
     "remove_member_message": "<strong>{{user}}</strong> perderá o acesso aos repositórios privados de <strong>{{org}}</strong>.",
+    "change_role": "Alterar função",
+    "change_own_role_message": "Você perderá os direitos de administrador de <strong>{{org}}</strong>. Outro administrador terá que devolvê-los a você.",
     "search_users": "Pesquisar usuários",
     "success_leave": "Você saiu da organização",
     "org_have_not_created_public_repos_suffix": "não criou nenhum repositório público",

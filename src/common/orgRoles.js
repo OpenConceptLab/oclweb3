@@ -14,6 +14,8 @@ export const getRoleLabel = (role, t) => isKnownRole(role) ? t(ROLE_LABEL_KEYS[r
 // What a member's role dropdown offers: the roles this app knows, and the member's own if it isn't one of them
 export const getRoleOptions = role => (role && !isKnownRole(role)) ? [...ROLES, role] : ROLES
 
+// The change would take admin rights from the user making it
+export const demotesSelf = (member, role, username) => Boolean(username) && member?.username === username && member?.role === ROLE_ADMIN && role !== ROLE_ADMIN
 export const withoutMembers = (users, members) => {
   const usernames = new Set((members || []).map(member => member.username))
   return (users || []).filter(user => !usernames.has(user.username))

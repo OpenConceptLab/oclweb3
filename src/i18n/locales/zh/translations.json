@@ -590,6 +590,8 @@
     "add_member": "添加成员",
     "remove_member": "移除成员",
     "remove_member_message": "<strong>{{user}}</strong> 将无法访问 <strong>{{org}}</strong> 的私有存储库。",
+    "change_role": "更改角色",
+    "change_own_role_message": "你将失去 <strong>{{org}}</strong> 的管理员权限，需要由另一位管理员重新授予。",
     "search_users": "搜索用户",
     "success_leave": "你已退出该组织",
     "org_have_not_created_public_repos_suffix": "尚未创建任何公开的存储库",

@@ -925,6 +925,8 @@
     "add_member": "Add Member",
     "remove_member": "Remove Member",
     "remove_member_message": "<strong>{{user}}</strong> will lose access to the private repositories of <strong>{{org}}</strong>.",
+    "change_role": "Change Role",
+    "change_own_role_message": "You'll lose admin rights to <strong>{{org}}</strong>. Another admin will have to give them back.",
     "search_users": "Search users",
     "success_leave": "You have left the organization",
     "org_have_not_created_public_repos_suffix": "have not created any public repositories",
