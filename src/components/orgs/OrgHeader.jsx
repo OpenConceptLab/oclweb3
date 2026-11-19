@@ -116,7 +116,7 @@ const OrgHeader = ({ org, members, onDeleteClick, onLeaveClick, canAdminister, c
         sx={{'.MuiPaper-root': {backgroundColor: 'surface.n94'}}}
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
-        onClose={handleManageClick}
+        onClose={() => setAnchorEl(null)}
       >
         <MenuItem sx={{padding: '8px 12px'}} href={`${org.url}repos/new`} onClick={handleNewRepoCreateClick}>
           <ListItemIcon>
