@@ -131,7 +131,8 @@ const OrgHome = () => {
   const onMembersSaved = ({left, ownRoleChanged}) => {
     if(left)
       return onLeft()
-    return Promise.all([fetchMembers(), ownRoleChanged && fetchOrgDetails()])
+    // The org first, so that the members' count is the last word, and the members even if the org request fails
+    return (ownRoleChanged ? fetchOrgDetails() : Promise.resolve()).then(() => fetchMembers())
   }
 
   React.useEffect(() => { fetchOrg() }, [params.org])
