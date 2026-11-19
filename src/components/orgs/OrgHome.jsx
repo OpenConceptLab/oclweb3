@@ -44,17 +44,20 @@ const OrgHome = () => {
   ]
   const TAB_KEYS = TABS.map(tab => tab.key)
   const findTab = () => TAB_KEYS.includes(params?.tab) ? params.tab : 'overview'
-  const fetchOrg = () => (
+  // Resolves to whether the org came back
+  const fetchOrgDetails = () => (
     APIService.orgs(params.org).get(null, null, {includeOverview: true}, true).then(response => {
       const newStatus = response?.status || response?.response?.status
       const data = response?.data || response?.response?.data || {}
       setStatus(newStatus)
       if(newStatus === 200 && data?.id) {
         setOrg(data)
-        return fetchMembers()
+        return true
       }
+      return false
     })
   )
+  const fetchOrg = () => fetchOrgDetails().then(found => found && fetchMembers())
   const fetchMembers = () => (
     APIService.orgs(params.org).appendToUrl('members/?verbose=true&limit=100').get().then(response => {
       if(Array.isArray(response?.data)) {
@@ -128,7 +131,7 @@ const OrgHome = () => {
   const onMembersSaved = ({left, ownRoleChanged}) => {
     if(left)
       return onLeft()
-    return ownRoleChanged ? fetchOrg() : fetchMembers()
+    return Promise.all([fetchMembers(), ownRoleChanged && fetchOrgDetails()])
   }
 
   React.useEffect(() => { fetchOrg() }, [params.org])
