@@ -223,7 +223,7 @@ const RepoAbout = ({ repo, height }) => {
               <Typography component="span" sx={{ color: 'secondary.main', mr: 0.5 }}>{t('repo.about_tab.on_this_page')}</Typography>
               {
                 sections.map(section => (
-                  <Chip key={section} component="a" href={`#${section}`} clickable label={t(`repo.about_tab.${section}`)} sx={{ height: '36px', borderRadius: '18px', px: '2px', fontSize: '14px', fontWeight: 500, color: '#1d00a5', backgroundColor: '#f2efff', textDecoration: 'none', '&:hover': { backgroundColor: '#e2dfff', textDecoration: 'none' } }} />
+                  <Chip key={section} component="a" href={`#${section}`} clickable label={t(`repo.about_tab.${section}`)} sx={{ height: '36px', borderRadius: '18px', px: '2px', fontSize: '14px', fontWeight: 500, color: 'primary.20', backgroundColor: 'primary.95', textDecoration: 'none', '&:hover': { backgroundColor: 'primary.90', textDecoration: 'none' } }} />
                 ))
               }
             </Stack>
