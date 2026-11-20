@@ -161,7 +161,7 @@ const SearchInput = props => {
         URL += `?type=${resourceType}`
       }
 
-      // the "Include retired" switch stays as it is, with or without a keyword
+      // the "Include Retired" switch stays as it is, with or without a keyword
       history.push(withIncludeRetiredFrom(URL.replace('?&', '?'), location.search));
     }
   }

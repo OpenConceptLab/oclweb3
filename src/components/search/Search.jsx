@@ -27,7 +27,7 @@ import SearchFilters from './SearchFilters'
 import ReleaseSearchInfo from './ReleaseSearchInfo'
 import { isReleaseOnlySearch } from './releaseOnlySearch'
 import { getOwnerScopeFilters } from './ownerScopeFilters'
-import { hasRetiredSwitch, getDefaultIncludeRetired, getRetiredRequestParams, getIncludeRetired, getIncludeRetiredFromSavedFilters, getRetiredCount, URL_PARAM as INCLUDE_RETIRED_URL_PARAM } from './retiredSwitch'
+import { hasRetiredSwitch, isCollectionURL, getDefaultIncludeRetired, getRetiredRequestParams, getIncludeRetired, getIncludeRetiredFromSavedFilters, getRetiredCount, URL_PARAM as INCLUDE_RETIRED_URL_PARAM } from './retiredSwitch'
 import { OperationsContext } from '../app/LayoutContext';
 import ReferenceFilters from '../repos/ReferenceFilters'
 import { EXCLUDE_FILTER_KEY } from './ResultConstants'
@@ -331,12 +331,13 @@ const Search = props => {
     return hasRetiredSwitch(_resource) ? omit(repoDefaultFilters, 'retired') : repoDefaultFilters
   }
 
-  // The switch's setting goes on the list request and the facet request alike. The hierarchy
-  // view sends no filters (see toRequestParams), so it sends no setting either.
+  // The switch's setting goes on the list request and the facet request alike (see
+  // getRetiredRequestParams). The hierarchy view sends no filters (see toRequestParams), so it
+  // sends no setting either.
   const addRetiredParams = (params, _resource, _includeRetired) => {
     if(params.onlyHierarchyRoot || !hasRetiredSwitch(_resource))
       return params
-    return {...params, ...getRetiredRequestParams(_includeRetired === undefined ? includeRetired : _includeRetired)}
+    return {...params, ...getRetiredRequestParams(_includeRetired === undefined ? includeRetired : _includeRetired, isCollectionURL(props.url))}
   }
 
   const getAppliedFacetFromQueryParam = filters => {
@@ -399,7 +400,7 @@ const Search = props => {
   }
 
   const isSearchIndexQuery = () => {
-    // retired=false is a filter, so the switch turned off is a search-index query too;
+    // retired=false (the switch off in a collection) is a filter, so a search-index query;
     // includeRetired isn't one
     const params = omit(
       addRetiredParams(toRequestParams(getQueryParams(input, page, pageSize, filters, orderBy, order)), resource),

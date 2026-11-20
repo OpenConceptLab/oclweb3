@@ -1,4 +1,4 @@
-// The "Include retired" switch in the results toolbar (OpenConceptLab/ocl_issues#3057). It sets
+// The "Include Retired" switch in the results toolbar (OpenConceptLab/ocl_issues#3057). It sets
 // whether retired concepts or mappings are in the results, the filter values and the filter counts
 // alike, so the Retired filter is no longer in the filter panel for these searches.
 const SWITCH_RESOURCES = ['concepts', 'mappings']
@@ -8,12 +8,22 @@ export const URL_PARAM = 'includeRetired'
 
 export const hasRetiredSwitch = resource => SWITCH_RESOURCES.includes(resource)
 
+// A search inside a collection (its members, through an expansion) rather than a source or global search
+export const isCollectionURL = url => /^\/(users|orgs)\/[^/]+\/collections\//.test(url || '')
+
 // A collection's members are its choice, retired ones included, so a collection shows them
 // unless the switch is turned off. Sources and global search hide them unless it's turned on.
-export const getDefaultIncludeRetired = url => /^\/(users|orgs)\/[^/]+\/collections\//.test(url || '')
+export const getDefaultIncludeRetired = isCollectionURL
 
-// What the list request and the filter (facet) request both send.
-export const getRetiredRequestParams = includeRetired => includeRetired ? {includeRetired: true} : {retired: 'false'}
+// What the list request and the filter (facet) request both send. Turned on: includeRetired=true.
+// Turned off: in a collection, retired=false, as the API includes retired members there by
+// default; elsewhere nothing, as the API already leaves retired ones out, and a plain listing
+// stays off the search index and keeps paging past 10,000 results.
+export const getRetiredRequestParams = (includeRetired, inCollection) => {
+  if(includeRetired)
+    return {includeRetired: true}
+  return inCollection ? {retired: 'false'} : {}
+}
 
 // The switch's state from a Retired filter in an old URL or in a repository's saved default
 // filters, in the form the filter panel keeps ({true: true, false: true}, with '__exclude__' for

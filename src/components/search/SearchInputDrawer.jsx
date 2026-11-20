@@ -138,7 +138,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
     try {
       existingFilters = JSON.parse(new URLSearchParams(location.search).get('filters') || '{}')
     } catch(e) { /* malformed filters param, ignore */ }
-    // the "Include retired" switch stays as it is, as the other filters do
+    // the "Include Retired" switch stays as it is, as the other filters do
     const url = withIncludeRetiredFrom(getFacetFilterURL(facetConfig, term, isRepoContext ? location.pathname : null, q, existingFilters), location.search)
 
     if(isRepoContext && facetConfig.resourceType !== (resource || 'concepts')) {

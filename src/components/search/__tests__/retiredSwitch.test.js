@@ -23,9 +23,11 @@ test('on by default in a collection, off in a source and in global search', () =
   assert.equal(getDefaultIncludeRetired(undefined), false)
 })
 
-test('off sends retired=false and on sends includeRetired=true', () => {
-  assert.deepEqual(getRetiredRequestParams(false), {retired: 'false'})
-  assert.deepEqual(getRetiredRequestParams(true), {includeRetired: true})
+test('on sends includeRetired=true; off sends retired=false in a collection and nothing elsewhere', () => {
+  assert.deepEqual(getRetiredRequestParams(true, false), {includeRetired: true})
+  assert.deepEqual(getRetiredRequestParams(true, true), {includeRetired: true})
+  assert.deepEqual(getRetiredRequestParams(false, true), {retired: 'false'})
+  assert.deepEqual(getRetiredRequestParams(false, false), {})
 })
 
 test('a Retired filter from an old URL or saved defaults sets the switch', () => {
