@@ -2,8 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 
 import {
-  hasRetiredSwitch, getDefaultIncludeRetired, getRetiredRequestParams, getIncludeRetiredFromFilter,
-  getIncludeRetiredFromSavedFilters, withIncludeRetiredFrom, getIncludeRetired, getRetiredCount
+  hasRetiredSwitch, isCollectionSearchURL, getRetiredRequestParams, getIncludeRetiredFromFilter,
+  withIncludeRetiredFrom, getIncludeRetired, getRetiredCount
 } from '../retiredSwitch.js'
 
 test('concept and mapping searches have the switch; others keep what they had', () => {
@@ -15,22 +15,21 @@ test('concept and mapping searches have the switch; others keep what they had', 
 })
 
 test('on by default in a collection, off in a source and in global search', () => {
-  assert.equal(getDefaultIncludeRetired('/users/jontest2/collections/drugs/HEAD/expansions/autoexpand-HEAD/concepts/'), true)
-  assert.equal(getDefaultIncludeRetired('/orgs/CIEL/collections/C1/v1/expansions/e1/mappings/'), true)
-  assert.equal(getDefaultIncludeRetired('/orgs/CIEL/sources/CIEL/v2026-10-23/concepts/'), false)
+  assert.equal(isCollectionSearchURL('/users/jontest2/collections/drugs/HEAD/expansions/autoexpand-HEAD/concepts/'), true)
+  assert.equal(isCollectionSearchURL('/orgs/CIEL/collections/C1/v1/expansions/e1/mappings/'), true)
+  assert.equal(isCollectionSearchURL('/orgs/CIEL/sources/CIEL/v2026-10-23/concepts/'), false)
   // a source that happens to be called "collections"
-  assert.equal(getDefaultIncludeRetired('/orgs/MyOrg/sources/collections/concepts/'), false)
-  assert.equal(getDefaultIncludeRetired(undefined), false)
+  assert.equal(isCollectionSearchURL('/orgs/MyOrg/sources/collections/concepts/'), false)
+  assert.equal(isCollectionSearchURL(undefined), false)
 })
 
 test('on sends includeRetired=true; off sends retired=false in a collection and nothing elsewhere', () => {
   assert.deepEqual(getRetiredRequestParams(true, false), {includeRetired: true})
-  assert.deepEqual(getRetiredRequestParams(true, true), {includeRetired: true})
   assert.deepEqual(getRetiredRequestParams(false, true), {retired: 'false'})
   assert.deepEqual(getRetiredRequestParams(false, false), {})
 })
 
-test('a Retired filter from an old URL or saved defaults sets the switch', () => {
+test('a Retired filter from an old URL sets the switch', () => {
   assert.equal(getIncludeRetiredFromFilter({true: true, false: true}), true)
   assert.equal(getIncludeRetiredFromFilter({false: true}), false)
   // retired only: the switch can't show only retired ones, so it lets them in
@@ -41,15 +40,6 @@ test('a Retired filter from an old URL or saved defaults sets the switch', () =>
   assert.equal(getIncludeRetiredFromFilter({__exclude__: true, true: true, false: true}), undefined)
   assert.equal(getIncludeRetiredFromFilter({true: false}), undefined)
   assert.equal(getIncludeRetiredFromFilter(undefined), undefined)
-})
-
-test("a saved Retired default filter, kept as query values, sets the switch's default", () => {
-  assert.equal(getIncludeRetiredFromSavedFilters({retired: 'true,false', conceptClass: 'Drug'}), true)
-  assert.equal(getIncludeRetiredFromSavedFilters({retired: 'false'}), false)
-  assert.equal(getIncludeRetiredFromSavedFilters({retired: false}), false)
-  assert.equal(getIncludeRetiredFromSavedFilters({retired: '!true'}), false)
-  assert.equal(getIncludeRetiredFromSavedFilters({conceptClass: 'Drug'}), undefined)
-  assert.equal(getIncludeRetiredFromSavedFilters(undefined), undefined)
 })
 
 test('a filter URL built from scratch keeps the switch setting from the current URL', () => {

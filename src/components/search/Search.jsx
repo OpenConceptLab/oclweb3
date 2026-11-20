@@ -27,7 +27,7 @@ import SearchFilters from './SearchFilters'
 import ReleaseSearchInfo from './ReleaseSearchInfo'
 import { isReleaseOnlySearch } from './releaseOnlySearch'
 import { getOwnerScopeFilters } from './ownerScopeFilters'
-import { hasRetiredSwitch, isCollectionURL, getDefaultIncludeRetired, getRetiredRequestParams, getIncludeRetired, getIncludeRetiredFromSavedFilters, getRetiredCount, URL_PARAM as INCLUDE_RETIRED_URL_PARAM } from './retiredSwitch'
+import { hasRetiredSwitch, isCollectionSearchURL, getRetiredRequestParams, getIncludeRetired, getRetiredCount, URL_PARAM as INCLUDE_RETIRED_URL_PARAM } from './retiredSwitch'
 import { OperationsContext } from '../app/LayoutContext';
 import ReferenceFilters from '../repos/ReferenceFilters'
 import { EXCLUDE_FILTER_KEY } from './ResultConstants'
@@ -97,9 +97,7 @@ const Search = props => {
   const [bulkRemoveOpen, setBulkRemoveOpen] = React.useState(false)
   const [bulkRemoving, setBulkRemoving] = React.useState(false)
   const [hierarchy, setHierarchy] = React.useState(defaultDisplay === 'hierarchy')
-  // A Retired filter in the repository's saved default filters sets the switch's default there
-  const savedIncludeRetired = getIncludeRetiredFromSavedFilters(props.repoDefaultFilters)
-  const defaultIncludeRetired = savedIncludeRetired === undefined ? getDefaultIncludeRetired(props.url) : savedIncludeRetired
+  const defaultIncludeRetired = isCollectionSearchURL(props.url)
   const [includeRetired, setIncludeRetired] = React.useState(defaultIncludeRetired)
   // The latest list request and the latest facet request: an answer to an earlier one is dropped,
   // so a slow answer for the switch's previous setting can't overwrite the current counts
@@ -270,7 +268,7 @@ const Search = props => {
       // Write the defaults into the URL so it stays the single source of truth --
       // otherwise the next location.search-driven sync sees no `filters` param and
       // wipes these back out (e.g. as soon as the user performs a search).
-      // A saved Retired filter is the switch's default instead (savedIncludeRetired), so
+      // The switch replaces a saved Retired filter (getRepoDefaultFilters leaves it out), so
       // defaults that held only that leave nothing to write.
       const repoDefaultFilters = getRepoDefaultFilters(_resource)
       if(!isEmpty(repoDefaultFilters)) {
@@ -337,7 +335,7 @@ const Search = props => {
   const addRetiredParams = (params, _resource, _includeRetired) => {
     if(params.onlyHierarchyRoot || !hasRetiredSwitch(_resource))
       return params
-    return {...params, ...getRetiredRequestParams(_includeRetired === undefined ? includeRetired : _includeRetired, isCollectionURL(props.url))}
+    return {...params, ...getRetiredRequestParams(_includeRetired === undefined ? includeRetired : _includeRetired, isCollectionSearchURL(props.url))}
   }
 
   const getAppliedFacetFromQueryParam = filters => {

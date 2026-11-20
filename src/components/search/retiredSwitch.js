@@ -1,19 +1,17 @@
 // The "Include Retired" switch in the results toolbar (OpenConceptLab/ocl_issues#3057). It sets
 // whether retired concepts or mappings are in the results, the filter values and the filter counts
 // alike, so the Retired filter is no longer in the filter panel for these searches.
-const SWITCH_RESOURCES = ['concepts', 'mappings']
 const EXCLUDE_FILTER_KEY = '__exclude__'
 
 export const URL_PARAM = 'includeRetired'
 
-export const hasRetiredSwitch = resource => SWITCH_RESOURCES.includes(resource)
+export const hasRetiredSwitch = resource => resource === 'concepts' || resource === 'mappings'
 
-// A search inside a collection (its members, through an expansion) rather than a source or global search
-export const isCollectionURL = url => /^\/(users|orgs)\/[^/]+\/collections\//.test(url || '')
-
-// A collection's members are its choice, retired ones included, so a collection shows them
-// unless the switch is turned off. Sources and global search hide them unless it's turned on.
-export const getDefaultIncludeRetired = isCollectionURL
+// A search inside a collection (its members, through an expansion) rather than a source or global
+// search. It's also the switch's default: a collection's members are its choice, retired ones
+// included, so a collection shows them unless the switch is turned off. Sources and global search
+// hide them unless it's turned on.
+export const isCollectionSearchURL = url => /^\/(users|orgs)\/[^/]+\/collections\//.test(url || '')
 
 // What the list request and the filter (facet) request both send. Turned on: includeRetired=true.
 // Turned off: in a collection, retired=false, as the API includes retired members there by
@@ -25,8 +23,7 @@ export const getRetiredRequestParams = (includeRetired, inCollection) => {
   return inCollection ? {retired: 'false'} : {}
 }
 
-// The switch's state from a Retired filter in an old URL or in a repository's saved default
-// filters, in the form the filter panel keeps ({true: true, false: true}, with '__exclude__' for
+// The switch's state from a Retired filter in an old URL, in the form the filter panel keeps ({true: true, false: true}, with '__exclude__' for
 // "everything but"). Any filter that lets retired ones in, a retired-only one too, turns the switch
 // on; one that keeps only active ones turns it off; anything else leaves it alone.
 export const getIncludeRetiredFromFilter = appliedRetired => {
@@ -39,19 +36,6 @@ export const getIncludeRetiredFromFilter = appliedRetired => {
   if(included.includes('false'))
     return false
   return undefined
-}
-
-// The same from a repository's saved default filters, kept as query values ('true,false', 'false',
-// '!true', or a boolean). A saved Retired filter becomes the page's default for the switch.
-export const getIncludeRetiredFromSavedFilters = savedFilters => {
-  const value = savedFilters?.retired
-  if(value === undefined || value === null || value === '')
-    return undefined
-  const text = String(value)
-  const excluded = text.startsWith('!')
-  const applied = excluded ? {[EXCLUDE_FILTER_KEY]: true} : {}
-  ;(excluded ? text.slice(1) : text).split(',').forEach(each => { applied[each.trim()] = true })
-  return getIncludeRetiredFromFilter(applied)
 }
 
 // Adds the current URL's switch setting to a URL built from scratch (Searchlight's filter URLs),

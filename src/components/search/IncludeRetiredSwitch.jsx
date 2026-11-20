@@ -2,7 +2,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next'
 import Chip from '@mui/material/Chip';
 import SelectedIcon from '@mui/icons-material/Done';
-import isNumber from 'lodash/isNumber'
 
 // The results toolbar's "Include Retired" switch (see retiredSwitch.js). It looks like the
 // "Include Retired" chip on a concept's associations (concepts/Associations): a tick and a filled
@@ -12,7 +11,7 @@ const IncludeRetiredSwitch = ({ checked, count, onChange }) => {
   const { t } = useTranslation()
   return (
     <Chip
-      label={isNumber(count) ? t('search.include_retired_count', {retired: count.toLocaleString()}) : t('search.include_retired')}
+      label={Number.isFinite(count) ? t('search.include_retired_count', {retired: count.toLocaleString()}) : t('search.include_retired')}
       icon={checked ? <SelectedIcon fontSize='small' /> : undefined}
       onClick={() => onChange(!checked)}
       aria-pressed={checked}
