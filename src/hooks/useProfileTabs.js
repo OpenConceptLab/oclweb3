@@ -6,7 +6,7 @@ import { canSeeMapProjects } from '../common/mapProjects';
 
 let pluginTabsPromise
 
-const loadPluginTabs = () => {
+export const loadPluginTabs = () => {
   if(!pluginTabsPromise)
     pluginTabsPromise = loadProfileTabs().then(tabs => Array.isArray(tabs) ? tabs : [])
   return pluginTabsPromise
