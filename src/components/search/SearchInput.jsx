@@ -6,6 +6,7 @@ import SearchInputDrawer from './SearchInputDrawer';
 import { BROWSE_CONFIG, FACET_FILTER_CONFIG } from './browseConfig';
 import { getURLWithoutFacetFilter } from './facetFilterURL';
 import { getOwnerSearchScope } from './ownerSearch';
+import { withIncludeRetiredFrom } from './retiredSwitch';
 
 
 const SearchInput = props => {
@@ -157,7 +158,8 @@ const SearchInput = props => {
           queryParams.set('type', resourceType)
         URL += `?${queryParams.toString()}`
       } else if(isGlobal || queryParams.get('type')) {
-        URL += `?type=${resourceType}`
+        // the "Include retired" switch stays as it is, as it does with a keyword
+        URL = withIncludeRetiredFrom(`${URL}?type=${resourceType}`, location.search)
       }
 
       history.push(URL.replace('?&', '?'));

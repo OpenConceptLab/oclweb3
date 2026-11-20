@@ -75,7 +75,7 @@ const Search = props => {
       return undefined
     const savedDisplay = props.repo.meta?.display?.default_view
     const queryParams = new URLSearchParams(window.location.search)
-    if(savedDisplay === 'hierarchy' && isHierarchySupported && !queryParams.has('filters') && !queryParams.get('q'))
+    if(savedDisplay === 'hierarchy' && isHierarchySupported && !queryParams.has('filters') && !queryParams.has(INCLUDE_RETIRED_URL_PARAM) && !queryParams.get('q'))
       return 'hierarchy'
     if(savedDisplay === 'card' && !props.noCardDisplay)
       return 'card'
@@ -105,6 +105,9 @@ const Search = props => {
   // so a slow answer for the switch's previous setting can't overwrite the current counts
   const latestListRequest = React.useRef(0)
   const latestFacetRequest = React.useRef(0)
+  // Set while a list request that should refresh the filter counts is waiting: if a newer one
+  // (say a page-size change) replaces it before it answers, the newer one refreshes them instead
+  const facetsDue = React.useRef(false)
 
   const didMount = React.useRef(false);
   const pendingRepoDefaultFilters = React.useRef(false)
@@ -283,7 +286,8 @@ const Search = props => {
     if(!isEqual(isMatch, isMatchOp)) {
       setIsMatchOp(isMatch)
       _fetch = true
-      _fetchFacets = false
+      // back from Matched Candidates the keyword may differ from the counts shown
+      _fetchFacets = !isMatch
     }
     if(!isEqual(filters, _filters)) {
       setFilters(_filters)
@@ -436,6 +440,8 @@ const Search = props => {
       return
     params = addRetiredParams(params, __resource, _includeRetired)
     const requestId = ++latestListRequest.current
+    if(facets)
+      facetsDue.current = true
     recordSearchEvent(__resource, params)
     setLoading(true)
     setResult(prev => {
@@ -464,15 +470,17 @@ const Search = props => {
       }
       let total = parseInt(response?.headers?.num_found)
       const summaryCount = get(props.summary, `active_${__resource}`) || get(props.summary, `${__resource}.active`) || 0
-      // the summary's count is of active ones, so it stands in only while retired ones are left out
-      if(!params.q && props?.summary && props.nested && (total < summaryCount && total === 10000) && keys(params).every(el => ['includeSearchMeta', 'q', 'limit', 'page', 'pageSize', 'offset', 'sortAsc', 'sortDesc', 'display', 'type', 'retired'].includes(el)))
+      if(!params.q && props?.summary && props.nested && (total < summaryCount && total === 10000) && keys(params).every(el => ['includeSearchMeta', 'q', 'limit', 'page', 'pageSize', 'offset', 'sortAsc', 'sortDesc', 'display', 'type'].includes(el)))
         total = summaryCount
       const resourceResult = {total: total, pageSize: max([parseInt(response?.headers?.num_returned), params?.limit]), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || [], facets: result[__resource]?.facets || {}, retiredCount: result[__resource]?.retiredCount}
+      // the filter counts are the latest ones, which may have come in after this request went out
       setResult(prev => {
-        return {...result, [__resource]: resourceResult}
+        return {...prev, [__resource]: {...resourceResult, facets: prev[__resource]?.facets || {}, retiredCount: prev[__resource]?.retiredCount}}
       })
       setLoading(false)
-      if(facets && !params.onlyHierarchyRoot && isFilterable(__resource) && __resource !== 'references')
+      const fetchCounts = facets || facetsDue.current
+      facetsDue.current = false
+      if(fetchCounts && !params.onlyHierarchyRoot && isFilterable(__resource) && __resource !== 'references')
         fetchFacets(params, resourceResult, __resource)
     })
   }

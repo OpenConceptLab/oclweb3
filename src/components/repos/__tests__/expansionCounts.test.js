@@ -29,7 +29,7 @@ test("a version without an expanded count uses its own summary's active count", 
 
 test('the label says what the count is', () => {
   assert.equal(getCountLabel(t, 'concepts', {total: 8289, active: true}), 'concept.active_concepts')
-  assert.equal(getCountLabel(t, 'concepts', {total: 8765, retired: 476}), `repo.summary_concepts_with_retired {"total":"${(8765).toLocaleString()}","retired":"476"}`)
+  assert.equal(getCountLabel(t, 'concepts', {total: 8765, retired: 476}), `repo.summary_concepts_with_retired {"total":"${(8765).toLocaleString()}","retired":"${(476).toLocaleString()}"}`)
   assert.equal(getCountLabel(t, 'mappings', {total: 0}), 'mapping.mappings')
   assert.equal(getCountLabel(t, 'mappings', {}), 'mapping.mappings')
 })
