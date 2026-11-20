@@ -8,12 +8,19 @@ import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
 import FormHelperText from '@mui/material/FormHelperText'
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 
 import Link from '../common/Link'
 import { OperationsContext } from '../app/LayoutContext';
 
 import { debounce } from 'lodash'
 import APIService from '../../services/APIService';
+import { getCurrentUser } from '../../common/utils';
+import { ROLE_ADMIN, ROLE_MEMBER, getMemberChanges, getMemberRole } from '../../common/orgRoles';
 
 
 const normalizeErrorDetail = detail => {
@@ -32,7 +39,7 @@ const getErrorDetail = response => normalizeErrorDetail(
   response?.message
 )
 
-const EditMembers = ({onClose, org, members, fetchMembers}) => {
+const EditMembers = ({onClose, org, members, fetchOrg}) => {
   const { t } = useTranslation()
   const { setAlert } = React.useContext(OperationsContext);
 
@@ -71,48 +78,42 @@ const EditMembers = ({onClose, org, members, fetchMembers}) => {
   }, [])
 
 
-  const newMembers = selectedMembers.filter(member => !members.map(user => user.username).includes(member.username))
-  const deletedMembers = members.filter(member => !selectedMembers.map(user => user.username).includes(member.username))
+  const batches = getMemberChanges(members, selectedMembers, getCurrentUser()?.username)
+  const changes = batches.flat()
+  const newMembers = changes.filter(({action}) => action === 'add').map(({member}) => member)
+  const deletedMembers = changes.filter(({action}) => action === 'remove').map(({member}) => member)
 
-  const updateMember = async (member, method) => {
+  const updateMember = async ({member, action, role}) => {
     try {
       const response = await APIService.new()
         .overrideURL(org.url)
         .appendToUrl(`members/${member.username}/`)
-        [method](null, null, {}, null, true)
+        [action === 'remove' ? 'delete' : 'put'](role ? {role} : null, null, {}, null, true)
       const error = response?.response || !response ? getErrorDetail(response) || t('common.generic_error') : null
-      return {member, error}
+      return {member, action, error}
     } catch(error) {
-      return {member, error: getErrorDetail(error) || t('common.generic_error')}
+      return {member, action, error: getErrorDetail(error) || t('common.generic_error')}
     }
   }
 
-  const getMemberError = (member, action, detail) => (
-    t(`org.member_${action}_failed`, {user: member.username, detail})
-  )
-
   const onSubmit = async () => {
-    const failures = []
-
-    const addResults = await Promise.all(newMembers.map(member => updateMember(member, 'put')))
-    addResults.forEach(({member, error}) => {
-      if(error)
-        failures.push(getMemberError(member, 'add', error))
-    })
-
-    const removeResults = await Promise.all(deletedMembers.map(member => updateMember(member, 'delete')))
-    removeResults.forEach(({member, error}) => {
-      if(error)
-        failures.push(getMemberError(member, 'remove', error))
-    })
+    const results = []
+    for(const batch of batches) {
+      // A batch can rely on the ones before it, so a failure stops the rest, and saving again retries them.
+      if(!results.some(({error}) => error))
+        results.push(...await Promise.all(batch.map(updateMember)))
+    }
+    const failures = results.filter(({error}) => error).map(({member, action, error}) => (
+      t(`org.member_${action}_failed`, {user: member.username, detail: error})
+    ))
 
     if(failures.length) {
       setAlert({message: failures.join('\n'), severity: 'error', duration: 5000})
-    } else if(newMembers.length || deletedMembers.length) {
+    } else if(results.length) {
       setAlert({message: t('org.updated_members'), severity: 'success', duration: 1000})
     }
 
-    fetchMembers()
+    fetchOrg()
     if(!failures.length)
       onClose()
   }
@@ -178,6 +179,28 @@ const EditMembers = ({onClose, org, members, fetchMembers}) => {
           }
           sx={{'.MuiInputBase-root': {backgroundColor: 'surface.n92'}, marginBottom: '8px'}}
         />
+        <List dense sx={{p: 0}}>
+          {
+            selectedMembers.map(member => (
+              <ListItem key={member.username} disableGutters>
+                <ListItemText primary={getMemberDisplayName(member)} />
+                <Select
+                  size='small'
+                  variant='standard'
+                  sx={{width: '112px', fontSize: '14px'}}
+                  inputProps={{'aria-label': `${t('org.role')}: ${member.username}`}}
+                  value={getMemberRole(member, members)}
+                  onChange={event => setSelectedMembers(prev => prev.map(
+                    selected => selected.username === member.username ? {...selected, role: event.target.value} : selected
+                  ))}
+                >
+                  <MenuItem value={ROLE_ADMIN}>{t('org.admin')}</MenuItem>
+                  <MenuItem value={ROLE_MEMBER}>{t('org.member')}</MenuItem>
+                </Select>
+              </ListItem>
+            ))
+          }
+        </List>
         {
           newMembers?.length > 0 &&
             <div className='col-xs-12' style={{marginTop: '4px'}}>
