@@ -941,7 +941,7 @@
       "verified_at": "Verified",
       "checks_label": "What OCL checked",
       "passed": "Passed",
-      "what_ocl_added": "What OCL added",
+      "verification_notes": "Verification notes",
       "process": "Process",
       "record": "Record",
       "copy_record": "Copy the record's SHA-256",

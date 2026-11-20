@@ -607,7 +607,7 @@
       "verified_at": "验证时间",
       "checks_label": "OCL 检查了什么",
       "passed": "已通过",
-      "what_ocl_added": "OCL 添加了什么",
+      "verification_notes": "验证说明",
       "process": "流程",
       "record": "记录",
       "copy_record": "复制记录的 SHA-256",

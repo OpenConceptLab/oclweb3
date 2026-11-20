@@ -578,7 +578,7 @@
       "verified_at": "Verificado",
       "checks_label": "Qué comprobó OCL",
       "passed": "Superado",
-      "what_ocl_added": "Qué añadió OCL",
+      "verification_notes": "Notas de verificación",
       "process": "Proceso",
       "record": "Registro",
       "copy_record": "Copiar el SHA-256 del registro",

@@ -930,7 +930,7 @@
       "verified_at": "Verificado em",
       "checks_label": "O que a OCL verificou",
       "passed": "Aprovado",
-      "what_ocl_added": "O que a OCL adicionou",
+      "verification_notes": "Notas de verificação",
       "process": "Processo",
       "record": "Registro",
       "copy_record": "Copiar o SHA-256 do registro",

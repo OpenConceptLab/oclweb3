@@ -108,7 +108,7 @@ const VerificationSection = ({ repo }) => {
         {
           notes &&
             <Stack sx={{ gap: 1 }}>
-              <Typography component="h3" sx={{ fontSize: '15px', fontWeight: 500, color: 'surface.dark', m: 0 }}>{t('repo.verification.what_ocl_added')}</Typography>
+              <Typography component="h3" sx={{ fontSize: '15px', fontWeight: 500, color: 'surface.dark', m: 0 }}>{t('repo.verification.verification_notes')}</Typography>
               <MarkdownContent markdown={notes} />
             </Stack>
         }
