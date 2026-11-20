@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 
 import {
   hasRetiredSwitch, getDefaultIncludeRetired, getRetiredRequestParams, getIncludeRetiredFromFilter,
-  getIncludeRetired, getRetiredCount
+  getIncludeRetiredFromSavedFilters, withIncludeRetiredFrom, getIncludeRetired, getRetiredCount
 } from '../retiredSwitch.js'
 
 test('concept and mapping searches have the switch; others keep what they had', () => {
@@ -18,6 +18,8 @@ test('on by default in a collection, off in a source and in global search', () =
   assert.equal(getDefaultIncludeRetired('/users/jontest2/collections/drugs/HEAD/expansions/autoexpand-HEAD/concepts/'), true)
   assert.equal(getDefaultIncludeRetired('/orgs/CIEL/collections/C1/v1/expansions/e1/mappings/'), true)
   assert.equal(getDefaultIncludeRetired('/orgs/CIEL/sources/CIEL/v2026-10-23/concepts/'), false)
+  // a source that happens to be called "collections"
+  assert.equal(getDefaultIncludeRetired('/orgs/MyOrg/sources/collections/concepts/'), false)
   assert.equal(getDefaultIncludeRetired(undefined), false)
 })
 
@@ -37,6 +39,22 @@ test('a Retired filter from an old URL or saved defaults sets the switch', () =>
   assert.equal(getIncludeRetiredFromFilter({__exclude__: true, true: true, false: true}), undefined)
   assert.equal(getIncludeRetiredFromFilter({true: false}), undefined)
   assert.equal(getIncludeRetiredFromFilter(undefined), undefined)
+})
+
+test("a saved Retired default filter, kept as query values, sets the switch's default", () => {
+  assert.equal(getIncludeRetiredFromSavedFilters({retired: 'true,false', conceptClass: 'Drug'}), true)
+  assert.equal(getIncludeRetiredFromSavedFilters({retired: 'false'}), false)
+  assert.equal(getIncludeRetiredFromSavedFilters({retired: false}), false)
+  assert.equal(getIncludeRetiredFromSavedFilters({retired: '!true'}), false)
+  assert.equal(getIncludeRetiredFromSavedFilters({conceptClass: 'Drug'}), undefined)
+  assert.equal(getIncludeRetiredFromSavedFilters(undefined), undefined)
+})
+
+test('a filter URL built from scratch keeps the switch setting from the current URL', () => {
+  assert.equal(withIncludeRetiredFrom('/search/?type=concepts&filters=x', '?q=a&includeRetired=true'), '/search/?type=concepts&filters=x&includeRetired=true')
+  assert.equal(withIncludeRetiredFrom('/orgs/CIEL/sources/CIEL/concepts/?filters=x', '?includeRetired=false'), '/orgs/CIEL/sources/CIEL/concepts/?filters=x&includeRetired=false')
+  assert.equal(withIncludeRetiredFrom('/search/?type=concepts', '?q=a'), '/search/?type=concepts')
+  assert.equal(withIncludeRetiredFrom('/search/?includeRetired=false', '?includeRetired=true'), '/search/?includeRetired=false')
 })
 
 test("the URL's setting wins over an old Retired filter, which wins over the page default", () => {

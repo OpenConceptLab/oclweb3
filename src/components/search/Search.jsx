@@ -27,7 +27,7 @@ import SearchFilters from './SearchFilters'
 import ReleaseSearchInfo from './ReleaseSearchInfo'
 import { isReleaseOnlySearch } from './releaseOnlySearch'
 import { getOwnerScopeFilters } from './ownerScopeFilters'
-import { hasRetiredSwitch, getDefaultIncludeRetired, getRetiredRequestParams, getIncludeRetired, getIncludeRetiredFromFilter, getRetiredCount, URL_PARAM as INCLUDE_RETIRED_URL_PARAM } from './retiredSwitch'
+import { hasRetiredSwitch, getDefaultIncludeRetired, getRetiredRequestParams, getIncludeRetired, getIncludeRetiredFromSavedFilters, getRetiredCount, URL_PARAM as INCLUDE_RETIRED_URL_PARAM } from './retiredSwitch'
 import { OperationsContext } from '../app/LayoutContext';
 import ReferenceFilters from '../repos/ReferenceFilters'
 import { EXCLUDE_FILTER_KEY } from './ResultConstants'
@@ -97,8 +97,14 @@ const Search = props => {
   const [bulkRemoveOpen, setBulkRemoveOpen] = React.useState(false)
   const [bulkRemoving, setBulkRemoving] = React.useState(false)
   const [hierarchy, setHierarchy] = React.useState(defaultDisplay === 'hierarchy')
-  const defaultIncludeRetired = getDefaultIncludeRetired(props.url)
+  // A Retired filter in the repository's saved default filters sets the switch's default there
+  const savedIncludeRetired = getIncludeRetiredFromSavedFilters(props.repoDefaultFilters)
+  const defaultIncludeRetired = savedIncludeRetired === undefined ? getDefaultIncludeRetired(props.url) : savedIncludeRetired
   const [includeRetired, setIncludeRetired] = React.useState(defaultIncludeRetired)
+  // The latest list request and the latest facet request: an answer to an earlier one is dropped,
+  // so a slow answer for the switch's previous setting can't overwrite the current counts
+  const latestListRequest = React.useRef(0)
+  const latestFacetRequest = React.useRef(0)
 
   const didMount = React.useRef(false);
   const pendingRepoDefaultFilters = React.useRef(false)
@@ -139,13 +145,13 @@ const Search = props => {
       if(newHierarchy !== hierarchy) {
         setHierarchy(newHierarchy)
         setPage(1)
-        const applyRepoDefaultFilters = !newHierarchy && pendingRepoDefaultFilters.current && !getFiltersFromQueryParams()
+        // defaults that held only a Retired filter leave no filters to write, so fetch as is
+        const repoDefaultFilters = getRepoDefaultFilters(resource)
+        const applyRepoDefaultFilters = !newHierarchy && pendingRepoDefaultFilters.current && !getFiltersFromQueryParams() && !isEmpty(repoDefaultFilters)
         if(!newHierarchy)
           pendingRepoDefaultFilters.current = false
-        if(applyRepoDefaultFilters) {
-          const repoDefaults = getRepoDefaults(resource)
-          history.replace(getCurrentLayoutURL(getQueryParams(input, 1, pageSize, repoDefaults.filters, orderBy, order, false), undefined, repoDefaults.includeRetired))
-        }
+        if(applyRepoDefaultFilters)
+          history.replace(getCurrentLayoutURL(getQueryParams(input, 1, pageSize, repoDefaultFilters, orderBy, order, false)))
         else
           fetchResults(getQueryParams(input, 1, pageSize, filters, orderBy, order, newHierarchy), true)
       }
@@ -258,14 +264,14 @@ const Search = props => {
     if(includeRepoDefaultFilters && !_filters && !isEmpty(props.repoDefaultFilters) && isHierarchyView)
       pendingRepoDefaultFilters.current = true
     else if(includeRepoDefaultFilters && !_filters && !isEmpty(props.repoDefaultFilters)) {
-      const repoDefaults = getRepoDefaults(_resource)
-      const defaultsIncludeRetired = repoDefaults.includeRetired === undefined ? _includeRetired : repoDefaults.includeRetired
       // Write the defaults into the URL so it stays the single source of truth --
       // otherwise the next location.search-driven sync sees no `filters` param and
       // wipes these back out (e.g. as soon as the user performs a search).
-      // Defaults that held only a Retired filter the switch already matches change nothing.
-      if(!isEmpty(repoDefaults.filters) || defaultsIncludeRetired !== _includeRetired) {
-        history.replace(getCurrentLayoutURL(getQueryParams(value, _page, _pageSize, repoDefaults.filters, _orderBy, _order), _resource, defaultsIncludeRetired))
+      // A saved Retired filter is the switch's default instead (savedIncludeRetired), so
+      // defaults that held only that leave nothing to write.
+      const repoDefaultFilters = getRepoDefaultFilters(_resource)
+      if(!isEmpty(repoDefaultFilters)) {
+        history.replace(getCurrentLayoutURL(getQueryParams(value, _page, _pageSize, repoDefaultFilters, _orderBy, _order), _resource, _includeRetired))
         return
       }
     }
@@ -315,17 +321,10 @@ const Search = props => {
     }
   }
 
-  // A repository's saved default filters. A Retired filter in them sets the switch instead,
-  // unless the URL already says how to set it.
-  const getRepoDefaults = _resource => {
+  // A repository's saved default filters, less a Retired filter where the switch stands in for it
+  const getRepoDefaultFilters = _resource => {
     const repoDefaultFilters = getAppliedFacetFromQueryParam(props.repoDefaultFilters || {})
-    if(!hasRetiredSwitch(_resource))
-      return {filters: repoDefaultFilters}
-    const isSetInURL = new URLSearchParams(window.location.search).has(INCLUDE_RETIRED_URL_PARAM)
-    return {
-      filters: omit(repoDefaultFilters, 'retired'),
-      includeRetired: isSetInURL ? undefined : getIncludeRetiredFromFilter(repoDefaultFilters.retired)
-    }
+    return hasRetiredSwitch(_resource) ? omit(repoDefaultFilters, 'retired') : repoDefaultFilters
   }
 
   // The switch's setting goes on the list request and the facet request alike. The hierarchy
@@ -436,6 +435,7 @@ const Search = props => {
     if(!__resource)
       return
     params = addRetiredParams(params, __resource, _includeRetired)
+    const requestId = ++latestListRequest.current
     recordSearchEvent(__resource, params)
     setLoading(true)
     setResult(prev => {
@@ -455,6 +455,8 @@ const Search = props => {
     if(!params.sortDesc)
       delete params.sortDesc
     APIService.new().overrideURL(getURL(__resource)).get(null, null, params).then(response => {
+      if(requestId !== latestListRequest.current)
+        return
       if(response?.detail) {
         setAlert({message: response.detail, severity: 'error', duration: 5000})
         setLoading(false)
@@ -478,6 +480,7 @@ const Search = props => {
 
   const fetchMatchResults = (params) => {
     let __resource = 'concepts'
+    const requestId = ++latestListRequest.current
     recordSearchEvent(__resource, params)
     setLoading(true)
     setResult(prev => {
@@ -486,6 +489,8 @@ const Search = props => {
     let _filters = omit(params, ['q', 'page', 'page_number', 'page_size', 'limit', 'offset', 'includeSearchMeta', 'verbose', 'order', 'orderBy', 'sortAsc', 'sortDesc', 'display', 'type', 'onlyHierarchyRoot'])
     const payload = {rows: [{name: params.q}], target_repo_url: contextRepo?.version_url, filter: _filters || {}}
     APIService.new().overrideURL('/concepts/$match/').post(payload, null, null, {verbose: true, includeSearchMeta: true, semantic: true, reranker: true, ...params}).then(response => {
+      if(requestId !== latestListRequest.current)
+        return
       const limitError = getQuotaError(response)
       if(limitError) {
         setQuotaError(limitError)
@@ -499,7 +504,7 @@ const Search = props => {
       }
       let __results = get(response, 'data.0.results') || []
       let total = __results.length + 10
-      const resourceResult = {total: total, pageSize: params?.limit || 10, page: params?.page || params?.page_number || 1, pages: 2, results: __results || [], facets: result[__resource]?.facets || {}}
+      const resourceResult = {total: total, pageSize: params?.limit || 10, page: params?.page || params?.page_number || 1, pages: 2, results: __results || [], facets: result[__resource]?.facets || {}, retiredCount: result[__resource]?.retiredCount}
       setResult(prev => {
         return {...result, [__resource]: resourceResult}
       })
@@ -510,7 +515,10 @@ const Search = props => {
   const fetchFacets = (params, otherResults, _resource=undefined) => {
     setLoadingFacets(true)
     const __resource = _resource || resource
+    const requestId = ++latestFacetRequest.current
     APIService.new().overrideURL(getURL(__resource)).get(null, null, {...omit(params, ['includeLatestReleasedVersion', 'includeSummary', 'includeReferences', 'includeResolvedRepoVersions']), facetsOnly: true}).then(response => {
+      if(requestId !== latestFacetRequest.current)
+        return
       const fields = response?.data?.facets?.fields || {}
       setResult(prev => {
         return {...prev, [__resource]: {...(prev[__resource] || otherResults), facets: prepareFacets(fields, __resource), retiredCount: getRetiredCount(fields)}}
@@ -534,14 +542,16 @@ const Search = props => {
     forEach(uniq([...keys(newFacets), ...keys(existingFacets)]), field => {
       mergedFacets[field] = mergedFacets[field] || []
       if(doNotRemoveFacets.includes(field)) {
-        const facets = uniq([...(existingFacets[field].map(facet => facet[0]) || []), ...(newFacets[field].map(facet => facet[0]) || [])])
+        const facets = uniq([...(existingFacets[field] || []).map(facet => facet[0]), ...(newFacets[field] || []).map(facet => facet[0])])
         forEach(facets, facet => {
           const newFacet = find(get(newFacets, field), f => f[0] === facet)
           const existingFacet = find(get(existingFacets, field), f => f[0] === facet)
           if(newFacet)
             mergedFacets[field].push(newFacet)
           else if (existingFacet)
-            mergedFacets[field].push(existingFacet)
+            // still listed, so an applied value can be taken off, but with no matches now
+            // (e.g. the switch left out the retired ones it had)
+            mergedFacets[field].push([existingFacet[0], 0, existingFacet[2]])
         })
       } else if (!has(existingFacets, field)) {
         mergedFacets[field] = newFacets[field]
@@ -812,7 +822,7 @@ const Search = props => {
                     appliedFilters={filters}
                     nested={props.nested}
                     onSaveAsDefaultFilters={props.onSaveAsDefaultFilters ? filters => props.onSaveAsDefaultFilters(hasRetiredSwitch(resource) ? omit(getFacetQueryParam(filters), ['retired', 'includeRetired']) : getFacetQueryParam(filters)) : false}
-                    repoDefaultFilters={getRepoDefaults(resource).filters}
+                    repoDefaultFilters={getRepoDefaultFilters(resource)}
                     propertyFilters={props.propertyFilters}
                     propertyDefinition={props.propertyDefinition}
                     heightToSubtract={props.filtersHeightToSubtract || 175}

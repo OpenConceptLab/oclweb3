@@ -10,7 +10,7 @@ export const hasRetiredSwitch = resource => SWITCH_RESOURCES.includes(resource)
 
 // A collection's members are its choice, retired ones included, so a collection shows them
 // unless the switch is turned off. Sources and global search hide them unless it's turned on.
-export const getDefaultIncludeRetired = url => /\/collections\//.test(url || '')
+export const getDefaultIncludeRetired = url => /^\/(users|orgs)\/[^/]+\/collections\//.test(url || '')
 
 // What the list request and the filter (facet) request both send.
 export const getRetiredRequestParams = includeRetired => includeRetired ? {includeRetired: true} : {retired: 'false'}
@@ -29,6 +29,28 @@ export const getIncludeRetiredFromFilter = appliedRetired => {
   if(included.includes('false'))
     return false
   return undefined
+}
+
+// The same from a repository's saved default filters, kept as query values ('true,false', 'false',
+// '!true', or a boolean). A saved Retired filter becomes the page's default for the switch.
+export const getIncludeRetiredFromSavedFilters = savedFilters => {
+  const value = savedFilters?.retired
+  if(value === undefined || value === null || value === '')
+    return undefined
+  const text = String(value)
+  const excluded = text.startsWith('!')
+  const applied = excluded ? {[EXCLUDE_FILTER_KEY]: true} : {}
+  ;(excluded ? text.slice(1) : text).split(',').forEach(each => { applied[each.trim()] = true })
+  return getIncludeRetiredFromFilter(applied)
+}
+
+// Adds the current URL's switch setting to a URL built from scratch (Searchlight's filter URLs),
+// so applying a filter there doesn't turn the switch back to the page's default.
+export const withIncludeRetiredFrom = (url, search) => {
+  const value = new URLSearchParams(search || '').get(URL_PARAM)
+  if(value === null || new URLSearchParams(url.split('?')[1] || '').has(URL_PARAM))
+    return url
+  return `${url}${url.includes('?') ? '&' : '?'}${URL_PARAM}=${encodeURIComponent(value)}`
 }
 
 // The URL's own setting wins, then a Retired filter from an old URL, then the page's default.
