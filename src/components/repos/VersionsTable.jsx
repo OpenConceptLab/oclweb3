@@ -71,14 +71,14 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
         <span style={{display: 'flex', alignItems: 'center'}}>
           {
             isNumber(version?.summary?.active_concepts) &&
-              <span style={{marginRight: '8px', display: 'flex', alignItems: 'center'}}>
+              <span title={t('concept.active_concepts')} style={{marginRight: '8px', display: 'flex', alignItems: 'center'}}>
                 <ConceptIcon selected color='secondary' sx={{width: '1rem', height: '1rem', marginRight: '4px'}} />
                 {version.summary.active_concepts.toLocaleString()}
               </span>
           }
           {
             isNumber(version?.summary?.active_mappings) &&
-              <span style={{display: 'flex', alignItems: 'center'}}>
+              <span title={t('mapping.active_mappings')} style={{display: 'flex', alignItems: 'center'}}>
                 <MappingIcon width="15px" height='13px' fill='secondary.main' color='secondary' sx={{width: '15px', height: '13px', marginRight: '4px'}} />
                 {version.summary.active_mappings.toLocaleString()}
               </span>

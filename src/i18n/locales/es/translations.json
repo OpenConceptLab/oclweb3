@@ -160,6 +160,7 @@
   },
   "concept": {
     "concepts": "Conceptos",
+    "active_concepts": "Conceptos activos",
     "display_name": "Nombre de visualización",
     "concept_class": "Clase",
     "datatype": "Tipo de dato",
@@ -234,6 +235,7 @@
   },
   "mapping": {
     "mappings": "Mapeos",
+    "active_mappings": "Mapeos activos",
     "from_source_url": "URL de la fuente de origen",
     "from_source_version": "Versión de la fuente de origen",
     "from_concept_url": "URL del concepto de origen",
@@ -543,7 +545,9 @@
     },
     "repo_version": "Versión del repositorio",
     "seeded_from": "Creada a partir de",
-    "seeded_from_import": "Importación"
+    "seeded_from_import": "Importación",
+    "summary_concepts_with_retired": "{{total}} conceptos ({{retired}} retirados)",
+    "summary_mappings_with_retired": "{{total}} mapeos ({{retired}} retirados)"
   },
   "org": {
     "my": "Mis organizaciones",
@@ -606,6 +610,8 @@
     "orgs": "Organizaciones",
     "users": "Usuarios",
     "sort_by": "Ordenar por",
+    "include_retired": "Incluir retirados",
+    "include_retired_count": "Incluir retirados ({{retired}})",
     "display": "Mostrar",
     "loading": "Refinando los resultados de tu búsqueda...",
     "no_results": "No pudimos encontrar coincidencias para ",
