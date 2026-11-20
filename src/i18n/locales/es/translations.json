@@ -363,6 +363,7 @@
     "transform_delete_failed": "Se agregaron {{count}} referencia(s) sin versión, pero no se pudieron eliminar las referencias fijadas anteriores. Actualiza y revisa la lista de referencias para detectar duplicados.",
     "transform_rollback_failed": "{{count}} referencia(s) de reemplazo no resolvieron a nada y no se pudieron eliminar, así que no se eliminó ninguna original. Actualice y revise la lista de referencias en busca de duplicados.",
     "transform_partial_unresolved": "{{transformed}} referencia(s) transformada(s). {{failed}} referencia(s) se dejaron sin cambios, {{unresolved}} de ellas porque la referencia no versionada no resolvió a nada.",
+    "transform_none_resolved": "No se transformó ninguna referencia: {{count}} referencia(s) no versionada(s) no resolvieron a nada, así que las originales se dejaron sin cambios.",
     "already_non_versioned": "Ya está sin versión",
     "unsupported_transform": "No compatible",
     "remove_success": "Referencias eliminadas correctamente.",

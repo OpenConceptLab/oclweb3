@@ -674,6 +674,7 @@
     "transform_delete_failed": "已添加 {{count}} 个非版本化引用，但无法移除原来的固定版本引用。请刷新并检查引用列表中是否有重复项。",
     "transform_rollback_failed": "{{count}} 个替换引用未解析到任何内容且无法删除，因此未删除任何原始引用。请刷新并检查引用列表中的重复项。",
     "transform_partial_unresolved": "已转换 {{transformed}} 个引用。{{failed}} 个引用保持不变，其中 {{unresolved}} 个是因为非版本化引用未解析到任何内容。",
+    "transform_none_resolved": "未转换任何引用：{{count}} 个非版本化引用未解析到任何内容，因此原始引用保持不变。",
     "already_non_versioned": "已经是非版本化",
     "unsupported_transform": "不支持",
     "cascade": "级联",

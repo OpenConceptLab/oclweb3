@@ -484,6 +484,7 @@
     "transform_delete_failed": "{{count}} non-versioned reference(s) were added, but the old pinned references could not be removed. Refresh and review the references list for duplicates.",
     "transform_rollback_failed": "{{count}} replacement reference(s) resolved to nothing and could not be removed, so no originals were removed. Refresh and review the references list for duplicates.",
     "transform_partial_unresolved": "{{transformed}} reference(s) transformed. {{failed}} reference(s) were left unchanged, {{unresolved}} of them because the non-versioned reference resolved to nothing.",
+    "transform_none_resolved": "No references were transformed: {{count}} non-versioned reference(s) resolved to nothing, so the originals were left unchanged.",
     "already_non_versioned": "Already non-versioned",
     "unsupported_transform": "Unsupported",
     "new_expression": "New Expression",

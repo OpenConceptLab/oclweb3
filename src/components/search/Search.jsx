@@ -631,7 +631,12 @@ const Search = props => {
 
     if(!addedItems.length) {
       setTransformingReferences(false)
-      setAlert({ severity: 'error', message: t('reference.transform_no_references_changed') })
+      setAlert({
+        severity: 'error',
+        message: unresolvedExpressions.length ?
+          t('reference.transform_none_resolved', { count: unresolvedExpressions.length }) :
+          t('reference.transform_no_references_changed'),
+      })
       return
     }
 
