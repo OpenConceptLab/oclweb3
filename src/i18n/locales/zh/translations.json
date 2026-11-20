@@ -817,5 +817,21 @@
     "project_name": "项目名称",
     "no_projects_found": "还没有映射项目。",
     "could_not_load_projects": "无法加载映射项目。"
+  },
+  "addToCollection": {
+    "title": "添加到集合",
+    "adding_single": "正在添加：来自 {{source}} 的 {{name}}",
+    "adding_multiple": "正在添加 {{count}} 个概念",
+    "target_collection": "目标集合",
+    "no_editable_collections": "未找到可编辑的集合",
+    "adding_reference": "正在添加引用…",
+    "request_accepted": "您的请求已被接受，引用将很快添加。",
+    "add_button": "添加引用",
+    "reference_header": "引用",
+    "error_header": "错误",
+    "no_references_added": "未添加任何引用",
+    "unresolved_count": "{{count}} 个已保存，但未解析到任何内容",
+    "unresolved_header": "已保存，但未添加任何内容",
+    "add_to_collection": "添加到集合"
   }
 }

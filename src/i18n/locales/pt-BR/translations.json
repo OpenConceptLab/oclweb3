@@ -1066,6 +1066,8 @@
     "reference_header": "Referência",
     "error_header": "Erro",
     "no_references_added": "Nenhuma referência adicionada",
+    "unresolved_count": "{{count}} salvas, mas não resolveram para nada",
+    "unresolved_header": "Salva, mas nada foi adicionado",
     "add_to_collection": "Adicionar à coleção"
   },
   "import": {

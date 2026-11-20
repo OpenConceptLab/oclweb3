@@ -750,5 +750,21 @@
     "project_name": "Nombre del Proyecto",
     "no_projects_found": "Aún no hay proyectos de mapeo.",
     "could_not_load_projects": "No se pudieron cargar los proyectos de mapeo."
+  },
+  "addToCollection": {
+    "title": "Añadir a colección",
+    "adding_single": "Añadiendo: {{name}} de {{source}}",
+    "adding_multiple": "Añadiendo {{count}} conceptos",
+    "target_collection": "Colección de destino",
+    "no_editable_collections": "No se encontraron colecciones editables",
+    "adding_reference": "Añadiendo referencia…",
+    "request_accepted": "Su solicitud fue aceptada y las referencias se añadirán en breve.",
+    "add_button": "Añadir referencia",
+    "reference_header": "Referencia",
+    "error_header": "Error",
+    "no_references_added": "No se añadieron referencias",
+    "unresolved_count": "{{count}} guardadas, pero no resolvieron a nada",
+    "unresolved_header": "Guardada, pero no se añadió nada",
+    "add_to_collection": "Añadir a colección"
   }
 }

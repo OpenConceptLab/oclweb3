@@ -24,6 +24,8 @@ import AutocompleteLoading from './AutocompleteLoading'
 import CascadeSelector from './CascadeSelector'
 import RepoChip from '../repos/RepoChip'
 import RepoTooltip from '../repos/RepoTooltip'
+import UnresolvedReferencesTable from './UnresolvedReferencesTable'
+import { groupReferenceResults } from './referenceResults'
 
 // Extract "[id] [name]" from an expression URL like /orgs/CIEL/sources/CIEL/concepts/1234/
 const extractConceptLabel = expression => {
@@ -164,9 +166,10 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
   }
 
   const isPending = results === 'pending'
-  const resultList = Array.isArray(results) ? results : []
-  const addedCount = resultList.filter(r => r.added).length
-  const failedCount = resultList.filter(r => !r.added).length
+  const groups = groupReferenceResults(results)
+  const addedCount = groups.added.length
+  const unresolvedCount = groups.unresolved.length
+  const failedCount = groups.failed.length
   const done = results !== null
 
   return (
@@ -289,7 +292,8 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
                   {addedCount > 0 && failedCount === 0 && `${addedCount} ${t('addToCollection.reference_header').toLowerCase()}${addedCount !== 1 ? 's' : ''} added`}
                   {addedCount > 0 && failedCount > 0 && `${addedCount} added, ${failedCount} failed`}
                   {addedCount === 0 && failedCount > 0 && `${failedCount} ${t('addToCollection.reference_header').toLowerCase()}${failedCount !== 1 ? 's' : ''} failed`}
-                  {addedCount === 0 && failedCount === 0 && t('addToCollection.no_references_added')}
+                  {addedCount === 0 && failedCount === 0 && unresolvedCount === 0 && t('addToCollection.no_references_added')}
+                  {unresolvedCount > 0 && `${addedCount + failedCount > 0 ? ', ' : ''}${t('addToCollection.unresolved_count', { count: unresolvedCount })}`}
                 </Typography>
 
                 {/* Successes */}
@@ -299,12 +303,12 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
                     borderColor: 'divider',
                     borderRadius: 1,
                     overflow: 'hidden'
-                  }, failedCount > 0 ? {
+                  }, failedCount + unresolvedCount > 0 ? {
                     mb: 2
                   } : {
                     mb: 0
                   }]}>
-                    {resultList.filter(r => r.added).map((item, idx, arr) => (
+                    {groups.added.map((item, idx, arr) => (
                       <React.Fragment key={item.expression || idx}>
                         <Box sx={{ px: 1.5, py: 1, bgcolor: 'primary.95', display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Typography
@@ -322,6 +326,11 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
                   </Box>
                 )}
 
+                {/* Saved, but resolved to nothing */}
+                {unresolvedCount > 0 && (
+                  <UnresolvedReferencesTable items={groups.unresolved} getLabel={extractConceptLabel} sx={failedCount > 0 ? { mb: 2 } : {}} />
+                )}
+
                 {/* Failures */}
                 {failedCount > 0 && (
                   <Table size="small" sx={{ border: '1px solid', borderColor: 'error.main', borderRadius: 1, overflow: 'hidden' }}>
@@ -332,7 +341,7 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {resultList.filter(r => !r.added).map((item, idx) => (
+                      {groups.failed.map((item, idx) => (
                         <TableRow key={item.expression || idx} sx={{ verticalAlign: 'top', bgcolor: 'error.95' }}>
                           <TableCell sx={{ fontSize: '0.8rem', color: 'error.main' }}>
                             {extractConceptLabel(item.expression)}

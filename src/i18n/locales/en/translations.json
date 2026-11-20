@@ -1078,6 +1078,8 @@
     "reference_header": "Reference",
     "error_header": "Error",
     "no_references_added": "No references added",
+    "unresolved_count": "{{count}} saved but resolved to nothing",
+    "unresolved_header": "Saved, but nothing added",
     "add_to_collection": "Add to Collection"
   },
   "import": {
