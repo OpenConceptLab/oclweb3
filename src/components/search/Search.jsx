@@ -398,6 +398,10 @@ const Search = props => {
   }
 
   const isSearchIndexQuery = () => {
+    // Global concept and mapping searches always go to the search index, a keyword or not, so
+    // they keep its 10,000-result window
+    if(!props.nested && ['concepts', 'mappings'].includes(resource))
+      return true
     // retired=false (the switch off in a collection) is a filter, so a search-index query;
     // includeRetired isn't one
     const params = omit(
