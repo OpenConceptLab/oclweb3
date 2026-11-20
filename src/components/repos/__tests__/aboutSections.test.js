@@ -105,3 +105,10 @@ test('the Overview uses the description only when there is no About text', () =>
   assert.equal(getOverviewDescription({ description: 'A description' }), 'A description')
   assert.equal(getOverviewDescription({ text: '<p>About</p>', description: 'A description' }), '')
 })
+
+test('the Overview text goes through the sanitizing markdown renderer, which drops scripts and event handlers', async () => {
+  const { markdownToHtml } = await import('../../common/markdownPipeline.js')
+  const html = markdownToHtml('<p>WHO</p><img src=x onerror="alert(1)"><script>alert(2)</script><a href="javascript:alert(3)">x</a>')
+  assert.match(html, /WHO/)
+  assert.doesNotMatch(html, /onerror|<script|javascript:/i)
+})

@@ -8,7 +8,6 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import VerifiedIcon from '@mui/icons-material/GppGood';
 import PassedIcon from '@mui/icons-material/CheckCircle';
 
-import About from '../common/About';
 import MarkdownContent from '../common/MarkdownContent';
 import { OperationsContext } from '../app/LayoutContext';
 import { copyToClipboard, formatDate } from '../../common/utils';
@@ -150,7 +149,7 @@ const OverviewSection = ({ repo }) => {
       <SectionHeading id="overview" title={t('repo.about_tab.overview')} />
       {
         getOverviewText(repo) ?
-          <About text={getOverviewText(repo)} expanded style={{ marginTop: 0 }} /> :
+          <MarkdownContent markdown={getOverviewText(repo)} /> :
           <Typography sx={{ fontSize: '15px', lineHeight: 1.6, color: 'surface.dark', whiteSpace: 'pre-line' }}>{getOverviewDescription(repo)}</Typography>
       }
     </Stack>
