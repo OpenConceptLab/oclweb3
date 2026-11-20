@@ -4,6 +4,7 @@ import isNumber from 'lodash/isNumber';
 import isObject from 'lodash/isObject';
 import keys from 'lodash/keys';
 import startCase from 'lodash/startCase';
+import { getSeededFromAttribute } from './seededFrom';
 
 export const REPO_VERSIONS_PAGE_SIZE = 25;
 
@@ -52,6 +53,7 @@ const VERSION_ATTRIBUTE_LABEL_KEYS = {
   autoexpand: 'repo.autoexpand',
   expansion_url: 'repo.expansion_url',
   revision_date: 'repo.revision_date',
+  seeded_from: 'repo.seeded_from',
   extras: 'custom_attributes.label',
   'checksums.standard': 'checksums.standard',
   'checksums.smart': 'checksums.smart',
@@ -95,6 +97,7 @@ const VERSION_ATTRIBUTE_ORDER = [
   'autoexpand',
   'expansion_url',
   'revision_date',
+  'seeded_from',
   'extras',
   'checksums.standard',
   'checksums.smart',
@@ -120,6 +123,12 @@ export const getVersionAttributeFields = (version, t) => {
     const labelKey = VERSION_ATTRIBUTE_LABEL_KEYS[field];
     const value = get(version, field);
     const info = { label: labelKey ? t(labelKey) : startCase(field) };
+    if(field === 'seeded_from') {  // shown as a label, never as raw JSON
+      const seed = getSeededFromAttribute(value, info.label, t);
+      if(seed)
+        fields[field] = seed;
+      return;
+    }
     const type = VERSION_ATTRIBUTE_TYPES[field] || (isObject(value) ? 'json' : undefined);
     if(type)
       info.type = type;
