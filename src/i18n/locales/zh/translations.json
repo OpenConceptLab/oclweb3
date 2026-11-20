@@ -633,7 +633,7 @@
         },
         "changes-listed": {
           "title": "列出变更",
-          "line": "OCL 添加的所有内容都列在下方",
+          "line": "OCL 添加的所有内容都列在下方的验证说明中",
           "line_no_changes": "未列出 OCL 的任何变更"
         },
         "checked-independently": {
