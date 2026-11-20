@@ -14,8 +14,9 @@ import { formatError } from './versionsTab.styles';
 
 // `targetUrl` is the base resource URL to POST `${contentType}/${indexPath}/` onto —
 // a source/collection version URL (indexPath 'indexes'), or a collection expansion
-// URL (indexPath 'index').
-const ReindexVersionDialog = ({ open, targetUrl, repoId, contentType, indexPath = 'indexes', label, onClose }) => {
+// URL (indexPath 'index'). With `syncVectors`, a source version's concepts get only their
+// vectors synced, without changing whether OCL Semantic Search is on (ocl_online#46).
+const ReindexVersionDialog = ({ open, targetUrl, repoId, contentType, indexPath = 'indexes', label, syncVectors, onClose }) => {
   const { t } = useTranslation();
   const [submitting, setSubmitting] = React.useState(false);
   const [result, setResult] = React.useState(null);
@@ -37,7 +38,7 @@ const ReindexVersionDialog = ({ open, targetUrl, repoId, contentType, indexPath 
   };
 
   const handleSubmit = () => {
-    GAService.recordActionEvent('Version Index', `reindex_${contentType}`, repoId, {
+    GAService.recordActionEvent('Version Index', syncVectors ? 'sync_vectors' : `reindex_${contentType}`, repoId, {
       target: targetUrl,
       content_type: contentType
     });
@@ -45,7 +46,7 @@ const ReindexVersionDialog = ({ open, targetUrl, repoId, contentType, indexPath 
     APIService.new()
       .overrideURL(targetUrl)
       .appendToUrl(`${contentType}/${indexPath}/`)
-      .post(null, null, null, null, true)
+      .post(syncVectors ? { sync_vectors: true } : null, null, null, null, true)
       .then(response => {
         const status = response?.status || response?.response?.status;
         const data = response?.data || response?.response?.data;
@@ -65,7 +66,11 @@ const ReindexVersionDialog = ({ open, targetUrl, repoId, contentType, indexPath 
       <DialogContent sx={{ padding: '16px 0 0 0 !important', minWidth: 360 }}>
         {!result && (
           <>
-            <p style={{ fontSize: '1rem' }}>{t('repo.reindex_confirm_message', { contentType: contentTypeLabel, repoId })}</p>
+            <p style={{ fontSize: '1rem' }}>
+              {syncVectors
+                ? t('repo.version.semantic_search.sync_vectors_message', { repoId })
+                : t('repo.reindex_confirm_message', { contentType: contentTypeLabel, repoId })}
+            </p>
             {submitting ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
                 <CircularProgress size={28} />
