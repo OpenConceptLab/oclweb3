@@ -967,7 +967,8 @@
         },
         "changes-listed": {
           "title": "Changes listed",
-          "line": "Everything OCL added is listed below"
+          "line": "Everything OCL added is listed below",
+          "line_no_changes": "No changes by OCL are listed"
         },
         "checked-independently": {
           "title": "Checked independently",

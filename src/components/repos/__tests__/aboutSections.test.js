@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 
 const {
-  getAboutSections, getOverviewDescription, getSourceRows, getVerification, getVerificationChecks, getVerificationNotes,
+  getAboutSections, getCheckLineKey, getOverviewDescription, getSourceRows, getVerification, getVerificationChecks, getVerificationNotes,
   hasAboutContent, isVerified
 } = await import('../aboutSections.js')
 
@@ -111,4 +111,10 @@ test('the Overview text goes through the sanitizing markdown renderer, which dro
   const html = markdownToHtml('<p>WHO</p><img src=x onerror="alert(1)"><script>alert(2)</script><a href="javascript:alert(3)">x</a>')
   assert.match(html, /WHO/)
   assert.doesNotMatch(html, /onerror|<script|javascript:/i)
+})
+
+test('"Changes listed" says nothing is listed when there are no notes, and keeps its line otherwise', () => {
+  assert.equal(getCheckLineKey('changes-listed', ''), 'line_no_changes')
+  assert.equal(getCheckLineKey('changes-listed', 'OCL added:\n\n- A root concept'), 'line')
+  assert.equal(getCheckLineKey('complete', ''), 'line')
 })

@@ -604,7 +604,8 @@
         },
         "changes-listed": {
           "title": "Cambios listados",
-          "line": "Todo lo que añadió OCL aparece a continuación"
+          "line": "Todo lo que añadió OCL aparece a continuación",
+          "line_no_changes": "No se listan cambios de OCL"
         },
         "checked-independently": {
           "title": "Comprobado de forma independiente",

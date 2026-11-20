@@ -35,6 +35,9 @@ export const getVerificationChecks = verification => VERIFICATION_PROCESS_CHECKS
 
 export const getVerificationNotes = version => asText(version?.extras?.verification_notes)
 
+// "Changes listed" points at the notes below it, so without notes it says nothing is listed rather than promising a list
+export const getCheckLineKey = (check, notes) => (check === 'changes-listed' && !notes ? 'line_no_changes' : 'line')
+
 export const getOverviewText = repo => asText(repo?.text)
 
 // Until repositories carry About text, the Overview falls back to the repository's description

@@ -13,7 +13,7 @@ import { OperationsContext } from '../app/LayoutContext';
 import { copyToClipboard, formatDate } from '../../common/utils';
 import {
   getAboutSections, getSourceRows, getOverviewText, getVerification, getVerificationChecks,
-  getOverviewDescription, getVerificationNotes, VERIFIED_REPOSITORIES_DOCS_URL
+  getOverviewDescription, getVerificationNotes, getCheckLineKey, VERIFIED_REPOSITORIES_DOCS_URL
 } from './aboutSections';
 import { VERIFIED_COLORS } from './verifiedColors';
 
@@ -98,7 +98,7 @@ const VerificationSection = ({ repo }) => {
                       <ExternalLink href={`${VERIFIED_REPOSITORIES_DOCS_URL}#${check}`} sx={{ fontSize: '15px', fontWeight: 500, color: 'surface.dark', textDecorationColor: '#c8c5d0', textUnderlineOffset: '3px' }}>
                         {t(`repo.verification.checks.${check}.title`)}
                       </ExternalLink>
-                      <Typography sx={{ fontSize: '13.5px', overflowWrap: 'anywhere' }}>{t(`repo.verification.checks.${check}.line`)}</Typography>
+                      <Typography sx={{ fontSize: '13.5px', overflowWrap: 'anywhere' }}>{t(`repo.verification.checks.${check}.${getCheckLineKey(check, notes)}`)}</Typography>
                     </Stack>
                   </Stack>
                 ))
