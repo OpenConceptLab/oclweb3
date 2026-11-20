@@ -83,14 +83,14 @@ const VersionStats = ({version1, version2}) => {
         </TableHead>
         <TableBody>
           <StatRow
-            label={t('concept.concepts')}
+            label={t('concept.active_concepts')}
             icon={<ConceptIcon fontSize='small' selected color='secondary' sx={{marginRight: '16px'}} />}
             version1={version1}
             version2={version2}
             statKey='active_concepts'
           />
           <StatRow
-            label={t('mapping.mappings')}
+            label={t('mapping.active_mappings')}
             icon={<MappingIcon fontSize='small' color='secondary' sx={{marginRight: '16px'}} />}
             version1={version1}
             version2={version2}

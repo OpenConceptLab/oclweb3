@@ -14,6 +14,7 @@ import Skeleton from '@mui/material/Skeleton';
 import { isNumber, isNaN, flatten, values, uniqBy, compact, pick, keys, omit } from 'lodash'
 import SearchControls from './SearchControls';
 import NoResults from './NoResults';
+import IncludeRetiredSwitch from './IncludeRetiredSwitch';
 import TableResults from './TableResults';
 import CardResults from './CardResults';
 import ReferenceSourceGroupedResults, { getReferenceSourceGroups } from '../references/ReferenceSourceGroupedResults';
@@ -30,7 +31,7 @@ import { MAX_SEARCH_RESULT_WINDOW } from '../../common/constants';
 
 const ResultsToolbar = props => {
   const { t } = useTranslation()
-  const { numSelected, title, titleInfo, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortConfig, noCardDisplay, toolbarControl, appliedFilters, availableFilterFields, openFilters, bulkActions, leftControls, displayOptions, resource } = props;
+  const { numSelected, title, titleInfo, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortConfig, noCardDisplay, toolbarControl, appliedFilters, availableFilterFields, openFilters, bulkActions, leftControls, displayOptions, resource, retiredSwitch } = props;
   // Reference searches fetch no facets, so their filters can't be narrowed to facet fields.
   const countableFilters = (availableFilterFields && resource !== 'references') ? pick(appliedFilters, availableFilterFields) : appliedFilters
   const filtersCount = resource === 'references' ? flatten(values(countableFilters))?.length : flatten(values(countableFilters).map(v => values(omit(v, EXCLUDE_FILTER_KEY)))).length
@@ -115,6 +116,7 @@ const ResultsToolbar = props => {
         extraControls={toolbarControl}
         displayOptions={displayOptions}
         resource={resource}
+        leadingControls={retiredSwitch}
       />
     </Toolbar>
   );
@@ -424,6 +426,11 @@ const SearchResults = props => {
             bulkActions={bulkActionsElement}
             leftControls={leftControls}
             resource={props.resource}
+            // not disabled with no results: turning it on may be what brings some back
+            retiredSwitch={
+              props.showRetiredSwitch &&
+                <IncludeRetiredSwitch checked={Boolean(props.includeRetired)} count={props.retiredCount} onChange={props.onIncludeRetiredChange} />
+            }
           />
       }
       {
