@@ -611,7 +611,9 @@
           "line": "Reejecutado desde la versión guardada y revisado por OCL"
         }
       }
-    }
+    },
+    "seeded_from": "Creada a partir de",
+    "seeded_from_import": "Importación"
   },
   "org": {
     "my": "Mis organizaciones",

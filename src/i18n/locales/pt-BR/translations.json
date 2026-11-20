@@ -963,7 +963,9 @@
           "line": "Reexecutado a partir da versão salva e revisado pela OCL"
         }
       }
-    }
+    },
+    "seeded_from": "Criada a partir de",
+    "seeded_from_import": "Importação"
   },
   "org": {
     "my": "Minhas organizações",

@@ -974,7 +974,9 @@
           "line": "Rerun from the saved release and reviewed by OCL"
         }
       }
-    }
+    },
+    "seeded_from": "Seeded From",
+    "seeded_from_import": "Import"
   },
   "org": {
     "my": "My Organizations",

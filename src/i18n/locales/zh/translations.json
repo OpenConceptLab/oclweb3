@@ -640,7 +640,9 @@
           "line": "从保存的版本重新运行并由 OCL 审核"
         }
       }
-    }
+    },
+    "seeded_from": "创建来源",
+    "seeded_from_import": "导入"
   },
   "org": {
     "my": "我的组织机构",
