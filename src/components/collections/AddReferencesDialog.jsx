@@ -33,7 +33,7 @@ import GroupHeader from '../common/GroupHeader'
 import GroupItems from '../common/GroupItems'
 import AutocompleteLoading from '../common/AutocompleteLoading'
 import UnresolvedReferencesTable from '../common/UnresolvedReferencesTable'
-import { groupReferenceResults } from '../common/referenceResults'
+import { groupReferenceResults, formatReferenceSummary } from '../common/referenceResults'
 
 // ---- error formatting (same pattern as AddToCollectionDialog) ----
 
@@ -468,11 +468,7 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
             {!isPending && (
               <React.Fragment>
                 <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
-                  {addedCount > 0 && failedCount === 0 && `${addedCount} reference${addedCount !== 1 ? 's' : ''} added`}
-                  {addedCount > 0 && failedCount > 0 && `${addedCount} added, ${failedCount} failed`}
-                  {addedCount === 0 && failedCount > 0 && `${failedCount} reference${failedCount !== 1 ? 's' : ''} failed`}
-                  {addedCount === 0 && failedCount === 0 && unresolvedCount === 0 && t('addToCollection.no_references_added')}
-                  {unresolvedCount > 0 && `${addedCount + failedCount > 0 ? ', ' : ''}${t('addToCollection.unresolved_count', { count: unresolvedCount })}`}
+                  {formatReferenceSummary(groups, t)}
                 </Typography>
 
                 {addedCount > 0 && (

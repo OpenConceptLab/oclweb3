@@ -1,3 +1,5 @@
+import { groupReferenceResults } from '../common/referenceResults.js'
+
 const RESOURCE_SEGMENTS = ['concepts', 'mappings']
 const REPO_SEGMENTS = ['sources', 'collections']
 
@@ -94,4 +96,19 @@ export const getTransformAddGroups = previewItems => {
     groups[key].items.push(item)
   })
   return Object.values(groups)
+}
+
+// For a transform's add response: the items whose replacement joined the collection, and the
+// expressions of replacements that were saved but resolved to nothing, to roll back
+export const getTransformOutcome = (response, items) => {
+  if (![200, 201].includes(response?.status))
+    return { addedItems: [], unresolvedExpressions: [] }
+  if (!Array.isArray(response?.data))
+    return { addedItems: items, unresolvedExpressions: [] }
+  const groups = groupReferenceResults(response.data)
+  const addedExpressions = groups.added.map(item => item.expression)
+  return {
+    addedItems: items.filter(item => addedExpressions.includes(item.proposedExpression)),
+    unresolvedExpressions: groups.unresolved.map(item => item.expression),
+  }
 }

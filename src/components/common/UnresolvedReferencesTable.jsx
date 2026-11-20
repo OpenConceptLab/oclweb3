@@ -7,16 +7,16 @@ import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
 
 // References the API saved but that added nothing to the collection; the message is the API's, as given
-const UnresolvedReferencesTable = ({ items, getLabel, sx }) => {
+const UnresolvedReferencesTable = ({ items, getLabel, sx = {} }) => {
   const { t } = useTranslation()
   return (
     <Table size="small" sx={[{ border: '1px solid', borderColor: 'warning.main', borderRadius: 1, overflow: 'hidden' }, sx]}>
       <TableHead>
         <TableRow>
-          <TableCell sx={{ fontWeight: 600, width: '40%', color: 'warning.main' }}>
+          <TableCell sx={{ fontWeight: 600, width: '40%', color: 'text.primary' }}>
             {t('addToCollection.reference_header')}
           </TableCell>
-          <TableCell sx={{ fontWeight: 600, color: 'warning.main' }}>
+          <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>
             {t('addToCollection.unresolved_header')}
           </TableCell>
         </TableRow>

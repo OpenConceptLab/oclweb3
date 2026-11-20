@@ -361,6 +361,7 @@
     "transform_no_eligible": "Ninguna de las referencias seleccionadas puede transformarse en una referencia sin versión.",
     "transform_no_references_changed": "No se transformó ninguna referencia.",
     "transform_delete_failed": "Se agregaron {{count}} referencia(s) sin versión, pero no se pudieron eliminar las referencias fijadas anteriores. Actualiza y revisa la lista de referencias para detectar duplicados.",
+    "transform_rollback_failed": "{{count}} referencia(s) de reemplazo no resolvieron a nada y no se pudieron eliminar, así que no se eliminó ninguna original. Actualice y revise la lista de referencias en busca de duplicados.",
     "already_non_versioned": "Ya está sin versión",
     "unsupported_transform": "No compatible",
     "remove_success": "Referencias eliminadas correctamente.",
@@ -765,6 +766,11 @@
     "no_references_added": "No se añadieron referencias",
     "unresolved_count": "{{count}} guardadas, pero no resolvieron a nada",
     "unresolved_header": "Guardada, pero no se añadió nada",
+    "summary_added": "{{count}} referencias añadidas",
+    "summary_added_one": "{{count}} referencia añadida",
+    "summary_failed": "{{count}} referencias fallaron",
+    "summary_failed_one": "{{count}} referencia falló",
+    "unresolved_count_one": "{{count}} guardada, pero no resolvió a nada",
     "add_to_collection": "Añadir a colección"
   }
 }

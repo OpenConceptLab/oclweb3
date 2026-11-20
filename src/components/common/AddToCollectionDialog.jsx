@@ -25,7 +25,7 @@ import CascadeSelector from './CascadeSelector'
 import RepoChip from '../repos/RepoChip'
 import RepoTooltip from '../repos/RepoTooltip'
 import UnresolvedReferencesTable from './UnresolvedReferencesTable'
-import { groupReferenceResults } from './referenceResults'
+import { groupReferenceResults, formatReferenceSummary } from './referenceResults'
 
 // Extract "[id] [name]" from an expression URL like /orgs/CIEL/sources/CIEL/concepts/1234/
 const extractConceptLabel = expression => {
@@ -289,11 +289,7 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
             {!isPending && (
               <React.Fragment>
                 <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
-                  {addedCount > 0 && failedCount === 0 && `${addedCount} ${t('addToCollection.reference_header').toLowerCase()}${addedCount !== 1 ? 's' : ''} added`}
-                  {addedCount > 0 && failedCount > 0 && `${addedCount} added, ${failedCount} failed`}
-                  {addedCount === 0 && failedCount > 0 && `${failedCount} ${t('addToCollection.reference_header').toLowerCase()}${failedCount !== 1 ? 's' : ''} failed`}
-                  {addedCount === 0 && failedCount === 0 && unresolvedCount === 0 && t('addToCollection.no_references_added')}
-                  {unresolvedCount > 0 && `${addedCount + failedCount > 0 ? ', ' : ''}${t('addToCollection.unresolved_count', { count: unresolvedCount })}`}
+                  {formatReferenceSummary(groups, t)}
                 </Typography>
 
                 {/* Successes */}

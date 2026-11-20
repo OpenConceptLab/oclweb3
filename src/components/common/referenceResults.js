@@ -8,3 +8,13 @@ export const groupReferenceResults = results => {
     failed: list.filter(result => !result.added),
   }
 }
+
+// One summary line for the groups, e.g. "2 references added, 1 saved but resolved to nothing"
+export const formatReferenceSummary = (groups, t) => {
+  const parts = [
+    groups.added.length && t('addToCollection.summary_added', { count: groups.added.length }),
+    groups.unresolved.length && t('addToCollection.unresolved_count', { count: groups.unresolved.length }),
+    groups.failed.length && t('addToCollection.summary_failed', { count: groups.failed.length }),
+  ].filter(Boolean)
+  return parts.length ? parts.join(', ') : t('addToCollection.no_references_added')
+}

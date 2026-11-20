@@ -482,6 +482,7 @@
     "transform_no_eligible": "None of the selected references can be transformed to non-versioned references.",
     "transform_no_references_changed": "No references were transformed.",
     "transform_delete_failed": "{{count}} non-versioned reference(s) were added, but the old pinned references could not be removed. Refresh and review the references list for duplicates.",
+    "transform_rollback_failed": "{{count}} replacement reference(s) resolved to nothing and could not be removed, so no originals were removed. Refresh and review the references list for duplicates.",
     "already_non_versioned": "Already non-versioned",
     "unsupported_transform": "Unsupported",
     "new_expression": "New Expression",
@@ -1080,6 +1081,10 @@
     "no_references_added": "No references added",
     "unresolved_count": "{{count}} saved but resolved to nothing",
     "unresolved_header": "Saved, but nothing added",
+    "summary_added": "{{count}} references added",
+    "summary_added_one": "{{count}} reference added",
+    "summary_failed": "{{count}} references failed",
+    "summary_failed_one": "{{count}} reference failed",
     "add_to_collection": "Add to Collection"
   },
   "import": {

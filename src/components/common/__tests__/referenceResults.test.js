@@ -25,3 +25,24 @@ test('a pending or missing result has no groups', () => {
   assert.deepEqual(groupReferenceResults('pending'), { added: [], unresolved: [], failed: [] })
   assert.deepEqual(groupReferenceResults(null), { added: [], unresolved: [], failed: [] })
 })
+
+const { formatReferenceSummary } = await import('../referenceResults.js')
+
+// Stands in for i18next: the key with its count, so the test checks keys and counts, not wording
+const fakeT = (key, options) => options ? `${key}:${options.count}` : key
+
+test('summary lists each non-empty group with its count', () => {
+  const groups = groupReferenceResults([added, added, unresolved, failed])
+  assert.equal(
+    formatReferenceSummary(groups, fakeT),
+    'addToCollection.summary_added:2, addToCollection.unresolved_count:1, addToCollection.summary_failed:1'
+  )
+})
+
+test('summary with only unresolved references names only them', () => {
+  assert.equal(formatReferenceSummary(groupReferenceResults([unresolved]), fakeT), 'addToCollection.unresolved_count:1')
+})
+
+test('summary of an empty response says no references were added', () => {
+  assert.equal(formatReferenceSummary(groupReferenceResults([]), fakeT), 'addToCollection.no_references_added')
+})

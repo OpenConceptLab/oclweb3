@@ -473,6 +473,7 @@
     "transform_no_eligible": "Nenhuma das referências selecionadas pode ser transformada em referências não versionadas.",
     "transform_no_references_changed": "Nenhuma referência foi transformada.",
     "transform_delete_failed": "{{count}} referência(s) não versionada(s) foram adicionadas, mas as referências fixadas antigas não puderam ser removidas. Atualize e revise a lista de referências para duplicatas.",
+    "transform_rollback_failed": "{{count}} referência(s) de substituição não resolveram para nada e não puderam ser removidas, então nenhuma original foi removida. Atualize e revise a lista de referências em busca de duplicatas.",
     "already_non_versioned": "Já não versionado",
     "unsupported_transform": "Não suportado",
     "new_expression": "Nova expressão",
@@ -1068,6 +1069,11 @@
     "no_references_added": "Nenhuma referência adicionada",
     "unresolved_count": "{{count}} salvas, mas não resolveram para nada",
     "unresolved_header": "Salva, mas nada foi adicionado",
+    "summary_added": "{{count}} referências adicionadas",
+    "summary_added_one": "{{count}} referência adicionada",
+    "summary_failed": "{{count}} referências falharam",
+    "summary_failed_one": "{{count}} referência falhou",
+    "unresolved_count_one": "{{count}} salva, mas não resolveu para nada",
     "add_to_collection": "Adicionar à coleção"
   },
   "import": {

@@ -672,6 +672,7 @@
     "transform_no_eligible": "所选引用中没有可以转换为非版本化引用的项目。",
     "transform_no_references_changed": "没有转换任何引用。",
     "transform_delete_failed": "已添加 {{count}} 个非版本化引用，但无法移除原来的固定版本引用。请刷新并检查引用列表中是否有重复项。",
+    "transform_rollback_failed": "{{count}} 个替换引用未解析到任何内容且无法删除，因此未删除任何原始引用。请刷新并检查引用列表中的重复项。",
     "already_non_versioned": "已经是非版本化",
     "unsupported_transform": "不支持",
     "cascade": "级联",
@@ -832,6 +833,8 @@
     "no_references_added": "未添加任何引用",
     "unresolved_count": "{{count}} 个已保存，但未解析到任何内容",
     "unresolved_header": "已保存，但未添加任何内容",
+    "summary_added": "已添加 {{count}} 个引用",
+    "summary_failed": "{{count}} 个引用失败",
     "add_to_collection": "添加到集合"
   }
 }
