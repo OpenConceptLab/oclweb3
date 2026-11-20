@@ -158,11 +158,11 @@ const SearchInput = props => {
           queryParams.set('type', resourceType)
         URL += `?${queryParams.toString()}`
       } else if(isGlobal || queryParams.get('type')) {
-        // the "Include retired" switch stays as it is, as it does with a keyword
-        URL = withIncludeRetiredFrom(`${URL}?type=${resourceType}`, location.search)
+        URL += `?type=${resourceType}`
       }
 
-      history.push(URL.replace('?&', '?'));
+      // the "Include retired" switch stays as it is, with or without a keyword
+      history.push(withIncludeRetiredFrom(URL.replace('?&', '?'), location.search));
     }
   }
 

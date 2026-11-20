@@ -440,8 +440,11 @@ const Search = props => {
       return
     params = addRetiredParams(params, __resource, _includeRetired)
     const requestId = ++latestListRequest.current
-    if(facets)
+    // a search that changes the counts also drops a counts answer still on its way for the last one
+    if(facets) {
       facetsDue.current = true
+      ++latestFacetRequest.current
+    }
     recordSearchEvent(__resource, params)
     setLoading(true)
     setResult(prev => {
