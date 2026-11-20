@@ -16,5 +16,5 @@ export const formatReferenceSummary = (groups, t) => {
     groups.unresolved.length && t('addToCollection.unresolved_count', { count: groups.unresolved.length }),
     groups.failed.length && t('addToCollection.summary_failed', { count: groups.failed.length }),
   ].filter(Boolean)
-  return parts.length ? parts.join(', ') : t('addToCollection.no_references_added')
+  return parts.length ? parts.join(t('addToCollection.summary_separator')) : t('addToCollection.no_references_added')
 }

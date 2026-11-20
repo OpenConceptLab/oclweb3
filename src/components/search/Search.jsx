@@ -649,7 +649,10 @@ const Search = props => {
       setAlert({
         severity: addFailures ? 'warning' : 'success',
         message: addFailures ?
-          t('reference.transform_partial_success', { transformed: transformedCount, failed: addFailures }) :
+          t(
+            unresolvedExpressions.length ? 'reference.transform_partial_unresolved' : 'reference.transform_partial_success',
+            { transformed: transformedCount, failed: addFailures, unresolved: unresolvedExpressions.length }
+          ) :
           t('reference.transform_success', { count: transformedCount }),
       })
       fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))

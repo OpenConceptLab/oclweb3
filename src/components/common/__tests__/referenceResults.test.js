@@ -29,7 +29,10 @@ test('a pending or missing result has no groups', () => {
 const { formatReferenceSummary } = await import('../referenceResults.js')
 
 // Stands in for i18next: the key with its count, so the test checks keys and counts, not wording
-const fakeT = (key, options) => options ? `${key}:${options.count}` : key
+const fakeT = (key, options) => {
+  if (key === 'addToCollection.summary_separator') return ', '
+  return options ? `${key}:${options.count}` : key
+}
 
 test('summary lists each non-empty group with its count', () => {
   const groups = groupReferenceResults([added, added, unresolved, failed])
