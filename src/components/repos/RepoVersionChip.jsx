@@ -8,6 +8,24 @@ import { find, reject, orderBy, merge, compact } from 'lodash'
 import { SURFACE_COLORS } from '../../common/colors'
 import VersionsTable from './VersionsTable'
 import RepoTooltip from './RepoTooltip'
+import { Box, Tooltip } from '@mui/material'
+import VerifiedIcon from '@mui/icons-material/GppGoodOutlined'
+import { isVerified } from './aboutSections'
+import { VERIFIED_COLORS } from './verifiedColors'
+
+// The Verified mark sits inside the version chip, so it reads as the version's, not the repository's (ocl_issues#3025).
+// It isn't a link: the chip opens the version picker, whose verified row has the linked chip.
+const VerifiedMark = () => {
+  const { t } = useTranslation()
+  return (
+    <Tooltip title={t('repo.verification.chip_tooltip')}>
+      <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: '3px', ml: '8px', px: '6px', height: '22px', borderRadius: '11px', border: '1px solid', borderColor: VERIFIED_COLORS.main, bgcolor: VERIFIED_COLORS.background, color: VERIFIED_COLORS.dark, fontSize: '13px', fontWeight: 500 }}>
+        <VerifiedIcon sx={{ fontSize: '15px !important', color: `${VERIFIED_COLORS.dark} !important`, mr: '0 !important', mt: '0 !important' }} />
+        {t('repo.verification.verified')}
+      </Box>
+    </Tooltip>
+  )
+}
 
 const normalizeVersions = versions => {
   if (Array.isArray(versions))
@@ -43,6 +61,9 @@ const RepoVersionChip = ({ version, versions, versionsLoading, previewVersions, 
   }
 
   const allVersions = getVersions()
+  const versionLabel = version?.version && isVerified(version) ?
+    <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center' }}>{`${t('common.version')}: ${version.version}`}<VerifiedMark /></Box> :
+    version?.version
   const showSkeleton = Boolean(versionsLoading) && !normalizeVersions(versions).length
 
   return (
@@ -53,7 +74,7 @@ const RepoVersionChip = ({ version, versions, versionsLoading, previewVersions, 
             <HeaderChip
               id='versions-dropdown'
               labelPrefix={`${t('common.version')}: `}
-              label={version?.version}
+              label={versionLabel}
               icon={<VersionIcon color='surface.contrastText' fontSize='inherit' />}
               sx={merge({backgroundColor: 'surface.main'}, (sx || {}))}
               deleteIcon={<DownIcon color='surface.contrastText' fontSize='inherit' />}
@@ -65,7 +86,7 @@ const RepoVersionChip = ({ version, versions, versionsLoading, previewVersions, 
         <HeaderChip
           id='versions-dropdown'
           labelPrefix={`${t('common.version')}: `}
-          label={version?.version}
+          label={versionLabel}
           icon={<VersionIcon color='surface.contrastText' fontSize='inherit' />}
           sx={merge({backgroundColor: 'surface.main'}, (sx || {}))}
           deleteIcon={<DownIcon color='surface.contrastText' fontSize='inherit' />}
