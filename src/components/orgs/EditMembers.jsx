@@ -72,7 +72,9 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
   // ignored, and typing drops the pick
   const [search, setSearch] = React.useState('')
   const [newMember, setNewMember] = React.useState(null)
-  const [newRole, setNewRole] = React.useState(ROLE_MEMBER)
+  // The role picked for the next add. Until one is picked, the add sends none: the API makes a new member a plain member
+  // and leaves an existing member's role alone, so adding someone past the 100 members the page loads can't demote them
+  const [newRole, setNewRole] = React.useState(null)
   const [removing, setRemoving] = React.useState(null)
   const [demoting, setDemoting] = React.useState(null)
   const [saving, setSaving] = React.useState(false)
@@ -168,7 +170,7 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
     setSearch('')
     query.current = ''
     searchUsers.cancel()
-    setNewRole(ROLE_MEMBER)
+    setNewRole(null)
   }
   const onAdd = () => picked && apply({member: picked, action: 'add', role: newRole}, done => done && closeAdd())
 
@@ -248,7 +250,7 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
                 }
                 sx={{flex: '1 1 240px', '.MuiInputBase-root': {backgroundColor: 'surface.n92'}}}
               />
-              <RoleSelect value={newRole} options={ROLES} label={t('org.role')} disabled={saving} onChange={setNewRole} />
+              <RoleSelect value={newRole || ROLE_MEMBER} options={ROLES} label={t('org.role')} disabled={saving} onChange={setNewRole} />
               <Button color='primary' label={t('common.add')} onClick={onAdd} disabled={saving || !picked} />
               <Link sx={{fontSize: '14px', minWidth: 0}} label={t('common.cancel')} onClick={closeAdd} disabled={saving} />
             </Box>
