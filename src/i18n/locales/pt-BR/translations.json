@@ -921,21 +921,22 @@
     },
     "verification": {
       "verified": "Verificado",
-      "chip_tooltip": "Corresponde à versão oficial do editor. Selecione para ver o que a OCL verificou.",
+      "heading": "Versão do repositório verificada",
+      "chip_tooltip": "Esta versão do repositório corresponde à versão oficial do editor. Selecione para ver como foi verificada.",
       "what_verified_means": "O que significa Verificado",
-      "headline": "Esta versão corresponde à versão oficial do editor.",
-      "detail": "A OCL a comparou com a versão do editor, entrada por entrada, e todas as verificações passaram.",
+      "headline": "Esta versão do repositório corresponde à versão oficial do editor.",
+      "detail": "Seu conteúdo foi comparado com a versão do editor, entrada por entrada, e passou em todas as verificações abaixo.",
       "publisher": "Editor",
       "release": "Versão",
       "verified_at": "Verificado em",
-      "checks_label": "O que a OCL verificou",
+      "checks_label": "Verificações",
       "passed": "Aprovado",
-      "verification_notes": "Notas de verificação",
+      "verification_notes": "Diferenças em relação à versão do editor, revisadas e aceitas",
       "process": "Processo",
       "record": "Registro",
       "copy_record": "Copiar o SHA-256 do registro",
       "record_copied": "SHA-256 do registro copiado",
-      "fine_print": "A verificação é uma checagem da OCL sobre esta versão, não um endosso do editor.",
+      "fine_print": "Verificado não é um endosso do editor.",
       "what_verified_covers": "O que Verificado abrange",
       "checks": {
         "from-the-publisher": {
@@ -954,14 +955,14 @@
           "title": "Completo",
           "line": "Todas as entradas da versão estão aqui"
         },
-        "changes-listed": {
-          "title": "Alterações listadas",
-          "line": "Tudo o que a OCL adicionou está listado nas notas de verificação abaixo",
-          "line_no_changes": "Nenhuma alteração da OCL está listada"
+        "differences-listed": {
+          "title": "Diferenças listadas",
+          "line": "Toda diferença em relação à versão do editor está listada abaixo",
+          "line_no_changes": "Nenhuma diferença em relação à versão do editor foi encontrada"
         },
         "checked-independently": {
           "title": "Verificado de forma independente",
-          "line": "Reexecutado a partir da versão salva e revisado pela OCL"
+          "line": "Reexecutado a partir da versão salva, depois revisado e aprovado"
         }
       }
     },

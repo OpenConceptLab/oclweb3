@@ -63,7 +63,7 @@ const VerificationSection = ({ repo }) => {
         <VerifiedIcon sx={{ fontSize: 44, color: VERIFIED_COLORS.main, flex: 'none' }} />
         <Stack sx={{ gap: 0.75, minWidth: 0, flex: 1 }}>
           <Stack direction="row" sx={{ alignItems: 'center', flexWrap: 'wrap', columnGap: 1.5 }}>
-            <SectionHeading id="verification" title={t('repo.verification.verified')} color={VERIFIED_COLORS.dark} />
+            <SectionHeading id="verification" title={t('repo.verification.heading')} color={VERIFIED_COLORS.dark} />
             <ExternalLink href={VERIFIED_REPOSITORIES_DOCS_URL} sx={{ ml: 'auto', display: 'inline-flex', alignItems: 'center', gap: 0.75, color: VERIFIED_COLORS.dark, textDecorationColor: VERIFIED_COLORS.dark, fontWeight: 500 }}>
               {t('repo.verification.what_verified_means')}
               <OpenInNewIcon sx={{ fontSize: 16 }} />
@@ -108,7 +108,7 @@ const VerificationSection = ({ repo }) => {
         {
           notes &&
             <Stack sx={{ gap: 1 }}>
-              <Typography component="h3" sx={{ fontSize: '15px', fontWeight: 500, color: 'surface.dark', m: 0 }}>{t('repo.verification.verification_notes')}</Typography>
+              <Typography component="h3" sx={{ fontSize: '17px', fontWeight: 500, color: 'surface.dark', m: 0 }}>{t('repo.verification.verification_notes')}</Typography>
               <MarkdownContent markdown={notes} />
             </Stack>
         }
@@ -117,7 +117,7 @@ const VerificationSection = ({ repo }) => {
             verification.process &&
               <span>
                 {t('repo.verification.process')}{' '}
-                <ExternalLink href={`${VERIFIED_REPOSITORIES_DOCS_URL}#what-ocl-checks`} sx={{ fontFamily: 'monospace', fontSize: '12.5px' }}>{verification.process}</ExternalLink>
+                <ExternalLink href={`${VERIFIED_REPOSITORIES_DOCS_URL}#what-is-checked`} sx={{ fontFamily: 'monospace', fontSize: '12.5px' }}>{verification.process}</ExternalLink>
               </span>
           }
           {

@@ -116,8 +116,8 @@ test('the Overview text goes through the sanitizing markdown renderer, which dro
   assert.doesNotMatch(html, /onerror|<script|javascript:/i)
 })
 
-test('"Changes listed" says nothing is listed when there are no notes, and keeps its line otherwise', () => {
-  assert.equal(getCheckLineKey('changes-listed', ''), 'line_no_changes')
-  assert.equal(getCheckLineKey('changes-listed', 'OCL added:\n\n- A root concept'), 'line')
+test('"Differences listed" says none were found when there are no notes, and keeps its line otherwise', () => {
+  assert.equal(getCheckLineKey('differences-listed', ''), 'line_no_changes')
+  assert.equal(getCheckLineKey('differences-listed', '- A navigational root concept, `Root`, groups the chapters.'), 'line')
   assert.equal(getCheckLineKey('complete', ''), 'line')
 })

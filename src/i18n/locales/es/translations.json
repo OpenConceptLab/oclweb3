@@ -569,21 +569,22 @@
     },
     "verification": {
       "verified": "Verificado",
-      "chip_tooltip": "Coincide con la versión oficial del editor. Selecciona para ver qué comprobó OCL.",
+      "heading": "Versión del repositorio verificada",
+      "chip_tooltip": "Esta versión del repositorio coincide con la versión oficial del editor. Selecciona para ver cómo se verificó.",
       "what_verified_means": "Qué significa Verificado",
-      "headline": "Esta versión coincide con la versión oficial del editor.",
-      "detail": "OCL la comparó con la versión del editor, entrada por entrada, y todas las comprobaciones se superaron.",
+      "headline": "Esta versión del repositorio coincide con la versión oficial del editor.",
+      "detail": "Su contenido se comparó con la versión del editor, entrada por entrada, y superó todas las comprobaciones de abajo.",
       "publisher": "Editor",
       "release": "Versión",
       "verified_at": "Verificado",
-      "checks_label": "Qué comprobó OCL",
+      "checks_label": "Comprobaciones de verificación",
       "passed": "Superado",
-      "verification_notes": "Notas de verificación",
+      "verification_notes": "Diferencias con la versión del editor, revisadas y aceptadas",
       "process": "Proceso",
       "record": "Registro",
       "copy_record": "Copiar el SHA-256 del registro",
       "record_copied": "SHA-256 del registro copiado",
-      "fine_print": "La verificación es una comprobación de OCL de esta versión, no un respaldo del editor.",
+      "fine_print": "Verificado no es un respaldo del editor.",
       "what_verified_covers": "Qué cubre Verificado",
       "checks": {
         "from-the-publisher": {
@@ -602,14 +603,14 @@
           "title": "Completo",
           "line": "Todas las entradas de la versión están aquí"
         },
-        "changes-listed": {
-          "title": "Cambios listados",
-          "line": "Todo lo que añadió OCL aparece en las notas de verificación a continuación",
-          "line_no_changes": "No se listan cambios de OCL"
+        "differences-listed": {
+          "title": "Diferencias listadas",
+          "line": "Cada diferencia con la versión del editor aparece a continuación",
+          "line_no_changes": "No se encontraron diferencias con la versión del editor"
         },
         "checked-independently": {
           "title": "Comprobado de forma independiente",
-          "line": "Reejecutado desde la versión guardada y revisado por OCL"
+          "line": "Reejecutado desde la versión guardada, luego revisado y aprobado"
         }
       }
     },

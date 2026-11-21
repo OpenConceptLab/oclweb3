@@ -932,21 +932,22 @@
     },
     "verification": {
       "verified": "Verified",
-      "chip_tooltip": "Matches the publisher's official release. Select to see what OCL checked.",
+      "heading": "Verified Repo Version",
+      "chip_tooltip": "This repo version matches the publisher's official release. Select to see how it was verified.",
       "what_verified_means": "What Verified means",
-      "headline": "This version matches the publisher's official release.",
-      "detail": "OCL compared it with the publisher's release, entry by entry, and every check passed.",
+      "headline": "This repo version matches the publisher's official release.",
+      "detail": "Its content was compared with the publisher's release, entry by entry, and passed every check below.",
       "publisher": "Publisher",
       "release": "Release",
       "verified_at": "Verified",
-      "checks_label": "What OCL checked",
+      "checks_label": "Verification checks",
       "passed": "Passed",
-      "verification_notes": "Verification notes",
+      "verification_notes": "Reviewed and accepted differences from the publisher's release",
       "process": "Process",
       "record": "Record",
       "copy_record": "Copy the record's SHA-256",
       "record_copied": "Copied the record's SHA-256",
-      "fine_print": "Verification is OCL's check of this release, not an endorsement by the publisher.",
+      "fine_print": "Verified is not an endorsement by the publisher.",
       "what_verified_covers": "What Verified covers",
       "checks": {
         "from-the-publisher": {
@@ -965,14 +966,14 @@
           "title": "Complete",
           "line": "Every entry in the release is here"
         },
-        "changes-listed": {
-          "title": "Changes listed",
-          "line": "Everything OCL added is listed in the verification notes below",
-          "line_no_changes": "No changes by OCL are listed"
+        "differences-listed": {
+          "title": "Differences listed",
+          "line": "Every difference from the publisher's release is listed below",
+          "line_no_changes": "No differences from the publisher's release were found"
         },
         "checked-independently": {
           "title": "Checked independently",
-          "line": "Rerun from the saved release and reviewed by OCL"
+          "line": "Rerun from the saved release, then reviewed and approved"
         }
       }
     },

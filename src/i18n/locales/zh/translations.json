@@ -598,21 +598,22 @@
     },
     "verification": {
       "verified": "已验证",
-      "chip_tooltip": "与发布者的官方版本一致。选择以查看 OCL 检查了什么。",
+      "heading": "已验证的存储库版本",
+      "chip_tooltip": "此存储库版本与发布者的官方版本一致。选择以查看验证方式。",
       "what_verified_means": "“已验证”的含义",
-      "headline": "此版本与发布者的官方版本一致。",
-      "detail": "OCL 已逐条将其与发布者的版本进行比较，所有检查均已通过。",
+      "headline": "此存储库版本与发布者的官方版本一致。",
+      "detail": "其内容已逐条与发布者的版本进行比较，并通过了以下所有检查。",
       "publisher": "发布者",
       "release": "版本",
       "verified_at": "验证时间",
-      "checks_label": "OCL 检查了什么",
+      "checks_label": "验证检查",
       "passed": "已通过",
-      "verification_notes": "验证说明",
+      "verification_notes": "与发布者版本的差异（已审核并接受）",
       "process": "流程",
       "record": "记录",
       "copy_record": "复制记录的 SHA-256",
       "record_copied": "已复制记录的 SHA-256",
-      "fine_print": "验证是 OCL 对此版本的检查，并非发布者的认可。",
+      "fine_print": "“已验证”并非发布者的认可。",
       "what_verified_covers": "“已验证”涵盖的范围",
       "checks": {
         "from-the-publisher": {
@@ -631,14 +632,14 @@
           "title": "完整",
           "line": "版本中的每个条目都在这里"
         },
-        "changes-listed": {
-          "title": "列出变更",
-          "line": "OCL 添加的所有内容都列在下方的验证说明中",
-          "line_no_changes": "未列出 OCL 的任何变更"
+        "differences-listed": {
+          "title": "列出差异",
+          "line": "与发布者版本的每处差异都列在下方",
+          "line_no_changes": "未发现与发布者版本的差异"
         },
         "checked-independently": {
           "title": "独立检查",
-          "line": "从保存的版本重新运行并由 OCL 审核"
+          "line": "从保存的版本重新运行，然后经过审核和批准"
         }
       }
     },

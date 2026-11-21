@@ -10,7 +10,7 @@ export const VERIFICATION_PROCESS_CHECKS = {
     'license-and-citation',
     'correctly-identified',
     'complete',
-    'changes-listed',
+    'differences-listed',
     'checked-independently',
   ],
 }
@@ -39,8 +39,8 @@ export const getVerificationChecks = verification => {
 
 export const getVerificationNotes = version => asText(version?.extras?.verification_notes)
 
-// "Changes listed" points at the notes below it, so without notes it says nothing is listed rather than promising a list
-export const getCheckLineKey = (check, notes) => (check === 'changes-listed' && !notes ? 'line_no_changes' : 'line')
+// "Differences listed" points at the list below it, so without notes it says none were found rather than promising a list
+export const getCheckLineKey = (check, notes) => (check === 'differences-listed' && !notes ? 'line_no_changes' : 'line')
 
 export const getOverviewText = repo => asText(repo?.text)
 
