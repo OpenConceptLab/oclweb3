@@ -542,6 +542,78 @@
       }
     },
     "repo_version": "Versión del repositorio",
+    "about_tab": {
+      "on_this_page": "En esta página",
+      "verification": "Verificación",
+      "overview": "Descripción general",
+      "source": "Origen y licencia",
+      "link_to_section": "Enlace a la sección {{section}}",
+      "release_value": "{{version}}, publicada el {{date}}",
+      "fields": {
+        "publisher": "Editor",
+        "formal_name": "Nombre formal",
+        "contact": "Contacto",
+        "website": "Sitio web",
+        "canonical_url": "URL canónica",
+        "oid": "OID",
+        "release": "Versión publicada",
+        "copyright": "Derechos de autor",
+        "hierarchy": "Jerarquía"
+      },
+      "hierarchy_meaning": {
+        "grouped-by": "Agrupado por",
+        "is-a": "Es un",
+        "part-of": "Parte de",
+        "classified-with": "Clasificado con"
+      }
+    },
+    "verification": {
+      "verified": "Verificado",
+      "heading": "Versión del repositorio verificada",
+      "chip_tooltip": "Esta versión del repositorio coincide con la versión oficial del editor. Selecciona para ver cómo se verificó.",
+      "what_verified_means": "Qué significa Verificado",
+      "headline": "Esta versión del repositorio coincide con la versión oficial del editor.",
+      "detail": "Su contenido se comparó con la versión del editor, entrada por entrada, y superó todas las comprobaciones de abajo.",
+      "publisher": "Editor",
+      "release": "Versión",
+      "verified_at": "Verificado",
+      "checks_label": "Comprobaciones de verificación",
+      "passed": "Superado",
+      "verification_notes": "Diferencias con la versión del editor, revisadas y aceptadas",
+      "process": "Proceso",
+      "record": "Registro",
+      "copy_record": "Copiar el SHA-256 del registro",
+      "record_copied": "SHA-256 del registro copiado",
+      "fine_print": "Verificado no es un respaldo del editor.",
+      "what_verified_covers": "Qué cubre Verificado",
+      "checks": {
+        "from-the-publisher": {
+          "title": "Del editor",
+          "line": "Cargado desde la propia publicación del editor"
+        },
+        "license-and-citation": {
+          "title": "Licencia y cita",
+          "line": "La licencia y la cita del editor están en este repositorio y en cada exportación"
+        },
+        "correctly-identified": {
+          "title": "Identificado correctamente",
+          "line": "El nombre, la URL canónica y la versión coinciden con los del editor"
+        },
+        "complete": {
+          "title": "Completo",
+          "line": "Todas las entradas de la versión están aquí"
+        },
+        "differences-listed": {
+          "title": "Diferencias listadas",
+          "line": "Cada diferencia con la versión del editor aparece a continuación",
+          "line_no_changes": "No se encontraron diferencias con la versión del editor"
+        },
+        "checked-independently": {
+          "title": "Comprobado de forma independiente",
+          "line": "Reejecutado desde la versión guardada, luego revisado y aprobado"
+        }
+      }
+    },
     "seeded_from": "Creada a partir de",
     "seeded_from_import": "Importación"
   },

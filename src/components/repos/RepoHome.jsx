@@ -29,7 +29,9 @@ import ConceptForm from '../concepts/ConceptForm';
 import MappingForm from '../mappings/MappingForm';
 import Error40X from '../errors/Error40X';
 import RepoSummary from './RepoSummary'
-import RepoOverview from './RepoOverview'
+import RepoAbout from './RepoAbout'
+import { hasAboutContent } from './aboutSections'
+import { getFallbackTab } from './tabFallback'
 import VersionForm from './VersionForm'
 import ReleaseVersion from './ReleaseVersion'
 import RepoHeader from './RepoHeader';
@@ -53,14 +55,16 @@ const RepoHome = () => {
     {key: 'mappings', label: t('mapping.mappings')},
   ]
   const isCollection = route.repoType === 'collections'
-  const getRepoTabs = React.useCallback(() => {
+  // About comes after Versions, and only for a version with something to show there
+  const getRepoTabs = React.useCallback(_repo => {
+    const aboutTab = hasAboutContent(_repo) ? [{key: 'about', label: t('common.about')}] : []
     if(isCollection)
-      return [...TABS, {key: 'references', label: t('reference.references')}, {key: 'versions', label: t('repo.versions_expansions')}]
+      return [...TABS, {key: 'references', label: t('reference.references')}, {key: 'versions', label: t('repo.versions_expansions')}, ...aboutTab]
 
-    return [...TABS, {key: 'versions', label: t('repo.versions')}]
+    return [...TABS, {key: 'versions', label: t('repo.versions')}, ...aboutTab]
   }, [isCollection, t])
 
-  const [tabs, setTabs] = React.useState(getRepoTabs)
+  const [tabs, setTabs] = React.useState(() => getRepoTabs(false))
 
   const [status, setStatus] = React.useState(false)
   const [{repo, repoRoute}, setRepoState] = React.useState({repo: false, repoRoute: null})
@@ -177,7 +181,7 @@ const RepoHome = () => {
     const resolvingLatestVersion = !route.version && !route.resource
     if(!resolvingLatestVersion)
       fetchRepoSummary()
-    setTabs(getRepoTabs())
+    setTabs(getRepoTabs(_repo))
     if(isCollection) {
       let expansionURL = _repo?.expansions_url
       if(_repo?.version === 'HEAD') {
@@ -380,13 +384,15 @@ const RepoHome = () => {
 
   // A tab carried over from a collection (references) must not stay selected on a
   // source, or it queries an endpoint that cannot exist there.
+  // The About tab depends on the loaded version, so wait for it before deciding a tab is missing.
   React.useEffect(() => {
-    if(!tabs?.length || !tab || tabs.some(item => item.key === tab))
+    const fallbackTab = getFallbackTab({tabs, tab, route, repoRoute})
+    if(!fallbackTab)
       return
-    setTab(tabs[0].key)
-    if(RESOURCE_TABS.includes(route.tab))
-      replacePath({tab: tabs[0].key, expansion: '', resource: ''})
-  }, [tabs, tab])
+    setTab(fallbackTab)
+    if(RESOURCE_TABS.includes(route.tab) || route.tab === 'about')
+      replacePath({tab: fallbackTab, expansion: '', resource: ''})
+  }, [tabs, tab, repoRoute, location.pathname])
 
   const onTabChange = (event, newTab) => {
     if(newTab) {
@@ -680,8 +686,8 @@ const RepoHome = () => {
                     />
                 }
                 {
-                  tab === 'about' &&
-                    <RepoOverview repo={repo} height='calc(var(--app-height) - 300px)' />
+                  tab === 'about' && isRepoForRoute && isSameRepoScope(repoRoute, route) &&
+                    <RepoAbout repo={currentRepo} height='calc(var(--app-height) - 268px)' />
                 }
               </div>
               {

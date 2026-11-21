@@ -66,6 +66,7 @@ import LazyMarkdownDocument from '../common/LazyMarkdownDocument';
 import ExternalExportsDialog from './ExternalExportsDialog';
 import ClearProcessingDialog from './ClearProcessingDialog';
 import ProcessingFlag from './ProcessingFlag';
+import VerifiedChip from './VerifiedChip';
 import RepoContentSummary, { VERSION_STATS } from './RepoContentSummary';
 import ProcessingProgress from './ProcessingProgress';
 import ReindexVersionDialog from './ReindexVersionDialog';
@@ -373,6 +374,7 @@ const SourceVersionsTab = ({
                       {getVersionLabel(version)}
                     </Button>
                     <ProcessingFlag entity={version} sx={{ ml: 1 }} />
+                    <VerifiedChip version={version} sx={{ ml: 1 }} />
                     {version?.match_algorithms?.includes('llm') && <Chip size="small" label={t('repo.mapper')} variant="outlined" sx={{ ml: 1, height: 20 }} />}
                     {version.description && (
                       <Typography

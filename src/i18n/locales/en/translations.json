@@ -905,6 +905,78 @@
     "export_not_ready_tooltip": "Export is still being generated for this version",
     "expansion_processing_tooltip": "This expansion is still being built",
     "suggested_sources": "Suggested Sources",
+    "about_tab": {
+      "on_this_page": "On this page",
+      "verification": "Verification",
+      "overview": "Overview",
+      "source": "Source and license",
+      "link_to_section": "Link to the {{section}} section",
+      "release_value": "{{version}}, released on {{date}}",
+      "fields": {
+        "publisher": "Publisher",
+        "formal_name": "Formal name",
+        "contact": "Contact",
+        "website": "Website",
+        "canonical_url": "Canonical URL",
+        "oid": "OID",
+        "release": "Release",
+        "copyright": "Copyright",
+        "hierarchy": "Hierarchy"
+      },
+      "hierarchy_meaning": {
+        "grouped-by": "Grouped by",
+        "is-a": "Is a",
+        "part-of": "Part of",
+        "classified-with": "Classified with"
+      }
+    },
+    "verification": {
+      "verified": "Verified",
+      "heading": "Verified Repo Version",
+      "chip_tooltip": "This repo version matches the publisher's official release. Select to see how it was verified.",
+      "what_verified_means": "What Verified means",
+      "headline": "This repo version matches the publisher's official release.",
+      "detail": "Its content was compared with the publisher's release, entry by entry, and passed every check below.",
+      "publisher": "Publisher",
+      "release": "Release",
+      "verified_at": "Verified",
+      "checks_label": "Verification checks",
+      "passed": "Passed",
+      "verification_notes": "Reviewed and accepted differences from the publisher's release",
+      "process": "Process",
+      "record": "Record",
+      "copy_record": "Copy the record's SHA-256",
+      "record_copied": "Copied the record's SHA-256",
+      "fine_print": "Verified is not an endorsement by the publisher.",
+      "what_verified_covers": "What Verified covers",
+      "checks": {
+        "from-the-publisher": {
+          "title": "From the publisher",
+          "line": "Loaded from the publisher's own release"
+        },
+        "license-and-citation": {
+          "title": "License and citation",
+          "line": "The publisher's license and citation are on this repository and in every export"
+        },
+        "correctly-identified": {
+          "title": "Correctly identified",
+          "line": "Name, canonical URL and version match the publisher's"
+        },
+        "complete": {
+          "title": "Complete",
+          "line": "Every entry in the release is here"
+        },
+        "differences-listed": {
+          "title": "Differences listed",
+          "line": "Every difference from the publisher's release is listed below",
+          "line_no_changes": "No differences from the publisher's release were found"
+        },
+        "checked-independently": {
+          "title": "Checked independently",
+          "line": "Rerun from the saved release, then reviewed and approved"
+        }
+      }
+    },
     "seeded_from": "Seeded From",
     "seeded_from_import": "Import"
   },

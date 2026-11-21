@@ -67,6 +67,7 @@ import ExpansionRowList from './ExpansionRowList';
 import ExternalExportsDialog from './ExternalExportsDialog';
 import ClearProcessingDialog from './ClearProcessingDialog';
 import ProcessingFlag from './ProcessingFlag';
+import VerifiedChip from './VerifiedChip';
 import RepoContentSummary, { VERSION_STATS } from './RepoContentSummary';
 import ProcessingProgress from './ProcessingProgress';
 import RebuildExpansionDialog from './RebuildExpansionDialog';
@@ -719,6 +720,7 @@ const CollectionVersionsTab = ({
                 {getVersionLabel(version)}
               </MuiButton>
               <ProcessingFlag entity={version} />
+              <VerifiedChip version={version} />
               <Chip
                 size="small"
                 variant="outlined"
