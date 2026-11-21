@@ -40,6 +40,9 @@ test('the checks belong to the process; an unknown process lists none', () => {
   assert.equal(getVerificationChecks(VERIFICATION).length, 6)
   assert.equal(getVerificationChecks(VERIFICATION)[0], 'from-the-publisher')
   assert.deepEqual(getVerificationChecks({ process: 'ocl-verification-v2' }), [])
+  // A terminology suffix keeps the base process's checks (ocl_online#500, 19 Nov)
+  assert.deepEqual(getVerificationChecks({ process: 'ocl-verification-v1.icd11' }), getVerificationChecks(VERIFICATION))
+  assert.deepEqual(getVerificationChecks({ process: 'ocl-verification-v2.icd11' }), [])
 })
 
 test('the notes come from the version\'s verification_notes only', () => {

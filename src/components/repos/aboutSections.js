@@ -31,7 +31,11 @@ export const getVerification = version => {
 
 export const isVerified = version => Boolean(getVerification(version))
 
-export const getVerificationChecks = verification => VERIFICATION_PROCESS_CHECKS[verification?.process] || []
+// A process may carry a terminology suffix after a dot (ocl_online#500); it has the base process's checks
+export const getVerificationChecks = verification => {
+  const process = typeof verification?.process === 'string' ? verification.process : ''
+  return VERIFICATION_PROCESS_CHECKS[process] || VERIFICATION_PROCESS_CHECKS[process.split('.')[0]] || []
+}
 
 export const getVerificationNotes = version => asText(version?.extras?.verification_notes)
 
