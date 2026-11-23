@@ -747,7 +747,11 @@
     "convert_reason_value_set": "同时引用了值集",
     "convert_reason_filter": "带有筛选条件",
     "convert_reason_other": "无法转换",
-    "use_convert_resource_versioned": "请使用“转换资源版本引用”"
+    "use_convert_resource_versioned": "请使用“转换资源版本引用”",
+    "convert_scope": "要转换的引用",
+    "convert_choice_for": "{{expression}} 的转换方式",
+    "convert_none_in_collection": "没有需要转换的资源版本引用。",
+    "convert_rolled_back": "未转换任何引用：其中一条新引用无法添加，因此所有更改均已撤销。{{details}}"
   },
   "search": {
     "filters": "筛选项",

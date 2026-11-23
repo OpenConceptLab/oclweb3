@@ -3,7 +3,8 @@ import assert from 'node:assert/strict'
 
 const {
   REPO_VERSIONED, UNVERSIONED, LEAVE, isResourceVersioned, mergePreviewPages, getDefaultChoice, getDefaultChoices,
-  chooseAll, getConversionPayload, describeConversion, getConversionOutcome,
+  chooseAll, getConversionPayload, describeConversion, getConversionOutcome, getResourceVersionedIds,
+  getRollbackMessages, isRolledBack,
 } = await import('../referenceConversionUtils.js')
 
 const keeps = (overrides = {}) => ({ keeps_members: true, added_count: 0, removed_count: 0, ...overrides })
@@ -77,4 +78,31 @@ test('the outcome counts results by status', () => {
   assert.deepEqual(getConversionOutcome(null), {
     converted: 0, already_present: 0, not_converted: 0, rolled_back: 0, changed: 0,
   })
+})
+
+test('the preview key is the sorted ids of the resource-versioned references, the same for a new array', () => {
+  const references = [{ id: 9, resource_version: '2' }, { id: 3 }, { id: 4, resource_version: '1' }]
+
+  assert.deepEqual(getResourceVersionedIds(references), [4, 9])
+  assert.equal(getResourceVersionedIds([...references].reverse()).join(','), '4,9')
+  assert.deepEqual(getResourceVersionedIds(undefined), [])
+})
+
+test('a conversion that changed nothing because it was rolled back is told apart', () => {
+  assert.equal(isRolledBack({ changed: 0, rolled_back: 2 }), true)
+  assert.equal(isRolledBack({ changed: 1, rolled_back: 2 }), false)
+  assert.equal(isRolledBack({ changed: 0, rolled_back: 0 }), false)
+})
+
+test('rollback messages come from every shape of the API\'s errors, each once', () => {
+  const results = [
+    { status: 'rolled_back', errors: { '/a/': { errors: [{ description: 'Concept or Mapping reference name exists' }] } } },
+    { status: 'rolled_back', errors: ['Invalid filter schema.'] },
+    { status: 'rolled_back', errors: 'Invalid filter schema.' },
+    { status: 'rolled_back', errors: null },
+    { status: 'not_converted', reason: 'it has a filter' },
+  ]
+
+  assert.deepEqual(getRollbackMessages(results), ['Concept or Mapping reference name exists', 'Invalid filter schema.'])
+  assert.deepEqual(getRollbackMessages(null), [])
 })

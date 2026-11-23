@@ -550,7 +550,11 @@
     "convert_reason_value_set": "Also names a value set",
     "convert_reason_filter": "Has a filter",
     "convert_reason_other": "Can't be converted",
-    "use_convert_resource_versioned": "Use “Convert resource-versioned references”"
+    "use_convert_resource_versioned": "Use “Convert resource-versioned references”",
+    "convert_scope": "References to convert",
+    "convert_choice_for": "Conversion for {{expression}}",
+    "convert_none_in_collection": "There are no resource-versioned references to convert.",
+    "convert_rolled_back": "Nothing was converted: one of the new references couldn't be added, so every change was undone. {{details}}"
   },
   "checksums": {
     "standard": "Standard Checksum",

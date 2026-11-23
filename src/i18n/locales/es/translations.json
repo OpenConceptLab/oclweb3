@@ -397,7 +397,11 @@
     "convert_reason_value_set": "También nombra un conjunto de valores",
     "convert_reason_filter": "Tiene un filtro",
     "convert_reason_other": "No se puede convertir",
-    "use_convert_resource_versioned": "Use “Convertir referencias con versión de recurso”"
+    "use_convert_resource_versioned": "Use “Convertir referencias con versión de recurso”",
+    "convert_scope": "Referencias a convertir",
+    "convert_choice_for": "Conversión de {{expression}}",
+    "convert_none_in_collection": "No hay referencias con versión de recurso para convertir.",
+    "convert_rolled_back": "No se convirtió nada: una de las nuevas referencias no se pudo agregar, así que se deshicieron todos los cambios. {{details}}"
   },
   "repo": {
     "display": "Visualización",

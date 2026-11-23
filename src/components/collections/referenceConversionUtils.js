@@ -9,6 +9,10 @@ export const PREVIEW_PAGE_SIZE = 500
 
 export const isResourceVersioned = reference => Boolean(reference?.resource_version)
 
+// The ids of the resource-versioned references among these, sorted: a stable key for the preview to load by
+export const getResourceVersionedIds = references => (references || [])
+  .filter(isResourceVersioned).map(reference => reference.id).filter(Boolean).sort((a, b) => a - b)
+
 // Preview pages of '*' merged into one: every page's results, and the summary judged over all of them
 export const mergePreviewPages = pages => {
   const results = pages.flatMap(page => page?.results || [])
@@ -69,3 +73,23 @@ export const getConversionOutcome = results => {
   })
   return { ...counts, changed: counts.converted + counts.already_present }
 }
+
+// The API's messages for conversions that were rolled back, each once: its errors come as a string, a list, or an
+// object keyed by expression whose entries may carry a description
+export const getRollbackMessages = (results, limit = 3) => {
+  const flatten = value => {
+    if(typeof value === 'string')
+      return [value]
+    if(Array.isArray(value))
+      return value.flatMap(flatten)
+    if(value && typeof value === 'object')
+      return typeof value.description === 'string' ? [value.description] : Object.values(value).flatMap(flatten)
+    return []
+  }
+  const messages = (Array.isArray(results) ? results : [])
+    .filter(result => result?.status === 'rolled_back').flatMap(result => flatten(result.errors))
+  return [...new Set(messages)].slice(0, limit)
+}
+
+// A conversion that changed nothing because the API rolled it back: the dialog stays open to say why
+export const isRolledBack = outcome => outcome.changed === 0 && outcome.rolled_back > 0

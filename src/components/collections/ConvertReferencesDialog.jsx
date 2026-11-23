@@ -22,8 +22,9 @@ import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import APIService from '../../services/APIService'
 import {
-  REPO_VERSIONED, UNVERSIONED, LEAVE, CONVERSIONS, PREVIEW_PAGE_SIZE, isResourceVersioned, mergePreviewPages,
-  getDefaultChoices, chooseAll, getConversionPayload, describeConversion, getConversionOutcome,
+  REPO_VERSIONED, UNVERSIONED, LEAVE, CONVERSIONS, PREVIEW_PAGE_SIZE, getResourceVersionedIds, mergePreviewPages,
+  getDefaultChoices, chooseAll, getConversionPayload, describeConversion, getConversionOutcome, getRollbackMessages,
+  isRolledBack,
 } from './referenceConversionUtils'
 
 const expressionSx = { fontFamily: 'monospace', fontSize: '12px', overflowWrap: 'anywhere', maxWidth: '240px' }
@@ -70,7 +71,9 @@ const ConversionCell = ({ conversion }) => {
 
 const ConvertReferencesDialog = ({ open, onClose, onConverted, references, collectionUrl }) => {
   const { t } = useTranslation()
-  const selected = React.useMemo(() => (references || []).filter(isResourceVersioned), [references])
+  // a key, not the array: the parent passes a new array on every render, which would reload the preview and its choices
+  const selectedKey = getResourceVersionedIds(references).join(',')
+  const selectedIds = React.useMemo(() => (selectedKey ? selectedKey.split(',').map(Number) : []), [selectedKey])
   const [scope, setScope] = React.useState('selected')
   const [preview, setPreview] = React.useState(null)
   const [choices, setChoices] = React.useState({})
@@ -91,7 +94,7 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
         offset = response.data?.summary?.next_offset
       }
     } else {
-      for(const ids of chunk(selected.map(reference => reference.id), PREVIEW_PAGE_SIZE)) {
+      for(const ids of chunk(selectedIds, PREVIEW_PAGE_SIZE)) {
         const response = await service().appendToUrl('preview/').post({ ids })
         if(response?.status !== 200)
           throw response
@@ -102,7 +105,7 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
   }
 
   React.useEffect(() => {
-    if(!open || !collectionUrl || (scope === 'selected' && !selected.length)) {
+    if(!open || !collectionUrl || (scope === 'selected' && !selectedIds.length)) {
       setPreview(null)
       return
     }
@@ -117,7 +120,7 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
       if(active) setError(response?.detail || t('common.generic_error'))
     }).finally(() => active && setLoading(false))
     return () => { active = false }
-  }, [open, scope, collectionUrl, selected])
+  }, [open, scope, collectionUrl, selectedKey])
 
   const payload = getConversionPayload(choices)
 
@@ -128,7 +131,11 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
       if(response?.status === 202) {
         onConverted({ queued: true })
       } else if(response?.status === 200) {
-        onConverted(getConversionOutcome(response.data))
+        const outcome = getConversionOutcome(response.data)
+        if(isRolledBack(outcome))
+          setError(t('reference.convert_rolled_back', { details: getRollbackMessages(response.data).join(' ') }))
+        else
+          onConverted(outcome)
       } else {
         setError(response?.detail || t('common.generic_error'))
       }
@@ -143,13 +150,19 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
       <DialogTitle>{t('reference.convert_title')}</DialogTitle>
       <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         <Typography variant='body2' sx={{ color: 'text.secondary' }}>{t('reference.convert_body')}</Typography>
-        <ToggleButtonGroup size='small' exclusive value={scope} onChange={(event, value) => value && setScope(value)}>
+        <ToggleButtonGroup
+          size='small'
+          exclusive
+          value={scope}
+          onChange={(event, value) => value && setScope(value)}
+          aria-label={t('reference.convert_scope')}
+        >
           <ToggleButton value='selected' sx={{ textTransform: 'none' }}>
-            {t('reference.convert_scope_selected', { count: selected.length })}
+            {t('reference.convert_scope_selected', { count: selectedIds.length })}
           </ToggleButton>
           <ToggleButton value='all' sx={{ textTransform: 'none' }}>{t('reference.convert_scope_all')}</ToggleButton>
         </ToggleButtonGroup>
-        {scope === 'selected' && !selected.length && <Alert severity='info'>{t('reference.convert_none_selected')}</Alert>}
+        {scope === 'selected' && !selectedIds.length && <Alert severity='info'>{t('reference.convert_none_selected')}</Alert>}
         {error && <Alert severity='error'>{error}</Alert>}
         {loading && <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><CircularProgress size={24} /></Box>}
         {
@@ -178,6 +191,7 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
                   </Alert>
                 ))
               }
+              {results.length === 0 && <Alert severity='info'>{t('reference.convert_none_in_collection')}</Alert>}
               <TableContainer sx={{ border: '1px solid rgba(0,0,0,0.12)', borderRadius: '4px', maxHeight: '460px' }}>
                 <Table stickyHeader size='small'>
                   <TableHead>
@@ -208,6 +222,7 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
                               <TableCell>
                                 <Select
                                   size='small'
+                                  inputProps={{ 'aria-label': t('reference.convert_choice_for', { expression: item.expression }) }}
                                   value={choices[item.id] || LEAVE}
                                   onChange={event => setChoices({ ...choices, [item.id]: event.target.value })}
                                 >
