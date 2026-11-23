@@ -32,6 +32,8 @@ import CascadeSelector from '../common/CascadeSelector'
 import GroupHeader from '../common/GroupHeader'
 import GroupItems from '../common/GroupItems'
 import AutocompleteLoading from '../common/AutocompleteLoading'
+import UnresolvedReferencesTable from '../common/UnresolvedReferencesTable'
+import { groupReferenceResults, formatReferenceSummary } from '../common/referenceResults'
 
 // ---- error formatting (same pattern as AddToCollectionDialog) ----
 
@@ -230,13 +232,14 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
   }
 
   const isPending = results === 'pending'
-  const resultList = Array.isArray(results) ? results : []
-  const addedCount = resultList.filter(r => r.added).length
-  const failedCount = resultList.filter(r => !r.added).length
+  const groups = groupReferenceResults(results)
+  const addedCount = groups.added.length
+  const unresolvedCount = groups.unresolved.length
+  const failedCount = groups.failed.length
   const hasResults = results !== null
-  // Lock the form only on full success or async-accepted. Failures keep the form editable so
-  // the user can fix the expression and resubmit without closing and reopening the dialog.
-  const formLocked = isPending || (hasResults && addedCount > 0 && failedCount === 0)
+  // Lock the form only when nothing failed (unresolved references are saved too) or async-accepted.
+  // Failures keep the form editable so the user can fix the expression and resubmit.
+  const formLocked = isPending || (hasResults && addedCount + unresolvedCount > 0 && failedCount === 0)
   const canSubmit = !submitting && !formLocked && expressionList.length > 0
   const resolvedVersionLabel = seed
     ? (pinVersion && selectedVersion
@@ -465,10 +468,7 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
             {!isPending && (
               <React.Fragment>
                 <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
-                  {addedCount > 0 && failedCount === 0 && `${addedCount} reference${addedCount !== 1 ? 's' : ''} added`}
-                  {addedCount > 0 && failedCount > 0 && `${addedCount} added, ${failedCount} failed`}
-                  {addedCount === 0 && failedCount > 0 && `${failedCount} reference${failedCount !== 1 ? 's' : ''} failed`}
-                  {addedCount === 0 && failedCount === 0 && t('addToCollection.no_references_added')}
+                  {formatReferenceSummary(groups, t)}
                 </Typography>
 
                 {addedCount > 0 && (
@@ -477,12 +477,12 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
                     borderColor: 'divider',
                     borderRadius: 1,
                     overflow: 'hidden'
-                  }, failedCount > 0 ? {
+                  }, failedCount + unresolvedCount > 0 ? {
                     mb: 2
                   } : {
                     mb: 0
                   }]}>
-                    {resultList.filter(r => r.added).map((item, idx, arr) => (
+                    {groups.added.map((item, idx, arr) => (
                       <React.Fragment key={item.expression || idx}>
                         <Box sx={{ px: 1.5, py: 1, bgcolor: 'primary.95', display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Typography
@@ -502,6 +502,10 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
                   </Box>
                 )}
 
+                {unresolvedCount > 0 && (
+                  <UnresolvedReferencesTable items={groups.unresolved} getLabel={extractLabel} sx={failedCount > 0 ? { mb: 2 } : {}} />
+                )}
+
                 {failedCount > 0 && (
                   <Table size="small" sx={{ border: '1px solid', borderColor: 'error.main', borderRadius: 1, overflow: 'hidden' }}>
                     <TableHead>
@@ -515,7 +519,7 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {resultList.filter(r => !r.added).map((item, idx) => (
+                      {groups.failed.map((item, idx) => (
                         <TableRow key={item.expression || idx} sx={{ bgcolor: 'error.95' }}>
                           <TableCell sx={{ fontSize: '0.8rem', color: 'error.main' }}>
                             {extractLabel(item.expression)}

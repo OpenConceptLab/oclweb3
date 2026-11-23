@@ -33,7 +33,7 @@ import { EXCLUDE_FILTER_KEY } from './ResultConstants'
 import DeleteReferencesDialog from '../collections/DeleteReferencesDialog'
 import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
 import TransformReferencesDialog from '../collections/TransformReferencesDialog'
-import { getTransformAddGroups } from '../collections/referenceTransformUtils'
+import { getTransformAddGroups, getTransformOutcome } from '../collections/referenceTransformUtils'
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutlined'
 import GAService from '../../services/GAService'
 import QuotaDialog from '../common/QuotaDialog'
@@ -605,27 +605,38 @@ const Search = props => {
     return APIService.new().overrideURL(collectionUrl).appendToUrl('references/').put(body)
   }
 
-  const getAddedTransformItems = (response, group) => {
-    if(![200, 201].includes(response?.status))
-      return []
-    if(!Array.isArray(response?.data))
-      return group.items
-
-    const addedExpressions = response.data.filter(item => item.added).map(item => item.expression)
-    return group.items.filter(item => addedExpressions.includes(item.proposedExpression))
-  }
-
   const onTransformReferences = async transformItems => {
     const groups = getTransformAddGroups(transformItems)
     setTransformingReferences(true)
 
     const addResults = await Promise.all(groups.map(group => addTransformedReferences(group).then(response => ({ group, response }))))
-    const addedItems = addResults.reduce((items, { group, response }) => [...items, ...getAddedTransformItems(response, group)], [])
-    const addFailures = addResults.reduce((count, { group, response }) => count + group.items.length - getAddedTransformItems(response, group).length, 0)
+    const outcomes = addResults.map(({ group, response }) => ({ group, ...getTransformOutcome(response, group.items) }))
+    const addedItems = outcomes.reduce((items, outcome) => [...items, ...outcome.addedItems], [])
+    const addFailures = outcomes.reduce((count, outcome) => count + outcome.group.items.length - outcome.addedItems.length, 0)
+    const unresolvedExpressions = outcomes.reduce((expressions, outcome) => [...expressions, ...outcome.unresolvedExpressions], [])
+
+    if(unresolvedExpressions.length) {
+      // Replacements saved but resolved to nothing are removed, so their originals stay as they were
+      const rollbackResponse = await APIService.new()
+        .overrideURL(collectionUrl)
+        .appendToUrl('references/')
+        .delete({ expressions: unresolvedExpressions })
+      if(![200, 204].includes(rollbackResponse?.status)) {
+        setTransformingReferences(false)
+        setAlert({ severity: 'warning', message: t('reference.transform_rollback_failed', { count: unresolvedExpressions.length }) })
+        fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
+        return
+      }
+    }
 
     if(!addedItems.length) {
       setTransformingReferences(false)
-      setAlert({ severity: 'error', message: t('reference.transform_no_references_changed') })
+      setAlert({
+        severity: 'error',
+        message: unresolvedExpressions.length ?
+          t('reference.transform_none_resolved', { count: unresolvedExpressions.length }) :
+          t('reference.transform_no_references_changed'),
+      })
       return
     }
 
@@ -643,7 +654,10 @@ const Search = props => {
       setAlert({
         severity: addFailures ? 'warning' : 'success',
         message: addFailures ?
-          t('reference.transform_partial_success', { transformed: transformedCount, failed: addFailures }) :
+          t(
+            unresolvedExpressions.length ? 'reference.transform_partial_unresolved' : 'reference.transform_partial_success',
+            { transformed: transformedCount, failed: addFailures, unresolved: unresolvedExpressions.length }
+          ) :
           t('reference.transform_success', { count: transformedCount }),
       })
       fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
