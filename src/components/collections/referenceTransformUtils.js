@@ -63,6 +63,10 @@ export const getReferenceTransformPreview = reference => {
   if(!hasRepoPin(reference) && !hasResourcePin(reference))
     return { reference, eligible: false, reasonKey: 'reference.already_non_versioned' }
 
+  // resource-versioned references are converted server side, which shows what each conversion keeps
+  if(hasResourcePin(reference))
+    return { reference, eligible: false, reasonKey: 'reference.use_convert_resource_versioned' }
+
   const proposedExpression = buildNonVersionedReferenceExpression(reference)
   if(!proposedExpression || proposedExpression === reference.expression)
     return { reference, eligible: false, reasonKey: 'reference.unsupported_transform' }

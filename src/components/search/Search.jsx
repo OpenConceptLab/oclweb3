@@ -33,6 +33,7 @@ import { EXCLUDE_FILTER_KEY } from './ResultConstants'
 import DeleteReferencesDialog from '../collections/DeleteReferencesDialog'
 import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
 import TransformReferencesDialog from '../collections/TransformReferencesDialog'
+import ConvertReferencesDialog from '../collections/ConvertReferencesDialog'
 import { getTransformAddGroups, getTransformOutcome } from '../collections/referenceTransformUtils'
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutlined'
 import GAService from '../../services/GAService'
@@ -92,6 +93,7 @@ const Search = props => {
   const [deletingReferences, setDeletingReferences] = React.useState(false)
   const [referenceActionsAnchor, setReferenceActionsAnchor] = React.useState(null)
   const [transformReferencesOpen, setTransformReferencesOpen] = React.useState(false)
+  const [convertReferencesOpen, setConvertReferencesOpen] = React.useState(false)
   const [transformingReferences, setTransformingReferences] = React.useState(false)
   const [bulkRemoveOpen, setBulkRemoveOpen] = React.useState(false)
   const [bulkRemoving, setBulkRemoving] = React.useState(false)
@@ -605,6 +607,23 @@ const Search = props => {
     return APIService.new().overrideURL(collectionUrl).appendToUrl('references/').put(body)
   }
 
+  const onConvertedReferences = outcome => {
+    setConvertReferencesOpen(false)
+    onSelectItem([])
+    if(outcome.queued) {
+      setAlert({ severity: 'info', message: t('reference.convert_queued') })
+      return
+    }
+    const failed = outcome.not_converted + outcome.rolled_back
+    setAlert({
+      severity: failed ? 'warning' : 'success',
+      message: failed ?
+        t('reference.convert_partial', { converted: outcome.changed, failed }) :
+        t('reference.convert_success', { count: outcome.changed }),
+    })
+    fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
+  }
+
   const onTransformReferences = async transformItems => {
     const groups = getTransformAddGroups(transformItems)
     setTransformingReferences(true)
@@ -854,6 +873,17 @@ const Search = props => {
         <MenuItem
           onClick={() => {
             closeReferenceActions()
+            setConvertReferencesOpen(true)
+          }}
+        >
+          <ListItemIcon>
+            <TransformIcon fontSize='small' />
+          </ListItemIcon>
+          <ListItemText>{t('reference.convert_resource_versioned')}</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            closeReferenceActions()
             setDeleteReferencesOpen(true)
           }}
         >
@@ -870,6 +900,16 @@ const Search = props => {
         references={selectedReferenceObjects}
         loading={transformingReferences}
       />
+      {
+        convertReferencesOpen &&
+          <ConvertReferencesDialog
+            open={convertReferencesOpen}
+            onClose={() => setConvertReferencesOpen(false)}
+            onConverted={onConvertedReferences}
+            references={selectedReferenceObjects}
+            collectionUrl={collectionUrl}
+          />
+      }
       <DeleteReferencesDialog
         open={deleteReferencesOpen}
         onClose={() => setDeleteReferencesOpen(false)}

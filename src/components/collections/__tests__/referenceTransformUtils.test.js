@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-const { getTransformOutcome } = await import('../referenceTransformUtils.js')
+const { getTransformOutcome, getReferenceTransformPreview } = await import('../referenceTransformUtils.js')
 
 const items = [
   { proposedExpression: '/orgs/O/sources/S/concepts/1/', reference: { id: 11 } },
@@ -31,4 +31,20 @@ test('a failed request transforms nothing', () => {
 
 test('a success without a result list keeps the previous behaviour', () => {
   assert.deepEqual(getTransformOutcome({ status: 201 }, items), { addedItems: items, unresolvedExpressions: [] })
+})
+
+test('a resource-versioned reference is left to the server-side conversion', () => {
+  const reference = {
+    id: 21, expression: '/orgs/O/sources/S/concepts/1/7/', resource_version: '7',
+  }
+
+  assert.deepEqual(getReferenceTransformPreview(reference), {
+    reference, eligible: false, reasonKey: 'reference.use_convert_resource_versioned',
+  })
+})
+
+test('a repo-versioned reference is still transformed here', () => {
+  const reference = { id: 22, expression: '/orgs/O/sources/S/v1/concepts/1/', version: 'v1' }
+
+  assert.equal(getReferenceTransformPreview(reference).proposedExpression, '/orgs/O/sources/S/concepts/1/')
 })
