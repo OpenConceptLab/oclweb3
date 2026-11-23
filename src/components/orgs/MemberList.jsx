@@ -9,9 +9,11 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Divider from '@mui/material/Divider';
+import Chip from '@mui/material/Chip';
 import { map } from 'lodash'
 import UserIcon from '../users/UserIcon';
 import Link from '../common/Link'
+import { ROLE_ADMIN, getRoleLabel } from '../../common/orgRoles'
 
 const MemberList = ({ members, open, onClose }) => {
   const { t } = useTranslation()
@@ -51,6 +53,10 @@ const MemberList = ({ members, open, onClose }) => {
                     primary={member.name}
                     secondary={member.company}
                   />
+                  {
+                    member.role &&
+                      <Chip size='small' variant='outlined' color={member.role === ROLE_ADMIN ? 'primary' : 'default'} sx={{marginTop: '8px', marginLeft: '8px'}} label={getRoleLabel(member.role, t)} />
+                  }
                 </ListItemButton>
                 {
                   i !== members.length - 1 &&

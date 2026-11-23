@@ -4,7 +4,8 @@ import { useParams, useHistory } from 'react-router-dom'
 import Paper from '@mui/material/Paper'
 import APIService from '../../services/APIService'
 import GAService from '../../services/GAService'
-import { getCurrentUser, isAdminUser } from '../../common/utils';
+import { getCurrentUser, getErrorDetail, isAdminUser, refreshCurrentUserCache } from '../../common/utils';
+import { ROLE_ADMIN } from '../../common/orgRoles';
 import usePins from '../../hooks/usePins';
 import { OperationsContext } from '../app/LayoutContext';
 import CommonTabs from '../common/CommonTabs';
@@ -15,6 +16,7 @@ import Error40X from '../errors/Error40X';
 import OrgOverview from './OrgOverview';
 import OrgSummary from './OrgSummary';
 import OrgHeader from './OrgHeader'
+import LeaveOrgDialog from './LeaveOrgDialog'
 import useProfileTabs from '../../hooks/useProfileTabs'
 import ProfileTabContent from '../common/ProfileTabContent'
 
@@ -27,6 +29,8 @@ const OrgHome = () => {
   const [status, setStatus] = React.useState(false)
   const [members, setMembers] = React.useState([])
   const [deleteOrg, setDeleteOrg] = React.useState(false)
+  const [leaveOrg, setLeaveOrg] = React.useState(false)
+  const [leaving, setLeaving] = React.useState(false)
   const [tab, setTab] = React.useState(findTab)
   const [defaultFiltersOpen, onFiltersOpenChange, listRef] = useDefaultFiltersOpen(PROFILE_LIST_MIN_WIDTH)
   const { setAlert } = React.useContext(OperationsContext);
@@ -40,25 +44,28 @@ const OrgHome = () => {
   ]
   const TAB_KEYS = TABS.map(tab => tab.key)
   const findTab = () => TAB_KEYS.includes(params?.tab) ? params.tab : 'overview'
-  const fetchOrg = () => {
+  // Resolves to whether the org came back
+  const fetchOrgDetails = () => (
     APIService.orgs(params.org).get(null, null, {includeOverview: true}, true).then(response => {
       const newStatus = response?.status || response?.response?.status
       const data = response?.data || response?.response?.data || {}
       setStatus(newStatus)
       if(newStatus === 200 && data?.id) {
         setOrg(data)
-        fetchMembers()
+        return true
       }
+      return false
     })
-  }
-  const fetchMembers = () => {
-    APIService.orgs(params.org).appendToUrl('members/?verbose=true').get().then(response => {
+  )
+  const fetchOrg = () => fetchOrgDetails().then(found => found && fetchMembers())
+  const fetchMembers = () => (
+    APIService.orgs(params.org).appendToUrl('members/?verbose=true&limit=100').get().then(response => {
       if(Array.isArray(response?.data)) {
         setMembers(response.data)
         setOrg(prev => ({...prev, members: response.data.length}))
       }
     })
-  }
+  )
   const onTabChange = (event, newTab) => {
     if(newTab) {
       setTab(newTab)
@@ -70,7 +77,8 @@ const OrgHome = () => {
     }
   }
 
-  const canDelete = org.id !== 'OCL' && (isAdminUser() || (org?.created_by === user?.username))
+  const canAdminister = isAdminUser() || org.user_role === ROLE_ADMIN
+  const canDelete = org.id !== 'OCL' && canAdminister
   const onDelete = () => {
     if(!canDelete)
       return
@@ -92,6 +100,37 @@ const OrgHome = () => {
     })
   }
 
+  // Resolves once the cached user is fresh and the page is on its way to the user's profile
+  const onLeft = () => new Promise(resolve => {
+    const goToProfile = () => {
+      setAlert({severity: 'success', message: t('org.success_leave')})
+      history.push(user.url)
+      resolve()
+    }
+    refreshCurrentUserCache(goToProfile, goToProfile)
+  })
+
+  const onLeave = () => {
+    // The dialog's button stays clickable while it fades out after a refusal
+    if(leaving || !leaveOrg)
+      return
+    setLeaving(true)
+    APIService.orgs(org.id).appendToUrl(`members/${user.username}/`).delete(null, null, {}, null, true).then(response => {
+      if(response?.status === 204)
+        onLeft()
+      else {
+        setLeaving(false)
+        setLeaveOrg(false)
+        setAlert({severity: 'error', message: getErrorDetail(response) || t('common.generic_error')})
+      }
+    })
+  }
+
+  // After Edit Members saves: removing yourself there is leaving. Otherwise the org comes first, for your own role, which
+  // this save or someone else may have changed, then the members, so that their count is the last word, even if the org
+  // request fails.
+  const onMembersSaved = ({left}) => left ? onLeft() : fetchOrgDetails().then(() => fetchMembers())
+
   React.useEffect(() => { fetchOrg() }, [params.org])
   // A tab this viewer doesn't get (someone else's Mapping Projects) shows Overview instead
   React.useEffect(() => { setTab(findTab()) }, [params.tab, TAB_KEYS.join()])
@@ -104,7 +143,7 @@ const OrgHome = () => {
         {
           org?.id &&
             <React.Fragment>
-              <OrgHeader org={org} members={members} canDelete={canDelete} onDeleteClick={() => setDeleteOrg(true)} fetchMembers={fetchMembers} />
+              <OrgHeader org={org} members={members} canAdminister={canAdminister} canDelete={canDelete} onDeleteClick={() => setDeleteOrg(true)} onLeaveClick={() => setLeaveOrg(true)} onMembersSaved={onMembersSaved} />
               <div ref={listRef} className='padding-0 col-xs-12' style={{width: 'calc(100% - 272px)'}}>
                 <CommonTabs TABS={TABS} value={tab} onChange={onTabChange} />
                 {
@@ -152,8 +191,8 @@ const OrgHome = () => {
             relationship={t('repo.repos').toLowerCase()}
             warning
           />
-
       }
+      <LeaveOrgDialog open={leaveOrg} org={org} onClose={() => setLeaveOrg(false)} onSubmit={onLeave} pending={leaving} />
     </div>
   )
 }
