@@ -1363,5 +1363,11 @@
     "project_name": "Nome do Projeto",
     "no_projects_found": "Ainda não há projetos de mapeamento.",
     "could_not_load_projects": "Não foi possível carregar os projetos de mapeamento."
+  },
+  "notice": {
+    "request_not_completed": "Solicitação não concluída",
+    "read_only": "Somente leitura",
+    "restricted": "Restrito",
+    "still_works": "Continua funcionando"
   }
 }
