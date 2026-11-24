@@ -80,6 +80,9 @@ test('the OID row reads the identifier in its common shapes', () => {
   const oid = repo => getSourceRows(repo).find(row => row.key === 'oid')?.items
   assert.deepEqual(oid({ identifier: { value: '2.16.840.1.113883.6.1' } }), [{ text: '2.16.840.1.113883.6.1' }])
   assert.deepEqual(oid({ identifier: [{ value: 'urn:oid:1.2.3' }, {}] }), [{ text: 'urn:oid:1.2.3' }])
+  // Values that aren't OIDs (production has names, paths and URLs here) don't go under the OID label
+  assert.equal(oid({ identifier: 'RxNorm' }), undefined)
+  assert.equal(oid({ identifier: { value: 'https://example.org/fhir/CodeSystem/x' } }), undefined)
   assert.equal(oid({ identifier: {} }), undefined)
 })
 

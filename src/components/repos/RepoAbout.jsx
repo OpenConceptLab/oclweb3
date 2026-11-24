@@ -159,7 +159,7 @@ const OverviewSection = ({ repo }) => {
 const SourceValue = ({ item }) => {
   const { t } = useTranslation();
   if(item.release)
-    return <span>{item.text && item.date ? t('repo.about_tab.release_value', { version: item.text, date: formatDate(item.date) }) : (item.text || formatDate(item.date))}</span>;
+    return <span>{item.text && item.date ? t('repo.about_tab.release_value', { version: item.text, date: formatDate(item.date), interpolation: { escapeValue: false } }) : (item.text || formatDate(item.date))}</span>;
   if(item.code)
     return <span>{t(`repo.about_tab.hierarchy_meaning.${item.text}`, { defaultValue: item.text })}</span>;
   if(item.href)

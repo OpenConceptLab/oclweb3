@@ -72,13 +72,14 @@ const getContactItems = contact => {
   })
 }
 
+// The row is labeled OID, so it shows only OID values; any other identifier stays in "View all attributes"
+const isOID = value => /^(urn:oid:)?[0-2](\.(0|[1-9][0-9]*))+$/i.test(value)
+
 const getIdentifierItems = identifier => {
   const identifiers = Array.isArray(identifier) ? identifier : [identifier]
   return identifiers.flatMap(item => {
-    if(typeof item === 'string')
-      return asText(item) ? [{text: asText(item)}] : []
-    const value = isPlainObject(item) ? asText(item.value) : ''
-    return value ? [{text: value}] : []
+    const value = typeof item === 'string' ? asText(item) : (isPlainObject(item) ? asText(item.value) : '')
+    return isOID(value) ? [{text: value}] : []
   })
 }
 

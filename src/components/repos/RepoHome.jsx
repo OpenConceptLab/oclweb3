@@ -367,7 +367,7 @@ const RepoHome = () => {
     }
     if(next.tab !== tab)
       setTab(next.tab)
-    history.push(nextPath + (location.search || ''))
+    history.push(nextPath + (location.search || '') + (location.hash || ''))
     return true
   }
 
