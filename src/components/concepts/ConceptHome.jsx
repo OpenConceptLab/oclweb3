@@ -9,6 +9,7 @@ import GAService from '../../services/GAService';
 import { toParentURI, dropVersion, currentUserHasAccess, sourceVersionOf } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
+import { useNoticeLocks } from '../common/NoticeLocks';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
 import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
 
@@ -30,6 +31,7 @@ const repoVersionFromURL = url => {
 }
 
 const ConceptHome = props => {
+  const lockFor = useNoticeLocks()
   const { t } = useTranslation()
   const history = useHistory()
 
@@ -249,12 +251,14 @@ const ConceptHome = props => {
       }))
   }
 
-  const canManageMappings = !isInCollection && concept?.id && currentUserHasAccess()
+  // A repository notice that locks edits hides the quick actions, as on a version (NoticeLocks)
+  const mappingsLocked = Boolean(lockFor('manageMappings'))
+  const canManageMappings = !isInCollection && concept?.id && currentUserHasAccess() && !mappingsLocked
   // Mappings can only be added/sorted within the context of a HEAD source - never on a
   // repo version and never in global search, where there is no repo context at all.
   const repoVersion = props.repo?.version || repoVersionFromURL(props.url || props.concept?.version_url || props.concept?.url)
   const isRepoVersion = Boolean(repoVersion && repoVersion !== 'HEAD')
-  const mappingsReadOnly = isRepoVersion || !props.repo?.id
+  const mappingsReadOnly = isRepoVersion || !props.repo?.id || mappingsLocked
 
   const onCreateNewMapping = (payload, targetConcept, isDirect, successCallback) => {
     GAService.recordEvent('create_mapping', { event_category: 'Mapping Inline', event_label: 'Created Mapping from Concept Details using Quick Actions' })

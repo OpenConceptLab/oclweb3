@@ -2,15 +2,19 @@ html {
     font-size: 16px;
     position: relative;
     min-height: 100%;
-    // Viewport height left for the page once the announcement banner and the
-    // footer have taken their share; AnnouncementBanner sets
-    // --announcement-height while it shows, and Footer sets
-    // --footer-extra-height while narrow screens stack it onto more rows.
-    // Size pages with calc(var(--app-height) - Npx), not 100vh, or the banner
-    // pushes their bottom edge off-screen (body doesn't scroll). The banner is
+    // Viewport height left for the page once the banners and the footer have
+    // taken their share; AnnouncementBanner sets --announcement-height while it
+    // shows, AccountNotices --account-notice-height while it shows, and Footer
+    // sets --footer-extra-height while narrow screens stack it onto more rows.
+    // Size pages with calc(var(--app-height) - Npx), not 100vh, or the banners
+    // push their bottom edge off-screen (body doesn't scroll). The banners are
     // fixed above the app bar, so anything fixed to the top of the viewport adds
-    // var(--announcement-height, 0px) to its top, as the app bar does.
-    --app-height: calc(100vh - var(--announcement-height, 0px) - var(--footer-extra-height, 0px));
+    // var(--top-banners-height, 0px) to its top, as the app bar does. A panel
+    // that shows a strip of its own (RepoHome's notice strip) sets --app-height
+    // for its contents from --page-height, less the strip.
+    --top-banners-height: calc(var(--announcement-height, 0px) + var(--account-notice-height, 0px));
+    --page-height: calc(100vh - var(--top-banners-height) - var(--footer-extra-height, 0px));
+    --app-height: var(--page-height);
 }
 
 html, body {

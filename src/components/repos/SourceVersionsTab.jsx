@@ -79,6 +79,7 @@ import VersionStatusIndicator from './VersionStatusIndicator';
 import GAService from '../../services/GAService';
 import { useProcessingVersions } from '../../hooks/useProcessingState';
 import useQueuedTasks from '../../hooks/useQueuedTasks';
+import { LockMark, useNoticeLocks } from '../common/NoticeLocks';
 import { PROCESSING_QUERY_PARAMS, areSeedStagesComplete, isChangelogAvailable, isExportAvailable, isVersionProcessing } from './processingStages';
 import {
   REPO_VERSIONS_PAGE_SIZE,
@@ -150,8 +151,12 @@ const ChangelogDialog = ({ version, open, onClose }) => {
 // A disabled MenuItem emits no pointer events, so the tooltip goes on a wrapping span.
 // That span must be display:block — left inline inside the <ul> it adds line-height
 // leading above and below the item, which shows up as stray gaps between menu rows.
-const GatedMenuItem = ({ reason, disabled, children, ...rest }) => {
-  const item = <MenuItem disabled={disabled} {...rest}>{children}</MenuItem>;
+// `lock` is the reason a repository notice locks the action (NoticeLocks): it disables
+// the item, shows a lock and is the tooltip.
+const GatedMenuItem = ({ reason: _reason, disabled: _disabled, lock, children, ...rest }) => {
+  const disabled = _disabled || Boolean(lock);
+  const reason = lock || _reason;
+  const item = <MenuItem disabled={disabled} {...rest}>{children}{lock && <LockMark />}</MenuItem>;
   if(!disabled || !reason) return item;
   return (
     <Tooltip title={reason} placement="left">
@@ -241,6 +246,8 @@ const SourceVersionsTab = ({
   }, [baseRepoURL, headVersion, page, versions]);
   const { versions: sortedVersions } = useProcessingVersions(rawSortedVersions);
   const hasAccess = currentUserHasAccess();
+  // the reason a repository notice locks an action, or null (NoticeLocks)
+  const lockFor = useNoticeLocks();
   const isLoading = loading || isLoadingVersions;
   const closeMenu = () => setMenuState({ anchorEl: null, version: null });
   const withClose = callback => {
@@ -483,8 +490,8 @@ const SourceVersionsTab = ({
         }
         <GatedMenuItem onClick={() => withClose(compareVersion)} disabled={!getPreviousVersionURL(menuState.version) || seedPending} reason={seedPendingReason}><OpenInNewIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.compare_with_previous')}</GatedMenuItem>
         {hasAccess && <Divider />}
-        {hasAccess && <GatedMenuItem onClick={() => withClose(editVersion)} disabled={!isHeadVersion(menuState.version) && menuVersionProcessing} reason={processingReason}><EditIcon fontSize="small" sx={{ mr: 1 }} />{t('common.edit')}</GatedMenuItem>}
-        {hasAccess && <GatedMenuItem onClick={() => withClose(onReleaseVersion)} disabled={isHeadVersion(menuState.version) || menuVersionProcessing} reason={processingReason}><ReleaseIcon fontSize="small" sx={{ mr: 1 }} />{menuState.version?.released ? t('repo.unrelease_version') : t('repo.release_version')}</GatedMenuItem>}
+        {hasAccess && <GatedMenuItem onClick={() => withClose(editVersion)} disabled={!isHeadVersion(menuState.version) && menuVersionProcessing} reason={processingReason} lock={lockFor(isHeadVersion(menuState.version) ? 'editRepo' : 'editVersion')}><EditIcon fontSize="small" sx={{ mr: 1 }} />{t('common.edit')}</GatedMenuItem>}
+        {hasAccess && <GatedMenuItem onClick={() => withClose(onReleaseVersion)} disabled={isHeadVersion(menuState.version) || menuVersionProcessing} reason={processingReason} lock={isHeadVersion(menuState.version) ? null : lockFor('releaseVersion')}><ReleaseIcon fontSize="small" sx={{ mr: 1 }} />{menuState.version?.released ? t('repo.unrelease_version') : t('repo.release_version')}</GatedMenuItem>}
         {hasAccess && <GatedMenuItem onClick={() => withClose(computeSummary)} disabled={menuVersionProcessing} reason={processingReason}><SummaryIcon fontSize="small" sx={{ mr: 1 }} />{t('repo.recompute_summary')}</GatedMenuItem>}
         {hasAccess && isStaffUser() && [
           { key: 'concepts', contentType: 'concepts', label: t('repo.reindex_concepts') },
@@ -534,6 +541,7 @@ const SourceVersionsTab = ({
                 onClick={() => withClose(onDeleteVersion)}
                 disabled={menuState.version?.retired || menuVersionProcessing}
                 reason={processingReason}
+                lock={menuState.version?.retired ? null : lockFor('deleteVersion')}
                 sx={{ color: 'error.main', '& .MuiSvgIcon-root': { color: 'error.main' } }}
               >
                 <DeleteIcon fontSize="small" sx={{ mr: 1 }} />

@@ -74,6 +74,7 @@ import RebuildExpansionDialog from './RebuildExpansionDialog';
 import { closeIfShowing, createRebuildGuard, getRebuildOutcome, withoutExpansionState } from './rebuildExpansion';
 import ReindexVersionDialog from './ReindexVersionDialog';
 import RepoVersionRowMenu from './RepoVersionRowMenu';
+import { useNoticeLocks } from '../common/NoticeLocks';
 import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
 import GAService from '../../services/GAService';
@@ -527,6 +528,8 @@ const CollectionVersionsTab = ({
     if(isHeadVersion(version)) history.push(`${baseRepoURL}edit`);
     else onEditVersion?.(version);
   };
+  // the reason a repository notice locks an action, or null (NoticeLocks)
+  const lockFor = useNoticeLocks();
   const compareVersion = version => {
     const previousVersionURL = getPreviousVersionURL(version);
     if (previousVersionURL) {
@@ -610,15 +613,15 @@ const CollectionVersionsTab = ({
       { key: 'external-exports', label: t('repo.external_exports'), icon: <ExternalExportIcon />, disabled: !isLoggedIn() || isHead, onClick: () => setExternalExportsVersion(version) },
       { key: 'compare', label: t('repo.compare_with_previous'), icon: <OpenInNewIcon />, disabled: !getPreviousVersionURL(version) || seedPending, tooltip: seedPending ? t('repo.action_disabled_until_seeded') : undefined, onClick: () => compareVersion(version) },
       { divider: true },
-      { key: 'new-expansion', label: t('repo.new_expansion'), icon: <AddIcon />, disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => setExpansionFormState({ open: true, version, copyFrom: null }) },
+      { key: 'new-expansion', label: t('repo.new_expansion'), icon: <AddIcon />, disabled: processing, tooltip: processing ? processingReason : undefined, lock: lockFor('editExpansions'), onClick: () => setExpansionFormState({ open: true, version, copyFrom: null }) },
       { key: 'manage-expansions', label: t('repo.expansions'), icon: <ExpansionIcon />, disabled: !versionExpansions.length, onClick: () => toggleVersionExpand(version) }
     ];
 
     if (hasAccess) {
       items.push(
         { divider: true },
-        { key: 'edit', label: t('common.edit'), icon: <EditIcon />, disabled: !isHead && processing, tooltip: (!isHead && processing) ? processingReason : undefined, onClick: () => editVersion(version) },
-        { key: 'release', label: released ? t('repo.unrelease_version') : t('repo.release_version'), icon: <ReleaseIcon />, disabled: isHead || processing, tooltip: processing ? processingReason : undefined, onClick: () => onReleaseVersion?.(version) },
+        { key: 'edit', label: t('common.edit'), icon: <EditIcon />, disabled: !isHead && processing, tooltip: (!isHead && processing) ? processingReason : undefined, lock: lockFor(isHead ? 'editRepo' : 'editVersion'), onClick: () => editVersion(version) },
+        { key: 'release', label: released ? t('repo.unrelease_version') : t('repo.release_version'), icon: <ReleaseIcon />, disabled: isHead || processing, tooltip: processing ? processingReason : undefined, lock: isHead ? null : lockFor('releaseVersion'), onClick: () => onReleaseVersion?.(version) },
         { key: 'recompute-summary', label: t('repo.recompute_summary'), icon: <SummaryIcon />, disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => computeSummary(version) }
       );
     }
@@ -633,7 +636,7 @@ const CollectionVersionsTab = ({
     if (hasAccess) {
       items.push(
         { divider: true },
-        { key: 'delete', label: t('repo.delete_repo_version'), icon: <DeleteIcon />, disabled: !canDeleteVersion || processing, tooltip: processing ? processingReason : undefined, danger: true, onClick: () => onDeleteVersion?.(version) }
+        { key: 'delete', label: t('repo.delete_repo_version'), icon: <DeleteIcon />, disabled: !canDeleteVersion || processing, tooltip: processing ? processingReason : undefined, lock: canDeleteVersion ? lockFor('deleteVersion') : null, danger: true, onClick: () => onDeleteVersion?.(version) }
       );
     }
 
@@ -650,14 +653,14 @@ const CollectionVersionsTab = ({
 
     const items = [];
     if (!expansion.default) {
-      items.push({ key: 'set-default', label: t('repo.set_as_default'), disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => onMarkExpansionDefault(version, expansion) });
+      items.push({ key: 'set-default', label: t('repo.set_as_default'), disabled: processing, tooltip: processing ? processingReason : undefined, lock: lockFor('editExpansions'), onClick: () => onMarkExpansionDefault(version, expansion) });
     }
     items.push(
-      { key: 'create-similar', label: t('repo.create_similar'), disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => {
+      { key: 'create-similar', label: t('repo.create_similar'), disabled: processing, tooltip: processing ? processingReason : undefined, lock: lockFor('editExpansions'), onClick: () => {
         GAService.recordActionEvent('Expansion', 'create_similar_expansion', expansion.mnemonic || expansion.url, { expansion: expansion.url });
         setExpansionFormState({ open: true, version, copyFrom: expansion });
       } },
-      { key: 'rebuild', label: t('repo.rebuild'), disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => setRebuildExpansion({ ...expansion, __version: version }) },
+      { key: 'rebuild', label: t('repo.rebuild'), disabled: processing, tooltip: processing ? processingReason : undefined, lock: lockFor('editExpansions'), onClick: () => setRebuildExpansion({ ...expansion, __version: version }) },
       { key: 'details', label: t('common.details'), onClick: () => setDetailsExpansion(expansion) }
     );
     if (isStaffUser()) {

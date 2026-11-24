@@ -9,6 +9,7 @@ import isNumber from 'lodash/isNumber'
 
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add'
+import LockIcon from '@mui/icons-material/LockOutlined'
 import APIService from '../../services/APIService';
 import GAService from '../../services/GAService';
 import ProcessingBanner from './ProcessingBanner';
@@ -42,8 +43,32 @@ import { isPanelReady } from './panelReady';
 import ReferenceHome from '../references/ReferenceHome'
 import AddReferencesDialog from '../collections/AddReferencesDialog'
 import ExpansionDropDown from './ExpansionDropDown';
+import LimitNotice from '../common/LimitNotice';
+import { NoticeLocksProvider, LockTooltip, useNoticeLocks } from '../common/NoticeLocks';
+import { useResourceNotices } from '../common/useNotices';
+import usePublishedHeight from '../common/usePublishedHeight';
 
 const DEFAULT_VERSIONS_PAGE_SIZE = 10
+
+const AddReferencesButton = ({ onClick }) => {
+  const { t } = useTranslation()
+  const lockReason = useNoticeLocks()('addReferences')
+  return (
+    <LockTooltip title={lockReason} placement='bottom' display='inline-block'>
+      <Button
+        variant="contained"
+        size="small"
+        startIcon={<AddIcon />}
+        endIcon={lockReason ? <LockIcon /> : undefined}
+        disabled={Boolean(lockReason)}
+        onClick={onClick}
+        sx={{textTransform: 'none', whiteSpace: 'nowrap'}}
+      >
+        {t('reference.add_references')}
+      </Button>
+    </LockTooltip>
+  )
+}
 
 const RepoHome = () => {
   const { t } = useTranslation()
@@ -532,6 +557,12 @@ const RepoHome = () => {
   const processingTargets = React.useMemo(() => (repo?.url || repo?.version_url) ? [repo] : [], [repo])
   const { versions: [liveRepo] = [] } = useProcessingVersions(processingTargets)
   const currentRepo = liveRepo || repo
+  // The repository's notices (OpenConceptLab/ocl_online#702): a strip at the top of the panel while a state lasts, and
+  // locks on the edit actions they name. The panel's contents are sized from --app-height, so inside it that is the
+  // page's height less the strip.
+  const resourceNotices = useResourceNotices(repo?.id ? repo.url : null)
+  const noticeRef = usePublishedHeight('--resource-notice-height', resourceNotices.length > 0)
+  const noticeHeightSx = resourceNotices.length > 0 ? {'--app-height': 'calc(var(--page-height) - var(--resource-notice-height, 0px))'} : {}
 
   const canRenderSearch = !versionPending && (!requiresExpansionSelection || (!expansionsLoading && Boolean(selectedExpansion)))
   const expansionURL = (isCollection && selectedExpansion?.url) ? selectedExpansion.url : false
@@ -555,13 +586,20 @@ const RepoHome = () => {
   const _canRenderSearch = repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && (tab !== 'references' || isCollection) && canRenderSearch && isRepoForRoute && isSameRepoScope(repoRoute, route)
   const showProcessingBanner = _canRenderSearch && isVersionProcessing(currentRepo)
   const heightTakenInProcessingBanner = showProcessingBanner ? 43 : 0
-  return (
+  const page = (
     <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
-      <Paper component="div" className={isSplitView ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: 'white', borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.nv80'}}>
+      <Paper component="div" className={isSplitView ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: 'white', borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.nv80', ...noticeHeightSx}}>
+        {
+          resourceNotices.length > 0 &&
+            <div ref={noticeRef} className='col-xs-12 padding-0' style={{borderRadius: '10px 10px 0 0', overflow: 'hidden'}}>
+              {resourceNotices.map((notice, index) => <LimitNotice key={index} size='strip' notice={notice} />)}
+            </div>
+        }
         {
           (repo?.id || loading) &&
             <React.Fragment>
               <RepoHeader
+                squareTop={resourceNotices.length > 0}
                 isVersion={isVersion}
                 owner={owner}
                 repo={currentRepo}
@@ -636,15 +674,7 @@ const RepoHome = () => {
                           <>
                             {
                               Boolean(!isVersion && tab === 'references') &&
-                                <Button
-                                  variant="contained"
-                                  size="small"
-                                  startIcon={<AddIcon />}
-                                  onClick={() => setAddReferencesOpen(true)}
-                                  sx={{textTransform: 'none', whiteSpace: 'nowrap'}}
-                                >
-                                  {t('reference.add_references')}
-                                </Button>
+                                <AddReferencesButton onClick={() => setAddReferencesOpen(true)} />
                             }
                           </> :
                         undefined
@@ -780,5 +810,6 @@ const RepoHome = () => {
       </div>
     </div>
   );
+  return <NoticeLocksProvider notices={resourceNotices}>{page}</NoticeLocksProvider>
 }
 export default RepoHome;

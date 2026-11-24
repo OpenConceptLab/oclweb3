@@ -303,7 +303,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
         '& .MuiDrawer-paper': {
           borderRadius: '20px',
           padding: 0,
-          top: 'calc(14px + var(--announcement-height, 0px))',
+          top: 'calc(14px + var(--top-banners-height, 0px))',
           width: '600px',
           margin: '0 auto',
           minHeight: '64px'

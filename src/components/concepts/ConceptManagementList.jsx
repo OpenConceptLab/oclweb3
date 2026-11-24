@@ -5,9 +5,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import RetireIcon from '@mui/icons-material/Delete';
 import UnretireIcon from '@mui/icons-material/RestoreFromTrash';
 import CloneIcon from '@mui/icons-material/ControlPointDuplicate';
+import { LockMark, LockTooltip, useNoticeLocks } from '../common/NoticeLocks';
 
 const ConceptManagementList = ({ anchorEl, open, onClose, id, onClick, concept, hasAccess, canClone }) => {
   const { t } = useTranslation()
+  const lockFor = useNoticeLocks()
   return (
     <Menu
       anchorEl={anchorEl}
@@ -23,12 +25,15 @@ const ConceptManagementList = ({ anchorEl, open, onClose, id, onClick, concept, 
     >
       {hasAccess && [
         <ListItem disablePadding key='editConcept'>
-          <ListItemButton id='editConcept' onClick={() => onClick('editConcept')} sx={{padding: '8px 12px'}}>
-            <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
-              <EditIcon />
-            </ListItemIcon>
-            <ListItemText primary={t('concept.edit_concept')} />
-          </ListItemButton>
+          <LockTooltip title={lockFor('editConcept')}>
+            <ListItemButton id='editConcept' onClick={() => onClick('editConcept')} disabled={Boolean(lockFor('editConcept'))} sx={{padding: '8px 12px'}}>
+              <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+                <EditIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('concept.edit_concept')} />
+              {lockFor('editConcept') && <LockMark />}
+            </ListItemButton>
+          </LockTooltip>
         </ListItem>,
         <Divider key='editConceptDivider' />
       ]}
@@ -45,12 +50,15 @@ const ConceptManagementList = ({ anchorEl, open, onClose, id, onClick, concept, 
       ]}
       {hasAccess && (
         <ListItem disablePadding>
-          <ListItemButton id='retireConcept' onClick={() => onClick('retireConcept')} sx={{padding: '8px 12px', color: 'error.main'}}>
-            <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px', color: 'error.main'}}>
-              {concept?.retired ? <UnretireIcon /> : <RetireIcon />}
-            </ListItemIcon>
-            <ListItemText primary={concept?.retired ? t('common.unretire') : t('common.retire')} />
-          </ListItemButton>
+          <LockTooltip title={lockFor('retireConcept')}>
+            <ListItemButton id='retireConcept' onClick={() => onClick('retireConcept')} disabled={Boolean(lockFor('retireConcept'))} sx={{padding: '8px 12px', color: 'error.main'}}>
+              <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px', color: 'error.main'}}>
+                {concept?.retired ? <UnretireIcon /> : <RetireIcon />}
+              </ListItemIcon>
+              <ListItemText primary={concept?.retired ? t('common.unretire') : t('common.retire')} />
+              {lockFor('retireConcept') && <LockMark />}
+            </ListItemButton>
+          </LockTooltip>
         </ListItem>
       )}
     </Menu>
