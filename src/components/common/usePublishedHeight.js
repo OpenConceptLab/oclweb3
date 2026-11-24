@@ -1,7 +1,6 @@
 import React from 'react'
 
-// Publishes an element's height as a CSS variable on the document while it shows, and clears it after, as
-// AnnouncementBanner does for --announcement-height.
+// Publishes an element's height as a CSS variable on the document while it shows, and clears it after
 const usePublishedHeight = (name, shown) => {
   const ref = React.useRef(null)
   React.useLayoutEffect(() => {

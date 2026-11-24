@@ -7,13 +7,10 @@ import Typography from '@mui/material/Typography';
 import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import { getAnnouncement, isDismissed, msUntilExpiry, rememberDismissal } from '../../common/announcement';
+import usePublishedHeight from '../common/usePublishedHeight';
 
 // This deployment's announcement (common/announcement.js; README, "Announcement
 // banner"), fixed above the app bar. Same component in the Mapper and TBv2.
-
-// The banner's height while it shows. Header moves the app bar and the content
-// down by it, and --app-height in index.scss subtracts it from 100vh.
-const HEIGHT_VAR = '--announcement-height';
 
 const AnnouncementBanner = () => {
   const { t, i18n } = useTranslation();
@@ -21,7 +18,10 @@ const AnnouncementBanner = () => {
   const announcement = getAnnouncement(window.ANNOUNCEMENT, i18n.language, now);
   const [dismissed, setDismissed] = React.useState(() => Boolean(announcement) && isDismissed(announcement.id));
   const open = Boolean(announcement) && !dismissed;
-  const ref = React.useRef(null);
+  // The banner's height while it shows (it wraps on narrow screens and in longer
+  // translations). Header moves the app bar and the content down by it, and
+  // --app-height in index.scss subtracts it from 100vh.
+  const ref = usePublishedHeight('--announcement-height', open);
 
   // Check again when until arrives, so the banner hides on a page left open.
   const delay = open ? msUntilExpiry(announcement, now) : null;
@@ -31,23 +31,6 @@ const AnnouncementBanner = () => {
     const timer = setTimeout(() => setNow(Date.now()), delay);
     return () => clearTimeout(timer);
   }, [delay, now]);
-
-  // Publish the banner's height (it wraps on narrow screens and in longer
-  // translations) and clear it once dismissed.
-  React.useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el)
-      return;
-    const root = document.documentElement.style;
-    const update = () => root.setProperty(HEIGHT_VAR, `${el.offsetHeight}px`);
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(el);
-    return () => {
-      observer.disconnect();
-      root.removeProperty(HEIGHT_VAR);
-    };
-  }, [open]);
 
   const onClose = () => {
     rememberDismissal(announcement.id);
