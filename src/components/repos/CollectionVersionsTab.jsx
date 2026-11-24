@@ -153,20 +153,14 @@ const parseProcessingValue = value => {
   return Boolean(value);
 };
 
-// An open version's expansions. The Rebuild under an expansion's updates writes to the version, so it follows that
-// version's notices, asked for only while such a Rebuild shows, and locks when they lock its edits (NoticeLocks). The
-// confirmation it opens takes that lock once known (getRebuildLock).
+// An open version's expansions. The Rebuild under an expansion's updates opens the rebuild confirmation, where Create
+// Similar can pick another version, so it stays open; the version's notices, asked for while such a Rebuild shows, lock
+// the confirmation's Rebuild once known (getRebuildLock).
 const VersionExpansionRows = ({ noticesURL, onRebuild, ...props }) => {
   const showsRebuild = props.expansions.some(expansion => Object.keys(props.getRepoUpdates(expansion) || {}).length > 0);
   const lookup = useResourceNoticeLookup(showsRebuild ? noticesURL : null);
   const rebuildLock = useNoticeLocks(lookup.notices)('editExpansions');
-  return (
-    <ExpansionRowList
-      {...props}
-      rebuildLock={rebuildLock}
-      onRebuild={expansion => onRebuild(expansion, lookup.pending ? undefined : rebuildLock)}
-    />
-  );
+  return <ExpansionRowList {...props} onRebuild={expansion => onRebuild(expansion, lookup.pending ? undefined : rebuildLock)} />;
 };
 
 const CollectionVersionsTab = ({
