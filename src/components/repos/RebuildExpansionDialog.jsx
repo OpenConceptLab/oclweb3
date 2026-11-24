@@ -2,18 +2,24 @@ import React from "react";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import { Button as MuiButton, CircularProgress } from "@mui/material";
+import { LockOutlined as LockIcon } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 
 import GAService from "../../services/GAService";
 import Dialog from "../common/Dialog";
 import DialogTitle from "../common/DialogTitle";
+import { LockTooltip } from "../common/NoticeLocks";
+
+// `lock` is the reason the expansion's version notices lock its rebuild (NoticeLocks): Rebuild is disabled and says
+// why, while Create Similar, which can write to another version, stays open
 
 const RebuildExpansionDialog = ({
   expansion,
   onClose,
   onCreateSimilar,
   onRebuild,
-  rebuilding
+  rebuilding,
+  lock
 }) => {
   const { t } = useTranslation();
   if (!expansion) return null;
@@ -39,16 +45,19 @@ const RebuildExpansionDialog = ({
         >
           {t("repo.create_similar")}
         </MuiButton>
-        <MuiButton
-          color="error"
-          variant="contained"
-          sx={{ textTransform: "none" }}
-          disabled={rebuilding}
-          startIcon={rebuilding ? <CircularProgress size={16} color="inherit" /> : undefined}
-          onClick={() => onRebuild(expansion)}
-        >
-          {rebuilding ? t("repo.rebuilding") : t("repo.rebuild")}
-        </MuiButton>
+        <LockTooltip title={lock} placement="top" display="inline-block">
+          <MuiButton
+            color="error"
+            variant="contained"
+            sx={{ textTransform: "none" }}
+            disabled={rebuilding || Boolean(lock)}
+            startIcon={rebuilding ? <CircularProgress size={16} color="inherit" /> : undefined}
+            endIcon={lock ? <LockIcon fontSize="inherit" /> : undefined}
+            onClick={() => !lock && onRebuild(expansion)}
+          >
+            {rebuilding ? t("repo.rebuilding") : t("repo.rebuild")}
+          </MuiButton>
+        </LockTooltip>
         <MuiButton
           variant="outlined"
           sx={{ textTransform: "none" }}

@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Button as MuiButton, CircularProgress, IconButton, Stack, Typography } from '@mui/material';
 import {
   CheckCircleOutlined as DefaultIcon,
+  LockOutlined as LockIcon,
   MoreVert as MoreVertIcon,
   OpenInNew as OpenInNewIcon,
   WarningAmberOutlined as WarningIcon
@@ -10,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import get from 'lodash/get';
 
 import ProcessingChip from '../common/ProcessingChip';
+import { LockTooltip } from '../common/NoticeLocks';
 import ProcessingFlag from './ProcessingFlag';
 import { isProcessing } from './processingStages';
 import { dropVersion, formatDate } from '../../common/utils';
@@ -64,6 +66,8 @@ const RepoVersionList = ({ versions, emptyLabel }) => (
 // instead of a separate dialog — keeps the power-user detail (including exactly
 // which resolved repo version changed) one toggle away without leaving the table.
 // Laid out as three aligned columns: Expansion ID, Explicit Repo Versions, Evaluated Repo Versions.
+// `rebuildLock` is the reason the version's notices lock a rebuild (NoticeLocks): the Rebuild under an expansion's
+// updates is then disabled and says why.
 const ExpansionRowList = ({
   expansions = [],
   loading,
@@ -74,7 +78,8 @@ const ExpansionRowList = ({
   getRepoUpdates,
   onSelectExpansion,
   onOpenExpansionMenu,
-  onRebuild
+  onRebuild,
+  rebuildLock
 }) => {
   const { t } = useTranslation();
 
@@ -216,15 +221,18 @@ const ExpansionRowList = ({
                     </Typography>
                   );
                 })}
-                <MuiButton
-                  size="small"
-                  variant="text"
-                  sx={{ mt: 0.5, minWidth: 0, p: 0, textTransform: 'none', fontWeight: 700 }}
-                  disabled={processingState(expansion) === 'processing'}
-                  onClick={() => onRebuild(expansion)}
-                >
-                  {t('repo.rebuild')}
-                </MuiButton>
+                <LockTooltip title={rebuildLock} placement="right" display="inline-block">
+                  <MuiButton
+                    size="small"
+                    variant="text"
+                    sx={{ mt: 0.5, minWidth: 0, p: 0, textTransform: 'none', fontWeight: 700 }}
+                    disabled={processingState(expansion) === 'processing' || Boolean(rebuildLock)}
+                    endIcon={rebuildLock ? <LockIcon fontSize="inherit" /> : undefined}
+                    onClick={() => onRebuild(expansion)}
+                  >
+                    {t('repo.rebuild')}
+                  </MuiButton>
+                </LockTooltip>
               </Box>
             )}
           </Box>
