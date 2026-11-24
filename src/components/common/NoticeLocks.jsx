@@ -3,25 +3,30 @@ import { useTranslation } from 'react-i18next'
 import Tooltip from '@mui/material/Tooltip'
 import LockIcon from '@mui/icons-material/LockOutlined'
 
-import { getLocks, getLockTooltip, isEntryPointLocked } from './limitNoticePayload'
+import { getLocks, getLockTooltip, isEntryPointLocked, writesShownVersion } from './limitNoticePayload'
 
 // The write actions a repository's notices lock (limitNoticePayload.js ENTRY_POINT_ACTIONS), for the controls on its
-// page. Outside a repository page nothing is locked.
-export const NoticeLocksContext = React.createContext({locks: [], tooltip: null})
+// page: HEAD's notices for what writes to HEAD, the shown version's for what writes to it. Outside a repository page
+// nothing is locked.
+const toLocks = notices => ({locks: getLocks(notices), tooltip: getLockTooltip(notices)})
+const NONE = toLocks([])
+export const NoticeLocksContext = React.createContext({head: NONE, shown: NONE})
 
-export const NoticeLocksProvider = ({ notices, children }) => {
-  const value = React.useMemo(() => ({locks: getLocks(notices), tooltip: getLockTooltip(notices)}), [notices])
+export const NoticeLocksProvider = ({ notices, shownNotices, children }) => {
+  const value = React.useMemo(() => ({head: toLocks(notices), shown: toLocks(shownNotices || notices)}), [notices, shownNotices])
   return <NoticeLocksContext.Provider value={value}>{children}</NoticeLocksContext.Provider>
 }
 
-// lockFor(entryPoint) is the reason an entry point is locked, or null when it isn't
-export const useNoticeLocks = () => {
+// lockFor(entryPoint) is the reason an entry point is locked, or null when it isn't. A row that writes to a version of
+// its own (a Versions row) passes that version's notices, which then decide instead of the page's.
+export const useNoticeLocks = notices => {
   const { t } = useTranslation()
-  const { locks, tooltip } = React.useContext(NoticeLocksContext)
-  return React.useCallback(
-    entryPoint => isEntryPointLocked(locks, entryPoint) ? (tooltip || t('notice.read_only')) : null,
-    [locks, tooltip, t]
-  )
+  const page = React.useContext(NoticeLocksContext)
+  const own = React.useMemo(() => notices ? toLocks(notices) : null, [notices])
+  return React.useCallback(entryPoint => {
+    const { locks, tooltip } = own || (writesShownVersion(entryPoint) ? page.shown : page.head)
+    return isEntryPointLocked(locks, entryPoint) ? (tooltip || t('notice.read_only')) : null
+  }, [own, page, t])
 }
 
 // A locked control is disabled and says why on hover. A disabled control emits no pointer events, so the tooltip goes

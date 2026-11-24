@@ -80,6 +80,7 @@ import GAService from '../../services/GAService';
 import { useProcessingVersions } from '../../hooks/useProcessingState';
 import useQueuedTasks from '../../hooks/useQueuedTasks';
 import { LockMark, useNoticeLocks } from '../common/NoticeLocks';
+import { useResourceNotices } from '../common/useNotices';
 import { PROCESSING_QUERY_PARAMS, areSeedStagesComplete, isChangelogAvailable, isExportAvailable, isVersionProcessing } from './processingStages';
 import {
   REPO_VERSIONS_PAGE_SIZE,
@@ -246,8 +247,11 @@ const SourceVersionsTab = ({
   }, [baseRepoURL, headVersion, page, versions]);
   const { versions: sortedVersions } = useProcessingVersions(rawSortedVersions);
   const hasAccess = currentUserHasAccess();
-  // the reason a repository notice locks an action, or null (NoticeLocks)
-  const lockFor = useNoticeLocks();
+  // A row's actions write to its own version, so its menu asks for that version's notices (HEAD's for the HEAD row) and
+  // locks what they name (NoticeLocks); so does the external exports dialog
+  const noticesURL = version => version && (isHeadVersion(version) ? baseRepoURL : version.version_url);
+  const lockFor = useNoticeLocks(useResourceNotices(noticesURL(menuState.version)));
+  const exportsLockFor = useNoticeLocks(useResourceNotices(noticesURL(externalExportsVersion)));
   const isLoading = loading || isLoadingVersions;
   const closeMenu = () => setMenuState({ anchorEl: null, version: null });
   const withClose = callback => {
@@ -559,7 +563,7 @@ const SourceVersionsTab = ({
         />
       )}
       {Boolean(exportVersion) && <VersionExportDialog version={exportVersion} open={Boolean(exportVersion)} onClose={() => setExportVersion(null)} />}
-      {Boolean(externalExportsVersion) && <ExternalExportsDialog version={externalExportsVersion} canEdit={hasAccess} open={Boolean(externalExportsVersion)} onClose={() => setExternalExportsVersion(null)} onChange={onExternalExportsChange} />}
+      {Boolean(externalExportsVersion) && <ExternalExportsDialog version={externalExportsVersion} canEdit={hasAccess && !exportsLockFor('manageExternalExports')} open={Boolean(externalExportsVersion)} onClose={() => setExternalExportsVersion(null)} onChange={onExternalExportsChange} />}
       {Boolean(changelogVersion) && <ChangelogDialog version={changelogVersion} open={Boolean(changelogVersion)} onClose={() => setChangelogVersion(null)} />}
       {Boolean(clearProcessingVersion) && (
         <ClearProcessingDialog

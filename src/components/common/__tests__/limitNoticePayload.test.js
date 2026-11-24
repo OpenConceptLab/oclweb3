@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 
 const {
   normalizeNotice, getNotice, getNoticeDetail, getNotices, orderActions, getNoticeTone, getNoticeIcon, getLocks,
-  getLockTooltip, isEntryPointLocked, safeURL, ENTRY_POINT_ACTIONS, WRITE_ACTIONS,
+  getLockTooltip, isEntryPointLocked, safeURL, writesShownVersion, ENTRY_POINT_ACTIONS, WRITE_ACTIONS,
 } = await import('../limitNoticePayload.js')
 
 const NOTICE = {
@@ -155,5 +155,19 @@ test('an entry point is locked only when every action it can take is locked', ()
   assert.equal(isEntryPointLocked([], 'addConcept'), false)
   assert.equal(isEntryPointLocked(undefined, 'addConcept'), false)
   assert.equal(isEntryPointLocked(['edit'], 'copyURL'), false)
+  assert.equal(isEntryPointLocked(['edit'], 'saveDefaultFilters'), true)
+  assert.equal(isEntryPointLocked(['edit'], 'removeReferences'), true)
   Object.values(ENTRY_POINT_ACTIONS).forEach(actions => actions.forEach(action => assert.ok(WRITE_ACTIONS.includes(action), action)))
+})
+
+test('the repository edit form can still publish; the version form only edits', () => {
+  assert.equal(isEntryPointLocked(['edit'], 'editRepo'), false)
+  assert.equal(isEntryPointLocked(['edit', 'publish'], 'editRepo'), false)
+  assert.equal(isEntryPointLocked(['edit'], 'editVersion'), true)
+  assert.equal(isEntryPointLocked(['publish', 'make_private'], 'editVersion'), false)
+})
+
+test('version writes follow the version shown; everything else follows HEAD', () => {
+  ;['editVersion', 'releaseVersion', 'deleteVersion', 'saveDefaultFilters'].forEach(entryPoint => assert.equal(writesShownVersion(entryPoint), true, entryPoint))
+  ;['editRepo', 'deleteRepo', 'addConcept', 'createVersion', 'removeReferences', 'createSimilar'].forEach(entryPoint => assert.equal(writesShownVersion(entryPoint), false, entryPoint))
 })

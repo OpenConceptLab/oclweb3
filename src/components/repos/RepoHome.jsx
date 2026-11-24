@@ -43,7 +43,7 @@ import { isPanelReady } from './panelReady';
 import ReferenceHome from '../references/ReferenceHome'
 import AddReferencesDialog from '../collections/AddReferencesDialog'
 import ExpansionDropDown from './ExpansionDropDown';
-import LimitNotice from '../common/LimitNotice';
+import LimitNotice, { showRefusalNotice } from '../common/LimitNotice';
 import { NoticeLocksProvider, LockTooltip, useNoticeLocks } from '../common/NoticeLocks';
 import { useResourceNotices } from '../common/useNotices';
 import usePublishedHeight from '../common/usePublishedHeight';
@@ -517,7 +517,7 @@ const RepoHome = () => {
         setDeleteTarget(false)
         setAlert({severity: 'warning', message: deletingVersion ? t('repo.delete_accepted_version') : t('repo.delete_accepted')})
       }
-      else
+      else if(!showRefusalNotice(response))
         setAlert({severity: 'error', message: response?.data?.detail || t('common.generic_error')})
     })
   }
@@ -537,7 +537,7 @@ const RepoHome = () => {
       }
       else if(response?.status === 202 || response?.detail === 'Already Queued' || response?.__all__ === 'Already Queued') {
         setAlert({severity: 'warning', message: t('errors.already_queued')})
-      } else {
+      } else if(!showRefusalNotice(response)) {
         setAlert({severity: 'error', message: response?.data?.detail || t('common.generic_error')})
       }
     })
@@ -547,9 +547,13 @@ const RepoHome = () => {
     if(!currentUserHasAccess())
       return
     let meta = {...repo?.meta, display: {...repo?.meta?.display, default_filter: appliedFilters}}
-    APIService.new().overrideURL(repo.version_url || repo.url).patch({meta: meta}).then(() => {
-      setRepoState(prev => prev.repo?.version_url === repo.version_url ? {...prev, repo: {...prev.repo, meta: meta}} : prev)
-      setAlert({severity: 'success', message: t('common.success_update')})
+    // the saved defaults change here only once the API has saved them
+    APIService.new().overrideURL(repo.version_url || repo.url).patch({meta: meta}).then(response => {
+      if(response?.status === 200) {
+        setRepoState(prev => prev.repo?.version_url === repo.version_url ? {...prev, repo: {...prev.repo, meta: meta}} : prev)
+        setAlert({severity: 'success', message: t('common.success_update')})
+      } else if(!showRefusalNotice(response))
+        setAlert({severity: 'error', message: response?.detail || t('common.generic_error')})
     })
   }
 
@@ -557,10 +561,13 @@ const RepoHome = () => {
   const processingTargets = React.useMemo(() => (repo?.url || repo?.version_url) ? [repo] : [], [repo])
   const { versions: [liveRepo] = [] } = useProcessingVersions(processingTargets)
   const currentRepo = liveRepo || repo
-  // The repository's notices (OpenConceptLab/ocl_online#702): a strip at the top of the panel while a state lasts, and
-  // locks on the edit actions they name. The panel's contents are sized from --app-height, so inside it that is the
-  // page's height less the strip.
-  const resourceNotices = useResourceNotices(repo?.id ? repo.url : null)
+  // The repository's notices (OpenConceptLab/ocl_online#702), HEAD's and, on a version's page, that version's: a strip
+  // at the top of the panel for the version shown while a state lasts, and locks on the edit actions they name
+  // (NoticeLocks). The panel's contents are sized from --app-height, so inside it that is the page's height less the
+  // strip.
+  const headNotices = useResourceNotices(repo?.id ? repo.url : null)
+  const versionNotices = useResourceNotices(repo?.id && isVersion ? repo.version_url : null)
+  const resourceNotices = isVersion ? versionNotices : headNotices
   const noticeRef = usePublishedHeight('--resource-notice-height', resourceNotices.length > 0)
   const noticeHeightSx = resourceNotices.length > 0 ? {'--app-height': 'calc(var(--page-height) - var(--resource-notice-height, 0px))'} : {}
 
@@ -810,6 +817,6 @@ const RepoHome = () => {
       </div>
     </div>
   );
-  return <NoticeLocksProvider notices={resourceNotices}>{page}</NoticeLocksProvider>
+  return <NoticeLocksProvider notices={headNotices} shownNotices={resourceNotices}>{page}</NoticeLocksProvider>
 }
 export default RepoHome;

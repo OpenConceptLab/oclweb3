@@ -9,6 +9,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import AddIcon from '@mui/icons-material/PlaylistAddOutlined';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import CloneIcon from '@mui/icons-material/ControlPointDuplicate';
+import LockIcon from '@mui/icons-material/LockOutlined';
 import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
 import { isNumber, isNaN, flatten, values, uniqBy, compact, pick, keys, omit } from 'lodash'
@@ -27,6 +28,7 @@ import { resolveColumns } from './columns'
 import { isLoggedIn, currentUserHasAccess } from '../../common/utils';
 import { createSimilarRepoHref } from '../repos/utils';
 import { MAX_SEARCH_RESULT_WINDOW } from '../../common/constants';
+import { LockTooltip, useNoticeLocks } from '../common/NoticeLocks';
 
 const ResultsToolbar = props => {
   const { t } = useTranslation()
@@ -122,6 +124,10 @@ const ResultsToolbar = props => {
 
 const SearchResults = props => {
   const { t } = useTranslation()
+  // On a repository page, a notice may lock the writes these actions start (NoticeLocks)
+  const lockFor = useNoticeLocks()
+  const createSimilarLock = lockFor('createSimilar')
+  const createMappingLock = lockFor('addMapping')
   const history = useHistory()
   const [display, setDisplay] = React.useState(props.display || (props.resource === 'references' ? 'source' : 'table'))
   const [cardDisplayAnimation, setCardDisplayAnimation] = React.useState('animation-disappear')
@@ -310,22 +316,25 @@ const SearchResults = props => {
 
   const createSimilarBulkAction = ['concepts', 'mappings'].includes(props.resource) && Boolean(props.onCreateSimilarClick) && currentUserHasAccess() && selectedRows.length === 1
     ? (
-      <Button
-        key='create-similar'
-        startIcon={<RepeatIcon fontSize='inherit' />}
-        variant='contained'
-        size='small'
-        sx={{textTransform: 'none', whiteSpace: 'nowrap', marginLeft: '8px'}}
-        onClick={() => {
-          GAService.recordActionEvent('Create Similar', `create_similar_${props.resource.slice(0, -1)}`, selectedRows[0]?.id || selectedRows[0]?.url, {
-            resource: props.resource,
-            url: selectedRows[0]?.url
-          })
-          props.onCreateSimilarClick(selectedRows[0])
-        }}
-      >
-        {t('repo.create_similar')}
-      </Button>
+      <LockTooltip key='create-similar' title={createSimilarLock} placement='bottom' display='inline-block'>
+        <Button
+          startIcon={<RepeatIcon fontSize='inherit' />}
+          endIcon={createSimilarLock ? <LockIcon fontSize='inherit' /> : undefined}
+          disabled={Boolean(createSimilarLock)}
+          variant='contained'
+          size='small'
+          sx={{textTransform: 'none', whiteSpace: 'nowrap', marginLeft: '8px'}}
+          onClick={() => {
+            GAService.recordActionEvent('Create Similar', `create_similar_${props.resource.slice(0, -1)}`, selectedRows[0]?.id || selectedRows[0]?.url, {
+              resource: props.resource,
+              url: selectedRows[0]?.url
+            })
+            props.onCreateSimilarClick(selectedRows[0])
+          }}
+        >
+          {t('repo.create_similar')}
+        </Button>
+      </LockTooltip>
     ) : null
 
 
@@ -354,16 +363,19 @@ const SearchResults = props => {
 
   const createMappingBulkAction = props.resource === 'concepts' && Boolean(props.onCreateMappingClick) && currentUserHasAccess() && [1, 2].includes(orderedSelectedRows.length)
     ? (
-      <Button
-        key='create-mapping'
-        startIcon={<MappingIcon fontSize='inherit' />}
-        variant='contained'
-        size='small'
-        sx={{textTransform: 'none', whiteSpace: 'nowrap', marginLeft: '8px'}}
-        onClick={() => props.onCreateMappingClick(orderedSelectedRows)}
-      >
-        {t('mapping.create_mapping')}
-      </Button>
+      <LockTooltip key='create-mapping' title={createMappingLock} placement='bottom' display='inline-block'>
+        <Button
+          startIcon={<MappingIcon fontSize='inherit' />}
+          endIcon={createMappingLock ? <LockIcon fontSize='inherit' /> : undefined}
+          disabled={Boolean(createMappingLock)}
+          variant='contained'
+          size='small'
+          sx={{textTransform: 'none', whiteSpace: 'nowrap', marginLeft: '8px'}}
+          onClick={() => props.onCreateMappingClick(orderedSelectedRows)}
+        >
+          {t('mapping.create_mapping')}
+        </Button>
+      </LockTooltip>
     ) : null
 
   const displayOptions = props.resource === 'references' ? [

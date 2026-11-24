@@ -23,9 +23,12 @@ import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress';
 import { URIToParentParams, currentUserHasAccess, toCamelCase } from '../../common/utils'
 import { FACET_ORDER, EXCLUDE_FILTER_KEY } from './ResultConstants';
+import { LockTooltip, useNoticeLocks } from '../common/NoticeLocks';
 
 const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions, nested, onSaveAsDefaultFilters, loading, repoDefaultFilters, propertyFilters, propertyDefinition, heightToSubtract, open, allowExclude}) => {
   const { t } = useTranslation()
+  // a repository notice may lock saving default filters (NoticeLocks): Clear then clears only the filters applied
+  const defaultsLock = useNoticeLocks()('saveDefaultFilters')
   const [applied, setApplied] = React.useState({});
   const [expanded, setExpanded] = React.useState([])
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(null)
@@ -171,7 +174,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
 
   const onClear = () => {
     setApplied({})
-    if(onSaveAsDefaultFilters)
+    if(onSaveAsDefaultFilters && !defaultsLock)
       onSaveAsDefaultFilters({})
     onChange({})
   }
@@ -351,7 +354,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                 </Tooltip>
                 <Tooltip
                   title={
-                    !isEmpty(repoDefaultFilters) && canUpdateDefaultFilters ?
+                    !isEmpty(repoDefaultFilters) && canUpdateDefaultFilters && !defaultsLock ?
                       t('search.clear_filters_with_defaults_tooltip') :
                       t('search.clear_filters_tooltip')
                   }
@@ -363,12 +366,19 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                   </span>
                 </Tooltip>
                 {
-                  canUpdateDefaultFilters &&
-                    <Tooltip title={t('search.default_filters_menu_tooltip')}>
-                      <IconButton size='small' onClick={e => setMenuAnchorEl(e.currentTarget)}>
-                        <MoreVertIcon fontSize='small' />
-                      </IconButton>
-                    </Tooltip>
+                  canUpdateDefaultFilters && (
+                    defaultsLock ?
+                      <LockTooltip title={defaultsLock} placement='top' display='inline-block'>
+                        <IconButton size='small' disabled aria-label={t('search.default_filters_menu_tooltip')}>
+                          <MoreVertIcon fontSize='small' />
+                        </IconButton>
+                      </LockTooltip> :
+                      <Tooltip title={t('search.default_filters_menu_tooltip')}>
+                        <IconButton size='small' onClick={e => setMenuAnchorEl(e.currentTarget)}>
+                          <MoreVertIcon fontSize='small' />
+                        </IconButton>
+                      </Tooltip>
+                  )
                 }
                 {
                   canUpdateDefaultFilters &&

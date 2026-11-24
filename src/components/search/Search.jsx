@@ -38,6 +38,9 @@ import { getTransformAddGroups, getTransformOutcome } from '../collections/refer
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutlined'
 import GAService from '../../services/GAService'
 import QuotaDialog from '../common/QuotaDialog'
+import { showRefusalNotice } from '../common/LimitNotice'
+import { LockTooltip, useNoticeLocks } from '../common/NoticeLocks'
+import LockIcon from '@mui/icons-material/LockOutlined'
 import { getQuotaError } from '../common/quotaErrors'
 
 const DEFAULT_LIMIT = 25;
@@ -57,6 +60,8 @@ const getCollectionLookupUrl = url => (url || '').replace(/\/(concepts|mappings|
 
 
 const Search = props => {
+  // on a repository page, a notice may lock removing and changing a collection's references (NoticeLocks)
+  const referencesLock = useNoticeLocks()('removeReferences')
   const { setAlert, contextRepo } = React.useContext(OperationsContext);
   const { t } = useTranslation()
   const history = useHistory();
@@ -587,7 +592,7 @@ const Search = props => {
         onSelectItem([])
         setAlert({ severity: 'success', message: t('reference.remove_success') })
         fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
-      } else {
+      } else if(!showRefusalNotice(response)) {
         setAlert({ severity: 'error', message: response?.data?.detail || t('common.generic_error') })
       }
     })
@@ -656,6 +661,8 @@ const Search = props => {
 
     if(!addedItems.length) {
       setTransformingReferences(false)
+      if(addResults.find(({ response }) => showRefusalNotice(response)))
+        return
       setAlert({
         severity: 'error',
         message: unresolvedExpressions.length ?
@@ -707,35 +714,39 @@ const Search = props => {
         onSelectItem([])
         setAlert({ severity: 'success', message: t('reference.remove_success') })
         fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
-      } else {
+      } else if(!showRefusalNotice(response)) {
         setAlert({ severity: 'error', message: response?.data?.detail || t('common.generic_error') })
       }
     })
   }
 
   const bulkRemoveFromCollectionAction = isInCollection && isHead && ['concepts', 'mappings'].includes(resource) && isLoggedIn() && selected.length > 0 ? (
-    <Button
-      startIcon={<RemoveCircleOutlineIcon fontSize='inherit' />}
-      variant='contained'
-      size='small'
-      color='error'
-      sx={{textTransform: 'none', whiteSpace: 'nowrap', marginLeft: '8px'}}
-      onClick={() => setBulkRemoveOpen(true)}
-    >
-      {t('reference.remove_from_collection')}
-    </Button>
+    <LockTooltip title={referencesLock} placement='bottom' display='inline-block'>
+      <Button
+        startIcon={<RemoveCircleOutlineIcon fontSize='inherit' />}
+        endIcon={referencesLock ? <LockIcon fontSize='inherit' /> : undefined}
+        disabled={Boolean(referencesLock)}
+        variant='contained'
+        size='small'
+        color='error'
+        sx={{textTransform: 'none', whiteSpace: 'nowrap', marginLeft: '8px'}}
+        onClick={() => setBulkRemoveOpen(true)}
+      >
+        {t('reference.remove_from_collection')}
+      </Button>
+    </LockTooltip>
   ) : null
 
   const closeReferenceActions = () => setReferenceActionsAnchor(null)
 
   const referenceActionsControl = resource === 'references' && isLoggedIn() && selected.length > 0 ? (
-    <Tooltip title={!isHead ? t('reference.not_available_in_version') : ''}>
+    <Tooltip title={!isHead ? t('reference.not_available_in_version') : (referencesLock || '')}>
       <span>
         <Button
-          endIcon={<DownIcon fontSize='inherit' />}
+          endIcon={referencesLock ? <LockIcon fontSize='inherit' /> : <DownIcon fontSize='inherit' />}
           variant='contained'
           size='small'
-          disabled={!isHead}
+          disabled={!isHead || Boolean(referencesLock)}
           sx={{textTransform: 'none', whiteSpace: 'nowrap'}}
           onClick={event => {setReferenceActionsAnchor(event.currentTarget)}}
         >

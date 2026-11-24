@@ -127,20 +127,25 @@ export const getLockTooltip = notices => (notices || []).find(notice => notice?.
 // core/capabilities/writes.py). One is locked only when the notice locks every action it can take, so a locked control
 // is always one the API would refuse.
 export const ENTRY_POINT_ACTIONS = {
-  // a repository's own edit form, or a version's: a change of visibility can publish it or make it private
+  // a repository's own edit form: a change of visibility can publish it or make it private
   editRepo: ['edit', 'publish', 'make_private'],
-  editVersion: ['edit', 'publish', 'make_private'],
+  // the version form has no visibility field, so saving it is always an edit
+  editVersion: ['edit'],
   // DELETE of a repository's HEAD deletes the repository; of another version, it's an edit of the repository
   deleteRepo: ['delete'],
   deleteVersion: ['edit'],
-  // everything else written into the repository: concepts, mappings, references, versions, release, expansions.
-  // Recomputing a summary isn't asked about (it changes no content), so it has no entry.
+  // everything else written into the repository: concepts, mappings, references, versions, release, expansions,
+  // saved default filters, external exports. Recomputing a summary isn't asked about (it changes no content), so it
+  // has no entry.
   addConcept: ['edit'],
   addMapping: ['edit'],
   createVersion: ['edit'],
   releaseVersion: ['edit'],
   editExpansions: ['edit'],
+  manageExternalExports: ['edit'],
+  saveDefaultFilters: ['edit'],
   addReferences: ['edit'],
+  removeReferences: ['edit'],
   editConcept: ['edit'],
   retireConcept: ['edit'],
   editMapping: ['edit'],
@@ -148,6 +153,11 @@ export const ENTRY_POINT_ACTIONS = {
   createSimilar: ['edit'],
   manageMappings: ['edit'],
 }
+
+// The entry points that write to the version a page shows (a version page's own version, or HEAD on HEAD's page). The
+// rest write to the repository's HEAD, whichever version is shown.
+const SHOWN_VERSION_ENTRY_POINTS = ['editVersion', 'releaseVersion', 'deleteVersion', 'saveDefaultFilters']
+export const writesShownVersion = entryPoint => SHOWN_VERSION_ENTRY_POINTS.includes(entryPoint)
 
 export const isEntryPointLocked = (locks, entryPoint) => {
   const actions = ENTRY_POINT_ACTIONS[entryPoint]

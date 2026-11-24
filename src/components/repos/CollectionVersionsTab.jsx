@@ -75,6 +75,8 @@ import { closeIfShowing, createRebuildGuard, getRebuildOutcome, withoutExpansion
 import ReindexVersionDialog from './ReindexVersionDialog';
 import RepoVersionRowMenu from './RepoVersionRowMenu';
 import { useNoticeLocks } from '../common/NoticeLocks';
+import { useResourceNotices } from '../common/useNotices';
+import { showRefusalNotice } from '../common/LimitNotice';
 import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
 import GAService from '../../services/GAService';
@@ -479,7 +481,7 @@ const CollectionVersionsTab = ({
         setExpansionsByVersion(prev => ({ ...prev, [versionKey]: formatExpansions({ ...version, expansion_url: expansion.url }, prev[versionKey] || []) }));
         setAlert({ severity: 'success', message: t('repo.default_expansion_updated') });
         onDataChange?.();
-      } else {
+      } else if (!showRefusalNotice(response)) {
         setAlert({ severity: 'error', message: response?.data?.detail || response?.detail || t('repo.unable_set_default_expansion') });
       }
     });
@@ -496,7 +498,7 @@ const CollectionVersionsTab = ({
         setAlert({ severity: 'success', message: t('repo.expansion_deleted') });
         refreshSelectedExpansions(deleteExpansion.__version);
         onDataChange?.();
-      } else {
+      } else if (!showRefusalNotice(response)) {
         setAlert({ severity: 'error', message: response?.data?.detail || response?.detail || t('repo.unable_delete_expansion') });
       }
     });
@@ -516,7 +518,8 @@ const CollectionVersionsTab = ({
       setRebuildingURLs(rebuildGuard.list());
       setRebuildExpansion(current => closeIfShowing(current, expansion.url));
       const outcome = getRebuildOutcome(response);
-      setAlert({ severity: outcome.severity, message: outcome.detail || t(outcome.messageKey) });
+      if (!(outcome.severity === 'error' && showRefusalNotice(response)))
+        setAlert({ severity: outcome.severity, message: outcome.detail || t(outcome.messageKey) });
       if (outcome.refresh) refreshSelectedExpansions(expansion.__version);
       else setProcessingStatusByExpansion(prev => withoutExpansionState(prev, expansion.url));
     });
@@ -528,8 +531,11 @@ const CollectionVersionsTab = ({
     if(isHeadVersion(version)) history.push(`${baseRepoURL}edit`);
     else onEditVersion?.(version);
   };
-  // the reason a repository notice locks an action, or null (NoticeLocks)
-  const lockFor = useNoticeLocks();
+  // A row's actions, and its expansions', write to its own version, so the open menu asks for that version's notices
+  // (HEAD's for the HEAD row) and locks what they name (NoticeLocks); so does the external exports dialog
+  const noticesURL = version => version && (isHeadVersion(version) ? baseRepoURL : version.version_url);
+  const lockFor = useNoticeLocks(useResourceNotices(noticesURL(rowMenu.version || expansionMenu.version)));
+  const exportsLockFor = useNoticeLocks(useResourceNotices(noticesURL(externalExportsVersion)));
   const compareVersion = version => {
     const previousVersionURL = getPreviousVersionURL(version);
     if (previousVersionURL) {
@@ -943,7 +949,7 @@ const CollectionVersionsTab = ({
       {Boolean(externalExportsVersion) && (
         <ExternalExportsDialog
           version={externalExportsVersion}
-          canEdit={hasAccess}
+          canEdit={hasAccess && !exportsLockFor('manageExternalExports')}
           open={Boolean(externalExportsVersion)}
           onClose={() => setExternalExportsVersion(null)}
           onChange={onExternalExportsChange}
