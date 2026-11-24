@@ -24,12 +24,14 @@ import {
 import {
   Delete as DeleteIcon,
   Download as ExportIcon,
+  LockOutlined as LockIcon,
   Upload as UploadIcon
 } from '@mui/icons-material';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import { showRefusalNotice } from '../common/LimitNotice';
 import map from 'lodash/map';
+import { showRefusalNotice } from '../common/LimitNotice';
+import { LockTooltip } from '../common/NoticeLocks';
 
 import { formatDateTime } from '../../common/utils';
 import APIService from '../../services/APIService';
@@ -37,7 +39,9 @@ import { OperationsContext } from '../app/LayoutContext';
 import { downloadBlob } from './VersionExportDialog';
 import { formatError, getVersionLabel, isHeadVersion } from './versionsTab.styles';
 
-const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) => {
+// `lock` is the reason the version's notices lock its edits (NoticeLocks): upload and delete then show disabled, with a
+// padlock, and say why; download stays open
+const ExternalExportsDialog = ({ version, open, onClose, canEdit, lock, onChange }) => {
   const { t } = useTranslation();
   const { setAlert } = React.useContext(OperationsContext);
   const [exports, setExports] = React.useState(get(version, 'external_exports', []));
@@ -70,6 +74,7 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
   };
 
   const upload = () => {
+    if(lock) return;
     const key = (name || '').replace(/\s/g, '');
     if(!key || !file) {
       setAlert({ severity: 'error', message: t('repo.external_export_required') });
@@ -99,6 +104,7 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
   };
 
   const deleteExport = externalExport => {
+    if(lock) return;
     const url = externalExport.url || `${version.version_url}export/${externalExport.key}/`;
     setBusyKey(externalExport.key);
     APIService.new().overrideURL(url).delete().then(response => {
@@ -140,9 +146,12 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
                           <ExportIcon fontSize="inherit" />
                         </IconButton>
                         {canManage && (
-                          <IconButton size="small" color="error" onClick={() => setDeleteTarget(externalExport)}>
-                            <DeleteIcon fontSize="inherit" />
-                          </IconButton>
+                          <LockTooltip title={lock} placement="left" display="inline-block">
+                            <IconButton size="small" color="error" disabled={Boolean(lock)} aria-label={t('common.delete_label')} onClick={() => setDeleteTarget(externalExport)}>
+                              <DeleteIcon fontSize="inherit" />
+                              {lock && <LockIcon sx={{ fontSize: '13px', ml: '1px' }} />}
+                            </IconButton>
+                          </LockTooltip>
                         )}
                       </>
                     )}
@@ -156,15 +165,17 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
             <Box>
               <Divider sx={{ mb: 1 }} />
               <ListSubheader disableSticky disableGutters sx={{mb: 1, lineHeight: '28px'}}>{t('repo.upload_external_export')}</ListSubheader>
-              <TextField fullWidth size="small" label={t('common.name')} value={name} onChange={event => setName(event.target.value)} sx={{ mb: 1 }} />
-              <TextField fullWidth size="small" label={t('common.description')} value={description} onChange={event => setDescription(event.target.value)} sx={{ mb: 1 }} />
+              <TextField fullWidth size="small" disabled={Boolean(lock)} label={t('common.name')} value={name} onChange={event => setName(event.target.value)} sx={{ mb: 1 }} />
+              <TextField fullWidth size="small" disabled={Boolean(lock)} label={t('common.description')} value={description} onChange={event => setDescription(event.target.value)} sx={{ mb: 1 }} />
               <Stack direction="row" spacing={1} sx={{
                 alignItems: "center"
               }}>
-                <Button component="label" variant="outlined" size="small" startIcon={<UploadIcon />}>
-                  {t('repo.choose_file')}
-                  <input hidden type="file" accept=".sql,.zip,.pdf,.csv" onChange={onFileChange} />
-                </Button>
+                <LockTooltip title={lock} placement="top" display="inline-block">
+                  <Button component="label" variant="outlined" size="small" startIcon={<UploadIcon />} disabled={Boolean(lock)}>
+                    {t('repo.choose_file')}
+                    <input hidden type="file" accept=".sql,.zip,.pdf,.csv" disabled={Boolean(lock)} onChange={onFileChange} />
+                  </Button>
+                </LockTooltip>
                 <Typography variant="body2" sx={{
                   color: "text.secondary"
                 }}>{file ? file.name : t('repo.external_export_file_types')}</Typography>
@@ -175,7 +186,14 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>{t('common.close')}</Button>
-        {canManage && <Button variant="contained" disabled={busyKey === 'upload'} onClick={upload}>{busyKey === 'upload' ? t('repo.uploading') : t('common.upload')}</Button>}
+        {
+          canManage &&
+            <LockTooltip title={lock} placement="top" display="inline-block">
+              <Button variant="contained" disabled={busyKey === 'upload' || Boolean(lock)} endIcon={lock ? <LockIcon fontSize="inherit" /> : undefined} onClick={upload}>
+                {busyKey === 'upload' ? t('repo.uploading') : t('common.upload')}
+              </Button>
+            </LockTooltip>
+        }
       </DialogActions>
       <Dialog open={Boolean(deleteTarget)} onClose={() => setDeleteTarget(null)}>
         <DialogTitle>{t('repo.confirm_delete_external_export_title')}</DialogTitle>
@@ -186,9 +204,11 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteTarget(null)}>{t('common.cancel')}</Button>
-          <Button color="error" variant="contained" disabled={busyKey === deleteTarget?.key} onClick={() => deleteExport(deleteTarget)}>
-            {t('common.delete_label')}
-          </Button>
+          <LockTooltip title={lock} placement="top" display="inline-block">
+            <Button color="error" variant="contained" disabled={busyKey === deleteTarget?.key || Boolean(lock)} endIcon={lock ? <LockIcon fontSize="inherit" /> : undefined} onClick={() => deleteExport(deleteTarget)}>
+              {t('common.delete_label')}
+            </Button>
+          </LockTooltip>
         </DialogActions>
       </Dialog>
     </Dialog>

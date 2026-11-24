@@ -960,7 +960,8 @@ const CollectionVersionsTab = ({
       {Boolean(externalExportsVersion) && (
         <ExternalExportsDialog
           version={externalExportsVersion}
-          canEdit={hasAccess && !exportsLockFor('manageExternalExports')}
+          canEdit={hasAccess}
+          lock={exportsLockFor('manageExternalExports')}
           open={Boolean(externalExportsVersion)}
           onClose={() => setExternalExportsVersion(null)}
           onChange={onExternalExportsChange}
