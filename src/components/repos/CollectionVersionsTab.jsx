@@ -199,6 +199,8 @@ const CollectionVersionsTab = ({
   const [expansionMenu, setExpansionMenu] = React.useState({ anchorEl: null, version: null, expansion: null });
 
   const fetchedRepoUpdatesRef = React.useRef(new Set());
+  const loadedVersionsOnceRef = React.useRef(false);
+  const refreshedVersionsRef = React.useRef(false);
   const processingStatusRef = React.useRef({});
   const processingPollsRef = React.useRef({});
   const processedCleanupRef = React.useRef({});
@@ -217,6 +219,9 @@ const CollectionVersionsTab = ({
       .get(null, null, { verbose: true, includeSummary: true, limit: nextPageSize, page: nextPage, includeExternalExports: true, ...PROCESSING_QUERY_PARAMS })
       .then(response => {
         const _versions = Array.isArray(response?.data) ? response.data : [];
+        // a later load (refresh or another page) re-reads cached expansions; the first load fetches them anyway
+        refreshedVersionsRef.current = loadedVersionsOnceRef.current;
+        loadedVersionsOnceRef.current = true;
         setVersions(_versions);
         setTotalCount(parseInt(response?.headers?.['num_found'] || _versions.length || 0));
       })
@@ -226,8 +231,6 @@ const CollectionVersionsTab = ({
   React.useEffect(() => {
     setPage(1);
     fetchVersionsPage(1, pageSize);
-    // expansions are read again too, so a version's health is never older than its summary
-    displayVersions.forEach(version => fetchExpansions(version, true));
   }, [baseRepoURL, refreshKey]);
 
   React.useEffect(() => {
@@ -280,8 +283,9 @@ const CollectionVersionsTab = ({
       .appendToUrl('expansions/')
       .get(null, null, { includeSummary: true, verbose: true })
       .then(response => {
-        const data = response?.data || [];
-        setExpansionsByVersion(prev => ({ ...prev, [versionKey]: formatExpansions(version, data) }));
+        // a failed request keeps what was loaded
+        if (Array.isArray(response?.data))
+          setExpansionsByVersion(prev => ({ ...prev, [versionKey]: formatExpansions(version, response.data) }));
         setLoadingByVersion(prev => ({ ...prev, [versionKey]: false }));
       });
   }, [expansionsByVersion, loadingByVersion]);
@@ -289,6 +293,16 @@ const CollectionVersionsTab = ({
   React.useEffect(() => {
     displayVersions.forEach(version => fetchExpansions(version));
   }, [displayVersions, fetchExpansions]);
+
+  // once a later versions load lands, its cached rows' expansions are read again, so health is never older than
+  // the version's summary; rows not cached yet are fetched by the effect above
+  React.useEffect(() => {
+    if (!refreshedVersionsRef.current) return;
+    refreshedVersionsRef.current = false;
+    displayVersions.forEach(version => {
+      if (expansionsByVersion[getVersionKey(version)]) fetchExpansions(version, true);
+    });
+  }, [versions]);
 
   const getDefaultExpansion = React.useCallback(version => {
     const versionExpansions = expansionsByVersion[getVersionKey(version)] || [];
@@ -709,7 +723,8 @@ const CollectionVersionsTab = ({
     const isHead = isHeadVersion(version);
     const released = Boolean(version.released);
     const versionExpansions = expansionsByVersion[versionKey] || [];
-    const versionLoading = loadingByVersion[versionKey];
+    // a refresh keeps showing what is cached rather than a spinner
+    const versionLoading = loadingByVersion[versionKey] && !versionExpansions.length;
     const defaultExpansion = getDefaultExpansion(version);
     const expansionUpdates = defaultExpansion ? repoUpdatesByExpansion[defaultExpansion.url] : null;
     const hasReleaseUpdates = hasAccess && getMovableUpdates(defaultExpansion, expansionUpdates).length > 0;
