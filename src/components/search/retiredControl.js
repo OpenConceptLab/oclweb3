@@ -67,8 +67,5 @@ export const getRetiredCount = facetFields => {
   const values = facetFields?.retired
   if(!Array.isArray(values))
     return undefined
-  const bucket = values.find(facet => String(facet?.[0]) === 'true')
-  if(!bucket)
-    return 0
-  return Number.isFinite(bucket[1]) ? bucket[1] : undefined
+  return values.find(facet => String(facet?.[0]) === 'true')?.[1] ?? 0
 }
