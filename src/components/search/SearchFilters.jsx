@@ -458,12 +458,6 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
       }
       <div className='col-xs-12 padding-0' style={{marginTop: `${topBarHeight}px`, height: `calc(var(--app-height) - ${heightToSubtract || 0}px - ${topBarHeight}px)`, overflowY: 'auto'}}>
         {
-          retiredControl &&
-            <List dense sx={{width: '100%', position: 'relative', padding: 0, display: 'inline-block'}}>
-              {getRetiredControl()}
-            </List>
-        }
-        {
           loading && isEmpty(totalFilters) &&
             <div className='col-xs-12' style={{textAlign: 'center', padding: '16px'}}>
               <CircularProgress />
@@ -498,7 +492,8 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
             </List>
         }
         {
-          !isEmpty(uiFilters) &&
+          // the Retired group is the first of the Additional Metadata filters (Jon, Nov 24)
+          (!isEmpty(uiFilters) || retiredControl) &&
             <List
               dense
               sx={{
@@ -515,6 +510,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                     {t('repo.additional_metadata_filters_subheader')}
                   </ListSubheader>
               }
+              {retiredControl && getRetiredControl()}
               {map(uiFilters, getFilterList)}
             </List>
         }

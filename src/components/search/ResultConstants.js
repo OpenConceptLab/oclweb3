@@ -137,7 +137,7 @@ export const FACET_ORDER = {
     'collection_membership', 'updatedBy'
   ],
   // Concept, mapping and repository searches have the panel's Retired control in place of a Retired
-  // filter (retiredControl.js), first in the panel
+  // filter (retiredControl.js), the first of the Additional Metadata filters
   "repos": ["repoType", "sourceType", "collectionType", "owner", "ownerType", "customValidationSchema", "locale"]
 }
 
