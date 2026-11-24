@@ -755,6 +755,8 @@
     "unable_delete_expansion": "Unable to delete expansion.",
     "expansion_rebuild_accepted": "Expansion rebuild accepted.",
     "unable_rebuild_expansion": "Unable to rebuild expansion.",
+    "expansion_rebuild_in_progress": "A rebuild of this expansion is already running.",
+    "rebuilding": "Rebuilding...",
     "opened_dependency_expansion": "Opened from a dependency notification. Showing {{expansion}} in version {{version}}.",
     "opened_dependency_version": "Opened from a dependency notification. Showing version {{version}}.",
     "created_by_at": "Created",

@@ -70,6 +70,7 @@ import ProcessingFlag from './ProcessingFlag';
 import RepoContentSummary, { VERSION_STATS } from './RepoContentSummary';
 import ProcessingProgress from './ProcessingProgress';
 import RebuildExpansionDialog from './RebuildExpansionDialog';
+import { getRebuildOutcome } from './rebuildExpansion';
 import ReindexVersionDialog from './ReindexVersionDialog';
 import RepoVersionRowMenu from './RepoVersionRowMenu';
 import VersionExportDialog from './VersionExportDialog';
@@ -185,6 +186,8 @@ const CollectionVersionsTab = ({
   const [deleteExpansion, setDeleteExpansion] = React.useState(null);
   const [detailsExpansion, setDetailsExpansion] = React.useState(null);
   const [rebuildExpansion, setRebuildExpansion] = React.useState(null);
+  const [isRebuilding, setIsRebuilding] = React.useState(false);
+  const isRebuildingRef = React.useRef(false);
   const [reindexTarget, setReindexTarget] = React.useState(null);
   const [clearProcessingVersion, setClearProcessingVersion] = React.useState(null);
   const { tasks: reindexWip, add: addReindexWip, check: checkReindexWip } = useQueuedTasks();
@@ -498,17 +501,20 @@ const CollectionVersionsTab = ({
   };
 
   const onRebuildExpansion = expansion => {
+    // the API holds the request while the rebuild runs, so a second click would only get a 409
+    if (isRebuildingRef.current) return;
+    isRebuildingRef.current = true;
+    setIsRebuilding(true);
     GAService.recordActionEvent('Expansion', 'rebuild_expansion', expansion.mnemonic || expansion.url, {
       expansion: expansion.url
     });
-    APIService.new().overrideURL(`${expansion.url}re-evaluate/`).post().then(response => {
+    APIService.new().overrideURL(`${expansion.url}re-evaluate/`).post(null, null, {}, null, true).then(response => {
+      isRebuildingRef.current = false;
+      setIsRebuilding(false);
       setRebuildExpansion(false);
-      if ([200, 201, 202].includes(response?.status)) {
-        setAlert({ severity: 'success', message: t('repo.expansion_rebuild_accepted') });
-        refreshSelectedExpansions(expansion.__version);
-      } else {
-        setAlert({ severity: 'error', message: response?.data?.detail || response?.detail || t('repo.unable_rebuild_expansion') });
-      }
+      const outcome = getRebuildOutcome(response);
+      setAlert({ severity: outcome.severity, message: outcome.detail || t(outcome.messageKey) });
+      if (outcome.refresh) refreshSelectedExpansions(expansion.__version);
     });
   };
 
@@ -952,6 +958,7 @@ const CollectionVersionsTab = ({
       />
       <RebuildExpansionDialog
         expansion={rebuildExpansion}
+        rebuilding={isRebuilding}
         onClose={() => setRebuildExpansion(false)}
         onRebuild={onRebuildExpansion}
         onCreateSimilar={expansion => {

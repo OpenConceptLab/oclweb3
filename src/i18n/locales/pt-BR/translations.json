@@ -744,6 +744,8 @@
     "unable_delete_expansion": "Não foi possível excluir a expansão.",
     "expansion_rebuild_accepted": "Reconstrução de expansão aceita.",
     "unable_rebuild_expansion": "Não foi possível reconstruir a expansão.",
+    "expansion_rebuild_in_progress": "Uma reconstrução desta expansão já está em andamento.",
+    "rebuilding": "Reconstruindo...",
     "opened_dependency_expansion": "Aberto a partir de uma notificação de dependência. Mostrando {{expansion}} na versão {{version}}.",
     "opened_dependency_version": "Aberto a partir de uma notificação de dependência. Mostrando versão {{version}}.",
     "created_by_at": "Criado",
