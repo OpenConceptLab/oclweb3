@@ -1,7 +1,7 @@
 import React from "react";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
-import { Button as MuiButton } from "@mui/material";
+import { Button as MuiButton, CircularProgress } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 import GAService from "../../services/GAService";
@@ -12,7 +12,8 @@ const RebuildExpansionDialog = ({
   expansion,
   onClose,
   onCreateSimilar,
-  onRebuild
+  onRebuild,
+  rebuilding
 }) => {
   const { t } = useTranslation();
   if (!expansion) return null;
@@ -30,6 +31,7 @@ const RebuildExpansionDialog = ({
         <MuiButton
           variant="contained"
           sx={{ textTransform: "none" }}
+          disabled={rebuilding}
           onClick={() => {
             GAService.recordActionEvent("Expansion", "create_similar_expansion", expansion.mnemonic || expansion.url, { expansion: expansion.url });
             onCreateSimilar(expansion);
@@ -41,9 +43,11 @@ const RebuildExpansionDialog = ({
           color="error"
           variant="contained"
           sx={{ textTransform: "none" }}
+          disabled={rebuilding}
+          startIcon={rebuilding ? <CircularProgress size={16} color="inherit" /> : undefined}
           onClick={() => onRebuild(expansion)}
         >
-          {t("repo.rebuild")}
+          {rebuilding ? t("repo.rebuilding") : t("repo.rebuild")}
         </MuiButton>
         <MuiButton
           variant="outlined"

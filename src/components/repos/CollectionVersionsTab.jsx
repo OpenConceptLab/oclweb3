@@ -70,6 +70,7 @@ import ProcessingFlag from './ProcessingFlag';
 import RepoContentSummary, { VERSION_STATS } from './RepoContentSummary';
 import ProcessingProgress from './ProcessingProgress';
 import RebuildExpansionDialog from './RebuildExpansionDialog';
+import { closeIfShowing, createRebuildGuard, getRebuildOutcome, withoutExpansionState } from './rebuildExpansion';
 import ReindexVersionDialog from './ReindexVersionDialog';
 import RepoVersionRowMenu from './RepoVersionRowMenu';
 import VersionExportDialog from './VersionExportDialog';
@@ -185,6 +186,8 @@ const CollectionVersionsTab = ({
   const [deleteExpansion, setDeleteExpansion] = React.useState(null);
   const [detailsExpansion, setDetailsExpansion] = React.useState(null);
   const [rebuildExpansion, setRebuildExpansion] = React.useState(null);
+  const [rebuildingURLs, setRebuildingURLs] = React.useState([]);
+  const rebuildGuard = React.useRef(createRebuildGuard()).current;
   const [reindexTarget, setReindexTarget] = React.useState(null);
   const [clearProcessingVersion, setClearProcessingVersion] = React.useState(null);
   const { tasks: reindexWip, add: addReindexWip, check: checkReindexWip } = useQueuedTasks();
@@ -498,17 +501,22 @@ const CollectionVersionsTab = ({
   };
 
   const onRebuildExpansion = expansion => {
+    // the API holds the request while the rebuild runs, so a second click would only get a 409
+    if (!rebuildGuard.start(expansion.url)) return;
+    setRebuildingURLs(rebuildGuard.list());
+    // the row shows it processing even if the dialog is closed while the request waits
+    markExpansionProcessing(expansion.url);
     GAService.recordActionEvent('Expansion', 'rebuild_expansion', expansion.mnemonic || expansion.url, {
       expansion: expansion.url
     });
-    APIService.new().overrideURL(`${expansion.url}re-evaluate/`).post().then(response => {
-      setRebuildExpansion(false);
-      if ([200, 201, 202].includes(response?.status)) {
-        setAlert({ severity: 'success', message: t('repo.expansion_rebuild_accepted') });
-        refreshSelectedExpansions(expansion.__version);
-      } else {
-        setAlert({ severity: 'error', message: response?.data?.detail || response?.detail || t('repo.unable_rebuild_expansion') });
-      }
+    APIService.new().overrideURL(`${expansion.url}re-evaluate/`).post(null, null, {}, null, true).then(response => {
+      rebuildGuard.finish(expansion.url);
+      setRebuildingURLs(rebuildGuard.list());
+      setRebuildExpansion(current => closeIfShowing(current, expansion.url));
+      const outcome = getRebuildOutcome(response);
+      setAlert({ severity: outcome.severity, message: outcome.detail || t(outcome.messageKey) });
+      if (outcome.refresh) refreshSelectedExpansions(expansion.__version);
+      else setProcessingStatusByExpansion(prev => withoutExpansionState(prev, expansion.url));
     });
   };
 
@@ -635,7 +643,8 @@ const CollectionVersionsTab = ({
     const { version, expansion } = expansionMenu;
     if (!version || !expansion) return [];
 
-    const processing = isExpansionProcessing(expansion) || isVersionProcessing(version);
+    const processing = isExpansionProcessing(expansion) || isVersionProcessing(version) ||
+      getExpansionProcessingState(expansion) === 'processing';
     const processingReason = t('repo.action_disabled_while_processing');
 
     const items = [];
@@ -952,6 +961,7 @@ const CollectionVersionsTab = ({
       />
       <RebuildExpansionDialog
         expansion={rebuildExpansion}
+        rebuilding={Boolean(rebuildExpansion?.url) && rebuildingURLs.includes(rebuildExpansion.url)}
         onClose={() => setRebuildExpansion(false)}
         onRebuild={onRebuildExpansion}
         onCreateSimilar={expansion => {
