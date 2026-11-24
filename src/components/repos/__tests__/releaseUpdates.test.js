@@ -47,6 +47,9 @@ test("an unreleased version isn't called out as having a newer release", () => {
   ]}
   const updates = getReleaseUpdates(unreleased, {'/orgs/O/sources/S/v3/': SOURCE_V2, '/orgs/O/sources/U/v1/': '/orgs/O/sources/U/'})
   assert.deepEqual(updates.map(update => update.case), ['unreleased', 'unreleased'])
+  // a retired version that was never released isn't called a retired release
+  const neverReleased = {evaluated_source_versions: [{version_url: SOURCE_V1, version: 'v1', released: false, retired: true}]}
+  assert.equal(getReleaseUpdates(neverReleased, {[SOURCE_V1]: SOURCE_V2})[0].case, 'unreleased')
   // a retired release with no other release left still says it is retired
   const retired = {evaluated_source_versions: [{version_url: SOURCE_V1, version: 'v1', released: true, retired: true}]}
   assert.equal(getReleaseUpdates(retired, {[SOURCE_V1]: SOURCE_HEAD})[0].case, 'retired')
@@ -71,6 +74,16 @@ test('a version the system-version parameter names is pinned, by relative or can
   assert.equal(getReleaseUpdates(locked('https://example.org/T|v9, https://example.org/S|v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, true)
   assert.equal(getReleaseUpdates(locked('https://example.org/S|v0'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, false)
   assert.equal(getReleaseUpdates(locked(''), {[SOURCE_V1]: SOURCE_V2})[0].pinned, false)
+  // an entry can be the repository version's own URL
+  assert.equal(getReleaseUpdates(locked('/orgs/O/sources/S/v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, true)
+  assert.equal(getReleaseUpdates(locked('/orgs/O/sources/S/v0/'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, false)
+})
+
+test("a value set lock-built expansion keeps through a rebuild is pinned; one built otherwise isn't", () => {
+  const valueSets = {evaluated_collection_versions: [{version_url: VALUE_SET_V1, version: 'v1', released: true}]}
+  assert.equal(getReleaseUpdates({...valueSets, built_with: 'lock'}, {[VALUE_SET_V1]: VALUE_SET_V2})[0].pinned, true)
+  assert.equal(getReleaseUpdates({...valueSets, built_with: 'latest'}, {[VALUE_SET_V1]: VALUE_SET_V2})[0].pinned, false)
+  assert.equal(getReleaseUpdates({...valueSets, built_with: null}, {[VALUE_SET_V1]: VALUE_SET_V2})[0].pinned, false)
 })
 
 test("a version the expansion doesn't list is judged by its URL", () => {

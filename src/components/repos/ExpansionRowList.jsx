@@ -13,7 +13,7 @@ import ProcessingFlag from './ProcessingFlag';
 import ExpansionHealthChip from './ExpansionHealthChip';
 import { getDefaultExpansionHealthStatus } from './expansionHealth';
 import ReleaseUpdatesPanel from './ReleaseUpdatesPanel';
-import { isProcessing } from './processingStages';
+import { isProcessing, isVersionProcessing } from './processingStages';
 import { formatDate } from '../../common/utils';
 import { formatCount } from './versionsTab.styles';
 
@@ -180,7 +180,7 @@ const ExpansionRowList = ({
                 version={version}
                 expansions={expansions}
                 repoUpdates={repoUpdates}
-                processing={processingState(expansion) === 'processing'}
+                processing={processingState(expansion) === 'processing' || isVersionProcessing(version)}
                 onCreateSimilar={onCreateSimilar}
                 onRebuild={onRebuild}
               />

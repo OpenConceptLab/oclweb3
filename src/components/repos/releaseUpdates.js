@@ -26,8 +26,8 @@ const isHeadURL = url => Boolean(url) && (dropVersion(url) === url || url.replac
 // resolved-repo-updates gives the newest unretired release, else HEAD, so its target isn't always newer
 const getCase = (oldURL, newURL, recorded) => {
   if(recorded?.version === 'HEAD' || isHeadURL(oldURL)) return 'head'
-  if(recorded?.retired) return 'retired'
   if(recorded ? !recorded.released : isHeadURL(newURL)) return 'unreleased'
+  if(recorded?.retired) return 'retired'
   return 'newer'
 }
 
@@ -37,25 +37,32 @@ const getSystemVersionEntries = expansion => {
   return (typeof value === 'string' ? value.split(',') : []).map(entry => entry.trim()).filter(Boolean)
 }
 
+const trimSlash = url => (url || '').replace(/\/$/, '')
+
+// a canonical URL only a URL registry maps to the repository isn't matched
 const isNamedInSystemVersion = (entries, oldURL, recorded) => entries.some(entry => {
   const index = entry.lastIndexOf('|')
-  if(index < 0) return false
+  // an entry can also be a repository version's own URL
+  if(index < 0) return trimSlash(entry) === trimSlash(oldURL)
   const [url, version] = [entry.slice(0, index), entry.slice(index + 1)]
   const urls = [dropVersion(oldURL), recorded?.canonical_url, recorded?.url].filter(Boolean)
-  return Boolean(recorded?.version) && version === recorded.version && urls.some(candidate => candidate.replace(/\/$/, '') === url.replace(/\/$/, ''))
+  return Boolean(recorded?.version) && version === recorded.version && urls.some(candidate => trimSlash(candidate) === trimSlash(url))
 })
 
 // [{oldURL, newURL, case, pinned}] from resolved-repo-updates ({recorded URL: latest URL}), HEAD and retired first.
-// A version a reference or system-version names is pinned: a rebuild keeps it
+// A version a reference or system-version names, or a value set a lock-built expansion kept, is pinned: a rebuild keeps it
 export const getReleaseUpdates = (expansion, repoUpdates) => {
   const explicit = byURL(expansion, EXPLICIT_RELATIONS)
   const evaluated = byURL(expansion, EVALUATED_RELATIONS)
   const systemVersions = getSystemVersionEntries(expansion)
+  // version create's lock keeps its value-set locks through a rebuild
+  const keptValueSets = expansion?.built_with === 'lock' ? byURL(expansion, ['evaluated_collection_versions']) : {}
   const order = Object.keys(UPDATE_CASES)
   return Object.entries(repoUpdates || {})
     .map(([oldURL, newURL]) => {
       const recorded = evaluated[oldURL] || explicit[oldURL]
-      const pinned = Boolean(explicit[oldURL] && !evaluated[oldURL]) || isNamedInSystemVersion(systemVersions, oldURL, recorded)
+      const pinned = Boolean(explicit[oldURL] && !evaluated[oldURL]) || isNamedInSystemVersion(systemVersions, oldURL, recorded) ||
+        Boolean(keptValueSets[oldURL])
       return {oldURL, newURL, case: getCase(oldURL, newURL, recorded), pinned}
     })
     .sort((a, b) => order.indexOf(a.case) - order.indexOf(b.case))
