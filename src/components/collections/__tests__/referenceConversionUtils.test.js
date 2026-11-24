@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 const {
   REPO_VERSIONED, UNVERSIONED, LEAVE, isResourceVersioned, mergePreviewPages, getDefaultChoice, getDefaultChoices,
   chooseAll, getConversionPayload, describeConversion, getConversionOutcome, getResourceVersionedIds,
+  getQueuedConversion, followsHead,
   getRollbackMessages, isRolledBack,
 } = await import('../referenceConversionUtils.js')
 
@@ -27,7 +28,7 @@ test('pages of a collection-wide preview are merged and judged together', () => 
 
   assert.deepEqual(merged.results.map(item => item.id), [1, 2, 3])
   assert.deepEqual(merged.summary, {
-    references: 3, supported: 2, repo_versioned_keeps_all: true, unversioned_keeps_all: false,
+    references: 3, supported: 2, unsupported: 1, repo_versioned_keeps_all: true, unversioned_keeps_all: false,
   })
 })
 
@@ -35,14 +36,25 @@ test('nothing supported keeps nothing', () => {
   assert.equal(mergePreviewPages([{ results: [{ id: 1, supported: false }] }]).summary.repo_versioned_keeps_all, false)
 })
 
-test('the default choice is a conversion that keeps today\'s members, repo-versioned first', () => {
-  assert.equal(getDefaultChoice({ supported: true, repo_versioned: keeps(), unversioned: keeps() }), REPO_VERSIONED)
-  assert.equal(getDefaultChoice({ supported: true, repo_versioned: changes(), unversioned: keeps() }), UNVERSIONED)
+test('the default choice keeps today\'s members, unversioned first as ocl_issues#2280 orders them', () => {
+  assert.equal(getDefaultChoice({ supported: true, repo_versioned: keeps(), unversioned: keeps() }), UNVERSIONED)
+  assert.equal(
+    getDefaultChoice({ supported: true, repo_versioned: keeps(), unversioned: keeps({ creates_lock: true }) }),
+    UNVERSIONED)
+  assert.equal(getDefaultChoice({ supported: true, repo_versioned: keeps(), unversioned: changes() }), REPO_VERSIONED)
   assert.equal(getDefaultChoice({ supported: true, repo_versioned: null, unversioned: changes() }), LEAVE)
   assert.equal(getDefaultChoice({ supported: false }), LEAVE)
   assert.deepEqual(
     getDefaultChoices([{ id: 4, supported: true, repo_versioned: keeps() }, { id: 5, supported: false }]),
     { 4: REPO_VERSIONED, 5: LEAVE })
+})
+
+test('a repo-versioned conversion that follows HEAD is never pre-selected', () => {
+  const headNamed = keeps({ chosen_by: 'HEAD' })
+
+  assert.equal(followsHead(headNamed), true)
+  assert.equal(followsHead(keeps({ chosen_by: 'recorded' })), false)
+  assert.equal(getDefaultChoice({ supported: true, repo_versioned: headNamed, unversioned: changes() }), LEAVE)
 })
 
 test('choosing one conversion for all skips references it can\'t be made for', () => {
@@ -61,11 +73,42 @@ test('the payload holds only the references to convert, with numeric ids', () =>
     { conversions: [{ id: 1, to: REPO_VERSIONED }, { id: 3, to: UNVERSIONED }] })
 })
 
+test('the payload sends back the version each preview showed', () => {
+  const results = [
+    { id: 1, repo_versioned: keeps({ repo_version: '/orgs/O/sources/S/v1/' }), unversioned: keeps() },
+    { id: 2, repo_versioned: null, unversioned: keeps({ repo_version: '/orgs/O/sources/S/v2/' }) },
+  ]
+
+  assert.deepEqual(getConversionPayload({ 1: REPO_VERSIONED, 2: UNVERSIONED }, results), { conversions: [
+    { id: 1, to: REPO_VERSIONED, repo_version: '/orgs/O/sources/S/v1/' },
+    { id: 2, to: UNVERSIONED, repo_version: '/orgs/O/sources/S/v2/' },
+  ] })
+})
+
 test('a conversion is described by what it keeps, changes and locks', () => {
   assert.equal(describeConversion(null), null)
   assert.deepEqual(
-    describeConversion(changes({ added_count: 2, removed_count: 3, creates_lock: true })),
-    { keeps: false, added: 2, removed: 3, createsLock: true })
+    describeConversion(changes({
+      added_count: 2, removed_count: 3, creates_lock: true, chosen_by: 'release', repo_version: '/orgs/O/sources/S/v2/',
+      added: ['/a/', '/b/'], removed: ['/c/'],
+    })),
+    {
+      keeps: false, added: 2, removed: 3, createsLock: true, followsHead: false, version: '/orgs/O/sources/S/v2/',
+      addedMembers: ['/a/', '/b/'], removedMembers: ['/c/'],
+    })
+})
+
+test('a queued conversion reports its results once its task ends', () => {
+  const results = [{ id: 1, status: 'converted' }]
+
+  assert.equal(getQueuedConversion({ state: 'STARTED' }), null)
+  assert.equal(getQueuedConversion(null), null)
+  assert.deepEqual(getQueuedConversion({ state: 'SUCCESS', result: { results } }), { results })
+  assert.deepEqual(getQueuedConversion({ state: 'SUCCESS', result: JSON.stringify({ results }) }), { results })
+  assert.deepEqual(
+    getQueuedConversion({ state: 'SUCCESS', result: { error: 'You no longer have edit access to this collection' } }),
+    { error: 'You no longer have edit access to this collection' })
+  assert.deepEqual(getQueuedConversion({ state: 'FAILURE', error_message: 'boom' }), { error: 'boom' })
 })
 
 test('the outcome counts results by status', () => {

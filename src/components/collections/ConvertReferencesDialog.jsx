@@ -24,8 +24,10 @@ import APIService from '../../services/APIService'
 import {
   REPO_VERSIONED, UNVERSIONED, LEAVE, CONVERSIONS, PREVIEW_PAGE_SIZE, getResourceVersionedIds, mergePreviewPages,
   getDefaultChoices, chooseAll, getConversionPayload, describeConversion, getConversionOutcome, getRollbackMessages,
-  isRolledBack,
+  isRolledBack, getQueuedConversion,
 } from './referenceConversionUtils'
+
+const TASK_POLL_MS = 3000
 
 const expressionSx = { fontFamily: 'monospace', fontSize: '12px', overflowWrap: 'anywhere', maxWidth: '240px' }
 
@@ -34,6 +36,8 @@ const REASON_KEYS = {
   'not resource-versioned': 'reference.convert_reason_not_resource_versioned',
   'it also names a value set': 'reference.convert_reason_value_set',
   'it has a filter': 'reference.convert_reason_filter',
+  'it has no system': 'reference.convert_reason_no_system',
+  'it is an exclusion': 'reference.convert_reason_exclusion',
 }
 
 const getReasonKey = reason => REASON_KEYS[reason] || 'reference.convert_reason_other'
@@ -45,14 +49,39 @@ const chunk = (values, size) => {
   return chunks
 }
 
+const MemberList = ({ label, members, count }) => {
+  const { t } = useTranslation()
+  if(!count)
+    return null
+  return (
+    <Box>
+      <Typography variant='caption' sx={{ fontWeight: 'bold' }}>{t(label, { count })}</Typography>
+      {members.map(member => <Box key={member} sx={expressionSx}>{member}</Box>)}
+      {
+        count > members.length &&
+          <Typography variant='caption' color='text.secondary'>
+            {t('reference.convert_more', { count: count - members.length })}
+          </Typography>
+      }
+    </Box>
+  )
+}
+
 const ConversionCell = ({ conversion }) => {
   const { t } = useTranslation()
+  const [showChanges, setShowChanges] = React.useState(false)
   const description = describeConversion(conversion)
   if(!description)
     return <Typography variant='caption' color='text.secondary'>{t('reference.convert_not_possible')}</Typography>
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
       <Box sx={expressionSx}>{conversion.expression}</Box>
+      {
+        description.version &&
+          <Typography variant='caption' color='text.secondary' sx={{ overflowWrap: 'anywhere' }}>
+            {t('reference.convert_resolves_to', { version: description.version })}
+          </Typography>
+      }
       <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
         {
           description.keeps ?
@@ -64,7 +93,28 @@ const ConversionCell = ({ conversion }) => {
             />
         }
         {description.createsLock && <Chip size='small' color='info' label={t('reference.convert_creates_lock')} />}
+        {description.followsHead && <Chip size='small' color='warning' label={t('reference.convert_follows_head')} />}
       </Box>
+      {
+        !description.keeps &&
+          <Button
+            size='small'
+            sx={{ alignSelf: 'flex-start', textTransform: 'none', p: 0, minWidth: 0 }}
+            aria-expanded={showChanges}
+            onClick={() => setShowChanges(!showChanges)}
+          >
+            {t(showChanges ? 'reference.convert_hide_changes' : 'reference.convert_show_changes')}
+          </Button>
+      }
+      {
+        showChanges &&
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            <MemberList label='reference.convert_adds' members={description.addedMembers} count={description.added} />
+            <MemberList
+              label='reference.convert_removes' members={description.removedMembers} count={description.removed}
+            />
+          </Box>
+      }
     </Box>
   )
 }
@@ -80,6 +130,7 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
   const [loading, setLoading] = React.useState(false)
   const [converting, setConverting] = React.useState(false)
   const [error, setError] = React.useState(null)
+  const [queuedTaskId, setQueuedTaskId] = React.useState(null)
   const service = () => APIService.new().overrideURL(collectionUrl).appendToUrl('references/conversions/')
 
   const fetchPreview = async () => {
@@ -105,10 +156,11 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
   }
 
   React.useEffect(() => {
-    if(!open || !collectionUrl || (scope === 'selected' && !selectedIds.length)) {
-      setPreview(null)
+    // every load starts from nothing, so a failed or empty one shows no old table and leaves Convert disabled
+    setPreview(null)
+    setChoices({})
+    if(!open || !collectionUrl || (scope === 'selected' && !selectedIds.length))
       return
-    }
     let active = true
     setLoading(true)
     setError(null)
@@ -122,31 +174,67 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
     return () => { active = false }
   }, [open, scope, collectionUrl, selectedKey])
 
-  const payload = getConversionPayload(choices)
+  const summary = preview?.summary
+  const results = preview?.results || []
+  const payload = getConversionPayload(choices, results)
+
+  const onResults = conversionResults => {
+    const outcome = getConversionOutcome(conversionResults)
+    if(isRolledBack(outcome))
+      setError(t('reference.convert_rolled_back', { details: getRollbackMessages(conversionResults).join(' ') }))
+    else
+      onConverted({ ...outcome, unsupported: summary?.unsupported || 0 })
+  }
+
+  // a queued conversion is asked about until its task ends, then reported as a direct one is
+  React.useEffect(() => {
+    if(!queuedTaskId)
+      return
+    let active = true
+    let timer = null
+    const poll = () => APIService.new().overrideURL(`/tasks/${queuedTaskId}/`).get(null, null, { result: true }).then(
+      response => {
+        if(!active) return
+        const queued = getQueuedConversion(response?.data)
+        if(!queued) {
+          timer = setTimeout(poll, TASK_POLL_MS)
+          return
+        }
+        setQueuedTaskId(null)
+        setConverting(false)
+        if(queued.results)
+          onResults(queued.results)
+        else
+          setError(queued.error || t('reference.convert_task_failed'))
+      })
+    poll()
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [queuedTaskId])
 
   const onConvert = () => {
     setConverting(true)
+    setError(null)
     service().post(payload).then(response => {
-      setConverting(false)
-      if(response?.status === 202) {
-        onConverted({ queued: true })
-      } else if(response?.status === 200) {
-        const outcome = getConversionOutcome(response.data)
-        if(isRolledBack(outcome))
-          setError(t('reference.convert_rolled_back', { details: getRollbackMessages(response.data).join(' ') }))
-        else
-          onConverted(outcome)
-      } else {
-        setError(response?.detail || t('common.generic_error'))
+      if(response?.status === 202 && (response.data?.id || response.data?.task)) {
+        setQueuedTaskId(response.data.id || response.data.task)
+        return
       }
+      setConverting(false)
+      if(response?.status === 200)
+        onResults(response.data)
+      else
+        setError(response?.detail || t('common.generic_error'))
     })
   }
 
-  const summary = preview?.summary
-  const results = preview?.results || []
+  // closing while a queued conversion runs leaves it running: the list says so
+  const onDialogClose = () => queuedTaskId ? onConverted({ queued: true }) : onClose()
 
   return (
-    <Dialog open={open} onClose={converting ? undefined : onClose} maxWidth='lg' fullWidth>
+    <Dialog open={open} onClose={converting && !queuedTaskId ? undefined : onDialogClose} maxWidth='lg' fullWidth>
       <DialogTitle>{t('reference.convert_title')}</DialogTitle>
       <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         <Typography variant='body2' sx={{ color: 'text.secondary' }}>{t('reference.convert_body')}</Typography>
@@ -164,6 +252,7 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
         </ToggleButtonGroup>
         {scope === 'selected' && !selectedIds.length && <Alert severity='info'>{t('reference.convert_none_selected')}</Alert>}
         {error && <Alert severity='error'>{error}</Alert>}
+        {queuedTaskId && <Alert severity='info'>{t('reference.convert_running')}</Alert>}
         {loading && <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><CircularProgress size={24} /></Box>}
         {
           !loading && summary &&
@@ -188,6 +277,7 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
                     }
                   >
                     {t(`reference.convert_all_keep_${conversion}`)}
+                    {summary.unsupported > 0 && ` ${t('reference.convert_unsupported_note', { count: summary.unsupported })}`}
                   </Alert>
                 ))
               }
@@ -206,6 +296,8 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
                     {results.map(item => (
                       <TableRow key={item.id}>
                         <TableCell sx={expressionSx}>
+                          {item.exclude && <Chip size='small' label={t('reference.convert_exclusion')} sx={{ mb: 0.5 }} />}
+                          {item.exclude && <br />}
                           {item.expression}
                           {
                             item.supported &&
@@ -230,6 +322,10 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
                                   {CONVERSIONS.filter(conversion => item[conversion]).map(conversion => (
                                     <MenuItem key={conversion} value={conversion}>
                                       {t(`reference.convert_to_${conversion}`)}
+                                      {
+                                        describeConversion(item[conversion]).followsHead &&
+                                          ` (${t('reference.convert_follows_head')})`
+                                      }
                                     </MenuItem>
                                   ))}
                                 </Select>
@@ -248,7 +344,9 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
         }
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant='text' disabled={converting}>{t('common.cancel')}</Button>
+        <Button onClick={onDialogClose} variant='text' disabled={converting && !queuedTaskId}>
+          {t(queuedTaskId ? 'common.close' : 'common.cancel')}
+        </Button>
         <Button
           onClick={onConvert}
           variant='contained'
