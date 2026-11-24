@@ -772,6 +772,7 @@ class ConceptForm extends FormComponent  {
           onClose={() => this.setState({quotaError: null})}
           errorCode={quotaError?.errorCode}
           meter={quotaError?.meter}
+          notice={quotaError?.notice}
           surface='tbv3_change_comment'
         />
       </div>

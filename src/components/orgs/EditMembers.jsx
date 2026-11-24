@@ -26,6 +26,7 @@ import { OperationsContext } from '../app/LayoutContext';
 import ChangeOwnRoleDialog from './ChangeOwnRoleDialog'
 import LeaveOrgDialog from './LeaveOrgDialog'
 import RemoveMemberDialog from './RemoveMemberDialog'
+import LimitNotice, { takeRefusalNotice } from '../common/LimitNotice'
 
 import { debounce } from 'lodash'
 import APIService from '../../services/APIService';
@@ -78,6 +79,7 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
   const [removing, setRemoving] = React.useState(null)
   const [demoting, setDemoting] = React.useState(null)
   const [saving, setSaving] = React.useState(false)
+  const [refusalNotice, setRefusalNotice] = React.useState(null)
   const busy = React.useRef(false)
   const username = React.useMemo(getCurrentUserUsername, [])
 
@@ -119,9 +121,11 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
         [action === 'remove' ? 'delete' : 'put'](role ? {role} : null, null, {}, null, true)
       // Only a 2xx made the change: a refusal, or an error with no response at all, didn't
       const done = response?.status >= 200 && response?.status < 300
-      return {member, action, error: done ? null : getErrorDetail(response) || t('common.generic_error')}
+      if(done)
+        return {member, action, error: null}
+      return {member, action, error: getErrorDetail(response) || t('common.generic_error'), notice: takeRefusalNotice(response)}
     } catch(error) {
-      return {member, action, error: getErrorDetail(error) || t('common.generic_error')}
+      return {member, action, error: getErrorDetail(error) || t('common.generic_error'), notice: takeRefusalNotice(error)}
     }
   }
 
@@ -133,8 +137,11 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
       return
     busy.current = true
     setSaving(true)
-    const { member, action, error } = await updateMember(change)
-    if(error)
+    const { member, action, error, notice } = await updateMember(change)
+    // a refusal that carries a notice (a limit on members) opens it; any other error is a toast
+    if(notice)
+      setRefusalNotice(notice)
+    else if(error)
       setAlert({message: t(`org.member_${action}_failed`, {user: member.username, detail: error}), severity: 'error', duration: 5000})
     else
       setAlert({message: t('org.updated_members'), severity: 'success', duration: 1000})
@@ -305,6 +312,7 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
           <RemoveMemberDialog member={removing} org={org} onSubmit={onRemove} onClose={() => setRemoving(null)} pending={saving} />
       }
       <ChangeOwnRoleDialog open={Boolean(demoting)} org={org} onSubmit={onDemote} onClose={() => setDemoting(null)} pending={saving} />
+      <LimitNotice size='dialog' open={Boolean(refusalNotice)} notice={refusalNotice} onClose={() => setRefusalNotice(null)} />
     </Dialog>
   )
 }

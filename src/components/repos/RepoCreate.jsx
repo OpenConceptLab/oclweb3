@@ -34,6 +34,7 @@ import RTEditor from '../common/RTEditor'
 import CustomAttributesForm from '../common/CustomAttributesForm'
 import { jsonToString, stringToJSON, isValidJSONString } from '../common/JSONTextField'
 import { OperationsContext } from '../app/LayoutContext';
+import { takeRefusalNotice } from '../common/LimitNotice'
 
 import RepoCreateFormHeader from './RepoCreateFormHeader'
 import RepoCreateNameDescription from './RepoCreateNameDescription'
@@ -95,6 +96,9 @@ const RepoCreate = () => {
   const copyFromApplied = React.useRef(false)
   const fromOCLURLParsed = React.useMemo(() => parseRepoURL(fromOCLURL), [fromOCLURL])
   const [validationErrors, setValidationErrors] = React.useState({})
+  // A refusal that carries a notice (a limit on private repositories, or read-only content) is shown under the
+  // visibility field, where the way out is, instead of a toast
+  const [visibilityNotice, setVisibilityNotice] = React.useState(null)
   const isEdit = Boolean(params.repo)
   const canonicalURLEdited = React.useRef(false)
 
@@ -181,6 +185,8 @@ const RepoCreate = () => {
 
   const onChange = (id, value) => {
     setValidationErrors(prev => ({...prev, [id]: false}))
+    if(id === 'publicAccess')
+      setVisibilityNotice(null)
     setModel({...model, [id]: valueToId(value)})
   }
 
@@ -268,6 +274,7 @@ const RepoCreate = () => {
         payload[field] = null
     })
     GAService.recordUpsertEvent(selectedTab.id === 'collection' ? 'Collection' : 'Source', isEdit)
+    setVisibilityNotice(null)
     let service = getService()
     service = isEdit ? service.put(payload) : service.post(payload)
     service.then(response => {
@@ -276,6 +283,11 @@ const RepoCreate = () => {
         history.push(response.data.url)
       }
       else {
+        const notice = takeRefusalNotice(response)
+        if(notice) {
+          setVisibilityNotice(notice)
+          return
+        }
         let error = compact(flatten(values(response)))
         let field = get(keys(response), 0)
         if(isArray(error) && error[0] && field)
@@ -535,7 +547,7 @@ const RepoCreate = () => {
               <RepoCreateLanguages isEdit={isEdit} locales={locales} onChange={onChange} validationErrors={validationErrors} config={selectedTab.content} {...model} />
             </FormSection>
             <FormSection sx={{marginTop: '16px'}}>
-              <RepoCreateAdditionalMetadata isEdit={isEdit} typeLabel={t(`repo.${selectedTab.id}_type`)} types={selectedTab.types} onChange={onChange} validationErrors={validationErrors} config={selectedTab.content} {...model} />
+              <RepoCreateAdditionalMetadata isEdit={isEdit} typeLabel={t(`repo.${selectedTab.id}_type`)} types={selectedTab.types} onChange={onChange} validationErrors={validationErrors} config={selectedTab.content} visibilityNotice={visibilityNotice} {...model} />
             </FormSection>
             <FormSection sx={{marginTop: '16px'}}>
               <RepoCreatePublisher isEdit={isEdit} onChange={onChange} validationErrors={validationErrors} config={selectedTab.content} {...model} />

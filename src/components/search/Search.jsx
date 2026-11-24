@@ -937,6 +937,7 @@ const Search = props => {
         onClose={() => setQuotaError(null)}
         errorCode={quotaError?.errorCode}
         meter={quotaError?.meter}
+        notice={quotaError?.notice}
         surface='tbv3_match'
       />
     </div>

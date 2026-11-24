@@ -11,11 +11,21 @@ import DialogTitle from './DialogTitle'
 import CloseIconButton from './CloseIconButton'
 import { isCapMeter, isLimitMeter } from './quotaErrors'
 import useLimitAction from './useLimitAction'
+import LimitNotice, { announceRefusal } from './LimitNotice'
 
-const QuotaDialog = ({open, onClose, errorCode, meter, surface}) => {
+const QuotaDialog = ({open, onClose, errorCode, meter, surface, notice}) => {
   const { t } = useTranslation()
-  const { action, onActionClick } = useLimitAction(open, errorCode)
+  const { action, onActionClick } = useLimitAction(open, errorCode, !notice)
   const title = isLimitMeter(meter) ? 'quota.title_limit' : (isCapMeter(meter) ? 'quota.title_cap' : 'quota.title_quota')
+
+  React.useEffect(() => {
+    if(open && notice)
+      announceRefusal()
+  }, [open, notice])
+
+  // A refusal that carries a notice is shown in the one notice slot
+  if(notice)
+    return <LimitNotice size='dialog' open={open} notice={notice} onClose={onClose} />
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth='sm' fullWidth>

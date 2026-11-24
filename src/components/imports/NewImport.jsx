@@ -428,6 +428,7 @@ class NewImport extends React.Component {
           onClose={() => this.setState({quotaError: null})}
           errorCode={quotaError?.errorCode}
           meter={quotaError?.meter}
+          notice={quotaError?.notice}
           surface='tbv3_import'
         />
       </React.Fragment>
