@@ -29,7 +29,7 @@ import AutocompleteLoading from '../common/AutocompleteLoading'
 import QuotaDialog from '../common/QuotaDialog'
 import { getQuotaError } from '../common/quotaErrors'
 import { LockTooltip, useNoticeLocks } from '../common/NoticeLocks'
-import { useResourceNotices } from '../common/useNotices'
+import { useResourceNoticeLookup } from '../common/useNotices'
 import CloneCascadeParams from './CloneCascadeParams'
 import CloneConceptsTable from './CloneConceptsTable'
 import CloneToSourcePreview from './CloneToSourcePreview'
@@ -66,8 +66,9 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
   const [previewLoading, setPreviewLoading] = React.useState(false)
   const [previewResults, setPreviewResults] = React.useState({})
   // Cloning writes to the chosen source, so Clone follows that source's notices and locks when they lock its edits
-  // (NoticeLocks); another source can still be chosen, and the previews stay open
-  const cloneLock = useNoticeLocks(useResourceNotices(open && selected?.url ? selected.url : null))('cloneToSource')
+  // (NoticeLocks); another source can still be chosen, and the previews stay open. Clone waits until they're in.
+  const destination = useResourceNoticeLookup(open && selected?.url ? selected.url : null)
+  const cloneLock = useNoticeLocks(destination.notices)('cloneToSource')
 
   React.useEffect(() => {
     if (!open) {
@@ -127,7 +128,7 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
   }
 
   const handleSubmit = () => {
-    if (!selected?.url || isEmpty(conceptUrls) || cloneLock) return
+    if (!selected?.url || isEmpty(conceptUrls) || destination.pending || cloneLock) return
     GAService.recordActionEvent('Source Clone', 'clone_to_source', selected?.short_code || selected?.id, {
       source: selected?.url,
       count: conceptUrls.length
@@ -377,7 +378,7 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
               <Button
                 variant='contained'
                 onClick={handleSubmit}
-                disabled={!selected || submitting || isEmpty(conceptUrls) || Boolean(cloneLock)}
+                disabled={!selected || submitting || isEmpty(conceptUrls) || destination.pending || Boolean(cloneLock)}
                 endIcon={cloneLock ? <LockIcon fontSize='inherit' /> : undefined}
                 sx={{ textTransform: 'none' }}
               >

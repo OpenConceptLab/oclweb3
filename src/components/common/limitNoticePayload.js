@@ -165,6 +165,13 @@ export const isEntryPointLocked = (locks, entryPoint) => {
   return Boolean(actions && locks?.length) && actions.every(action => locks.includes(action))
 }
 
+// A resource's notices lookup (useResourceNoticeLookup) from what it has stored: the notices of the resource asked
+// about, never another's, and whether its answer is still awaited. A failed request, or a server without the route,
+// stores none, so it settles with no lock.
+export const readNoticeLookup = (stored, resourceURL) => stored.resourceURL === resourceURL ?
+  {notices: stored.notices, pending: false} :
+  {notices: [], pending: Boolean(resourceURL)}
+
 // Only the latest request may answer. start() begins one and returns its check, which stays true until another
 // start() or an invalidate() (a cache hit, a change of user or language, an unmount).
 export const createRequestGuard = () => {

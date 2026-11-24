@@ -3,7 +3,8 @@ import assert from 'node:assert/strict'
 
 const {
   normalizeNotice, getNotice, getNoticeDetail, getNotices, orderActions, getNoticeTone, getNoticeIcon, getLocks,
-  getLockTooltip, isEntryPointLocked, safeURL, writesShownVersion, createRequestGuard, ENTRY_POINT_ACTIONS, WRITE_ACTIONS,
+  getLockTooltip, isEntryPointLocked, safeURL, writesShownVersion, createRequestGuard, readNoticeLookup, ENTRY_POINT_ACTIONS,
+  WRITE_ACTIONS,
 } = await import('../limitNoticePayload.js')
 
 const NOTICE = {
@@ -186,4 +187,20 @@ test('a request superseded by a newer one, or by a cache hit, no longer answers'
   const later = guard.start()
   assert.equal(cachedLanguage(), false)
   assert.equal(later(), true)
+})
+
+test('a lookup is pending until the resource asked about has answered, and never shows another resource\'s notices', () => {
+  const source = '/orgs/O/sources/S/'
+  const collection = '/orgs/O/collections/C/'
+  const notices = [{title: 'Example notice', locks: ['edit'], tooltip: 'Example reason'}]
+  assert.deepEqual(readNoticeLookup({resourceURL: null, notices: []}, source), {notices: [], pending: true})
+  assert.deepEqual(readNoticeLookup({resourceURL: source, notices}, collection), {notices: [], pending: true})
+  assert.deepEqual(readNoticeLookup({resourceURL: source, notices}, source), {notices, pending: false})
+})
+
+test('a failed lookup, or a server without the route, settles with no notices; nothing asked is never pending', () => {
+  const source = '/orgs/O/sources/S/'
+  assert.deepEqual(readNoticeLookup({resourceURL: source, notices: []}, source), {notices: [], pending: false})
+  ;[null, undefined, ''].forEach(resourceURL =>
+    assert.equal(readNoticeLookup({resourceURL: null, notices: []}, resourceURL).pending, false, String(resourceURL)))
 })

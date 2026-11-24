@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import APIService from '../../services/APIService'
 import { getCurrentUserUsername, isLoggedIn } from '../../common/utils'
-import { createRequestGuard, getNotices } from './limitNoticePayload'
+import { createRequestGuard, getNotices, readNoticeLookup } from './limitNoticePayload'
 import { NOTICES_CHANGED_EVENT, refreshNotices } from './LimitNotice'
 import { watchTask } from '../repos/taskState'
 
@@ -100,8 +100,9 @@ export const useAccountNotices = () => {
   return notices
 }
 
-// The notices for one repository, version or map project (its relative URL), with the locks they carry
-export const useResourceNotices = resourceURL => {
+// The notices for one repository, version or map project (its relative URL), with the locks they carry, and whether
+// they're still being asked for (readNoticeLookup): a control that writes there waits for them
+export const useResourceNoticeLookup = resourceURL => {
   const { i18n } = useTranslation()
   const lang = i18n.language
   const [state, setState] = React.useState({resourceURL: null, notices: []})
@@ -121,6 +122,7 @@ export const useResourceNotices = resourceURL => {
   }, [load])
   useRefetchOnChange(load)
 
-  // never the notices of the resource shown before
-  return state.resourceURL === resourceURL ? state.notices : []
+  return readNoticeLookup(state, resourceURL)
 }
+
+export const useResourceNotices = resourceURL => useResourceNoticeLookup(resourceURL).notices

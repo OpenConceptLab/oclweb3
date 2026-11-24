@@ -24,6 +24,11 @@ export const createRebuildGuard = () => {
   }
 }
 
+// The rebuild confirmation's lock. Opened from a version's expansion rows, it takes the lock they already know (null for
+// none); undefined means they didn't know it yet, so it uses its own lookup of the version's notices ({lock, pending}),
+// and Rebuild waits while that is pending.
+export const getRebuildLock = (knownLock, lookup) => knownLock === undefined ? lookup : {lock: knownLock, pending: false}
+
 // Closes the rebuild dialog only if it still shows the expansion that answered
 export const closeIfShowing = (current, url) => current?.url === url ? false : current
 

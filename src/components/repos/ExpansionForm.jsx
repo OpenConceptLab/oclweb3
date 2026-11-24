@@ -29,7 +29,7 @@ import APIService from "../../services/APIService";
 import GAService from "../../services/GAService";
 import { dropVersion } from "../../common/utils";
 import { LockTooltip, useNoticeLocks } from "../common/NoticeLocks";
-import { useResourceNotices } from "../common/useNotices";
+import { useResourceNoticeLookup } from "../common/useNotices";
 import { OperationsContext } from "../app/LayoutContext";
 import { showRefusalNotice } from "../common/LimitNotice";
 import Dialog from "../common/Dialog";
@@ -129,11 +129,12 @@ const ExpansionForm = ({
   const [state, setState] = React.useState(getInitialState);
   const { selectedVersion, fields, fieldErrors, helperTexts, saving } = state;
   // The form can create the expansion on any version it offers, so Create follows the notices of the version chosen
-  // (HEAD's for HEAD): locked when they lock its edits (NoticeLocks)
+  // (HEAD's for HEAD): locked when they lock its edits (NoticeLocks), and waiting until they're in
   const noticesURL = selectedVersion && (
     selectedVersion.version === "HEAD" ? dropVersion(selectedVersion.version_url || selectedVersion.url || "") : selectedVersion.version_url
   );
-  const createLock = useNoticeLocks(useResourceNotices(noticesURL || null))("editExpansions");
+  const destination = useResourceNoticeLookup(noticesURL || null);
+  const createLock = useNoticeLocks(destination.notices)("editExpansions");
 
   React.useEffect(() => {
     setState(getInitialState());
@@ -213,8 +214,8 @@ const ExpansionForm = ({
   const onSubmit = event => {
     event.preventDefault();
     event.stopPropagation();
-    // Enter submits too: a locked version is never sent
-    if (createLock) return;
+    // Enter submits too: nothing is sent to a locked version, or before its notices are in
+    if (destination.pending || createLock) return;
 
     const payload = getPayload();
 
@@ -467,7 +468,7 @@ const ExpansionForm = ({
                 type="submit"
                 variant="contained"
                 sx={{ textTransform: "none" }}
-                disabled={saving || Boolean(createLock)}
+                disabled={saving || destination.pending || Boolean(createLock)}
                 endIcon={createLock ? <LockIcon fontSize="inherit" /> : undefined}
               >
                 {t("common.create")}

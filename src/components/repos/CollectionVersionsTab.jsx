@@ -71,11 +71,11 @@ import VerifiedChip from './VerifiedChip';
 import RepoContentSummary, { VERSION_STATS } from './RepoContentSummary';
 import ProcessingProgress from './ProcessingProgress';
 import RebuildExpansionDialog from './RebuildExpansionDialog';
-import { closeIfShowing, createRebuildGuard, getRebuildOutcome, withoutExpansionState } from './rebuildExpansion';
+import { closeIfShowing, createRebuildGuard, getRebuildLock, getRebuildOutcome, withoutExpansionState } from './rebuildExpansion';
 import ReindexVersionDialog from './ReindexVersionDialog';
 import RepoVersionRowMenu from './RepoVersionRowMenu';
 import { useNoticeLocks } from '../common/NoticeLocks';
-import { useResourceNotices } from '../common/useNotices';
+import { useResourceNoticeLookup, useResourceNotices } from '../common/useNotices';
 import { showRefusalNotice } from '../common/LimitNotice';
 import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
@@ -154,11 +154,19 @@ const parseProcessingValue = value => {
 };
 
 // An open version's expansions. The Rebuild under an expansion's updates writes to the version, so it follows that
-// version's notices, asked for only while such a Rebuild shows, and locks when they lock its edits (NoticeLocks).
-const VersionExpansionRows = ({ noticesURL, ...props }) => {
+// version's notices, asked for only while such a Rebuild shows, and locks when they lock its edits (NoticeLocks). The
+// confirmation it opens takes that lock once known (getRebuildLock).
+const VersionExpansionRows = ({ noticesURL, onRebuild, ...props }) => {
   const showsRebuild = props.expansions.some(expansion => Object.keys(props.getRepoUpdates(expansion) || {}).length > 0);
-  const rebuildLock = useNoticeLocks(useResourceNotices(showsRebuild ? noticesURL : null))('editExpansions');
-  return <ExpansionRowList {...props} rebuildLock={rebuildLock} />;
+  const lookup = useResourceNoticeLookup(showsRebuild ? noticesURL : null);
+  const rebuildLock = useNoticeLocks(lookup.notices)('editExpansions');
+  return (
+    <ExpansionRowList
+      {...props}
+      rebuildLock={rebuildLock}
+      onRebuild={expansion => onRebuild(expansion, lookup.pending ? undefined : rebuildLock)}
+    />
+  );
 };
 
 const CollectionVersionsTab = ({
@@ -545,7 +553,11 @@ const CollectionVersionsTab = ({
   const noticesURL = version => version && (isHeadVersion(version) ? baseRepoURL : version.version_url);
   const lockFor = useNoticeLocks(useResourceNotices(noticesURL(rowMenu.version || expansionMenu.version)));
   const exportsLockFor = useNoticeLocks(useResourceNotices(noticesURL(externalExportsVersion)));
-  const rebuildLockFor = useNoticeLocks(useResourceNotices(noticesURL(rebuildExpansion?.__version)));
+  // the rebuild confirmation asks for its version's notices only when its expansion rows didn't already know the lock
+  const knownRebuildLock = rebuildExpansion?.__lock;
+  const rebuildLookup = useResourceNoticeLookup(knownRebuildLock === undefined ? noticesURL(rebuildExpansion?.__version) : null);
+  const rebuildLookupLock = useNoticeLocks(rebuildLookup.notices)('editExpansions');
+  const rebuildLock = getRebuildLock(knownRebuildLock, { lock: rebuildLookupLock, pending: rebuildLookup.pending });
   const compareVersion = version => {
     const previousVersionURL = getPreviousVersionURL(version);
     if (previousVersionURL) {
@@ -836,7 +848,7 @@ const CollectionVersionsTab = ({
                   getRepoUpdates={expansion => repoUpdatesByExpansion[expansion.url]}
                   onSelectExpansion={expansion => setDetailsExpansion(expansion)}
                   onOpenExpansionMenu={(event, expansion) => openExpansionMenu(event, version, expansion)}
-                  onRebuild={expansion => setRebuildExpansion({ ...expansion, __version: version })}
+                  onRebuild={(expansion, lock) => setRebuildExpansion({ ...expansion, __version: version, __lock: lock })}
                 />
               </Box>
             </Collapse>
@@ -984,7 +996,8 @@ const CollectionVersionsTab = ({
       />
       <RebuildExpansionDialog
         expansion={rebuildExpansion}
-        lock={rebuildLockFor('editExpansions')}
+        lock={rebuildLock.lock}
+        pending={rebuildLock.pending}
         rebuilding={Boolean(rebuildExpansion?.url) && rebuildingURLs.includes(rebuildExpansion.url)}
         onClose={() => setRebuildExpansion(false)}
         onRebuild={onRebuildExpansion}

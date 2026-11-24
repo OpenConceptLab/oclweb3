@@ -11,7 +11,8 @@ import DialogTitle from "../common/DialogTitle";
 import { LockTooltip } from "../common/NoticeLocks";
 
 // `lock` is the reason the expansion's version notices lock its rebuild (NoticeLocks): Rebuild is disabled and says
-// why, while Create Similar, which can write to another version, stays open
+// why, while Create Similar, which can write to another version, stays open. While those notices are `pending`,
+// Rebuild waits for them.
 
 const RebuildExpansionDialog = ({
   expansion,
@@ -19,7 +20,8 @@ const RebuildExpansionDialog = ({
   onCreateSimilar,
   onRebuild,
   rebuilding,
-  lock
+  lock,
+  pending
 }) => {
   const { t } = useTranslation();
   if (!expansion) return null;
@@ -50,10 +52,10 @@ const RebuildExpansionDialog = ({
             color="error"
             variant="contained"
             sx={{ textTransform: "none" }}
-            disabled={rebuilding || Boolean(lock)}
+            disabled={rebuilding || pending || Boolean(lock)}
             startIcon={rebuilding ? <CircularProgress size={16} color="inherit" /> : undefined}
             endIcon={lock ? <LockIcon fontSize="inherit" /> : undefined}
-            onClick={() => !lock && onRebuild(expansion)}
+            onClick={() => !lock && !pending && onRebuild(expansion)}
           >
             {rebuilding ? t("repo.rebuilding") : t("repo.rebuild")}
           </MuiButton>
