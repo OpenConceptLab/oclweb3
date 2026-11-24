@@ -47,7 +47,7 @@ const ExpansionHealthChip = ({ status, onClick }) => {
             <Box component="span" sx={visuallyHidden}>{freshness}</Box>
           </Stack>
         ) : label}
-        aria-label={[`${t('repo.expansion_health.title')}: ${label}`, freshness].filter(Boolean).join(', ')}
+        aria-label={onClick ? [`${t('repo.expansion_health.title')}: ${label}`, freshness].filter(Boolean).join(', ') : undefined}
         onClick={onClick ? event => {
           event.stopPropagation();
           onClick(event);

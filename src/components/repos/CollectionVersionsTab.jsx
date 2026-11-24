@@ -225,6 +225,8 @@ const CollectionVersionsTab = ({
   React.useEffect(() => {
     setPage(1);
     fetchVersionsPage(1, pageSize);
+    // expansions are read again too, so a version's health is never older than its summary
+    displayVersions.forEach(version => fetchExpansions(version, true));
   }, [baseRepoURL, refreshKey]);
 
   React.useEffect(() => {

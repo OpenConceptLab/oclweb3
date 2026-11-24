@@ -85,12 +85,12 @@ test("a version shows its default expansion's health, and its own summary until 
     getVersionHealthStatus(version, {url: EXPANSION_URL + 'other/', health: health('unhealthy'), health_is_current: true}),
     {state: 'healthy', freshness: 'current'})
   assert.equal(getVersionHealthStatus({expansion_url: EXPANSION_URL, expansion_health: null}, null), null)
-  // a refreshed summary that is current beats a loaded expansion still waiting on its recheck
+  // a freshly fetched expansion that is out of date wins over an older summary that was current
   assert.deepEqual(
     getVersionHealthStatus(
-      {expansion_url: EXPANSION_URL, expansion_health: {state: 'healthy', is_current: true}},
-      {url: EXPANSION_URL, health: health('unhealthy'), health_is_current: false}),
-    {state: 'healthy', freshness: 'current'})
+      {expansion_url: EXPANSION_URL, expansion_health: {state: 'unhealthy', is_current: true}},
+      {url: EXPANSION_URL, health: health('unhealthy'), health_is_current: null}),
+    {state: 'unhealthy', freshness: 'not_current'})
   assert.deepEqual(
     getVersionHealthStatus({expansion_health: {state: 'empty', is_current: null}}, undefined),
     {state: 'empty', freshness: 'not_current'})
