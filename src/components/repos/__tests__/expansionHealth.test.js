@@ -73,13 +73,24 @@ test("a version shows its default expansion's health, and its own summary until 
   const version = {expansion_url: EXPANSION_URL, expansion_health: {state: 'healthy', is_current: true}}
   assert.deepEqual(getVersionHealthStatus(version, null), {state: 'healthy', freshness: 'current'})
   assert.deepEqual(
-    getVersionHealthStatus(version, {url: EXPANSION_URL, health: health('unhealthy'), health_is_current: false}),
+    getVersionHealthStatus(version, {url: EXPANSION_URL, health: health('unhealthy'), health_is_current: true}),
+    {state: 'unhealthy', freshness: 'current'})
+  assert.deepEqual(
+    getVersionHealthStatus(
+      {...version, expansion_health: {state: 'healthy', is_current: null}},
+      {url: EXPANSION_URL, health: health('unhealthy'), health_is_current: false}),
     {state: 'unhealthy', freshness: 'pending'})
   // another expansion than the default never stands in for the version
   assert.deepEqual(
     getVersionHealthStatus(version, {url: EXPANSION_URL + 'other/', health: health('unhealthy'), health_is_current: true}),
     {state: 'healthy', freshness: 'current'})
   assert.equal(getVersionHealthStatus({expansion_url: EXPANSION_URL, expansion_health: null}, null), null)
+  // a refreshed summary that is current beats a loaded expansion still waiting on its recheck
+  assert.deepEqual(
+    getVersionHealthStatus(
+      {expansion_url: EXPANSION_URL, expansion_health: {state: 'healthy', is_current: true}},
+      {url: EXPANSION_URL, health: health('unhealthy'), health_is_current: false}),
+    {state: 'healthy', freshness: 'current'})
   assert.deepEqual(
     getVersionHealthStatus({expansion_health: {state: 'empty', is_current: null}}, undefined),
     {state: 'empty', freshness: 'not_current'})
@@ -146,7 +157,7 @@ test('every health string is in each language, singular and plural', async () =>
     const i18n = i18next.createInstance()
     await i18n.init({lng: locale, resources: {[locale]: {translation}}})
     for(const key of keys)
-      for(const count of [1, 2]) {
+      for(const count of [1, 2, 1000000]) {
         const text = i18n.t(key, {count, code: 'x', date: 'd', concepts: 1, mappings: 1})
         assert.notEqual(text, key, `${locale}: ${key} (${count})`)
         assert.ok(!text.includes('{{'), `${locale}: ${key} (${count}) left a placeholder`)

@@ -72,6 +72,11 @@ const ExpansionHealthSection = ({ expansion }) => {
         {t(description)}
       </Typography>
 
+      {reasons.length > 0 && status.state !== 'unhealthy' && (
+        <Typography sx={{ fontSize: '13px', color: 'secondary.main', mt: 0.5 }}>
+          {t('repo.expansion_health.description_unhealthy')}
+        </Typography>
+      )}
       {reasons.length > 0 && (
         <Box component="ul" sx={{ pl: 2.5, mt: 0.5, mb: 0 }}>
           {reasons.map(reason => (

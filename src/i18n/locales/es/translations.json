@@ -620,7 +620,7 @@
       "state_empty": "Vacía",
       "state_checking": "Comprobando salud",
       "freshness_pending": "Desactualizada: hay una nueva comprobación en cola",
-      "freshness_not_current": "Puede estar desactualizada: se volverá a comprobar",
+      "freshness_not_current": "Puede estar desactualizada: se volverá a comprobar cuando se ejecuten las comprobaciones de salud",
       "description_healthy": "Cada referencia sin versión se resuelve a una sola versión publicada de su repositorio, y cada miembro está en la versión a la que se resolvió su referencia.",
       "description_head_resolved": "Coherente, pero al menos un repositorio se resuelve a HEAD, que todavía puede cambiar.",
       "description_unhealthy": "Algunas referencias o miembros no coinciden con las versiones a las que se resolvió esta expansión:",
@@ -665,7 +665,20 @@
       "head_objects": "Incluye conceptos de HEAD: {{concepts}}, mapeos de HEAD: {{mappings}}",
       "hidden_versions_one": "{{count}} más pertenece a otro propietario y es privada",
       "hidden_versions_other": "{{count}} más pertenecen a otro propietario y son privadas",
-      "description_unknown": "OCL indicó un estado de salud que esta página todavía no describe."
+      "description_unknown": "OCL indicó un estado de salud que esta página todavía no describe.",
+      "reason_inconsistent_resolution_many": "{{count}} repositorios se resolvieron a versiones sin ninguna versión en común",
+      "reason_duplicate_repo_versions_many": "{{count}} repositorios están registrados en más de una versión",
+      "reason_locked_version_deleted_many": "Se eliminaron {{count}} versiones de repositorio bloqueadas",
+      "reason_resource_versioned_references_many": "{{count}} referencias nombran una versión específica de concepto o mapeo",
+      "reason_unresolved_references_many": "{{count}} referencias no se pudieron resolver",
+      "reason_value_set_without_expansion_many": "{{count}} referencias apuntan a una versión de conjunto de valores sin expansión",
+      "reason_system_version_unresolved_many": "{{count}} entradas del parámetro system-version no se pudieron resolver",
+      "reason_unreleased_versions_many": "{{count}} miembros provienen de una versión de repositorio que nunca se publicó",
+      "reason_interim_resource_versions_many": "{{count}} miembros son versiones intermedias, que no están en ninguna versión publicada ni en HEAD",
+      "reason_version_mismatches_many": "{{count}} miembros están en una versión distinta de la versión a la que se resolvió su referencia",
+      "reason_ambiguous_members_many": "{{count}} miembros se evalúan de forma distinta según la referencia",
+      "reason_unattributed_members_many": "{{count}} miembros no se explican por ninguna referencia",
+      "hidden_versions_many": "{{count}} más pertenecen a otro propietario y son privadas"
     }
   },
   "org": {

@@ -8,11 +8,10 @@ import {
   Sync as PendingIcon,
   History as NotCurrentIcon
 } from '@mui/icons-material';
+import { visuallyHidden } from '@mui/utils';
 import { useTranslation } from 'react-i18next';
 
 import { FRESHNESS_KEYS, getStateConfig } from './expansionHealth';
-
-const visuallyHidden = { position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap' };
 
 const STATE_ICONS = {
   healthy: HealthyIcon,

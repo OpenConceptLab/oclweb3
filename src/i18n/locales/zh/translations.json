@@ -590,7 +590,7 @@
       "state_empty": "空",
       "state_checking": "正在检查健康状况",
       "freshness_pending": "已过期：已排队重新检查",
-      "freshness_not_current": "可能已过期：将重新检查",
+      "freshness_not_current": "可能已过期：运行健康检查时将重新检查",
       "description_healthy": "每个未指定版本的引用都解析到其存储库的同一个已发布版本，且每个成员都在其引用解析到的版本中。",
       "description_head_resolved": "一致，但至少有一个存储库解析到 HEAD，而 HEAD 仍可能变化。",
       "description_unhealthy": "部分引用或成员与此扩展解析到的版本不一致：",

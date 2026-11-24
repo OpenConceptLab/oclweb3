@@ -989,7 +989,7 @@
       "state_empty": "Empty",
       "state_checking": "Checking health",
       "freshness_pending": "Out of date: a recheck is queued",
-      "freshness_not_current": "May be out of date: it will be checked again",
+      "freshness_not_current": "May be out of date: it will be checked again when health checks run",
       "description_healthy": "Every unversioned reference resolves to a single released version of its repository, and every member is in the version its reference resolved to.",
       "description_head_resolved": "Consistent, but at least one repository resolves to HEAD, which can still change.",
       "description_unhealthy": "Some references or members don't match the versions this expansion resolved to:",

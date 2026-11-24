@@ -27,12 +27,16 @@ export const getExpansionHealthStatus = expansion =>
 export const getDefaultExpansionHealthStatus = expansion =>
   expansion?.default ? getExpansionHealthStatus(expansion) : null
 
-// A version's health is its default expansion's; the version's own summary covers it until expansions load
+// A version's health is its default expansion's; the version's own summary covers it until expansions load,
+// and wins once it is current while the loaded expansion isn't, as expansions aren't fetched again on a refresh
 export const getVersionHealthStatus = (version, defaultExpansion) => {
-  if(defaultExpansion && defaultExpansion.url === version?.expansion_url)
-    return getExpansionHealthStatus(defaultExpansion)
   const summary = version?.expansion_health
-  return summary ? toStatus(summary.state, summary.is_current) : null
+  const fromSummary = summary ? toStatus(summary.state, summary.is_current) : null
+  if(defaultExpansion && defaultExpansion.url === version?.expansion_url) {
+    const fromExpansion = getExpansionHealthStatus(defaultExpansion)
+    return fromSummary?.freshness === 'current' && fromExpansion?.freshness !== 'current' ? fromSummary : fromExpansion
+  }
+  return fromSummary
 }
 
 export const getStateConfig = state => HEALTH_STATES[state] || null
