@@ -9,6 +9,7 @@ import GAService from "../../services/GAService";
 import Dialog from "../common/Dialog";
 import DialogTitle from "../common/DialogTitle";
 import { LockTooltip } from "../common/NoticeLocks";
+import { canSendRebuild } from "./rebuildExpansion";
 
 // `lock` is the reason the expansion's version notices lock its rebuild (NoticeLocks): Rebuild is disabled and says
 // why, while Create Similar, which can write to another version, stays open. While those notices are `pending`,
@@ -25,6 +26,7 @@ const RebuildExpansionDialog = ({
 }) => {
   const { t } = useTranslation();
   if (!expansion) return null;
+  const canRebuild = canSendRebuild({ rebuilding, pending, lock });
 
   return (
     <Dialog open={Boolean(expansion)} onClose={onClose}>
@@ -52,10 +54,10 @@ const RebuildExpansionDialog = ({
             color="error"
             variant="contained"
             sx={{ textTransform: "none" }}
-            disabled={rebuilding || pending || Boolean(lock)}
+            disabled={!canRebuild}
             startIcon={rebuilding ? <CircularProgress size={16} color="inherit" /> : undefined}
             endIcon={lock ? <LockIcon fontSize="inherit" /> : undefined}
-            onClick={() => !lock && !pending && onRebuild(expansion)}
+            onClick={() => canRebuild && onRebuild(expansion)}
           >
             {rebuilding ? t("repo.rebuilding") : t("repo.rebuild")}
           </MuiButton>

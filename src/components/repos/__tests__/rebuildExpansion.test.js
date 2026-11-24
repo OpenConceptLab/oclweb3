@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-const { getRebuildOutcome, createRebuildGuard, getRebuildLock, closeIfShowing, withoutExpansionState } = await import('../rebuildExpansion.js')
+const { getRebuildOutcome, createRebuildGuard, canSendRebuild, closeIfShowing, withoutExpansionState } = await import('../rebuildExpansion.js')
 
 test('204 with no body is a successful rebuild', () => {
   assert.deepEqual(
@@ -77,13 +77,9 @@ test('a failed rebuild drops only that expansion\'s tracked state', () => {
   assert.deepEqual(state, {[A]: {state: 'processing'}, [B]: {state: 'processed'}})
 })
 
-test('the rebuild confirmation takes the lock its expansion rows already know, with nothing to wait for', () => {
-  const lookup = {lock: null, pending: true}
-  assert.deepEqual(getRebuildLock('Example reason', lookup), {lock: 'Example reason', pending: false})
-  assert.deepEqual(getRebuildLock(null, lookup), {lock: null, pending: false})
-})
-
-test('opened without a known lock, the rebuild confirmation follows its own lookup and waits while it is pending', () => {
-  assert.deepEqual(getRebuildLock(undefined, {lock: null, pending: true}), {lock: null, pending: true})
-  assert.deepEqual(getRebuildLock(undefined, {lock: 'Example reason', pending: false}), {lock: 'Example reason', pending: false})
+test('the rebuild confirmation\'s Rebuild waits for its own notices lookup, and stays shut when they lock it', () => {
+  assert.equal(canSendRebuild({rebuilding: false, pending: true, lock: null}), false)
+  assert.equal(canSendRebuild({rebuilding: false, pending: false, lock: 'Example reason'}), false)
+  assert.equal(canSendRebuild({rebuilding: true, pending: false, lock: null}), false)
+  assert.equal(canSendRebuild({rebuilding: false, pending: false, lock: null}), true)
 })
