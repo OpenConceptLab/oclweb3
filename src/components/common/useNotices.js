@@ -27,6 +27,14 @@ const readCache = (username, lang) => {
   }
 }
 
+const clearCache = () => {
+  try {
+    window.sessionStorage.removeItem(CACHE_KEY)
+  } catch(_) {
+    // storage unavailable: there's nothing to clear
+  }
+}
+
 const writeCache = (username, lang, notices) => {
   try {
     window.sessionStorage.setItem(CACHE_KEY, JSON.stringify({username, lang, notices}))
@@ -41,38 +49,52 @@ const useRefusalRefetch = load => React.useEffect(() => {
   return () => window.removeEventListener(NOTICE_REFUSED_EVENT, load)
 }, [load])
 
+// Only the latest request a hook made may answer: one that's superseded (a newer one started, or the hook moved on to
+// another resource or unmounted) is ignored
+const useLatestRequest = () => {
+  const latest = React.useRef(0)
+  React.useEffect(() => () => {
+    latest.current += 1
+  }, [])
+  return React.useCallback(() => {
+    const id = ++latest.current
+    return () => id === latest.current
+  }, [])
+}
+
 // The signed-in person's account notices: asked once a session, and again after a refusal with a notice
 export const useAccountNotices = () => {
   const { i18n } = useTranslation()
   const lang = i18n.language
   const username = isLoggedIn() ? getCurrentUserUsername() : null
   const [notices, setNotices] = React.useState(() => (username && readCache(username, lang)) || [])
+  const startRequest = useLatestRequest()
 
   const load = React.useCallback(() => {
+    const isLatest = startRequest()
     if(!username) {
       setNotices([])
-      return undefined
+      return
     }
-    let current = true
     fetchNotices({lang}).then(({ status, notices }) => {
-      // an answer, or a server with no such route, holds for the session; a failed request is asked again next time
+      if(!isLatest())
+        return
+      // an answer, or a server with no such route, holds for the session; after a failed request nothing is kept, so
+      // the next page load asks again
       if([200, 404].includes(status))
         writeCache(username, lang, notices)
-      if(current)
-        setNotices(notices)
+      else
+        clearCache()
+      setNotices(notices)
     })
-    return () => {
-      current = false
-    }
-  }, [username, lang])
+  }, [username, lang, startRequest])
 
   React.useEffect(() => {
     const cached = username && readCache(username, lang)
-    if(cached) {
+    if(cached)
       setNotices(cached)
-      return undefined
-    }
-    return load()
+    else
+      load()
   }, [load])
 
   useRefusalRefetch(load)
@@ -80,25 +102,25 @@ export const useAccountNotices = () => {
   return notices
 }
 
-// The notices for one repository or map project (its relative URL), with the locks they carry
+// The notices for one repository, version or map project (its relative URL), with the locks they carry
 export const useResourceNotices = resourceURL => {
   const { i18n } = useTranslation()
   const lang = i18n.language
   const [state, setState] = React.useState({resourceURL: null, notices: []})
+  const startRequest = useLatestRequest()
 
   const load = React.useCallback(() => {
+    const isLatest = startRequest()
     if(!resourceURL || !isLoggedIn()) {
       setState({resourceURL, notices: []})
-      return undefined
+      return
     }
-    let current = true
-    fetchNotices({resource: resourceURL, lang}).then(({ notices }) => current && setState({resourceURL, notices}))
-    return () => {
-      current = false
-    }
-  }, [resourceURL, lang])
+    fetchNotices({resource: resourceURL, lang}).then(({ notices }) => isLatest() && setState({resourceURL, notices}))
+  }, [resourceURL, lang, startRequest])
 
-  React.useEffect(load, [load])
+  React.useEffect(() => {
+    load()
+  }, [load])
   useRefusalRefetch(load)
 
   // never the notices of the resource shown before

@@ -97,8 +97,10 @@ const RepoCreate = () => {
   const fromOCLURLParsed = React.useMemo(() => parseRepoURL(fromOCLURL), [fromOCLURL])
   const [validationErrors, setValidationErrors] = React.useState({})
   // A refusal that carries a notice (a limit on private repositories, or read-only content) is shown under the
-  // visibility field, where the way out is, instead of a toast
+  // visibility field, where the way out is, instead of a toast. It answers the owner and visibility that were submitted:
+  // changing either clears it, and a refusal for a submission made before the change is ignored.
   const [visibilityNotice, setVisibilityNotice] = React.useState(null)
+  const submission = React.useRef(0)
   const isEdit = Boolean(params.repo)
   const canonicalURLEdited = React.useRef(false)
 
@@ -185,10 +187,13 @@ const RepoCreate = () => {
 
   const onChange = (id, value) => {
     setValidationErrors(prev => ({...prev, [id]: false}))
-    if(id === 'publicAccess')
-      setVisibilityNotice(null)
     setModel({...model, [id]: valueToId(value)})
   }
+
+  React.useEffect(() => {
+    submission.current += 1
+    setVisibilityNotice(null)
+  }, [ownerURL, model.publicAccess])
 
   const onCanonicalURLChange = value => {
     canonicalURLEdited.current = true
@@ -275,6 +280,7 @@ const RepoCreate = () => {
     })
     GAService.recordUpsertEvent(selectedTab.id === 'collection' ? 'Collection' : 'Source', isEdit)
     setVisibilityNotice(null)
+    const submitted = ++submission.current
     let service = getService()
     service = isEdit ? service.put(payload) : service.post(payload)
     service.then(response => {
@@ -285,7 +291,8 @@ const RepoCreate = () => {
       else {
         const notice = takeRefusalNotice(response)
         if(notice) {
-          setVisibilityNotice(notice)
+          if(submitted === submission.current)
+            setVisibilityNotice(notice)
           return
         }
         let error = compact(flatten(values(response)))
