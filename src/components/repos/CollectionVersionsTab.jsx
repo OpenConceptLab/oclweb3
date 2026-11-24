@@ -70,7 +70,7 @@ import ProcessingFlag from './ProcessingFlag';
 import RepoContentSummary, { VERSION_STATS } from './RepoContentSummary';
 import ProcessingProgress from './ProcessingProgress';
 import RebuildExpansionDialog from './RebuildExpansionDialog';
-import { closeIfShowing, createRebuildGuard, getRebuildOutcome } from './rebuildExpansion';
+import { closeIfShowing, createRebuildGuard, getRebuildOutcome, withoutExpansionState } from './rebuildExpansion';
 import ReindexVersionDialog from './ReindexVersionDialog';
 import RepoVersionRowMenu from './RepoVersionRowMenu';
 import VersionExportDialog from './VersionExportDialog';
@@ -504,6 +504,8 @@ const CollectionVersionsTab = ({
     // the API holds the request while the rebuild runs, so a second click would only get a 409
     if (!rebuildGuard.start(expansion.url)) return;
     setRebuildingURLs(rebuildGuard.list());
+    // the row shows it processing even if the dialog is closed while the request waits
+    markExpansionProcessing(expansion.url);
     GAService.recordActionEvent('Expansion', 'rebuild_expansion', expansion.mnemonic || expansion.url, {
       expansion: expansion.url
     });
@@ -514,6 +516,7 @@ const CollectionVersionsTab = ({
       const outcome = getRebuildOutcome(response);
       setAlert({ severity: outcome.severity, message: outcome.detail || t(outcome.messageKey) });
       if (outcome.refresh) refreshSelectedExpansions(expansion.__version);
+      else setProcessingStatusByExpansion(prev => withoutExpansionState(prev, expansion.url));
     });
   };
 
@@ -640,7 +643,8 @@ const CollectionVersionsTab = ({
     const { version, expansion } = expansionMenu;
     if (!version || !expansion) return [];
 
-    const processing = isExpansionProcessing(expansion) || isVersionProcessing(version);
+    const processing = isExpansionProcessing(expansion) || isVersionProcessing(version) ||
+      getExpansionProcessingState(expansion) === 'processing';
     const processingReason = t('repo.action_disabled_while_processing');
 
     const items = [];

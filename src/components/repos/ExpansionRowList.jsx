@@ -220,6 +220,7 @@ const ExpansionRowList = ({
                   size="small"
                   variant="text"
                   sx={{ mt: 0.5, minWidth: 0, p: 0, textTransform: 'none', fontWeight: 700 }}
+                  disabled={processingState(expansion) === 'processing'}
                   onClick={() => onRebuild(expansion)}
                 >
                   {t('repo.rebuild')}

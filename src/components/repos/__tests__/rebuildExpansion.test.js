@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-const { getRebuildOutcome, createRebuildGuard, closeIfShowing } = await import('../rebuildExpansion.js')
+const { getRebuildOutcome, createRebuildGuard, closeIfShowing, withoutExpansionState } = await import('../rebuildExpansion.js')
 
 test('204 with no body is a successful rebuild', () => {
   assert.deepEqual(
@@ -68,4 +68,11 @@ test('a response closes the dialog only if it still shows the same expansion', (
   assert.equal(closeIfShowing(other, A), other)
   assert.equal(closeIfShowing(false, A), false)
   assert.equal(closeIfShowing(null, A), null)
+})
+
+test('a failed rebuild drops only that expansion\'s tracked state', () => {
+  const state = {[A]: {state: 'processing'}, [B]: {state: 'processed'}}
+  assert.deepEqual(withoutExpansionState(state, A), {[B]: {state: 'processed'}})
+  assert.equal(withoutExpansionState(state, '/other/'), state)
+  assert.deepEqual(state, {[A]: {state: 'processing'}, [B]: {state: 'processed'}})
 })

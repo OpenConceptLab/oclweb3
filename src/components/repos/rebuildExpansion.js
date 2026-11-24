@@ -26,3 +26,11 @@ export const createRebuildGuard = () => {
 
 // Closes the rebuild dialog only if it still shows the expansion that answered
 export const closeIfShowing = (current, url) => current?.url === url ? false : current
+
+// Drops an expansion's tracked processing state, e.g. after a rebuild request failed
+export const withoutExpansionState = (statusByExpansion, url) => {
+  if(!statusByExpansion?.[url]) return statusByExpansion
+  const next = {...statusByExpansion}
+  delete next[url]
+  return next
+}
