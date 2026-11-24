@@ -1,6 +1,6 @@
 {
   "name": "ocl-web",
-  "version": "3.0.55-alpha",
+  "version": "3.0.56-alpha",
   "private": true,
   "main": "index.js",
   "homepage": ".",
