@@ -340,7 +340,7 @@ const CollectionVersionsTab = ({
       const defaultExpansion = getDefaultExpansion(version);
       if (defaultExpansion) fetchResolvedRepoUpdates(version, defaultExpansion);
     });
-  }, [displayVersions, expansionsByVersion, fetchResolvedRepoUpdates, getDefaultExpansion]);
+  }, [displayVersions, expansionsByVersion, fetchResolvedRepoUpdates, getDefaultExpansion, repoUpdatesByExpansion]);
 
   // Auto-expand any row whose default expansion has something worth flagging
   // (resolved repo updates available, or stale) so the warning isn't hidden a click away.
@@ -416,6 +416,12 @@ const CollectionVersionsTab = ({
     });
   }, [clearProcessedCleanup]);
 
+  // a rebuild keeps the expansion's URL, so what it was locked to is read again once it finishes
+  const forgetRepoUpdates = React.useCallback(url => {
+    fetchedRepoUpdatesRef.current.delete(url);
+    setRepoUpdatesByExpansion(prev => withoutExpansionState(prev, url));
+  }, []);
+
   const markExpansionProcessed = React.useCallback((url, onlyIfTracked = false) => {
     if (!url) return;
     const currentState = processingStatusRef.current[url]?.state;
@@ -423,6 +429,7 @@ const CollectionVersionsTab = ({
       clearProcessingPoll(url);
       return;
     }
+    forgetRepoUpdates(url);
     clearProcessingPoll(url);
     clearProcessedCleanup(url);
     setProcessingStatusByExpansion(prev => ({ ...prev, [url]: { state: 'processed', processedAt: Date.now() } }));
@@ -435,7 +442,7 @@ const CollectionVersionsTab = ({
       });
       delete processedCleanupRef.current[url];
     }, PROCESSED_CHIP_FADE_MS);
-  }, [clearProcessedCleanup, clearProcessingPoll]);
+  }, [clearProcessedCleanup, clearProcessingPoll, forgetRepoUpdates]);
 
   React.useEffect(() => () => {
     Object.keys(processingPollsRef.current).forEach(clearProcessingPoll);

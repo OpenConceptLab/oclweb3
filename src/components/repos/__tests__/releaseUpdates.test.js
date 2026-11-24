@@ -55,7 +55,7 @@ test("an unreleased version isn't called out as having a newer release", () => {
   assert.equal(getReleaseUpdates(retired, {[SOURCE_V1]: SOURCE_HEAD})[0].case, 'retired')
 })
 
-test("a version a reference names is pinned: a rebuild keeps it", () => {
+test("a version a reference names, or reaches through a resource version, is held by that reference", () => {
   const [update] = getReleaseUpdates(expansion, {[OTHER_V1]: OTHER_V3})
   assert.equal(update.pinned, 'reference')
   assert.equal(update.case, 'newer')
@@ -74,8 +74,11 @@ test('a version the system-version parameter names is pinned, by relative or can
   assert.equal(getReleaseUpdates(locked('https://example.org/T|v9, https://example.org/S|v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, 'system_version')
   assert.equal(getReleaseUpdates(locked('https://example.org/S|v0'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, null)
   assert.equal(getReleaseUpdates(locked(''), {[SOURCE_V1]: SOURCE_V2})[0].pinned, null)
-  // an entry can be the repository version's own URL
+  // an entry can be the repository version's own URL, which stops resolving once that version is retired
   assert.equal(getReleaseUpdates(locked('/orgs/O/sources/S/v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, 'system_version')
+  const retired = entry => ({...locked(entry), evaluated_source_versions: [{...locked(entry).evaluated_source_versions[0], retired: true}]})
+  assert.equal(getReleaseUpdates(retired('/orgs/O/sources/S/v1/'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, null)
+  assert.equal(getReleaseUpdates(retired('/orgs/O/sources/S/|v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, 'system_version')
   assert.equal(getReleaseUpdates(locked('/orgs/O/sources/S/v0/'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, null)
   // a repository's bare URL resolves again on a rebuild, so a HEAD lock it names still moves
   const head = {parameters: {'system-version': '/orgs/O/sources/S/'}, evaluated_source_versions: [{version_url: SOURCE_HEAD, version: 'HEAD'}]}
@@ -103,11 +106,13 @@ test("deleted locks come from the default expansion's stored health, counted and
     {code: 'unresolved_references', count: 1},
     {code: 'locked_version_deleted', count: 2, versions: [SOURCE_V1]},
   ]}
-  assert.deepEqual(getDeletedLocks({health, default: true}), {count: 2, urls: [SOURCE_V1], hiddenCount: 1})
-  // another expansion's health is stale
-  assert.equal(getDeletedLocks({health, default: false}), null)
-  assert.equal(getDeletedLocks({health: {state: 'healthy', reasons: []}, default: true}), null)
-  assert.equal(getDeletedLocks({health: null, default: true}), null)
+  assert.deepEqual(getDeletedLocks({health, default: true, health_is_current: true}), {count: 2, urls: [SOURCE_V1], hiddenCount: 1})
+  // another expansion's health is stale, and so is one not checked since its last change, e.g. a rebuild
+  assert.equal(getDeletedLocks({health, default: false, health_is_current: true}), null)
+  assert.equal(getDeletedLocks({health, default: true, health_is_current: false}), null)
+  assert.equal(getDeletedLocks({health, default: true, health_is_current: null}), null)
+  assert.equal(getDeletedLocks({health: {state: 'healthy', reasons: []}, default: true, health_is_current: true}), null)
+  assert.equal(getDeletedLocks({health: null, default: true, health_is_current: true}), null)
   assert.equal(getDeletedLocks(null), null)
 })
 
@@ -138,6 +143,8 @@ test('the compare link opens one version with both expansions picked', () => {
   assert.equal(params.get('version2'), '/orgs/O/collections/C/v1/')
   assert.equal(params.get('expansion1'), 'a/')
   assert.equal(params.get('expansion2'), 'b/')
+  // the expansion comparison, not the version's summary, which is the same on both sides
+  assert.equal(params.get('metric'), 'content')
   // HEAD's URL has no version segment
   assert.ok(getCompareExpansionsURL('/orgs/O/collections/C/', {url: 'a/'}, {url: 'b/'}).startsWith('/orgs/O/collections/C/compare-versions?'))
   assert.equal(getCompareExpansionsURL('/orgs/O/collections/C/v1/', {url: 'a/'}, null), null)

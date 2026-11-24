@@ -691,7 +691,7 @@
       "released_nudge": "Esta versión de la colección está publicada. Reconstruirla cambia su contenido. Para mantenerla como está, reconstruya la expansión de HEAD y luego cree una nueva versión a partir de HEAD con Fijar versiones de repositorio.",
       "compare_with": "Comparar con {{mnemonic}}",
       "case_unreleased": "Bloqueada en una versión que no está publicada:",
-      "pinned_reference": "Una referencia nombra esta versión, así que una reconstrucción la mantiene. Cambie la referencia para moverla.",
+      "pinned_reference": "Una referencia nombra esta versión, o una versión de concepto o de mapeo que contiene. Una reconstrucción mantiene la versión que nombra una referencia; la que se alcanzó por una versión de concepto o de mapeo aún puede cambiar.",
       "pinned_system_version": "El parámetro system-version de la expansión nombra esta versión, así que una reconstrucción la mantiene. Cree una expansión sin esa entrada para moverla.",
       "pinned_lock": "Esta versión de la colección se creó con Fijar versiones de repositorio, así que una reconstrucción mantiene esta versión del conjunto de valores. Cree una nueva expansión para moverla."
     }

@@ -42,15 +42,16 @@ const trimSlash = url => (url || '').replace(/\/$/, '')
 // a canonical URL only a URL registry maps to the repository isn't matched
 const isNamedInSystemVersion = (entries, oldURL, recorded) => entries.some(entry => {
   const index = entry.lastIndexOf('|')
-  // an entry can also be a repository version's own URL; a repository's bare URL resolves again
-  if(index < 0) return !isHeadURL(`${trimSlash(entry)}/`) && trimSlash(entry) === trimSlash(oldURL)
+  // a version's own URL stops resolving once it's retired, and a repository's bare URL resolves again
+  if(index < 0) return !recorded?.retired && !isHeadURL(`${trimSlash(entry)}/`) && trimSlash(entry) === trimSlash(oldURL)
   const [url, version] = [entry.slice(0, index), entry.slice(index + 1)]
   const urls = [dropVersion(oldURL), recorded?.canonical_url, recorded?.url].filter(Boolean)
   return Boolean(recorded?.version) && version === recorded.version && urls.some(candidate => trimSlash(candidate) === trimSlash(url))
 })
 
 // [{oldURL, newURL, case, pinned}] from resolved-repo-updates ({recorded URL: latest URL}), HEAD and retired first.
-// pinned says what keeps it on a rebuild: a reference, system-version, or a lock-built expansion's value-set lock
+// pinned says what holds it: a reference (a rebuild may still move one reached through a resource version),
+// system-version, or a lock-built expansion's value-set lock
 export const getReleaseUpdates = (expansion, repoUpdates) => {
   const explicit = byURL(expansion, EXPLICIT_RELATIONS)
   const evaluated = byURL(expansion, EVALUATED_RELATIONS)
@@ -76,7 +77,8 @@ export const getMovableUpdates = (expansion, repoUpdates) =>
 
 // The locked versions deleted since the expansion was built, from its stored health: a default expansion's only
 export const getDeletedLocks = expansion => {
-  if(!expansion?.default) return null
+  // between a rebuild and the next health check, the reason may name a lock the rebuild cleared
+  if(!expansion?.default || expansion?.health_is_current !== true) return null
   const reason = getHealthReasons(expansion?.health).find(item => item.code === 'locked_version_deleted')
   return reason ? {count: reason.count, urls: reason.urls, hiddenCount: reason.hiddenCount} : null
 }
@@ -97,7 +99,7 @@ export const getComparableExpansion = (expansion, expansions = []) => {
 export const getCompareExpansionsURL = (versionURL, expansion, other) => {
   if(!versionURL || !expansion?.url || !other?.url) return null
   const params = new URLSearchParams({
-    version1: versionURL, version2: versionURL, expansion1: expansion.url, expansion2: other.url,
+    version1: versionURL, version2: versionURL, expansion1: expansion.url, expansion2: other.url, metric: 'content',
   })
   return `${dropVersion(versionURL)}compare-versions?${params.toString()}`
 }

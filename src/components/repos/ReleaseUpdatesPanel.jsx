@@ -29,6 +29,9 @@ const linkSx = {
   '& a:hover': { textDecoration: 'underline' }
 };
 
+// an inline icon, so text around it keeps its own spacing
+const iconSx = fontSize => ({ fontSize, verticalAlign: 'middle', ml: '2px' });
+
 const lineSx = { fontSize: '12px', mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap', ...linkSx };
 
 // Says why an expansion's locked versions have newer releases, and offers a comparison before a rebuild.
@@ -64,8 +67,8 @@ const ReleaseUpdatesPanel = ({ expansion, version, expansions, repoUpdates, proc
                 <a href={update.oldURL} target="_blank" rel="noreferrer">{labelFromVersionUrl(update.oldURL)}</a>
                 {' → '}
                 <a href={update.newURL} target="_blank" rel="noreferrer">{labelFromVersionUrl(update.newURL)}</a>
-                <a href={compareVersionsURL} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                  ({t('common.compare')} <OpenInNewIcon sx={{ fontSize: '12px' }} />)
+                <a href={compareVersionsURL} target="_blank" rel="noreferrer" style={{ whiteSpace: 'nowrap' }}>
+                  ({t('common.compare')}<OpenInNewIcon sx={iconSx('12px')} />)
                 </a>
                 {update.pinned && (
                   <Box component="span" sx={{ flexBasis: '100%', color: 'secondary.main' }}>{t(`repo.release_updates.pinned_${update.pinned}`)}</Box>
@@ -118,8 +121,8 @@ const ReleaseUpdatesPanel = ({ expansion, version, expansions, repoUpdates, proc
             </MuiButton>
             {compareURL && (
               <Typography component="span" sx={{ fontSize: '13px', fontWeight: 700 }}>
-                <a href={compareURL} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                  {t('repo.release_updates.compare_with', { mnemonic: comparable.mnemonic })} <OpenInNewIcon sx={{ fontSize: '13px' }} />
+                <a href={compareURL} target="_blank" rel="noreferrer">
+                  {t('repo.release_updates.compare_with', { mnemonic: comparable.mnemonic })}<OpenInNewIcon sx={iconSx('13px')} />
                 </a>
               </Typography>
             )}

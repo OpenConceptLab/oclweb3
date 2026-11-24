@@ -17,8 +17,15 @@ import { isProcessing, isVersionProcessing } from './processingStages';
 import { formatDate } from '../../common/utils';
 import { formatCount } from './versionsTab.styles';
 
-// eslint-disable-next-line spellcheck/spell-checker
-const GRID_COLUMNS = 'minmax(200px, 1.4fr) minmax(160px, 1fr) minmax(160px, 1fr) 40px';
+// on a phone the two version lists go under the expansion, each with its own heading
+const rowGridSx = {
+  display: 'grid',
+  columnGap: 2,
+  // eslint-disable-next-line spellcheck/spell-checker
+  gridTemplateColumns: { xs: 'minmax(0, 1fr) 40px', sm: 'minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) 40px' },
+  gridTemplateAreas: { xs: '"name menu" "explicit explicit" "evaluated evaluated"', sm: '"name explicit evaluated menu"' }
+};
+const columnHeadingSx = { fontSize: '11px', fontWeight: 700, color: 'secondary.main', textTransform: 'uppercase' };
 
 const renderRepoVersionLabel = version => `${version.owner} / ${version.short_code}:${version.version}`;
 
@@ -32,8 +39,9 @@ const getEvaluatedRepoVersions = expansion => [
   ...(expansion?.evaluated_collection_versions || [])
 ];
 
-const RepoVersionList = ({ versions, emptyLabel }) => (
-  <Box sx={{ minWidth: 0 }}>
+const RepoVersionList = ({ versions, emptyLabel, heading, area }) => (
+  <Box sx={{ minWidth: 0, gridArea: area, mt: { xs: 0.75, sm: 0 } }}>
+    <Typography sx={{ ...columnHeadingSx, display: { xs: 'block', sm: 'none' } }}>{heading}</Typography>
     {versions.length ? versions.map(version => (
       <Typography
         key={version.version_url || `${version.owner}-${version.short_code}-${version.version}`}
@@ -94,17 +102,10 @@ const ExpansionRowList = ({
 
   return (
     <Box sx={{ py: 0.5 }}>
-      <Box sx={{ display: 'grid', gridTemplateColumns: GRID_COLUMNS, columnGap: 2, px: 1, pb: 0.5 }}>
-        <Typography sx={{ fontSize: '11px', fontWeight: 700, color: 'secondary.main', textTransform: 'uppercase' }}>
-          {t('repo.expansions')}
-        </Typography>
-        <Typography sx={{ fontSize: '11px', fontWeight: 700, color: 'secondary.main', textTransform: 'uppercase' }}>
-          {t('repo.explicit_repo_versions')}
-        </Typography>
-        <Typography sx={{ fontSize: '11px', fontWeight: 700, color: 'secondary.main', textTransform: 'uppercase' }}>
-          {t('repo.evaluated_repo_versions')}
-        </Typography>
-        <span />
+      <Box sx={{ ...rowGridSx, display: { xs: 'none', sm: 'grid' }, px: 1, pb: 0.5 }}>
+        <Typography sx={{ ...columnHeadingSx, gridArea: 'name' }}>{t('repo.expansions')}</Typography>
+        <Typography sx={{ ...columnHeadingSx, gridArea: 'explicit' }}>{t('repo.explicit_repo_versions')}</Typography>
+        <Typography sx={{ ...columnHeadingSx, gridArea: 'evaluated' }}>{t('repo.evaluated_repo_versions')}</Typography>
       </Box>
 
       {expansions.map(expansion => {
@@ -125,13 +126,13 @@ const ExpansionRowList = ({
               ...(isMenuOpen?.(expansion) ? { backgroundColor: 'surface.main' } : {})
             }}
           >
-            <Box sx={{ display: 'grid', gridTemplateColumns: GRID_COLUMNS, columnGap: 2, alignItems: 'start' }}>
-              <Box onClick={() => onSelectExpansion(expansion)} sx={{ minWidth: 0, cursor: 'pointer' }}>
+            <Box sx={{ ...rowGridSx, alignItems: 'start' }}>
+              <Box onClick={() => onSelectExpansion(expansion)} sx={{ minWidth: 0, cursor: 'pointer', gridArea: 'name' }}>
                 <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
                   <Typography sx={{ fontSize: '13px', fontWeight: 700, color: 'primary.main' }}>
                     {expansion.mnemonic}
                   </Typography>
-                  {(expansion.default || expansion.auto) && (
+                  {expansion.default && (
                     <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
                       <DefaultIcon sx={{ width: 14, height: 14, color: 'primary.main' }} />
                       <Typography sx={{ fontSize: '11px', fontWeight: 700, color: 'primary.main', textTransform: 'uppercase' }}>
@@ -160,11 +161,12 @@ const ExpansionRowList = ({
                 </Typography>
               </Box>
 
-              <RepoVersionList versions={explicitVersions} emptyLabel={t('common.none')} />
-              <RepoVersionList versions={evaluatedVersions} emptyLabel={t('common.none')} />
+              <RepoVersionList versions={explicitVersions} emptyLabel={t('common.none')} heading={t('repo.explicit_repo_versions')} area="explicit" />
+              <RepoVersionList versions={evaluatedVersions} emptyLabel={t('common.none')} heading={t('repo.evaluated_repo_versions')} area="evaluated" />
 
               <IconButton
                 size="small"
+                sx={{ gridArea: 'menu', justifySelf: 'end' }}
                 onClick={event => {
                   event.stopPropagation();
                   onOpenExpansionMenu(event, expansion);
