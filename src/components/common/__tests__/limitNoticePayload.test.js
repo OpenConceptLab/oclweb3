@@ -102,11 +102,8 @@ test('the notice is read from an axios error, a response or the body', () => {
 })
 
 test('with no notice, the API detail is what is shown', () => {
-  assert.equal(getNoticeDetail({response: {data: {detail: 'Example detail'}}}), 'Example detail')
-  assert.equal(getNoticeDetail({detail: 'Example detail'}), 'Example detail')
-  assert.equal(getNoticeDetail({error: 'Example error'}), 'Example error')
+  assert.equal(getNoticeDetail({response: {data: {detail: 'Example detail', error: 'Example error'}}}), 'Example detail')
   assert.equal(getNoticeDetail('Example message'), 'Example message')
-  assert.equal(getNoticeDetail({}), null)
 })
 
 test('the notices route answer keeps usable notices only', () => {

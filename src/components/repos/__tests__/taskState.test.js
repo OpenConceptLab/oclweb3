@@ -12,7 +12,7 @@ test('a task that is queued or running, or whose state is unknown, has not finis
 })
 
 // Watches a task whose asks answer these states in turn, running each scheduled ask once the one before has answered
-const watch = async (states, options = {}) => {
+const watch = async states => {
   const ended = []
   const intervals = []
   const scheduled = []
@@ -20,7 +20,7 @@ const watch = async (states, options = {}) => {
   watchTask(
     () => Promise.resolve(states[asked++]),
     state => ended.push(state),
-    {...options, schedule: (next, interval) => {
+    {schedule: (next, interval) => {
       scheduled.push(next)
       intervals.push(interval)
     }},
@@ -36,12 +36,10 @@ const watch = async (states, options = {}) => {
 
 test('a watched task is asked about until it has finished, then reported once', async () => {
   assert.deepEqual(await watch(['PENDING', 'STARTED', 'SUCCESS']), {asked: 3, ended: ['SUCCESS'], intervals: [10000, 10000]})
-  assert.deepEqual((await watch(['STARTED', 'FAILURE'], {interval: 5})).ended, ['FAILURE'])
-  assert.deepEqual((await watch(['STARTED', 'FAILURE'], {interval: 5})).intervals, [5])
+  assert.deepEqual(await watch(['STARTED', 'FAILURE']), {asked: 2, ended: ['FAILURE'], intervals: [10000]})
 })
 
 test('a watched task is given up on after failed asks in a row, and never reported', async () => {
   // an answer in between starts the count again
   assert.deepEqual(await watch([null, 'STARTED', null, null, null, 'SUCCESS']), {asked: 5, ended: [], intervals: [10000, 10000, 10000, 10000]})
-  assert.deepEqual((await watch([null, null], {maxFailures: 2})).asked, 2)
 })

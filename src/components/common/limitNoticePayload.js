@@ -3,8 +3,8 @@
 // works nothing out: no fraction, color, date or wording is computed here. With no payload, LimitNotice shows the
 // API's `detail` and nothing else.
 
-export const NOTICE_KINDS = ['quota', 'cap', 'not_included', 'read_only']
-export const NOTICE_TONES = ['info', 'warning', 'error']
+const NOTICE_KINDS = ['quota', 'cap', 'not_included', 'read_only']
+const NOTICE_TONES = ['info', 'warning', 'error']
 const SCOPE_TYPES = ['account', 'organization']
 const ACTION_KINDS = ['primary', 'secondary', 'text']
 const TEXT_FIELDS = ['title', 'scope', 'reset', 'restricted', 'still_works', 'managed_by', 'tooltip']
@@ -113,10 +113,7 @@ export const getNoticeTone = notice => notice?.tone || notice?.meter?.tone || 'i
 export const getNoticeIcon = notice => {
   if(notice?.kind === 'read_only')
     return 'lock'
-  if(notice?.kind === 'not_included')
-    return 'info'
-  const tone = getNoticeTone(notice)
-  return tone === 'info' ? 'info' : tone
+  return notice?.kind === 'not_included' ? 'info' : getNoticeTone(notice)
 }
 
 // The write actions any of a resource's notices lock, and the reason the first one gives

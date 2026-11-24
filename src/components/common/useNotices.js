@@ -19,30 +19,21 @@ const fetchNotices = query => APIService.new()
   .then(response => ({status: response?.status, notices: getNotices(response?.data)}))
   .catch(error => ({status: error?.response?.status, notices: []}))
 
-const readCache = (username, lang) => {
+// With storage unavailable (or a cache it can't read) nothing is cached, and the next page load asks again
+const safely = fn => {
   try {
-    const cached = JSON.parse(window.sessionStorage.getItem(CACHE_KEY))
-    return (cached?.username === username && cached?.lang === lang && Array.isArray(cached.notices)) ? cached.notices : null
+    return fn()
   } catch(_) {
     return null
   }
 }
 
-const clearCache = () => {
-  try {
-    window.sessionStorage.removeItem(CACHE_KEY)
-  } catch(_) {
-    // storage unavailable: there's nothing to clear
-  }
-}
-
-const writeCache = (username, lang, notices) => {
-  try {
-    window.sessionStorage.setItem(CACHE_KEY, JSON.stringify({username, lang, notices}))
-  } catch(_) {
-    // storage unavailable: the next page load asks again
-  }
-}
+const readCache = (username, lang) => safely(() => {
+  const cached = JSON.parse(window.sessionStorage.getItem(CACHE_KEY))
+  return (cached?.username === username && cached?.lang === lang && Array.isArray(cached.notices)) ? cached.notices : null
+})
+const clearCache = () => safely(() => window.sessionStorage.removeItem(CACHE_KEY))
+const writeCache = (username, lang, notices) => safely(() => window.sessionStorage.setItem(CACHE_KEY, JSON.stringify({username, lang, notices})))
 
 // A write the API queued (a repository's deletion, say) changes the notices only once its task has ended, so they're
 // fetched again then. The watch outlives the page that started it: the account strips are on every page.
