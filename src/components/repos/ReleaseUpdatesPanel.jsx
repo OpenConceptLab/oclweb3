@@ -39,7 +39,7 @@ const ReleaseUpdatesPanel = ({ expansion, version, expansions, repoUpdates, proc
   const deletedLocks = getDeletedLocks(expansion);
   if (!updates.length && !deletedLocks) return null;
 
-  // versions a reference or system-version names don't move on a rebuild, so only the rest get the rebuild advice
+  // pinned versions don't move on a rebuild, so only the rest get the rebuild advice
   const actionable = updates.some(update => !update.pinned) || Boolean(deletedLocks);
   const released = isReleasedCollectionVersion(version);
   const comparable = getComparableExpansion(expansion, expansions);
@@ -68,7 +68,7 @@ const ReleaseUpdatesPanel = ({ expansion, version, expansions, repoUpdates, proc
                   ({t('common.compare')} <OpenInNewIcon sx={{ fontSize: '12px' }} />)
                 </a>
                 {update.pinned && (
-                  <Box component="span" sx={{ flexBasis: '100%', color: 'secondary.main' }}>{t('repo.release_updates.pinned')}</Box>
+                  <Box component="span" sx={{ flexBasis: '100%', color: 'secondary.main' }}>{t(`repo.release_updates.pinned_${update.pinned}`)}</Box>
                 )}
               </Typography>
             );

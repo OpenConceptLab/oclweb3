@@ -42,15 +42,15 @@ const trimSlash = url => (url || '').replace(/\/$/, '')
 // a canonical URL only a URL registry maps to the repository isn't matched
 const isNamedInSystemVersion = (entries, oldURL, recorded) => entries.some(entry => {
   const index = entry.lastIndexOf('|')
-  // an entry can also be a repository version's own URL
-  if(index < 0) return trimSlash(entry) === trimSlash(oldURL)
+  // an entry can also be a repository version's own URL; a repository's bare URL resolves again
+  if(index < 0) return !isHeadURL(`${trimSlash(entry)}/`) && trimSlash(entry) === trimSlash(oldURL)
   const [url, version] = [entry.slice(0, index), entry.slice(index + 1)]
   const urls = [dropVersion(oldURL), recorded?.canonical_url, recorded?.url].filter(Boolean)
   return Boolean(recorded?.version) && version === recorded.version && urls.some(candidate => trimSlash(candidate) === trimSlash(url))
 })
 
 // [{oldURL, newURL, case, pinned}] from resolved-repo-updates ({recorded URL: latest URL}), HEAD and retired first.
-// A version a reference or system-version names, or a value set a lock-built expansion kept, is pinned: a rebuild keeps it
+// pinned says what keeps it on a rebuild: a reference, system-version, or a lock-built expansion's value-set lock
 export const getReleaseUpdates = (expansion, repoUpdates) => {
   const explicit = byURL(expansion, EXPLICIT_RELATIONS)
   const evaluated = byURL(expansion, EVALUATED_RELATIONS)
@@ -61,8 +61,10 @@ export const getReleaseUpdates = (expansion, repoUpdates) => {
   return Object.entries(repoUpdates || {})
     .map(([oldURL, newURL]) => {
       const recorded = evaluated[oldURL] || explicit[oldURL]
-      const pinned = Boolean(explicit[oldURL] && !evaluated[oldURL]) || isNamedInSystemVersion(systemVersions, oldURL, recorded) ||
-        Boolean(keptValueSets[oldURL])
+      let pinned = null
+      if(explicit[oldURL] && !evaluated[oldURL]) pinned = 'reference'
+      else if(isNamedInSystemVersion(systemVersions, oldURL, recorded)) pinned = 'system_version'
+      else if(keptValueSets[oldURL]) pinned = 'lock'
       return {oldURL, newURL, case: getCase(oldURL, newURL, recorded), pinned}
     })
     .sort((a, b) => order.indexOf(a.case) - order.indexOf(b.case))

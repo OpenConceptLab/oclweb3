@@ -33,9 +33,9 @@ test('each update says whether the lock is on HEAD, on a retired release, or a n
     [SOURCE_V1]: SOURCE_V2, [SOURCE_HEAD]: SOURCE_V2, [VALUE_SET_V1]: VALUE_SET_V2,
   })
   assert.deepEqual(updates, [
-    {oldURL: SOURCE_HEAD, newURL: SOURCE_V2, case: 'head', pinned: false},
-    {oldURL: VALUE_SET_V1, newURL: VALUE_SET_V2, case: 'retired', pinned: false},
-    {oldURL: SOURCE_V1, newURL: SOURCE_V2, case: 'newer', pinned: false},
+    {oldURL: SOURCE_HEAD, newURL: SOURCE_V2, case: 'head', pinned: null},
+    {oldURL: VALUE_SET_V1, newURL: VALUE_SET_V2, case: 'retired', pinned: null},
+    {oldURL: SOURCE_V1, newURL: SOURCE_V2, case: 'newer', pinned: null},
   ])
 })
 
@@ -57,12 +57,12 @@ test("an unreleased version isn't called out as having a newer release", () => {
 
 test("a version a reference names is pinned: a rebuild keeps it", () => {
   const [update] = getReleaseUpdates(expansion, {[OTHER_V1]: OTHER_V3})
-  assert.equal(update.pinned, true)
+  assert.equal(update.pinned, 'reference')
   assert.equal(update.case, 'newer')
   assert.deepEqual(getMovableUpdates(expansion, {[OTHER_V1]: OTHER_V3}), [])
   // listed as both: unversioned references resolved to it too, so a rebuild can move those
   const both = {...expansion, evaluated_source_versions: [{version_url: OTHER_V1, version: 'v1', released: true}]}
-  assert.equal(getReleaseUpdates(both, {[OTHER_V1]: OTHER_V3})[0].pinned, false)
+  assert.equal(getReleaseUpdates(both, {[OTHER_V1]: OTHER_V3})[0].pinned, null)
 })
 
 test('a version the system-version parameter names is pinned, by relative or canonical URL', () => {
@@ -70,20 +70,24 @@ test('a version the system-version parameter names is pinned, by relative or can
     parameters: {'system-version': version},
     evaluated_source_versions: [{version_url: SOURCE_V1, version: 'v1', released: true, canonical_url: 'https://example.org/S'}],
   })
-  assert.equal(getReleaseUpdates(locked('/orgs/O/sources/S/|v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, true)
-  assert.equal(getReleaseUpdates(locked('https://example.org/T|v9, https://example.org/S|v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, true)
-  assert.equal(getReleaseUpdates(locked('https://example.org/S|v0'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, false)
-  assert.equal(getReleaseUpdates(locked(''), {[SOURCE_V1]: SOURCE_V2})[0].pinned, false)
+  assert.equal(getReleaseUpdates(locked('/orgs/O/sources/S/|v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, 'system_version')
+  assert.equal(getReleaseUpdates(locked('https://example.org/T|v9, https://example.org/S|v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, 'system_version')
+  assert.equal(getReleaseUpdates(locked('https://example.org/S|v0'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, null)
+  assert.equal(getReleaseUpdates(locked(''), {[SOURCE_V1]: SOURCE_V2})[0].pinned, null)
   // an entry can be the repository version's own URL
-  assert.equal(getReleaseUpdates(locked('/orgs/O/sources/S/v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, true)
-  assert.equal(getReleaseUpdates(locked('/orgs/O/sources/S/v0/'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, false)
+  assert.equal(getReleaseUpdates(locked('/orgs/O/sources/S/v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, 'system_version')
+  assert.equal(getReleaseUpdates(locked('/orgs/O/sources/S/v0/'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, null)
+  // a repository's bare URL resolves again on a rebuild, so a HEAD lock it names still moves
+  const head = {parameters: {'system-version': '/orgs/O/sources/S/'}, evaluated_source_versions: [{version_url: SOURCE_HEAD, version: 'HEAD'}]}
+  assert.equal(getReleaseUpdates(head, {[SOURCE_HEAD]: SOURCE_V2})[0].pinned, null)
+  assert.equal(getReleaseUpdates({...head, parameters: {'system-version': '/orgs/O/sources/S'}}, {[SOURCE_HEAD]: SOURCE_V2})[0].pinned, null)
 })
 
 test("a value set lock-built expansion keeps through a rebuild is pinned; one built otherwise isn't", () => {
   const valueSets = {evaluated_collection_versions: [{version_url: VALUE_SET_V1, version: 'v1', released: true}]}
-  assert.equal(getReleaseUpdates({...valueSets, built_with: 'lock'}, {[VALUE_SET_V1]: VALUE_SET_V2})[0].pinned, true)
-  assert.equal(getReleaseUpdates({...valueSets, built_with: 'latest'}, {[VALUE_SET_V1]: VALUE_SET_V2})[0].pinned, false)
-  assert.equal(getReleaseUpdates({...valueSets, built_with: null}, {[VALUE_SET_V1]: VALUE_SET_V2})[0].pinned, false)
+  assert.equal(getReleaseUpdates({...valueSets, built_with: 'lock'}, {[VALUE_SET_V1]: VALUE_SET_V2})[0].pinned, 'lock')
+  assert.equal(getReleaseUpdates({...valueSets, built_with: 'latest'}, {[VALUE_SET_V1]: VALUE_SET_V2})[0].pinned, null)
+  assert.equal(getReleaseUpdates({...valueSets, built_with: null}, {[VALUE_SET_V1]: VALUE_SET_V2})[0].pinned, null)
 })
 
 test("a version the expansion doesn't list is judged by its URL", () => {
@@ -152,7 +156,7 @@ test("the compare page picks each side's expansion from the URL, then the versio
 test('every rebuild-offer string is in each language', async () => {
   const keys = [
     ...Object.values(UPDATE_CASES),
-    ...['lock_stays', 'compare_first', 'released_nudge', 'compare_with', 'pinned'].map(key => `repo.release_updates.${key}`),
+    ...['lock_stays', 'compare_first', 'released_nudge', 'compare_with', 'pinned_reference', 'pinned_system_version', 'pinned_lock'].map(key => `repo.release_updates.${key}`),
   ]
   for(const locale of ['en', 'es', 'pt-BR', 'zh']) {
     const translation = JSON.parse(

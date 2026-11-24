@@ -1045,7 +1045,9 @@
       "released_nudge": "This collection version is released. A rebuild changes what it holds. To keep it as it is, rebuild HEAD's expansion instead, then create a new version from HEAD with Lock repo versions.",
       "compare_with": "Compare with {{mnemonic}}",
       "case_unreleased": "Locked to a version that isn't released:",
-      "pinned": "A rebuild keeps this version: a reference or the system-version parameter names it, or the collection version was created with Lock repo versions. Change the reference or the parameter, or create a new expansion, to move it."
+      "pinned_reference": "A reference names this version, so a rebuild keeps it. Change the reference to move it.",
+      "pinned_system_version": "The expansion's system-version parameter names this version, so a rebuild keeps it. Create an expansion without that entry to move it.",
+      "pinned_lock": "This collection version was created with Lock repo versions, so a rebuild keeps this value set version. Create a new expansion to move it."
     }
   },
   "org": {
