@@ -5,6 +5,7 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Alert from '@mui/material/Alert'
+import LockIcon from '@mui/icons-material/LockOutlined'
 import Table from '@mui/material/Table'
 import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
@@ -27,6 +28,8 @@ import RepoTooltip from '../repos/RepoTooltip'
 import UnresolvedReferencesTable from './UnresolvedReferencesTable'
 import { groupReferenceResults, formatReferenceSummary, getAddReferencesOutcome } from './referenceResults'
 import { showNotice } from './LimitNotice'
+import { LockTooltip, useNoticeLocks } from './NoticeLocks'
+import { useResourceNotices } from './useNotices'
 
 // Extract "[id] [name]" from an expression URL like /orgs/CIEL/sources/CIEL/concepts/1234/
 const extractConceptLabel = expression => {
@@ -90,6 +93,9 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
   const [submitting, setSubmitting] = React.useState(false)
   const [results, setResults] = React.useState(null) // array of { added, expression, message }
   const [error, setError] = React.useState(null)
+  // Adding writes to the chosen collection, so Add follows that collection's notices and locks when they lock adding
+  // references (NoticeLocks); another collection can still be chosen
+  const addLock = useNoticeLocks(useResourceNotices(open && selected?.url ? selected.url : null))('addReferences')
 
   React.useEffect(() => {
     if (open) {
@@ -133,7 +139,7 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
   const conceptUrls = concepts.map(c => dropVersion(c.url) || c.url).filter(Boolean)
 
   const handleSubmit = () => {
-    if (!selected || !conceptUrls.length) return
+    if (!selected || !conceptUrls.length || addLock) return
     GAService.recordActionEvent('Collection References', 'add_to_collection', selected?.short_code || selected?.id, {
       collection: selected?.url,
       count: conceptUrls.length
@@ -356,14 +362,17 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
       </DialogContent>
       <DialogActions sx={{ pt: 2, px: 0 }}>
         {!done && (
-          <Button
-            variant="contained"
-            onClick={handleSubmit}
-            disabled={!selected || submitting}
-            sx={{ textTransform: 'none' }}
-          >
-            {t('addToCollection.add_button')}
-          </Button>
+          <LockTooltip title={addLock} placement='top' display='inline-block'>
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={!selected || submitting || Boolean(addLock)}
+              endIcon={addLock ? <LockIcon fontSize='inherit' /> : undefined}
+              sx={{ textTransform: 'none' }}
+            >
+              {t('addToCollection.add_button')}
+            </Button>
+          </LockTooltip>
         )}
       </DialogActions>
     </Dialog>

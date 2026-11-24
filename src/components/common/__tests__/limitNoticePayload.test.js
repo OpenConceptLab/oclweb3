@@ -157,6 +157,10 @@ test('an entry point is locked only when every action it can take is locked', ()
   assert.equal(isEntryPointLocked(['edit'], 'copyURL'), false)
   assert.equal(isEntryPointLocked(['edit'], 'saveDefaultFilters'), true)
   assert.equal(isEntryPointLocked(['edit'], 'removeReferences'), true)
+  // adding to a collection and cloning into a source are edits of the destination
+  assert.equal(isEntryPointLocked(['edit'], 'addReferences'), true)
+  assert.equal(isEntryPointLocked(['edit'], 'cloneToSource'), true)
+  assert.equal(isEntryPointLocked(['delete'], 'cloneToSource'), false)
   Object.values(ENTRY_POINT_ACTIONS).forEach(actions => actions.forEach(action => assert.ok(WRITE_ACTIONS.includes(action), action)))
 })
 
