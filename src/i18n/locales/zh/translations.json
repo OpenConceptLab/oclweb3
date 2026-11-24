@@ -796,7 +796,6 @@
     "users": "用户",
     "sort_by": "排序依据",
     "include_retired": "包含已退役",
-    "include_retired_count": "包含已退役 ({{retired}})",
     "display": "显示",
     "loading": "优化您的搜索结果...",
     "no_results": "我们找不到任何符合搜索条件的匹配项： ",

@@ -6,7 +6,7 @@ import SearchInputDrawer from './SearchInputDrawer';
 import { BROWSE_CONFIG, FACET_FILTER_CONFIG } from './browseConfig';
 import { getURLWithoutFacetFilter } from './facetFilterURL';
 import { getOwnerSearchScope } from './ownerSearch';
-import { withIncludeRetiredFrom } from './retiredSwitch';
+import { withIncludeRetiredFrom } from './retiredControl';
 
 
 const SearchInput = props => {
@@ -161,7 +161,7 @@ const SearchInput = props => {
         URL += `?type=${resourceType}`
       }
 
-      // the "Include Retired" switch stays as it is, with or without a keyword
+      // the Retired control stays as it is, with or without a keyword
       history.push(withIncludeRetiredFrom(URL.replace('?&', '?'), location.search));
     }
   }

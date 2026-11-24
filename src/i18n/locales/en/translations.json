@@ -1088,7 +1088,6 @@
     "users": "Users",
     "sort_by": "Sort By",
     "include_retired": "Include Retired",
-    "include_retired_count": "Include Retired ({{retired}})",
     "display": "Display",
     "loading": "Refining your search results...",
     "no_results": "We could not find any matches for ",

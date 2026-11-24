@@ -2,16 +2,17 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 
 import {
-  hasRetiredSwitch, isCollectionSearchURL, getRetiredRequestParams, getIncludeRetiredFromFilter,
+  hasRetiredControl, isCollectionSearchURL, getRetiredRequestParams, getIncludeRetiredFromFilter,
   withIncludeRetiredFrom, getIncludeRetired, getRetiredCount
-} from '../retiredSwitch.js'
+} from '../retiredControl.js'
 
-test('concept and mapping searches have the switch; others keep what they had', () => {
-  assert.equal(hasRetiredSwitch('concepts'), true)
-  assert.equal(hasRetiredSwitch('mappings'), true)
-  assert.equal(hasRetiredSwitch('repos'), false)
-  assert.equal(hasRetiredSwitch('references'), false)
-  assert.equal(hasRetiredSwitch(false), false)
+test('concept, mapping and repository searches have the control; others keep what they had', () => {
+  assert.equal(hasRetiredControl('concepts'), true)
+  assert.equal(hasRetiredControl('mappings'), true)
+  assert.equal(hasRetiredControl('repos'), true)
+  assert.equal(hasRetiredControl('references'), false)
+  assert.equal(hasRetiredControl('users'), false)
+  assert.equal(hasRetiredControl(false), false)
 })
 
 test('on by default in a collection, off in a source and in global search', () => {
@@ -23,16 +24,17 @@ test('on by default in a collection, off in a source and in global search', () =
   assert.equal(isCollectionSearchURL(undefined), false)
 })
 
-test('on sends includeRetired=true; off sends retired=false in a collection and nothing elsewhere', () => {
+test('on sends includeRetired=true; off sends includeRetired=false in a collection and nothing elsewhere', () => {
   assert.deepEqual(getRetiredRequestParams(true, false), {includeRetired: true})
-  assert.deepEqual(getRetiredRequestParams(false, true), {retired: 'false'})
+  assert.deepEqual(getRetiredRequestParams(true, true), {includeRetired: true})
+  assert.deepEqual(getRetiredRequestParams(false, true), {includeRetired: false})
   assert.deepEqual(getRetiredRequestParams(false, false), {})
 })
 
-test('a Retired filter from an old URL sets the switch', () => {
+test('a Retired filter from an old URL sets the control', () => {
   assert.equal(getIncludeRetiredFromFilter({true: true, false: true}), true)
   assert.equal(getIncludeRetiredFromFilter({false: true}), false)
-  // retired only: the switch can't show only retired ones, so it lets them in
+  // retired only: the control can't show only retired ones, so it lets them in
   assert.equal(getIncludeRetiredFromFilter({true: true}), true)
   // excluded values: "not retired" keeps active ones only, "not active" means retired only
   assert.equal(getIncludeRetiredFromFilter({__exclude__: true, true: true}), false)
@@ -42,7 +44,7 @@ test('a Retired filter from an old URL sets the switch', () => {
   assert.equal(getIncludeRetiredFromFilter(undefined), undefined)
 })
 
-test('a filter URL built from scratch keeps the switch setting from the current URL', () => {
+test("a filter URL built from scratch keeps the control's setting from the current URL", () => {
   assert.equal(withIncludeRetiredFrom('/search/?type=concepts&filters=x', '?q=a&includeRetired=true'), '/search/?type=concepts&filters=x&includeRetired=true')
   assert.equal(withIncludeRetiredFrom('/orgs/CIEL/sources/CIEL/concepts/?filters=x', '?includeRetired=false'), '/orgs/CIEL/sources/CIEL/concepts/?filters=x&includeRetired=false')
   assert.equal(withIncludeRetiredFrom('/search/?type=concepts', '?q=a'), '/search/?type=concepts')
@@ -52,17 +54,22 @@ test('a filter URL built from scratch keeps the switch setting from the current 
 test("the URL's setting wins over an old Retired filter, which wins over the page default", () => {
   assert.equal(getIncludeRetired('?includeRetired=true', {false: true}, false), true)
   assert.equal(getIncludeRetired('?includeRetired=false', undefined, true), false)
+  assert.equal(getIncludeRetired('?includeRetired=1', undefined, false), true)
+  assert.equal(getIncludeRetired('?includeRetired=True', undefined, false), true)
+  assert.equal(getIncludeRetired('?includeRetired=0', undefined, true), false)
   assert.equal(getIncludeRetired('?q=malaria', {true: true, false: true}, false), true)
   assert.equal(getIncludeRetired('?q=malaria', {false: true}, true), false)
   assert.equal(getIncludeRetired('', undefined, true), true)
   assert.equal(getIncludeRetired('', undefined, false), false)
 })
 
-test("the retired count comes from the Retired facet's true value, and only when it's there", () => {
+test("the retired count comes from the Retired facet's true value; none there means 0", () => {
   assert.equal(getRetiredCount({retired: [['false', 8289, false], ['true', 476, false]]}), 476)
   assert.equal(getRetiredCount({retired: [['true', 0, false]]}), 0)
-  // today's API leaves the true value out when retired=false is sent
-  assert.equal(getRetiredCount({retired: [['false', 8289, false]]}), undefined)
+  // the API leaves out values with no matches, so only active ones match
+  assert.equal(getRetiredCount({retired: [['false', 8289, false]]}), 0)
+  assert.equal(getRetiredCount({retired: []}), 0)
+  // no Retired facet at all: nothing to show
   assert.equal(getRetiredCount({conceptClass: [['Drug', 8289, false]]}), undefined)
   assert.equal(getRetiredCount(undefined), undefined)
 })

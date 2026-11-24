@@ -136,8 +136,8 @@ export const FACET_ORDER = {
     'toConceptOwner', 'toConceptOwnerType', 'toConceptSource', 'toConcept',
     'collection_membership', 'updatedBy'
   ],
-  // Concept and mapping searches have the "Include Retired" switch in place of a Retired filter
-  // (retiredSwitch.js); repository searches keep the filter.
-  "repos": ["repoType", "sourceType", "collectionType", "owner", "ownerType", "customValidationSchema", "locale", "retired"]
+  // Concept, mapping and repository searches have the panel's Retired control in place of a Retired
+  // filter (retiredControl.js), first in the panel
+  "repos": ["repoType", "sourceType", "collectionType", "owner", "ownerType", "customValidationSchema", "locale"]
 }
 

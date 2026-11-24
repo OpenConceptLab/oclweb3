@@ -691,7 +691,6 @@
     "users": "Usuarios",
     "sort_by": "Ordenar por",
     "include_retired": "Incluir retirados",
-    "include_retired_count": "Incluir retirados ({{retired}})",
     "display": "Mostrar",
     "loading": "Refinando los resultados de tu búsqueda...",
     "no_results": "No pudimos encontrar coincidencias para ",

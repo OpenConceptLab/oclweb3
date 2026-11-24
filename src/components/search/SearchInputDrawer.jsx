@@ -20,7 +20,7 @@ import SearchInputText from './SearchInputText'
 import FilterTypeChips from './FilterTypeChips'
 import EntityBrowseList from './EntityBrowseList'
 import { BROWSE_CONFIG, FACET_FILTER_CONFIG, getFacetFilterURL } from './browseConfig'
-import { withIncludeRetiredFrom } from './retiredSwitch'
+import { withIncludeRetiredFrom } from './retiredControl'
 import { getModeForFilterType } from './searchlightMode'
 import { getOwnerSearchScope } from './ownerSearch'
 
@@ -138,7 +138,7 @@ const SearchInputDrawer = ({open, onClose, input, initiateSearch, inputProps, is
     try {
       existingFilters = JSON.parse(new URLSearchParams(location.search).get('filters') || '{}')
     } catch(e) { /* malformed filters param, ignore */ }
-    // the "Include Retired" switch stays as it is, as the other filters do
+    // the Retired control stays as it is, as the other filters do
     const url = withIncludeRetiredFrom(getFacetFilterURL(facetConfig, term, isRepoContext ? location.pathname : null, q, existingFilters), location.search)
 
     if(isRepoContext && facetConfig.resourceType !== (resource || 'concepts')) {

@@ -7,7 +7,7 @@ import SortMenu from './SortMenu';
 import GAService from '../../services/GAService';
 import { hasSortOptions } from './sortConfig';
 
-const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, onOrderByChange, sortConfig, noCardDisplay, extraControls, displayOptions, resource, leadingControls}) => {
+const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, onOrderByChange, sortConfig, noCardDisplay, extraControls, displayOptions, resource}) => {
   const { t } = useTranslation()
   const [displayAnchorEl, setDisplayAnchorEl] = React.useState(null);
   const [sortAnchorEl, setSortAnchorEl] = React.useState(null);
@@ -23,7 +23,6 @@ const SearchControls = ({ disabled, onDisplayChange, display, order, orderBy, on
 
   return (
     <div className='col-xs-12 padding-0' style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center'}}>
-      {leadingControls}
       {
       hasSortOptions(sortConfig) &&
           <Button disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none', whiteSpace: 'nowrap'}} endIcon={<DownIcon fontSize='inherit' />} onClick={onSortClick}>

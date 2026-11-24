@@ -1064,7 +1064,6 @@
     "users": "Usuários",
     "sort_by": "Ordenar por",
     "include_retired": "Incluir descontinuados",
-    "include_retired_count": "Incluir descontinuados ({{retired}})",
     "display": "Exibir",
     "loading": "Refinando seus resultados de busca...",
     "no_results": "Não encontramos correspondências para ",
