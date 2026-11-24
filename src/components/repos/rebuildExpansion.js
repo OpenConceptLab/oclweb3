@@ -8,3 +8,21 @@ export const getRebuildOutcome = response => {
     return {severity: 'info', detail, messageKey: 'repo.expansion_rebuild_in_progress', refresh: true}
   return {severity: 'error', detail, messageKey: 'repo.unable_rebuild_expansion', refresh: false}
 }
+
+// Rebuilds in flight, by expansion URL: a second request for one only gets a 409
+export const createRebuildGuard = () => {
+  const pending = new Set()
+  return {
+    start: url => {
+      if(pending.has(url)) return false
+      pending.add(url)
+      return true
+    },
+    finish: url => { pending.delete(url) },
+    isPending: url => Boolean(url) && pending.has(url),
+    list: () => [...pending],
+  }
+}
+
+// Closes the rebuild dialog only if it still shows the expansion that answered
+export const closeIfShowing = (current, url) => current?.url === url ? false : current
