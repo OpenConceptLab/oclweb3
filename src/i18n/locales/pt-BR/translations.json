@@ -557,7 +557,15 @@
     "convert_more": "e mais {{count}}",
     "convert_running": "Convertendo em segundo plano. Você pode fechar isto; a conversão continua.",
     "convert_unsupported_note": "{{count}} referência(s) não podem ser convertidas e ficam como estão.",
-    "convert_task_failed": "A conversão em segundo plano falhou."
+    "convert_task_failed": "A conversão em segundo plano falhou.",
+    "convert_reason_changed": "Mudou desde a prévia",
+    "convert_reason_other_cascade": "A coleção já a tem com outra cascata",
+    "convert_reason_no_visible_version": "Não resolve para nenhuma versão que você possa ver",
+    "convert_reason_no_holder": "Nenhuma versão contém sua versão de recurso",
+    "convert_reason_not_in_collection": "Não está nesta coleção",
+    "convert_poll_failed": "Não foi possível obter o status da conversão em segundo plano. Atualize a lista de referências para ver o que mudou.",
+    "convert_refused": "A conversão foi recusada.",
+    "convert_not_converted_reasons": "Ficaram como estavam: {{reasons}}."
   },
   "checksums": {
     "standard": "Checksum padrão",

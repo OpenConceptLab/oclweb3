@@ -34,10 +34,11 @@ export const summarize = results => {
 }
 
 // A repo-versioned conversion that names HEAD: its member moves with the next edit in HEAD
-export const followsHead = conversion => conversion?.chosen_by === 'HEAD'
+// A conversion whose version is HEAD, named or as the lock: its member moves with the next edit in HEAD
+export const followsHead = conversion => Boolean(conversion?.follows_head) || conversion?.chosen_by === 'HEAD'
 
-// The conversion offered first (ocl_issues#2280's order): unversioned when it keeps today's members, else
-// repo-versioned when it does, never one that follows HEAD; else the reference is left as it is
+// The conversion offered first (ocl_issues#2280's order): unversioned when it keeps today's members, whatever it
+// resolves to, else repo-versioned when it does, never one naming HEAD; else the reference is left as it is
 export const getDefaultChoice = item => {
   if(!item?.supported)
     return LEAVE
@@ -87,13 +88,38 @@ export const describeConversion = conversion => {
 }
 
 // What a queued conversion's task reports once it ends: its results, or the error that stopped it. null while it runs
+// The task is asked for with verbose and result=all, which return its stored result (result=true leaves it out)
+export const TASK_RESULT_QUERY = { verbose: true, result: 'all' }
+
 export const getQueuedConversion = task => {
   if(!isTaskFinished(task?.state))
     return null
   const result = typeof task.result === 'string' ? parseJSON(task.result) : task.result
   if(String(task.state).toUpperCase() === 'SUCCESS' && Array.isArray(result?.results))
     return { results: result.results }
+  if(result?.refusal !== undefined && result?.refusal !== null)
+    return { refusal: getRefusalMessage(result.refusal) }
   return { error: result?.error || task.error_message || null }
+}
+
+// A refusal is the body a write would have answered with: its detail, else its first message
+export const getRefusalMessage = refusal => {
+  if(typeof refusal === 'string')
+    return refusal
+  if(typeof refusal?.detail === 'string')
+    return refusal.detail
+  const first = Object.values(refusal || {}).flat().find(value => typeof value === 'string')
+  return first || null
+}
+
+// The reasons the API left references as they were, each with how many it applies to, most common first
+export const getNotConvertedReasons = results => {
+  const counts = {}
+  ;(Array.isArray(results) ? results : []).forEach(result => {
+    if(result?.status === 'not_converted' && result.reason)
+      counts[result.reason] = (counts[result.reason] || 0) + 1
+  })
+  return Object.entries(counts).map(([reason, count]) => ({ reason, count })).sort((a, b) => b.count - a.count)
 }
 
 const parseJSON = value => {

@@ -24,10 +24,12 @@ import APIService from '../../services/APIService'
 import {
   REPO_VERSIONED, UNVERSIONED, LEAVE, CONVERSIONS, PREVIEW_PAGE_SIZE, getResourceVersionedIds, mergePreviewPages,
   getDefaultChoices, chooseAll, getConversionPayload, describeConversion, getConversionOutcome, getRollbackMessages,
-  isRolledBack, getQueuedConversion,
+  isRolledBack, getQueuedConversion, getNotConvertedReasons, TASK_RESULT_QUERY,
 } from './referenceConversionUtils'
 
 const TASK_POLL_MS = 3000
+// a task that keeps answering with an error is asked about this many times in a row, then given up on
+const MAX_POLL_FAILURES = 3
 
 const expressionSx = { fontFamily: 'monospace', fontSize: '12px', overflowWrap: 'anywhere', maxWidth: '240px' }
 
@@ -38,6 +40,11 @@ const REASON_KEYS = {
   'it has a filter': 'reference.convert_reason_filter',
   'it has no system': 'reference.convert_reason_no_system',
   'it is an exclusion': 'reference.convert_reason_exclusion',
+  'changed since the preview': 'reference.convert_reason_changed',
+  'the collection already has it with another cascade': 'reference.convert_reason_other_cascade',
+  'its system does not resolve to a version you can view': 'reference.convert_reason_no_visible_version',
+  'no version holds its resource version': 'reference.convert_reason_no_holder',
+  'not in this collection': 'reference.convert_reason_not_in_collection',
 }
 
 const getReasonKey = reason => REASON_KEYS[reason] || 'reference.convert_reason_other'
@@ -183,7 +190,13 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
     if(isRolledBack(outcome))
       setError(t('reference.convert_rolled_back', { details: getRollbackMessages(conversionResults).join(' ') }))
     else
-      onConverted({ ...outcome, unsupported: summary?.unsupported || 0 })
+      onConverted({
+        ...outcome,
+        unsupported: summary?.unsupported || 0,
+        // why each left reference was left, as the API said, translated where known
+        reasons: getNotConvertedReasons(conversionResults).map(
+          ({ reason, count }) => `${t(getReasonKey(reason), reason)} (${count})`).join('; '),
+      })
   }
 
   // a queued conversion is asked about until its task ends, then reported as a direct one is
@@ -192,10 +205,24 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
       return
     let active = true
     let timer = null
-    const poll = () => APIService.new().overrideURL(`/tasks/${queuedTaskId}/`).get(null, null, { result: true }).then(
+    let failures = 0
+    const poll = () => APIService.new().overrideURL(`/tasks/${queuedTaskId}/`).get(null, null, TASK_RESULT_QUERY).then(
       response => {
         if(!active) return
-        const queued = getQueuedConversion(response?.data)
+        // APIService never rejects: a failed request comes back without a status
+        if(response?.status !== 200) {
+          failures += 1
+          if(failures < MAX_POLL_FAILURES) {
+            timer = setTimeout(poll, TASK_POLL_MS)
+            return
+          }
+          setQueuedTaskId(null)
+          setConverting(false)
+          setError(t('reference.convert_poll_failed'))
+          return
+        }
+        failures = 0
+        const queued = getQueuedConversion(response.data)
         if(!queued) {
           timer = setTimeout(poll, TASK_POLL_MS)
           return
@@ -204,6 +231,8 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
         setConverting(false)
         if(queued.results)
           onResults(queued.results)
+        else if(queued.refusal !== undefined)
+          setError(queued.refusal || t('reference.convert_refused'))
         else
           setError(queued.error || t('reference.convert_task_failed'))
       })
@@ -242,6 +271,7 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
           size='small'
           exclusive
           value={scope}
+          disabled={converting}
           onChange={(event, value) => value && setScope(value)}
           aria-label={t('reference.convert_scope')}
         >

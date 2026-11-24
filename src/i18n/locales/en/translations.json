@@ -567,7 +567,15 @@
     "convert_more": "and {{count}} more",
     "convert_running": "Converting in the background. You can close this; the conversion carries on.",
     "convert_unsupported_note": "{{count}} reference(s) can't be converted and are left as they are.",
-    "convert_task_failed": "The background conversion failed."
+    "convert_task_failed": "The background conversion failed.",
+    "convert_reason_changed": "Changed since the preview",
+    "convert_reason_other_cascade": "The collection already has it with another cascade",
+    "convert_reason_no_visible_version": "Resolves to no version you can view",
+    "convert_reason_no_holder": "No version holds its resource version",
+    "convert_reason_not_in_collection": "Not in this collection",
+    "convert_poll_failed": "Couldn't get the background conversion's status. Refresh the references list to see what changed.",
+    "convert_refused": "The conversion was refused.",
+    "convert_not_converted_reasons": "Left as they were: {{reasons}}."
   },
   "checksums": {
     "standard": "Standard Checksum",

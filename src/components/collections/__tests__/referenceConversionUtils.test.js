@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 const {
   REPO_VERSIONED, UNVERSIONED, LEAVE, isResourceVersioned, mergePreviewPages, getDefaultChoice, getDefaultChoices,
   chooseAll, getConversionPayload, describeConversion, getConversionOutcome, getResourceVersionedIds,
-  getQueuedConversion, followsHead,
+  getQueuedConversion, followsHead, getRefusalMessage, getNotConvertedReasons, TASK_RESULT_QUERY,
   getRollbackMessages, isRolledBack,
 } = await import('../referenceConversionUtils.js')
 
@@ -96,6 +96,42 @@ test('a conversion is described by what it keeps, changes and locks', () => {
       keeps: false, added: 2, removed: 3, createsLock: true, followsHead: false, version: '/orgs/O/sources/S/v2/',
       addedMembers: ['/a/', '/b/'], removedMembers: ['/c/'],
     })
+})
+
+test('a conversion follows HEAD whether it names HEAD or HEAD is its lock', () => {
+  assert.equal(followsHead({ chosen_by: 'lock', follows_head: true }), true)
+  assert.equal(followsHead({ chosen_by: 'HEAD' }), true)
+  assert.equal(followsHead({ chosen_by: 'release', follows_head: false }), false)
+})
+
+test('an unversioned conversion that follows HEAD is still the default when it keeps the members', () => {
+  const item = { supported: true, unversioned: keeps({ follows_head: true }), repo_versioned: keeps() }
+
+  assert.equal(getDefaultChoice(item), UNVERSIONED)
+})
+
+test('the task is asked for its stored result', () => {
+  assert.deepEqual(TASK_RESULT_QUERY, { verbose: true, result: 'all' })
+})
+
+test('a queued conversion the API refused reports the refusal\'s message', () => {
+  assert.deepEqual(
+    getQueuedConversion({ state: 'SUCCESS', result: { refusal: { detail: 'This collection is read-only.' } } }),
+    { refusal: 'This collection is read-only.' })
+  assert.equal(getRefusalMessage('Read-only'), 'Read-only')
+  assert.equal(getRefusalMessage({ errors: ['First', 'Second'] }), 'First')
+  assert.equal(getRefusalMessage({}), null)
+})
+
+test('the reasons references were left come back with their counts, most common first', () => {
+  assert.deepEqual(getNotConvertedReasons([
+    { status: 'converted' },
+    { status: 'not_converted', reason: 'changed since the preview' },
+    { status: 'not_converted', reason: 'it has no system' },
+    { status: 'not_converted', reason: 'it has no system' },
+    { status: 'rolled_back', reason: 'ignored' },
+  ]), [{ reason: 'it has no system', count: 2 }, { reason: 'changed since the preview', count: 1 }])
+  assert.deepEqual(getNotConvertedReasons(null), [])
 })
 
 test('a queued conversion reports its results once its task ends', () => {

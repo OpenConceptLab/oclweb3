@@ -620,7 +620,10 @@ const Search = props => {
       t('reference.convert_success', { count: outcome.changed })
     // references the API can't convert were never sent, so the count of them comes from the preview
     const unsupported = outcome.unsupported ? ` ${t('reference.convert_unsupported_note', { count: outcome.unsupported })}` : ''
-    setAlert({ severity: failed || outcome.unsupported ? 'warning' : 'success', message: message + unsupported })
+    const reasons = outcome.reasons ? ` ${t('reference.convert_not_converted_reasons', { reasons: outcome.reasons })}` : ''
+    setAlert({
+      severity: failed || outcome.unsupported ? 'warning' : 'success', message: message + reasons + unsupported,
+    })
     fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
   }
 

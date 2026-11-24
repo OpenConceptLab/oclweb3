@@ -764,7 +764,15 @@
     "convert_more": "还有 {{count}} 个",
     "convert_running": "正在后台转换。您可以关闭此窗口，转换会继续进行。",
     "convert_unsupported_note": "{{count}} 条引用无法转换，保持不变。",
-    "convert_task_failed": "后台转换失败。"
+    "convert_task_failed": "后台转换失败。",
+    "convert_reason_changed": "预览后已发生变化",
+    "convert_reason_other_cascade": "集合中已有使用其他级联方式的相同引用",
+    "convert_reason_no_visible_version": "无法解析为您可查看的版本",
+    "convert_reason_no_holder": "没有版本包含其资源版本",
+    "convert_reason_not_in_collection": "不在此集合中",
+    "convert_poll_failed": "无法获取后台转换的状态。请刷新引用列表查看变更。",
+    "convert_refused": "转换被拒绝。",
+    "convert_not_converted_reasons": "保持不变：{{reasons}}。"
   },
   "search": {
     "filters": "筛选项",
