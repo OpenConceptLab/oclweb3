@@ -146,6 +146,8 @@ export const ENTRY_POINT_ACTIONS = {
   saveDefaultFilters: ['edit'],
   addReferences: ['edit'],
   removeReferences: ['edit'],
+  // converting a collection's references; its preview changes nothing and isn't asked about, so it stays open
+  convertReferences: ['edit'],
   // a clone writes concepts and their mappings into the source it's sent to
   cloneToSource: ['edit'],
   editConcept: ['edit'],

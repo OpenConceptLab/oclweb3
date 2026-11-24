@@ -161,6 +161,8 @@ test('an entry point is locked only when every action it can take is locked', ()
   assert.equal(isEntryPointLocked(['edit'], 'addReferences'), true)
   assert.equal(isEntryPointLocked(['edit'], 'cloneToSource'), true)
   assert.equal(isEntryPointLocked(['delete'], 'cloneToSource'), false)
+  // converting references is an edit (its preview isn't asked about, so it has no entry)
+  assert.equal(isEntryPointLocked(['edit'], 'convertReferences'), true)
   Object.values(ENTRY_POINT_ACTIONS).forEach(actions => actions.forEach(action => assert.ok(WRITE_ACTIONS.includes(action), action)))
 })
 
