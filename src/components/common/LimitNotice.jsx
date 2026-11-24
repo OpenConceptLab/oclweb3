@@ -56,6 +56,16 @@ export const takeRefusalNotice = value => {
   return notice
 }
 
+// Shows a refused write's notice in the app's notice dialog (RefusalNoticeDialog, in Header). True when the refusal
+// carried one, so the caller skips its own error; false leaves the caller's error path as it was.
+const NOTICE_SHOW_EVENT = 'ocl:limit-notice-show'
+export const showRefusalNotice = value => {
+  const notice = takeRefusalNotice(value)
+  if(notice)
+    window.dispatchEvent(new CustomEvent(NOTICE_SHOW_EVENT, {detail: notice}))
+  return Boolean(notice)
+}
+
 const isExternal = url => {
   try {
     return new URL(url).origin !== window.location.origin
@@ -323,6 +333,17 @@ const LimitNotice = ({ size = 'dialog', notice, detail, ...rest }) => {
   if(size === 'inline')
     return <NoticeInline notice={notice} detail={detail} {...rest} />
   return <NoticeDialog notice={notice} detail={detail} {...rest} />
+}
+
+// The one dialog for refused writes that carry a notice (showRefusalNotice), mounted once in Header
+export const RefusalNoticeDialog = () => {
+  const [notice, setNotice] = React.useState(null)
+  React.useEffect(() => {
+    const onShow = event => setNotice(event.detail)
+    window.addEventListener(NOTICE_SHOW_EVENT, onShow)
+    return () => window.removeEventListener(NOTICE_SHOW_EVENT, onShow)
+  }, [])
+  return <LimitNotice size='dialog' open={Boolean(notice)} notice={notice} onClose={() => setNotice(null)} />
 }
 
 export default LimitNotice

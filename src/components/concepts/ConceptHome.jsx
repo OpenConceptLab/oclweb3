@@ -10,6 +10,7 @@ import { toParentURI, dropVersion, currentUserHasAccess, sourceVersionOf } from 
 
 import { OperationsContext } from '../app/LayoutContext';
 import { useNoticeLocks } from '../common/NoticeLocks';
+import { showRefusalNotice } from '../common/LimitNotice';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
 import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
 
@@ -267,7 +268,7 @@ const ConceptHome = props => {
         setAlert({severity: 'success', message: t('mapping.success_create')})
         successCallback && successCallback()
         isDirect ? getMappings(concept, true) : getInverseMappings(concept)
-      } else {
+      } else if(!showRefusalNotice(response)) {
         setAlert({severity: 'error', message: response?.data?.__all__?.[0] || response?.data?.detail || t('mapping.error_create')})
       }
     })
@@ -278,7 +279,9 @@ const ConceptHome = props => {
         .overrideURL(mapping.url)
         .put({id: mapping.id, sort_weight: sortWeight, comment: comment})
 
-  const onSortWeightUpdateSuccess = () => {
+  const onSortWeightUpdateSuccess = responses => {
+    if([].concat(responses).find(response => showRefusalNotice(response)))
+      return
     setAlert({severity: 'success', message: t('mapping.sort_success')})
     getMappings(concept, true)
   }
@@ -310,7 +313,7 @@ const ConceptHome = props => {
       if(response?.status === 204) {
         setAlert({severity: 'success', message: isRetired ? t('mapping.success_unretired') : t('mapping.success_retired')})
         isDirect ? getMappings(concept, true) : getInverseMappings(concept)
-      } else {
+      } else if(!showRefusalNotice(response)) {
         setAlert({severity: 'error', message: response?.data?.detail || t('mapping.error_update')})
       }
     })
@@ -331,7 +334,7 @@ const ConceptHome = props => {
         history.push(concept.url)
         setTimeout(() => window.location.reload(), 1000)
       }
-      else {
+      else if(!showRefusalNotice(response)) {
         let error = response?.data?.__all__ || t('concept.error_update')
         setAlert({severity: 'error', message: error})
       }
@@ -348,7 +351,7 @@ const ConceptHome = props => {
         setRemoveFromCollectionDialog(false)
         setAlert({ severity: 'success', message: t('reference.remove_success') })
         props.onClose && props.onClose()
-      } else {
+      } else if(!showRefusalNotice(response)) {
         setAlert({ severity: 'error', message: response?.data?.detail || t('common.generic_error') })
       }
     })

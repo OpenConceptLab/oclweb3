@@ -29,6 +29,7 @@ import APIService from "../../services/APIService";
 import GAService from "../../services/GAService";
 import { dropVersion } from "../../common/utils";
 import { OperationsContext } from "../app/LayoutContext";
+import { showRefusalNotice } from "../common/LimitNotice";
 import Dialog from "../common/Dialog";
 import DialogTitle from "../common/DialogTitle";
 import CloseIconButton from "../common/CloseIconButton";
@@ -243,7 +244,7 @@ const ExpansionForm = ({
         });
         onSubmitSuccess(response?.data || payload);
         onClose();
-      } else {
+      } else if (!showRefusalNotice(response)) {
         const genericError = get(response, "__all__");
         setAlert({
           severity: "error",

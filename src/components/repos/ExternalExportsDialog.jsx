@@ -28,6 +28,7 @@ import {
 } from '@mui/icons-material';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import { showRefusalNotice } from '../common/LimitNotice';
 import map from 'lodash/map';
 
 import { formatDateTime } from '../../common/utils';
@@ -86,7 +87,7 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
         setFile(null);
         setAlert({ severity: 'success', message: t('repo.external_export_uploaded') });
       })
-      .catch(error => setAlert({ severity: 'error', message: formatError(get(error, 'response.data'), t('repo.could_not_upload_external_export')) }))
+      .catch(error => showRefusalNotice(error) || setAlert({ severity: 'error', message: formatError(get(error, 'response.data'), t('repo.could_not_upload_external_export')) }))
       .finally(() => setBusyKey(''));
   };
 
@@ -104,7 +105,7 @@ const ExternalExportsDialog = ({ version, open, onClose, canEdit, onChange }) =>
       if(!response || [200, 204].includes(response?.status)) {
         updateExports(exports.filter(item => item.key !== externalExport.key));
         setAlert({ severity: 'success', message: t('repo.external_export_deleted') });
-      } else {
+      } else if(!showRefusalNotice(response)) {
         setAlert({ severity: 'error', message: formatError(get(response, 'data'), t('repo.could_not_delete_external_export')) });
       }
     })

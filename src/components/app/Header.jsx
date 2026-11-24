@@ -16,6 +16,7 @@ import HeaderControls from './HeaderControls';
 import LeftMenu from './LeftMenu'
 import AnnouncementBanner from './AnnouncementBanner';
 import AccountNotices from './AccountNotices';
+import { RefusalNoticeDialog } from '../common/LimitNotice';
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -47,6 +48,7 @@ const Header = props => {
       <CssBaseline />
       <AnnouncementBanner />
       <AccountNotices />
+      <RefusalNoticeDialog />
       <AppBar position="fixed" open={open} sx={theme => ({
         zIndex: theme.zIndex.drawer + 1,
         top: 'var(--top-banners-height, 0px)'

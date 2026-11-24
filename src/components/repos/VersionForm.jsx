@@ -8,6 +8,7 @@ import APIService from '../../services/APIService';
 import GAService from '../../services/GAService';
 import FormComponent from '../common/FormComponent'
 import { OperationsContext } from '../app/LayoutContext';
+import { showRefusalNotice } from '../common/LimitNotice'
 import {
   required, matchPattern
 } from '../../common/validators';
@@ -137,7 +138,7 @@ class VersionForm extends FormComponent {
       onClose(true);
       if(reloadOnSuccess)
         setTimeout(() => window.location.reload(), 1000)
-    } else { // error
+    } else if(!showRefusalNotice(response)) { // error, unless it carried a notice
       const genericError = get(response, '__all__')
       if(genericError) {
         setAlert({duration: 2000, message: genericError.join('<br />'), severity: 'error'})
