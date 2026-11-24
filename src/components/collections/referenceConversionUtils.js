@@ -9,6 +9,9 @@ export const LEAVE = 'leave'
 export const CONVERSIONS = [REPO_VERSIONED, UNVERSIONED]
 export const PREVIEW_PAGE_SIZE = 500
 
+// For a value holding URLs: React escapes what it renders, so i18next's own escaping would show &#x2F; per slash
+export const UNESCAPED = { interpolation: { escapeValue: false } }
+
 export const isResourceVersioned = reference => Boolean(reference?.resource_version)
 
 // The ids of the resource-versioned references among these, sorted: a stable key for the preview to load by

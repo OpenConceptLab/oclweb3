@@ -620,7 +620,10 @@ const Search = props => {
       t('reference.convert_success', { count: outcome.changed })
     // references the API can't convert were never sent, so the count of them comes from the preview
     const unsupported = outcome.unsupported ? ` ${t('reference.convert_unsupported_note', { count: outcome.unsupported })}` : ''
-    const reasons = outcome.reasons ? ` ${t('reference.convert_not_converted_reasons', { reasons: outcome.reasons })}` : ''
+    // the reasons are the API's text, translated where known: React escapes it, so i18next mustn't as well
+    const reasons = outcome.reasons ?
+      ` ${t('reference.convert_not_converted_reasons', { reasons: outcome.reasons, interpolation: { escapeValue: false } })}` :
+      ''
     setAlert({
       severity: failed || outcome.unsupported ? 'warning' : 'success', message: message + reasons + unsupported,
     })

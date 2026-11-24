@@ -24,7 +24,7 @@ import APIService from '../../services/APIService'
 import {
   REPO_VERSIONED, UNVERSIONED, LEAVE, CONVERSIONS, PREVIEW_PAGE_SIZE, getResourceVersionedIds, mergePreviewPages,
   getDefaultChoices, chooseAll, getConversionPayload, describeConversion, getConversionOutcome, getRollbackMessages,
-  isRolledBack, getQueuedConversion, getNotConvertedReasons, TASK_RESULT_QUERY,
+  isRolledBack, getQueuedConversion, getNotConvertedReasons, TASK_RESULT_QUERY, UNESCAPED,
 } from './referenceConversionUtils'
 
 const TASK_POLL_MS = 3000
@@ -86,7 +86,7 @@ const ConversionCell = ({ conversion }) => {
       {
         description.version &&
           <Typography variant='caption' color='text.secondary' sx={{ overflowWrap: 'anywhere' }}>
-            {t('reference.convert_resolves_to', { version: description.version })}
+            {t('reference.convert_resolves_to', { version: description.version, ...UNESCAPED })}
           </Typography>
       }
       <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
@@ -187,16 +187,16 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
 
   const onResults = conversionResults => {
     const outcome = getConversionOutcome(conversionResults)
-    if(isRolledBack(outcome))
-      setError(t('reference.convert_rolled_back', { details: getRollbackMessages(conversionResults).join(' ') }))
-    else
-      onConverted({
-        ...outcome,
-        unsupported: summary?.unsupported || 0,
-        // why each left reference was left, as the API said, translated where known
-        reasons: getNotConvertedReasons(conversionResults).map(
-          ({ reason, count }) => `${t(getReasonKey(reason), reason)} (${count})`).join('; '),
-      })
+    // why each left reference was left, as the API said, translated where known
+    const reasons = getNotConvertedReasons(conversionResults).map(
+      ({ reason, count }) => `${t(getReasonKey(reason), reason)} (${count})`).join('; ')
+    if(isRolledBack(outcome)) {
+      const details = getRollbackMessages(conversionResults).join(' ')
+      const left = reasons ? ` ${t('reference.convert_not_converted_reasons', { reasons, ...UNESCAPED })}` : ''
+      setError(t('reference.convert_rolled_back', { details, ...UNESCAPED }) + left)
+    } else {
+      onConverted({ ...outcome, unsupported: summary?.unsupported || 0, reasons })
+    }
   }
 
   // a queued conversion is asked about until its task ends, then reported as a direct one is
@@ -344,7 +344,9 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
                               <TableCell>
                                 <Select
                                   size='small'
-                                  inputProps={{ 'aria-label': t('reference.convert_choice_for', { expression: item.expression }) }}
+                                  inputProps={{
+                                    'aria-label': t('reference.convert_choice_for', { expression: item.expression, ...UNESCAPED }),
+                                  }}
                                   value={choices[item.id] || LEAVE}
                                   onChange={event => setChoices({ ...choices, [item.id]: event.target.value })}
                                 >
