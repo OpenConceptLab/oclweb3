@@ -966,15 +966,13 @@
       "state_empty": "Vazia",
       "state_checking": "Verificando a saúde",
       "freshness_pending": "Desatualizada: uma nova verificação está na fila",
-      "freshness_not_current": "Desatualizada: algo mudou desde a última verificação",
-      "description_healthy": "Cada repositório resolve para uma única versão publicada, e cada membro está na versão para a qual sua referência resolveu.",
+      "freshness_not_current": "Pode estar desatualizada: será verificada novamente",
+      "description_healthy": "Cada referência sem versão resolve para uma única versão publicada do seu repositório, e cada membro está na versão para a qual sua referência resolveu.",
       "description_head_resolved": "Consistente, mas pelo menos um repositório resolve para HEAD, que ainda pode mudar.",
       "description_unhealthy": "Algumas referências ou membros não correspondem às versões para as quais esta expansão resolveu:",
       "description_empty": "Esta expansão não tem membros.",
       "description_checking": "A saúde está sendo verificada pela primeira vez.",
-      "not_checked_default": "A saúde desta expansão ainda não foi verificada.",
-      "not_checked_other": "A saúde é verificada apenas para a expansão padrão de uma versão.",
-      "checked_at": "Verificada {{date}}",
+      "checked_at": "Verificada em {{date}}",
       "head_resolved_repositories": "Resolvidos para HEAD",
       "multiple_named_versions": "Nomeados em mais de uma versão de propósito",
       "members": "Membros",
@@ -1011,8 +1009,9 @@
       "reason_unattributed_members_other": "{{count}} membros não são explicados por nenhuma referência",
       "reason_unknown": "{{code}}: {{count}}",
       "head_objects": "Inclui conceitos de HEAD: {{concepts}}, mapeamentos de HEAD: {{mappings}}",
-      "hidden_versions_one": "Mais {{count}} é privada de outro proprietário",
-      "hidden_versions_other": "Mais {{count}} são privadas de outro proprietário"
+      "hidden_versions_one": "Mais {{count}} pertence a outro proprietário e é privada",
+      "hidden_versions_other": "Mais {{count}} pertencem a outro proprietário e são privadas",
+      "description_unknown": "O OCL informou um estado de saúde que esta página ainda não descreve."
     }
   },
   "org": {

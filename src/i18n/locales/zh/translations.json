@@ -590,14 +590,12 @@
       "state_empty": "空",
       "state_checking": "正在检查健康状况",
       "freshness_pending": "已过期：已排队重新检查",
-      "freshness_not_current": "已过期：上次检查后有变更",
-      "description_healthy": "每个存储库都解析到同一个已发布版本，且每个成员都在其引用解析到的版本中。",
+      "freshness_not_current": "可能已过期：将重新检查",
+      "description_healthy": "每个未指定版本的引用都解析到其存储库的同一个已发布版本，且每个成员都在其引用解析到的版本中。",
       "description_head_resolved": "一致，但至少有一个存储库解析到 HEAD，而 HEAD 仍可能变化。",
       "description_unhealthy": "部分引用或成员与此扩展解析到的版本不一致：",
       "description_empty": "此扩展没有成员。",
       "description_checking": "正在首次检查健康状况。",
-      "not_checked_default": "尚未检查此扩展的健康状况。",
-      "not_checked_other": "只检查版本默认扩展的健康状况。",
       "checked_at": "检查于 {{date}}",
       "head_resolved_repositories": "解析到 HEAD",
       "multiple_named_versions": "有意指定了多个版本",
@@ -623,7 +621,8 @@
       "reason_unattributed_members_other": "{{count}} 个成员没有对应的引用",
       "reason_unknown": "{{code}}：{{count}}",
       "head_objects": "包括 HEAD 概念：{{concepts}}，HEAD 映射：{{mappings}}",
-      "hidden_versions_other": "另有 {{count}} 个属于其他所有者的私有版本"
+      "hidden_versions_other": "另有 {{count}} 个属于其他所有者的私有版本",
+      "description_unknown": "OCL 返回了此页面尚不能描述的健康状态。"
     }
   },
   "org": {

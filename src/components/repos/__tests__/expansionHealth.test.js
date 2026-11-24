@@ -6,7 +6,7 @@ const i18next = (await import('i18next')).default
 const {
   HEALTH_STATES, REASONS, UNKNOWN_REASON_KEY, FRESHNESS_KEYS, getExpansionHealthStatus, getFreshness,
   getHealthReasons, getHeadResolvedRepositories, getMemberClassCounts, getMultipleNamedVersions,
-  getVersionHealthStatus,
+  getVersionHealthStatus, getDefaultExpansionHealthStatus, getStateDescriptionKey, UNKNOWN_STATE_DESCRIPTION_KEY,
 } = await import('../expansionHealth.js')
 
 // the shape core/collections/health.py stores for an expansion
@@ -49,6 +49,24 @@ test('never computed shows nothing, unless its first check is queued', () => {
   assert.equal(getExpansionHealthStatus({}), null)
   assert.equal(getExpansionHealthStatus(null), null)
   assert.deepEqual(getExpansionHealthStatus({health: null, health_is_current: false}), {state: null, freshness: 'pending'})
+})
+
+test("only the version's default expansion shows health: another one's stored health is stale", () => {
+  const stored = {health: health('healthy'), health_is_current: true}
+  assert.deepEqual(getDefaultExpansionHealthStatus({...stored, default: true}), {state: 'healthy', freshness: 'current'})
+  assert.equal(getDefaultExpansionHealthStatus({...stored, default: false}), null)
+  // a deleted lock marks non-default expansions not current too
+  assert.equal(getDefaultExpansionHealthStatus({health: null, health_is_current: false, default: false}), null)
+  assert.equal(getDefaultExpansionHealthStatus(null), null)
+})
+
+test('a state this UI does not know yet keeps its own name and gets a generic description', () => {
+  assert.deepEqual(
+    getExpansionHealthStatus({health: health('partly_healthy'), health_is_current: true}),
+    {state: 'partly_healthy', freshness: 'current'})
+  assert.equal(getStateDescriptionKey('partly_healthy'), UNKNOWN_STATE_DESCRIPTION_KEY)
+  assert.equal(getStateDescriptionKey('unhealthy'), 'repo.expansion_health.description_unhealthy')
+  assert.equal(getStateDescriptionKey(null), 'repo.expansion_health.description_checking')
 })
 
 test("a version shows its default expansion's health, and its own summary until expansions load", () => {
@@ -115,6 +133,7 @@ test('every health string is in each language, singular and plural', async () =>
     ...Object.values(REASONS).map(([key]) => key),
     ...Object.values(FRESHNESS_KEYS),
     UNKNOWN_REASON_KEY,
+    UNKNOWN_STATE_DESCRIPTION_KEY,
     ...['title', 'view_details', 'state_checking', 'description_checking', 'checked_at', 'head_resolved_repositories',
       'multiple_named_versions', 'members', 'head_objects', 'hidden_versions'].map(key => `repo.expansion_health.${key}`),
     ...Object.keys(HEALTH_STATES).map(state => `repo.expansion_health.description_${state}`),

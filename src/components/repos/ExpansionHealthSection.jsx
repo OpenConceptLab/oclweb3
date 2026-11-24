@@ -6,7 +6,8 @@ import { formatDate } from '../../common/utils';
 import ExpansionHealthChip from './ExpansionHealthChip';
 import {
   FRESHNESS_KEYS,
-  getExpansionHealthStatus,
+  getDefaultExpansionHealthStatus,
+  getStateDescriptionKey,
   getHeadResolvedRepositories,
   getHealthReasons,
   getMemberClassCounts,
@@ -22,12 +23,13 @@ const linkSx = {
   '& a:hover': { textDecoration: 'underline' }
 };
 
-const URLList = ({ urls }) => urls.length ? (
+// a deleted version has no page to link to
+const URLList = ({ urls, linked = true }) => urls.length ? (
   <Box component="ul" sx={{ pl: 2.5, mt: 0.5, mb: 0, ...linkSx }}>
     {urls.map(url => (
       <li key={url}>
-        <Typography component="span" sx={{ fontSize: '13px' }}>
-          <a href={url} target="_blank" rel="noreferrer">{url}</a>
+        <Typography component="span" sx={{ fontSize: '13px', wordBreak: 'break-word' }}>
+          {linked ? <a href={url} target="_blank" rel="noreferrer">{url}</a> : url}
         </Typography>
       </li>
     ))}
@@ -43,7 +45,7 @@ const SubHeading = ({ children }) => (
 // The stored health of an expansion: its state, why, and how its members were judged
 const ExpansionHealthSection = ({ expansion }) => {
   const { t } = useTranslation();
-  const status = getExpansionHealthStatus(expansion);
+  const status = getDefaultExpansionHealthStatus(expansion);
   if (!status) return null;
 
   const health = expansion.health;
@@ -51,7 +53,7 @@ const ExpansionHealthSection = ({ expansion }) => {
   const headResolved = getHeadResolvedRepositories(health);
   const multipleNamed = getMultipleNamedVersions(health);
   const memberCounts = getMemberClassCounts(health);
-  const description = status.state ? `repo.expansion_health.description_${status.state}` : 'repo.expansion_health.description_checking';
+  const description = getStateDescriptionKey(status.state);
 
   return (
     <Box sx={{ mb: 2 }} data-testid="expansion-health">
@@ -82,7 +84,7 @@ const ExpansionHealthSection = ({ expansion }) => {
                   {t('repo.expansion_health.head_objects', { concepts: reason.headConcepts, mappings: reason.headMappings })}
                 </Typography>
               )}
-              <URLList urls={reason.urls} />
+              <URLList urls={reason.urls} linked={reason.code !== 'locked_version_deleted'} />
               {reason.hiddenCount > 0 && (
                 <Typography sx={{ fontSize: '12px', color: 'secondary.main' }}>
                   {t('repo.expansion_health.hidden_versions', { count: reason.hiddenCount })}

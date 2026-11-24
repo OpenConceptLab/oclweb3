@@ -1,5 +1,5 @@
 import React from 'react';
-import { Chip, Stack, Tooltip } from '@mui/material';
+import { Box, Chip, Stack, Tooltip } from '@mui/material';
 import {
   CheckCircleOutlined as HealthyIcon,
   ErrorOutlineOutlined as UnhealthyIcon,
@@ -11,6 +11,8 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { FRESHNESS_KEYS, getStateConfig } from './expansionHealth';
+
+const visuallyHidden = { position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap' };
 
 const STATE_ICONS = {
   healthy: HealthyIcon,
@@ -25,10 +27,10 @@ const ExpansionHealthChip = ({ status, onClick }) => {
   if (!status) return null;
 
   const config = getStateConfig(status.state);
-  const label = config ? t(config.labelKey) : t('repo.expansion_health.state_checking');
-  const StateIcon = STATE_ICONS[status.state] || PendingIcon;
+  const label = config ? t(config.labelKey) : (status.state || t('repo.expansion_health.state_checking'));
+  const StateIcon = STATE_ICONS[status.state] || (status.state ? HeadResolvedIcon : PendingIcon);
   // a state still being checked for the first time says so in its label already
-  const freshness = config && FRESHNESS_KEYS[status.freshness] ? t(FRESHNESS_KEYS[status.freshness]) : null;
+  const freshness = status.state && FRESHNESS_KEYS[status.freshness] ? t(FRESHNESS_KEYS[status.freshness]) : null;
   const FreshnessIcon = status.freshness === 'pending' ? PendingIcon : NotCurrentIcon;
   const tooltip = [freshness, onClick ? t('repo.expansion_health.view_details') : null].filter(Boolean).join(' · ');
 
@@ -42,10 +44,11 @@ const ExpansionHealthChip = ({ status, onClick }) => {
         label={freshness ? (
           <Stack component="span" direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
             <span>{label}</span>
-            <FreshnessIcon sx={{ fontSize: '14px' }} />
+            <FreshnessIcon sx={{ fontSize: '14px' }} aria-hidden />
+            <Box component="span" sx={visuallyHidden}>{freshness}</Box>
           </Stack>
         ) : label}
-        aria-label={[t('repo.expansion_health.title'), label, freshness].filter(Boolean).join(': ')}
+        aria-label={[`${t('repo.expansion_health.title')}: ${label}`, freshness].filter(Boolean).join(', ')}
         onClick={onClick ? event => {
           event.stopPropagation();
           onClick(event);
