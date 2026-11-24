@@ -45,7 +45,7 @@ import AddReferencesDialog from '../collections/AddReferencesDialog'
 import ExpansionDropDown from './ExpansionDropDown';
 import LimitNotice, { refreshNotices, showRefusalNotice } from '../common/LimitNotice';
 import { NoticeLocksProvider, LockTooltip, useNoticeLocks } from '../common/NoticeLocks';
-import { useResourceNotices } from '../common/useNotices';
+import { refreshNoticesWhenTaskEnds, useResourceNotices } from '../common/useNotices';
 import usePublishedHeight from '../common/usePublishedHeight';
 
 const DEFAULT_VERSIONS_PAGE_SIZE = 10
@@ -516,7 +516,12 @@ const RepoHome = () => {
         history.push(deletingVersion ? target.url : (owner?.url || repo.owner_url))
       }
       else if(response?.status === 202 || response?.detail === 'Already Queued') {
-        refreshNotices()
+        // a queued deletion changes the notices once its task has ended
+        const taskId = response?.data?.id || response?.data?.task
+        if(taskId)
+          refreshNoticesWhenTaskEnds(taskId)
+        else
+          refreshNotices()
         setDeleteTarget(false)
         setAlert({severity: 'warning', message: deletingVersion ? t('repo.delete_accepted_version') : t('repo.delete_accepted')})
       }

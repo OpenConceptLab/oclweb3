@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import APIService from '../../services/APIService'
 import { getCurrentUserUsername, isLoggedIn } from '../../common/utils'
 import { createRequestGuard, getNotices } from './limitNoticePayload'
-import { NOTICES_CHANGED_EVENT } from './LimitNotice'
+import { NOTICES_CHANGED_EVENT, refreshNotices } from './LimitNotice'
+import { watchTask } from '../repos/taskState'
 
 // GET /capabilities/notices/ is served by a connected service on oclapi2 (OpenConceptLab/ocl_online#702). Where it
 // isn't (a self-hosted OCL: 404), or the request fails, there are no notices and nothing is said.
@@ -42,6 +43,14 @@ const writeCache = (username, lang, notices) => {
     // storage unavailable: the next page load asks again
   }
 }
+
+// A write the API queued (a repository's deletion, say) changes the notices only once its task has ended, so they're
+// fetched again then. The watch outlives the page that started it: the account strips are on every page.
+export const refreshNoticesWhenTaskEnds = taskId => watchTask(
+  () => APIService.new().overrideURL(`/tasks/${taskId}/`).get(null, null, null, true)
+    .then(response => (response?.status === 200 && response.data?.state) || null),
+  refreshNotices,
+)
 
 // Fetches again whenever the notices may have changed (refreshNotices): a refusal carrying a notice was shown, or a
 // write that can change them succeeded
