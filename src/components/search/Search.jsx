@@ -109,8 +109,6 @@ const Search = props => {
   // Set while a list request that should refresh the filter counts is waiting: if a newer one
   // (say a page-size change) replaces it before it answers, the newer one refreshes them instead
   const facetsDue = React.useRef(false)
-  // per resource, the Retired setting (includeRetired sent) the filter counts shown were fetched with
-  const facetsRetiredScope = React.useRef({})
 
   const didMount = React.useRef(false);
   const pendingRepoDefaultFilters = React.useRef(false)
@@ -460,7 +458,7 @@ const Search = props => {
     recordSearchEvent(__resource, params)
     setLoading(true)
     setResult(prev => {
-      return {...prev, [__resource]: {...result[__resource], results: []}}
+      return {...prev, [__resource]: {...prev[__resource], results: []}}
     })
     if(['users', 'orgs', 'references'].includes(__resource))
       params.verbose = true
@@ -492,10 +490,10 @@ const Search = props => {
       const summaryCount = get(props.summary, `active_${__resource}`) || get(props.summary, `${__resource}.active`) || 0
       if(!params.q && props?.summary && props.nested && (total < summaryCount && total === 10000) && keys(params).every(el => ['includeSearchMeta', 'q', 'limit', 'page', 'pageSize', 'offset', 'sortAsc', 'sortDesc', 'display', 'type'].includes(el)))
         total = summaryCount
-      const resourceResult = {total: total, pageSize: max([parseInt(response?.headers?.num_returned), params?.limit]), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || [], facets: result[__resource]?.facets || {}, retiredCount: result[__resource]?.retiredCount}
-      // the filter counts are the latest ones, which may have come in after this request went out
+      const resourceResult = {total: total, pageSize: max([parseInt(response?.headers?.num_returned), params?.limit]), page: parseInt(response?.headers?.page_number), pages: parseInt(response?.headers?.pages), results: response?.data || []}
+      // the filter counts stay the latest ones, which may have come in after this request went out
       setResult(prev => {
-        return {...prev, [__resource]: {...resourceResult, facets: prev[__resource]?.facets || {}, retiredCount: prev[__resource]?.retiredCount}}
+        return {...prev, [__resource]: {facets: {}, ...prev[__resource], ...resourceResult}}
       })
       setLoading(false)
       const fetchCounts = facets || facetsDue.current
@@ -516,7 +514,7 @@ const Search = props => {
     recordSearchEvent(__resource, params)
     setLoading(true)
     setResult(prev => {
-      return {...prev, [__resource]: {...result[__resource], results: []}}
+      return {...prev, [__resource]: {...prev[__resource], results: []}}
     })
     let _filters = omit(params, ['q', 'page', 'page_number', 'page_size', 'limit', 'offset', 'includeSearchMeta', 'verbose', 'order', 'orderBy', 'sortAsc', 'sortDesc', 'display', 'type', 'onlyHierarchyRoot', 'includeRetired'])
     const payload = {rows: [{name: params.q}], target_repo_url: contextRepo?.version_url, filter: _filters || {}}
@@ -537,9 +535,9 @@ const Search = props => {
       let __results = get(response, 'data.0.results') || []
       let total = __results.length + 10
       const resourceResult = {total: total, pageSize: params?.limit || 10, page: params?.page || params?.page_number || 1, pages: 2, results: __results || []}
-      // the filter counts are the latest ones, which may have come in after this request went out
+      // the filter counts stay the latest ones, which may have come in after this request went out
       setResult(prev => {
-        return {...prev, [__resource]: {...resourceResult, facets: prev[__resource]?.facets || {}, retiredCount: prev[__resource]?.retiredCount}}
+        return {...prev, [__resource]: {facets: {}, ...prev[__resource], ...resourceResult}}
       })
       setLoading(false)
     })
@@ -554,11 +552,12 @@ const Search = props => {
         return
       const fields = response?.data?.facets?.fields || {}
       const appliedFilters = getFiltersFromQueryParams()
+      // the counts keep the Retired setting (includeRetired sent) they were counted under
       const retiredScope = String(params.includeRetired)
-      const sameRetiredScope = facetsRetiredScope.current[__resource] === retiredScope
-      facetsRetiredScope.current[__resource] = retiredScope
       setResult(prev => {
-        return {...prev, [__resource]: {...(prev[__resource] || otherResults), facets: mergeFacets(prev[__resource]?.facets, fields, appliedFilters, sameRetiredScope), retiredCount: getRetiredCount(fields)}}
+        const previous = prev[__resource] || otherResults
+        const facets = mergeFacets(previous?.facets, fields, appliedFilters, previous?.facetsRetiredScope === retiredScope)
+        return {...prev, [__resource]: {...previous, facets, retiredCount: getRetiredCount(fields), facetsRetiredScope: retiredScope}}
       })
       setLoadingFacets(false)
     })
