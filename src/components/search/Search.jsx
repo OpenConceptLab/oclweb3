@@ -39,7 +39,7 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutlined'
 import GAService from '../../services/GAService'
 import QuotaDialog from '../common/QuotaDialog'
 import { showRefusalNotice } from '../common/LimitNotice'
-import { LockMark, LockTooltip, useNoticeLocks } from '../common/NoticeLocks'
+import { LockableMenuItem, LockTooltip, useNoticeLocks } from '../common/NoticeLocks'
 import LockIcon from '@mui/icons-material/LockOutlined'
 import { getQuotaError } from '../common/quotaErrors'
 
@@ -878,21 +878,19 @@ const Search = props => {
         open={Boolean(referenceActionsAnchor)}
         onClose={closeReferenceActions}
       >
-        <LockTooltip title={referencesLock}>
-          <MenuItem
-            disabled={Boolean(referencesLock)}
-            onClick={() => {
-              closeReferenceActions()
-              setTransformReferencesOpen(true)
-            }}
-          >
-            <ListItemIcon>
-              <TransformIcon fontSize='small' />
-            </ListItemIcon>
-            <ListItemText>{t('reference.transform_to_non_versioned')}</ListItemText>
-            {referencesLock && <LockMark />}
-          </MenuItem>
-        </LockTooltip>
+        <LockableMenuItem
+          as={MenuItem}
+          lock={referencesLock}
+          onClick={() => {
+            closeReferenceActions()
+            setTransformReferencesOpen(true)
+          }}
+        >
+          <ListItemIcon>
+            <TransformIcon fontSize='small' />
+          </ListItemIcon>
+          <ListItemText>{t('reference.transform_to_non_versioned')}</ListItemText>
+        </LockableMenuItem>
         <MenuItem
           onClick={() => {
             closeReferenceActions()
@@ -904,21 +902,19 @@ const Search = props => {
           </ListItemIcon>
           <ListItemText>{t('reference.convert_resource_versioned')}</ListItemText>
         </MenuItem>
-        <LockTooltip title={referencesLock}>
-          <MenuItem
-            disabled={Boolean(referencesLock)}
-            onClick={() => {
-              closeReferenceActions()
-              setDeleteReferencesOpen(true)
-            }}
-          >
-            <ListItemIcon>
-              <DeleteForeverIcon fontSize='small' color='error' />
-            </ListItemIcon>
-            <ListItemText>{t('common.remove')}</ListItemText>
-            {referencesLock && <LockMark />}
-          </MenuItem>
-        </LockTooltip>
+        <LockableMenuItem
+          as={MenuItem}
+          lock={referencesLock}
+          onClick={() => {
+            closeReferenceActions()
+            setDeleteReferencesOpen(true)
+          }}
+        >
+          <ListItemIcon>
+            <DeleteForeverIcon fontSize='small' color='error' />
+          </ListItemIcon>
+          <ListItemText>{t('common.remove')}</ListItemText>
+        </LockableMenuItem>
       </Menu>
       <TransformReferencesDialog
         open={transformReferencesOpen}

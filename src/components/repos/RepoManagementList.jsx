@@ -10,14 +10,12 @@ import RepeatIcon from '@mui/icons-material/Repeat';
 import CopyIcon from '@mui/icons-material/ContentCopy';
 import GAService from '../../services/GAService';
 import PinIcon from '../common/PinIcon';
-import { LockMark, LockTooltip, useNoticeLocks } from '../common/NoticeLocks';
+import { LockableMenuItem, useNoticeLocks } from '../common/NoticeLocks';
 
 const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id, isVersion, hasAccess, createSimilarHref, pin }) => {
   const { t } = useTranslation()
   // An edit action the repository's notices lock is shown disabled, with the notice's reason (NoticeLocks)
   const lockFor = useNoticeLocks()
-  const editLock = lockFor(isVersion ? 'editVersion' : 'editRepo')
-  const deleteLock = lockFor(isVersion ? 'deleteVersion' : 'deleteRepo')
   const url = isVersion ? repo.version_url : repo.url
   let editParams = isVersion ? {onClick: () => onClick('editVersion')} : {href: `${url}edit`}
   return (
@@ -30,56 +28,41 @@ const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id, isVers
     >
       {
         hasAccess &&
-          <LockTooltip title={editLock}>
-            <ListItemButton id='addConcept' {...editParams} disabled={Boolean(editLock)} sx={{padding: '8px 12px', '&:hover': {color: 'inherit'}, '&:focus': {outline: 'none', textDecoration: 'none', color: 'inherit'}}}>
-              <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
-                <EditIcon />
-              </ListItemIcon>
-              <ListItemText primary={isVersion ? t('repo.edit_version') : t('common.edit')} />
-              {editLock && <LockMark />}
-            </ListItemButton>
-          </LockTooltip>
+          <LockableMenuItem lock={lockFor(isVersion ? 'editVersion' : 'editRepo')} id='addConcept' {...editParams} sx={{padding: '8px 12px', '&:hover': {color: 'inherit'}, '&:focus': {outline: 'none', textDecoration: 'none', color: 'inherit'}}}>
+            <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+              <EditIcon />
+            </ListItemIcon>
+            <ListItemText primary={isVersion ? t('repo.edit_version') : t('common.edit')} />
+          </LockableMenuItem>
       }
       {
         hasAccess && (
           isVersion ?
-            <LockTooltip title={lockFor('releaseVersion')}>
-              <ListItemButton id='addConcept' onClick={() => onClick('release')} disabled={Boolean(lockFor('releaseVersion'))} sx={{padding: '8px 12px'}}>
-                <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
-                  <ReleaseIcon color={repo.released ? 'gray' : 'primary'} />
-                </ListItemIcon>
-                <ListItemText primary={repo.released ? t('repo.unrelease_version') : t('repo.release_version')} />
-                {lockFor('releaseVersion') && <LockMark />}
-              </ListItemButton>
-            </LockTooltip> :
+            <LockableMenuItem lock={lockFor('releaseVersion')} id='addConcept' onClick={() => onClick('release')} sx={{padding: '8px 12px'}}>
+              <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+                <ReleaseIcon color={repo.released ? 'gray' : 'primary'} />
+              </ListItemIcon>
+              <ListItemText primary={repo.released ? t('repo.unrelease_version') : t('repo.release_version')} />
+            </LockableMenuItem> :
           <Box>
-            <LockTooltip title={lockFor('addConcept')}>
-              <ListItemButton id='addConcept' onClick={() => onClick('addConcept')} disabled={Boolean(lockFor('addConcept'))} sx={{padding: '8px 12px'}}>
-                <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
-                  <AddIcon />
-                </ListItemIcon>
-                <ListItemText primary={t('repo.add_concept')} />
-                {lockFor('addConcept') && <LockMark />}
-              </ListItemButton>
-            </LockTooltip>
-            <LockTooltip title={lockFor('addMapping')}>
-              <ListItemButton id='addMapping' onClick={() => onClick('addMapping')} disabled={Boolean(lockFor('addMapping'))} sx={{padding: '8px 12px'}}>
-                <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
-                  <AddIcon />
-                </ListItemIcon>
-                <ListItemText primary={t('repo.add_mapping')} />
-                {lockFor('addMapping') && <LockMark />}
-              </ListItemButton>
-            </LockTooltip>
-            <LockTooltip title={lockFor('createVersion')}>
-              <ListItemButton id='createVersion' onClick={() => onClick('createVersion')} disabled={Boolean(lockFor('createVersion'))} sx={{padding: '8px 12px'}}>
-                <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
-                  <VersionIcon />
-                </ListItemIcon>
-                <ListItemText primary={t('repo.create_version')} />
-                {lockFor('createVersion') && <LockMark />}
-              </ListItemButton>
-            </LockTooltip>
+            <LockableMenuItem lock={lockFor('addConcept')} id='addConcept' onClick={() => onClick('addConcept')} sx={{padding: '8px 12px'}}>
+              <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+                <AddIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('repo.add_concept')} />
+            </LockableMenuItem>
+            <LockableMenuItem lock={lockFor('addMapping')} id='addMapping' onClick={() => onClick('addMapping')} sx={{padding: '8px 12px'}}>
+              <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+                <AddIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('repo.add_mapping')} />
+            </LockableMenuItem>
+            <LockableMenuItem lock={lockFor('createVersion')} id='createVersion' onClick={() => onClick('createVersion')} sx={{padding: '8px 12px'}}>
+              <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px'}}>
+                <VersionIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('repo.create_version')} />
+            </LockableMenuItem>
           </Box>
         )
       }
@@ -117,15 +100,12 @@ const RepoManagementList = ({ anchorEl, open, onClose, onClick, repo, id, isVers
         hasAccess &&
           <Box>
             <Divider />
-            <LockTooltip title={deleteLock}>
-              <ListItemButton id='delete' onClick={() => onClick('delete')} disabled={Boolean(deleteLock)} sx={{padding: '8px 12px', color: 'error.main'}}>
-                <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px', color: 'error.main'}}>
-                  <DeleteIcon />
-                </ListItemIcon>
-                <ListItemText primary={isVersion ? t('repo.delete_repo_version') : t('repo.delete_repo')} />
-                {deleteLock && <LockMark />}
-              </ListItemButton>
-            </LockTooltip>
+            <LockableMenuItem lock={lockFor(isVersion ? 'deleteVersion' : 'deleteRepo')} id='delete' onClick={() => onClick('delete')} sx={{padding: '8px 12px', color: 'error.main'}}>
+              <ListItemIcon sx={{minWidth: 'auto', marginRight: '12px', color: 'error.main'}}>
+                <DeleteIcon />
+              </ListItemIcon>
+              <ListItemText primary={isVersion ? t('repo.delete_repo_version') : t('repo.delete_repo')} />
+            </LockableMenuItem>
           </Box>
       }
     </Menu>

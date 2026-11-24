@@ -1,5 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import ListItemButton from '@mui/material/ListItemButton'
 import Tooltip from '@mui/material/Tooltip'
 import LockIcon from '@mui/icons-material/LockOutlined'
 
@@ -38,3 +39,13 @@ export const LockTooltip = ({ title, children, placement = 'left', display = 'bl
   children
 
 export const LockMark = ({ sx }) => <LockIcon fontSize='small' sx={{ml: 'auto', pl: 1.5, boxSizing: 'content-box', color: 'secondary.main', ...sx}} />
+
+// A menu item that `lock` (lockFor's reason, or null) disables, with the reason on hover and a lock after its content.
+// `as` is the item it renders: a ListItemButton, or a MenuItem.
+export const LockableMenuItem = ({ lock, as: Item = ListItemButton, children, ...rest }) =>
+  <LockTooltip title={lock}>
+    <Item disabled={Boolean(lock)} {...rest}>
+      {children}
+      {lock && <LockMark />}
+    </Item>
+  </LockTooltip>
