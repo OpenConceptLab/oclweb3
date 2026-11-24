@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import APIService from '../../services/APIService'
 import { getCurrentUserUsername, isLoggedIn } from '../../common/utils'
-import { createRequestGuard, getNotices, readNoticeLookup } from './limitNoticePayload'
+import { createRequestGuard, forgetOtherAnswer, getNotices, readNoticeLookup } from './limitNoticePayload'
 import { NOTICES_CHANGED_EVENT, refreshNotices } from './LimitNotice'
 import { watchTask } from '../repos/taskState'
 
@@ -118,8 +118,9 @@ export const useResourceNoticeLookup = resourceURL => {
   }, [resourceURL, lang, guard])
 
   React.useEffect(() => {
+    setState(stored => forgetOtherAnswer(stored, resourceURL))
     load()
-  }, [load])
+  }, [load, resourceURL])
   useRefetchOnChange(load)
 
   return readNoticeLookup(state, resourceURL)

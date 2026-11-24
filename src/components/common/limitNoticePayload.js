@@ -172,6 +172,11 @@ export const readNoticeLookup = (stored, resourceURL) => stored.resourceURL === 
   {notices: stored.notices, pending: false} :
   {notices: [], pending: Boolean(resourceURL)}
 
+// When the resource asked about changes, an answer stored for another one is dropped, so a resource selected again (A,
+// then B, then A) waits for its own new answer instead of passing as settled on its old one
+export const forgetOtherAnswer = (stored, resourceURL) =>
+  !stored.resourceURL || stored.resourceURL === resourceURL ? stored : {resourceURL: null, notices: []}
+
 // Only the latest request may answer. start() begins one and returns its check, which stays true until another
 // start() or an invalidate() (a cache hit, a change of user or language, an unmount).
 export const createRequestGuard = () => {

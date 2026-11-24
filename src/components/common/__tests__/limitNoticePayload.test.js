@@ -3,8 +3,8 @@ import assert from 'node:assert/strict'
 
 const {
   normalizeNotice, getNotice, getNoticeDetail, getNotices, orderActions, getNoticeTone, getNoticeIcon, getLocks,
-  getLockTooltip, isEntryPointLocked, safeURL, writesShownVersion, createRequestGuard, readNoticeLookup, ENTRY_POINT_ACTIONS,
-  WRITE_ACTIONS,
+  getLockTooltip, isEntryPointLocked, safeURL, writesShownVersion, createRequestGuard, readNoticeLookup, forgetOtherAnswer,
+  ENTRY_POINT_ACTIONS, WRITE_ACTIONS,
 } = await import('../limitNoticePayload.js')
 
 const NOTICE = {
@@ -203,4 +203,21 @@ test('a failed lookup, or a server without the route, settles with no notices; n
   assert.deepEqual(readNoticeLookup({resourceURL: source, notices: []}, source), {notices: [], pending: false})
   ;[null, undefined, ''].forEach(resourceURL =>
     assert.equal(readNoticeLookup({resourceURL: null, notices: []}, resourceURL).pending, false, String(resourceURL)))
+})
+
+test('a resource selected again waits for its own new answer, even after a failed one (A, then B, then A)', () => {
+  const a = '/orgs/O/collections/A/'
+  const b = '/orgs/O/collections/B/'
+  // A's lookup failed, which stores no notices for A
+  let stored = {resourceURL: a, notices: []}
+  assert.equal(readNoticeLookup(stored, a).pending, false)
+  // B is selected and hasn't answered
+  stored = forgetOtherAnswer(stored, b)
+  assert.equal(readNoticeLookup(stored, b).pending, true)
+  // A is selected again before B answers: A waits for its new answer
+  stored = forgetOtherAnswer(stored, a)
+  assert.deepEqual(readNoticeLookup(stored, a), {notices: [], pending: true})
+  // asking the same resource again keeps its answer meanwhile
+  const answered = {resourceURL: a, notices: [{title: 'Example notice', locks: ['edit'], tooltip: 'Example reason'}]}
+  assert.equal(forgetOtherAnswer(answered, a), answered)
 })
