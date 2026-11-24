@@ -600,6 +600,8 @@
       "head_resolved_repositories": "解析到 HEAD",
       "multiple_named_versions": "有意指定了多个版本",
       "members": "成员",
+      "members_concepts": "概念",
+      "members_mappings": "映射关系",
       "member_release": "在已发布版本中",
       "member_head": "在 HEAD 中",
       "member_unreleased": "在从未发布的版本中",

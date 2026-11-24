@@ -131,8 +131,10 @@ test('a reason this UI does not know yet still shows, with its code and count', 
   assert.deepEqual(getHealthReasons(null), [])
 })
 
-test('member counts add concepts and mappings and drop empty classes', () => {
-  assert.deepEqual(getMemberClassCounts(health('healthy')), {release: 4})
+test('member counts stay per resource type and drop empty classes and types', () => {
+  assert.deepEqual(getMemberClassCounts(health('healthy')), {concepts: {release: 3}, mappings: {release: 1}})
+  const conceptsOnly = health('healthy', {members: {concepts: {release: 2, head: 1}, mappings: {release: 0, head: 0}}})
+  assert.deepEqual(getMemberClassCounts(conceptsOnly), {concepts: {release: 2, head: 1}})
   assert.deepEqual(getMemberClassCounts(null), {})
   assert.deepEqual(getHeadResolvedRepositories(health('head_resolved', {head_resolved_repositories: ['/orgs/O/sources/A/']})), ['/orgs/O/sources/A/'])
   assert.deepEqual(getMultipleNamedVersions(null), [])
@@ -146,7 +148,7 @@ test('every health string is in each language, singular and plural', async () =>
     UNKNOWN_REASON_KEY,
     UNKNOWN_STATE_DESCRIPTION_KEY,
     ...['title', 'view_details', 'state_checking', 'description_checking', 'checked_at', 'head_resolved_repositories',
-      'multiple_named_versions', 'members', 'head_objects', 'hidden_versions'].map(key => `repo.expansion_health.${key}`),
+      'multiple_named_versions', 'members', 'members_concepts', 'members_mappings', 'head_objects', 'hidden_versions'].map(key => `repo.expansion_health.${key}`),
     ...Object.keys(HEALTH_STATES).map(state => `repo.expansion_health.description_${state}`),
     ...['release', 'head', 'unreleased', 'interim', 'mismatch', 'ambiguous', 'unattributed'].map(
       memberClass => `repo.expansion_health.member_${memberClass}`),

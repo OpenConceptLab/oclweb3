@@ -14,6 +14,7 @@ import {
   getMultipleNamedVersions
 } from './expansionHealth';
 
+const RESOURCE_TYPES = ['concepts', 'mappings'];
 const MEMBER_CLASSES = ['release', 'head', 'unreleased', 'interim', 'mismatch', 'ambiguous', 'unattributed'];
 // i18next would otherwise escape the slashes in a formatted date
 const UNESCAPED = { interpolation: { escapeValue: false } };
@@ -115,15 +116,22 @@ const ExpansionHealthSection = ({ expansion }) => {
       {Object.keys(memberCounts).length > 0 && (
         <>
           <SubHeading>{t('repo.expansion_health.members')}</SubHeading>
-          <Box component="ul" sx={{ pl: 2.5, mt: 0.5, mb: 0 }}>
-            {MEMBER_CLASSES.filter(memberClass => memberCounts[memberClass]).map(memberClass => (
-              <li key={memberClass}>
-                <Typography sx={{ fontSize: '13px' }}>
-                  {t(`repo.expansion_health.member_${memberClass}`)}: {memberCounts[memberClass].toLocaleString()}
-                </Typography>
-              </li>
-            ))}
-          </Box>
+          {RESOURCE_TYPES.filter(resourceType => memberCounts[resourceType]).map(resourceType => (
+            <Box key={resourceType} sx={{ mt: 0.5 }}>
+              <Typography sx={{ fontSize: '13px', fontWeight: 600 }}>
+                {t(`repo.expansion_health.members_${resourceType}`)}
+              </Typography>
+              <Box component="ul" sx={{ pl: 2.5, mt: 0.25, mb: 0 }}>
+                {MEMBER_CLASSES.filter(memberClass => memberCounts[resourceType][memberClass]).map(memberClass => (
+                  <li key={memberClass}>
+                    <Typography sx={{ fontSize: '13px' }}>
+                      {t(`repo.expansion_health.member_${memberClass}`)}: {memberCounts[resourceType][memberClass].toLocaleString()}
+                    </Typography>
+                  </li>
+                ))}
+              </Box>
+            </Box>
+          ))}
         </>
       )}
       {health?.computed_at && (
