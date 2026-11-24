@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 
 const i18next = (await import('i18next')).default
 const {
-  UPDATE_CASES, getReleaseUpdates, getDeletedLocks, isReleasedCollectionVersion, getComparableExpansion,
+  UPDATE_CASES, getReleaseUpdates, getMovableUpdates, getDeletedLocks, isReleasedCollectionVersion, getComparableExpansion,
   getCompareExpansionsURL, pickExpansion,
 } = await import('../releaseUpdates.js')
 
@@ -16,41 +16,81 @@ const OTHER_V3 = '/orgs/O/sources/T/v3/'
 const VALUE_SET_V1 = '/orgs/O/collections/VS/v1/'
 const VALUE_SET_V2 = '/orgs/O/collections/VS/v2/'
 
-// a verbose expansion lists the repo versions it recorded, with each one's version and retired flag
+// a verbose expansion lists the repo versions it recorded, with each one's version, released and retired flags
 const expansion = {
   url: '/orgs/O/collections/C/HEAD/expansions/e1/',
   created_on: '2026-11-01T00:00:00Z',
-  explicit_source_versions: [{version_url: OTHER_V1, version: 'v1', retired: false}],
-  evaluated_source_versions: [{version_url: SOURCE_HEAD, version: 'HEAD', retired: false}],
-  evaluated_collection_versions: [{version_url: VALUE_SET_V1, version: 'v1', retired: true}],
+  explicit_source_versions: [{version_url: OTHER_V1, version: 'v1', released: true, retired: false}],
+  evaluated_source_versions: [
+    {version_url: SOURCE_HEAD, version: 'HEAD', released: false, retired: false},
+    {version_url: SOURCE_V1, version: 'v1', released: true, retired: false},
+  ],
+  evaluated_collection_versions: [{version_url: VALUE_SET_V1, version: 'v1', released: true, retired: true}],
 }
 
 test('each update says whether the lock is on HEAD, on a retired release, or a newer release exists', () => {
   const updates = getReleaseUpdates(expansion, {
-    [OTHER_V1]: OTHER_V3, [SOURCE_HEAD]: SOURCE_V2, [VALUE_SET_V1]: VALUE_SET_V2,
+    [SOURCE_V1]: SOURCE_V2, [SOURCE_HEAD]: SOURCE_V2, [VALUE_SET_V1]: VALUE_SET_V2,
   })
   assert.deepEqual(updates, [
-    {oldURL: SOURCE_HEAD, newURL: SOURCE_V2, case: 'head'},
-    {oldURL: VALUE_SET_V1, newURL: VALUE_SET_V2, case: 'retired'},
-    {oldURL: OTHER_V1, newURL: OTHER_V3, case: 'newer'},
+    {oldURL: SOURCE_HEAD, newURL: SOURCE_V2, case: 'head', pinned: false},
+    {oldURL: VALUE_SET_V1, newURL: VALUE_SET_V2, case: 'retired', pinned: false},
+    {oldURL: SOURCE_V1, newURL: SOURCE_V2, case: 'newer', pinned: false},
   ])
+})
+
+test("an unreleased version isn't called out as having a newer release", () => {
+  // the API maps it to the newest unretired release, which can be older, or to HEAD when there is none
+  const unreleased = {evaluated_source_versions: [
+    {version_url: '/orgs/O/sources/S/v3/', version: 'v3', released: false, retired: false},
+    {version_url: '/orgs/O/sources/U/v1/', version: 'v1', released: false, retired: false},
+  ]}
+  const updates = getReleaseUpdates(unreleased, {'/orgs/O/sources/S/v3/': SOURCE_V2, '/orgs/O/sources/U/v1/': '/orgs/O/sources/U/'})
+  assert.deepEqual(updates.map(update => update.case), ['unreleased', 'unreleased'])
+  // a retired release with no other release left still says it is retired
+  const retired = {evaluated_source_versions: [{version_url: SOURCE_V1, version: 'v1', released: true, retired: true}]}
+  assert.equal(getReleaseUpdates(retired, {[SOURCE_V1]: SOURCE_HEAD})[0].case, 'retired')
+})
+
+test("a version a reference names is pinned: a rebuild keeps it", () => {
+  const [update] = getReleaseUpdates(expansion, {[OTHER_V1]: OTHER_V3})
+  assert.equal(update.pinned, true)
+  assert.equal(update.case, 'newer')
+  assert.deepEqual(getMovableUpdates(expansion, {[OTHER_V1]: OTHER_V3}), [])
+  // listed as both: unversioned references resolved to it too, so a rebuild can move those
+  const both = {...expansion, evaluated_source_versions: [{version_url: OTHER_V1, version: 'v1', released: true}]}
+  assert.equal(getReleaseUpdates(both, {[OTHER_V1]: OTHER_V3})[0].pinned, false)
+})
+
+test('a version the system-version parameter names is pinned, by relative or canonical URL', () => {
+  const locked = version => ({
+    parameters: {'system-version': version},
+    evaluated_source_versions: [{version_url: SOURCE_V1, version: 'v1', released: true, canonical_url: 'https://example.org/S'}],
+  })
+  assert.equal(getReleaseUpdates(locked('/orgs/O/sources/S/|v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, true)
+  assert.equal(getReleaseUpdates(locked('https://example.org/T|v9, https://example.org/S|v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, true)
+  assert.equal(getReleaseUpdates(locked('https://example.org/S|v0'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, false)
+  assert.equal(getReleaseUpdates(locked(''), {[SOURCE_V1]: SOURCE_V2})[0].pinned, false)
 })
 
 test("a version the expansion doesn't list is judged by its URL", () => {
   assert.deepEqual(getReleaseUpdates({}, {[SOURCE_HEAD]: SOURCE_V2, [SOURCE_V1]: SOURCE_V2}).map(update => update.case), ['head', 'newer'])
   assert.deepEqual(getReleaseUpdates({}, {'/orgs/O/sources/S/HEAD/': SOURCE_V2})[0].case, 'head')
+  assert.deepEqual(getReleaseUpdates({}, {[SOURCE_V1]: SOURCE_HEAD})[0].case, 'unreleased')
   assert.deepEqual(getReleaseUpdates(expansion, null), [])
   assert.deepEqual(getReleaseUpdates(expansion, {}), [])
 })
 
-test('deleted locks come from the stored health, counted and named as the API gives them', () => {
+test("deleted locks come from the default expansion's stored health, counted and named as the API gives them", () => {
   const health = {state: 'unhealthy', reasons: [
     {code: 'unresolved_references', count: 1},
     {code: 'locked_version_deleted', count: 2, versions: [SOURCE_V1]},
   ]}
-  assert.deepEqual(getDeletedLocks({health}), {count: 2, urls: [SOURCE_V1], hiddenCount: 1})
-  assert.equal(getDeletedLocks({health: {state: 'healthy', reasons: []}}), null)
-  assert.equal(getDeletedLocks({health: null}), null)
+  assert.deepEqual(getDeletedLocks({health, default: true}), {count: 2, urls: [SOURCE_V1], hiddenCount: 1})
+  // another expansion's health is stale
+  assert.equal(getDeletedLocks({health, default: false}), null)
+  assert.equal(getDeletedLocks({health: {state: 'healthy', reasons: []}, default: true}), null)
+  assert.equal(getDeletedLocks({health: null, default: true}), null)
   assert.equal(getDeletedLocks(null), null)
 })
 
@@ -67,6 +107,8 @@ test('the comparison offered is with the newest other expansion made since this 
   const newest = {url: 'newest/', mnemonic: 'newest', created_on: '2026-11-03T00:00:00Z'}
   assert.equal(getComparableExpansion(expansion, [expansion, older, similar, newest]), newest)
   assert.equal(getComparableExpansion(expansion, [expansion, older]), null)
+  // one still being built has nothing to compare yet
+  assert.equal(getComparableExpansion(expansion, [expansion, similar, {...newest, is_processing: true}]), similar)
   assert.equal(getComparableExpansion(expansion, []), null)
 })
 
@@ -97,7 +139,7 @@ test("the compare page picks each side's expansion from the URL, then the versio
 test('every rebuild-offer string is in each language', async () => {
   const keys = [
     ...Object.values(UPDATE_CASES),
-    ...['lock_stays', 'compare_first', 'released_nudge', 'compare_with'].map(key => `repo.release_updates.${key}`),
+    ...['lock_stays', 'compare_first', 'released_nudge', 'compare_with', 'pinned'].map(key => `repo.release_updates.${key}`),
   ]
   for(const locale of ['en', 'es', 'pt-BR', 'zh']) {
     const translation = JSON.parse(

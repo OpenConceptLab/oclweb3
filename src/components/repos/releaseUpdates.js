@@ -5,39 +5,69 @@ import { getHealthReasons } from './expansionHealth.js'
 export const UPDATE_CASES = {
   head: 'repo.release_updates.case_head',
   retired: 'repo.release_updates.case_retired',
+  unreleased: 'repo.release_updates.case_unreleased',
   newer: 'repo.release_updates.case_newer',
 }
 
-const getRecordedVersions = expansion => [
-  ...(expansion?.explicit_source_versions || []),
-  ...(expansion?.explicit_collection_versions || []),
-  ...(expansion?.evaluated_source_versions || []),
-  ...(expansion?.evaluated_collection_versions || []),
-]
+const EXPLICIT_RELATIONS = ['explicit_source_versions', 'explicit_collection_versions']
+const EVALUATED_RELATIONS = ['evaluated_source_versions', 'evaluated_collection_versions']
+
+const byURL = (expansion, relations) => {
+  const versions = {}
+  relations.forEach(relation => (expansion?.[relation] || []).forEach(version => {
+    if(version?.version_url) versions[version.version_url] = version
+  }))
+  return versions
+}
 
 // HEAD's URL has no version segment: /orgs/O/sources/S/
 const isHeadURL = url => Boolean(url) && (dropVersion(url) === url || url.replace(/\/$/, '').endsWith('/HEAD'))
 
-const getCase = (url, recorded) => {
-  if(recorded?.version === 'HEAD' || isHeadURL(url)) return 'head'
+// resolved-repo-updates gives the newest unretired release, else HEAD, so its target isn't always newer
+const getCase = (oldURL, newURL, recorded) => {
+  if(recorded?.version === 'HEAD' || isHeadURL(oldURL)) return 'head'
   if(recorded?.retired) return 'retired'
+  if(recorded ? !recorded.released : isHeadURL(newURL)) return 'unreleased'
   return 'newer'
 }
 
-// [{oldURL, newURL, case}] from resolved-repo-updates ({recorded URL: latest release URL}); HEAD and retired first
+// system-version entries are url|version, the url canonical or relative
+const getSystemVersionEntries = expansion => {
+  const value = expansion?.parameters?.['system-version']
+  return (typeof value === 'string' ? value.split(',') : []).map(entry => entry.trim()).filter(Boolean)
+}
+
+const isNamedInSystemVersion = (entries, oldURL, recorded) => entries.some(entry => {
+  const index = entry.lastIndexOf('|')
+  if(index < 0) return false
+  const [url, version] = [entry.slice(0, index), entry.slice(index + 1)]
+  const urls = [dropVersion(oldURL), recorded?.canonical_url, recorded?.url].filter(Boolean)
+  return Boolean(recorded?.version) && version === recorded.version && urls.some(candidate => candidate.replace(/\/$/, '') === url.replace(/\/$/, ''))
+})
+
+// [{oldURL, newURL, case, pinned}] from resolved-repo-updates ({recorded URL: latest URL}), HEAD and retired first.
+// A version a reference or system-version names is pinned: a rebuild keeps it
 export const getReleaseUpdates = (expansion, repoUpdates) => {
-  const recorded = {}
-  getRecordedVersions(expansion).forEach(version => {
-    if(version?.version_url) recorded[version.version_url] = version
-  })
+  const explicit = byURL(expansion, EXPLICIT_RELATIONS)
+  const evaluated = byURL(expansion, EVALUATED_RELATIONS)
+  const systemVersions = getSystemVersionEntries(expansion)
   const order = Object.keys(UPDATE_CASES)
   return Object.entries(repoUpdates || {})
-    .map(([oldURL, newURL]) => ({oldURL, newURL, case: getCase(oldURL, recorded[oldURL])}))
+    .map(([oldURL, newURL]) => {
+      const recorded = evaluated[oldURL] || explicit[oldURL]
+      const pinned = Boolean(explicit[oldURL] && !evaluated[oldURL]) || isNamedInSystemVersion(systemVersions, oldURL, recorded)
+      return {oldURL, newURL, case: getCase(oldURL, newURL, recorded), pinned}
+    })
     .sort((a, b) => order.indexOf(a.case) - order.indexOf(b.case))
 }
 
-// The locked versions deleted since the expansion was built, from its stored health
+// Updates a rebuild would act on
+export const getMovableUpdates = (expansion, repoUpdates) =>
+  getReleaseUpdates(expansion, repoUpdates).filter(update => !update.pinned)
+
+// The locked versions deleted since the expansion was built, from its stored health: a default expansion's only
 export const getDeletedLocks = expansion => {
+  if(!expansion?.default) return null
   const reason = getHealthReasons(expansion?.health).find(item => item.code === 'locked_version_deleted')
   return reason ? {count: reason.count, urls: reason.urls, hiddenCount: reason.hiddenCount} : null
 }
@@ -49,7 +79,8 @@ export const isReleasedCollectionVersion = version => Boolean(version?.released)
 export const getComparableExpansion = (expansion, expansions = []) => {
   const createdAt = new Date(expansion?.created_on || 0).getTime()
   return expansions
-    .filter(other => other?.url && other.url !== expansion?.url && new Date(other.created_on || 0).getTime() >= createdAt)
+    // one still being built has nothing to compare yet
+    .filter(other => other?.url && other.url !== expansion?.url && !other.is_processing && new Date(other.created_on || 0).getTime() >= createdAt)
     .sort((a, b) => new Date(b.created_on || 0) - new Date(a.created_on || 0))[0] || null
 }
 

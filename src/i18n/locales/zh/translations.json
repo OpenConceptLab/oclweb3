@@ -625,13 +625,15 @@
       "description_unknown": "OCL 返回了此页面尚不能描述的健康状态。"
     },
     "release_updates": {
-      "case_head": "锁定在 HEAD，且现已有发布版本",
-      "case_retired": "锁定在已停用的发布版本",
-      "case_newer": "已有更新的发布版本",
-      "lock_stays": "在重新构建此扩展之前，锁定会保持在这些版本上。",
-      "compare_first": "请先创建一个类似的扩展，比较两者后再重新构建。",
-      "released_nudge": "此集合版本已发布。重新构建会改变其内容；如需保持不变，请改为从 HEAD 创建新版本。",
-      "compare_with": "与 {{mnemonic}} 比较"
+      "case_head": "锁定在 HEAD，且现已有发布版本：",
+      "case_retired": "锁定在已退役的发布版本：",
+      "case_newer": "已有更新的发布版本：",
+      "lock_stays": "在重建此扩展之前，锁定会保持在这些版本上。",
+      "compare_first": "请先创建一个相似的扩展，比较两者后再重建。",
+      "released_nudge": "此集合版本已发布。重建会改变其内容。如需保持不变，请改为重建 HEAD 的扩展，然后使用“锁定存储库版本”从 HEAD 创建新版本。",
+      "compare_with": "与 {{mnemonic}} 比较",
+      "case_unreleased": "锁定在未发布的版本：",
+      "pinned": "某个引用或 system-version 参数指定了此版本，因此重建会保留它。如需更改，请修改该引用或参数。"
     }
   },
   "org": {

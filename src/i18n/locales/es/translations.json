@@ -668,13 +668,15 @@
       "description_unknown": "OCL indicó un estado de salud que esta página todavía no describe."
     },
     "release_updates": {
-      "case_head": "Bloqueada en HEAD, y ya existe una versión publicada",
-      "case_retired": "Bloqueada en una versión publicada retirada",
-      "case_newer": "Existe una versión publicada más reciente",
+      "case_head": "Bloqueada en HEAD, y ya existe una versión publicada:",
+      "case_retired": "Bloqueada en una versión publicada retirada:",
+      "case_newer": "Existe una versión publicada más reciente:",
       "lock_stays": "El bloqueo se mantiene en estas versiones hasta que se reconstruya esta expansión.",
       "compare_first": "Cree primero una expansión similar y compare ambas antes de reconstruir.",
-      "released_nudge": "Esta versión de la colección está publicada. Reconstruirla cambia su contenido; para mantenerla como está, cree una nueva versión a partir de HEAD.",
-      "compare_with": "Comparar con {{mnemonic}}"
+      "released_nudge": "Esta versión de la colección está publicada. Reconstruirla cambia su contenido. Para mantenerla como está, reconstruya la expansión de HEAD y luego cree una nueva versión a partir de HEAD con Fijar versiones de repositorio.",
+      "compare_with": "Comparar con {{mnemonic}}",
+      "case_unreleased": "Bloqueada en una versión que no está publicada:",
+      "pinned": "Una referencia o el parámetro system-version nombra esta versión, así que una reconstrucción la mantiene. Cambie la referencia o el parámetro para moverla."
     }
   },
   "org": {

@@ -163,9 +163,28 @@ const CompareVersions = () => {
     history.replace({pathname: location.pathname, search: params.toString()})
   }
 
+  // a choice made on the page replaces the expansions a link picked
+  const clearExpansionParams = () => {
+    const params = new URLSearchParams(location.search)
+    if(!params.has('expansion1') && !params.has('expansion2'))
+      return
+    params.delete('expansion1')
+    params.delete('expansion2')
+    history.replace({pathname: location.pathname, search: params.toString()})
+  }
+
+  const onExpansionChange = (expansionType, expansion) => {
+    clearExpansionParams()
+    if(expansionType === 'expansion1')
+      setExpansion1(expansion)
+    else
+      setExpansion2(expansion)
+  }
+
   const onVersionChange = (versionType, version) => {
     if(!versionType || !version?.id)
       return
+    clearExpansionParams()
     if(versionType === 'version1'){
       setExpansion1(false)
       setVersion1(version)
@@ -255,7 +274,7 @@ const CompareVersions = () => {
           expansions2={expansions2}
           expansions1Loading={expansions1Loading}
           expansions2Loading={expansions2Loading}
-          onExpansionChange={(expansionType, expansion) => expansionType === 'expansion1' ? setExpansion1(expansion) : setExpansion2(expansion)}
+          onExpansionChange={onExpansionChange}
         />
         {
           identicalSelection ?

@@ -1037,13 +1037,15 @@
       "description_unknown": "OCL reported a health state this page doesn't describe yet."
     },
     "release_updates": {
-      "case_head": "Locked to HEAD, and a release now exists",
-      "case_retired": "Locked to a retired release",
-      "case_newer": "A newer release exists",
+      "case_head": "Locked to HEAD, and a release now exists:",
+      "case_retired": "Locked to a retired release:",
+      "case_newer": "A newer release exists:",
       "lock_stays": "The lock stays on these versions until this expansion is rebuilt.",
       "compare_first": "Create a similar expansion first, then compare the two before you rebuild.",
-      "released_nudge": "This collection version is released. A rebuild changes what it holds; to keep it as it is, create a new version from HEAD instead.",
-      "compare_with": "Compare with {{mnemonic}}"
+      "released_nudge": "This collection version is released. A rebuild changes what it holds. To keep it as it is, rebuild HEAD's expansion instead, then create a new version from HEAD with Lock repo versions.",
+      "compare_with": "Compare with {{mnemonic}}",
+      "case_unreleased": "Locked to a version that isn't released:",
+      "pinned": "A reference or the system-version parameter names this version, so a rebuild keeps it. Change the reference or the parameter to move it."
     }
   },
   "org": {
