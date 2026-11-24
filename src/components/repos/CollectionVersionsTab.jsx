@@ -64,6 +64,8 @@ import EntityAttributesDialog from '../common/EntityAttributesDialog';
 import ExpansionForm from './ExpansionForm';
 import ExpansionDetailsDialog from './ExpansionDetailsDialog';
 import ExpansionRowList from './ExpansionRowList';
+import ExpansionHealthChip from './ExpansionHealthChip';
+import { getVersionHealthStatus } from './expansionHealth';
 import ExternalExportsDialog from './ExternalExportsDialog';
 import ClearProcessingDialog from './ClearProcessingDialog';
 import ProcessingFlag from './ProcessingFlag';
@@ -709,6 +711,9 @@ const CollectionVersionsTab = ({
     const expansionUpdates = defaultExpansion ? repoUpdatesByExpansion[defaultExpansion.url] : null;
     const hasRepoUpdates = hasAccess && expansionUpdates && Object.keys(expansionUpdates).length > 0;
     const stale = isStaleExpansion(defaultExpansion);
+    // only the version's own default expansion carries its health
+    const healthExpansion = defaultExpansion?.url === version.expansion_url ? defaultExpansion : null;
+    const healthStatus = getVersionHealthStatus(version, healthExpansion);
     const showWarning = hasRepoUpdates || stale;
     const expanded = expandedVersionKeys.has(versionKey);
     const isRowMenuOpen = Boolean(rowMenu.anchorEl) && getVersionKey(rowMenu.version) === versionKey;
@@ -775,6 +780,14 @@ const CollectionVersionsTab = ({
           </TableCell>
           <TableCell sx={bodyCellSx}>
             <VersionStatusIndicator isHead={isHead} released={released} retired={version.retired} />
+            {healthStatus && (
+              <Box sx={{ mt: 0.5 }}>
+                <ExpansionHealthChip
+                  status={healthStatus}
+                  onClick={healthExpansion ? () => setDetailsExpansion(healthExpansion) : undefined}
+                />
+              </Box>
+            )}
             <ProcessingProgress version={version} />
           </TableCell>
           <TableCell sx={{ ...bodyCellSx, width: '1%' }}>

@@ -11,6 +11,8 @@ import get from 'lodash/get';
 
 import ProcessingChip from '../common/ProcessingChip';
 import ProcessingFlag from './ProcessingFlag';
+import ExpansionHealthChip from './ExpansionHealthChip';
+import { getExpansionHealthStatus } from './expansionHealth';
 import { isProcessing } from './processingStages';
 import { dropVersion, formatDate } from '../../common/utils';
 import { formatCount } from './versionsTab.styles';
@@ -142,6 +144,7 @@ const ExpansionRowList = ({
                       </Typography>
                     </Stack>
                   )}
+                  <ExpansionHealthChip status={getExpansionHealthStatus(expansion)} onClick={() => onSelectExpansion(expansion)} />
                   {isStale(expansion) && (
                     <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
                       <WarningIcon sx={{ width: 14, height: 14, color: 'error.main' }} />
