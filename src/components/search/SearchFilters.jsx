@@ -199,10 +199,11 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     setApplied(appliedFilters)
   }, [filters, appliedFilters])
 
-  // unlike the facet choices, kept through a facets answer: only a newly applied setting resets it
+  // unlike the facet choices, kept through a facets answer: a newly applied setting or another
+  // tab (resource) resets it
   React.useEffect(() => {
     setIncludeRetired(appliedIncludeRetired)
-  }, [appliedIncludeRetired])
+  }, [appliedIncludeRetired, resource])
 
   const retiredUnapplied = Boolean(retiredControl) && includeRetired !== appliedIncludeRetired
 

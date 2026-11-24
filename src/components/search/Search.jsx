@@ -260,8 +260,12 @@ const Search = props => {
     const _hasRetiredControl = hasRetiredControl(_resource)
     // The panel's Retired control replaces the Retired filter: one left in an old URL sets it instead
     let _includeRetired = _hasRetiredControl ? getIncludeRetired(window.location.search, _filters?.retired, defaultIncludeRetired) : includeRetired
-    if(_hasRetiredControl && _filters?.retired)
-      _filters = omit(_filters, 'retired')
+    if(_hasRetiredControl && _filters?.retired) {
+      // into the URL's own setting, which a new keyword or Searchlight link keeps where they drop `filters`
+      const params = {...getQueryParams(value, _page, _pageSize, omit(_filters, 'retired'), _orderBy, _order), ...(isMatch ? {'$match': true} : {})}
+      history.replace(getCurrentLayoutURL(params, _resource, _includeRetired))
+      return
+    }
     if(_filters) {
       _fetch = true
       _fetchFacets = true
@@ -532,9 +536,10 @@ const Search = props => {
       }
       let __results = get(response, 'data.0.results') || []
       let total = __results.length + 10
-      const resourceResult = {total: total, pageSize: params?.limit || 10, page: params?.page || params?.page_number || 1, pages: 2, results: __results || [], facets: result[__resource]?.facets || {}, retiredCount: result[__resource]?.retiredCount}
+      const resourceResult = {total: total, pageSize: params?.limit || 10, page: params?.page || params?.page_number || 1, pages: 2, results: __results || []}
+      // the filter counts are the latest ones, which may have come in after this request went out
       setResult(prev => {
-        return {...result, [__resource]: resourceResult}
+        return {...prev, [__resource]: {...resourceResult, facets: prev[__resource]?.facets || {}, retiredCount: prev[__resource]?.retiredCount}}
       })
       setLoading(false)
     })
@@ -590,10 +595,10 @@ const Search = props => {
   // change, as SearchFilters resets its unapplied choices when its filters prop changes.
   const facets = result[resource]?.facets
   const panelFacets = React.useMemo(() => (hasRetiredControl(resource) && facets) ? omit(facets, 'retired') : (facets || {}), [facets, resource])
-  // With no results and retired ones left out, the panel (and its Filters button) stays, as its
-  // Retired control may bring some back
-  const retiredMayBringResults = hasRetiredControl(resource) && !includeRetired
-  const showFilters = openFilters && (!noResults || retiredMayBringResults) && isFilterable(resource) && !isHierarchyView
+  // With no results, a search with the Retired control keeps its panel (and its Filters button):
+  // turning the control on, or taking a filter off, may bring some back
+  const keepFiltersOnNoResults = hasRetiredControl(resource)
+  const showFilters = openFilters && (!noResults || keepFiltersOnNoResults) && isFilterable(resource) && !isHierarchyView
   // Matched Candidates fetches no counts, so the control shows none there
   const retiredControl = hasRetiredControl(resource) ? {checked: includeRetired, defaultChecked: defaultIncludeRetired, count: isMatchOp ? undefined : result[resource]?.retiredCount} : undefined
 
@@ -892,7 +897,7 @@ const Search = props => {
                   propertyFilters={props.propertyFilters}
                   isMatch={isMatchOp}
                   retiredFilterApplied={Boolean(retiredControl) && includeRetired !== defaultIncludeRetired}
-                  filtersAlwaysEnabled={retiredMayBringResults}
+                  filtersAlwaysEnabled={keepFiltersOnNoResults}
                   searchIndexQuery={isSearchIndexQuery()}
                   hierarchySupported={isHierarchySupported}
                   baseURL={props.url}
