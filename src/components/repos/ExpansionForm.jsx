@@ -10,7 +10,7 @@ import {
   Typography,
   Button as MuiButton
 } from "@mui/material";
-import { Info as InfoIcon } from "@mui/icons-material";
+import { Info as InfoIcon, LockOutlined as LockIcon } from "@mui/icons-material";
 import {
   get,
   set,
@@ -28,6 +28,8 @@ import { useTranslation } from "react-i18next";
 import APIService from "../../services/APIService";
 import GAService from "../../services/GAService";
 import { dropVersion } from "../../common/utils";
+import { LockTooltip, useNoticeLocks } from "../common/NoticeLocks";
+import { useResourceNotices } from "../common/useNotices";
 import { OperationsContext } from "../app/LayoutContext";
 import { showRefusalNotice } from "../common/LimitNotice";
 import Dialog from "../common/Dialog";
@@ -126,6 +128,12 @@ const ExpansionForm = ({
 
   const [state, setState] = React.useState(getInitialState);
   const { selectedVersion, fields, fieldErrors, helperTexts, saving } = state;
+  // The form can create the expansion on any version it offers, so Create follows the notices of the version chosen
+  // (HEAD's for HEAD): locked when they lock its edits (NoticeLocks)
+  const noticesURL = selectedVersion && (
+    selectedVersion.version === "HEAD" ? dropVersion(selectedVersion.version_url || selectedVersion.url || "") : selectedVersion.version_url
+  );
+  const createLock = useNoticeLocks(useResourceNotices(noticesURL || null))("editExpansions");
 
   React.useEffect(() => {
     setState(getInitialState());
@@ -205,6 +213,8 @@ const ExpansionForm = ({
   const onSubmit = event => {
     event.preventDefault();
     event.stopPropagation();
+    // Enter submits too: a locked version is never sent
+    if (createLock) return;
 
     const payload = getPayload();
 
@@ -452,14 +462,17 @@ const ExpansionForm = ({
           <Stack direction="row" sx={{
             justifyContent: "flex-end"
           }}>
-            <MuiButton
-              type="submit"
-              variant="contained"
-              sx={{ textTransform: "none" }}
-              disabled={saving}
-            >
-              {t("common.create")}
-            </MuiButton>
+            <LockTooltip title={createLock} placement="top" display="inline-block">
+              <MuiButton
+                type="submit"
+                variant="contained"
+                sx={{ textTransform: "none" }}
+                disabled={saving || Boolean(createLock)}
+                endIcon={createLock ? <LockIcon fontSize="inherit" /> : undefined}
+              >
+                {t("common.create")}
+              </MuiButton>
+            </LockTooltip>
           </Stack>
         </Stack>
       </Box>

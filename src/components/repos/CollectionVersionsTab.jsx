@@ -619,7 +619,7 @@ const CollectionVersionsTab = ({
       { key: 'external-exports', label: t('repo.external_exports'), icon: <ExternalExportIcon />, disabled: !isLoggedIn() || isHead, onClick: () => setExternalExportsVersion(version) },
       { key: 'compare', label: t('repo.compare_with_previous'), icon: <OpenInNewIcon />, disabled: !getPreviousVersionURL(version) || seedPending, tooltip: seedPending ? t('repo.action_disabled_until_seeded') : undefined, onClick: () => compareVersion(version) },
       { divider: true },
-      { key: 'new-expansion', label: t('repo.new_expansion'), icon: <AddIcon />, disabled: processing, tooltip: processing ? processingReason : undefined, lock: lockFor('editExpansions'), onClick: () => setExpansionFormState({ open: true, version, copyFrom: null }) },
+      { key: 'new-expansion', label: t('repo.new_expansion'), icon: <AddIcon />, disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => setExpansionFormState({ open: true, version, copyFrom: null }) },
       { key: 'manage-expansions', label: t('repo.expansions'), icon: <ExpansionIcon />, disabled: !versionExpansions.length, onClick: () => toggleVersionExpand(version) }
     ];
 
@@ -662,7 +662,7 @@ const CollectionVersionsTab = ({
       items.push({ key: 'set-default', label: t('repo.set_as_default'), disabled: processing, tooltip: processing ? processingReason : undefined, lock: lockFor('editExpansions'), onClick: () => onMarkExpansionDefault(version, expansion) });
     }
     items.push(
-      { key: 'create-similar', label: t('repo.create_similar'), disabled: processing, tooltip: processing ? processingReason : undefined, lock: lockFor('editExpansions'), onClick: () => {
+      { key: 'create-similar', label: t('repo.create_similar'), disabled: processing, tooltip: processing ? processingReason : undefined, onClick: () => {
         GAService.recordActionEvent('Expansion', 'create_similar_expansion', expansion.mnemonic || expansion.url, { expansion: expansion.url });
         setExpansionFormState({ open: true, version, copyFrom: expansion });
       } },
@@ -687,7 +687,7 @@ const CollectionVersionsTab = ({
       });
     }
     items.push(
-      { key: 'delete', label: t('common.delete_label'), danger: true, disabled: Boolean(expansion.default) || processing, tooltip: processing ? processingReason : undefined, onClick: () => setDeleteExpansion({ ...expansion, __version: version }) }
+      { key: 'delete', label: t('common.delete_label'), danger: true, disabled: Boolean(expansion.default) || processing, tooltip: processing ? processingReason : undefined, lock: expansion.default ? null : lockFor('editExpansions'), onClick: () => setDeleteExpansion({ ...expansion, __version: version }) }
     );
     return items;
   };

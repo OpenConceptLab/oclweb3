@@ -25,7 +25,8 @@ import CascadeSelector from './CascadeSelector'
 import RepoChip from '../repos/RepoChip'
 import RepoTooltip from '../repos/RepoTooltip'
 import UnresolvedReferencesTable from './UnresolvedReferencesTable'
-import { groupReferenceResults, formatReferenceSummary } from './referenceResults'
+import { groupReferenceResults, formatReferenceSummary, getAddReferencesOutcome } from './referenceResults'
+import { showNotice } from './LimitNotice'
 
 // Extract "[id] [name]" from an expression URL like /orgs/CIEL/sources/CIEL/concepts/1234/
 const extractConceptLabel = expression => {
@@ -154,14 +155,12 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
       )
       .then(response => {
         setSubmitting(false)
-        if (response && (response.status === 200 || response.status === 201)) {
-          setResults(Array.isArray(response.data) ? response.data : [])
-        } else if (response && response.status === 202) {
-          setResults('pending')
-        } else {
-          const msg = (response && (response.detail || response.error)) || 'Something went wrong'
-          setError(msg)
-        }
+        // a refusal that carries a notice (the collection is read-only, say) opens it in the notice dialog
+        const outcome = getAddReferencesOutcome(response)
+        if (outcome.results) setResults(outcome.results)
+        else if (outcome.pending) setResults('pending')
+        else if (outcome.notice) showNotice(outcome.notice)
+        else setError(outcome.error || 'Something went wrong')
       })
   }
 
