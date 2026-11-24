@@ -1036,6 +1036,15 @@
       "head_objects": "Including HEAD concepts: {{concepts}}, HEAD mappings: {{mappings}}",
       "hidden_versions_one": "{{count}} more is private to another owner",
       "hidden_versions_other": "{{count}} more are private to another owner"
+    },
+    "release_updates": {
+      "case_head": "Locked to HEAD, and a release now exists",
+      "case_retired": "Locked to a retired release",
+      "case_newer": "A newer release exists",
+      "lock_stays": "The lock stays on these versions until this expansion is rebuilt.",
+      "compare_first": "Create a similar expansion first, then compare the two before you rebuild.",
+      "released_nudge": "This collection version is released. A rebuild changes what it holds; to keep it as it is, create a new version from HEAD instead.",
+      "compare_with": "Compare with {{mnemonic}}"
     }
   },
   "org": {

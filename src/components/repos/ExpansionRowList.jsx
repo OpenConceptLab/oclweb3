@@ -1,9 +1,8 @@
 import React from 'react';
-import { Box, Button as MuiButton, CircularProgress, IconButton, Stack, Typography } from '@mui/material';
+import { Box, CircularProgress, IconButton, Stack, Typography } from '@mui/material';
 import {
   CheckCircleOutlined as DefaultIcon,
   MoreVert as MoreVertIcon,
-  OpenInNew as OpenInNewIcon,
   WarningAmberOutlined as WarningIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
@@ -13,19 +12,13 @@ import ProcessingChip from '../common/ProcessingChip';
 import ProcessingFlag from './ProcessingFlag';
 import ExpansionHealthChip from './ExpansionHealthChip';
 import { getExpansionHealthStatus } from './expansionHealth';
+import ReleaseUpdatesPanel from './ReleaseUpdatesPanel';
 import { isProcessing } from './processingStages';
-import { dropVersion, formatDate } from '../../common/utils';
+import { formatDate } from '../../common/utils';
 import { formatCount } from './versionsTab.styles';
 
 // eslint-disable-next-line spellcheck/spell-checker
 const GRID_COLUMNS = 'minmax(200px, 1.4fr) minmax(160px, 1fr) minmax(160px, 1fr) 40px';
-
-const labelFromVersionUrl = url => {
-  const parts = url.split('/').filter(Boolean);
-  // URL form: /<orgs|users>/<owner>/<sources|collections>/<short_code>/<version>/
-  if (parts.length >= 5) return `${parts[1]} / ${parts[3]}:${parts[4]}`;
-  return url;
-};
 
 const renderRepoVersionLabel = version => `${version.owner} / ${version.short_code}:${version.version}`;
 
@@ -76,7 +69,10 @@ const ExpansionRowList = ({
   getRepoUpdates,
   onSelectExpansion,
   onOpenExpansionMenu,
-  onRebuild
+  onRebuild,
+  onCreateSimilar,
+  version,
+  canEdit
 }) => {
   const { t } = useTranslation();
 
@@ -113,7 +109,6 @@ const ExpansionRowList = ({
 
       {expansions.map(expansion => {
         const repoUpdates = getRepoUpdates?.(expansion);
-        const hasRepoUpdates = repoUpdates && Object.keys(repoUpdates).length > 0;
         const stageVersion = getStageVersion?.(expansion) || null;
         const explicitVersions = getExplicitRepoVersions(expansion);
         const evaluatedVersions = getEvaluatedRepoVersions(expansion);
@@ -179,56 +174,16 @@ const ExpansionRowList = ({
               </IconButton>
             </Box>
 
-            {hasRepoUpdates && (
-              <Box
-                sx={{
-                  mt: 1,
-                  p: 1.25,
-                  borderRadius: '8px',
-                  backgroundColor: 'rgba(237, 108, 2, 0.08)'
-                }}
-              >
-                <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-                  <WarningIcon sx={{ width: 14, height: 14, color: 'warning.main' }} />
-                  <Typography sx={{ fontSize: '12px', fontWeight: 700, color: 'warning.main' }}>
-                    {t('repo.resolved_repo_updates_available')}
-                  </Typography>
-                </Stack>
-                {Object.entries(repoUpdates).map(([oldUrl, newUrl]) => {
-                  const compareUrl = `${dropVersion(newUrl)}compare-versions?version1=${newUrl}&version2=${oldUrl}`;
-                  return (
-                    <Typography
-                      key={oldUrl}
-                      sx={{
-                        fontSize: '12px',
-                        mt: 0.5,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 0.5,
-                        flexWrap: 'wrap',
-                        '& a': { color: 'primary.main', textDecoration: 'none' },
-                        '& a:hover': { textDecoration: 'underline' }
-                      }}
-                    >
-                      <a href={oldUrl} target="_blank" rel="noreferrer">{labelFromVersionUrl(oldUrl)}</a>
-                      {' → '}
-                      <a href={newUrl} target="_blank" rel="noreferrer">{labelFromVersionUrl(newUrl)}</a>
-                      <a href={compareUrl} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                        ({t('common.compare')} <OpenInNewIcon sx={{ fontSize: '12px' }} />)
-                      </a>
-                    </Typography>
-                  );
-                })}
-                <MuiButton
-                  size="small"
-                  variant="text"
-                  sx={{ mt: 0.5, minWidth: 0, p: 0, textTransform: 'none', fontWeight: 700 }}
-                  disabled={processingState(expansion) === 'processing'}
-                  onClick={() => onRebuild(expansion)}
-                >
-                  {t('repo.rebuild')}
-                </MuiButton>
-              </Box>
+            {canEdit && (
+              <ReleaseUpdatesPanel
+                expansion={expansion}
+                version={version}
+                expansions={expansions}
+                repoUpdates={repoUpdates}
+                processing={processingState(expansion) === 'processing'}
+                onCreateSimilar={onCreateSimilar}
+                onRebuild={onRebuild}
+              />
             )}
           </Box>
         );

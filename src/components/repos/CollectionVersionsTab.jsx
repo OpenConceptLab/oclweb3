@@ -66,6 +66,7 @@ import ExpansionDetailsDialog from './ExpansionDetailsDialog';
 import ExpansionRowList from './ExpansionRowList';
 import ExpansionHealthChip from './ExpansionHealthChip';
 import { getVersionHealthStatus } from './expansionHealth';
+import { getDeletedLocks } from './releaseUpdates';
 import ExternalExportsDialog from './ExternalExportsDialog';
 import ClearProcessingDialog from './ClearProcessingDialog';
 import ProcessingFlag from './ProcessingFlag';
@@ -332,7 +333,7 @@ const CollectionVersionsTab = ({
       const defaultExpansion = getDefaultExpansion(version);
       if (!defaultExpansion) return;
       const updates = repoUpdatesByExpansion[defaultExpansion.url];
-      const hasUpdates = hasAccess && updates && Object.keys(updates).length > 0;
+      const hasUpdates = hasAccess && ((updates && Object.keys(updates).length > 0) || Boolean(getDeletedLocks(defaultExpansion)));
       if (hasUpdates || isStaleExpansion(defaultExpansion)) toExpand.push(getVersionKey(version));
     });
     if (!toExpand.length) return;
@@ -709,7 +710,9 @@ const CollectionVersionsTab = ({
     const versionLoading = loadingByVersion[versionKey];
     const defaultExpansion = getDefaultExpansion(version);
     const expansionUpdates = defaultExpansion ? repoUpdatesByExpansion[defaultExpansion.url] : null;
-    const hasRepoUpdates = hasAccess && expansionUpdates && Object.keys(expansionUpdates).length > 0;
+    const hasReleaseUpdates = hasAccess && Boolean(expansionUpdates && Object.keys(expansionUpdates).length > 0);
+    const deletedLocks = hasAccess ? getDeletedLocks(defaultExpansion) : null;
+    const hasRepoUpdates = hasReleaseUpdates || Boolean(deletedLocks);
     const stale = isStaleExpansion(defaultExpansion);
     // only the version's own default expansion carries its health
     const healthExpansion = defaultExpansion?.url === version.expansion_url ? defaultExpansion : null;
@@ -792,7 +795,7 @@ const CollectionVersionsTab = ({
           </TableCell>
           <TableCell sx={{ ...bodyCellSx, width: '1%' }}>
             {showWarning && (
-              <Tooltip title={hasRepoUpdates ? t('repo.resolved_repo_updates_available') : t('repo.stale')}>
+              <Tooltip title={hasReleaseUpdates ? t('repo.resolved_repo_updates_available') : (deletedLocks ? t('repo.expansion_health.reason_locked_version_deleted', { count: deletedLocks.count }) : t('repo.stale'))}>
                 <IconButton
                   size="small"
                   onClick={() => defaultExpansion && setRebuildExpansion({ ...defaultExpansion, __version: version })}
@@ -828,6 +831,12 @@ const CollectionVersionsTab = ({
                   onSelectExpansion={expansion => setDetailsExpansion(expansion)}
                   onOpenExpansionMenu={(event, expansion) => openExpansionMenu(event, version, expansion)}
                   onRebuild={expansion => setRebuildExpansion({ ...expansion, __version: version })}
+                  onCreateSimilar={expansion => {
+                    GAService.recordActionEvent('Expansion', 'create_similar_expansion', expansion.mnemonic || expansion.url, { expansion: expansion.url });
+                    setExpansionFormState({ open: true, version, copyFrom: expansion });
+                  }}
+                  version={version}
+                  canEdit={hasAccess}
                 />
               </Box>
             </Collapse>

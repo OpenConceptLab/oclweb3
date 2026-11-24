@@ -17,6 +17,7 @@ import VersionStats from './VersionStats'
 import VersionMeta from './VersionMeta'
 import VersionResourcesComparison from './VersionResourcesComparison'
 import { getVersionURL, isSameVersion } from './versionsTab.styles'
+import { pickExpansion } from './releaseUpdates'
 
 const VERSIONS_PAGE_SIZE = 10
 
@@ -184,7 +185,14 @@ const CompareVersions = () => {
       })
   }
 
-  const fetchExpansions = (version, setExpansions, setExpansion, setExpansionsLoading) => {
+  // expansion1 and expansion2 in the URL pick each side's expansion, e.g. two of one version
+  const getPreferredExpansionURLs = side => {
+    const queryParams = new URLSearchParams(location.search)
+    const urls = [queryParams.get('expansion1'), queryParams.get('expansion2')]
+    return side === 'expansion2' ? urls.reverse() : urls
+  }
+
+  const fetchExpansions = (version, setExpansions, setExpansion, setExpansionsLoading, side) => {
     setExpansions([])
     setExpansion(false)
     if(!isCollection || !version?.id) {
@@ -195,17 +203,17 @@ const CompareVersions = () => {
     APIService.new().overrideURL(getVersionURL(version)).appendToUrl('expansions/').get(null, null, {includeSummary: true, verbose: true}).then(response => {
       const list = Array.isArray(response?.data) ? response.data : []
       setExpansions(list)
-      setExpansion(find(list, {url: version?.expansion_url}) || false)
+      setExpansion(pickExpansion(list, getPreferredExpansionURLs(side), version?.expansion_url))
       setExpansionsLoading(false)
     })
   }
 
   React.useEffect(() => {
-    fetchExpansions(version1, setExpansions1, setExpansion1, setExpansions1Loading)
+    fetchExpansions(version1, setExpansions1, setExpansion1, setExpansions1Loading, 'expansion1')
   }, [version1?.id, isCollection])
 
   React.useEffect(() => {
-    fetchExpansions(version2, setExpansions2, setExpansion2, setExpansions2Loading)
+    fetchExpansions(version2, setExpansions2, setExpansion2, setExpansions2Loading, 'expansion2')
   }, [version2?.id, isCollection])
 
   React.useEffect(() => {

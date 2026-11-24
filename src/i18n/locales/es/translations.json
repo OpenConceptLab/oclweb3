@@ -667,6 +667,15 @@
       "head_objects": "Incluye conceptos de HEAD: {{concepts}}, mapeos de HEAD: {{mappings}}",
       "hidden_versions_one": "{{count}} más es privada de otro propietario",
       "hidden_versions_other": "{{count}} más son privadas de otro propietario"
+    },
+    "release_updates": {
+      "case_head": "Bloqueada en HEAD, y ya existe una versión publicada",
+      "case_retired": "Bloqueada en una versión publicada retirada",
+      "case_newer": "Existe una versión publicada más reciente",
+      "lock_stays": "El bloqueo se mantiene en estas versiones hasta que se reconstruya esta expansión.",
+      "compare_first": "Cree primero una expansión similar y compare ambas antes de reconstruir.",
+      "released_nudge": "Esta versión de la colección está publicada. Reconstruirla cambia su contenido; para mantenerla como está, cree una nueva versión a partir de HEAD.",
+      "compare_with": "Comparar con {{mnemonic}}"
     }
   },
   "org": {

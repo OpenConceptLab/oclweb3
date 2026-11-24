@@ -624,6 +624,15 @@
       "reason_unknown": "{{code}}：{{count}}",
       "head_objects": "包括 HEAD 概念：{{concepts}}，HEAD 映射：{{mappings}}",
       "hidden_versions_other": "另有 {{count}} 个属于其他所有者的私有版本"
+    },
+    "release_updates": {
+      "case_head": "锁定在 HEAD，且现已有发布版本",
+      "case_retired": "锁定在已停用的发布版本",
+      "case_newer": "已有更新的发布版本",
+      "lock_stays": "在重新构建此扩展之前，锁定会保持在这些版本上。",
+      "compare_first": "请先创建一个类似的扩展，比较两者后再重新构建。",
+      "released_nudge": "此集合版本已发布。重新构建会改变其内容；如需保持不变，请改为从 HEAD 创建新版本。",
+      "compare_with": "与 {{mnemonic}} 比较"
     }
   },
   "org": {
