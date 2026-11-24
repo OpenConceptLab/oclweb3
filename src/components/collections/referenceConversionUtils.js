@@ -1,4 +1,5 @@
 import { isTaskFinished } from '../repos/taskState.js'
+import { getNotice } from '../common/limitNoticePayload.js'
 
 // Converting a HEAD collection's resource-versioned references, through the API's
 // references/conversions/ endpoints: the preview says what each conversion keeps, the conversion swaps them server side
@@ -117,8 +118,11 @@ export const getQueuedConversion = task => {
   const result = typeof task.result === 'string' ? parseJSON(task.result) : task.result
   if(String(task.state).toUpperCase() === 'SUCCESS' && Array.isArray(result?.results))
     return { results: result.results }
-  if(result?.refusal !== undefined && result?.refusal !== null)
-    return { refusal: getRefusalMessage(result.refusal) }
+  if(result?.refusal !== undefined && result?.refusal !== null) {
+    // the refusal is the body a direct request would have answered with, so a notice it carries is kept to be shown
+    const notice = getNotice(result.refusal)
+    return { refusal: getRefusalMessage(result.refusal), ...(notice ? { notice } : {}) }
+  }
   return { error: result?.error || task.error_message || null }
 }
 

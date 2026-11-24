@@ -23,6 +23,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import LockIcon from '@mui/icons-material/LockOutlined'
 import APIService from '../../services/APIService'
 import { LockTooltip, useNoticeLocks } from '../common/NoticeLocks'
+import { showNotice, showRefusalNotice } from '../common/LimitNotice'
 import {
   REPO_VERSIONED, UNVERSIONED, LEAVE, CONVERSIONS, PREVIEW_PAGE_SIZE, getResourceVersionedIds, mergePreviewPages,
   getDefaultChoices, chooseAll, getConversionPayload, describeConversion, getConversionOutcome, getRollbackMessages,
@@ -219,8 +220,11 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
         }
         setQueuedTaskId(null)
         setConverting(false)
+        // a refusal that carries a notice opens it in the notice dialog, as a direct one does
         if(queued.results)
           onResults(queued.results)
+        else if(queued.notice)
+          showNotice(queued.notice)
         else if(queued.refusal !== undefined)
           setError(queued.refusal || t('reference.convert_refused'))
         else
@@ -246,7 +250,7 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
       setConverting(false)
       if(response?.status === 200)
         onResults(response.data)
-      else
+      else if(!showRefusalNotice(response))
         setError(response?.detail || t('common.generic_error'))
     })
   }
