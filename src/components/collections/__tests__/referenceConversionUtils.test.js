@@ -5,7 +5,7 @@ const {
   REPO_VERSIONED, UNVERSIONED, LEAVE, isResourceVersioned, mergePreviewPages, getDefaultChoice, getDefaultChoices,
   chooseAll, getConversionPayload, describeConversion, getConversionOutcome, getResourceVersionedIds,
   getQueuedConversion, followsHead, getRefusalMessage, getNotConvertedReasons, TASK_RESULT_QUERY,
-  getRollbackMessages, isRolledBack,
+  getRollbackMessages, isRolledBack, watchQueuedRefusal,
 } = await import('../referenceConversionUtils.js')
 
 const keeps = (overrides = {}) => ({ keeps_members: true, added_count: 0, removed_count: 0, ...overrides })
@@ -135,6 +135,34 @@ test('a queued conversion refused with a notice keeps the notice and the message
     { refusal: 'Example detail' })
   assert.equal(getRefusalMessage({ errors: ['First', 'Second'] }), 'First')
   assert.equal(getRefusalMessage({}), null)
+})
+
+// Watches a closed conversion whose task answers these in turn (null: a failed request), running each scheduled ask
+// at once
+const watchClosed = async answers => {
+  const shown = []
+  let asked = 0
+  let scheduled = null
+  watchQueuedRefusal(() => Promise.resolve(answers[asked++]), notice => shown.push(notice), {schedule: next => { scheduled = next }})
+  for(;;) {
+    await new Promise(resolve => setTimeout(resolve, 0))
+    if(!scheduled) return shown
+    const next = scheduled
+    scheduled = null
+    next()
+  }
+}
+
+test('a closed conversion is still watched, and a refusal carrying a notice is shown once its task ends', async () => {
+  const notice = { title: 'Example notice', tooltip: 'Example reason', locks: ['edit'] }
+  const refused = { state: 'SUCCESS', result: { refusal: { detail: 'Example detail', notice } } }
+  assert.deepEqual(await watchClosed([{ state: 'STARTED' }, null, refused]), [notice])
+})
+
+test('a closed conversion that converted, or was refused without a notice, shows nothing more', async () => {
+  assert.deepEqual(await watchClosed([{ state: 'SUCCESS', result: { results: [{ id: 1, status: 'converted' }] } }]), [])
+  assert.deepEqual(await watchClosed([{ state: 'SUCCESS', result: { refusal: { detail: 'Example detail' } } }]), [])
+  assert.deepEqual(await watchClosed([null, null, null]), [])
 })
 
 test('the reasons references were left come back with their counts, most common first', () => {

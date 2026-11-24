@@ -1,4 +1,4 @@
-import { isTaskFinished } from '../repos/taskState.js'
+import { isTaskFinished, watchTask } from '../repos/taskState.js'
 import { getNotice } from '../common/limitNoticePayload.js'
 
 // Converting a HEAD collection's resource-versioned references, through the API's
@@ -124,6 +124,20 @@ export const getQueuedConversion = task => {
     return { refusal: getRefusalMessage(result.refusal), ...(notice ? { notice } : {}) }
   }
   return { error: result?.error || task.error_message || null }
+}
+
+// A queued conversion whose dialog was closed is still watched (watchTask), so a refusal carrying a notice is shown once
+// its task ends. getTask() resolves to the task, or to null when the request failed.
+export const watchQueuedRefusal = (getTask, onNotice, options) => {
+  let task = null
+  watchTask(() => getTask().then(answer => {
+    task = answer
+    return answer?.state ?? null
+  }), () => {
+    const notice = getQueuedConversion(task)?.notice
+    if(notice)
+      onNotice(notice)
+  }, options)
 }
 
 // A refusal is the body a write would have answered with: its detail, else its first message

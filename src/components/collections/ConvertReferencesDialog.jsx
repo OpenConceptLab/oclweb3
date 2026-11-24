@@ -27,7 +27,7 @@ import { showNotice, showRefusalNotice } from '../common/LimitNotice'
 import {
   REPO_VERSIONED, UNVERSIONED, LEAVE, CONVERSIONS, PREVIEW_PAGE_SIZE, getResourceVersionedIds, mergePreviewPages,
   getDefaultChoices, chooseAll, getConversionPayload, describeConversion, getConversionOutcome, getRollbackMessages,
-  isRolledBack, getQueuedConversion, getNotConvertedReasons, TASK_RESULT_QUERY, UNESCAPED, getReasonKey,
+  isRolledBack, getQueuedConversion, getNotConvertedReasons, TASK_RESULT_QUERY, UNESCAPED, getReasonKey, watchQueuedRefusal,
 } from './referenceConversionUtils'
 
 const TASK_POLL_MS = 3000
@@ -255,8 +255,18 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
     })
   }
 
-  // closing while a queued conversion runs leaves it running: the list says so
-  const onDialogClose = () => queuedTaskId ? onConverted({ queued: true }) : onClose()
+  // closing while a queued conversion runs leaves it running: the list says so, and its task is still watched so that a
+  // refusal carrying a notice is shown when it comes
+  const onDialogClose = () => {
+    if(!queuedTaskId)
+      return onClose()
+    watchQueuedRefusal(
+      () => APIService.new().overrideURL(`/tasks/${queuedTaskId}/`).get(null, null, TASK_RESULT_QUERY)
+        .then(response => (response?.status === 200 && response.data) || null),
+      showNotice,
+    )
+    onConverted({ queued: true })
+  }
 
   return (
     <Dialog open={open} onClose={converting && !queuedTaskId ? undefined : onDialogClose} maxWidth='lg' fullWidth>
