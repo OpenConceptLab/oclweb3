@@ -34,7 +34,8 @@ import { EXCLUDE_FILTER_KEY } from './ResultConstants'
 import DeleteReferencesDialog from '../collections/DeleteReferencesDialog'
 import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
 import TransformReferencesDialog from '../collections/TransformReferencesDialog'
-import { getTransformAddGroups } from '../collections/referenceTransformUtils'
+import ConvertReferencesDialog from '../collections/ConvertReferencesDialog'
+import { getTransformAddGroups, getTransformOutcome } from '../collections/referenceTransformUtils'
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutlined'
 import GAService from '../../services/GAService'
 import QuotaDialog from '../common/QuotaDialog'
@@ -93,6 +94,7 @@ const Search = props => {
   const [deletingReferences, setDeletingReferences] = React.useState(false)
   const [referenceActionsAnchor, setReferenceActionsAnchor] = React.useState(null)
   const [transformReferencesOpen, setTransformReferencesOpen] = React.useState(false)
+  const [convertReferencesOpen, setConvertReferencesOpen] = React.useState(false)
   const [transformingReferences, setTransformingReferences] = React.useState(false)
   const [bulkRemoveOpen, setBulkRemoveOpen] = React.useState(false)
   const [bulkRemoving, setBulkRemoving] = React.useState(false)
@@ -687,14 +689,27 @@ const Search = props => {
     return APIService.new().overrideURL(collectionUrl).appendToUrl('references/').put(body)
   }
 
-  const getAddedTransformItems = (response, group) => {
-    if(![200, 201].includes(response?.status))
-      return []
-    if(!Array.isArray(response?.data))
-      return group.items
-
-    const addedExpressions = response.data.filter(item => item.added).map(item => item.expression)
-    return group.items.filter(item => addedExpressions.includes(item.proposedExpression))
+  const onConvertedReferences = outcome => {
+    setConvertReferencesOpen(false)
+    onSelectItem([])
+    if(outcome.queued) {
+      setAlert({ severity: 'info', message: t('reference.convert_queued') })
+      return
+    }
+    const failed = outcome.not_converted + outcome.rolled_back
+    const message = failed ?
+      t('reference.convert_partial', { converted: outcome.changed, failed }) :
+      t('reference.convert_success', { count: outcome.changed })
+    // references the API can't convert were never sent, so the count of them comes from the preview
+    const unsupported = outcome.unsupported ? ` ${t('reference.convert_unsupported_note', { count: outcome.unsupported })}` : ''
+    // the reasons are the API's text, translated where known: React escapes it, so i18next mustn't as well
+    const reasons = outcome.reasons ?
+      ` ${t('reference.convert_not_converted_reasons', { reasons: outcome.reasons, interpolation: { escapeValue: false } })}` :
+      ''
+    setAlert({
+      severity: failed || outcome.unsupported ? 'warning' : 'success', message: message + reasons + unsupported,
+    })
+    fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
   }
 
   const onTransformReferences = async transformItems => {
@@ -702,12 +717,33 @@ const Search = props => {
     setTransformingReferences(true)
 
     const addResults = await Promise.all(groups.map(group => addTransformedReferences(group).then(response => ({ group, response }))))
-    const addedItems = addResults.reduce((items, { group, response }) => [...items, ...getAddedTransformItems(response, group)], [])
-    const addFailures = addResults.reduce((count, { group, response }) => count + group.items.length - getAddedTransformItems(response, group).length, 0)
+    const outcomes = addResults.map(({ group, response }) => ({ group, ...getTransformOutcome(response, group.items) }))
+    const addedItems = outcomes.reduce((items, outcome) => [...items, ...outcome.addedItems], [])
+    const addFailures = outcomes.reduce((count, outcome) => count + outcome.group.items.length - outcome.addedItems.length, 0)
+    const unresolvedExpressions = outcomes.reduce((expressions, outcome) => [...expressions, ...outcome.unresolvedExpressions], [])
+
+    if(unresolvedExpressions.length) {
+      // Replacements saved but resolved to nothing are removed, so their originals stay as they were
+      const rollbackResponse = await APIService.new()
+        .overrideURL(collectionUrl)
+        .appendToUrl('references/')
+        .delete({ expressions: unresolvedExpressions })
+      if(![200, 204].includes(rollbackResponse?.status)) {
+        setTransformingReferences(false)
+        setAlert({ severity: 'warning', message: t('reference.transform_rollback_failed', { count: unresolvedExpressions.length }) })
+        fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
+        return
+      }
+    }
 
     if(!addedItems.length) {
       setTransformingReferences(false)
-      setAlert({ severity: 'error', message: t('reference.transform_no_references_changed') })
+      setAlert({
+        severity: 'error',
+        message: unresolvedExpressions.length ?
+          t('reference.transform_none_resolved', { count: unresolvedExpressions.length }) :
+          t('reference.transform_no_references_changed'),
+      })
       return
     }
 
@@ -725,7 +761,10 @@ const Search = props => {
       setAlert({
         severity: addFailures ? 'warning' : 'success',
         message: addFailures ?
-          t('reference.transform_partial_success', { transformed: transformedCount, failed: addFailures }) :
+          t(
+            unresolvedExpressions.length ? 'reference.transform_partial_unresolved' : 'reference.transform_partial_success',
+            { transformed: transformedCount, failed: addFailures, unresolved: unresolvedExpressions.length }
+          ) :
           t('reference.transform_success', { count: transformedCount }),
       })
       fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
@@ -926,6 +965,17 @@ const Search = props => {
         <MenuItem
           onClick={() => {
             closeReferenceActions()
+            setConvertReferencesOpen(true)
+          }}
+        >
+          <ListItemIcon>
+            <TransformIcon fontSize='small' />
+          </ListItemIcon>
+          <ListItemText>{t('reference.convert_resource_versioned')}</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            closeReferenceActions()
             setDeleteReferencesOpen(true)
           }}
         >
@@ -942,6 +992,16 @@ const Search = props => {
         references={selectedReferenceObjects}
         loading={transformingReferences}
       />
+      {
+        convertReferencesOpen &&
+          <ConvertReferencesDialog
+            open={convertReferencesOpen}
+            onClose={() => setConvertReferencesOpen(false)}
+            onConverted={onConvertedReferences}
+            references={selectedReferenceObjects}
+            collectionUrl={collectionUrl}
+          />
+      }
       <DeleteReferencesDialog
         open={deleteReferencesOpen}
         onClose={() => setDeleteReferencesOpen(false)}

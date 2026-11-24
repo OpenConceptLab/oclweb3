@@ -308,6 +308,23 @@ export const refreshCurrentUserCache = (callback, onFailure) => {
   });
 }
 
+const normalizeErrorDetail = detail => {
+  if(Array.isArray(detail))
+    return detail.join(' ')
+  if(detail && typeof detail === 'object')
+    return Object.values(detail).flat().join(' ')
+  return detail
+}
+
+// The reason an API request failed, from whichever field the API put it in, as text
+export const getErrorDetail = response => normalizeErrorDetail(
+  response?.response?.data?.detail ||
+  response?.response?.data?.error ||
+  response?.response?.data?.__all__ ||
+  response?.response?.data ||
+  response?.message
+)
+
 export const replaceCurrentUserCacheWith = data => localStorage.setItem('user', JSON.stringify(data));
 
 export const formatByteSize = bytes => {

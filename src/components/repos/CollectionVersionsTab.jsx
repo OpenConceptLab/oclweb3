@@ -71,12 +71,14 @@ import RepoContentSummary, { VERSION_STATS } from './RepoContentSummary';
 import { getVersionCount, getCountLabel } from './expansionCounts';
 import ProcessingProgress from './ProcessingProgress';
 import RebuildExpansionDialog from './RebuildExpansionDialog';
+import { closeIfShowing, createRebuildGuard, getRebuildOutcome, withoutExpansionState } from './rebuildExpansion';
 import ReindexVersionDialog from './ReindexVersionDialog';
 import RepoVersionRowMenu from './RepoVersionRowMenu';
 import VersionExportDialog from './VersionExportDialog';
 import VersionStatusIndicator from './VersionStatusIndicator';
 import GAService from '../../services/GAService';
 import { PROCESSING_POLL_INTERVAL_MS, useProcessingVersions } from '../../hooks/useProcessingState';
+import useQueuedTasks from '../../hooks/useQueuedTasks';
 import { PROCESSING_QUERY_PARAMS, areSeedStagesComplete, isExportAvailable, isProcessing as isExpansionProcessing, isVersionProcessing } from './processingStages';
 import {
   REPO_VERSIONS_PAGE_SIZE,
@@ -185,9 +187,11 @@ const CollectionVersionsTab = ({
   const [deleteExpansion, setDeleteExpansion] = React.useState(null);
   const [detailsExpansion, setDetailsExpansion] = React.useState(null);
   const [rebuildExpansion, setRebuildExpansion] = React.useState(null);
+  const [rebuildingURLs, setRebuildingURLs] = React.useState([]);
+  const rebuildGuard = React.useRef(createRebuildGuard()).current;
   const [reindexTarget, setReindexTarget] = React.useState(null);
   const [clearProcessingVersion, setClearProcessingVersion] = React.useState(null);
-  const [reindexWip, setReindexWip] = React.useState({});
+  const { tasks: reindexWip, add: addReindexWip, check: checkReindexWip } = useQueuedTasks();
   const [expandedVersionKeys, setExpandedVersionKeys] = React.useState(new Set());
   const [rowMenu, setRowMenu] = React.useState({ anchorEl: null, version: null });
   const [expansionMenu, setExpansionMenu] = React.useState({ anchorEl: null, version: null, expansion: null });
@@ -498,17 +502,22 @@ const CollectionVersionsTab = ({
   };
 
   const onRebuildExpansion = expansion => {
+    // the API holds the request while the rebuild runs, so a second click would only get a 409
+    if (!rebuildGuard.start(expansion.url)) return;
+    setRebuildingURLs(rebuildGuard.list());
+    // the row shows it processing even if the dialog is closed while the request waits
+    markExpansionProcessing(expansion.url);
     GAService.recordActionEvent('Expansion', 'rebuild_expansion', expansion.mnemonic || expansion.url, {
       expansion: expansion.url
     });
-    APIService.new().overrideURL(`${expansion.url}re-evaluate/`).post().then(response => {
-      setRebuildExpansion(false);
-      if ([200, 201, 202].includes(response?.status)) {
-        setAlert({ severity: 'success', message: t('repo.expansion_rebuild_accepted') });
-        refreshSelectedExpansions(expansion.__version);
-      } else {
-        setAlert({ severity: 'error', message: response?.data?.detail || response?.detail || t('repo.unable_rebuild_expansion') });
-      }
+    APIService.new().overrideURL(`${expansion.url}re-evaluate/`).post(null, null, {}, null, true).then(response => {
+      rebuildGuard.finish(expansion.url);
+      setRebuildingURLs(rebuildGuard.list());
+      setRebuildExpansion(current => closeIfShowing(current, expansion.url));
+      const outcome = getRebuildOutcome(response);
+      setAlert({ severity: outcome.severity, message: outcome.detail || t(outcome.messageKey) });
+      if (outcome.refresh) refreshSelectedExpansions(expansion.__version);
+      else setProcessingStatusByExpansion(prev => withoutExpansionState(prev, expansion.url));
     });
   };
 
@@ -560,7 +569,7 @@ const CollectionVersionsTab = ({
     setReindexTarget(null);
     if (!target || !result) return;
     if (result.taskId || result.status === 409)
-      setReindexWip(prev => ({ ...prev, [getReindexKey(target.targetUrl, target.contentType)]: { taskId: result.taskId } }));
+      addReindexWip(getReindexKey(target.targetUrl, target.contentType), result.taskId);
   };
 
   const toggleVersionExpand = version => {
@@ -575,7 +584,10 @@ const CollectionVersionsTab = ({
 
   const openRowMenu = (event, version) => setRowMenu({ anchorEl: event.currentTarget, version });
   const closeRowMenu = () => setRowMenu({ anchorEl: null, version: null });
-  const openExpansionMenu = (event, version, expansion) => setExpansionMenu({ anchorEl: event.currentTarget, version, expansion });
+  const openExpansionMenu = (event, version, expansion) => {
+    setExpansionMenu({ anchorEl: event.currentTarget, version, expansion });
+    checkReindexWip(['concepts', 'mappings'].map(contentType => getReindexKey(expansion.url, contentType)));
+  };
   const closeExpansionMenu = () => setExpansionMenu({ anchorEl: null, version: null, expansion: null });
 
   const buildRowMenuItems = version => {
@@ -632,7 +644,8 @@ const CollectionVersionsTab = ({
     const { version, expansion } = expansionMenu;
     if (!version || !expansion) return [];
 
-    const processing = isExpansionProcessing(expansion) || isVersionProcessing(version);
+    const processing = isExpansionProcessing(expansion) || isVersionProcessing(version) ||
+      getExpansionProcessingState(expansion) === 'processing';
     const processingReason = t('repo.action_disabled_while_processing');
 
     const items = [];
@@ -964,6 +977,7 @@ const CollectionVersionsTab = ({
       />
       <RebuildExpansionDialog
         expansion={rebuildExpansion}
+        rebuilding={Boolean(rebuildExpansion?.url) && rebuildingURLs.includes(rebuildExpansion.url)}
         onClose={() => setRebuildExpansion(false)}
         onRebuild={onRebuildExpansion}
         onCreateSimilar={expansion => {

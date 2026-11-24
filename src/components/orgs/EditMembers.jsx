@@ -7,120 +7,179 @@ import DialogActions from '@mui/material/DialogActions';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
-import FormHelperText from '@mui/material/FormHelperText'
+import Box from '@mui/material/Box';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import ListItemText from '@mui/material/ListItemText';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import AddMemberIcon from '@mui/icons-material/PersonAddOutlined';
+import RemoveMemberIcon from '@mui/icons-material/PersonRemoveOutlined';
 
+import Button from '../common/Button'
 import Link from '../common/Link'
+import UserIcon from '../users/UserIcon'
 import { OperationsContext } from '../app/LayoutContext';
+import ChangeOwnRoleDialog from './ChangeOwnRoleDialog'
+import LeaveOrgDialog from './LeaveOrgDialog'
+import RemoveMemberDialog from './RemoveMemberDialog'
 
 import { debounce } from 'lodash'
 import APIService from '../../services/APIService';
+import { getCurrentUserUsername, getErrorDetail } from '../../common/utils';
+import { ROLES, ROLE_MEMBER, demotesSelf, getRoleLabel, getRoleOptions, withoutMembers } from '../../common/orgRoles';
 
 
-const normalizeErrorDetail = detail => {
-  if(Array.isArray(detail))
-    return detail.join(' ')
-  if(detail && typeof detail === 'object')
-    return Object.values(detail).flat().join(' ')
-  return detail
+const getMemberName = member => {
+  const name = (member.name || '').trim()
+  return ['- -', '-'].includes(name) ? '' : name
+}
+const getMemberDisplayName = member => getMemberName(member) ? `${member.username} (${getMemberName(member)})` : member.username
+
+const RoleSelect = ({ value, options, label, disabled, onChange }) => {
+  const { t } = useTranslation()
+  return (
+    <Select
+      size='small'
+      value={value}
+      disabled={disabled}
+      onChange={event => onChange(event.target.value)}
+      inputProps={{'aria-label': label}}
+      sx={{minWidth: '120px', fontSize: '14px', backgroundColor: 'surface.n92'}}
+    >
+      {
+        options.map(role => (
+          <MenuItem key={role} value={role} disabled={!ROLES.includes(role)} sx={{fontSize: '14px'}}>
+            {getRoleLabel(role, t)}
+          </MenuItem>
+        ))
+      }
+    </Select>
+  )
 }
 
-const getErrorDetail = response => normalizeErrorDetail(
-  response?.response?.data?.detail ||
-  response?.response?.data?.error ||
-  response?.response?.data?.__all__ ||
-  response?.response?.data ||
-  response?.message
-)
-
-const EditMembers = ({onClose, org, members, fetchMembers}) => {
+const EditMembers = ({onClose, org, members, onSaved}) => {
   const { t } = useTranslation()
   const { setAlert } = React.useContext(OperationsContext);
 
-  const [input, setInput] = React.useState('')
-  const [fetched, setFetched] = React.useState(false)
   const [open, setOpen] = React.useState(false)
   const [users, setUsers] = React.useState([])
-  const [selectedMembers, setSelectedMembers] = React.useState([])
+  const [adding, setAdding] = React.useState(false)
+  // The search box shows only what the admin typed or picked: MUI's own resets, on blur or when the pick changes, are
+  // ignored, and typing drops the pick
+  const [search, setSearch] = React.useState('')
+  const [newMember, setNewMember] = React.useState(null)
+  // The role picked for the next add. Until one is picked, the add sends none: the API makes a new member a plain member
+  // and leaves an existing member's role alone, so adding someone past the 100 members the page loads can't demote them
+  const [newRole, setNewRole] = React.useState(null)
+  const [removing, setRemoving] = React.useState(null)
+  const [demoting, setDemoting] = React.useState(null)
+  const [saving, setSaving] = React.useState(false)
+  const busy = React.useRef(false)
+  const username = React.useMemo(getCurrentUserUsername, [])
 
   const minLength = 2
-  const isSearchable = input && input.length >= minLength;
-  const loading = Boolean(open && !fetched && isSearchable && !users?.length)
-  const handleInputChange = debounce((event, value) => {
-    setInput(value || '')
-    setFetched(false)
-    if(value && value.length >= minLength)
-      fetchUsers(value)
-  }, 300)
+  const isSearchable = search.length >= minLength
+  const loading = Boolean(open && isSearchable && !users?.length)
 
-  const fetchUsers = searchStr => {
+  // One delayed search for the dialog's life. A response counts only while its query is still the one in the box, so
+  // a slow, older one can't replace newer results.
+  const query = React.useRef('')
+  const searchUsers = React.useMemo(() => debounce(q => {
     APIService.users()
-      .get(null, null, {q: searchStr})
-      .then(response => setUsers(response.data))
+      .get(null, null, {q})
+      .then(response => query.current === q && setUsers(response.data))
+  }, 300), [])
+  React.useEffect(() => () => searchUsers.cancel(), [searchUsers])
+
+  const onSearchChange = (event, value, reason) => {
+    if(!['input', 'clear'].includes(reason))
+      return
+    setSearch(value)
+    setNewMember(null)
+    query.current = value
+    if(value.length >= minLength)
+      searchUsers(value)
+    else
+      searchUsers.cancel()
+  }
+  const onPick = (event, user) => {
+    setNewMember(user)
+    setSearch(user ? getMemberDisplayName(user) : '')
   }
 
-  const getMemberDisplayName = member => {
-    let name = member.username
-    const memberName = member.name.trim()
-    if(memberName && !['- -', '-'].includes(memberName))
-      name += ` (${memberName})`
-    return name
-  }
-
-  React.useEffect(() => {
-    setSelectedMembers(members || [])
-  }, [])
-
-
-  const newMembers = selectedMembers.filter(member => !members.map(user => user.username).includes(member.username))
-  const deletedMembers = members.filter(member => !selectedMembers.map(user => user.username).includes(member.username))
-
-  const updateMember = async (member, method) => {
+  const updateMember = async ({member, action, role}) => {
     try {
       const response = await APIService.new()
         .overrideURL(org.url)
         .appendToUrl(`members/${member.username}/`)
-        [method](null, null, {}, null, true)
-      const error = response?.response || !response ? getErrorDetail(response) || t('common.generic_error') : null
-      return {member, error}
+        [action === 'remove' ? 'delete' : 'put'](role ? {role} : null, null, {}, null, true)
+      // Only a 2xx made the change: a refusal, or an error with no response at all, didn't
+      const done = response?.status >= 200 && response?.status < 300
+      return {member, action, error: done ? null : getErrorDetail(response) || t('common.generic_error')}
     } catch(error) {
-      return {member, error: getErrorDetail(error) || t('common.generic_error')}
+      return {member, action, error: getErrorDetail(error) || t('common.generic_error')}
     }
   }
 
-  const getMemberError = (member, action, detail) => (
-    t(`org.member_${action}_failed`, {user: member.username, detail})
-  )
-
-  const onSubmit = async () => {
-    const failures = []
-
-    const addResults = await Promise.all(newMembers.map(member => updateMember(member, 'put')))
-    addResults.forEach(({member, error}) => {
-      if(error)
-        failures.push(getMemberError(member, 'add', error))
-    })
-
-    const removeResults = await Promise.all(deletedMembers.map(member => updateMember(member, 'delete')))
-    removeResults.forEach(({member, error}) => {
-      if(error)
-        failures.push(getMemberError(member, 'remove', error))
-    })
-
-    if(failures.length) {
-      setAlert({message: failures.join('\n'), severity: 'error', duration: 5000})
-    } else if(newMembers.length || deletedMembers.length) {
+  // Each change goes to the API as soon as it's made, one at a time. Until the org and its members are fetched again,
+  // every control is off, so that the next change doesn't start from a list the API has moved past. onDone runs with
+  // whether the change was made, just before the controls come back on.
+  const apply = async (change, onDone) => {
+    if(busy.current)
+      return
+    busy.current = true
+    setSaving(true)
+    const { member, action, error } = await updateMember(change)
+    if(error)
+      setAlert({message: t(`org.member_${action}_failed`, {user: member.username, detail: error}), severity: 'error', duration: 5000})
+    else
       setAlert({message: t('org.updated_members'), severity: 'success', duration: 1000})
-    }
-
-    fetchMembers()
-    if(!failures.length)
-      onClose()
+    await onSaved({left: !error && action === 'remove' && member.username === username})
+    onDone?.(!error)
+    busy.current = false
+    setSaving(false)
   }
+
+  // Taking away your own admin rights is asked first: another admin would have to give them back
+  const onRoleChange = (member, role) => {
+    if(role === (member.role || ROLE_MEMBER))
+      return
+    if(demotesSelf(member, role, username))
+      setDemoting({member, role})
+    else
+      apply({member, action: 'role', role})
+  }
+  const onDemote = () => demoting && apply({...demoting, action: 'role'}, () => setDemoting(null))
+
+  // Never one who has become a member since being picked, by this dialog or anyone else: adding them again would change
+  // their role
+  const picked = (newMember && withoutMembers([newMember], members)[0]) || null
+  // and once dropped, it stays dropped, even if they leave again: Add needs a new pick
+  React.useEffect(() => {
+    if(newMember && !picked)
+      setNewMember(null)
+  }, [newMember, picked])
+
+  const closeAdd = () => {
+    setAdding(false)
+    setNewMember(null)
+    setSearch('')
+    query.current = ''
+    searchUsers.cancel()
+    setNewRole(null)
+  }
+  const onAdd = () => picked && apply({member: picked, action: 'add', role: newRole}, done => done && closeAdd())
+
+  const onRemove = () => removing && apply({member: removing, action: 'remove'}, () => setRemoving(null))
 
   return (
     <Dialog
       open
-      onClose={onClose}
+      onClose={saving ? undefined : onClose}
       scroll='paper'
       maxWidth="lg"
       sx={{
@@ -133,79 +192,119 @@ const EditMembers = ({onClose, org, members, fetchMembers}) => {
         }
       }}
     >
-      <DialogTitle sx={{p: 3, color: 'surface.dark', fontSize: '22px', textAlign: 'left'}}>
-        {t('org.edit_members')} {t('common.of')} <b>{org.name}</b>
+      <DialogTitle sx={{p: 3, color: 'surface.dark', fontSize: '22px', textAlign: 'left', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1}}>
+        <span style={{minWidth: 0, overflowWrap: 'anywhere'}}>{t('org.edit_members')} {t('common.of')} <b>{org.name}</b></span>
+        {
+          !adding &&
+            <Button
+              color='primary'
+              icon={<AddMemberIcon fontSize='small' />}
+              label={t('org.add_member')}
+              onClick={() => setAdding(true)}
+              disabled={saving}
+              sx={{ml: 'auto', flexShrink: 0}}
+            />
+        }
       </DialogTitle>
-      <DialogContent style={{padding: '12px'}}>
-        <Autocomplete
-          multiple
-          openOnFocus
-          blurOnSelect
-          open={open}
-          onOpen={() => setOpen(true)}
-          onClose={() => setOpen(false)}
-          isOptionEqualToValue={(option, value) => option.username === value?.username}
-          value={selectedMembers}
-          options={users}
-          loading={loading}
-          loadingText={loading ? 'Loading...' : `Type atleast ${minLength} characters to search`}
-          noOptionsText={(isSearchable && !loading) ? "No results" : 'Start typing...'}
-          getOptionLabel={getMemberDisplayName}
-          fullWidth
-          onInputChange={handleInputChange}
-          onChange={(event, items) => setSelectedMembers(items)}
-          renderInput={
-            params => <TextField
-                        {...params}
-                        label="Organization Members"
-                        variant="outlined"
-                        id='org-members-input'
-                        fullWidth
-                        slotProps={{
-                          ...params.slotProps,
-                          input: {
-                            ...params.slotProps?.input,
-                            endAdornment: (
-                              <React.Fragment>
-                                {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                                {params.slotProps?.input?.endAdornment}
-                              </React.Fragment>
-                            ),
-                          },
-                        }}
-
-                      />
+      <DialogContent sx={{p: 0}}>
+        {
+          adding &&
+            <Box sx={{display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, px: {xs: 2, sm: 3}, pt: 1, pb: 2}}>
+              <Autocomplete
+                openOnFocus
+                open={open}
+                onOpen={() => setOpen(true)}
+                onClose={() => setOpen(false)}
+                isOptionEqualToValue={(option, value) => option.username === value?.username}
+                value={picked}
+                inputValue={search}
+                options={withoutMembers(users, members)}
+                loading={loading}
+                loadingText={loading ? 'Loading...' : `Type atleast ${minLength} characters to search`}
+                noOptionsText={(isSearchable && !loading) ? "No results" : 'Start typing...'}
+                getOptionLabel={getMemberDisplayName}
+                size='small'
+                disabled={saving}
+                onInputChange={onSearchChange}
+                onChange={onPick}
+                renderInput={
+                  params => <TextField
+                              {...params}
+                              autoFocus
+                              label={t('org.search_users')}
+                              variant="outlined"
+                              id='org-members-input'
+                              slotProps={{
+                                ...params.slotProps,
+                                input: {
+                                  ...params.slotProps?.input,
+                                  endAdornment: (
+                                    <React.Fragment>
+                                      {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                                      {params.slotProps?.input?.endAdornment}
+                                    </React.Fragment>
+                                  ),
+                                },
+                              }}
+                            />
+                }
+                sx={{flex: '1 1 240px', '.MuiInputBase-root': {backgroundColor: 'surface.n92'}}}
+              />
+              <RoleSelect value={newRole || ROLE_MEMBER} options={ROLES} label={t('org.role')} disabled={saving} onChange={setNewRole} />
+              <Button color='primary' label={t('common.add')} onClick={onAdd} disabled={saving || !picked} />
+              <Link sx={{fontSize: '14px', minWidth: 0}} label={t('common.cancel')} onClick={closeAdd} disabled={saving} />
+            </Box>
+        }
+        <List sx={{p: 0}}>
+          {
+            (members || []).map(member => (
+              <ListItem key={member.username} divider sx={{px: {xs: 2, sm: 3}, py: 1}}>
+                <ListItemAvatar sx={{minWidth: 'auto', mr: 2, display: {xs: 'none', sm: 'block'}}}>
+                  <UserIcon user={member} sx={{width: '40px', height: '40px'}} />
+                </ListItemAvatar>
+                <ListItemText
+                  primary={getMemberName(member) || member.username}
+                  secondary={getMemberName(member) ? member.username : undefined}
+                  sx={{
+                    minWidth: 0,
+                    overflowWrap: 'anywhere',
+                    '.MuiListItemText-primary': {color: 'surface.dark', fontSize: '14px'},
+                    '.MuiListItemText-secondary': {color: 'default.light', fontSize: '12px'}
+                  }}
+                />
+                <RoleSelect
+                  value={member.role || ROLE_MEMBER}
+                  options={getRoleOptions(member.role)}
+                  label={`${t('org.role')}: ${member.username}`}
+                  disabled={saving}
+                  onChange={role => onRoleChange(member, role)}
+                />
+                <Tooltip title={t('org.remove_member')}>
+                  <span>
+                    <IconButton
+                      aria-label={`${t('org.remove_member')}: ${member.username}`}
+                      disabled={saving}
+                      onClick={() => setRemoving(member)}
+                      sx={{ml: 1}}
+                    >
+                      <RemoveMemberIcon />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              </ListItem>
+            ))
           }
-          sx={{'.MuiInputBase-root': {backgroundColor: 'surface.n92'}, marginBottom: '8px'}}
-        />
-        {
-          newMembers?.length > 0 &&
-            <div className='col-xs-12' style={{marginTop: '4px'}}>
-              {
-                newMembers.map(member => (
-                  <FormHelperText sx={{color: 'success.main'}} key={member.username}>
-                    + {t('common.add')} {member.username}
-                  </FormHelperText>
-                ))
-              }
-          </div>
-        }
-        {
-          deletedMembers?.length > 0 &&
-            <div className='col-xs-12' style={{marginTop: '4px'}}>
-              {
-                deletedMembers.map(member => (
-                  <FormHelperText sx={{color: 'error.main'}} key={member.username}>
-                    - {t('common.remove')} {member.username}
-                  </FormHelperText>
-                ))
-              }
-            </div>
-        }
+        </List>
       </DialogContent>
-      <DialogActions>
-        <Link sx={{fontSize: '14px'}} label={t('common.submit')} onClick={onSubmit} />
-        </DialogActions>
+      <DialogActions sx={{px: 3, py: 2}}>
+        <Link sx={{fontSize: '14px'}} label={t('common.close')} onClick={onClose} disabled={saving} />
+      </DialogActions>
+      {
+        removing?.username === username ?
+          <LeaveOrgDialog open org={org} onSubmit={onRemove} onClose={() => setRemoving(null)} pending={saving} /> :
+          <RemoveMemberDialog member={removing} org={org} onSubmit={onRemove} onClose={() => setRemoving(null)} pending={saving} />
+      }
+      <ChangeOwnRoleDialog open={Boolean(demoting)} org={org} onSubmit={onDemote} onClose={() => setDemoting(null)} pending={saving} />
     </Dialog>
   )
 }
