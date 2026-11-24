@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 
 const {
   normalizeNotice, getNotice, getNoticeDetail, getNotices, orderActions, getNoticeTone, getNoticeIcon, getLocks,
-  getLockTooltip, isEntryPointLocked, safeURL, writesShownVersion, ENTRY_POINT_ACTIONS, WRITE_ACTIONS,
+  getLockTooltip, isEntryPointLocked, safeURL, writesShownVersion, createRequestGuard, ENTRY_POINT_ACTIONS, WRITE_ACTIONS,
 } = await import('../limitNoticePayload.js')
 
 const NOTICE = {
@@ -170,4 +170,17 @@ test('the repository edit form can still publish; the version form only edits', 
 test('version writes follow the version shown; everything else follows HEAD', () => {
   ;['editVersion', 'releaseVersion', 'deleteVersion', 'saveDefaultFilters'].forEach(entryPoint => assert.equal(writesShownVersion(entryPoint), true, entryPoint))
   ;['editRepo', 'deleteRepo', 'addConcept', 'createVersion', 'removeReferences', 'createSimilar'].forEach(entryPoint => assert.equal(writesShownVersion(entryPoint), false, entryPoint))
+})
+
+test('a request superseded by a newer one, or by a cache hit, no longer answers', () => {
+  const guard = createRequestGuard()
+  const otherLanguage = guard.start()
+  assert.equal(otherLanguage(), true)
+  // switching back to a language whose notices are cached loads them from the cache: the request in flight is stale
+  guard.invalidate()
+  assert.equal(otherLanguage(), false)
+  const cachedLanguage = guard.start()
+  const later = guard.start()
+  assert.equal(cachedLanguage(), false)
+  assert.equal(later(), true)
 })

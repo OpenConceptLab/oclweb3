@@ -44,25 +44,32 @@ const STILL_WORKS_COLOR = '#2e7d32'
 const ICONS = {lock: LockIcon, info: InfoIcon, warning: WarningIcon, error: ErrorIcon}
 const SCOPE_ICONS = {account: PersonIcon, organization: OrganizationIcon}
 
-// Any refusal shown with a notice asks the account strip to look again (useNotices.js)
-export const NOTICE_REFUSED_EVENT = 'ocl:limit-notice-refused'
-export const announceRefusal = () => window.dispatchEvent(new Event(NOTICE_REFUSED_EVENT))
+// The notice strips fetch again whenever their notices may have changed (useNotices.js): after any refusal shown with
+// a notice, and after a write that can change them (a repository's visibility, a deletion)
+export const NOTICES_CHANGED_EVENT = 'ocl:limit-notices-changed'
+export const refreshNotices = () => window.dispatchEvent(new Event(NOTICES_CHANGED_EVENT))
 
-// The notice a refusal carries, or null. Taking one tells the account strip to fetch its notices again.
+// The notice a refusal carries, or null. Taking one tells the notice strips to fetch again.
 export const takeRefusalNotice = value => {
   const notice = getNotice(value)
   if(notice)
-    announceRefusal()
+    refreshNotices()
   return notice
 }
 
-// Shows a refused write's notice in the app's notice dialog (RefusalNoticeDialog, in Header). True when the refusal
-// carried one, so the caller skips its own error; false leaves the caller's error path as it was.
+// Shows a notice in the app's notice dialog (RefusalNoticeDialog, in Header) and refreshes the strips
 const NOTICE_SHOW_EVENT = 'ocl:limit-notice-show'
+export const showNotice = notice => {
+  refreshNotices()
+  window.dispatchEvent(new CustomEvent(NOTICE_SHOW_EVENT, {detail: notice}))
+}
+
+// Shows a refused write's notice in that dialog. True when the refusal carried one, so the caller skips its own error;
+// false leaves the caller's error path as it was.
 export const showRefusalNotice = value => {
-  const notice = takeRefusalNotice(value)
+  const notice = getNotice(value)
   if(notice)
-    window.dispatchEvent(new CustomEvent(NOTICE_SHOW_EVENT, {detail: notice}))
+    showNotice(notice)
   return Boolean(notice)
 }
 

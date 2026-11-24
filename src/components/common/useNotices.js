@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next'
 
 import APIService from '../../services/APIService'
 import { getCurrentUserUsername, isLoggedIn } from '../../common/utils'
-import { getNotices } from './limitNoticePayload'
-import { NOTICE_REFUSED_EVENT } from './LimitNotice'
+import { createRequestGuard, getNotices } from './limitNoticePayload'
+import { NOTICES_CHANGED_EVENT } from './LimitNotice'
 
 // GET /capabilities/notices/ is served by a connected service on oclapi2 (OpenConceptLab/ocl_online#702). Where it
 // isn't (a self-hosted OCL: 404), or the request fails, there are no notices and nothing is said.
@@ -43,35 +43,31 @@ const writeCache = (username, lang, notices) => {
   }
 }
 
-// Fetches again whenever a refusal carrying a notice is shown (takeRefusalNotice)
-const useRefusalRefetch = load => React.useEffect(() => {
-  window.addEventListener(NOTICE_REFUSED_EVENT, load)
-  return () => window.removeEventListener(NOTICE_REFUSED_EVENT, load)
+// Fetches again whenever the notices may have changed (refreshNotices): a refusal carrying a notice was shown, or a
+// write that can change them succeeded
+const useRefetchOnChange = load => React.useEffect(() => {
+  window.addEventListener(NOTICES_CHANGED_EVENT, load)
+  return () => window.removeEventListener(NOTICES_CHANGED_EVENT, load)
 }, [load])
 
-// Only the latest request a hook made may answer: one that's superseded (a newer one started, or the hook moved on to
-// another resource or unmounted) is ignored
-const useLatestRequest = () => {
-  const latest = React.useRef(0)
-  React.useEffect(() => () => {
-    latest.current += 1
-  }, [])
-  return React.useCallback(() => {
-    const id = ++latest.current
-    return () => id === latest.current
-  }, [])
+// Only the latest request a hook made may answer (createRequestGuard): one superseded by a newer one, a cache hit, a
+// change of user, language or resource, or an unmount is ignored
+const useRequestGuard = () => {
+  const guard = React.useMemo(createRequestGuard, [])
+  React.useEffect(() => guard.invalidate, [guard])
+  return guard
 }
 
-// The signed-in person's account notices: asked once a session, and again after a refusal with a notice
+// The signed-in person's account notices: asked once a session, and again whenever they may have changed
 export const useAccountNotices = () => {
   const { i18n } = useTranslation()
   const lang = i18n.language
   const username = isLoggedIn() ? getCurrentUserUsername() : null
   const [notices, setNotices] = React.useState(() => (username && readCache(username, lang)) || [])
-  const startRequest = useLatestRequest()
+  const guard = useRequestGuard()
 
   const load = React.useCallback(() => {
-    const isLatest = startRequest()
+    const isLatest = guard.start()
     if(!username) {
       setNotices([])
       return
@@ -87,17 +83,19 @@ export const useAccountNotices = () => {
         clearCache()
       setNotices(notices)
     })
-  }, [username, lang, startRequest])
+  }, [username, lang, guard])
 
+  // On a change of user or language, the cache answers if it can; either way a request still in flight is stale
   React.useEffect(() => {
     const cached = username && readCache(username, lang)
-    if(cached)
+    if(cached) {
+      guard.invalidate()
       setNotices(cached)
-    else
+    } else
       load()
-  }, [load])
+  }, [load, guard])
 
-  useRefusalRefetch(load)
+  useRefetchOnChange(load)
 
   return notices
 }
@@ -107,21 +105,21 @@ export const useResourceNotices = resourceURL => {
   const { i18n } = useTranslation()
   const lang = i18n.language
   const [state, setState] = React.useState({resourceURL: null, notices: []})
-  const startRequest = useLatestRequest()
+  const guard = useRequestGuard()
 
   const load = React.useCallback(() => {
-    const isLatest = startRequest()
+    const isLatest = guard.start()
     if(!resourceURL || !isLoggedIn()) {
       setState({resourceURL, notices: []})
       return
     }
     fetchNotices({resource: resourceURL, lang}).then(({ notices }) => isLatest() && setState({resourceURL, notices}))
-  }, [resourceURL, lang, startRequest])
+  }, [resourceURL, lang, guard])
 
   React.useEffect(() => {
     load()
   }, [load])
-  useRefusalRefetch(load)
+  useRefetchOnChange(load)
 
   // never the notices of the resource shown before
   return state.resourceURL === resourceURL ? state.notices : []

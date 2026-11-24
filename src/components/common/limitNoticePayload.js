@@ -163,3 +163,18 @@ export const isEntryPointLocked = (locks, entryPoint) => {
   const actions = ENTRY_POINT_ACTIONS[entryPoint]
   return Boolean(actions && locks?.length) && actions.every(action => locks.includes(action))
 }
+
+// Only the latest request may answer. start() begins one and returns its check, which stays true until another
+// start() or an invalidate() (a cache hit, a change of user or language, an unmount).
+export const createRequestGuard = () => {
+  let latest = 0
+  return {
+    start: () => {
+      const id = ++latest
+      return () => id === latest
+    },
+    invalidate: () => {
+      latest += 1
+    },
+  }
+}

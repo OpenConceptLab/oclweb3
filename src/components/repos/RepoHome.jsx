@@ -43,7 +43,7 @@ import { isPanelReady } from './panelReady';
 import ReferenceHome from '../references/ReferenceHome'
 import AddReferencesDialog from '../collections/AddReferencesDialog'
 import ExpansionDropDown from './ExpansionDropDown';
-import LimitNotice, { showRefusalNotice } from '../common/LimitNotice';
+import LimitNotice, { refreshNotices, showRefusalNotice } from '../common/LimitNotice';
 import { NoticeLocksProvider, LockTooltip, useNoticeLocks } from '../common/NoticeLocks';
 import { useResourceNotices } from '../common/useNotices';
 import usePublishedHeight from '../common/usePublishedHeight';
@@ -507,6 +507,8 @@ const RepoHome = () => {
     APIService.new().overrideURL(url).delete().then(response => {
       setDeletingRepo(false)
       if(!response || response?.status === 204) {
+        // deleting a repository or a version can change which content is read-only
+        refreshNotices()
         setDeleteTarget(false)
         setAlert({severity: 'success', message: deletingVersion ? t('repo.success_delete_version') : t('repo.success_delete')})
         if(deletingVersion)
@@ -514,6 +516,7 @@ const RepoHome = () => {
         history.push(deletingVersion ? target.url : (owner?.url || repo.owner_url))
       }
       else if(response?.status === 202 || response?.detail === 'Already Queued') {
+        refreshNotices()
         setDeleteTarget(false)
         setAlert({severity: 'warning', message: deletingVersion ? t('repo.delete_accepted_version') : t('repo.delete_accepted')})
       }
@@ -564,12 +567,17 @@ const RepoHome = () => {
   // The repository's notices (OpenConceptLab/ocl_online#702), HEAD's and, on a version's page, that version's: a strip
   // at the top of the panel for the version shown while a state lasts, and locks on the edit actions they name
   // (NoticeLocks). The panel's contents are sized from --app-height, so inside it that is the page's height less the
-  // strip.
+  // strip, but never less than enough to browse the results: when the account strips and this one leave too little
+  // room, the panel scrolls within the page instead.
   const headNotices = useResourceNotices(repo?.id ? repo.url : null)
   const versionNotices = useResourceNotices(repo?.id && isVersion ? repo.version_url : null)
   const resourceNotices = isVersion ? versionNotices : headNotices
   const noticeRef = usePublishedHeight('--resource-notice-height', resourceNotices.length > 0)
-  const noticeHeightSx = resourceNotices.length > 0 ? {'--app-height': 'calc(var(--page-height) - var(--resource-notice-height, 0px))'} : {}
+  const noticeHeightSx = resourceNotices.length > 0 ? {
+    '--app-height': 'max(calc(var(--page-height) - var(--resource-notice-height, 0px)), 600px)',
+    maxHeight: 'calc(var(--page-height) - 102px)',
+    overflowY: 'auto',
+  } : {}
 
   const canRenderSearch = !versionPending && (!requiresExpansionSelection || (!expansionsLoading && Boolean(selectedExpansion)))
   const expansionURL = (isCollection && selectedExpansion?.url) ? selectedExpansion.url : false

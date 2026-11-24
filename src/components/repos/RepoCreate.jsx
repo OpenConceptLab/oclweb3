@@ -34,7 +34,7 @@ import RTEditor from '../common/RTEditor'
 import CustomAttributesForm from '../common/CustomAttributesForm'
 import { jsonToString, stringToJSON, isValidJSONString } from '../common/JSONTextField'
 import { OperationsContext } from '../app/LayoutContext';
-import { takeRefusalNotice } from '../common/LimitNotice'
+import { refreshNotices, takeRefusalNotice } from '../common/LimitNotice'
 
 import RepoCreateFormHeader from './RepoCreateFormHeader'
 import RepoCreateNameDescription from './RepoCreateNameDescription'
@@ -285,6 +285,9 @@ const RepoCreate = () => {
     service = isEdit ? service.put(payload) : service.post(payload)
     service.then(response => {
       if([200, 201].includes(response.status)) {
+        // a new repository, or a change of visibility, can change which content is read-only
+        if(!isEdit || response.data?.public_access !== repo?.public_access)
+          refreshNotices()
         setAlert({duration: 2000, message: isEdit ? t('repo.success_update') : t('repo.success_create'), severity: 'success'})
         history.push(response.data.url)
       }
