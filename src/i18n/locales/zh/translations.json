@@ -579,6 +579,78 @@
       }
     },
     "repo_version": "仓库版本",
+    "about_tab": {
+      "on_this_page": "本页内容",
+      "verification": "验证",
+      "overview": "概述",
+      "source": "来源和许可",
+      "link_to_section": "链接到{{section}}部分",
+      "release_value": "{{version}}，发布于 {{date}}",
+      "fields": {
+        "publisher": "发布者",
+        "formal_name": "正式名称",
+        "contact": "联系方式",
+        "website": "网站",
+        "canonical_url": "规范 URL",
+        "oid": "OID",
+        "release": "发布版本",
+        "copyright": "版权",
+        "hierarchy": "层级"
+      },
+      "hierarchy_meaning": {
+        "grouped-by": "分组于",
+        "is-a": "是一个",
+        "part-of": "属于",
+        "classified-with": "分类于"
+      }
+    },
+    "verification": {
+      "verified": "已验证",
+      "heading": "已验证的存储库版本",
+      "chip_tooltip": "此存储库版本与发布者的官方版本一致。选择以查看验证方式。",
+      "what_verified_means": "“已验证”的含义",
+      "headline": "此存储库版本与发布者的官方版本一致。",
+      "detail": "其内容已逐条与发布者的版本进行比较，并通过了以下所有检查。",
+      "publisher": "发布者",
+      "release": "版本",
+      "verified_at": "验证时间",
+      "checks_label": "验证检查",
+      "passed": "已通过",
+      "verification_notes": "与发布者版本的差异（已审核并接受）",
+      "process": "流程",
+      "record": "记录",
+      "copy_record": "复制记录的 SHA-256",
+      "record_copied": "已复制记录的 SHA-256",
+      "fine_print": "“已验证”并非发布者的认可。",
+      "what_verified_covers": "“已验证”涵盖的范围",
+      "checks": {
+        "from-the-publisher": {
+          "title": "来自发布者",
+          "line": "从发布者自己的版本加载"
+        },
+        "license-and-citation": {
+          "title": "许可和引用",
+          "line": "发布者的许可和引用位于此存储库和每次导出中"
+        },
+        "correctly-identified": {
+          "title": "标识正确",
+          "line": "名称、规范 URL 和版本与发布者的一致"
+        },
+        "complete": {
+          "title": "完整",
+          "line": "版本中的每个条目都在这里"
+        },
+        "differences-listed": {
+          "title": "列出差异",
+          "line": "与发布者版本的每处差异都列在下方",
+          "line_no_changes": "未发现与发布者版本的差异"
+        },
+        "checked-independently": {
+          "title": "独立检查",
+          "line": "从保存的版本重新运行，然后经过审核和批准"
+        }
+      }
+    },
     "seeded_from": "创建来源",
     "seeded_from_import": "导入"
   },

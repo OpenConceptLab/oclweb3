@@ -3,7 +3,7 @@ import Chip from '@mui/material/Chip';
 import Skeleton from '@mui/material/Skeleton';
 
 const HeaderChip = ({ labelPrefix, label, labelSuffix, sx, ...rest }) => {
-  let _label = label ? `${labelPrefix || ''}${label}${labelSuffix || ''}` : <Skeleton variant="text" sx={{ width: '60px' }} />
+  let _label = label ? (typeof label === 'string' || typeof label === 'number' ? `${labelPrefix || ''}${label}${labelSuffix || ''}` : label) : <Skeleton variant="text" sx={{ width: '60px' }} />
   return (
     <Chip
       label={_label}
