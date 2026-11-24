@@ -283,9 +283,10 @@ const CollectionVersionsTab = ({
       .appendToUrl('expansions/')
       .get(null, null, { includeSummary: true, verbose: true })
       .then(response => {
-        // a failed request keeps what was loaded
-        if (Array.isArray(response?.data))
-          setExpansionsByVersion(prev => ({ ...prev, [versionKey]: formatExpansions(version, response.data) }));
+        // a failed refresh keeps its cache; a failed first load caches an empty list, so it isn't retried in a loop
+        const data = Array.isArray(response?.data) ? response.data : null;
+        setExpansionsByVersion(prev => (data || !prev[versionKey]
+          ? { ...prev, [versionKey]: formatExpansions(version, data || []) } : prev));
         setLoadingByVersion(prev => ({ ...prev, [versionKey]: false }));
       });
   }, [expansionsByVersion, loadingByVersion]);

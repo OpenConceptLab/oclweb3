@@ -86,13 +86,12 @@ export const getHealthReasons = health => (health?.reasons || []).filter(reason 
 export const getHeadResolvedRepositories = health => health?.head_resolved_repositories || []
 export const getMultipleNamedVersions = health => health?.multiple_named_versions || []
 
-// Total members by class across concepts and mappings, keeping only classes with members
+// Members by resource type and class, as health.py stores them, keeping only classes and types with members
 export const getMemberClassCounts = health => {
-  const totals = {}
-  Object.values(health?.members || {}).forEach(counts => {
-    Object.entries(counts || {}).forEach(([memberClass, count]) => {
-      if(count) totals[memberClass] = (totals[memberClass] || 0) + count
-    })
+  const byType = {}
+  Object.entries(health?.members || {}).forEach(([resourceType, counts]) => {
+    const classes = Object.fromEntries(Object.entries(counts || {}).filter(([, count]) => count))
+    if(Object.keys(classes).length) byType[resourceType] = classes
   })
-  return totals
+  return byType
 }

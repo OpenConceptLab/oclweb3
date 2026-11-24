@@ -630,6 +630,8 @@
       "head_resolved_repositories": "Resueltos a HEAD",
       "multiple_named_versions": "Nombrados en más de una versión a propósito",
       "members": "Miembros",
+      "members_concepts": "Conceptos",
+      "members_mappings": "Mapeos",
       "member_release": "En una versión publicada",
       "member_head": "En HEAD",
       "member_unreleased": "En una versión que nunca se publicó",
