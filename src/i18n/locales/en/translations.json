@@ -989,14 +989,12 @@
       "state_empty": "Empty",
       "state_checking": "Checking health",
       "freshness_pending": "Out of date: a recheck is queued",
-      "freshness_not_current": "Out of date: something changed since it was last checked",
-      "description_healthy": "Every repository resolves to one released version, and every member is in the version its reference resolved to.",
+      "freshness_not_current": "May be out of date: it will be checked again",
+      "description_healthy": "Every unversioned reference resolves to a single released version of its repository, and every member is in the version its reference resolved to.",
       "description_head_resolved": "Consistent, but at least one repository resolves to HEAD, which can still change.",
       "description_unhealthy": "Some references or members don't match the versions this expansion resolved to:",
       "description_empty": "This expansion has no members.",
       "description_checking": "Health is being checked for the first time.",
-      "not_checked_default": "Health hasn't been checked for this expansion yet.",
-      "not_checked_other": "Health is checked only for a version's default expansion.",
       "checked_at": "Checked {{date}}",
       "head_resolved_repositories": "Resolved to HEAD",
       "multiple_named_versions": "Named at more than one version on purpose",
@@ -1035,7 +1033,8 @@
       "reason_unknown": "{{code}}: {{count}}",
       "head_objects": "Including HEAD concepts: {{concepts}}, HEAD mappings: {{mappings}}",
       "hidden_versions_one": "{{count}} more is private to another owner",
-      "hidden_versions_other": "{{count}} more are private to another owner"
+      "hidden_versions_other": "{{count}} more are private to another owner",
+      "description_unknown": "OCL reported a health state this page doesn't describe yet."
     },
     "release_updates": {
       "case_head": "Locked to HEAD, and a release now exists",

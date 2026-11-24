@@ -23,6 +23,10 @@ const toStatus = (state, isCurrent) => {
 export const getExpansionHealthStatus = expansion =>
   expansion ? toStatus(expansion.health?.state, expansion.health_is_current) : null
 
+// Health is kept only for a version's default expansion: another one's stored health is stale
+export const getDefaultExpansionHealthStatus = expansion =>
+  expansion?.default ? getExpansionHealthStatus(expansion) : null
+
 // A version's health is its default expansion's; the version's own summary covers it until expansions load
 export const getVersionHealthStatus = (version, defaultExpansion) => {
   if(defaultExpansion && defaultExpansion.url === version?.expansion_url)
@@ -32,6 +36,13 @@ export const getVersionHealthStatus = (version, defaultExpansion) => {
 }
 
 export const getStateConfig = state => HEALTH_STATES[state] || null
+
+// a state this UI doesn't know yet shows as the API gives it
+export const UNKNOWN_STATE_DESCRIPTION_KEY = 'repo.expansion_health.description_unknown'
+export const getStateDescriptionKey = state => {
+  if(!state) return 'repo.expansion_health.description_checking'
+  return HEALTH_STATES[state] ? `repo.expansion_health.description_${state}` : UNKNOWN_STATE_DESCRIPTION_KEY
+}
 
 export const FRESHNESS_KEYS = {
   pending: 'repo.expansion_health.freshness_pending',
