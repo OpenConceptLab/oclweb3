@@ -36,6 +36,23 @@ export const summarize = results => {
   }
 }
 
+// The API's reasons a reference can't be converted or was left, as translation keys
+export const REASON_KEYS = {
+  'not resource-versioned': 'reference.convert_reason_not_resource_versioned',
+  'it also names a value set': 'reference.convert_reason_value_set',
+  'it has a filter': 'reference.convert_reason_filter',
+  'it has no system': 'reference.convert_reason_no_system',
+  'it is an exclusion': 'reference.convert_reason_exclusion',
+  'changed since the preview': 'reference.convert_reason_changed',
+  'the collection already has it with another cascade': 'reference.convert_reason_other_cascade',
+  'its system does not resolve to a version you can view': 'reference.convert_reason_no_visible_version',
+  'no version holds its resource version': 'reference.convert_reason_no_holder',
+  'not in this collection': 'reference.convert_reason_not_in_collection',
+  "it would name a version you can't view": 'reference.convert_reason_hidden_version',
+}
+
+export const getReasonKey = reason => REASON_KEYS[reason] || 'reference.convert_reason_other'
+
 // A repo-versioned conversion that names HEAD: its member moves with the next edit in HEAD
 // A conversion whose version is HEAD, named or as the lock: its member moves with the next edit in HEAD
 export const followsHead = conversion => Boolean(conversion?.follows_head) || conversion?.chosen_by === 'HEAD'

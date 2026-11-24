@@ -565,7 +565,8 @@
     "convert_reason_not_in_collection": "Não está nesta coleção",
     "convert_poll_failed": "Não foi possível obter o status da conversão em segundo plano. Atualize a lista de referências para ver o que mudou.",
     "convert_refused": "A conversão foi recusada.",
-    "convert_not_converted_reasons": "Ficaram como estavam: {{reasons}}."
+    "convert_not_converted_reasons": "Ficaram como estavam: {{reasons}}.",
+    "convert_reason_hidden_version": "Nomearia uma versão que você não pode ver"
   },
   "checksums": {
     "standard": "Checksum padrão",

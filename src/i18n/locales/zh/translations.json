@@ -772,7 +772,8 @@
     "convert_reason_not_in_collection": "不在此集合中",
     "convert_poll_failed": "无法获取后台转换的状态。请刷新引用列表查看变更。",
     "convert_refused": "转换被拒绝。",
-    "convert_not_converted_reasons": "保持不变：{{reasons}}。"
+    "convert_not_converted_reasons": "保持不变：{{reasons}}。",
+    "convert_reason_hidden_version": "将指向一个您无法查看的版本"
   },
   "search": {
     "filters": "筛选项",

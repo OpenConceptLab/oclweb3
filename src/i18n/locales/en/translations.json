@@ -575,7 +575,8 @@
     "convert_reason_not_in_collection": "Not in this collection",
     "convert_poll_failed": "Couldn't get the background conversion's status. Refresh the references list to see what changed.",
     "convert_refused": "The conversion was refused.",
-    "convert_not_converted_reasons": "Left as they were: {{reasons}}."
+    "convert_not_converted_reasons": "Left as they were: {{reasons}}.",
+    "convert_reason_hidden_version": "Would name a version you can't view"
   },
   "checksums": {
     "standard": "Standard Checksum",

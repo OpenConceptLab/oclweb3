@@ -24,3 +24,14 @@ test('an expression in an aria-label and the rollback details keep their slashes
   assert.ok(i18n.t('reference.convert_choice_for', { expression, ...UNESCAPED }).includes(expression))
   assert.ok(i18n.t('reference.convert_rolled_back', { details: `${expression} failed`, ...UNESCAPED }).includes(expression))
 })
+
+test('every reason the API gives maps to a label in each language', async () => {
+  const { REASON_KEYS, getReasonKey } = await import('../referenceConversionUtils.js')
+  for(const locale of ['en', 'es', 'pt-BR', 'zh']) {
+    const strings = JSON.parse(
+      readFileSync(new URL(`../../../i18n/locales/${locale}/translations.json`, import.meta.url)).toString())
+    for(const key of [...Object.values(REASON_KEYS), getReasonKey('an unknown reason')])
+      assert.ok(strings.reference[key.replace('reference.', '')], `${locale}: ${key}`)
+  }
+  assert.equal(getReasonKey("it would name a version you can't view"), 'reference.convert_reason_hidden_version')
+})

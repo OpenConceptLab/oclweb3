@@ -422,7 +422,8 @@
     "convert_reason_not_in_collection": "No está en esta colección",
     "convert_poll_failed": "No se pudo obtener el estado de la conversión en segundo plano. Actualice la lista de referencias para ver qué cambió.",
     "convert_refused": "La conversión fue rechazada.",
-    "convert_not_converted_reasons": "Quedaron como estaban: {{reasons}}."
+    "convert_not_converted_reasons": "Quedaron como estaban: {{reasons}}.",
+    "convert_reason_hidden_version": "Nombraría una versión que no puede ver"
   },
   "repo": {
     "display": "Visualización",

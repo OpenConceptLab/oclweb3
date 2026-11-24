@@ -24,7 +24,7 @@ import APIService from '../../services/APIService'
 import {
   REPO_VERSIONED, UNVERSIONED, LEAVE, CONVERSIONS, PREVIEW_PAGE_SIZE, getResourceVersionedIds, mergePreviewPages,
   getDefaultChoices, chooseAll, getConversionPayload, describeConversion, getConversionOutcome, getRollbackMessages,
-  isRolledBack, getQueuedConversion, getNotConvertedReasons, TASK_RESULT_QUERY, UNESCAPED,
+  isRolledBack, getQueuedConversion, getNotConvertedReasons, TASK_RESULT_QUERY, UNESCAPED, getReasonKey,
 } from './referenceConversionUtils'
 
 const TASK_POLL_MS = 3000
@@ -33,21 +33,6 @@ const MAX_POLL_FAILURES = 3
 
 const expressionSx = { fontFamily: 'monospace', fontSize: '12px', overflowWrap: 'anywhere', maxWidth: '240px' }
 
-// the API's reasons, as translation keys
-const REASON_KEYS = {
-  'not resource-versioned': 'reference.convert_reason_not_resource_versioned',
-  'it also names a value set': 'reference.convert_reason_value_set',
-  'it has a filter': 'reference.convert_reason_filter',
-  'it has no system': 'reference.convert_reason_no_system',
-  'it is an exclusion': 'reference.convert_reason_exclusion',
-  'changed since the preview': 'reference.convert_reason_changed',
-  'the collection already has it with another cascade': 'reference.convert_reason_other_cascade',
-  'its system does not resolve to a version you can view': 'reference.convert_reason_no_visible_version',
-  'no version holds its resource version': 'reference.convert_reason_no_holder',
-  'not in this collection': 'reference.convert_reason_not_in_collection',
-}
-
-const getReasonKey = reason => REASON_KEYS[reason] || 'reference.convert_reason_other'
 
 const chunk = (values, size) => {
   const chunks = []
