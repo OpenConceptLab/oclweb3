@@ -109,6 +109,8 @@ const Search = props => {
   // Set while a list request that should refresh the filter counts is waiting: if a newer one
   // (say a page-size change) replaces it before it answers, the newer one refreshes them instead
   const facetsDue = React.useRef(false)
+  // per resource, the Retired setting (includeRetired sent) the filter counts shown were fetched with
+  const facetsRetiredScope = React.useRef({})
 
   const didMount = React.useRef(false);
   const pendingRepoDefaultFilters = React.useRef(false)
@@ -547,8 +549,11 @@ const Search = props => {
         return
       const fields = response?.data?.facets?.fields || {}
       const appliedFilters = getFiltersFromQueryParams()
+      const retiredScope = String(params.includeRetired)
+      const sameRetiredScope = facetsRetiredScope.current[__resource] === retiredScope
+      facetsRetiredScope.current[__resource] = retiredScope
       setResult(prev => {
-        return {...prev, [__resource]: {...(prev[__resource] || otherResults), facets: mergeFacets(prev[__resource]?.facets, fields, appliedFilters), retiredCount: getRetiredCount(fields)}}
+        return {...prev, [__resource]: {...(prev[__resource] || otherResults), facets: mergeFacets(prev[__resource]?.facets, fields, appliedFilters, sameRetiredScope), retiredCount: getRetiredCount(fields)}}
       })
       setLoadingFacets(false)
     })
@@ -585,8 +590,10 @@ const Search = props => {
   // change, as SearchFilters resets its unapplied choices when its filters prop changes.
   const facets = result[resource]?.facets
   const panelFacets = React.useMemo(() => (hasRetiredControl(resource) && facets) ? omit(facets, 'retired') : (facets || {}), [facets, resource])
-  // With no results and retired ones left out, the panel stays, as its Retired control may bring some back
-  const showFilters = openFilters && (!noResults || (hasRetiredControl(resource) && !includeRetired)) && isFilterable(resource) && !isHierarchyView
+  // With no results and retired ones left out, the panel (and its Filters button) stays, as its
+  // Retired control may bring some back
+  const retiredMayBringResults = hasRetiredControl(resource) && !includeRetired
+  const showFilters = openFilters && (!noResults || retiredMayBringResults) && isFilterable(resource) && !isHierarchyView
   // Matched Candidates fetches no counts, so the control shows none there
   const retiredControl = hasRetiredControl(resource) ? {checked: includeRetired, defaultChecked: defaultIncludeRetired, count: isMatchOp ? undefined : result[resource]?.retiredCount} : undefined
 
@@ -885,6 +892,7 @@ const Search = props => {
                   propertyFilters={props.propertyFilters}
                   isMatch={isMatchOp}
                   retiredFilterApplied={Boolean(retiredControl) && includeRetired !== defaultIncludeRetired}
+                  filtersAlwaysEnabled={retiredMayBringResults}
                   searchIndexQuery={isSearchIndexQuery()}
                   hierarchySupported={isHierarchySupported}
                   baseURL={props.url}

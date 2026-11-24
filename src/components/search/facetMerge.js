@@ -6,13 +6,14 @@ import uniqBy from 'lodash/uniqBy.js'
 // 1. With nothing shown yet, the new facets replace them.
 // 2. A field with an applied filter keeps every value it showed, so another can still be picked:
 //    the API applies the field's own filter to its counts, so it answers with the applied values
-//    only. Those take the new counts and the others keep the ones they had; an applied value
+//    only. Those take the new counts and the others keep the ones they had, or show none when
+//    those were counted under another Retired setting (sameRetiredScope false); an applied value
 //    missing from the answer has no matches now, so it shows 0 (say a retired-only class once
 //    retired ones are left out).
 // 3. Another field takes the new counts, and a value it showed that's missing from the answer
 //    stays, with 0, disabled.
-// Each field's values come highest count first.
-export const mergeFacets = (existingFacets, newFacets, appliedFacets) => {
+// Each field's values come highest count first, any without one last.
+export const mergeFacets = (existingFacets, newFacets, appliedFacets, sameRetiredScope=true) => {
   if(!existingFacets || !Object.keys(existingFacets).length)
     return newFacets
 
@@ -34,7 +35,7 @@ export const mergeFacets = (existingFacets, newFacets, appliedFacets) => {
         else if(applied[field]?.[name])
           merged.push([existingFacet[0], 0, existingFacet[2]])
         else
-          merged.push(existingFacet)
+          merged.push(sameRetiredScope ? existingFacet : [existingFacet[0], undefined, existingFacet[2]])
       })
     } else if(existing === undefined) {
       merged = fresh
@@ -45,7 +46,7 @@ export const mergeFacets = (existingFacets, newFacets, appliedFacets) => {
       })
       merged = uniqBy([...merged, ...fresh], facet => facet[0])
     }
-    mergedFacets[field] = orderBy(merged, facet => facet[1], 'desc')
+    mergedFacets[field] = orderBy(merged, facet => facet[1] ?? -1, 'desc')
   })
   return mergedFacets
 }

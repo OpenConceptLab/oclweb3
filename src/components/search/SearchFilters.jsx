@@ -199,9 +199,10 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
     setApplied(appliedFilters)
   }, [filters, appliedFilters])
 
+  // unlike the facet choices, kept through a facets answer: only a newly applied setting resets it
   React.useEffect(() => {
     setIncludeRetired(appliedIncludeRetired)
-  }, [filters, appliedIncludeRetired])
+  }, [appliedIncludeRetired])
 
   const retiredUnapplied = Boolean(retiredControl) && includeRetired !== appliedIncludeRetired
 
@@ -360,7 +361,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                         {rowExcluded ? t('common.include') : t('common.exclude')}
                       </Button>
                   }
-                  <span style={{fontSize: '0.7rem'}}>{value[1].toLocaleString()}</span>
+                  {Number.isFinite(value[1]) && <span style={{fontSize: '0.7rem'}}>{value[1].toLocaleString()}</span>}
                 </ListItemButton>
               );
             })}

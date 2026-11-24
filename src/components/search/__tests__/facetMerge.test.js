@@ -41,3 +41,9 @@ test('values come highest count first', () => {
   const merged = mergeFacets(classes, {conceptClass: [['Test', 5, false], ['Drug', 8289, false]]}, {conceptClass: {Drug: true, Test: true}})
   assert.deepEqual(merged.conceptClass.map(facet => facet[0]), ['Drug', 'Diagnosis', 'Test'])
 })
+
+test("under another Retired setting, an applied filter's other values stay but show no count", () => {
+  const merged = mergeFacets(classes, {conceptClass: [['Drug', 8289, false]]}, {conceptClass: {Drug: true}}, false)
+  assert.deepEqual(merged.conceptClass.map(facet => [facet[0], facet[1]]), [['Drug', 8289], ['Diagnosis', undefined], ['Test', undefined]])
+  assert.equal(merged.conceptClass.some(facet => facet[3]), false)
+})

@@ -30,7 +30,7 @@ import { MAX_SEARCH_RESULT_WINDOW } from '../../common/constants';
 
 const ResultsToolbar = props => {
   const { t } = useTranslation()
-  const { numSelected, title, titleInfo, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortConfig, noCardDisplay, toolbarControl, appliedFilters, availableFilterFields, openFilters, bulkActions, leftControls, displayOptions, resource, retiredFilterApplied } = props;
+  const { numSelected, title, titleInfo, onFiltersToggle, disabled, isFilterable, onDisplayChange, display, order, orderBy, onOrderByChange, sortConfig, noCardDisplay, toolbarControl, appliedFilters, availableFilterFields, openFilters, bulkActions, leftControls, displayOptions, resource, retiredFilterApplied, filtersAlwaysEnabled } = props;
   // Reference searches fetch no facets, so their filters can't be narrowed to facet fields.
   const countableFilters = (availableFilterFields && resource !== 'references') ? pick(appliedFilters, availableFilterFields) : appliedFilters
   // the filter panel's Retired control counts as a filter when it isn't at the page's default
@@ -52,7 +52,7 @@ const ResultsToolbar = props => {
     >
       {
         isFilterable &&
-          <Button disabled={Boolean(disabled)} variant='contained' color='default' size='small' style={{textTransform: 'none', whiteSpace: 'nowrap', flexShrink: 0, marginRight: '4px'}} startIcon={<FilterListIcon fontSize='inherit' />} onClick={onFiltersToggle} aria-expanded={Boolean(openFilters)}>
+          <Button disabled={Boolean(disabled) && !filtersAlwaysEnabled} variant='contained' color='default' size='small' style={{textTransform: 'none', whiteSpace: 'nowrap', flexShrink: 0, marginRight: '4px'}} startIcon={<FilterListIcon fontSize='inherit' />} onClick={onFiltersToggle} aria-expanded={Boolean(openFilters)}>
             {t('search.filters')}{filtersCount > 0 ? ` (${filtersCount})` : ''}
           </Button>
       }
@@ -426,6 +426,7 @@ const SearchResults = props => {
             leftControls={leftControls}
             resource={props.resource}
             retiredFilterApplied={props.retiredFilterApplied}
+            filtersAlwaysEnabled={props.filtersAlwaysEnabled}
           />
       }
       {
