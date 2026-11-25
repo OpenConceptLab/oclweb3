@@ -36,7 +36,8 @@ import DeleteReferencesDialog from '../collections/DeleteReferencesDialog'
 import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
 import TransformReferencesDialog from '../collections/TransformReferencesDialog'
 import ConvertReferencesDialog from '../collections/ConvertReferencesDialog'
-import { getTransformAddGroups, getTransformOutcome } from '../collections/referenceTransformUtils'
+import { getTransformAddGroups, getTransformOutcome, getKeptReferencesLabel } from '../collections/referenceTransformUtils'
+import { UNESCAPED } from '../collections/referenceConversionUtils'
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutlined'
 import GAService from '../../services/GAService'
 import QuotaDialog from '../common/QuotaDialog'
@@ -695,6 +696,11 @@ const Search = props => {
     const addedItems = outcomes.reduce((items, outcome) => [...items, ...outcome.addedItems], [])
     const addFailures = outcomes.reduce((count, outcome) => count + outcome.group.items.length - outcome.addedItems.length, 0)
     const unresolvedExpressions = outcomes.reduce((expressions, outcome) => [...expressions, ...outcome.unresolvedExpressions], [])
+    // the expressions are the API's: React escapes them, so i18next mustn't as well
+    const kept = {
+      references: getKeptReferencesLabel(groups.flatMap(group => group.items), unresolvedExpressions),
+      ...UNESCAPED,
+    }
 
     if(unresolvedExpressions.length) {
       // Replacements saved but resolved to nothing are removed, so their originals stay as they were
@@ -712,12 +718,17 @@ const Search = props => {
 
     if(!addedItems.length) {
       setTransformingReferences(false)
-      setAlert({
-        severity: 'error',
-        message: unresolvedExpressions.length ?
-          t('reference.transform_none_resolved', { count: unresolvedExpressions.length }) :
-          t('reference.transform_no_references_changed'),
-      })
+      if(unresolvedExpressions.length) {
+        // nothing was lost: the replacements were removed and every original kept
+        setTransformReferencesOpen(false)
+        onSelectItem([])
+        setAlert({
+          severity: 'warning',
+          message: t('reference.transform_none_resolved', { count: unresolvedExpressions.length, ...kept }),
+        })
+        return
+      }
+      setAlert({ severity: 'error', message: t('reference.transform_no_references_changed') })
       return
     }
 
@@ -737,7 +748,7 @@ const Search = props => {
         message: addFailures ?
           t(
             unresolvedExpressions.length ? 'reference.transform_partial_unresolved' : 'reference.transform_partial_success',
-            { transformed: transformedCount, failed: addFailures, unresolved: unresolvedExpressions.length }
+            { transformed: transformedCount, failed: addFailures, unresolved: unresolvedExpressions.length, ...kept }
           ) :
           t('reference.transform_success', { count: transformedCount }),
       })

@@ -623,6 +623,17 @@ const RepoHome = () => {
                       propertyDefinition={(!tab || tab === 'concepts') ? repo?.properties : []}
                       propertyFilters={(!tab || tab === 'concepts') ? repo?.filters : []}
                       fixedLeftControls={
+                        // on the left, so it shows before any row is ticked and stays in view at phone width
+                        (isCollection && !isVersion && tab === 'references') ?
+                          <Button
+                            variant="contained"
+                            size="small"
+                            startIcon={<AddIcon />}
+                            onClick={() => setAddReferencesOpen(true)}
+                            sx={{textTransform: 'none', whiteSpace: 'nowrap', flexShrink: 0, mr: 1}}
+                          >
+                            {t('reference.add_references')}
+                          </Button> :
                         Boolean(isCollection && !selectedItem?.length && ['concepts', 'mappings'].includes(tab)) &&
                           <ExpansionDropDown
                             expansions={expansions}
@@ -630,24 +641,6 @@ const RepoHome = () => {
                             selectedExpansion={selectedExpansion}
                             onChange={onExpansionChange}
                           />
-                      }
-                      extraBulkActions={
-                        isCollection ?
-                          <>
-                            {
-                              Boolean(!isVersion && tab === 'references') &&
-                                <Button
-                                  variant="contained"
-                                  size="small"
-                                  startIcon={<AddIcon />}
-                                  onClick={() => setAddReferencesOpen(true)}
-                                  sx={{textTransform: 'none', whiteSpace: 'nowrap'}}
-                                >
-                                  {t('reference.add_references')}
-                                </Button>
-                            }
-                          </> :
-                        undefined
                       }
                     />
                 }

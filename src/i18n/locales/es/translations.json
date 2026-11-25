@@ -364,8 +364,8 @@
     "transform_no_references_changed": "No se transformó ninguna referencia.",
     "transform_delete_failed": "Se agregaron {{count}} referencia(s) sin versión, pero no se pudieron eliminar las referencias fijadas anteriores. Actualiza y revisa la lista de referencias para detectar duplicados.",
     "transform_rollback_failed": "{{count}} referencia(s) de reemplazo no resolvieron a nada y no se pudieron eliminar, así que no se eliminó ninguna original. Actualiza y revisa la lista de referencias para detectar duplicados.",
-    "transform_partial_unresolved": "{{transformed}} referencia(s) transformada(s). {{failed}} referencia(s) se dejaron sin cambios, {{unresolved}} de ellas porque la referencia no versionada no resolvió a nada.",
-    "transform_none_resolved": "No se transformó ninguna referencia: {{count}} referencia(s) no versionada(s) no resolvieron a nada, así que las originales se dejaron sin cambios.",
+    "transform_partial_unresolved": "{{transformed}} referencia(s) transformada(s). {{failed}} referencia(s) se dejaron sin cambios, {{unresolved}} de ellas porque la referencia no versionada no resolvió a nada: {{references}}.",
+    "transform_none_resolved": "No se transformó ninguna referencia: {{count}} referencia(s) no versionada(s) no resolvieron a nada, así que se conservaron las originales: {{references}}.",
     "already_non_versioned": "Ya está sin versión",
     "unsupported_transform": "No compatible",
     "remove_success": "Referencias eliminadas correctamente.",
@@ -920,14 +920,14 @@
     "reference_header": "Referencia",
     "error_header": "Error",
     "no_references_added": "No se añadieron referencias",
-    "unresolved_count": "{{count}} guardadas, pero no resolvieron a nada",
+    "unresolved_count": "{{count}} guardadas, pero no añadieron nada",
     "unresolved_header": "Guardada, pero no se añadió nada",
     "summary_separator": ", ",
     "summary_added": "{{count}} referencias añadidas",
     "summary_added_one": "{{count}} referencia añadida",
     "summary_failed": "{{count}} referencias fallaron",
     "summary_failed_one": "{{count}} referencia falló",
-    "unresolved_count_one": "{{count}} guardada, pero no resolvió a nada",
+    "unresolved_count_one": "{{count}} guardada, pero no añadió nada",
     "add_to_collection": "Añadir a colección"
   }
 }

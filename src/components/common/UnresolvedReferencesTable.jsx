@@ -1,19 +1,19 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import Table from '@mui/material/Table'
 import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
+import ReferenceResultsTable, { LABEL_COLUMN_WIDTH } from './ReferenceResultsTable'
 
 // References the API saved but that added nothing to the collection; the message is the API's, as given
 const UnresolvedReferencesTable = ({ items, getLabel, sx = {} }) => {
   const { t } = useTranslation()
   return (
-    <Table size="small" sx={[{ border: '1px solid', borderColor: 'warning.main', borderRadius: 1, overflow: 'hidden' }, sx]}>
+    <ReferenceResultsTable borderColor="warning.main" sx={sx}>
       <TableHead>
         <TableRow>
-          <TableCell sx={{ fontWeight: 600, width: '40%', color: 'text.primary' }}>
+          <TableCell sx={{ fontWeight: 600, width: LABEL_COLUMN_WIDTH, color: 'text.primary' }}>
             {t('addToCollection.reference_header')}
           </TableCell>
           <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>
@@ -31,7 +31,7 @@ const UnresolvedReferencesTable = ({ items, getLabel, sx = {} }) => {
           </TableRow>
         ))}
       </TableBody>
-    </Table>
+    </ReferenceResultsTable>
   )
 }
 

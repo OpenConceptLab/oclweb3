@@ -102,6 +102,13 @@ export const getTransformAddGroups = previewItems => {
   return Object.values(groups)
 }
 
+// The originals a transform kept because their replacement resolved to nothing, joined for an alert
+export const getKeptReferencesLabel = (items, unresolvedExpressions) => (items || [])
+  .filter(item => (unresolvedExpressions || []).includes(item.proposedExpression))
+  .map(item => item.reference?.expression)
+  .filter(Boolean)
+  .join(', ')
+
 // For a transform's add response: the items whose replacement joined the collection, and the
 // expressions of replacements that were saved but resolved to nothing, to roll back
 export const getTransformOutcome = (response, items) => {

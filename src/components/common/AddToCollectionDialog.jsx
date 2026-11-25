@@ -5,7 +5,6 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Alert from '@mui/material/Alert'
-import Table from '@mui/material/Table'
 import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableRow from '@mui/material/TableRow'
@@ -25,6 +24,7 @@ import CascadeSelector from './CascadeSelector'
 import RepoChip from '../repos/RepoChip'
 import RepoTooltip from '../repos/RepoTooltip'
 import UnresolvedReferencesTable from './UnresolvedReferencesTable'
+import ReferenceResultsTable, { LABEL_COLUMN_WIDTH } from './ReferenceResultsTable'
 import { groupReferenceResults, formatReferenceSummary } from './referenceResults'
 
 // Extract "[id] [name]" from an expression URL like /orgs/CIEL/sources/CIEL/concepts/1234/
@@ -329,10 +329,10 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
 
                 {/* Failures */}
                 {failedCount > 0 && (
-                  <Table size="small" sx={{ border: '1px solid', borderColor: 'error.main', borderRadius: 1, overflow: 'hidden' }}>
+                  <ReferenceResultsTable borderColor="error.main">
                     <TableHead>
                       <TableRow sx={{ bgcolor: 'error.95' }}>
-                        <TableCell sx={{ fontWeight: 600, width: '40%', color: 'error.main' }}>{t('addToCollection.reference_header')}</TableCell>
+                        <TableCell sx={{ fontWeight: 600, width: LABEL_COLUMN_WIDTH, color: 'error.main' }}>{t('addToCollection.reference_header')}</TableCell>
                         <TableCell sx={{ fontWeight: 600, color: 'error.main' }}>{t('addToCollection.error_header')}</TableCell>
                       </TableRow>
                     </TableHead>
@@ -348,7 +348,7 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
                         </TableRow>
                       ))}
                     </TableBody>
-                  </Table>
+                  </ReferenceResultsTable>
                 )}
               </React.Fragment>
             )}
