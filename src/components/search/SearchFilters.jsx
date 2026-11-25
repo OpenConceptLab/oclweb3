@@ -25,11 +25,17 @@ import { URIToParentParams, currentUserHasAccess, toCamelCase } from '../../comm
 import { FACET_ORDER, EXCLUDE_FILTER_KEY } from './ResultConstants';
 import { LockMark, useNoticeLocks } from '../common/NoticeLocks';
 
-const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions, nested, onSaveAsDefaultFilters, loading, repoDefaultFilters, propertyFilters, propertyDefinition, heightToSubtract, open, allowExclude}) => {
+// retiredControl: {checked, defaultChecked, count} for the Retired group's "Include retired" choice
+// (search/retiredControl.js). It isn't a facet: it's staged and applied with the filters, and
+// onChange gets its setting as a second argument.
+const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions, nested, onSaveAsDefaultFilters, loading, repoDefaultFilters, propertyFilters, propertyDefinition, heightToSubtract, open, allowExclude, retiredControl}) => {
   const { t } = useTranslation()
   // a repository notice may lock saving default filters (NoticeLocks): Clear then clears only the filters applied
   const defaultsLock = useNoticeLocks()('saveDefaultFilters')
   const [applied, setApplied] = React.useState({});
+  const appliedIncludeRetired = retiredControl?.checked
+  const defaultIncludeRetired = retiredControl?.defaultChecked
+  const [includeRetired, setIncludeRetired] = React.useState(appliedIncludeRetired)
   const [expanded, setExpanded] = React.useState([])
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(null)
   const shouldShowActionBar = open !== undefined
@@ -136,7 +142,8 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   }
 
   const computeCount = obj => flatten(values(pick(obj, keys(filters))).map(v => values(omit(v, EXCLUDE_FILTER_KEY)))).length
-  const count = computeCount(applied)
+  // the Retired control counts as a filter when it isn't at the page's default
+  const count = computeCount(applied) + (retiredControl && includeRetired !== defaultIncludeRetired ? 1 : 0)
 
   const handleToggle = (field, value) => () => {
     const checked = !isApplied(field, value)
@@ -174,29 +181,39 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
 
   const onClear = () => {
     setApplied({})
+    setIncludeRetired(defaultIncludeRetired)
     if(onSaveAsDefaultFilters && !defaultsLock)
       onSaveAsDefaultFilters({})
-    onChange({})
+    onChange({}, defaultIncludeRetired)
   }
 
   const onApply = () => {
-    onChange(applied)
+    onChange(applied, includeRetired)
   }
 
   const isApplied = (field, value) => Boolean(get(applied[field], value[0]))
   const isUnApplied = (field, value) => isApplied(field, value) && !get(appliedFilters[field], value[0])
   const availableFilterFields = keys(filters)
-  const canClear = !isEmpty(pick(applied, availableFilterFields)) || !isEmpty(pick(appliedFilters, availableFilterFields))
+  const retiredNotDefault = Boolean(retiredControl) && (includeRetired !== defaultIncludeRetired || appliedIncludeRetired !== defaultIncludeRetired)
+  const canClear = !isEmpty(pick(applied, availableFilterFields)) || !isEmpty(pick(appliedFilters, availableFilterFields)) || retiredNotDefault
   const canResetToDefaultFilters = !isEmpty(repoDefaultFilters) && !isEqual(applied, repoDefaultFilters)
 
   React.useEffect(() => {
     setApplied(appliedFilters)
   }, [filters, appliedFilters])
 
+  // unlike the facet choices, kept through a facets answer: a newly applied setting or another
+  // tab (resource) resets it
   React.useEffect(() => {
-    if(!shouldShowActionBar && !isEqual(applied, appliedFilters))
-      onChange(applied)
-  }, [applied, appliedFilters, onChange, shouldShowActionBar])
+    setIncludeRetired(appliedIncludeRetired)
+  }, [appliedIncludeRetired, resource])
+
+  const retiredUnapplied = Boolean(retiredControl) && includeRetired !== appliedIncludeRetired
+
+  React.useEffect(() => {
+    if(!shouldShowActionBar && (!isEqual(applied, appliedFilters) || retiredUnapplied))
+      onChange(applied, includeRetired)
+  }, [applied, appliedFilters, onChange, shouldShowActionBar, includeRetired, retiredUnapplied])
 
   const getFieldFilters = (field, fieldFilters) => {
     let ordered = [
@@ -215,19 +232,56 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
       setExpanded([...expanded, field])
   }
 
-  const unapplied = (!isEmpty(applied) || !isEmpty(appliedFilters)) && !isEqual(applied, appliedFilters)
+  const unapplied = ((!isEmpty(applied) || !isEmpty(appliedFilters)) && !isEqual(applied, appliedFilters)) || retiredUnapplied
 
+  // A repository's saved defaults don't hold the Retired control's setting
   const onSetDefaultFilters = () => {
     if(unapplied)
-      onChange(applied)
+      onChange(applied, includeRetired)
     if(!defaultsLock)
       onSaveAsDefaultFilters(applied)
   }
 
   const onResetDefaultFilters = () => {
     setApplied(repoDefaultFilters)
-    onChange(repoDefaultFilters)
+    setIncludeRetired(defaultIncludeRetired)
+    onChange(repoDefaultFilters, defaultIncludeRetired)
   }
+
+  // The Retired group: one choice, with how many results are retired where the filter counts are
+  const getRetiredControl = () => (
+    <ListItem key='retired-control' sx={{padding: 0, flexDirection: 'column'}}>
+      <List dense sx={{width: '100%', position: 'relative', padding: 0, display: 'inline-block'}}>
+        {
+          !noSubheader &&
+            <ListSubheader sx={{padding: '0 8px', fontWeight: 'bold', backgroundColor: bgColor, lineHeight: '30px'}}>
+              {t('common.retired')}
+            </ListSubheader>
+        }
+        <ListItemButton onClick={() => setIncludeRetired(!includeRetired)} sx={{p: '0 12px'}}>
+          <ListItemIcon sx={{minWidth: '25px'}}>
+            <Checkbox
+              size="small"
+              edge="start"
+              checked={Boolean(includeRetired)}
+              tabIndex={-1}
+              disableRipple
+              slotProps={{ input: { 'aria-labelledby': 'checkbox-list-label-include-retired' } }}
+              sx={{padding: '0px 8px', '.MuiSvgIcon-root': {fontSize: '1.1rem'}}}
+            />
+          </ListItemIcon>
+          <ListItemText
+            id='checkbox-list-label-include-retired'
+            primary={`${t('search.include_retired')}${retiredUnapplied ? '*' : ''}`}
+            slotProps={{primary: {style: {fontSize: '0.875rem'}}}} style={{margin: 0}} />
+          {
+            Number.isFinite(retiredControl.count) &&
+              <span style={{fontSize: '0.7rem'}}>{retiredControl.count.toLocaleString()}</span>
+          }
+        </ListItemButton>
+      </List>
+    </ListItem>
+  )
 
   const getFilterList = (fieldFilters, field) => {
     const shouldShowExpand = fieldFilters.length > 5
@@ -312,7 +366,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                         {rowExcluded ? t('common.include') : t('common.exclude')}
                       </Button>
                   }
-                  <span style={{fontSize: '0.7rem'}}>{value[1].toLocaleString()}</span>
+                  {Number.isFinite(value[1]) && <span style={{fontSize: '0.7rem'}}>{value[1].toLocaleString()}</span>}
                 </ListItemButton>
               );
             })}
@@ -443,7 +497,8 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
             </List>
         }
         {
-          !isEmpty(uiFilters) &&
+          // the Retired group is the first of the Additional Metadata filters (Jon, Nov 24)
+          (!isEmpty(uiFilters) || retiredControl) &&
             <List
               dense
               sx={{
@@ -460,6 +515,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                     {t('repo.additional_metadata_filters_subheader')}
                   </ListSubheader>
               }
+              {retiredControl && getRetiredControl()}
               {map(uiFilters, getFilterList)}
             </List>
         }
