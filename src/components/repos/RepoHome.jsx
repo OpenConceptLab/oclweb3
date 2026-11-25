@@ -624,7 +624,7 @@ const RepoHome = () => {
                       propertyFilters={(!tab || tab === 'concepts') ? repo?.filters : []}
                       fixedLeftControls={
                         // on the left, so it shows before any row is ticked and stays in view at phone width
-                        (isCollection && !isVersion && tab === 'references') ?
+                        (isCollection && !isVersion && tab === 'references' && currentUserHasAccess()) ?
                           <Button
                             variant="contained"
                             size="small"
