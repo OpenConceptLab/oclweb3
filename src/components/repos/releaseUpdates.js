@@ -49,9 +49,8 @@ const isNamedInSystemVersion = (entries, oldURL, recorded) => entries.some(entry
   return Boolean(recorded?.version) && version === recorded.version && urls.some(candidate => trimSlash(candidate) === trimSlash(url))
 })
 
-// [{oldURL, newURL, case, pinned}] from resolved-repo-updates ({recorded URL: latest URL}), HEAD and retired first.
-// pinned says what holds it: a reference (a rebuild may still move one reached through a resource version),
-// system-version, or a lock-built expansion's value-set lock
+// [{oldURL, newURL, case, pinned}] from resolved-repo-updates, HEAD and retired first. pinned: what holds it, a
+// reference (one reached through a resource version can still move), system-version, or a lock-built value set
 export const getReleaseUpdates = (expansion, repoUpdates) => {
   const explicit = byURL(expansion, EXPLICIT_RELATIONS)
   const evaluated = byURL(expansion, EVALUATED_RELATIONS)

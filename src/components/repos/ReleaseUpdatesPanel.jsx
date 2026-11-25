@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button as MuiButton, Stack, Typography } from '@mui/material';
+import { Box, Button as MuiButton, Stack, Tooltip, Typography } from '@mui/material';
 import {
   OpenInNew as OpenInNewIcon,
   WarningAmberOutlined as WarningIcon
@@ -31,6 +31,14 @@ const linkSx = {
 
 // an inline icon, so text around it keeps its own spacing
 const iconSx = fontSize => ({ fontSize, verticalAlign: 'middle', ml: '2px' });
+
+// a disabled button gets no hover, so the span carries the reason, as the expansion menu shows it
+const WhileProcessing = ({ processing, children }) => {
+  const { t } = useTranslation();
+  return processing ? (
+    <Tooltip title={t('repo.action_disabled_while_processing')}><span>{children}</span></Tooltip>
+  ) : children;
+};
 
 const lineSx = { fontSize: '12px', mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap', ...linkSx };
 
@@ -110,15 +118,17 @@ const ReleaseUpdatesPanel = ({ expansion, version, expansions, repoUpdates, proc
           )}
 
           <Stack direction="row" spacing={2} sx={{ mt: 0.5, alignItems: 'center', flexWrap: 'wrap', ...linkSx }}>
-            <MuiButton
-              size="small"
-              variant="text"
-              sx={{ minWidth: 0, p: 0, textTransform: 'none', fontWeight: 700 }}
-              disabled={processing}
-              onClick={() => onCreateSimilar(expansion)}
-            >
-              {t('repo.create_similar')}
-            </MuiButton>
+            <WhileProcessing processing={processing}>
+              <MuiButton
+                size="small"
+                variant="text"
+                sx={{ minWidth: 0, p: 0, textTransform: 'none', fontWeight: 700 }}
+                disabled={processing}
+                onClick={() => onCreateSimilar(expansion)}
+              >
+                {t('repo.create_similar')}
+              </MuiButton>
+            </WhileProcessing>
             {compareURL && (
               <Typography component="span" sx={{ fontSize: '13px', fontWeight: 700 }}>
                 <a href={compareURL} target="_blank" rel="noreferrer">
@@ -126,16 +136,18 @@ const ReleaseUpdatesPanel = ({ expansion, version, expansions, repoUpdates, proc
                 </a>
               </Typography>
             )}
-            <MuiButton
-              size="small"
-              variant="text"
-              color={released ? 'secondary' : 'primary'}
-              sx={{ minWidth: 0, p: 0, textTransform: 'none', fontWeight: 700 }}
-              disabled={processing}
-              onClick={() => onRebuild(expansion)}
-            >
-              {t('repo.rebuild')}
-            </MuiButton>
+            <WhileProcessing processing={processing}>
+              <MuiButton
+                size="small"
+                variant="text"
+                color={released ? 'secondary' : 'primary'}
+                sx={{ minWidth: 0, p: 0, textTransform: 'none', fontWeight: 700 }}
+                disabled={processing}
+                onClick={() => onRebuild(expansion)}
+              >
+                {t('repo.rebuild')}
+              </MuiButton>
+            </WhileProcessing>
           </Stack>
         </>
       )}

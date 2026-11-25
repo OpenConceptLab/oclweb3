@@ -368,7 +368,8 @@ const CollectionVersionsTab = ({
       if (!version) return;
       (expansionsByVersion[versionKey] || []).forEach(expansion => fetchResolvedRepoUpdates(version, expansion));
     });
-  }, [expandedVersionKeys, expansionsByVersion, displayVersions, fetchResolvedRepoUpdates]);
+    // repoUpdatesByExpansion: a rebuilt expansion's updates, once forgotten, are fetched again
+  }, [expandedVersionKeys, expansionsByVersion, displayVersions, fetchResolvedRepoUpdates, repoUpdatesByExpansion]);
 
   React.useEffect(() => {
     if (handledDeepLinkRef.current) return;
