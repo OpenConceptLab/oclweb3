@@ -31,8 +31,12 @@ const format = value => isNumber(value) ? value.toLocaleString() : '-'
  * exactly as many digits as the widest count in its column needs, which keeps
  * the stats in line down the column without the padding a one-size-fits-all
  * width would leave on a table of small counts.
+ *
+ * A summary's active_concepts and active_mappings leave retired ones out, and the
+ * tooltip says so. `labels` replaces a stat's tooltip where the count is something
+ * else, as a collection version's is (CollectionVersionsTab).
  */
-const RepoContentSummary = ({ summary, stats, summaries, baseURL }) => {
+const RepoContentSummary = ({ summary, stats, summaries, baseURL, labels }) => {
   const { t } = useTranslation()
 
   if(isEmpty(summary))
@@ -42,13 +46,13 @@ const RepoContentSummary = ({ summary, stats, summaries, baseURL }) => {
     concepts: {
       key: 'active_concepts',
       tab: 'concepts',
-      label: t('concept.concepts'),
+      label: t('concept.active_concepts'),
       icon: <ConceptIcon selected color='secondary' sx={{width: '1rem', height: '1rem'}} />
     },
     mappings: {
       key: 'active_mappings',
       tab: 'mappings',
-      label: t('mapping.mappings'),
+      label: t('mapping.active_mappings'),
       icon: <MappingIcon width='15px' height='13px' fill='secondary.main' color='secondary' />
     },
     // only collections carry references and expansions, so these stats drop out
@@ -88,7 +92,7 @@ const RepoContentSummary = ({ summary, stats, summaries, baseURL }) => {
         (stats || REPO_STATS).filter(
           stat => !CONFIG[stat].optional || isNumber(summary[CONFIG[stat].key])
         ).map(stat => (
-          <Tooltip key={stat} title={CONFIG[stat].label}>
+          <Tooltip key={stat} title={labels?.[stat] || CONFIG[stat].label}>
             {/* the reserved width holds the stats in line across rows; the padding
                 is what separates them, so nothing runs into the next stat */}
             <Stack

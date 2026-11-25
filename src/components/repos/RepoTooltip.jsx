@@ -97,14 +97,14 @@ const TooltipTitle = ({ repo }) => {
         <span style={{display: 'flex', alignItems: 'center'}}>
           {
             isNumber(entity?.summary?.active_concepts) &&
-              <span style={{cursor: 'pointer', display: 'flex', alignItems: 'center'}} onClick={() => history.push(url + 'concepts/')}>
+              <span title={t('concept.active_concepts')} style={{cursor: 'pointer', display: 'flex', alignItems: 'center'}} onClick={() => history.push(url + 'concepts/')}>
                 <ConceptIcon fontSize='small' selected color='secondary' sx={{marginRight: '4px', width: '10px', height: '10px'}} />
                 {entity.summary.active_concepts.toLocaleString()}
               </span>
           }
           {
             isNumber(entity?.summary?.active_mappings) &&
-              <span style={{marginLeft: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center'}} onClick={() => history.push(url + 'mappings/')}>
+              <span title={t('mapping.active_mappings')} style={{marginLeft: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center'}} onClick={() => history.push(url + 'mappings/')}>
                 <MappingIcon fontSize='small' color='secondary' sx={{marginRight: '4px', width: '15px', height: '15px'}} />
                 {entity.summary.active_mappings.toLocaleString()}
               </span>

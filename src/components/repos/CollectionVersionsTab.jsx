@@ -69,6 +69,7 @@ import ClearProcessingDialog from './ClearProcessingDialog';
 import ProcessingFlag from './ProcessingFlag';
 import VerifiedChip from './VerifiedChip';
 import RepoContentSummary, { VERSION_STATS } from './RepoContentSummary';
+import { getVersionCount, getCountLabel } from './expansionCounts';
 import ProcessingProgress from './ProcessingProgress';
 import RebuildExpansionDialog from './RebuildExpansionDialog';
 import { closeIfShowing, createRebuildGuard, getRebuildOutcome, withoutExpansionState } from './rebuildExpansion';
@@ -688,17 +689,32 @@ const CollectionVersionsTab = ({
     [processingStatusByExpansion]
   );
 
-  /* a version's counts come from its default expansion when it has one */
+  /* a version's counts come from its default expansion when it has one (see expansionCounts.js) */
+  const getVersionCounts = React.useCallback(version => {
+    const expansionSummary = get(getDefaultExpansion(version), 'summary');
+    return {
+      concepts: getVersionCount(expansionSummary, version?.summary, 'concepts'),
+      mappings: getVersionCount(expansionSummary, version?.summary, 'mappings')
+    };
+  }, [getDefaultExpansion]);
+
   const getVersionSummary = React.useCallback(version => {
     const defaultExpansion = getDefaultExpansion(version);
     const fromExpansion = key => get(defaultExpansion, `summary.${key}`) ?? get(version, `summary.${key}`);
+    const counts = getVersionCounts(version);
     return {
-      active_concepts: fromExpansion('active_concepts'),
-      active_mappings: fromExpansion('active_mappings'),
+      // RepoContentSummary shows these keys; getVersionCountLabels says what each count is
+      active_concepts: counts.concepts.total,
+      active_mappings: counts.mappings.total,
       active_references: fromExpansion('active_references'),
       expansions: get(version, 'summary.expansions')
     };
-  }, [getDefaultExpansion]);
+  }, [getDefaultExpansion, getVersionCounts]);
+
+  const getVersionCountLabels = version => {
+    const counts = getVersionCounts(version);
+    return { concepts: getCountLabel(t, 'concepts', counts.concepts), mappings: getCountLabel(t, 'mappings', counts.mappings) };
+  };
 
   const renderVersionRow = version => {
     const versionKey = getVersionKey(version);
@@ -753,7 +769,7 @@ const CollectionVersionsTab = ({
           </TableCell>
           <TableCell sx={bodyCellSx}>
             <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5 }}>
-              <RepoContentSummary summary={getVersionSummary(version)} stats={VERSION_STATS} summaries={map(displayVersions, getVersionSummary)} />
+              <RepoContentSummary summary={getVersionSummary(version)} labels={getVersionCountLabels(version)} stats={VERSION_STATS} summaries={map(displayVersions, getVersionSummary)} />
               {versionLoading && <CircularProgress size={14} />}
               {!versionLoading && versionExpansions.length > 0 && (
                 <Tooltip title={processingExpansionsCount ? t('repo.expansions_processing', { count: processingExpansionsCount }) : ''}>

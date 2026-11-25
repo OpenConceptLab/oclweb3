@@ -134,8 +134,10 @@ export const FACET_ORDER = {
     'owner', 'ownerType', 'source', 'mapType',
     'fromConceptOwner', 'fromConceptOwnerType', 'fromConceptSource', 'fromConcept',
     'toConceptOwner', 'toConceptOwnerType', 'toConceptSource', 'toConcept',
-    'retired', 'collection_membership', 'updatedBy'
+    'collection_membership', 'updatedBy'
   ],
-  "repos": ["repoType", "sourceType", "collectionType", "owner", "ownerType", "customValidationSchema", "locale", "retired"]
+  // Concept, mapping and repository searches have the panel's Retired control in place of a Retired
+  // filter (retiredControl.js), the first of the Additional Metadata filters
+  "repos": ["repoType", "sourceType", "collectionType", "owner", "ownerType", "customValidationSchema", "locale"]
 }
 
