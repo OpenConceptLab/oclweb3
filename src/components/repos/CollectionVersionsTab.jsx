@@ -66,7 +66,7 @@ import ExpansionDetailsDialog from './ExpansionDetailsDialog';
 import ExpansionRowList from './ExpansionRowList';
 import ExpansionHealthChip from './ExpansionHealthChip';
 import { getVersionHealthStatus } from './expansionHealth';
-import { getDeletedLocks, getMovableUpdates } from './releaseUpdates';
+import { getDeletedLocks, getReleaseUpdates } from './releaseUpdates';
 import ExternalExportsDialog from './ExternalExportsDialog';
 import ClearProcessingDialog from './ClearProcessingDialog';
 import ProcessingFlag from './ProcessingFlag';
@@ -352,7 +352,7 @@ const CollectionVersionsTab = ({
       const defaultExpansion = getDefaultExpansion(version);
       if (!defaultExpansion) return;
       const updates = repoUpdatesByExpansion[defaultExpansion.url];
-      const hasUpdates = hasAccess && (getMovableUpdates(defaultExpansion, updates).length > 0 || Boolean(getDeletedLocks(defaultExpansion)));
+      const hasUpdates = hasAccess && (getReleaseUpdates(defaultExpansion, updates).length > 0 || Boolean(getDeletedLocks(defaultExpansion)));
       if (hasUpdates || isStaleExpansion(defaultExpansion)) toExpand.push(getVersionKey(version));
     });
     if (!toExpand.length) return;
@@ -755,7 +755,7 @@ const CollectionVersionsTab = ({
     const versionLoading = loadingByVersion[versionKey] && !versionExpansions.length;
     const defaultExpansion = getDefaultExpansion(version);
     const expansionUpdates = defaultExpansion ? repoUpdatesByExpansion[defaultExpansion.url] : null;
-    const hasReleaseUpdates = hasAccess && getMovableUpdates(defaultExpansion, expansionUpdates).length > 0;
+    const hasReleaseUpdates = hasAccess && getReleaseUpdates(defaultExpansion, expansionUpdates).length > 0;
     const deletedLocks = hasAccess ? getDeletedLocks(defaultExpansion) : null;
     const hasRepoUpdates = hasReleaseUpdates || Boolean(deletedLocks);
     const stale = isStaleExpansion(defaultExpansion);

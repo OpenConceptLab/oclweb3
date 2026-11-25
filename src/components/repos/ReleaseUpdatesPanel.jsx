@@ -52,8 +52,6 @@ const ReleaseUpdatesPanel = ({ expansion, version, expansions, repoUpdates, proc
   const deletedLocks = getDeletedLocks(expansion);
   if (!updates.length && !deletedLocks) return null;
 
-  // pinned versions don't move on a rebuild, so only the rest get the rebuild advice
-  const actionable = updates.some(update => !update.pinned) || Boolean(deletedLocks);
   const released = isReleasedCollectionVersion(version);
   const comparable = getComparableExpansion(expansion, expansions);
   const versionURL = version?.version_url || version?.url;
@@ -80,9 +78,6 @@ const ReleaseUpdatesPanel = ({ expansion, version, expansions, repoUpdates, proc
                 <a href={compareVersionsURL} target="_blank" rel="noreferrer" style={{ whiteSpace: 'nowrap' }}>
                   ({t('common.compare')}<OpenInNewIcon sx={iconSx('12px')} />)
                 </a>
-                {update.pinned && (
-                  <Box component="span" sx={{ flexBasis: '100%', color: 'secondary.main' }}>{t(`repo.release_updates.pinned_${update.pinned}`)}</Box>
-                )}
               </Typography>
             );
           })}
@@ -108,51 +103,47 @@ const ReleaseUpdatesPanel = ({ expansion, version, expansions, repoUpdates, proc
         </Box>
       )}
 
-      {actionable && (
-        <>
-          <Typography sx={{ fontSize: '12px', mt: 1 }}>
-            {t('repo.release_updates.lock_stays')} {t('repo.release_updates.compare_first')}
-          </Typography>
-          {released && (
-            <Typography sx={{ fontSize: '12px', mt: 0.5, fontWeight: 700 }}>
-              {t('repo.release_updates.released_nudge')}
-            </Typography>
-          )}
-
-          <Stack direction="row" spacing={2} sx={{ mt: 0.5, alignItems: 'center', flexWrap: 'wrap', ...linkSx }}>
-            <WhileProcessing processing={processing}>
-              <MuiButton
-                size="small"
-                variant="text"
-                sx={{ minWidth: 0, p: 0, textTransform: 'none', fontWeight: 700 }}
-                disabled={processing}
-                onClick={() => onCreateSimilar(expansion)}
-              >
-                {t('repo.create_similar')}
-              </MuiButton>
-            </WhileProcessing>
-            {compareURL && (
-              <Typography component="span" sx={{ fontSize: '13px', fontWeight: 700 }}>
-                <a href={compareURL} target="_blank" rel="noreferrer">
-                  {t('repo.release_updates.compare_with', { mnemonic: comparable.mnemonic })}<OpenInNewIcon sx={iconSx('13px')} />
-                </a>
-              </Typography>
-            )}
-            <WhileProcessing processing={processing}>
-              <MuiButton
-                size="small"
-                variant="text"
-                color={released ? 'secondary' : 'primary'}
-                sx={{ minWidth: 0, p: 0, textTransform: 'none', fontWeight: 700 }}
-                disabled={processing}
-                onClick={() => onRebuild(expansion)}
-              >
-                {t('repo.rebuild')}
-              </MuiButton>
-            </WhileProcessing>
-          </Stack>
-        </>
+      <Typography sx={{ fontSize: '12px', mt: 1 }}>
+        {t('repo.release_updates.lock_stays')} {t('repo.release_updates.compare_first')}
+      </Typography>
+      {released && (
+        <Typography sx={{ fontSize: '12px', mt: 0.5, fontWeight: 700 }}>
+          {t('repo.release_updates.released_nudge')}
+        </Typography>
       )}
+
+      <Stack direction="row" spacing={2} sx={{ mt: 0.5, alignItems: 'center', flexWrap: 'wrap', ...linkSx }}>
+        <WhileProcessing processing={processing}>
+          <MuiButton
+            size="small"
+            variant="text"
+            sx={{ minWidth: 0, p: 0, textTransform: 'none', fontWeight: 700 }}
+            disabled={processing}
+            onClick={() => onCreateSimilar(expansion)}
+          >
+            {t('repo.create_similar')}
+          </MuiButton>
+        </WhileProcessing>
+        {compareURL && (
+          <Typography component="span" sx={{ fontSize: '13px', fontWeight: 700 }}>
+            <a href={compareURL} target="_blank" rel="noreferrer">
+              {t('repo.release_updates.compare_with', { mnemonic: comparable.mnemonic })}<OpenInNewIcon sx={iconSx('13px')} />
+            </a>
+          </Typography>
+        )}
+        <WhileProcessing processing={processing}>
+          <MuiButton
+            size="small"
+            variant="text"
+            color={released ? 'secondary' : 'primary'}
+            sx={{ minWidth: 0, p: 0, textTransform: 'none', fontWeight: 700 }}
+            disabled={processing}
+            onClick={() => onRebuild(expansion)}
+          >
+            {t('repo.rebuild')}
+          </MuiButton>
+        </WhileProcessing>
+      </Stack>
     </Box>
   );
 };
