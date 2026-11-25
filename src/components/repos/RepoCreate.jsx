@@ -96,8 +96,8 @@ const RepoCreate = () => {
   const copyFromApplied = React.useRef(false)
   const fromOCLURLParsed = React.useMemo(() => parseRepoURL(fromOCLURL), [fromOCLURL])
   const [validationErrors, setValidationErrors] = React.useState({})
-  // A refusal that carries a notice (a limit on private repositories, or read-only content) is shown under the
-  // visibility field, where the way out is, instead of a toast. It answers the owner and visibility that were submitted:
+  // A refusal that carries a notice is shown under the visibility field, where the way out is, instead of a
+  // toast. It answers the owner and visibility that were submitted:
   // changing either clears it, and a refusal for a submission made before the change is ignored.
   const [visibilityNotice, setVisibilityNotice] = React.useState(null)
   const submission = React.useRef(0)

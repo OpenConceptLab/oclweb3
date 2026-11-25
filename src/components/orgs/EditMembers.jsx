@@ -138,7 +138,7 @@ const EditMembers = ({onClose, org, members, onSaved}) => {
     busy.current = true
     setSaving(true)
     const { member, action, error, notice } = await updateMember(change)
-    // a refusal that carries a notice (a limit on members) opens it; any other error is a toast
+    // a refusal that carries a notice opens it; any other error is a toast
     if(notice)
       setRefusalNotice(notice)
     else if(error)
