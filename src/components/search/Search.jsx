@@ -40,7 +40,7 @@ import { getTransformAddGroups, getTransformOutcome } from '../collections/refer
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutlined'
 import GAService from '../../services/GAService'
 import QuotaDialog from '../common/QuotaDialog'
-import { showRefusalNotice } from '../common/LimitNotice'
+import { showRefusalNotice, takeRefusalNotice } from '../common/LimitNotice'
 import { LockableMenuItem, LockTooltip, useNoticeLocks } from '../common/NoticeLocks'
 import LockIcon from '@mui/icons-material/LockOutlined'
 import { getQuotaError } from '../common/quotaErrors'
@@ -526,8 +526,11 @@ const Search = props => {
     let _filters = omit(params, ['q', 'page', 'page_number', 'page_size', 'limit', 'offset', 'includeSearchMeta', 'verbose', 'order', 'orderBy', 'sortAsc', 'sortDesc', 'display', 'type', 'onlyHierarchyRoot', 'includeRetired'])
     const payload = {rows: [{name: params.q}], target_repo_url: contextRepo?.version_url, filter: _filters || {}}
     APIService.new().overrideURL('/concepts/$match/').post(payload, null, null, {verbose: true, includeSearchMeta: true, semantic: true, reranker: true, ...params}).then(response => {
-      if(requestId !== latestListRequest.current)
+      // a later search replaced this one, but a notice its refusal carries still refreshes the notice strips
+      if(requestId !== latestListRequest.current) {
+        takeRefusalNotice(response)
         return
+      }
       const limitError = getQuotaError(response)
       if(limitError) {
         setQuotaError(limitError)
