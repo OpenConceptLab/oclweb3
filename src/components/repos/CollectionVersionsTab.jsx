@@ -543,6 +543,8 @@ const CollectionVersionsTab = ({
       setRebuildExpansion(current => closeIfShowing(current, expansion.url));
       const outcome = getRebuildOutcome(response);
       setAlert({ severity: outcome.severity, message: outcome.detail || t(outcome.messageKey) });
+      // the 204 answers once the rebuild ran, so what it's locked to is read again even if it was marked done early
+      if (outcome.severity === 'success') forgetRepoUpdates(expansion.url);
       if (outcome.refresh) refreshSelectedExpansions(expansion.__version);
       else setProcessingStatusByExpansion(prev => withoutExpansionState(prev, expansion.url));
     });

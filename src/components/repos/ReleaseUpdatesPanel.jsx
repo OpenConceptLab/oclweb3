@@ -32,12 +32,14 @@ const linkSx = {
 // an inline icon, so text around it keeps its own spacing
 const iconSx = fontSize => ({ fontSize, verticalAlign: 'middle', ml: '2px' });
 
-// a disabled button gets no hover, so the span carries the reason, as the expansion menu shows it
+// a disabled button gets no hover, so the span carries the reason; always rendered, so the button never remounts
 const WhileProcessing = ({ processing, children }) => {
   const { t } = useTranslation();
-  return processing ? (
-    <Tooltip title={t('repo.action_disabled_while_processing')}><span>{children}</span></Tooltip>
-  ) : children;
+  return (
+    <Tooltip title={processing ? t('repo.action_disabled_while_processing') : ''}>
+      <span style={{ display: 'inline-flex' }}>{children}</span>
+    </Tooltip>
+  );
 };
 
 const lineSx = { fontSize: '12px', mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap', ...linkSx };
