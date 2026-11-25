@@ -1103,6 +1103,16 @@
       "reason_ambiguous_members_many": "{{count}} membros são avaliados de forma diferente por referências diferentes",
       "reason_unattributed_members_many": "{{count}} membros não são explicados por nenhuma referência",
       "hidden_versions_many": "Mais {{count}} pertencem a outro proprietário e são privadas"
+    },
+    "release_updates": {
+      "case_head": "Bloqueada em HEAD, e já existe uma versão publicada:",
+      "case_retired": "Bloqueada em uma versão publicada descontinuada:",
+      "case_newer": "Existe uma versão publicada mais recente:",
+      "lock_stays": "O bloqueio permanece nessas versões até que esta expansão seja reconstruída.",
+      "compare_first": "Crie primeiro uma expansão similar e compare as duas antes de reconstruir.",
+      "released_nudge": "Esta versão da coleção está publicada. Reconstruí-la muda o seu conteúdo. Para mantê-la como está, reconstrua a expansão de HEAD e depois crie uma nova versão a partir de HEAD com Fixar versões de repositório.",
+      "compare_with": "Comparar com {{mnemonic}}",
+      "case_unreleased": "Bloqueada em uma versão que não está publicada:"
     }
   },
   "org": {

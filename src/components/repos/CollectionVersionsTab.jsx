@@ -66,6 +66,7 @@ import ExpansionDetailsDialog from './ExpansionDetailsDialog';
 import ExpansionRowList from './ExpansionRowList';
 import ExpansionHealthChip from './ExpansionHealthChip';
 import { getVersionHealthStatus } from './expansionHealth';
+import { getDeletedLocks, getReleaseUpdates } from './releaseUpdates';
 import ExternalExportsDialog from './ExternalExportsDialog';
 import ClearProcessingDialog from './ClearProcessingDialog';
 import ProcessingFlag from './ProcessingFlag';
@@ -341,7 +342,7 @@ const CollectionVersionsTab = ({
       const defaultExpansion = getDefaultExpansion(version);
       if (defaultExpansion) fetchResolvedRepoUpdates(version, defaultExpansion);
     });
-  }, [displayVersions, expansionsByVersion, fetchResolvedRepoUpdates, getDefaultExpansion]);
+  }, [displayVersions, expansionsByVersion, fetchResolvedRepoUpdates, getDefaultExpansion, repoUpdatesByExpansion]);
 
   // Auto-expand any row whose default expansion has something worth flagging
   // (resolved repo updates available, or stale) so the warning isn't hidden a click away.
@@ -351,7 +352,7 @@ const CollectionVersionsTab = ({
       const defaultExpansion = getDefaultExpansion(version);
       if (!defaultExpansion) return;
       const updates = repoUpdatesByExpansion[defaultExpansion.url];
-      const hasUpdates = hasAccess && updates && Object.keys(updates).length > 0;
+      const hasUpdates = hasAccess && (getReleaseUpdates(defaultExpansion, updates).length > 0 || Boolean(getDeletedLocks(defaultExpansion)));
       if (hasUpdates || isStaleExpansion(defaultExpansion)) toExpand.push(getVersionKey(version));
     });
     if (!toExpand.length) return;
@@ -369,7 +370,8 @@ const CollectionVersionsTab = ({
       if (!version) return;
       (expansionsByVersion[versionKey] || []).forEach(expansion => fetchResolvedRepoUpdates(version, expansion));
     });
-  }, [expandedVersionKeys, expansionsByVersion, displayVersions, fetchResolvedRepoUpdates]);
+    // repoUpdatesByExpansion: a rebuilt expansion's updates, once forgotten, are fetched again
+  }, [expandedVersionKeys, expansionsByVersion, displayVersions, fetchResolvedRepoUpdates, repoUpdatesByExpansion]);
 
   React.useEffect(() => {
     if (handledDeepLinkRef.current) return;
@@ -417,6 +419,12 @@ const CollectionVersionsTab = ({
     });
   }, [clearProcessedCleanup]);
 
+  // a rebuild keeps the expansion's URL, so what it was locked to is read again once it finishes
+  const forgetRepoUpdates = React.useCallback(url => {
+    fetchedRepoUpdatesRef.current.delete(url);
+    setRepoUpdatesByExpansion(prev => withoutExpansionState(prev, url));
+  }, []);
+
   const markExpansionProcessed = React.useCallback((url, onlyIfTracked = false) => {
     if (!url) return;
     const currentState = processingStatusRef.current[url]?.state;
@@ -424,6 +432,7 @@ const CollectionVersionsTab = ({
       clearProcessingPoll(url);
       return;
     }
+    forgetRepoUpdates(url);
     clearProcessingPoll(url);
     clearProcessedCleanup(url);
     setProcessingStatusByExpansion(prev => ({ ...prev, [url]: { state: 'processed', processedAt: Date.now() } }));
@@ -436,7 +445,7 @@ const CollectionVersionsTab = ({
       });
       delete processedCleanupRef.current[url];
     }, PROCESSED_CHIP_FADE_MS);
-  }, [clearProcessedCleanup, clearProcessingPoll]);
+  }, [clearProcessedCleanup, clearProcessingPoll, forgetRepoUpdates]);
 
   React.useEffect(() => () => {
     Object.keys(processingPollsRef.current).forEach(clearProcessingPoll);
@@ -536,6 +545,8 @@ const CollectionVersionsTab = ({
       setRebuildExpansion(current => closeIfShowing(current, expansion.url));
       const outcome = getRebuildOutcome(response);
       setAlert({ severity: outcome.severity, message: outcome.detail || t(outcome.messageKey) });
+      // the 204 answers once the rebuild ran, so what it's locked to is read again even if it was marked done early
+      if (outcome.severity === 'success') forgetRepoUpdates(expansion.url);
       if (outcome.refresh) refreshSelectedExpansions(expansion.__version);
       else setProcessingStatusByExpansion(prev => withoutExpansionState(prev, expansion.url));
     });
@@ -744,7 +755,9 @@ const CollectionVersionsTab = ({
     const versionLoading = loadingByVersion[versionKey] && !versionExpansions.length;
     const defaultExpansion = getDefaultExpansion(version);
     const expansionUpdates = defaultExpansion ? repoUpdatesByExpansion[defaultExpansion.url] : null;
-    const hasRepoUpdates = hasAccess && expansionUpdates && Object.keys(expansionUpdates).length > 0;
+    const hasReleaseUpdates = hasAccess && getReleaseUpdates(defaultExpansion, expansionUpdates).length > 0;
+    const deletedLocks = hasAccess ? getDeletedLocks(defaultExpansion) : null;
+    const hasRepoUpdates = hasReleaseUpdates || Boolean(deletedLocks);
     const stale = isStaleExpansion(defaultExpansion);
     // only the version's own default expansion carries its health
     const healthExpansion = defaultExpansion?.url === version.expansion_url ? defaultExpansion : null;
@@ -828,7 +841,7 @@ const CollectionVersionsTab = ({
           </TableCell>
           <TableCell sx={{ ...bodyCellSx, width: '1%' }}>
             {showWarning && (
-              <Tooltip title={hasRepoUpdates ? t('repo.resolved_repo_updates_available') : t('repo.stale')}>
+              <Tooltip title={hasReleaseUpdates ? t('repo.resolved_repo_updates_available') : (deletedLocks ? t('repo.expansion_health.reason_locked_version_deleted', { count: deletedLocks.count }) : t('repo.stale'))}>
                 <IconButton
                   size="small"
                   onClick={() => defaultExpansion && setRebuildExpansion({ ...defaultExpansion, __version: version })}
@@ -864,6 +877,12 @@ const CollectionVersionsTab = ({
                   onSelectExpansion={expansion => setDetailsExpansion(expansion)}
                   onOpenExpansionMenu={(event, expansion) => openExpansionMenu(event, version, expansion)}
                   onRebuild={expansion => setRebuildExpansion({ ...expansion, __version: version })}
+                  onCreateSimilar={expansion => {
+                    GAService.recordActionEvent('Expansion', 'create_similar_expansion', expansion.mnemonic || expansion.url, { expansion: expansion.url });
+                    setExpansionFormState({ open: true, version, copyFrom: expansion });
+                  }}
+                  version={version}
+                  canEdit={hasAccess}
                 />
               </Box>
             </Collapse>

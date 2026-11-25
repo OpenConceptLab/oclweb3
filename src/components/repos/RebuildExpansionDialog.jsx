@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import GAService from "../../services/GAService";
 import Dialog from "../common/Dialog";
 import DialogTitle from "../common/DialogTitle";
+import { isReleasedCollectionVersion } from "./releaseUpdates";
 
 const RebuildExpansionDialog = ({
   expansion,
@@ -26,6 +27,13 @@ const RebuildExpansionDialog = ({
         <br />
         <br />
         {t("repo.rebuild_expansion_compare_message")}
+        {isReleasedCollectionVersion(expansion.__version) && (
+          <>
+            <br />
+            <br />
+            <strong>{t("repo.release_updates.released_nudge")}</strong>
+          </>
+        )}
       </DialogContent>
       <DialogActions sx={{ padding: "24px 0 0 0" }}>
         <MuiButton
