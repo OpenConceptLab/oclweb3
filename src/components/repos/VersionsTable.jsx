@@ -24,6 +24,7 @@ import { formatDate, hasAccessToURL } from '../../common/utils'
 import { SURFACE_COLORS, BLACK } from '../../common/colors'
 import Button from '../common/Button';
 import ProcessingFlag from './ProcessingFlag';
+import VerifiedChip from './VerifiedChip';
 import { isSameVersion, hasMultipleExpansions, isCollectionURL } from './versionsTab.styles';
 
 const normalizeVersions = versions => {
@@ -33,7 +34,7 @@ const normalizeVersions = versions => {
   return []
 }
 
-const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onVersionChange, originVersion }) => {
+const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onVersionChange, onNavigate, originVersion }) => {
   const { t } = useTranslation()
   const isPublic = ['view', 'edit'].includes(version.public_access?.toLowerCase())
   const tooltip = originVersion ? t('repo.compare_origin_version_disabled_tooltip') : t('repo.compare_destination_version_disabled_tooltip')
@@ -57,6 +58,7 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
         }, (checkbox ? {} : {borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px'})]} onClick={isDisabled ? undefined : () => onVersionChange(version)}>
           {version.id}
           <ProcessingFlag entity={version} showLabel={false} sx={{ ml: 1 }} />
+          <VerifiedChip version={version} sx={{ ml: 1 }} onNavigate={onNavigate} />
           {
             version?.match_algorithms?.includes('llm') &&
               <Tooltip title={t('repo.version.vectorized_for_mapper')}>
@@ -71,14 +73,14 @@ const Row = ({ version, disabled, checkbox, bodyCellStyle, onCheck, checked, onV
         <span style={{display: 'flex', alignItems: 'center'}}>
           {
             isNumber(version?.summary?.active_concepts) &&
-              <span style={{marginRight: '8px', display: 'flex', alignItems: 'center'}}>
+              <span title={t('concept.active_concepts')} style={{marginRight: '8px', display: 'flex', alignItems: 'center'}}>
                 <ConceptIcon selected color='secondary' sx={{width: '1rem', height: '1rem', marginRight: '4px'}} />
                 {version.summary.active_concepts.toLocaleString()}
               </span>
           }
           {
             isNumber(version?.summary?.active_mappings) &&
-              <span style={{display: 'flex', alignItems: 'center'}}>
+              <span title={t('mapping.active_mappings')} style={{display: 'flex', alignItems: 'center'}}>
                 <MappingIcon width="15px" height='13px' fill='secondary.main' color='secondary' sx={{width: '15px', height: '13px', marginRight: '4px'}} />
                 {version.summary.active_mappings.toLocaleString()}
               </span>
@@ -128,7 +130,7 @@ const SkeletonRow = ({ checkbox, bgColor }) => (
   </TableRow>
 )
 
-const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabledFrom, disabledUntil, originVersion, loading, hasMore, loadingMore, onLoadMore }) => {
+const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabledFrom, disabledUntil, originVersion, loading, hasMore, loadingMore, onLoadMore, onNavigate }) => {
   const { t } = useTranslation()
   const history = useHistory()
   const [checked, setChecked] = React.useState([])
@@ -215,6 +217,7 @@ const VersionsTable = ({ selected, versions, onChange, bgColor, checkbox, disabl
                     onCheck={onCheck}
                     checked={checked}
                     onVersionChange={disabled ? () => {} : onChange}
+                    onNavigate={onNavigate}
                     originVersion={originVersion}
                   />
                 )

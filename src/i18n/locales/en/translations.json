@@ -274,6 +274,7 @@
     "concept": "Concept",
     "concepts": "Concepts",
     "retired_concepts": "Retired Concepts",
+    "active_concepts": "Active Concepts",
     "display_name": "Display Name",
     "concept_class": "Concept Class",
     "datatype": "Datatype",
@@ -354,6 +355,7 @@
     "mappings": "Mappings",
     "same_as_mappings": "Mappings (SAME-AS)",
     "retired_mappings": "Retired Mappings",
+    "active_mappings": "Active Mappings",
     "fromConcept": "From concept",
     "toConcept": "Target Concept",
     "fromConceptName": "From concept name",
@@ -657,6 +659,8 @@
     "compare_destination_version_disabled_tooltip": "You must select a newer version to compare",
     "summary_active_concepts_from_total": "{{active}} active concepts ({{retired}} retired)",
     "summary_active_mappings_from_total": "{{active}} active mappings ({{retired}} retired)",
+    "summary_concepts_with_retired": "{{total}} concepts ({{retired}} retired)",
+    "summary_mappings_with_retired": "{{total}} mappings ({{retired}} retired)",
     "summary_released_versions_from_total": "{{released}} released versions ({{unreleased}} unreleased)",
     "summary_concepts_references": "{{count}} concept references",
     "summary_mappings_references": "{{count}} mapping references",
@@ -978,6 +982,78 @@
     "export_not_ready_tooltip": "Export is still being generated for this version",
     "expansion_processing_tooltip": "This expansion is still being built",
     "suggested_sources": "Suggested Sources",
+    "about_tab": {
+      "on_this_page": "On this page",
+      "verification": "Verification",
+      "overview": "Overview",
+      "source": "Source and license",
+      "link_to_section": "Link to the {{section}} section",
+      "release_value": "{{version}}, released on {{date}}",
+      "fields": {
+        "publisher": "Publisher",
+        "formal_name": "Formal name",
+        "contact": "Contact",
+        "website": "Website",
+        "canonical_url": "Canonical URL",
+        "oid": "OID",
+        "release": "Release",
+        "copyright": "Copyright",
+        "hierarchy": "Hierarchy"
+      },
+      "hierarchy_meaning": {
+        "grouped-by": "Grouped by",
+        "is-a": "Is a",
+        "part-of": "Part of",
+        "classified-with": "Classified with"
+      }
+    },
+    "verification": {
+      "verified": "Verified",
+      "heading": "Verified Repo Version",
+      "chip_tooltip": "This repo version matches the publisher's official release. Select to see how it was verified.",
+      "what_verified_means": "What Verified means",
+      "headline": "This repo version matches the publisher's official release.",
+      "detail": "Its content was compared with the publisher's release, entry by entry, and passed every check below.",
+      "publisher": "Publisher",
+      "release": "Release",
+      "verified_at": "Verified",
+      "checks_label": "Verification checks",
+      "passed": "Passed",
+      "verification_notes": "Reviewed and accepted differences from the publisher's release",
+      "process": "Process",
+      "record": "Record",
+      "copy_record": "Copy the record's SHA-256",
+      "record_copied": "Copied the record's SHA-256",
+      "fine_print": "Verified is not an endorsement by the publisher.",
+      "what_verified_covers": "What Verified covers",
+      "checks": {
+        "from-the-publisher": {
+          "title": "From the publisher",
+          "line": "Loaded from the publisher's own release"
+        },
+        "license-and-citation": {
+          "title": "License and citation",
+          "line": "The publisher's license and citation are on this repository and in every export"
+        },
+        "correctly-identified": {
+          "title": "Correctly identified",
+          "line": "Name, canonical URL and version match the publisher's"
+        },
+        "complete": {
+          "title": "Complete",
+          "line": "Every entry in the release is here"
+        },
+        "differences-listed": {
+          "title": "Differences listed",
+          "line": "Every difference from the publisher's release is listed below",
+          "line_no_changes": "No differences from the publisher's release were found"
+        },
+        "checked-independently": {
+          "title": "Checked independently",
+          "line": "Rerun from the saved release, then reviewed and approved"
+        }
+      }
+    },
     "seeded_from": "Seeded From",
     "seeded_from_import": "Import",
     "expansion_health": {
@@ -1154,6 +1230,7 @@
     "orgs": "Organizations",
     "users": "Users",
     "sort_by": "Sort By",
+    "include_retired": "Include Retired",
     "display": "Display",
     "loading": "Refining your search results...",
     "no_results": "We could not find any matches for ",
