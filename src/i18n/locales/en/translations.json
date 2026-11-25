@@ -1048,7 +1048,6 @@
       "compare_with": "Compare with {{mnemonic}}",
       "case_unreleased": "Locked to a version that isn't released:",
       "pinned_reference": "A reference names this version, or a concept or mapping version in it. A rebuild keeps a version a reference names; one reached through a concept or mapping version can still move.",
-      "pinned_reference_retired": "A reference names this version, which is retired. A rebuild may not keep a retired version, so change the reference if it matters which version it uses.",
       "pinned_system_version": "The expansion's system-version parameter names this version, so a rebuild keeps it. Create an expansion without that entry to move it.",
       "pinned_lock": "This collection version was created with Lock repo versions, so a rebuild keeps this value set version. Create a new expansion to move it."
     }

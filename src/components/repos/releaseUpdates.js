@@ -42,16 +42,16 @@ const trimSlash = url => (url || '').replace(/\/$/, '')
 // a canonical URL only a URL registry maps to the repository isn't matched
 const isNamedInSystemVersion = (entries, oldURL, recorded) => entries.some(entry => {
   const index = entry.lastIndexOf('|')
-  // a version's own URL stops resolving once it's retired, and a repository's bare URL resolves again
-  if(index < 0) return !recorded?.retired && !isHeadURL(`${trimSlash(entry)}/`) && trimSlash(entry) === trimSlash(oldURL)
+  // an entry can also be a repository version's own URL; a repository's bare URL resolves again
+  if(index < 0) return !isHeadURL(`${trimSlash(entry)}/`) && trimSlash(entry) === trimSlash(oldURL)
   const [url, version] = [entry.slice(0, index), entry.slice(index + 1)]
   const urls = [dropVersion(oldURL), recorded?.canonical_url, recorded?.url].filter(Boolean)
   return Boolean(recorded?.version) && version === recorded.version && urls.some(candidate => trimSlash(candidate) === trimSlash(url))
 })
 
 // [{oldURL, newURL, case, pinned}] from resolved-repo-updates ({recorded URL: latest URL}), HEAD and retired first.
-// pinned says what holds it: a reference (a rebuild may still move one reached through a resource version, or a
-// retired one), system-version, or a lock-built expansion's value-set lock
+// pinned says what holds it: a reference (a rebuild may still move one reached through a resource version),
+// system-version, or a lock-built expansion's value-set lock
 export const getReleaseUpdates = (expansion, repoUpdates) => {
   const explicit = byURL(expansion, EXPLICIT_RELATIONS)
   const evaluated = byURL(expansion, EVALUATED_RELATIONS)
@@ -63,8 +63,7 @@ export const getReleaseUpdates = (expansion, repoUpdates) => {
     .map(([oldURL, newURL]) => {
       const recorded = evaluated[oldURL] || explicit[oldURL]
       let pinned = null
-      // a retired version a reference names by its URL stops resolving, so that one isn't promised
-      if(explicit[oldURL] && !evaluated[oldURL]) pinned = recorded?.retired ? 'reference_retired' : 'reference'
+      if(explicit[oldURL] && !evaluated[oldURL]) pinned = 'reference'
       else if(isNamedInSystemVersion(systemVersions, oldURL, recorded)) pinned = 'system_version'
       else if(keptValueSets[oldURL]) pinned = 'lock'
       return {oldURL, newURL, case: getCase(oldURL, newURL, recorded), pinned}

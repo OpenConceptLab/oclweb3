@@ -63,9 +63,9 @@ test("a version a reference names, or reaches through a resource version, is hel
   // listed as both: unversioned references resolved to it too, so a rebuild can move those
   const both = {...expansion, evaluated_source_versions: [{version_url: OTHER_V1, version: 'v1', released: true}]}
   assert.equal(getReleaseUpdates(both, {[OTHER_V1]: OTHER_V3})[0].pinned, null)
-  // a retired one may not resolve on a rebuild, so nothing is promised, and it still gets no rebuild advice
+  // a retired one too: a rebuild resolves a version a reference names, retired or not
   const retired = {...expansion, explicit_source_versions: [{version_url: OTHER_V1, version: 'v1', released: true, retired: true}]}
-  assert.equal(getReleaseUpdates(retired, {[OTHER_V1]: OTHER_V3})[0].pinned, 'reference_retired')
+  assert.equal(getReleaseUpdates(retired, {[OTHER_V1]: OTHER_V3})[0].pinned, 'reference')
   assert.deepEqual(getMovableUpdates(retired, {[OTHER_V1]: OTHER_V3}), [])
 })
 
@@ -78,10 +78,10 @@ test('a version the system-version parameter names is pinned, by relative or can
   assert.equal(getReleaseUpdates(locked('https://example.org/T|v9, https://example.org/S|v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, 'system_version')
   assert.equal(getReleaseUpdates(locked('https://example.org/S|v0'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, null)
   assert.equal(getReleaseUpdates(locked(''), {[SOURCE_V1]: SOURCE_V2})[0].pinned, null)
-  // an entry can be the repository version's own URL, which stops resolving once that version is retired
+  // an entry can be the repository version's own URL, which still resolves once that version is retired
   assert.equal(getReleaseUpdates(locked('/orgs/O/sources/S/v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, 'system_version')
   const retired = entry => ({...locked(entry), evaluated_source_versions: [{...locked(entry).evaluated_source_versions[0], retired: true}]})
-  assert.equal(getReleaseUpdates(retired('/orgs/O/sources/S/v1/'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, null)
+  assert.equal(getReleaseUpdates(retired('/orgs/O/sources/S/v1/'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, 'system_version')
   assert.equal(getReleaseUpdates(retired('/orgs/O/sources/S/|v1'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, 'system_version')
   assert.equal(getReleaseUpdates(locked('/orgs/O/sources/S/v0/'), {[SOURCE_V1]: SOURCE_V2})[0].pinned, null)
   // a repository's bare URL resolves again on a rebuild, so a HEAD lock it names still moves
@@ -167,7 +167,7 @@ test("the compare page picks each side's expansion from the URL, then the versio
 test('every rebuild-offer string is in each language', async () => {
   const keys = [
     ...Object.values(UPDATE_CASES),
-    ...['lock_stays', 'compare_first', 'released_nudge', 'compare_with', 'pinned_reference', 'pinned_reference_retired', 'pinned_system_version', 'pinned_lock'].map(key => `repo.release_updates.${key}`),
+    ...['lock_stays', 'compare_first', 'released_nudge', 'compare_with', 'pinned_reference', 'pinned_system_version', 'pinned_lock'].map(key => `repo.release_updates.${key}`),
   ]
   for(const locale of ['en', 'es', 'pt-BR', 'zh']) {
     const translation = JSON.parse(
