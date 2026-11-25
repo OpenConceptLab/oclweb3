@@ -30,6 +30,27 @@ test('the kept references are the originals of the replacements that resolved to
   assert.equal(getKeptReferencesLabel(undefined, undefined), '')
 })
 
+test('a long kept list names the first five, then how many more, in each language', async () => {
+  const many = Array.from({ length: 8 }, (_, index) => ({
+    proposedExpression: `/orgs/O/sources/S/concepts/${index}/`,
+    reference: { id: index, expression: `/orgs/O/sources/S/v1/concepts/${index}/` },
+  }))
+  const unresolved = many.map(item => item.proposedExpression)
+  const shown = many.slice(0, 5).map(item => item.reference.expression).join(', ')
+  for(const locale of LOCALES) {
+    const i18n = await translator(locale)
+    const t = i18n.t.bind(i18n)
+    const label = getKeptReferencesLabel(many, unresolved, t)
+    assert.ok(label.startsWith(shown), `${locale}: ${label}`)
+    assert.ok(label.includes('3'), `${locale}: ${label}`)
+    assert.equal(label.includes(many[5].reference.expression), false, `${locale}: ${label}`)
+    assert.ok(!label.includes('{{'), `${locale}: ${label}`)
+    assert.equal(getKeptReferencesLabel(many.slice(0, 5), unresolved, t), shown)
+    if(locale === 'en')
+      assert.equal(label, `${shown} and 3 more`)
+  }
+})
+
 test('both Transform alerts name the kept references, slashes intact, in each language', async () => {
   const references = getKeptReferencesLabel(items, ['/orgs/O/sources/S/concepts/2/'])
   for(const locale of LOCALES) {

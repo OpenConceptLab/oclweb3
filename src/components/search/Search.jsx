@@ -698,7 +698,7 @@ const Search = props => {
     const unresolvedExpressions = outcomes.reduce((expressions, outcome) => [...expressions, ...outcome.unresolvedExpressions], [])
     // the expressions are the API's: React escapes them, so i18next mustn't as well
     const kept = {
-      references: getKeptReferencesLabel(groups.flatMap(group => group.items), unresolvedExpressions),
+      references: getKeptReferencesLabel(groups.flatMap(group => group.items), unresolvedExpressions, t),
       ...UNESCAPED,
     }
 

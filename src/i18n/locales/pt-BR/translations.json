@@ -478,6 +478,7 @@
     "transform_rollback_failed": "{{count}} referência(s) de substituição não resolveram para nada e não puderam ser removidas, então nenhuma original foi removida. Atualize e revise a lista de referências em busca de duplicatas.",
     "transform_partial_unresolved": "{{transformed}} referência(s) transformada(s). {{failed}} referência(s) foram mantidas sem alteração, {{unresolved}} delas porque a referência não versionada não resolveu para nada: {{references}}.",
     "transform_none_resolved": "Nenhuma referência foi transformada: {{count}} referência(s) não versionada(s) não resolveram para nada, então as originais foram mantidas: {{references}}.",
+    "transform_kept_more": "{{references}} e mais {{count}}",
     "already_non_versioned": "Já não versionado",
     "unsupported_transform": "Não suportado",
     "new_expression": "Nova expressão",

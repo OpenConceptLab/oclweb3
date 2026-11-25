@@ -1,4 +1,5 @@
 import { groupReferenceResults } from '../common/referenceResults.js'
+import { UNESCAPED } from './referenceConversionUtils.js'
 
 const RESOURCE_SEGMENTS = ['concepts', 'mappings']
 const REPO_SEGMENTS = ['sources', 'collections']
@@ -102,12 +103,19 @@ export const getTransformAddGroups = previewItems => {
   return Object.values(groups)
 }
 
-// The originals a transform kept because their replacement resolved to nothing, joined for an alert
-export const getKeptReferencesLabel = (items, unresolvedExpressions) => (items || [])
-  .filter(item => (unresolvedExpressions || []).includes(item.proposedExpression))
-  .map(item => item.reference?.expression)
-  .filter(Boolean)
-  .join(', ')
+const KEPT_REFERENCES_SHOWN = 5
+
+// The originals a transform kept because their replacement resolved to nothing, joined for an alert: the first few,
+// then how many more
+export const getKeptReferencesLabel = (items, unresolvedExpressions, t) => {
+  const expressions = (items || [])
+    .filter(item => (unresolvedExpressions || []).includes(item.proposedExpression))
+    .map(item => item.reference?.expression)
+    .filter(Boolean)
+  const shown = expressions.slice(0, KEPT_REFERENCES_SHOWN).join(', ')
+  const more = expressions.length - KEPT_REFERENCES_SHOWN
+  return more > 0 ? t('reference.transform_kept_more', { references: shown, count: more, ...UNESCAPED }) : shown
+}
 
 // For a transform's add response: the items whose replacement joined the collection, and the
 // expressions of replacements that were saved but resolved to nothing, to roll back
