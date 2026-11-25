@@ -7,7 +7,6 @@ import {
   WarningAmberOutlined as WarningIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import get from 'lodash/get';
 
 import ProcessingChip from '../common/ProcessingChip';
 import ProcessingFlag from './ProcessingFlag';
@@ -16,6 +15,7 @@ import { getDefaultExpansionHealthStatus } from './expansionHealth';
 import { isProcessing } from './processingStages';
 import { dropVersion, formatDate } from '../../common/utils';
 import { formatCount } from './versionsTab.styles';
+import { getExpansionCount } from './expansionCounts';
 
 // eslint-disable-next-line spellcheck/spell-checker
 const GRID_COLUMNS = 'minmax(200px, 1.4fr) minmax(160px, 1fr) minmax(160px, 1fr) 40px';
@@ -79,6 +79,14 @@ const ExpansionRowList = ({
   onRebuild
 }) => {
   const { t } = useTranslation();
+
+  // all members, and how many are retired once the API says (see expansionCounts.js)
+  const getCountText = (expansion, resource) => {
+    const count = getExpansionCount(expansion.summary, resource);
+    if (Number.isFinite(count.retired))
+      return t(`repo.summary_${resource}_with_retired`, { total: formatCount(count.total), retired: formatCount(count.retired) });
+    return `${formatCount(count.total)} ${t(`search.${resource}`).toLowerCase()}`;
+  };
 
   if (loading) {
     return (
@@ -158,9 +166,9 @@ const ExpansionRowList = ({
                   )}
                 </Stack>
                 <Typography sx={{ fontSize: '12px', color: 'secondary.main', mt: 0.25 }}>
-                  {formatCount(get(expansion, 'summary.active_concepts'))} {t('search.concepts').toLowerCase()}
+                  {getCountText(expansion, 'concepts')}
                   {' · '}
-                  {formatCount(get(expansion, 'summary.active_mappings'))} {t('search.mappings').toLowerCase()}
+                  {getCountText(expansion, 'mappings')}
                   {expansion.created_on ? ` · ${formatDate(expansion.created_on)}` : ''}
                 </Typography>
               </Box>

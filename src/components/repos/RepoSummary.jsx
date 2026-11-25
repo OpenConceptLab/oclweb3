@@ -49,13 +49,18 @@ const RepoSummary = ({ repo, summary, show, onShow }) => {
   const { setAlert } = React.useContext(OperationsContext);
   const [viewAll, setViewAll] = React.useState(false)
   const isSourceHEAD = (repo?.type || '').startsWith('Source') && (!repo?.version || repo.version === 'HEAD')
+  // A collection's retired members are there on purpose, so it counts all of them and says how
+  // many are retired; a source counts its active ones (ocl_issues#3057).
+  const isCollection = (repo?.type || '').startsWith('Collection')
 
   const repoSubType = repo?.source_type || repo?.collection_type
   const isLoaded = isEmpty(summary)
   const activeConcepts = isLoaded ? false : (summary?.concepts?.active || 0)
-  const totalConcepts = isLoaded ? false : ((summary?.concepts?.active || 0) + (summary?.concepts?.retired || 0))
+  const retiredConcepts = isLoaded ? false : (summary?.concepts?.retired || 0)
+  const totalConcepts = isLoaded ? false : (activeConcepts + retiredConcepts)
   const activeMappings = isLoaded ? false : (summary?.mappings?.active || 0)
-  const totalMappings = isLoaded ? false : ((summary?.mappings?.active || 0) + (summary?.mappings?.retired || 0))
+  const retiredMappings = isLoaded ? false : (summary?.mappings?.retired || 0)
+  const totalMappings = isLoaded ? false : (activeMappings + retiredMappings)
   const mapTypes = isLoaded ? false : (summary?.mappings?.map_type?.length || 0)
   const datatypes = isLoaded ? false : (summary?.concepts?.datatype?.length || 0)
   const conceptClasses = isLoaded ? false : (summary?.concepts?.concept_class?.length || 0)
@@ -145,8 +150,8 @@ const RepoSummary = ({ repo, summary, show, onShow }) => {
                 totalConcepts === false ?
                   <SkeletonText /> :
                   <Trans
-                    i18nKey='repo.summary_active_concepts_from_total'
-                    values={{active: activeConcepts?.toLocaleString(), retired: ((totalConcepts || 0) - (activeConcepts || 0))?.toLocaleString()}}
+                    i18nKey={isCollection ? 'repo.summary_concepts_with_retired' : 'repo.summary_active_concepts_from_total'}
+                    values={{total: totalConcepts.toLocaleString(), active: activeConcepts.toLocaleString(), retired: retiredConcepts.toLocaleString()}}
                   />
               }
               sx={{
@@ -163,8 +168,8 @@ const RepoSummary = ({ repo, summary, show, onShow }) => {
                 totalMappings === false ?
                   <SkeletonText /> :
                   <Trans
-                    i18nKey='repo.summary_active_mappings_from_total'
-                    values={{active: activeMappings?.toLocaleString(), retired: ((totalMappings || 0) - (activeMappings || 0))?.toLocaleString()}}
+                    i18nKey={isCollection ? 'repo.summary_mappings_with_retired' : 'repo.summary_active_mappings_from_total'}
+                    values={{total: totalMappings.toLocaleString(), active: activeMappings.toLocaleString(), retired: retiredMappings.toLocaleString()}}
                   />
               }
               sx={{

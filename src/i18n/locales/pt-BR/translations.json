@@ -273,6 +273,7 @@
     "concept": "Conceito",
     "concepts": "Conceitos",
     "retired_concepts": "Conceitos descontinuados",
+    "active_concepts": "Conceitos ativos",
     "display_name": "Nome de exibição",
     "concept_class": "Classe do conceito",
     "datatype": "Tipo de dado",
@@ -345,6 +346,7 @@
     "mappings": "Mapeamentos",
     "same_as_mappings": "Mapeamentos (SAME-AS)",
     "retired_mappings": "Mapeamentos descontinuados",
+    "active_mappings": "Mapeamentos ativos",
     "fromConcept": "Conceito de origem",
     "toConcept": "Conceito de destino",
     "fromConceptName": "Nome do conceito de origem",
@@ -647,6 +649,8 @@
     "compare_destination_version_disabled_tooltip": "Você deve selecionar uma versão mais nova para comparar",
     "summary_active_concepts_from_total": "{{active}} conceitos ativos ({{retired}} descontinuados)",
     "summary_active_mappings_from_total": "{{active}} mapeamentos ativos ({{retired}} descontinuados)",
+    "summary_concepts_with_retired": "{{total}} conceitos ({{retired}} descontinuados)",
+    "summary_mappings_with_retired": "{{total}} mapeamentos ({{retired}} descontinuados)",
     "summary_released_versions_from_total": "{{released}} versões publicadas ({{unreleased}} não publicadas)",
     "summary_concepts_references": "{{count}} referências de conceitos",
     "summary_mappings_references": "{{count}} referências de mapeamentos",
@@ -955,6 +959,78 @@
     "export_not_ready_tooltip": "Exportação ainda está sendo gerada para esta versão",
     "expansion_processing_tooltip": "Esta expansão ainda está sendo construída",
     "suggested_sources": "Sources sugeridos",
+    "about_tab": {
+      "on_this_page": "Nesta página",
+      "verification": "Verificação",
+      "overview": "Visão geral",
+      "source": "Origem e licença",
+      "link_to_section": "Link para a seção {{section}}",
+      "release_value": "{{version}}, publicada em {{date}}",
+      "fields": {
+        "publisher": "Editor",
+        "formal_name": "Nome formal",
+        "contact": "Contato",
+        "website": "Site",
+        "canonical_url": "URL canônica",
+        "oid": "OID",
+        "release": "Versão publicada",
+        "copyright": "Direitos autorais",
+        "hierarchy": "Hierarquia"
+      },
+      "hierarchy_meaning": {
+        "grouped-by": "Agrupado por",
+        "is-a": "É um",
+        "part-of": "Parte de",
+        "classified-with": "Classificado com"
+      }
+    },
+    "verification": {
+      "verified": "Verificado",
+      "heading": "Versão do repositório verificada",
+      "chip_tooltip": "Esta versão do repositório corresponde à versão oficial do editor. Selecione para ver como foi verificada.",
+      "what_verified_means": "O que significa Verificado",
+      "headline": "Esta versão do repositório corresponde à versão oficial do editor.",
+      "detail": "Seu conteúdo foi comparado com a versão do editor, entrada por entrada, e passou em todas as verificações abaixo.",
+      "publisher": "Editor",
+      "release": "Versão",
+      "verified_at": "Verificado em",
+      "checks_label": "Verificações",
+      "passed": "Aprovado",
+      "verification_notes": "Diferenças em relação à versão do editor, revisadas e aceitas",
+      "process": "Processo",
+      "record": "Registro",
+      "copy_record": "Copiar o SHA-256 do registro",
+      "record_copied": "SHA-256 do registro copiado",
+      "fine_print": "Verificado não é um endosso do editor.",
+      "what_verified_covers": "O que Verificado abrange",
+      "checks": {
+        "from-the-publisher": {
+          "title": "Do editor",
+          "line": "Carregado da própria publicação do editor"
+        },
+        "license-and-citation": {
+          "title": "Licença e citação",
+          "line": "A licença e a citação do editor estão neste repositório e em toda exportação"
+        },
+        "correctly-identified": {
+          "title": "Identificado corretamente",
+          "line": "Nome, URL canônica e versão correspondem aos do editor"
+        },
+        "complete": {
+          "title": "Completo",
+          "line": "Todas as entradas da versão estão aqui"
+        },
+        "differences-listed": {
+          "title": "Diferenças listadas",
+          "line": "Toda diferença em relação à versão do editor está listada abaixo",
+          "line_no_changes": "Nenhuma diferença em relação à versão do editor foi encontrada"
+        },
+        "checked-independently": {
+          "title": "Verificado de forma independente",
+          "line": "Reexecutado a partir da versão salva, depois revisado e aprovado"
+        }
+      }
+    },
     "seeded_from": "Criada a partir de",
     "seeded_from_import": "Importação",
     "expansion_health": {
@@ -1130,6 +1206,7 @@
     "orgs": "Organizações",
     "users": "Usuários",
     "sort_by": "Ordenar por",
+    "include_retired": "Incluir descontinuados",
     "display": "Exibir",
     "loading": "Refinando seus resultados de busca...",
     "no_results": "Não encontramos correspondências para ",
