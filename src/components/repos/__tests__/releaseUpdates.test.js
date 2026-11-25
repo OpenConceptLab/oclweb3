@@ -63,6 +63,10 @@ test("a version a reference names, or reaches through a resource version, is hel
   // listed as both: unversioned references resolved to it too, so a rebuild can move those
   const both = {...expansion, evaluated_source_versions: [{version_url: OTHER_V1, version: 'v1', released: true}]}
   assert.equal(getReleaseUpdates(both, {[OTHER_V1]: OTHER_V3})[0].pinned, null)
+  // a retired one may not resolve on a rebuild, so nothing is promised, and it still gets no rebuild advice
+  const retired = {...expansion, explicit_source_versions: [{version_url: OTHER_V1, version: 'v1', released: true, retired: true}]}
+  assert.equal(getReleaseUpdates(retired, {[OTHER_V1]: OTHER_V3})[0].pinned, 'reference_retired')
+  assert.deepEqual(getMovableUpdates(retired, {[OTHER_V1]: OTHER_V3}), [])
 })
 
 test('a version the system-version parameter names is pinned, by relative or canonical URL', () => {
@@ -163,7 +167,7 @@ test("the compare page picks each side's expansion from the URL, then the versio
 test('every rebuild-offer string is in each language', async () => {
   const keys = [
     ...Object.values(UPDATE_CASES),
-    ...['lock_stays', 'compare_first', 'released_nudge', 'compare_with', 'pinned_reference', 'pinned_system_version', 'pinned_lock'].map(key => `repo.release_updates.${key}`),
+    ...['lock_stays', 'compare_first', 'released_nudge', 'compare_with', 'pinned_reference', 'pinned_reference_retired', 'pinned_system_version', 'pinned_lock'].map(key => `repo.release_updates.${key}`),
   ]
   for(const locale of ['en', 'es', 'pt-BR', 'zh']) {
     const translation = JSON.parse(

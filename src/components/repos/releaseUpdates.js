@@ -50,8 +50,8 @@ const isNamedInSystemVersion = (entries, oldURL, recorded) => entries.some(entry
 })
 
 // [{oldURL, newURL, case, pinned}] from resolved-repo-updates ({recorded URL: latest URL}), HEAD and retired first.
-// pinned says what holds it: a reference (a rebuild may still move one reached through a resource version),
-// system-version, or a lock-built expansion's value-set lock
+// pinned says what holds it: a reference (a rebuild may still move one reached through a resource version, or a
+// retired one), system-version, or a lock-built expansion's value-set lock
 export const getReleaseUpdates = (expansion, repoUpdates) => {
   const explicit = byURL(expansion, EXPLICIT_RELATIONS)
   const evaluated = byURL(expansion, EVALUATED_RELATIONS)
@@ -63,7 +63,8 @@ export const getReleaseUpdates = (expansion, repoUpdates) => {
     .map(([oldURL, newURL]) => {
       const recorded = evaluated[oldURL] || explicit[oldURL]
       let pinned = null
-      if(explicit[oldURL] && !evaluated[oldURL]) pinned = 'reference'
+      // a retired version a reference names by its URL stops resolving, so that one isn't promised
+      if(explicit[oldURL] && !evaluated[oldURL]) pinned = recorded?.retired ? 'reference_retired' : 'reference'
       else if(isNamedInSystemVersion(systemVersions, oldURL, recorded)) pinned = 'system_version'
       else if(keptValueSets[oldURL]) pinned = 'lock'
       return {oldURL, newURL, case: getCase(oldURL, newURL, recorded), pinned}
