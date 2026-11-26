@@ -64,6 +64,8 @@ import EntityAttributesDialog from '../common/EntityAttributesDialog';
 import ExpansionForm from './ExpansionForm';
 import ExpansionDetailsDialog from './ExpansionDetailsDialog';
 import ExpansionRowList from './ExpansionRowList';
+import ExpansionHealthChip from './ExpansionHealthChip';
+import { getVersionHealthStatus } from './expansionHealth';
 import ExternalExportsDialog from './ExternalExportsDialog';
 import ClearProcessingDialog from './ClearProcessingDialog';
 import ProcessingFlag from './ProcessingFlag';
@@ -201,6 +203,8 @@ const CollectionVersionsTab = ({
   const [expansionMenu, setExpansionMenu] = React.useState({ anchorEl: null, version: null, expansion: null });
 
   const fetchedRepoUpdatesRef = React.useRef(new Set());
+  const loadedVersionsOnceRef = React.useRef(false);
+  const refreshedVersionsRef = React.useRef(false);
   const processingStatusRef = React.useRef({});
   const processingPollsRef = React.useRef({});
   const processedCleanupRef = React.useRef({});
@@ -219,6 +223,9 @@ const CollectionVersionsTab = ({
       .get(null, null, { verbose: true, includeSummary: true, limit: nextPageSize, page: nextPage, includeExternalExports: true, ...PROCESSING_QUERY_PARAMS })
       .then(response => {
         const _versions = Array.isArray(response?.data) ? response.data : [];
+        // a later load (refresh or another page) re-reads cached expansions; the first load fetches them anyway
+        refreshedVersionsRef.current = loadedVersionsOnceRef.current;
+        loadedVersionsOnceRef.current = true;
         setVersions(_versions);
         setTotalCount(parseInt(response?.headers?.['num_found'] || _versions.length || 0));
       })
@@ -280,8 +287,10 @@ const CollectionVersionsTab = ({
       .appendToUrl('expansions/')
       .get(null, null, { includeSummary: true, verbose: true })
       .then(response => {
-        const data = response?.data || [];
-        setExpansionsByVersion(prev => ({ ...prev, [versionKey]: formatExpansions(version, data) }));
+        // a failed refresh keeps its cache; a failed first load caches an empty list, so it isn't retried in a loop
+        const data = Array.isArray(response?.data) ? response.data : null;
+        setExpansionsByVersion(prev => (data || !prev[versionKey]
+          ? { ...prev, [versionKey]: formatExpansions(version, data || []) } : prev));
         setLoadingByVersion(prev => ({ ...prev, [versionKey]: false }));
       });
   }, [expansionsByVersion, loadingByVersion]);
@@ -289,6 +298,16 @@ const CollectionVersionsTab = ({
   React.useEffect(() => {
     displayVersions.forEach(version => fetchExpansions(version));
   }, [displayVersions, fetchExpansions]);
+
+  // once a later versions load lands, its cached rows' expansions are read again, so health is never older than
+  // the version's summary; rows not cached yet are fetched by the effect above
+  React.useEffect(() => {
+    if (!refreshedVersionsRef.current) return;
+    refreshedVersionsRef.current = false;
+    displayVersions.forEach(version => {
+      if (expansionsByVersion[getVersionKey(version)]) fetchExpansions(version, true);
+    });
+  }, [versions]);
 
   const getDefaultExpansion = React.useCallback(version => {
     const versionExpansions = expansionsByVersion[getVersionKey(version)] || [];
@@ -734,11 +753,15 @@ const CollectionVersionsTab = ({
     const isHead = isHeadVersion(version);
     const released = Boolean(version.released);
     const versionExpansions = expansionsByVersion[versionKey] || [];
-    const versionLoading = loadingByVersion[versionKey];
+    // a refresh keeps showing what is cached rather than a spinner
+    const versionLoading = loadingByVersion[versionKey] && !versionExpansions.length;
     const defaultExpansion = getDefaultExpansion(version);
     const expansionUpdates = defaultExpansion ? repoUpdatesByExpansion[defaultExpansion.url] : null;
     const hasRepoUpdates = hasAccess && expansionUpdates && Object.keys(expansionUpdates).length > 0;
     const stale = isStaleExpansion(defaultExpansion);
+    // only the version's own default expansion carries its health
+    const healthExpansion = defaultExpansion?.url === version.expansion_url ? defaultExpansion : null;
+    const healthStatus = getVersionHealthStatus(version, healthExpansion);
     const showWarning = hasRepoUpdates || stale;
     const expanded = expandedVersionKeys.has(versionKey);
     const isRowMenuOpen = Boolean(rowMenu.anchorEl) && getVersionKey(rowMenu.version) === versionKey;
@@ -806,6 +829,14 @@ const CollectionVersionsTab = ({
           </TableCell>
           <TableCell sx={bodyCellSx}>
             <VersionStatusIndicator isHead={isHead} released={released} retired={version.retired} />
+            {healthStatus && (
+              <Box sx={{ mt: 0.5 }}>
+                <ExpansionHealthChip
+                  status={healthStatus}
+                  onClick={healthExpansion ? () => setDetailsExpansion(healthExpansion) : undefined}
+                />
+              </Box>
+            )}
             <ProcessingProgress version={version} />
           </TableCell>
           <TableCell sx={{ ...bodyCellSx, width: '1%' }}>

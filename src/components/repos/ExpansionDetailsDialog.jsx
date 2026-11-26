@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 
 import Dialog from "../common/Dialog";
 import DialogTitle from "../common/DialogTitle";
+import ExpansionHealthSection from "./ExpansionHealthSection";
 
 const RepoVersionList = ({ title, versions = [], emptyLabel }) => (
   <Box sx={{ mt: 2 }}>
@@ -61,6 +62,7 @@ const ExpansionDetailsDialog = ({ expansion, onClose }) => {
         {t("repo.expansion_details_title", { mnemonic: expansion.mnemonic })}
       </DialogTitle>
       <DialogContent sx={{ padding: "16px 0 0 0 !important" }}>
+        <ExpansionHealthSection expansion={expansion} />
         <Typography
           sx={{
             fontSize: "15px",
