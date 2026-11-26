@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 const {
   normalizeNotice, getNotice, getNoticeDetail, getNotices, orderActions, getNoticeTone, getNoticeIcon, getLocks,
   getLockTooltip, isEntryPointLocked, safeURL, writesShownVersion, createRequestGuard, readNoticeLookup, forgetOtherAnswer,
+  watchReturns,
   ENTRY_POINT_ACTIONS, WRITE_ACTIONS,
 } = await import('../limitNoticePayload.js')
 
@@ -220,4 +221,86 @@ test('a resource selected again waits for its own new answer, even after a faile
   // asking the same resource again keeps its answer meanwhile
   const answered = {resourceURL: a, notices: [{title: 'Example notice', locks: ['edit'], tooltip: 'Example reason'}]}
   assert.equal(forgetOtherAnswer(answered, a), answered)
+})
+
+// A window and document that can be left and returned to, as the browser does it: leaving hides the page or blurs the
+// window, and coming back shows it and focuses it
+const makePage = ({hidden = false, focused = true} = {}) => {
+  const win = new EventTarget()
+  const doc = Object.assign(new EventTarget(), {visibilityState: hidden ? 'hidden' : 'visible', hasFocus: () => focused})
+  const setVisibility = state => {
+    doc.visibilityState = state
+    doc.dispatchEvent(new Event('visibilitychange'))
+  }
+  return {
+    win,
+    doc,
+    leaveTab: () => {
+      setVisibility('hidden')
+      focused = false
+      win.dispatchEvent(new Event('blur'))
+    },
+    returnToTab: () => {
+      setVisibility('visible')
+      focused = true
+      win.dispatchEvent(new Event('focus'))
+    },
+    leaveWindow: () => {
+      focused = false
+      win.dispatchEvent(new Event('blur'))
+    },
+    returnToWindow: () => {
+      focused = true
+      win.dispatchEvent(new Event('focus'))
+    },
+  }
+}
+
+test('a return to the page, from another tab or window, is told once; nothing else is', () => {
+  const page = makePage()
+  let returns = 0
+  const stop = watchReturns(page.win, page.doc, () => returns++)
+  page.returnToWindow()
+  assert.equal(returns, 0)
+  page.leaveTab()
+  page.returnToTab()
+  assert.equal(returns, 1)
+  page.leaveWindow()
+  page.returnToWindow()
+  assert.equal(returns, 2)
+  stop()
+  page.leaveTab()
+  page.returnToTab()
+  assert.equal(returns, 2)
+})
+
+test('watching starts while the person is away: their return is told', () => {
+  ;[{hidden: true, focused: false}, {focused: false}].forEach(state => {
+    const page = makePage(state)
+    let returns = 0
+    watchReturns(page.win, page.doc, () => returns++)
+    if(state.hidden)
+      page.returnToTab()
+    else
+      page.returnToWindow()
+    assert.equal(returns, 1, JSON.stringify(state))
+  })
+})
+
+test('an unchanged resource unlocks when its lookup answers with no notices after the person returns', () => {
+  const source = '/orgs/O/sources/S/'
+  const page = makePage()
+  // the lookup answered with a notice that locks editing
+  let stored = {resourceURL: source, notices: [{title: 'Example notice', locks: ['edit'], tooltip: 'Example reason'}]}
+  assert.equal(isEntryPointLocked(getLocks(readNoticeLookup(stored, source).notices), 'editConcept'), true)
+  // while it's shown, a return asks again (useResourceNoticeLookup), and this time the answer is empty
+  watchReturns(page.win, page.doc, () => {
+    stored = {resourceURL: source, notices: []}
+  })
+  // the person follows the notice's link to another tab, restores write access there, and comes back
+  page.leaveTab()
+  assert.equal(isEntryPointLocked(getLocks(readNoticeLookup(stored, source).notices), 'editConcept'), true)
+  page.returnToTab()
+  assert.deepEqual(readNoticeLookup(stored, source), {notices: [], pending: false})
+  assert.equal(isEntryPointLocked(getLocks(readNoticeLookup(stored, source).notices), 'editConcept'), false)
 })

@@ -191,3 +191,27 @@ export const createRequestGuard = () => {
     },
   }
 }
+
+// Calls onReturn once each time the person comes back to this page from another tab or window: it's shown again, or
+// regains focus. A return shows the page and focuses it, so it's told once. Returns the function that stops watching.
+export const watchReturns = (win, doc, onReturn) => {
+  let away = doc.visibilityState === 'hidden' || !doc.hasFocus()
+  const leave = () => {
+    away = true
+  }
+  const back = () => {
+    if(!away || doc.visibilityState === 'hidden')
+      return
+    away = false
+    onReturn()
+  }
+  const onVisibilityChange = () => doc.visibilityState === 'hidden' ? leave() : back()
+  win.addEventListener('blur', leave)
+  win.addEventListener('focus', back)
+  doc.addEventListener('visibilitychange', onVisibilityChange)
+  return () => {
+    win.removeEventListener('blur', leave)
+    win.removeEventListener('focus', back)
+    doc.removeEventListener('visibilitychange', onVisibilityChange)
+  }
+}
