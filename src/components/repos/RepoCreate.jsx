@@ -34,6 +34,7 @@ import RTEditor from '../common/RTEditor'
 import CustomAttributesForm from '../common/CustomAttributesForm'
 import { jsonToString, stringToJSON, isValidJSONString } from '../common/JSONTextField'
 import { OperationsContext } from '../app/LayoutContext';
+import { refreshNotices, takeRefusalNotice } from '../common/LimitNotice'
 
 import RepoCreateFormHeader from './RepoCreateFormHeader'
 import RepoCreateNameDescription from './RepoCreateNameDescription'
@@ -95,6 +96,11 @@ const RepoCreate = () => {
   const copyFromApplied = React.useRef(false)
   const fromOCLURLParsed = React.useMemo(() => parseRepoURL(fromOCLURL), [fromOCLURL])
   const [validationErrors, setValidationErrors] = React.useState({})
+  // A refusal that carries a notice is shown under the visibility field, where the way out is, instead of a
+  // toast. It answers the owner and visibility that were submitted:
+  // changing either clears it, and a refusal for a submission made before the change is ignored.
+  const [visibilityNotice, setVisibilityNotice] = React.useState(null)
+  const submission = React.useRef(0)
   const isEdit = Boolean(params.repo)
   const canonicalURLEdited = React.useRef(false)
 
@@ -184,6 +190,11 @@ const RepoCreate = () => {
     setModel({...model, [id]: valueToId(value)})
   }
 
+  React.useEffect(() => {
+    submission.current += 1
+    setVisibilityNotice(null)
+  }, [ownerURL, model.publicAccess])
+
   const onCanonicalURLChange = value => {
     canonicalURLEdited.current = true
     onChange('canonicalURL', value)
@@ -268,14 +279,25 @@ const RepoCreate = () => {
         payload[field] = null
     })
     GAService.recordUpsertEvent(selectedTab.id === 'collection' ? 'Collection' : 'Source', isEdit)
+    setVisibilityNotice(null)
+    const submitted = ++submission.current
     let service = getService()
     service = isEdit ? service.put(payload) : service.post(payload)
     service.then(response => {
       if([200, 201].includes(response.status)) {
+        // a new repository, or a change of visibility, can change which content is read-only
+        if(!isEdit || response.data?.public_access !== repo?.public_access)
+          refreshNotices()
         setAlert({duration: 2000, message: isEdit ? t('repo.success_update') : t('repo.success_create'), severity: 'success'})
         history.push(response.data.url)
       }
       else {
+        const notice = takeRefusalNotice(response)
+        if(notice) {
+          if(submitted === submission.current)
+            setVisibilityNotice(notice)
+          return
+        }
         let error = compact(flatten(values(response)))
         let field = get(keys(response), 0)
         if(isArray(error) && error[0] && field)
@@ -535,7 +557,7 @@ const RepoCreate = () => {
               <RepoCreateLanguages isEdit={isEdit} locales={locales} onChange={onChange} validationErrors={validationErrors} config={selectedTab.content} {...model} />
             </FormSection>
             <FormSection sx={{marginTop: '16px'}}>
-              <RepoCreateAdditionalMetadata isEdit={isEdit} typeLabel={t(`repo.${selectedTab.id}_type`)} types={selectedTab.types} onChange={onChange} validationErrors={validationErrors} config={selectedTab.content} {...model} />
+              <RepoCreateAdditionalMetadata isEdit={isEdit} typeLabel={t(`repo.${selectedTab.id}_type`)} types={selectedTab.types} onChange={onChange} validationErrors={validationErrors} config={selectedTab.content} visibilityNotice={visibilityNotice} {...model} />
             </FormSection>
             <FormSection sx={{marginTop: '16px'}}>
               <RepoCreatePublisher isEdit={isEdit} onChange={onChange} validationErrors={validationErrors} config={selectedTab.content} {...model} />

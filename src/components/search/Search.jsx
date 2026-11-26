@@ -40,6 +40,9 @@ import { getTransformAddGroups, getTransformOutcome } from '../collections/refer
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutlined'
 import GAService from '../../services/GAService'
 import QuotaDialog from '../common/QuotaDialog'
+import { showRefusalNotice, takeRefusalNotice } from '../common/LimitNotice'
+import { LockableMenuItem, LockTooltip, useNoticeLocks } from '../common/NoticeLocks'
+import LockIcon from '@mui/icons-material/LockOutlined'
 import { getQuotaError } from '../common/quotaErrors'
 
 const DEFAULT_LIMIT = 25;
@@ -59,6 +62,10 @@ const getCollectionLookupUrl = url => (url || '').replace(/\/(concepts|mappings|
 
 
 const Search = props => {
+  // On a repository page, a notice may lock what removes or replaces a collection's references (NoticeLocks): Remove,
+  // Transform and the bulk remove. Converting has its own lock on the convert dialog's submit, since its preview writes
+  // nothing.
+  const referencesLock = useNoticeLocks()('removeReferences')
   const { setAlert, contextRepo } = React.useContext(OperationsContext);
   const { t } = useTranslation()
   const history = useHistory();
@@ -519,8 +526,11 @@ const Search = props => {
     let _filters = omit(params, ['q', 'page', 'page_number', 'page_size', 'limit', 'offset', 'includeSearchMeta', 'verbose', 'order', 'orderBy', 'sortAsc', 'sortDesc', 'display', 'type', 'onlyHierarchyRoot', 'includeRetired'])
     const payload = {rows: [{name: params.q}], target_repo_url: contextRepo?.version_url, filter: _filters || {}}
     APIService.new().overrideURL('/concepts/$match/').post(payload, null, null, {verbose: true, includeSearchMeta: true, semantic: true, reranker: true, ...params}).then(response => {
-      if(requestId !== latestListRequest.current)
+      // a later search replaced this one, but a notice its refusal carries still refreshes the notice strips
+      if(requestId !== latestListRequest.current) {
+        takeRefusalNotice(response)
         return
+      }
       const limitError = getQuotaError(response)
       if(limitError) {
         setQuotaError(limitError)
@@ -643,7 +653,7 @@ const Search = props => {
         onSelectItem([])
         setAlert({ severity: 'success', message: t('reference.remove_success') })
         fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
-      } else {
+      } else if(!showRefusalNotice(response)) {
         setAlert({ severity: 'error', message: response?.data?.detail || t('common.generic_error') })
       }
     })
@@ -712,6 +722,8 @@ const Search = props => {
 
     if(!addedItems.length) {
       setTransformingReferences(false)
+      if(addResults.find(({ response }) => showRefusalNotice(response)))
+        return
       setAlert({
         severity: 'error',
         message: unresolvedExpressions.length ?
@@ -763,23 +775,27 @@ const Search = props => {
         onSelectItem([])
         setAlert({ severity: 'success', message: t('reference.remove_success') })
         fetchResults(getQueryParams(input, page, pageSize, filters, orderBy, order))
-      } else {
+      } else if(!showRefusalNotice(response)) {
         setAlert({ severity: 'error', message: response?.data?.detail || t('common.generic_error') })
       }
     })
   }
 
   const bulkRemoveFromCollectionAction = isInCollection && isHead && ['concepts', 'mappings'].includes(resource) && isLoggedIn() && selected.length > 0 ? (
-    <Button
-      startIcon={<RemoveCircleOutlineIcon fontSize='inherit' />}
-      variant='contained'
-      size='small'
-      color='error'
-      sx={{textTransform: 'none', whiteSpace: 'nowrap', marginLeft: '8px'}}
-      onClick={() => setBulkRemoveOpen(true)}
-    >
-      {t('reference.remove_from_collection')}
-    </Button>
+    <LockTooltip title={referencesLock} placement='bottom' display='inline-block'>
+      <Button
+        startIcon={<RemoveCircleOutlineIcon fontSize='inherit' />}
+        endIcon={referencesLock ? <LockIcon fontSize='inherit' /> : undefined}
+        disabled={Boolean(referencesLock)}
+        variant='contained'
+        size='small'
+        color='error'
+        sx={{textTransform: 'none', whiteSpace: 'nowrap', marginLeft: '8px'}}
+        onClick={() => setBulkRemoveOpen(true)}
+      >
+        {t('reference.remove_from_collection')}
+      </Button>
+    </LockTooltip>
   ) : null
 
   const closeReferenceActions = () => setReferenceActionsAnchor(null)
@@ -925,7 +941,9 @@ const Search = props => {
         open={Boolean(referenceActionsAnchor)}
         onClose={closeReferenceActions}
       >
-        <MenuItem
+        <LockableMenuItem
+          as={MenuItem}
+          lock={referencesLock}
           onClick={() => {
             closeReferenceActions()
             setTransformReferencesOpen(true)
@@ -935,7 +953,7 @@ const Search = props => {
             <TransformIcon fontSize='small' />
           </ListItemIcon>
           <ListItemText>{t('reference.transform_to_non_versioned')}</ListItemText>
-        </MenuItem>
+        </LockableMenuItem>
         <MenuItem
           onClick={() => {
             closeReferenceActions()
@@ -947,7 +965,9 @@ const Search = props => {
           </ListItemIcon>
           <ListItemText>{t('reference.convert_resource_versioned')}</ListItemText>
         </MenuItem>
-        <MenuItem
+        <LockableMenuItem
+          as={MenuItem}
+          lock={referencesLock}
           onClick={() => {
             closeReferenceActions()
             setDeleteReferencesOpen(true)
@@ -957,7 +977,7 @@ const Search = props => {
             <DeleteForeverIcon fontSize='small' color='error' />
           </ListItemIcon>
           <ListItemText>{t('common.remove')}</ListItemText>
-        </MenuItem>
+        </LockableMenuItem>
       </Menu>
       <TransformReferencesDialog
         open={transformReferencesOpen}
@@ -997,6 +1017,7 @@ const Search = props => {
         onClose={() => setQuotaError(null)}
         errorCode={quotaError?.errorCode}
         meter={quotaError?.meter}
+        notice={quotaError?.notice}
         surface='tbv3_match'
       />
     </div>

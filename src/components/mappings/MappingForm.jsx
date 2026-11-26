@@ -13,6 +13,7 @@ import { arrayToObject, toParentURI, URIToParentParams } from '../../common/util
 import { navigate } from '../../common/history';
 import { fetchMapTypes } from './utils';
 import { OperationsContext } from '../app/LayoutContext';
+import { showRefusalNotice } from '../common/LimitNotice'
 import FormComponent, { CardSection } from '../common/FormComponent'
 import { ID_REGEX, NUM_REGEX } from '../../common/constants'
 import {
@@ -397,7 +398,7 @@ class MappingForm extends FormComponent {
     } else if (response?.status === 208) {
       let error = get(response?.data, '__all__.0') || t('common.already_exists')
       setAlert({duration: 10000, message: `${response.status}: ${error}`, severity: 'error'})
-    } else { // error
+    } else if(!showRefusalNotice(response)) { // error, unless it carried a notice
       let error = compact(flatten(values(response)))
       let field = get(keys(response), 0)
       if(isArray(error) && error[0] && field)

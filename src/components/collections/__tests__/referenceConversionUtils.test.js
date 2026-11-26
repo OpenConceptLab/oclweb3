@@ -119,6 +119,20 @@ test('a queued conversion the API refused reports the refusal\'s message', () =>
     getQueuedConversion({ state: 'SUCCESS', result: { refusal: { detail: 'This collection is read-only.' } } }),
     { refusal: 'This collection is read-only.' })
   assert.equal(getRefusalMessage('Read-only'), 'Read-only')
+})
+
+test('a queued conversion refused with a notice keeps the notice and the message', () => {
+  const notice = { title: 'Example notice', scope: 'Example scope', locks: ['edit'] }
+  assert.deepEqual(
+    getQueuedConversion({ state: 'SUCCESS', result: { refusal: { detail: 'Example detail', error_code: 'example_refusal', notice } } }),
+    { refusal: 'Example detail', notice })
+  assert.deepEqual(
+    getQueuedConversion({ state: 'SUCCESS', result: JSON.stringify({ refusal: { detail: 'Example detail', notice } }) }),
+    { refusal: 'Example detail', notice })
+  // a notice without a title isn't one: the message alone is shown
+  assert.deepEqual(
+    getQueuedConversion({ state: 'SUCCESS', result: { refusal: { detail: 'Example detail', notice: { title: '' } } } }),
+    { refusal: 'Example detail' })
   assert.equal(getRefusalMessage({ errors: ['First', 'Second'] }), 'First')
   assert.equal(getRefusalMessage({}), null)
 })

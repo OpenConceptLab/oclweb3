@@ -929,5 +929,11 @@
     "summary_failed_one": "{{count}} referencia falló",
     "unresolved_count_one": "{{count}} guardada, pero no resolvió a nada",
     "add_to_collection": "Añadir a colección"
+  },
+  "notice": {
+    "request_not_completed": "Solicitud no completada",
+    "read_only": "Solo lectura",
+    "restricted": "Restringido",
+    "still_works": "Sigue funcionando"
   }
 }

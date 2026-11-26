@@ -9,6 +9,7 @@ import GAService from '../../services/GAService';
 import { toParentURI, dropVersion, getResourceIdFromUrl, sourceVersionOf } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
+import { showRefusalNotice } from '../common/LimitNotice'
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
 import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
 import PanelError from '../errors/PanelError';
@@ -154,7 +155,7 @@ const MappingHome = props => {
         history.push(mapping.url)
         setTimeout(() => window.location.reload(), 1000)
       }
-      else {
+      else if(!showRefusalNotice(response)) {
         let error = response?.data?.__all__ || t('mapping.error_update')
         setAlert({severity: 'error', message: error})
       }
@@ -171,7 +172,7 @@ const MappingHome = props => {
         setRemoveFromCollectionDialog(false)
         setAlert({ severity: 'success', message: t('reference.remove_success') })
         props.onClose && props.onClose()
-      } else {
+      } else if(!showRefusalNotice(response)) {
         setAlert({ severity: 'error', message: response?.data?.detail || t('common.generic_error') })
       }
     })

@@ -5,6 +5,7 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Alert from '@mui/material/Alert'
+import LockIcon from '@mui/icons-material/LockOutlined'
 import Table from '@mui/material/Table'
 import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
@@ -25,7 +26,10 @@ import CascadeSelector from './CascadeSelector'
 import RepoChip from '../repos/RepoChip'
 import RepoTooltip from '../repos/RepoTooltip'
 import UnresolvedReferencesTable from './UnresolvedReferencesTable'
-import { groupReferenceResults, formatReferenceSummary } from './referenceResults'
+import { groupReferenceResults, formatReferenceSummary, getAddReferencesOutcome } from './referenceResults'
+import { showNotice } from './LimitNotice'
+import { LockTooltip, useNoticeLocks } from './NoticeLocks'
+import { useResourceNoticeLookup } from './useNotices'
 
 // Extract "[id] [name]" from an expression URL like /orgs/CIEL/sources/CIEL/concepts/1234/
 const extractConceptLabel = expression => {
@@ -89,6 +93,10 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
   const [submitting, setSubmitting] = React.useState(false)
   const [results, setResults] = React.useState(null) // array of { added, expression, message }
   const [error, setError] = React.useState(null)
+  // Adding writes to the chosen collection, so Add follows that collection's notices and locks when they lock adding
+  // references (NoticeLocks); another collection can still be chosen. Add waits until they're in.
+  const destination = useResourceNoticeLookup(open && selected?.url ? selected.url : null)
+  const addLock = useNoticeLocks(destination.notices)('addReferences')
 
   React.useEffect(() => {
     if (open) {
@@ -132,7 +140,7 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
   const conceptUrls = concepts.map(c => dropVersion(c.url) || c.url).filter(Boolean)
 
   const handleSubmit = () => {
-    if (!selected || !conceptUrls.length) return
+    if (!selected || !conceptUrls.length || destination.pending || addLock) return
     GAService.recordActionEvent('Collection References', 'add_to_collection', selected?.short_code || selected?.id, {
       collection: selected?.url,
       count: conceptUrls.length
@@ -154,14 +162,12 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
       )
       .then(response => {
         setSubmitting(false)
-        if (response && (response.status === 200 || response.status === 201)) {
-          setResults(Array.isArray(response.data) ? response.data : [])
-        } else if (response && response.status === 202) {
-          setResults('pending')
-        } else {
-          const msg = (response && (response.detail || response.error)) || 'Something went wrong'
-          setError(msg)
-        }
+        // a refusal that carries a notice (the collection is read-only, say) opens it in the notice dialog
+        const outcome = getAddReferencesOutcome(response)
+        if (outcome.results) setResults(outcome.results)
+        else if (outcome.pending) setResults('pending')
+        else if (outcome.notice) showNotice(outcome.notice)
+        else setError(outcome.error || 'Something went wrong')
       })
   }
 
@@ -357,14 +363,17 @@ const AddToCollectionDialog = ({ open, onClose, concept, concepts: conceptsProp 
       </DialogContent>
       <DialogActions sx={{ pt: 2, px: 0 }}>
         {!done && (
-          <Button
-            variant="contained"
-            onClick={handleSubmit}
-            disabled={!selected || submitting}
-            sx={{ textTransform: 'none' }}
-          >
-            {t('addToCollection.add_button')}
-          </Button>
+          <LockTooltip title={addLock} placement='top' display='inline-block'>
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={!selected || submitting || destination.pending || Boolean(addLock)}
+              endIcon={addLock ? <LockIcon fontSize='inherit' /> : undefined}
+              sx={{ textTransform: 'none' }}
+            >
+              {t('addToCollection.add_button')}
+            </Button>
+          </LockTooltip>
         )}
       </DialogActions>
     </Dialog>

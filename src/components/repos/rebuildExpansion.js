@@ -24,6 +24,10 @@ export const createRebuildGuard = () => {
   }
 }
 
+// The rebuild confirmation's Rebuild can be sent only once its own lookup of the version's notices has settled with no
+// lock (NoticeLocks), and while that expansion isn't already rebuilding
+export const canSendRebuild = ({ rebuilding, pending, lock }) => !rebuilding && !pending && !lock
+
 // Closes the rebuild dialog only if it still shows the expansion that answered
 export const closeIfShowing = (current, url) => current?.url === url ? false : current
 

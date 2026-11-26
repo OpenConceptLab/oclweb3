@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { Menu, ListItem, ListItemButton, ListItemText, ListItemIcon, Divider, Tooltip} from '@mui/material'
 import CopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import { LockMark } from '../common/NoticeLocks';
 
-const ReferenceManagementList = ({ anchorEl, open, onClose, id, onClick, canDelete=true, deleteDisabledReason='' }) => {
+const ReferenceManagementList = ({ anchorEl, open, onClose, id, onClick, canDelete=true, deleteLocked=false, deleteDisabledReason='' }) => {
   const { t } = useTranslation()
   return (
     <Menu
@@ -44,6 +45,7 @@ const ReferenceManagementList = ({ anchorEl, open, onClose, id, onClick, canDele
                 <DeleteForeverIcon />
               </ListItemIcon>
               <ListItemText primary={t('common.delete_label')} />
+              {deleteLocked && <LockMark />}
             </ListItemButton>
           </span>
         </Tooltip>

@@ -1,3 +1,5 @@
+import { getNotice } from './limitNoticePayload.js'
+
 // An add-references response, split into what joined the collection, what the API saved
 // but reports as resolved to nothing (`resolved: false`), and what failed
 export const groupReferenceResults = results => {
@@ -17,4 +19,18 @@ export const formatReferenceSummary = (groups, t) => {
     groups.failed.length && t('addToCollection.summary_failed', { count: groups.failed.length }),
   ].filter(Boolean)
   return parts.length ? parts.join(t('addToCollection.summary_separator')) : t('addToCollection.no_references_added')
+}
+
+// What an add-references request came back with: its results, a queued request (pending), the notice a refusal
+// carries, or the API's error text (null when it sent none)
+export const getAddReferencesOutcome = response => {
+  const status = response?.status
+  if(status === 200 || status === 201)
+    return {results: Array.isArray(response.data) ? response.data : []}
+  if(status === 202)
+    return {pending: true}
+  const notice = getNotice(response)
+  if(notice)
+    return {notice}
+  return {error: (response && (response.detail || response.error)) || null}
 }

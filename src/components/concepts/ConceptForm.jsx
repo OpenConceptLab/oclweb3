@@ -26,6 +26,7 @@ import ConceptDatatypeSection, { getDatatypeExtraKeys } from './ConceptDatatypeS
 import Breadcrumbs from '../common/Breadcrumbs'
 import { PRIMARY_COLORS } from '../../common/colors'
 import QuotaDialog from '../common/QuotaDialog'
+import { showRefusalNotice } from '../common/LimitNotice'
 import { getQuotaError } from '../common/quotaErrors'
 import CustomAttributesForm from '../common/CustomAttributesForm'
 import { required } from '../../common/validators';
@@ -531,6 +532,8 @@ class ConceptForm extends FormComponent  {
           let error = get(response?.data, '__all__.0') || this.props.t('common.already_exists')
           setAlert({duration: 10000, message: `${response.status}: ${error}`, severity: 'error'})
         } else {
+          if(showRefusalNotice(response))
+            return
           const nestedError = this.getNestedErrorMessage(response, payload)
           if(nestedError) {
             setAlert({duration: 10000, message: nestedError, severity: 'error'})
@@ -772,6 +775,7 @@ class ConceptForm extends FormComponent  {
           onClose={() => this.setState({quotaError: null})}
           errorCode={quotaError?.errorCode}
           meter={quotaError?.meter}
+          notice={quotaError?.notice}
           surface='tbv3_change_comment'
         />
       </div>

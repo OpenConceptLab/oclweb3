@@ -20,7 +20,10 @@ import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import LockIcon from '@mui/icons-material/LockOutlined'
 import APIService from '../../services/APIService'
+import { LockTooltip, useNoticeLocks } from '../common/NoticeLocks'
+import { showNotice, showRefusalNotice } from '../common/LimitNotice'
 import {
   REPO_VERSIONED, UNVERSIONED, LEAVE, CONVERSIONS, PREVIEW_PAGE_SIZE, getResourceVersionedIds, mergePreviewPages,
   getDefaultChoices, chooseAll, getConversionPayload, describeConversion, getConversionOutcome, getRollbackMessages,
@@ -123,6 +126,9 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
   const [converting, setConverting] = React.useState(false)
   const [error, setError] = React.useState(null)
   const [queuedTaskId, setQueuedTaskId] = React.useState(null)
+  // the preview writes nothing, so it stays open; on a collection page whose notices lock its edits, Convert is locked
+  // (NoticeLocks)
+  const convertLock = useNoticeLocks()('convertReferences')
   const service = () => APIService.new().overrideURL(collectionUrl).appendToUrl('references/conversions/')
 
   const fetchPreview = async () => {
@@ -214,8 +220,11 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
         }
         setQueuedTaskId(null)
         setConverting(false)
+        // a refusal that carries a notice opens it in the notice dialog, as a direct one does
         if(queued.results)
           onResults(queued.results)
+        else if(queued.notice)
+          showNotice(queued.notice)
         else if(queued.refusal !== undefined)
           setError(queued.refusal || t('reference.convert_refused'))
         else
@@ -229,6 +238,8 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
   }, [queuedTaskId])
 
   const onConvert = () => {
+    if(convertLock)
+      return
     setConverting(true)
     setError(null)
     service().post(payload).then(response => {
@@ -239,7 +250,7 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
       setConverting(false)
       if(response?.status === 200)
         onResults(response.data)
-      else
+      else if(!showRefusalNotice(response))
         setError(response?.detail || t('common.generic_error'))
     })
   }
@@ -364,14 +375,17 @@ const ConvertReferencesDialog = ({ open, onClose, onConverted, references, colle
         <Button onClick={onDialogClose} variant='text' disabled={converting && !queuedTaskId}>
           {t(queuedTaskId ? 'common.close' : 'common.cancel')}
         </Button>
-        <Button
-          onClick={onConvert}
-          variant='contained'
-          disabled={loading || converting || !payload.conversions.length}
-          startIcon={converting ? <CircularProgress size={16} color='inherit' /> : null}
-        >
-          {t('reference.convert_confirm', { count: payload.conversions.length })}
-        </Button>
+        <LockTooltip title={convertLock} placement='top' display='inline-block'>
+          <Button
+            onClick={onConvert}
+            variant='contained'
+            disabled={loading || converting || !payload.conversions.length || Boolean(convertLock)}
+            startIcon={converting ? <CircularProgress size={16} color='inherit' /> : null}
+            endIcon={convertLock ? <LockIcon fontSize='inherit' /> : null}
+          >
+            {t('reference.convert_confirm', { count: payload.conversions.length })}
+          </Button>
+        </LockTooltip>
       </DialogActions>
     </Dialog>
   )

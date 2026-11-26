@@ -17,7 +17,7 @@ import { createSimilarRepoHref } from './utils';
 import FollowActionButton from '../common/FollowActionButton'
 import { OperationsContext } from '../app/LayoutContext';
 
-const RepoHeader = ({repo, owner, versions, versionsLoading, previewVersions, hasMoreVersions, onLoadMoreVersions, onVersionChange, repoHref, onCreateConceptClick, onCreateMappingClick, onVersionEditClick, onCreateVersionClick, onDeleteRepoClick, isVersion, onReleaseVersionClick, hideActions}) => {
+const RepoHeader = ({repo, owner, versions, versionsLoading, previewVersions, hasMoreVersions, onLoadMoreVersions, onVersionChange, repoHref, onCreateConceptClick, onCreateMappingClick, onVersionEditClick, onCreateVersionClick, onDeleteRepoClick, isVersion, onReleaseVersionClick, hideActions, squareTop}) => {
   const { t } = useTranslation()
   const { setAlert } = React.useContext(OperationsContext)
   const [menu, setMenu] = React.useState(false)
@@ -66,7 +66,7 @@ const RepoHeader = ({repo, owner, versions, versionsLoading, previewVersions, ha
   const createSimilarHref = isVersion ? false : createSimilarRepoHref(repo)
 
   return (
-    <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderRadius: '10px 10px 0 0'}}>
+    <Paper component="div" className='col-xs-12' sx={{backgroundColor: 'surface.main', boxShadow: 'none', padding: '16px', borderRadius: squareTop ? 0 : '10px 10px 0 0'}}>
       <div className='col-xs-12 padding-0' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'auto'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
           <OwnerChip owner={owner} sx={{background: 'transparent', borderColor: 'surface.light'}} hideType />
