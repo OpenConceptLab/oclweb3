@@ -64,6 +64,8 @@ const RepoVersionList = ({ versions, emptyLabel }) => (
 // instead of a separate dialog — keeps the power-user detail (including exactly
 // which resolved repo version changed) one toggle away without leaving the table.
 // Laid out as three aligned columns: Expansion ID, Explicit Repo Versions, Evaluated Repo Versions.
+// The Rebuild under an expansion's updates opens the rebuild confirmation, whose own Rebuild follows the version's
+// notices while its Create Similar can still pick another version.
 const ExpansionRowList = ({
   expansions = [],
   loading,

@@ -9,6 +9,8 @@ import GAService from '../../services/GAService';
 import { toParentURI, dropVersion, currentUserHasAccess, sourceVersionOf } from '../../common/utils'
 
 import { OperationsContext } from '../app/LayoutContext';
+import { useNoticeLocks } from '../common/NoticeLocks';
+import { showRefusalNotice } from '../common/LimitNotice';
 import RetireConfirmDialog from '../common/RetireConfirmDialog'
 import RemoveFromCollectionDialog from '../collections/RemoveFromCollectionDialog'
 
@@ -30,6 +32,7 @@ const repoVersionFromURL = url => {
 }
 
 const ConceptHome = props => {
+  const lockFor = useNoticeLocks()
   const { t } = useTranslation()
   const history = useHistory()
 
@@ -249,12 +252,14 @@ const ConceptHome = props => {
       }))
   }
 
-  const canManageMappings = !isInCollection && concept?.id && currentUserHasAccess()
+  // A repository notice that locks edits hides the quick actions, as on a version (NoticeLocks)
+  const mappingsLocked = Boolean(lockFor('manageMappings'))
+  const canManageMappings = !isInCollection && concept?.id && currentUserHasAccess() && !mappingsLocked
   // Mappings can only be added/sorted within the context of a HEAD source - never on a
   // repo version and never in global search, where there is no repo context at all.
   const repoVersion = props.repo?.version || repoVersionFromURL(props.url || props.concept?.version_url || props.concept?.url)
   const isRepoVersion = Boolean(repoVersion && repoVersion !== 'HEAD')
-  const mappingsReadOnly = isRepoVersion || !props.repo?.id
+  const mappingsReadOnly = isRepoVersion || !props.repo?.id || mappingsLocked
 
   const onCreateNewMapping = (payload, targetConcept, isDirect, successCallback) => {
     GAService.recordEvent('create_mapping', { event_category: 'Mapping Inline', event_label: 'Created Mapping from Concept Details using Quick Actions' })
@@ -263,7 +268,7 @@ const ConceptHome = props => {
         setAlert({severity: 'success', message: t('mapping.success_create')})
         successCallback && successCallback()
         isDirect ? getMappings(concept, true) : getInverseMappings(concept)
-      } else {
+      } else if(!showRefusalNotice(response)) {
         setAlert({severity: 'error', message: response?.data?.__all__?.[0] || response?.data?.detail || t('mapping.error_create')})
       }
     })
@@ -274,7 +279,9 @@ const ConceptHome = props => {
         .overrideURL(mapping.url)
         .put({id: mapping.id, sort_weight: sortWeight, comment: comment})
 
-  const onSortWeightUpdateSuccess = () => {
+  const onSortWeightUpdateSuccess = responses => {
+    if([].concat(responses).find(response => showRefusalNotice(response)))
+      return
     setAlert({severity: 'success', message: t('mapping.sort_success')})
     getMappings(concept, true)
   }
@@ -306,7 +313,7 @@ const ConceptHome = props => {
       if(response?.status === 204) {
         setAlert({severity: 'success', message: isRetired ? t('mapping.success_unretired') : t('mapping.success_retired')})
         isDirect ? getMappings(concept, true) : getInverseMappings(concept)
-      } else {
+      } else if(!showRefusalNotice(response)) {
         setAlert({severity: 'error', message: response?.data?.detail || t('mapping.error_update')})
       }
     })
@@ -327,7 +334,7 @@ const ConceptHome = props => {
         history.push(concept.url)
         setTimeout(() => window.location.reload(), 1000)
       }
-      else {
+      else if(!showRefusalNotice(response)) {
         let error = response?.data?.__all__ || t('concept.error_update')
         setAlert({severity: 'error', message: error})
       }
@@ -344,7 +351,7 @@ const ConceptHome = props => {
         setRemoveFromCollectionDialog(false)
         setAlert({ severity: 'success', message: t('reference.remove_success') })
         props.onClose && props.onClose()
-      } else {
+      } else if(!showRefusalNotice(response)) {
         setAlert({ severity: 'error', message: response?.data?.detail || t('common.generic_error') })
       }
     })

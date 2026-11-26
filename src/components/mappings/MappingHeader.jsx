@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import DownIcon from '@mui/icons-material/ArrowDropDown';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import LockIcon from '@mui/icons-material/LockOutlined';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Skeleton from '@mui/material/Skeleton';
@@ -14,9 +15,11 @@ import GAService from '../../services/GAService'
 import { toOwnerURI, toFullURL, currentUserHasAccess, sourceVersionOf } from '../../common/utils';
 import Breadcrumbs from '../common/Breadcrumbs'
 import MappingManagementList from './MappingManagementList'
+import { LockTooltip, useNoticeLocks } from '../common/NoticeLocks'
 
 const MappingHeader = ({mapping, onClose, repoURL, nested, onEdit, onRetire, onCreateSimilar, repo, isInCollection, detailsLoaded}) => {
   const { t } = useTranslation()
+  const createSimilarLock = useNoticeLocks()('createSimilar')
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
   const getRepoVersion = () => {
@@ -94,19 +97,23 @@ const MappingHeader = ({mapping, onClose, repoURL, nested, onEdit, onRetire, onC
       <div className='col-xs-12 padding-0' style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
         <span style={{display: 'flex', alignItems: 'center'}}>
           {currentUserHasAccess() && has(repo, 'source_type') && (
-            <Button
-              startIcon={<RepeatIcon fontSize='inherit' />}
-              variant='text'
-              size='small'
-              color='primary'
-              sx={{textTransform: 'none'}}
-              onClick={() => {
-                GAService.recordActionEvent('Create Similar', 'create_similar_mapping', mapping.id, { url: mapping.url })
-                onCreateSimilar()
-              }}
-            >
-              {t('repo.create_similar')}
-            </Button>
+            <LockTooltip title={createSimilarLock} placement='bottom' display='inline-block'>
+              <Button
+                startIcon={<RepeatIcon fontSize='inherit' />}
+                endIcon={createSimilarLock ? <LockIcon fontSize='inherit' /> : undefined}
+                disabled={Boolean(createSimilarLock)}
+                variant='text'
+                size='small'
+                color='primary'
+                sx={{textTransform: 'none'}}
+                onClick={() => {
+                  GAService.recordActionEvent('Create Similar', 'create_similar_mapping', mapping.id, { url: mapping.url })
+                  onCreateSimilar()
+                }}
+              >
+                {t('repo.create_similar')}
+              </Button>
+            </LockTooltip>
           )}
         </span>
         {currentUserHasAccess() && repo?.version === 'HEAD' && has(repo, 'source_type') && (

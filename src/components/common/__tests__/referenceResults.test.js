@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-const { groupReferenceResults } = await import('../referenceResults.js')
+const { groupReferenceResults, getAddReferencesOutcome } = await import('../referenceResults.js')
 
 const added = { added: true, expression: '/orgs/O/sources/S/concepts/1/', message: 'The concept 1 is successfully added to collection C' }
 const unresolved = {
@@ -48,4 +48,19 @@ test('summary with only unresolved references names only them', () => {
 
 test('summary of an empty response says no references were added', () => {
   assert.equal(formatReferenceSummary(groupReferenceResults([]), fakeT), 'addToCollection.no_references_added')
+})
+
+test('an add-references refusal with a notice hands over the notice; one without keeps its error text', () => {
+  const notice = {title: 'Example notice', scope: 'Example scope'}
+  assert.deepEqual(getAddReferencesOutcome({detail: 'Example detail', error_code: 'example_refusal', notice}), {notice})
+  assert.deepEqual(getAddReferencesOutcome({response: {status: 403, data: {detail: 'Example detail', notice}}}), {notice})
+  assert.deepEqual(getAddReferencesOutcome({detail: 'Example detail', error_code: 'example_refusal'}), {error: 'Example detail'})
+  assert.deepEqual(getAddReferencesOutcome({detail: 'Example detail', notice: {title: ''}}), {error: 'Example detail'})
+  assert.deepEqual(getAddReferencesOutcome(undefined), {error: null})
+})
+
+test('an add-references success or queued request is unchanged', () => {
+  assert.deepEqual(getAddReferencesOutcome({status: 200, data: [added]}), {results: [added]})
+  assert.deepEqual(getAddReferencesOutcome({status: 201, data: null}), {results: []})
+  assert.deepEqual(getAddReferencesOutcome({status: 202, data: {}}), {pending: true})
 })

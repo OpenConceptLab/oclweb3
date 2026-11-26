@@ -23,12 +23,15 @@ import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress';
 import { URIToParentParams, currentUserHasAccess, toCamelCase } from '../../common/utils'
 import { FACET_ORDER, EXCLUDE_FILTER_KEY } from './ResultConstants';
+import { LockMark, useNoticeLocks } from '../common/NoticeLocks';
 
 // retiredControl: {checked, defaultChecked, count} for the Retired group's "Include retired" choice
 // (search/retiredControl.js). It isn't a facet: it's staged and applied with the filters, and
 // onChange gets its setting as a second argument.
 const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFilters, fieldOrder, noSubheader, disabledZero, filterDefinitions, nested, onSaveAsDefaultFilters, loading, repoDefaultFilters, propertyFilters, propertyDefinition, heightToSubtract, open, allowExclude, retiredControl}) => {
   const { t } = useTranslation()
+  // a repository notice may lock saving default filters (NoticeLocks): Clear then clears only the filters applied
+  const defaultsLock = useNoticeLocks()('saveDefaultFilters')
   const [applied, setApplied] = React.useState({});
   const appliedIncludeRetired = retiredControl?.checked
   const defaultIncludeRetired = retiredControl?.defaultChecked
@@ -179,7 +182,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   const onClear = () => {
     setApplied({})
     setIncludeRetired(defaultIncludeRetired)
-    if(onSaveAsDefaultFilters)
+    if(onSaveAsDefaultFilters && !defaultsLock)
       onSaveAsDefaultFilters({})
     onChange({}, defaultIncludeRetired)
   }
@@ -235,7 +238,8 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   const onSetDefaultFilters = () => {
     if(unapplied)
       onChange(applied, includeRetired)
-    onSaveAsDefaultFilters(applied)
+    if(!defaultsLock)
+      onSaveAsDefaultFilters(applied)
   }
 
   const onResetDefaultFilters = () => {
@@ -405,7 +409,7 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                 </Tooltip>
                 <Tooltip
                   title={
-                    !isEmpty(repoDefaultFilters) && canUpdateDefaultFilters ?
+                    !isEmpty(repoDefaultFilters) && canUpdateDefaultFilters && !defaultsLock ?
                       t('search.clear_filters_with_defaults_tooltip') :
                       t('search.clear_filters_tooltip')
                   }
@@ -427,14 +431,15 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                 {
                   canUpdateDefaultFilters &&
                     <Menu anchorEl={menuAnchorEl} open={Boolean(menuAnchorEl)} onClose={() => setMenuAnchorEl(null)}>
-                      <Tooltip title={t('search.save_default_filters')} placement='right' disableInteractive>
-                        <span>
+                      <Tooltip title={defaultsLock || t('search.save_default_filters')} placement='right' disableInteractive>
+                        <span style={{display: 'block'}}>
                           <MenuItem
                             dense
-                            disabled={isEmpty(applied) || isEqual(applied, repoDefaultFilters)}
+                            disabled={Boolean(defaultsLock) || isEmpty(applied) || isEqual(applied, repoDefaultFilters)}
                             onClick={() => { setMenuAnchorEl(null); onSetDefaultFilters() }}
                           >
                             {t('search.save_default_filters')}
+                            {defaultsLock && <LockMark />}
                           </MenuItem>
                         </span>
                       </Tooltip>

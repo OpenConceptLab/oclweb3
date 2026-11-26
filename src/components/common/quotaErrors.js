@@ -1,3 +1,5 @@
+import { getNotice } from './limitNoticePayload'
+
 const QUOTA_ERRORS = {
   mapper_match_operations_limit_reached: {meter: 'match_operations', kind: 'quota'},
   ai_assistant_calls_limit_reached: {meter: 'ai_assistant_calls', kind: 'quota'},
@@ -15,12 +17,15 @@ export const isCapMeter = meter => CAP_METERS.has(meter)
 
 export const isLimitMeter = meter => LIMIT_METERS.has(meter)
 
+// A refusal QuotaDialog shows: one of the codes above, or any refusal that carries a notice (limitNoticePayload.js), which
+// QuotaDialog hands to LimitNotice
 export const getQuotaError = value => {
   const data = value?.response?.data || value?.data || value
   const config = QUOTA_ERRORS[data?.error_code]
-  if(!config)
+  const notice = getNotice(value)
+  if(!config && !notice)
     return null
-  return {...config, errorCode: data.error_code}
+  return {...config, errorCode: data?.error_code, notice}
 }
 
 export const isQuotaError = value => Boolean(getQuotaError(value))

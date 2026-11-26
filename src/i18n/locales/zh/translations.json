@@ -993,5 +993,11 @@
     "summary_added": "已添加 {{count}} 个引用",
     "summary_failed": "{{count}} 个引用失败",
     "add_to_collection": "添加到集合"
+  },
+  "notice": {
+    "request_not_completed": "请求未完成",
+    "read_only": "只读",
+    "restricted": "受限",
+    "still_works": "仍可使用"
   }
 }

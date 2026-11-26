@@ -15,6 +15,7 @@ import CodeIcon from '@mui/icons-material/CodeOutlined'
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import BackIcon from '@mui/icons-material/ArrowBackOutlined'
+import LockIcon from '@mui/icons-material/LockOutlined'
 import { compact, find, get, includes, isEmpty, map, toLower, uniqBy } from 'lodash'
 import APIService from '../../services/APIService'
 import GAService from '../../services/GAService'
@@ -27,6 +28,8 @@ import GroupItems from '../common/GroupItems'
 import AutocompleteLoading from '../common/AutocompleteLoading'
 import QuotaDialog from '../common/QuotaDialog'
 import { getQuotaError } from '../common/quotaErrors'
+import { LockTooltip, useNoticeLocks } from '../common/NoticeLocks'
+import { useResourceNoticeLookup } from '../common/useNotices'
 import CloneCascadeParams from './CloneCascadeParams'
 import CloneConceptsTable from './CloneConceptsTable'
 import CloneToSourcePreview from './CloneToSourcePreview'
@@ -62,6 +65,10 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
   const [previewConcept, setPreviewConcept] = React.useState(null)
   const [previewLoading, setPreviewLoading] = React.useState(false)
   const [previewResults, setPreviewResults] = React.useState({})
+  // Cloning writes to the chosen source, so Clone follows that source's notices and locks when they lock its edits
+  // (NoticeLocks); another source can still be chosen, and the previews stay open. Clone waits until they're in.
+  const destination = useResourceNoticeLookup(open && selected?.url ? selected.url : null)
+  const cloneLock = useNoticeLocks(destination.notices)('cloneToSource')
 
   React.useEffect(() => {
     if (!open) {
@@ -121,7 +128,7 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
   }
 
   const handleSubmit = () => {
-    if (!selected?.url || isEmpty(conceptUrls)) return
+    if (!selected?.url || isEmpty(conceptUrls) || destination.pending || cloneLock) return
     GAService.recordActionEvent('Source Clone', 'clone_to_source', selected?.short_code || selected?.id, {
       source: selected?.url,
       count: conceptUrls.length
@@ -367,14 +374,17 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
       {!previewConcept && (
         <DialogActions sx={{ pt: 2, px: 0 }}>
           {!done && (
-            <Button
-              variant='contained'
-              onClick={handleSubmit}
-              disabled={!selected || submitting || isEmpty(conceptUrls)}
-              sx={{ textTransform: 'none' }}
-            >
-              {t('cloneToSource.clone_button')}
-            </Button>
+            <LockTooltip title={cloneLock} placement='top' display='inline-block'>
+              <Button
+                variant='contained'
+                onClick={handleSubmit}
+                disabled={!selected || submitting || isEmpty(conceptUrls) || destination.pending || Boolean(cloneLock)}
+                endIcon={cloneLock ? <LockIcon fontSize='inherit' /> : undefined}
+                sx={{ textTransform: 'none' }}
+              >
+                {t('cloneToSource.clone_button')}
+              </Button>
+            </LockTooltip>
           )}
         </DialogActions>
       )}
@@ -383,6 +393,7 @@ const CloneToSourceDialog = ({ open, onClose, concept, concepts: conceptsProp })
         onClose={() => setQuotaError(null)}
         errorCode={quotaError?.errorCode}
         meter={quotaError?.meter}
+        notice={quotaError?.notice}
         surface='tbv3_clone'
       />
     </Dialog>

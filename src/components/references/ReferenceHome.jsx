@@ -11,9 +11,13 @@ import ReferenceDetails from './ReferenceDetails'
 import ReferenceTabs from './ReferenceTabs'
 import ReferenceExpansionResults from './ReferenceExpansionResults'
 import DeleteReferencesDialog from '../collections/DeleteReferencesDialog'
+import { showRefusalNotice } from '../common/LimitNotice'
+import { useNoticeLocks } from '../common/NoticeLocks'
 
 const ReferenceHome = props => {
   const { t } = useTranslation()
+  // on a repository page, a notice may lock removing references (NoticeLocks)
+  const referencesLock = useNoticeLocks()('removeReferences')
   const [reference, setReference] = React.useState(props.reference || {})
   const [loading, setLoading] = React.useState(false)
   const [errorStatus, setErrorStatus] = React.useState(false)
@@ -146,7 +150,7 @@ const ReferenceHome = props => {
         setAlert({ severity: 'success', message: t('reference.remove_success') })
         props.onDelete && props.onDelete()
         props.onClose && props.onClose()
-      } else {
+      } else if(!showRefusalNotice(response)) {
         setAlert({ severity: 'error', message: response?.data?.detail || t('common.generic_error') })
       }
     })
@@ -159,7 +163,7 @@ const ReferenceHome = props => {
 
   return (
     <div className='col-xs-12' style={{padding: '8px 16px 12px 16px'}}>
-      <ReferenceHeader reference={reference} onClose={props.onClose} onDelete={() => setDeleteDialog(true)} canDelete={isHead} deleteDisabledReason={isHead ? '' : t('reference.not_available_in_version')} />
+      <ReferenceHeader reference={reference} onClose={props.onClose} onDelete={() => setDeleteDialog(true)} canDelete={isHead && !referencesLock} deleteLocked={Boolean(isHead && referencesLock)} deleteDisabledReason={isHead ? (referencesLock || '') : t('reference.not_available_in_version')} />
       <ReferenceTabs tab={tab} onTabChange={(event, newTab) => onTabChange(newTab)} loading={loading} />
       {
         tab === 'metadata' &&

@@ -1,0 +1,372 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+
+const {
+  normalizeNotice, getNotice, getNoticeDetail, getNotices, orderActions, getNoticeTone, getNoticeIcon, getLocks,
+  getLockTooltip, isEntryPointLocked, safeURL, writesShownVersion, createRequestGuard, readNoticeLookup, forgetOtherAnswer,
+  watchReturns, createResourceNoticeLookup,
+  ENTRY_POINT_ACTIONS, WRITE_ACTIONS,
+} = await import('../limitNoticePayload.js')
+
+const NOTICE = {
+  kind: 'cap',
+  tone: 'error',
+  scope_type: 'organization',
+  title: 'Example notice',
+  scope: 'Example scope',
+  meter: {label: 'Example meter', fraction: 1, tone: 'error'},
+  reset: 'Example reset',
+  restricted: 'Example restriction',
+  still_works: 'Example of what still works',
+  managed_by: 'Example managers',
+  actions: [
+    {label: 'Example details', url: 'https://example.org/details', kind: 'secondary'},
+    {label: 'Example way out', url: 'https://example.org/way-out', kind: 'primary'},
+  ],
+  help: {label: 'Example help', url: 'https://example.org/help'},
+}
+
+test('a full notice is kept as sent', () => {
+  assert.deepEqual(normalizeNotice(NOTICE), NOTICE)
+})
+
+test('fields the slot does not know are dropped, and empty ones too', () => {
+  const notice = normalizeNotice({...NOTICE, extra: 'x', scope: '  ', reset: 42, meter: undefined, html: '<b>x</b>'})
+  assert.equal(notice.extra, undefined)
+  assert.equal(notice.html, undefined)
+  assert.equal(notice.scope, undefined)
+  assert.equal(notice.reset, undefined)
+  assert.equal(notice.meter, undefined)
+  assert.equal(notice.title, 'Example notice')
+})
+
+test('no usable notice without a title', () => {
+  assert.equal(normalizeNotice(null), null)
+  assert.equal(normalizeNotice('Example notice'), null)
+  assert.equal(normalizeNotice([NOTICE]), null)
+  assert.equal(normalizeNotice({...NOTICE, title: ''}), null)
+  assert.equal(normalizeNotice({...NOTICE, title: undefined}), null)
+})
+
+test('only http(s) links are kept, and an action or help link needs one', () => {
+  assert.equal(safeURL('https://example.org/a'), 'https://example.org/a')
+  assert.equal(safeURL('http://example.org/a'), 'http://example.org/a')
+  // eslint-disable-next-line spellcheck/spell-checker
+  assert.equal(safeURL('javascript:alert(1)'), null)
+  assert.equal(safeURL('data:text/html,hi'), null)
+  assert.equal(safeURL('/relative/path'), null)
+  assert.equal(safeURL(undefined), null)
+  const notice = normalizeNotice({
+    ...NOTICE,
+    // eslint-disable-next-line spellcheck/spell-checker
+    actions: [{label: 'Bad', url: 'javascript:void(0)', kind: 'primary'}, {label: '', url: 'https://example.org/'}, {label: 'No link'}],
+    help: {label: 'Example help', url: 'ftp://example.org/help'},
+  })
+  assert.equal(notice.actions, undefined)
+  assert.equal(notice.help, undefined)
+})
+
+test('an unknown action kind falls back to secondary', () => {
+  const notice = normalizeNotice({...NOTICE, actions: [{label: 'Example', url: 'https://example.org/', kind: 'loud'}]})
+  assert.deepEqual(notice.actions, [{label: 'Example', url: 'https://example.org/', kind: 'secondary'}])
+})
+
+test('the meter fraction is clamped, and drives no bar unless it is a number', () => {
+  assert.equal(normalizeNotice({...NOTICE, meter: {label: 'x', fraction: 1.7}}).meter.fraction, 1)
+  assert.equal(normalizeNotice({...NOTICE, meter: {label: 'x', fraction: -0.2}}).meter.fraction, 0)
+  assert.deepEqual(normalizeNotice({...NOTICE, meter: {label: 'x', fraction: '0.5'}}).meter, {label: 'x'})
+  assert.deepEqual(normalizeNotice({...NOTICE, meter: {label: 'x', fraction: NaN, tone: 'loud'}}).meter, {label: 'x'})
+  assert.equal(normalizeNotice({...NOTICE, meter: {}}).meter, undefined)
+})
+
+test('unknown kinds, tones and scope types are dropped', () => {
+  const notice = normalizeNotice({...NOTICE, kind: 'other', tone: 'loud', scope_type: 'planet'})
+  assert.equal(notice.kind, undefined)
+  assert.equal(notice.tone, undefined)
+  assert.equal(notice.scope_type, undefined)
+})
+
+test('locks keep only oclapi2 write actions, once each', () => {
+  assert.deepEqual(WRITE_ACTIONS, ['edit', 'publish', 'delete', 'make_private'])
+  assert.deepEqual(normalizeNotice({...NOTICE, locks: ['edit', 'edit', 'export', 'delete']}).locks, ['edit', 'delete'])
+  assert.equal(normalizeNotice({...NOTICE, locks: 'edit'}).locks, undefined)
+})
+
+test('the notice is read from an axios error, a response or the body', () => {
+  const body = {detail: 'Example detail', error_code: 'example_code', notice: NOTICE}
+  assert.equal(getNotice({response: {status: 403, data: body}}).title, 'Example notice')
+  assert.equal(getNotice({status: 403, data: body}).title, 'Example notice')
+  assert.equal(getNotice(body).title, 'Example notice')
+  assert.equal(getNotice({detail: 'Example detail'}), null)
+  assert.equal(getNotice({status: 200, data: [{id: 1}]}), null)
+  assert.equal(getNotice('Network Error'), null)
+  assert.equal(getNotice(undefined), null)
+})
+
+test('with no notice, the API detail is what is shown', () => {
+  assert.equal(getNoticeDetail({response: {data: {detail: 'Example detail', error: 'Example error'}}}), 'Example detail')
+  assert.equal(getNoticeDetail('Example message'), 'Example message')
+})
+
+test('the notices route answer keeps usable notices only', () => {
+  assert.deepEqual(getNotices({notices: [NOTICE, {title: ''}, null]}), [NOTICE])
+  assert.deepEqual(getNotices({notices: []}), [])
+  assert.deepEqual(getNotices({detail: 'Not found.'}), [])
+  assert.deepEqual(getNotices(undefined), [])
+})
+
+test('the way out leads: first in a strip or an inline notice, rightmost in a dialog', () => {
+  const [details, wayOut] = NOTICE.actions
+  assert.deepEqual(orderActions(NOTICE.actions, 'strip'), [wayOut, details])
+  assert.deepEqual(orderActions(NOTICE.actions, 'inline'), [wayOut, details])
+  assert.deepEqual(orderActions(NOTICE.actions, 'dialog'), [details, wayOut])
+  assert.deepEqual(orderActions(undefined, 'dialog'), [])
+  assert.deepEqual(NOTICE.actions, [details, wayOut])
+})
+
+test('tone and icon come from the payload', () => {
+  assert.equal(getNoticeTone({tone: 'warning'}), 'warning')
+  assert.equal(getNoticeTone({meter: {tone: 'error'}}), 'error')
+  assert.equal(getNoticeTone({}), 'info')
+  assert.equal(getNoticeIcon({kind: 'read_only', tone: 'error'}), 'lock')
+  assert.equal(getNoticeIcon({kind: 'not_included', tone: 'error'}), 'info')
+  assert.equal(getNoticeIcon({kind: 'cap', tone: 'error'}), 'error')
+  assert.equal(getNoticeIcon({kind: 'quota', tone: 'warning'}), 'warning')
+  assert.equal(getNoticeIcon({kind: 'quota'}), 'info')
+})
+
+test('locks and their tooltip come from the resource notices', () => {
+  const notices = [{title: 'a'}, {title: 'b', locks: ['edit'], tooltip: 'Example tooltip'}, {title: 'c', locks: ['delete', 'edit']}]
+  assert.deepEqual(getLocks(notices), ['edit', 'delete'])
+  assert.equal(getLockTooltip(notices), 'Example tooltip')
+  assert.deepEqual(getLocks([]), [])
+  assert.equal(getLockTooltip(undefined), null)
+})
+
+test('an entry point is locked only when every action it can take is locked', () => {
+  assert.equal(isEntryPointLocked(['edit'], 'addConcept'), true)
+  assert.equal(isEntryPointLocked(['edit'], 'deleteVersion'), true)
+  assert.equal(isEntryPointLocked(['edit'], 'deleteRepo'), false)
+  assert.equal(isEntryPointLocked(['delete'], 'deleteRepo'), true)
+  // the edit form can still publish a repository, so an edit lock alone leaves it open
+  assert.equal(isEntryPointLocked(['edit'], 'editRepo'), false)
+  assert.equal(isEntryPointLocked(['edit', 'publish', 'make_private'], 'editRepo'), true)
+  assert.equal(isEntryPointLocked([], 'addConcept'), false)
+  assert.equal(isEntryPointLocked(undefined, 'addConcept'), false)
+  assert.equal(isEntryPointLocked(['edit'], 'copyURL'), false)
+  assert.equal(isEntryPointLocked(['edit'], 'saveDefaultFilters'), true)
+  assert.equal(isEntryPointLocked(['edit'], 'removeReferences'), true)
+  // adding to a collection and cloning into a source are edits of the destination
+  assert.equal(isEntryPointLocked(['edit'], 'addReferences'), true)
+  assert.equal(isEntryPointLocked(['edit'], 'cloneToSource'), true)
+  assert.equal(isEntryPointLocked(['delete'], 'cloneToSource'), false)
+  // converting references is an edit (its preview isn't asked about, so it has no entry)
+  assert.equal(isEntryPointLocked(['edit'], 'convertReferences'), true)
+  Object.values(ENTRY_POINT_ACTIONS).forEach(actions => actions.forEach(action => assert.ok(WRITE_ACTIONS.includes(action), action)))
+})
+
+test('the repository edit form can still publish; the version form only edits', () => {
+  assert.equal(isEntryPointLocked(['edit'], 'editRepo'), false)
+  assert.equal(isEntryPointLocked(['edit', 'publish'], 'editRepo'), false)
+  assert.equal(isEntryPointLocked(['edit'], 'editVersion'), true)
+  assert.equal(isEntryPointLocked(['publish', 'make_private'], 'editVersion'), false)
+})
+
+test('version writes follow the version shown; everything else follows HEAD', () => {
+  ;['editVersion', 'releaseVersion', 'deleteVersion', 'saveDefaultFilters'].forEach(entryPoint => assert.equal(writesShownVersion(entryPoint), true, entryPoint))
+  ;['editRepo', 'deleteRepo', 'addConcept', 'createVersion', 'removeReferences', 'createSimilar'].forEach(entryPoint => assert.equal(writesShownVersion(entryPoint), false, entryPoint))
+})
+
+test('a request superseded by a newer one, or by a cache hit, no longer answers', () => {
+  const guard = createRequestGuard()
+  const otherLanguage = guard.start()
+  assert.equal(otherLanguage(), true)
+  // switching back to a language whose notices are cached loads them from the cache: the request in flight is stale
+  guard.invalidate()
+  assert.equal(otherLanguage(), false)
+  const cachedLanguage = guard.start()
+  const later = guard.start()
+  assert.equal(cachedLanguage(), false)
+  assert.equal(later(), true)
+})
+
+test('a lookup is pending until the resource asked about has answered, and never shows another resource\'s notices', () => {
+  const source = '/orgs/O/sources/S/'
+  const collection = '/orgs/O/collections/C/'
+  const notices = [{title: 'Example notice', locks: ['edit'], tooltip: 'Example reason'}]
+  assert.deepEqual(readNoticeLookup({resourceURL: null, notices: []}, source), {notices: [], pending: true})
+  assert.deepEqual(readNoticeLookup({resourceURL: source, notices}, collection), {notices: [], pending: true})
+  assert.deepEqual(readNoticeLookup({resourceURL: source, notices}, source), {notices, pending: false})
+})
+
+test('a failed lookup, or a server without the route, settles with no notices; nothing asked is never pending', () => {
+  const source = '/orgs/O/sources/S/'
+  assert.deepEqual(readNoticeLookup({resourceURL: source, notices: []}, source), {notices: [], pending: false})
+  ;[null, undefined, ''].forEach(resourceURL =>
+    assert.equal(readNoticeLookup({resourceURL: null, notices: []}, resourceURL).pending, false, String(resourceURL)))
+})
+
+test('a resource selected again waits for its own new answer, even after a failed one (A, then B, then A)', () => {
+  const a = '/orgs/O/collections/A/'
+  const b = '/orgs/O/collections/B/'
+  // A's lookup failed, which stores no notices for A
+  let stored = {resourceURL: a, notices: []}
+  assert.equal(readNoticeLookup(stored, a).pending, false)
+  // B is selected and hasn't answered
+  stored = forgetOtherAnswer(stored, b)
+  assert.equal(readNoticeLookup(stored, b).pending, true)
+  // A is selected again before B answers: A waits for its new answer
+  stored = forgetOtherAnswer(stored, a)
+  assert.deepEqual(readNoticeLookup(stored, a), {notices: [], pending: true})
+  // asking the same resource again keeps its answer meanwhile
+  const answered = {resourceURL: a, notices: [{title: 'Example notice', locks: ['edit'], tooltip: 'Example reason'}]}
+  assert.equal(forgetOtherAnswer(answered, a), answered)
+})
+
+// A window and document that can be left and returned to, as the browser does it: leaving hides the page or blurs the
+// window, and coming back shows it and focuses it
+const makePage = ({hidden = false, focused = true} = {}) => {
+  const win = new EventTarget()
+  const doc = Object.assign(new EventTarget(), {visibilityState: hidden ? 'hidden' : 'visible', hasFocus: () => focused})
+  const setVisibility = state => {
+    doc.visibilityState = state
+    doc.dispatchEvent(new Event('visibilitychange'))
+  }
+  return {
+    win,
+    doc,
+    leaveTab: () => {
+      setVisibility('hidden')
+      focused = false
+      win.dispatchEvent(new Event('blur'))
+    },
+    returnToTab: () => {
+      setVisibility('visible')
+      focused = true
+      win.dispatchEvent(new Event('focus'))
+    },
+    showUnfocused: () => setVisibility('visible'),
+    leaveWindow: () => {
+      focused = false
+      win.dispatchEvent(new Event('blur'))
+    },
+    returnToWindow: () => {
+      focused = true
+      win.dispatchEvent(new Event('focus'))
+    },
+  }
+}
+
+test('a return to the page, from another tab or window, is told once; nothing else is', () => {
+  const page = makePage()
+  let returns = 0
+  const stop = watchReturns(page.win, page.doc, () => returns++)
+  page.returnToWindow()
+  assert.equal(returns, 0)
+  page.leaveTab()
+  page.returnToTab()
+  assert.equal(returns, 1)
+  page.leaveWindow()
+  page.returnToWindow()
+  assert.equal(returns, 2)
+  stop()
+  page.leaveTab()
+  page.returnToTab()
+  assert.equal(returns, 2)
+})
+
+test('watching starts while the person is away: their return is told', () => {
+  ;[{hidden: true, focused: false}, {focused: false}].forEach(state => {
+    const page = makePage(state)
+    let returns = 0
+    watchReturns(page.win, page.doc, () => returns++)
+    if(state.hidden)
+      page.returnToTab()
+    else
+      page.returnToWindow()
+    assert.equal(returns, 1, JSON.stringify(state))
+  })
+})
+
+test('a page shown in a window that isn\'t focused waits for the focus: that is the return', () => {
+  const page = makePage()
+  let returns = 0
+  watchReturns(page.win, page.doc, () => returns++)
+  page.leaveTab()
+  // the tab is shown again while the person is still working in another window
+  page.showUnfocused()
+  assert.equal(returns, 0)
+  page.returnToWindow()
+  assert.equal(returns, 1)
+})
+
+// A lookup whose requests the test answers, one at a time, with the notices it's given
+const makeLookup = page => {
+  const asked = []
+  const answers = []
+  let stored = {resourceURL: null, notices: []}
+  const lookup = createResourceNoticeLookup({
+    fetchNotices: query => {
+      asked.push(query)
+      return new Promise(resolve => answers.push(notices => resolve({status: 200, notices})))
+    },
+    isLoggedIn: () => true,
+    onChange: next => {
+      stored = next
+    },
+    win: page.win,
+    doc: page.doc,
+  })
+  return {
+    lookup,
+    asked,
+    answer: async notices => {
+      answers.shift()(notices)
+      await new Promise(resolve => setTimeout(resolve, 0))
+    },
+    read: resourceURL => readNoticeLookup(stored, resourceURL),
+  }
+}
+
+const LOCKING = [{title: 'Example notice', locks: ['edit'], tooltip: 'Example reason'}]
+
+test('an unchanged resource unlocks when its lookup answers with no notices after the person returns', async () => {
+  const source = '/orgs/O/sources/S/'
+  const page = makePage()
+  const { lookup, asked, answer, read } = makeLookup(page)
+  lookup.ask(source, 'en')
+  await answer(LOCKING)
+  assert.equal(isEntryPointLocked(getLocks(read(source).notices), 'editConcept'), true)
+  // the person follows the notice's link to another tab, restores write access there, and comes back
+  page.leaveTab()
+  assert.equal(asked.length, 1)
+  page.returnToTab()
+  assert.deepEqual(asked, [{resource: source, lang: 'en'}, {resource: source, lang: 'en'}])
+  // locked while the answer is awaited, never pending
+  assert.deepEqual(read(source), {notices: LOCKING, pending: false})
+  await answer([])
+  assert.deepEqual(read(source), {notices: [], pending: false})
+  assert.equal(isEntryPointLocked(getLocks(read(source).notices), 'editConcept'), false)
+  // with nothing shown, a return asks nothing more
+  page.leaveTab()
+  page.returnToTab()
+  assert.equal(asked.length, 2)
+})
+
+test('a lookup that shows no notices, or has stopped, asks nothing when the person returns', async () => {
+  const source = '/orgs/O/sources/S/'
+  const page = makePage()
+  const { lookup, asked, answer } = makeLookup(page)
+  lookup.ask(source, 'en')
+  await answer([])
+  page.leaveTab()
+  page.returnToTab()
+  assert.equal(asked.length, 1)
+  // another resource's notices are shown; the page closes (stop) before the person comes back
+  lookup.ask('/orgs/O/collections/C/', 'en')
+  await answer(LOCKING)
+  lookup.stop()
+  page.leaveTab()
+  page.returnToTab()
+  assert.equal(asked.length, 2)
+})

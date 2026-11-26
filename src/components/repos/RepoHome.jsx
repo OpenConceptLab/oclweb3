@@ -9,6 +9,7 @@ import isNumber from 'lodash/isNumber'
 
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add'
+import LockIcon from '@mui/icons-material/LockOutlined'
 import APIService from '../../services/APIService';
 import GAService from '../../services/GAService';
 import ProcessingBanner from './ProcessingBanner';
@@ -42,8 +43,32 @@ import { isPanelReady } from './panelReady';
 import ReferenceHome from '../references/ReferenceHome'
 import AddReferencesDialog from '../collections/AddReferencesDialog'
 import ExpansionDropDown from './ExpansionDropDown';
+import LimitNotice, { refreshNotices, showRefusalNotice } from '../common/LimitNotice';
+import { NoticeLocksProvider, LockTooltip, useNoticeLocks } from '../common/NoticeLocks';
+import { refreshNoticesWhenTaskEnds, useResourceNotices } from '../common/useNotices';
+import usePublishedHeight from '../common/usePublishedHeight';
 
 const DEFAULT_VERSIONS_PAGE_SIZE = 10
+
+const AddReferencesButton = ({ onClick }) => {
+  const { t } = useTranslation()
+  const lockReason = useNoticeLocks()('addReferences')
+  return (
+    <LockTooltip title={lockReason} placement='bottom' display='inline-block'>
+      <Button
+        variant="contained"
+        size="small"
+        startIcon={<AddIcon />}
+        endIcon={lockReason ? <LockIcon /> : undefined}
+        disabled={Boolean(lockReason)}
+        onClick={onClick}
+        sx={{textTransform: 'none', whiteSpace: 'nowrap', flexShrink: 0, mr: 1}}
+      >
+        {t('reference.add_references')}
+      </Button>
+    </LockTooltip>
+  )
+}
 
 const RepoHome = () => {
   const { t } = useTranslation()
@@ -482,6 +507,8 @@ const RepoHome = () => {
     APIService.new().overrideURL(url).delete().then(response => {
       setDeletingRepo(false)
       if(!response || response?.status === 204) {
+        // deleting a repository or a version can change which content is read-only
+        refreshNotices()
         setDeleteTarget(false)
         setAlert({severity: 'success', message: deletingVersion ? t('repo.success_delete_version') : t('repo.success_delete')})
         if(deletingVersion)
@@ -489,10 +516,16 @@ const RepoHome = () => {
         history.push(deletingVersion ? target.url : (owner?.url || repo.owner_url))
       }
       else if(response?.status === 202 || response?.detail === 'Already Queued') {
+        // a queued deletion changes the notices once its task has ended
+        const taskId = response?.data?.id || response?.data?.task
+        if(taskId)
+          refreshNoticesWhenTaskEnds(taskId)
+        else
+          refreshNotices()
         setDeleteTarget(false)
         setAlert({severity: 'warning', message: deletingVersion ? t('repo.delete_accepted_version') : t('repo.delete_accepted')})
       }
-      else
+      else if(!showRefusalNotice(response))
         setAlert({severity: 'error', message: response?.data?.detail || t('common.generic_error')})
     })
   }
@@ -512,7 +545,7 @@ const RepoHome = () => {
       }
       else if(response?.status === 202 || response?.detail === 'Already Queued' || response?.__all__ === 'Already Queued') {
         setAlert({severity: 'warning', message: t('errors.already_queued')})
-      } else {
+      } else if(!showRefusalNotice(response)) {
         setAlert({severity: 'error', message: response?.data?.detail || t('common.generic_error')})
       }
     })
@@ -522,9 +555,13 @@ const RepoHome = () => {
     if(!currentUserHasAccess())
       return
     let meta = {...repo?.meta, display: {...repo?.meta?.display, default_filter: appliedFilters}}
-    APIService.new().overrideURL(repo.version_url || repo.url).patch({meta: meta}).then(() => {
-      setRepoState(prev => prev.repo?.version_url === repo.version_url ? {...prev, repo: {...prev.repo, meta: meta}} : prev)
-      setAlert({severity: 'success', message: t('common.success_update')})
+    // the saved defaults change here only once the API has saved them
+    APIService.new().overrideURL(repo.version_url || repo.url).patch({meta: meta}).then(response => {
+      if(response?.status === 200) {
+        setRepoState(prev => prev.repo?.version_url === repo.version_url ? {...prev, repo: {...prev.repo, meta: meta}} : prev)
+        setAlert({severity: 'success', message: t('common.success_update')})
+      } else if(!showRefusalNotice(response))
+        setAlert({severity: 'error', message: response?.detail || t('common.generic_error')})
     })
   }
 
@@ -532,6 +569,20 @@ const RepoHome = () => {
   const processingTargets = React.useMemo(() => (repo?.url || repo?.version_url) ? [repo] : [], [repo])
   const { versions: [liveRepo] = [] } = useProcessingVersions(processingTargets)
   const currentRepo = liveRepo || repo
+  // The repository's notices (OpenConceptLab/ocl_online#702), HEAD's and, on a version's page, that version's: a strip
+  // at the top of the panel for the version shown while a state lasts, and locks on the edit actions they name
+  // (NoticeLocks). The panel's contents are sized from --app-height, so inside it that is the page's height less the
+  // strip, but never less than enough to browse the results: when the account strips and this one leave too little
+  // room, the panel scrolls within the page instead.
+  const headNotices = useResourceNotices(repo?.id ? repo.url : null)
+  const versionNotices = useResourceNotices(repo?.id && isVersion ? repo.version_url : null)
+  const resourceNotices = isVersion ? versionNotices : headNotices
+  const noticeRef = usePublishedHeight('--resource-notice-height', resourceNotices.length > 0)
+  const noticeHeightSx = resourceNotices.length > 0 ? {
+    '--app-height': 'max(calc(var(--page-height) - var(--resource-notice-height, 0px)), 600px)',
+    maxHeight: 'calc(var(--page-height) - 102px)',
+    overflowY: 'auto',
+  } : {}
 
   const canRenderSearch = !versionPending && (!requiresExpansionSelection || (!expansionsLoading && Boolean(selectedExpansion)))
   const expansionURL = (isCollection && selectedExpansion?.url) ? selectedExpansion.url : false
@@ -555,13 +606,20 @@ const RepoHome = () => {
   const _canRenderSearch = repo?.id && ['concepts', 'mappings', 'references'].includes(tab) && (tab !== 'references' || isCollection) && canRenderSearch && isRepoForRoute && isSameRepoScope(repoRoute, route)
   const showProcessingBanner = _canRenderSearch && isVersionProcessing(currentRepo)
   const heightTakenInProcessingBanner = showProcessingBanner ? 43 : 0
-  return (
+  const page = (
     <div className='col-xs-12 padding-0' style={{borderRadius: '10px'}}>
-      <Paper component="div" className={isSplitView ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: 'white', borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.nv80'}}>
+      <Paper component="div" className={isSplitView ? 'col-xs-7 split padding-0' : 'col-xs-12 split padding-0'} sx={{backgroundColor: 'white', borderRadius: '10px', boxShadow: 'none', p: 0, border: 'solid 0.3px', borderColor: 'surface.nv80', ...noticeHeightSx}}>
+        {
+          resourceNotices.length > 0 &&
+            <div ref={noticeRef} className='col-xs-12 padding-0' style={{borderRadius: '10px 10px 0 0', overflow: 'hidden'}}>
+              {resourceNotices.map((notice, index) => <LimitNotice key={index} size='strip' notice={notice} />)}
+            </div>
+        }
         {
           (repo?.id || loading) &&
             <React.Fragment>
               <RepoHeader
+                squareTop={resourceNotices.length > 0}
                 isVersion={isVersion}
                 owner={owner}
                 repo={currentRepo}
@@ -625,15 +683,7 @@ const RepoHome = () => {
                       fixedLeftControls={
                         // on the left, so it shows before any row is ticked and stays in view at phone width
                         (isCollection && !isVersion && tab === 'references' && currentUserHasAccess()) ?
-                          <Button
-                            variant="contained"
-                            size="small"
-                            startIcon={<AddIcon />}
-                            onClick={() => setAddReferencesOpen(true)}
-                            sx={{textTransform: 'none', whiteSpace: 'nowrap', flexShrink: 0, mr: 1}}
-                          >
-                            {t('reference.add_references')}
-                          </Button> :
+                          <AddReferencesButton onClick={() => setAddReferencesOpen(true)} /> :
                         Boolean(isCollection && !selectedItem?.length && ['concepts', 'mappings'].includes(tab)) &&
                           <ExpansionDropDown
                             expansions={expansions}
@@ -773,5 +823,6 @@ const RepoHome = () => {
       </div>
     </div>
   );
+  return <NoticeLocksProvider notices={headNotices} shownNotices={resourceNotices}>{page}</NoticeLocksProvider>
 }
 export default RepoHome;

@@ -11,7 +11,7 @@ import Breadcrumbs from '../common/Breadcrumbs'
 import CloseIconButton from '../common/CloseIconButton';
 import ReferenceManagementList from './ReferenceManagementList'
 
-const ReferenceHeader = ({ reference, onClose, onDelete, canDelete, deleteDisabledReason }) => {
+const ReferenceHeader = ({ reference, onClose, onDelete, canDelete, deleteLocked, deleteDisabledReason }) => {
   const { t } = useTranslation()
   const [menu, setMenu] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(false)
@@ -55,7 +55,7 @@ const ReferenceHeader = ({ reference, onClose, onDelete, canDelete, deleteDisabl
           <Button endIcon={<DownIcon fontSize='inherit' />} variant='text' sx={{textTransform: 'none', color: 'surface.contrastText'}} onClick={onMenuOpen} id='reference-actions'>
             {t('common.actions')}
           </Button>
-          <ReferenceManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='reference-actions' onClick={onClick} reference={reference} canDelete={canDelete} deleteDisabledReason={deleteDisabledReason} />
+          <ReferenceManagementList anchorEl={menuAnchorEl} open={menu} onClose={onMenuClose} id='reference-actions' onClick={onClick} reference={reference} canDelete={canDelete} deleteLocked={deleteLocked} deleteDisabledReason={deleteDisabledReason} />
         </span>
       </div>
     </div>

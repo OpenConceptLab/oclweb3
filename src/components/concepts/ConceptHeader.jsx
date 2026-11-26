@@ -11,6 +11,7 @@ import DownIcon from '@mui/icons-material/ArrowDropDown';
 import AddIcon from '@mui/icons-material/PlaylistAddOutlined';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import LockIcon from '@mui/icons-material/LockOutlined';
 import CloseIconButton from '../common/CloseIconButton';
 import GAService from '../../services/GAService'
 import { toOwnerURI, toFullURL, currentUserHasAccess, isLoggedIn, sourceVersionOf } from '../../common/utils';
@@ -20,6 +21,7 @@ import ConceptManagementList from './ConceptManagementList'
 import AddToCollectionDialog from '../common/AddToCollectionDialog'
 import CloneToSourceDialog from '../repos/CloneToSourceDialog'
 import Retired from '../common/Retired'
+import { LockTooltip, useNoticeLocks } from '../common/NoticeLocks'
 
 const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCreateSimilar, nested, loading, isInCollection, detailsLoaded}) => {
   const { t } = useTranslation()
@@ -28,6 +30,7 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
   const [addToCollectionOpen, setAddToCollectionOpen] = React.useState(false)
   const [cloneToSourceOpen, setCloneToSourceOpen] = React.useState(false)
   const hasAccess = currentUserHasAccess()
+  const createSimilarLock = useNoticeLocks()('createSimilar')
   const isSource = has(repo, 'source_type')
   const canClone = isLoggedIn() && isSource
   const canManage = hasAccess && repo?.version === 'HEAD' && isSource
@@ -141,19 +144,23 @@ const ConceptHeader = ({concept, repo, onClose, repoURL, onEdit, onRetire, onCre
             </Button>
           )}
           {hasAccess && isSource && (
-            <Button
-              startIcon={<RepeatIcon fontSize='inherit' />}
-              variant='text'
-              size='small'
-              color='primary'
-              sx={{textTransform: 'none'}}
-              onClick={() => {
-                GAService.recordActionEvent('Create Similar', 'create_similar_concept', concept.id, { url: concept.url })
-                onCreateSimilar()
-              }}
-            >
-              {t('repo.create_similar')}
-            </Button>
+            <LockTooltip title={createSimilarLock} placement='bottom' display='inline-block'>
+              <Button
+                startIcon={<RepeatIcon fontSize='inherit' />}
+                endIcon={createSimilarLock ? <LockIcon fontSize='inherit' /> : undefined}
+                disabled={Boolean(createSimilarLock)}
+                variant='text'
+                size='small'
+                color='primary'
+                sx={{textTransform: 'none'}}
+                onClick={() => {
+                  GAService.recordActionEvent('Create Similar', 'create_similar_concept', concept.id, { url: concept.url })
+                  onCreateSimilar()
+                }}
+              >
+                {t('repo.create_similar')}
+              </Button>
+            </LockTooltip>
           )}
         </span>
         {(canManage || canClone) && (

@@ -34,6 +34,7 @@ import AutocompleteLoading from '../common/AutocompleteLoading'
 import UnresolvedReferencesTable from '../common/UnresolvedReferencesTable'
 import ReferenceResultsTable, { LABEL_COLUMN_WIDTH } from '../common/ReferenceResultsTable'
 import { groupReferenceResults, formatReferenceSummary } from '../common/referenceResults'
+import { showRefusalNotice } from '../common/LimitNotice'
 
 // ---- error formatting (same pattern as AddToCollectionDialog) ----
 
@@ -221,7 +222,7 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
         } else if (response?.status === 202) {
           setResults('pending')
           if (onSuccess) onSuccess()
-        } else {
+        } else if (!showRefusalNotice(response)) {
           setError((response?.detail || response?.error) || t('common.something_went_wrong'))
         }
       })
