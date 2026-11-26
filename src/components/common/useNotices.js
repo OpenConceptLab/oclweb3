@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import APIService from '../../services/APIService'
 import { getCurrentUserUsername, isLoggedIn } from '../../common/utils'
-import { createRequestGuard, forgetOtherAnswer, getNotices, readNoticeLookup, watchReturns } from './limitNoticePayload'
+import { createRequestGuard, createResourceNoticeLookup, getNotices, readNoticeLookup } from './limitNoticePayload'
 import { NOTICES_CHANGED_EVENT, refreshNotices } from './LimitNotice'
 import { watchTask } from '../repos/taskState'
 
@@ -49,14 +49,6 @@ const useRefetchOnChange = load => React.useEffect(() => {
   window.addEventListener(NOTICES_CHANGED_EVENT, load)
   return () => window.removeEventListener(NOTICES_CHANGED_EVENT, load)
 }, [load])
-
-// Fetches again when the person comes back to the page while it shows notices: they may have changed what a notice
-// asks for in another tab (a notice's link opens one), and nothing else would tell this one
-const useRefetchOnReturn = (load, showsNotices) => React.useEffect(() => {
-  if(!showsNotices)
-    return undefined
-  return watchReturns(window, document, load)
-}, [load, showsNotices])
 
 // Only the latest request a hook made may answer (createRequestGuard): one superseded by a newer one, a cache hit, a
 // change of user, language or resource, or an unmount is ignored
@@ -109,31 +101,20 @@ export const useAccountNotices = () => {
 }
 
 // The notices for one repository, version or map project (its relative URL), with the locks they carry, and whether
-// they're still being asked for (readNoticeLookup): a control that writes there waits for them
+// they're still being asked for (readNoticeLookup): a control that writes there waits for them. Asked again whenever they
+// may have changed, and on each return to the page while they show (createResourceNoticeLookup).
 export const useResourceNoticeLookup = resourceURL => {
   const { i18n } = useTranslation()
   const lang = i18n.language
   const [state, setState] = React.useState({resourceURL: null, notices: []})
-  const guard = useRequestGuard()
+  const lookup = React.useMemo(
+    () => createResourceNoticeLookup({fetchNotices, isLoggedIn, onChange: setState, win: window, doc: document}), []
+  )
+  React.useEffect(() => lookup.stop, [lookup])
+  React.useEffect(() => lookup.ask(resourceURL, lang), [lookup, resourceURL, lang])
+  useRefetchOnChange(lookup.refresh)
 
-  const load = React.useCallback(() => {
-    const isLatest = guard.start()
-    if(!resourceURL || !isLoggedIn()) {
-      setState({resourceURL, notices: []})
-      return
-    }
-    fetchNotices({resource: resourceURL, lang}).then(({ notices }) => isLatest() && setState({resourceURL, notices}))
-  }, [resourceURL, lang, guard])
-
-  React.useEffect(() => {
-    setState(stored => forgetOtherAnswer(stored, resourceURL))
-    load()
-  }, [load, resourceURL])
-  useRefetchOnChange(load)
-  const lookup = readNoticeLookup(state, resourceURL)
-  useRefetchOnReturn(load, lookup.notices.length > 0)
-
-  return lookup
+  return readNoticeLookup(state, resourceURL)
 }
 
 export const useResourceNotices = resourceURL => useResourceNoticeLookup(resourceURL).notices

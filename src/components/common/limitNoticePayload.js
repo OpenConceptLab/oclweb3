@@ -192,15 +192,16 @@ export const createRequestGuard = () => {
   }
 }
 
-// Calls onReturn once each time the person comes back to this page from another tab or window: it's shown again, or
-// regains focus. A return shows the page and focuses it, so it's told once. Returns the function that stops watching.
+// Calls onReturn once each time the person comes back to this page from another tab or window: once it's shown and
+// focused again, after it was hidden or lost focus. Returns the function that stops watching.
 export const watchReturns = (win, doc, onReturn) => {
   let away = doc.visibilityState === 'hidden' || !doc.hasFocus()
   const leave = () => {
     away = true
   }
+  // back once the page is both shown and focused: shown in a window that isn't focused yet, it waits for the focus
   const back = () => {
-    if(!away || doc.visibilityState === 'hidden')
+    if(!away || doc.visibilityState === 'hidden' || !doc.hasFocus())
       return
     away = false
     onReturn()
@@ -213,5 +214,54 @@ export const watchReturns = (win, doc, onReturn) => {
     win.removeEventListener('blur', leave)
     win.removeEventListener('focus', back)
     doc.removeEventListener('visibilitychange', onVisibilityChange)
+  }
+}
+
+// A resource's notices lookup without React (useResourceNoticeLookup keeps its answer in state, through onChange): it
+// asks the notices route about the resource and language given to ask(), again on refresh() (they may have changed),
+// and again each time the person comes back to the page while it shows notices (watchReturns): a notice's link can
+// send them to another tab, where they may change what it says. Only the latest request answers (createRequestGuard).
+export const createResourceNoticeLookup = ({fetchNotices, isLoggedIn, onChange, win, doc}) => {
+  const guard = createRequestGuard()
+  let asked = {resourceURL: null, lang: null}
+  let stored = {resourceURL: null, notices: []}
+  let stopWatching = null
+
+  const unwatch = () => {
+    if(stopWatching)
+      stopWatching()
+    stopWatching = null
+  }
+
+  const store = next => {
+    stored = next
+    onChange(stored)
+    if(!readNoticeLookup(stored, asked.resourceURL).notices.length)
+      unwatch()
+    else if(!stopWatching)
+      stopWatching = watchReturns(win, doc, refresh)
+  }
+
+  const refresh = () => {
+    const isLatest = guard.start()
+    const { resourceURL, lang } = asked
+    if(!resourceURL || !isLoggedIn()) {
+      store({resourceURL, notices: []})
+      return
+    }
+    fetchNotices({resource: resourceURL, lang}).then(({ notices }) => isLatest() && store({resourceURL, notices}))
+  }
+
+  return {
+    ask: (resourceURL, lang) => {
+      asked = {resourceURL, lang}
+      store(forgetOtherAnswer(stored, resourceURL))
+      refresh()
+    },
+    refresh,
+    stop: () => {
+      guard.invalidate()
+      unwatch()
+    },
   }
 }

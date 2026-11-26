@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 const {
   normalizeNotice, getNotice, getNoticeDetail, getNotices, orderActions, getNoticeTone, getNoticeIcon, getLocks,
   getLockTooltip, isEntryPointLocked, safeURL, writesShownVersion, createRequestGuard, readNoticeLookup, forgetOtherAnswer,
-  watchReturns,
+  watchReturns, createResourceNoticeLookup,
   ENTRY_POINT_ACTIONS, WRITE_ACTIONS,
 } = await import('../limitNoticePayload.js')
 
@@ -245,6 +245,7 @@ const makePage = ({hidden = false, focused = true} = {}) => {
       focused = true
       win.dispatchEvent(new Event('focus'))
     },
+    showUnfocused: () => setVisibility('visible'),
     leaveWindow: () => {
       focused = false
       win.dispatchEvent(new Event('blur'))
@@ -287,20 +288,85 @@ test('watching starts while the person is away: their return is told', () => {
   })
 })
 
-test('an unchanged resource unlocks when its lookup answers with no notices after the person returns', () => {
+test('a page shown in a window that isn\'t focused waits for the focus: that is the return', () => {
+  const page = makePage()
+  let returns = 0
+  watchReturns(page.win, page.doc, () => returns++)
+  page.leaveTab()
+  // the tab is shown again while the person is still working in another window
+  page.showUnfocused()
+  assert.equal(returns, 0)
+  page.returnToWindow()
+  assert.equal(returns, 1)
+})
+
+// A lookup whose requests the test answers, one at a time, with the notices it's given
+const makeLookup = page => {
+  const asked = []
+  const answers = []
+  let stored = {resourceURL: null, notices: []}
+  const lookup = createResourceNoticeLookup({
+    fetchNotices: query => {
+      asked.push(query)
+      return new Promise(resolve => answers.push(notices => resolve({status: 200, notices})))
+    },
+    isLoggedIn: () => true,
+    onChange: next => {
+      stored = next
+    },
+    win: page.win,
+    doc: page.doc,
+  })
+  return {
+    lookup,
+    asked,
+    answer: async notices => {
+      answers.shift()(notices)
+      await new Promise(resolve => setTimeout(resolve, 0))
+    },
+    read: resourceURL => readNoticeLookup(stored, resourceURL),
+  }
+}
+
+const LOCKING = [{title: 'Example notice', locks: ['edit'], tooltip: 'Example reason'}]
+
+test('an unchanged resource unlocks when its lookup answers with no notices after the person returns', async () => {
   const source = '/orgs/O/sources/S/'
   const page = makePage()
-  // the lookup answered with a notice that locks editing
-  let stored = {resourceURL: source, notices: [{title: 'Example notice', locks: ['edit'], tooltip: 'Example reason'}]}
-  assert.equal(isEntryPointLocked(getLocks(readNoticeLookup(stored, source).notices), 'editConcept'), true)
-  // while it's shown, a return asks again (useResourceNoticeLookup), and this time the answer is empty
-  watchReturns(page.win, page.doc, () => {
-    stored = {resourceURL: source, notices: []}
-  })
+  const { lookup, asked, answer, read } = makeLookup(page)
+  lookup.ask(source, 'en')
+  await answer(LOCKING)
+  assert.equal(isEntryPointLocked(getLocks(read(source).notices), 'editConcept'), true)
   // the person follows the notice's link to another tab, restores write access there, and comes back
   page.leaveTab()
-  assert.equal(isEntryPointLocked(getLocks(readNoticeLookup(stored, source).notices), 'editConcept'), true)
+  assert.equal(asked.length, 1)
   page.returnToTab()
-  assert.deepEqual(readNoticeLookup(stored, source), {notices: [], pending: false})
-  assert.equal(isEntryPointLocked(getLocks(readNoticeLookup(stored, source).notices), 'editConcept'), false)
+  assert.deepEqual(asked, [{resource: source, lang: 'en'}, {resource: source, lang: 'en'}])
+  // locked while the answer is awaited, never pending
+  assert.deepEqual(read(source), {notices: LOCKING, pending: false})
+  await answer([])
+  assert.deepEqual(read(source), {notices: [], pending: false})
+  assert.equal(isEntryPointLocked(getLocks(read(source).notices), 'editConcept'), false)
+  // with nothing shown, a return asks nothing more
+  page.leaveTab()
+  page.returnToTab()
+  assert.equal(asked.length, 2)
+})
+
+test('a lookup that shows no notices, or has stopped, asks nothing when the person returns', async () => {
+  const source = '/orgs/O/sources/S/'
+  const page = makePage()
+  const { lookup, asked, answer } = makeLookup(page)
+  lookup.ask(source, 'en')
+  await answer([])
+  page.leaveTab()
+  page.returnToTab()
+  assert.equal(asked.length, 1)
+  // another resource's notices are shown; the page closes (stop) before the person comes back
+  lookup.ask('/orgs/O/collections/C/', 'en')
+  await answer(LOCKING)
+  lookup.stop()
+  page.leaveTab()
+  page.returnToTab()
+  assert.equal(asked.length, 2)
 })
