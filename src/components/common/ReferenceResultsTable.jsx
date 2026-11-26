@@ -13,6 +13,8 @@ const ReferenceResultsTable = ({ borderColor, sx = {}, children }) => (
       sx={{
         tableLayout: 'fixed',
         '& th, & td': { overflowWrap: 'anywhere' },
+        // a header is one short word, which shouldn't break mid-word in the narrow label column
+        '& th': { overflowWrap: 'normal' },
         '& tbody tr:last-of-type td': { borderBottom: 0 },
       }}
     >

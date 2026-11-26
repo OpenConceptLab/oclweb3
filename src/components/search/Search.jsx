@@ -696,11 +696,11 @@ const Search = props => {
     const addedItems = outcomes.reduce((items, outcome) => [...items, ...outcome.addedItems], [])
     const addFailures = outcomes.reduce((count, outcome) => count + outcome.group.items.length - outcome.addedItems.length, 0)
     const unresolvedExpressions = outcomes.reduce((expressions, outcome) => [...expressions, ...outcome.unresolvedExpressions], [])
+    // each group's own items, so an include and an exclude proposing one expression aren't confused
+    const keptItems = outcomes.flatMap(outcome => outcome.group.items.filter(
+      item => outcome.unresolvedExpressions.includes(item.proposedExpression)))
     // the expressions are the API's: React escapes them, so i18next mustn't as well
-    const kept = {
-      references: getKeptReferencesLabel(groups.flatMap(group => group.items), unresolvedExpressions, t),
-      ...UNESCAPED,
-    }
+    const kept = { references: getKeptReferencesLabel(keptItems, unresolvedExpressions, t), ...UNESCAPED }
 
     if(unresolvedExpressions.length) {
       // Replacements saved but resolved to nothing are removed, so their originals stay as they were
