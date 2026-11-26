@@ -13,7 +13,6 @@ import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import Table from '@mui/material/Table'
 import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableRow from '@mui/material/TableRow'
@@ -33,6 +32,7 @@ import GroupHeader from '../common/GroupHeader'
 import GroupItems from '../common/GroupItems'
 import AutocompleteLoading from '../common/AutocompleteLoading'
 import UnresolvedReferencesTable from '../common/UnresolvedReferencesTable'
+import ReferenceResultsTable, { LABEL_COLUMN_WIDTH } from '../common/ReferenceResultsTable'
 import { groupReferenceResults, formatReferenceSummary } from '../common/referenceResults'
 import { showRefusalNotice } from '../common/LimitNotice'
 
@@ -508,10 +508,10 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
                 )}
 
                 {failedCount > 0 && (
-                  <Table size="small" sx={{ border: '1px solid', borderColor: 'error.main', borderRadius: 1, overflow: 'hidden' }}>
+                  <ReferenceResultsTable borderColor="error.main">
                     <TableHead>
                       <TableRow sx={{ bgcolor: 'error.95' }}>
-                        <TableCell sx={{ fontWeight: 600, width: '40%', color: 'error.main' }}>
+                        <TableCell sx={{ fontWeight: 600, width: LABEL_COLUMN_WIDTH, color: 'error.main' }}>
                           {t('addToCollection.reference_header')}
                         </TableCell>
                         <TableCell sx={{ fontWeight: 600, color: 'error.main' }}>
@@ -521,7 +521,7 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
                     </TableHead>
                     <TableBody>
                       {groups.failed.map((item, idx) => (
-                        <TableRow key={item.expression || idx} sx={{ bgcolor: 'error.95' }}>
+                        <TableRow key={item.expression || idx} sx={{ verticalAlign: 'top', bgcolor: 'error.95' }}>
                           <TableCell sx={{ fontSize: '0.8rem', color: 'error.main' }}>
                             {extractLabel(item.expression)}
                           </TableCell>
@@ -531,7 +531,7 @@ const AddReferencesDialog = ({ open, onClose, collectionUrl, onSuccess }) => {
                         </TableRow>
                       ))}
                     </TableBody>
-                  </Table>
+                  </ReferenceResultsTable>
                 )}
               </React.Fragment>
             )}
