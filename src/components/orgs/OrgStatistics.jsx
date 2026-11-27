@@ -13,6 +13,10 @@ import { canSeeMapProjects } from '../../common/mapProjects'
 import useMapProjectCount from '../../hooks/useMapProjectCount'
 import RepoIcon from '../repos/RepoIcon';
 import MemberList from './MemberList'
+import VerifiedIcon from '@mui/icons-material/GppGoodOutlined';
+import useVerifiedRepoCount from '../../hooks/useVerifiedRepoCount'
+import { getVerifiedReposURL } from '../search/verifiedResults'
+import { VERIFIED_COLORS } from '../repos/verifiedColors'
 
 const OrgStatistics = ({ org, members }) => {
   const { t } = useTranslation()
@@ -22,6 +26,7 @@ const OrgStatistics = ({ org, members }) => {
   const onRepoStatsClick = () => history.push(org.url + 'repos')
   const showMapProjects = hasMapper() && canSeeMapProjects(getCurrentUser(), 'orgs', org.id)
   const mapProjectCount = useMapProjectCount(org.id, showMapProjects, 'orgs')
+  const verifiedRepoCount = useVerifiedRepoCount(org.url)
   return (
     <div className='col-xs-12 padding-0' style={{margin: `0 0 24px 0`}}>
       <Typography component='h3' sx={{marginBottom: '16px', fontWeight: 'bold'}}>
@@ -38,6 +43,19 @@ const OrgStatistics = ({ org, members }) => {
               primary={pluralize(repos, t('common.public').toLowerCase() + ' ' + t('repo.repo').toLowerCase(), t('common.public').toLowerCase() + ' ' + t('repo.repos').toLowerCase())}
             />
           </ListItem>
+          {
+            // hidden when none is verified (ocl_issues#3028)
+            verifiedRepoCount > 0 &&
+              <ListItem disablePadding sx={{marginTop: '8px', cursor: 'pointer'}} onClick={() => history.push(getVerifiedReposURL(org.url))}>
+                <ListItemIcon sx={{minWidth: 0, marginRight: '8px'}}>
+                  <VerifiedIcon sx={{color: VERIFIED_COLORS.main, width: '20px', height: '20px'}} />
+                </ListItemIcon>
+                <ListItemText
+                  sx={{color: VERIFIED_COLORS.dark, '.MuiListItemText-primary': {fontSize: '12px', fontWeight: 500}}}
+                  primary={t('repo.verification.verified_repos', {count: verifiedRepoCount})}
+                />
+              </ListItem>
+          }
           {
             showMapProjects && mapProjectCount !== null &&
               <ListItem disablePadding sx={{marginTop: '8px', cursor: 'pointer'}} onClick={() => history.push(org.url + 'map-projects')}>

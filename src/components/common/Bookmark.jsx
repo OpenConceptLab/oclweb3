@@ -8,9 +8,13 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import EntityIcon from './EntityIcon'
 import PinIcon from './PinIcon'
+import VerifiedVersionLabel from '../search/VerifiedVersionLabel'
+import { getVerifiedVersion } from '../search/verifiedResults'
+import { VERIFIED_COLORS } from '../repos/verifiedColors'
 
 
 const Title = ({ bookmark }) => {
+  const verified = getVerifiedVersion(bookmark.resource)
   return (
     <div className='padding-0'>
       <div className='padding-0'>
@@ -25,6 +29,13 @@ const Title = ({ bookmark }) => {
           {bookmark.resource.name || bookmark.resource.id}
         </Typography>
       </div>
+      {
+        // a pinned repository whose latest released version is verified names that version (ocl_issues#3028)
+        verified &&
+          <div className='padding-0' style={{fontSize: '12px', color: 'var(--mui-palette-secondary-main, #5e5c71)'}}>
+            <VerifiedVersionLabel version={verified.version} />
+          </div>
+      }
     </div>
   )
 }
@@ -46,7 +57,7 @@ const Bookmark = ({ bookmark, onDelete }) => {
   }
 
   return (
-    <Card className='col-xs-4 padding-0' sx={{width: 'calc(33.333% - 8px) !important', backgroundColor: 'surface.main', margin: '4px', padding: 0, height: '97px', boxShadow: 'none', borderBottom: '1px solid', borderColor: 'surface.nv80', borderRadius: '10px', display: 'flex', alignItems: 'center', cursor: 'pointer'}} onClick={onClick}>
+    <Card className='col-xs-4 padding-0' sx={{width: 'calc(33.333% - 8px) !important', backgroundColor: getVerifiedVersion(bookmark.resource) ? VERIFIED_COLORS.background : 'surface.main', margin: '4px', padding: 0, height: '97px', boxShadow: 'none', borderBottom: '1px solid', borderColor: 'surface.nv80', borderRadius: '10px', display: 'flex', alignItems: 'center', cursor: 'pointer'}} onClick={onClick}>
       <CardHeader
         sx={{padding: '4px 8px', width: '100%', cursor: 'pointer', '.MuiCardHeader-avatar': {marginRight: '8px'}, '.MuiCardHeader-content': {overflow: 'hidden'}, '.MuiCardHeader-action': {alignSelf: 'center', margin: 0}}}
         avatar={getIcon(bookmark)}

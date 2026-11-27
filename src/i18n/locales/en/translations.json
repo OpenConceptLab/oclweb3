@@ -1052,7 +1052,9 @@
           "title": "Checked independently",
           "line": "Rerun from the saved release, then reviewed and approved"
         }
-      }
+      },
+      "verified_repos_one": "{{count}} verified repository",
+      "verified_repos_other": "{{count}} verified repositories"
     },
     "seeded_from": "Seeded From",
     "seeded_from_import": "Import"
@@ -1209,7 +1211,9 @@
     "select_all_orgs": "Select all organizations",
     "select_all_users": "Select all users",
     "release_search_tooltip": "Global search only shows results from each source's latest released version. <0>Learn more</0>",
-    "release_search_tooltip_label": "How global search works"
+    "release_search_tooltip_label": "How global search works",
+    "verification": "Verification",
+    "verified_version": "Verified · {{version}}"
   },
   "url_registry": {
     "url_registry": "Canonical URL registry",

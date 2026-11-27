@@ -1029,7 +1029,9 @@
           "title": "Verificado de forma independente",
           "line": "Reexecutado a partir da versão salva, depois revisado e aprovado"
         }
-      }
+      },
+      "verified_repos_one": "{{count}} repositório verificado",
+      "verified_repos_other": "{{count}} repositórios verificados"
     },
     "seeded_from": "Criada a partir de",
     "seeded_from_import": "Importação"
@@ -1185,7 +1187,9 @@
     "select_all_orgs": "Selecionar todas as organizações",
     "select_all_users": "Selecionar todos os usuários",
     "release_search_tooltip": "A busca global só mostra resultados da última versão publicada de cada Source. <0>Saiba mais</0>",
-    "release_search_tooltip_label": "Como funciona a busca global"
+    "release_search_tooltip_label": "Como funciona a busca global",
+    "verification": "Verificação",
+    "verified_version": "Verificado · {{version}}"
   },
   "url_registry": {
     "url_registry": "Registro de URL canônica",

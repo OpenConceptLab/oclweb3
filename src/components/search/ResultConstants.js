@@ -12,6 +12,8 @@ import OwnerIcon from '../common/OwnerIcon';
 import RepoVersionButton from '../repos/RepoVersionButton';
 import RepoChip from '../repos/RepoChip';
 import RepoContentSummary from '../repos/RepoContentSummary';
+import VerifiedVersionLabel from './VerifiedVersionLabel';
+import { isVerifiedResult } from './verifiedResults';
 import FromAndTargetSource from '../mappings/FromAndTargetSource'
 import ConceptCell from '../mappings/ConceptCell'
 import ReferenceChip from '../common/ReferenceChip';
@@ -61,7 +63,8 @@ export const ALL_COLUMNS = {
     {id: 'concept_class', labelKey: 'concept.concept_class', value: 'concept_class', sortOn: 'concept_class', className: 'searchable', sx: {whiteSpace: 'pre'}, property: true},
     {id: 'datatype', labelKey: 'concept.datatype', value: 'datatype', sortOn: 'datatype', className: 'searchable', property: true},
     {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', nested: false, renderer: item => (<span style={{display: 'flex', whiteSpace: 'nowrap'}}><OwnerIcon noTooltip ownerType={item.owner_type} fontSize='small' sx={{marginRight: '4px'}}/>{item.owner}</span>)},
-    {id: 'parent', labelKey: 'repo.repo', value: 'source', sortOn: 'source', nested: false, renderer: item => <RepoVersionButton repoType='Source' repo={item.source} version={sourceVersionOf(item)} vertical />},
+    // a concept in a verified version carries a small Verified mark inside its version (ocl_issues#3028)
+    {id: 'parent', labelKey: 'repo.repo', value: 'source', sortOn: 'source', nested: false, renderer: item => <RepoVersionButton repoType='Source' repo={item.source} version={isVerifiedResult(item) && sourceVersionOf(item) ? <VerifiedVersionLabel version={sourceVersionOf(item)} /> : sourceVersionOf(item)} vertical />},
   ],
   mappings: [
     {id: 'fromAndTargetSource', labelKey: 'mapping.fromAndTargetSource', sortable: false, className: 'searchable', sx: {width: '28%'}, renderer: item => <FromAndTargetSource mapping={item} />},
@@ -91,7 +94,10 @@ export const ALL_COLUMNS = {
     {id: 'name', labelKey: 'common.name', value: 'name', sortOn: 'name', className: 'searchable'},
     {id: 'type', labelKey: 'repo.repo_type', value: 'repo_type', sortable: false},
     {id: 'owner', labelKey: 'common.owner', value: 'owner', sortOn: 'owner', renderer: item => (<span style={{display: 'flex', alignItems: 'center'}}><OwnerIcon noTooltip ownerType={item.owner_type} fontSize='small' sx={{marginRight: '4px'}}/>{item.owner}</span>)},
-    {id: 'latest_released_version', labelKey: 'repo.latest_version', value: 'latest_released_version', sortable: false},
+    // a verified one carries the Verified mark beside the version it applies to, as concept results do (ocl_issues#3028)
+    {id: 'latest_released_version', labelKey: 'repo.latest_version', value: 'latest_released_version', sortable: false, renderer: item => (
+      isVerifiedResult(item) && item.latest_released_version ? <VerifiedVersionLabel version={item.latest_released_version} /> : item.latest_released_version
+    )},
     {id: 'summary', labelKey: 'common.content_summary', value: 'summary', sortable: false, renderer: (item, _, rows) => <RepoContentSummary summary={item.summary} summaries={map(rows, 'summary')} baseURL={item.url} />},
   ],
   orgs: [
@@ -138,6 +144,8 @@ export const FACET_ORDER = {
   ],
   // Concept, mapping and repository searches have the panel's Retired control in place of a Retired
   // filter (retiredControl.js), the first of the Additional Metadata filters
-  "repos": ["repoType", "sourceType", "collectionType", "owner", "ownerType", "customValidationSchema", "locale"]
+  // Verification comes first: one choice, Verified (ocl_issues#3028)
+  "concepts": ["verified"],
+  "repos": ["verified", "repoType", "sourceType", "collectionType", "owner", "ownerType", "customValidationSchema", "locale"]
 }
 
