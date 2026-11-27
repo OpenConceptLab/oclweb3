@@ -22,6 +22,8 @@ import APIService from '../../services/APIService';
 import { SECONDARY_COLORS, ERROR_COLORS } from '../../common/colors';
 import { resolveColumns, isSameSortField } from './columns';
 import { CHILDREN_PAGE_SIZE, initialChildrenState, childrenReducer, needsFetchOnExpand, nextChildrenPage } from './childrenPaging';
+import { isVerifiedResult } from './verifiedResults';
+import { VERIFIED_COLORS } from '../repos/verifiedColors';
 
 // What screen readers announce for the select-all checkbox, per result type
 const SELECT_ALL_LABEL_KEYS = {
@@ -194,7 +196,8 @@ const ResultRow = ({row, index, columns, getValue, handleClick, handleRowClick, 
             className={isItemSelectedToShow ? 'show-item' : ''}
             sx={[{
               cursor: 'pointer',
-              backgroundColor: '#FFF',
+              // a verified result's row is tinted green (ocl_issues#3028)
+              backgroundColor: isVerifiedResult(row) ? VERIFIED_COLORS.row : '#FFF',
               '&.Mui-selected': {
                 backgroundColor: bgColor
               }

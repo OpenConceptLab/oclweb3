@@ -18,15 +18,16 @@ const SIZES = {
 // Sits next to a verified version's name and opens the Verification section of that version's About tab.
 // Its shield icon is its own: VerifiedOutlined means "released".
 // `onNavigate` runs when the chip is followed, for a parent (the version picker) that has to close first.
-const VerifiedChip = ({ version, size = 'small', sx, onNavigate }) => {
+// Where the page isn't the repository's (search results), the caller passes the version's About link in `to`
+// and a `label` that names the version; the caller has decided the version is verified.
+const VerifiedChip = ({ version, size = 'small', sx, onNavigate, to, label }) => {
   const { t } = useTranslation();
   const location = useLocation();
 
-  if(!isVerified(version)) return null;
+  if(!to && !isVerified(version)) return null;
 
   const style = SIZES[size] || SIZES.small;
-  const versionId = version.version || version.id;
-  const href = buildRepoPath(parseRepoPath(location.pathname), {version: versionId, expansion: '', tab: 'about', resource: ''}) + '#verification';
+  const href = to || buildRepoPath(parseRepoPath(location.pathname), {version: version.version || version.id, expansion: '', tab: 'about', resource: ''}) + '#verification';
 
   return (
     <Tooltip title={t('repo.verification.chip_tooltip')}>
@@ -34,7 +35,7 @@ const VerifiedChip = ({ version, size = 'small', sx, onNavigate }) => {
         variant="outlined"
         size={style.muiSize || 'medium'}
         icon={<VerifiedIcon sx={{ fontSize: `${style.iconSize} !important`, color: `${VERIFIED_COLORS.dark} !important` }} />}
-        label={t('repo.verification.verified')}
+        label={label || t('repo.verification.verified')}
         component={RouterLink}
         to={href}
         clickable

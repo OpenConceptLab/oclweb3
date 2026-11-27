@@ -6,4 +6,6 @@ export const VERIFIED_COLORS = {
   label: '#2f5e33',
   background: '#edf7ee',
   border: '#b9dcbb',
+  // a verified result's row in search (ocl_issues#3028)
+  row: '#f7fbf7',
 };

@@ -681,7 +681,9 @@
           "title": "Comprobado de forma independiente",
           "line": "Reejecutado desde la versión guardada, luego revisado y aprobado"
         }
-      }
+      },
+      "verified_repos_one": "{{count}} repositorio verificado",
+      "verified_repos_other": "{{count}} repositorios verificados"
     },
     "seeded_from": "Creada a partir de",
     "seeded_from_import": "Importación",
@@ -806,7 +808,9 @@
     "select_all_orgs": "Seleccionar todas las organizaciones",
     "select_all_users": "Seleccionar todos los usuarios",
     "release_search_tooltip": "La búsqueda global solo muestra resultados de la última versión publicada de cada fuente. <0>Más información</0>",
-    "release_search_tooltip_label": "Cómo funciona la búsqueda global"
+    "release_search_tooltip_label": "Cómo funciona la búsqueda global",
+    "verification": "Verificación",
+    "verified_version": "Verificado · {{version}}"
   },
   "cloneToSource": {
     "title": "Clonar concepto(s) a una fuente",

@@ -23,6 +23,9 @@ import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress';
 import { URIToParentParams, currentUserHasAccess, toCamelCase } from '../../common/utils'
 import { FACET_ORDER, EXCLUDE_FILTER_KEY } from './ResultConstants';
+import { VERIFIED_FACET, getVerifiedFacetValues } from './verifiedResults';
+import VerifiedIcon from '@mui/icons-material/GppGoodOutlined';
+import { VERIFIED_COLORS } from '../repos/verifiedColors';
 import { LockMark, useNoticeLocks } from '../common/NoticeLocks';
 
 // retiredControl: {checked, defaultChecked, count} for the Retired group's "Include retired" choice
@@ -59,6 +62,11 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   }
 
   let uiFilters = omit(omitBy(filters, isEmpty), blacklisted)
+  // Verification offers only Verified, and goes away when no result is verified
+  if(has(uiFilters, VERIFIED_FACET)) {
+    const verifiedValues = getVerifiedFacetValues(uiFilters[VERIFIED_FACET])
+    uiFilters = verifiedValues.length ? {...uiFilters, [VERIFIED_FACET]: verifiedValues} : omit(uiFilters, VERIFIED_FACET)
+  }
   if(isSourceChild)
     uiFilters = omit(uiFilters, ['expansion'])
   if(isObject(kwargs) && !kwargs.collection && isSourceChild && !isEmpty(uiFilters) && !isEmpty(uiFilters.collection)){
@@ -103,7 +111,9 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   }
   const formattedName = (field, name) => {
     let label;
-    if(includes(['locale', 'version', 'source_version', 'nameTypes', 'expansion'], field))
+    if(field === VERIFIED_FACET)
+      label = t('repo.verification.verified')
+    else if(includes(['locale', 'version', 'source_version', 'nameTypes', 'expansion'], field))
       label = name
     else if(includes(['owner', 'source', 'collection', 'collection_membership'], field))
       label = name.replaceAll('_', '-').toUpperCase()
@@ -126,6 +136,8 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
   }
 
   const formattedListSubheader = field => {
+    if(field === VERIFIED_FACET)
+      return t('search.verification')
     if(isConcept) {
       let prop = find(propertyDefinition, def => [field, snakeCase(field), field.replace('properties__', '')].includes(def.code) && def.display)
       if(prop?.code)
@@ -335,6 +347,10 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                     id={labelId}
                     primary={
                       <span style={{display: 'flex', alignItems: 'center'}}>
+                        {
+                          field === VERIFIED_FACET &&
+                            <VerifiedIcon sx={{fontSize: '1rem', color: VERIFIED_COLORS.main, mr: '4px'}} />
+                        }
                         {formattedName(field, value[0])}
                         {
                           get(filterDefinitions, value[0])?.tooltip &&
@@ -515,8 +531,10 @@ const SearchFilters = ({filters, resource, onChange, kwargs, bgColor, appliedFil
                     {t('repo.additional_metadata_filters_subheader')}
                   </ListSubheader>
               }
+              {/* Verification sits above the others, the Retired group included (ocl_issues#3028) */}
+              {has(uiFilters, VERIFIED_FACET) && getFilterList(uiFilters[VERIFIED_FACET], VERIFIED_FACET)}
               {retiredControl && getRetiredControl()}
-              {map(uiFilters, getFilterList)}
+              {map(omit(uiFilters, VERIFIED_FACET), getFilterList)}
             </List>
         }
       </div>

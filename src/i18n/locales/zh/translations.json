@@ -653,7 +653,9 @@
           "title": "独立检查",
           "line": "从保存的版本重新运行，然后经过审核和批准"
         }
-      }
+      },
+      "verified_repos_one": "{{count}} 个已验证的存储库",
+      "verified_repos_other": "{{count}} 个已验证的存储库"
     },
     "seeded_from": "创建来源",
     "seeded_from_import": "导入"
@@ -917,7 +919,9 @@
     "select_all_orgs": "选择所有组织机构",
     "select_all_users": "选择所有用户",
     "release_search_tooltip": "全局搜索仅显示每个来源最新发布版本中的结果。<0>了解更多</0>",
-    "release_search_tooltip_label": "全局搜索的工作原理"
+    "release_search_tooltip_label": "全局搜索的工作原理",
+    "verification": "验证",
+    "verified_version": "已验证 · {{version}}"
   },
   "url_registry": {
     "url_registry": "规范型 URL 注册库",
